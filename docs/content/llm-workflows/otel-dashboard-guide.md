@@ -104,15 +104,32 @@ filters:
 
 ### Time Series Queries
 
-Use the `TS` source command with `TBUCKET()` for time series data:
+Use the `TS` source command with `TBUCKET()` for time series data. Use reasonable intervals (5 minutes recommended) so dashboards remain readable across different time ranges:
 
 ```esql
 TS metrics-*
 | WHERE data_stream.dataset == "apachereceiver.otel"
 | WHERE apache.requests IS NOT NULL
-| STATS rate = SUM(RATE(apache.requests)) BY time_bucket = TBUCKET(1 minute)
+| STATS rate = SUM(RATE(apache.requests)) BY time_bucket = TBUCKET(5 minutes)
 | SORT time_bucket ASC
 ```
+
+### Time Bucket Sizing Best Practices
+
+Choose the right bucketing approach based on your query type:
+
+| Query Type | Recommended Approach | Example |
+| ---------- | -------------------- | ------- |
+| TS + RATE() | `TBUCKET(5 minutes)` | Counter metrics requiring rate calculations |
+| FROM + COUNT/SUM | `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` | Log counts, non-counter aggregations |
+
+**Why this matters:**
+
+- `TBUCKET(1 minute)` creates 10,080 data points for 1 week - too granular
+- `TBUCKET(5 minutes)` creates 2,016 data points for 1 week - reasonable
+- `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` adapts automatically to time range
+
+**Note:** `TBUCKET` only supports fixed intervals. The 4-parameter `BUCKET()` syntax with dynamic bucket count only works with `FROM` queries, not `TS` queries.
 
 ### Counter Metrics
 

@@ -268,9 +268,37 @@ Time bucketing function (for use with TS source command):
 
 | Function | Description | Example |
 | -------- | ----------- | ------- |
-| `TBUCKET(interval)` | Groups @timestamp into time buckets for time-series aggregations | `BY TBUCKET(1 hour)`, `BY TBUCKET(5minute)` |
+| `TBUCKET(interval)` | Groups @timestamp into time buckets for time-series aggregations | `BY TBUCKET(5 minutes)`, `BY TBUCKET(1 hour)` |
 
 **Note:** `TBUCKET` is specialized for `@timestamp` in time-series queries (TS + STATS). For general-purpose bucketing of any date/numeric field, use `BUCKET()` instead (see Date/Time Functions below).
+
+### Dynamic Time Bucketing (Recommended for FROM Queries)
+
+For time series charts that scale with the user's selected time range, use the 4-parameter `BUCKET()` syntax with `FROM` queries:
+
+```esql
+FROM logs-*
+| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+| SORT time_bucket ASC
+```
+
+| Parameter | Description |
+| --------- | ----------- |
+| `@timestamp` | The timestamp field to bucket |
+| `20` | Target number of buckets (20-50 recommended) |
+| `?_tstart` | Kibana time range start parameter (auto-populated) |
+| `?_tend` | Kibana time range end parameter (auto-populated) |
+
+This ensures visualizations remain readable whether the user views 5 minutes or 1 year of data. The `?_tstart` and `?_tend` parameters are automatically populated by Kibana based on the dashboard time picker.
+
+**When to use each approach:**
+
+| Approach | When to Use |
+| -------- | ----------- |
+| `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` | FROM queries where you want adaptive bucket sizes |
+| `TBUCKET(5 minutes)` | TS queries requiring RATE() or other time-series functions |
+
+**Note:** `TBUCKET` only accepts fixed intervals. When using TS queries, choose an interval that works across typical time ranges (5 minutes or 15 minutes are good defaults).
 
 ---
 
@@ -392,19 +420,19 @@ FROM logs-*
 ### Time Series Charts
 
 ```esql
-# Events over time
+# Events over time (adaptive bucketing - recommended)
 FROM logs-*
-| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 1 hour)
+| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
 | SORT time_bucket ASC
 
-# Events by category over time
+# Events by category over time (adaptive bucketing)
 FROM logs-*
-| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 1 hour), event.category
+| STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), event.category
 | SORT time_bucket ASC
 
 # Bytes transferred over time with breakdown
 FROM logs-*
-| STATS total_bytes = SUM(bytes) BY time_bucket = BUCKET(@timestamp, 15 minutes), host.name
+| STATS total_bytes = SUM(bytes) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), host.name
 | SORT time_bucket ASC
 ```
 
@@ -486,6 +514,8 @@ FROM logs-*
 10. **Assuming default order**: Always explicit SORT for predictable results.
 
 11. **Using window functions**: ES|QL has no `ROW_NUMBER() OVER (PARTITION BY ...)`. Use `VALUES()` + `MV_SORT()` + `MV_FIRST()`/`MV_LAST()` for latest-per-group patterns.
+
+12. **Hardcoded time buckets**: Avoid `BUCKET(@timestamp, 1 minute)` - use dynamic sizing `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for FROM queries so visualizations scale with time range. For TS queries, use reasonable intervals like `TBUCKET(5 minutes)`.
 
 ---
 
