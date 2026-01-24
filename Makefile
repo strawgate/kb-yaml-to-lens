@@ -28,7 +28,7 @@ help:
 	@echo "Run target in single component:"
 	@echo "  make compiler <target>  - Run in packages/kb-dashboard-compiler/"
 	@echo "  make vscode <target>    - Run in vscode-extension/"
-	@echo "  make docs <target>      - Run in docs/"
+	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
 	@echo "  make gh <target>        - Run in .github/scripts/"
 	@echo ""
 	@echo "Common Examples:"
@@ -112,7 +112,7 @@ vscode:
 	@$(MAKE) -C vscode-extension $(filter-out $@,$(MAKECMDGOALS))
 
 docs:
-	@$(MAKE) -C docs $(filter-out $@,$(MAKECMDGOALS))
+	@$(MAKE) -C packages/kb-dashboard-docs $(filter-out $@,$(MAKECMDGOALS))
 
 gh:
 	@$(MAKE) -C .github/scripts $(filter-out $@,$(MAKECMDGOALS))

@@ -62,32 +62,10 @@ jobs:
           fetch-depth: 0
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: npm
-          cache-dependency-path: vscode-extension/package-lock.json
-      - name: Setup Xvfb
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb x11-utils
-          Xvfb :99 -screen 0 1024x768x24 > /tmp/xvfb.log 2>&1 &
-          XVFB_PID=$!
-
-          # Wait for Xvfb to be ready (up to 10 seconds)
-          for i in {1..10}; do
-            if xdpyinfo -display :99 >/dev/null 2>&1; then
-              echo "Xvfb is ready (display :99)"
-              break
-            fi
-            if [ $i -eq 10 ]; then
-              echo "Xvfb failed to start after 10 seconds"
-              cat /tmp/xvfb.log
-              exit 1
-            fi
-            sleep 1
-          done
+          setup-xvfb: 'true'
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node-env
       - name: Setup MCP Server
         env:
           CONTEXT7_API_KEY: ${{ secrets.context7-api-key }}

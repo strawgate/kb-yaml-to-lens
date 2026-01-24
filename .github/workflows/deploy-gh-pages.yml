@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - docs/**
+      - packages/kb-dashboard-docs/**
       - packages/kb-dashboard-compiler/src/**
       - .github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
@@ -28,7 +28,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
-        run: uv sync --group docs
+        run: make docs install
       - name: Build documentation
         run: make docs build-strict
       - name: Setup Pages
@@ -36,7 +36,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/site
+          path: packages/kb-dashboard-docs/site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

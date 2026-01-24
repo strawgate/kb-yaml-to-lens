@@ -5,6 +5,7 @@ requires-python = ">=3.12"
 [manifest]
 members = [
     "kb-dashboard-compiler",
+    "kb-dashboard-compiler-docs",
     "kb-dashboard-compiler-root",
 ]
 
@@ -952,16 +953,15 @@ dev = [
 ]
 
 [[package]]
-name = "kb-dashboard-compiler-root"
+name = "kb-dashboard-compiler-docs"
 version = "0.1.10"
-source = { virtual = "." }
+source = { virtual = "docs" }
 dependencies = [
-    { name = "click" },
     { name = "kb-dashboard-compiler" },
 ]
 
 [package.dev-dependencies]
-docs = [
+dev = [
     { name = "griffe-fieldz" },
     { name = "griffe-pydantic" },
     { name = "mkdocs" },
@@ -972,13 +972,10 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "click", specifier = ">=8.0" },
-    { name = "kb-dashboard-compiler", editable = "packages/kb-dashboard-compiler" },
-]
+requires-dist = [{ name = "kb-dashboard-compiler", editable = "packages/kb-dashboard-compiler" }]
 
 [package.metadata.requires-dev]
-docs = [
+dev = [
     { name = "griffe-fieldz", specifier = ">=0.4.0" },
     { name = "griffe-pydantic", specifier = ">=1.1.8" },
     { name = "mkdocs", specifier = ">=1.6.0" },
@@ -986,6 +983,21 @@ docs = [
     { name = "mkdocs-material", specifier = ">=9.5.32" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.0" },
     { name = "pymdown-extensions", specifier = ">=10.0" },
+]
+
+[[package]]
+name = "kb-dashboard-compiler-root"
+version = "0.1.10"
+source = { virtual = "." }
+dependencies = [
+    { name = "click" },
+    { name = "kb-dashboard-compiler" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "click", specifier = ">=8.0" },
+    { name = "kb-dashboard-compiler", editable = "packages/kb-dashboard-compiler" },
 ]
 
 [[package]]

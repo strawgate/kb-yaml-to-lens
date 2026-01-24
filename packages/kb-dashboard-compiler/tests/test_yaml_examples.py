@@ -8,7 +8,7 @@ import yaml
 
 # Automatically discover markdown files that contain YAML dashboard examples
 _project_root = Path(__file__).parent.parent.parent.parent
-_docs_dir = _project_root / 'docs'
+_docs_dir = _project_root / 'packages' / 'kb-dashboard-docs'
 
 # Find all markdown files in the repository (use absolute paths since tests run from compiler/)
 _all_markdown_files = sorted(str(p.absolute()) for p in [_project_root / 'README.md', *_docs_dir.rglob('*.md')] if p.exists())
