@@ -9,7 +9,7 @@
 # Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver
 dashboards:
   - id: mysql-otel-extended-esql
-    name: '[Metrics MySQL] Extended (ES|QL)'
+    name: '[Metrics MySQL] Extended'
     description: Extended MySQL metrics dashboard for optional metrics (connection, query, replication, table metrics)
     controls:
       - type: options
@@ -31,9 +31,9 @@ dashboards:
         links:
           layout: horizontal
           items:
-            - label: MySQL Overview (ES|QL)
+            - label: MySQL Overview
               dashboard: mysql-otel-overview-esql
-            - label: MySQL Extended (ES|QL)
+            - label: MySQL Extended
               dashboard: mysql-otel-extended-esql
 
       # Info Panel about Optional Metrics
@@ -213,7 +213,7 @@ dashboards:
               label: SQL Delay (seconds)
 
       # Table Metrics Section (y=60)
-      - title: Table Rows (Top 10 Tables)
+      - title: Table Rows by Table
         size: {w: 24, h: 9}
         position: {x: 0, y: 60}
         description: Row count per table (mysql.table.rows)
@@ -232,7 +232,7 @@ dashboards:
               label: Rows
           breakdown:
             field: table
-      - title: Table Size (Top 10 Tables)
+      - title: Table Size by Table
         size: {w: 24, h: 9}
         position: {x: 24, y: 60}
         description: Table size in bytes by type (mysql.table.size)

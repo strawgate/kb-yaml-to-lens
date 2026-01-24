@@ -6,7 +6,7 @@
 # Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver
 dashboards:
   - id: mysql-otel-overview-esql
-    name: '[Metrics MySQL] Overview (ES|QL)'
+    name: '[Metrics MySQL] Overview'
     description: Comprehensive MySQL metrics dashboard using OpenTelemetry MySQL receiver (ES|QL version with TS command)
     controls:
       - type: options
@@ -28,9 +28,9 @@ dashboards:
         links:
           layout: horizontal
           items:
-            - label: MySQL Overview (ES|QL)
+            - label: MySQL Overview
               dashboard: mysql-otel-overview-esql
-            - label: MySQL Extended (ES|QL)
+            - label: MySQL Extended
               dashboard: mysql-otel-extended-esql
 
       # Overview Metrics Row (y=2, h=6)
@@ -320,7 +320,7 @@ dashboards:
             field: operation
 
       # Table I/O Waits Section (y=71)
-      - title: Table I/O Wait Count (Top 10 Tables)
+      - title: Table I/O Wait Count by Table
         size: {w: 24, h: 9}
         position: {x: 0, y: 71}
         esql:
@@ -338,7 +338,7 @@ dashboards:
               label: Table I/O Waits/sec
           breakdown:
             field: table
-      - title: Index I/O Wait Count (Top 10 Indexes)
+      - title: Index I/O Wait Count by Index
         size: {w: 24, h: 9}
         position: {x: 24, y: 71}
         esql:
