@@ -143,18 +143,14 @@ lint-markdown:
 	$(call run_cmd, "Running markdownlint --fix", markdownlint --fix -c .markdownlint.jsonc ., "Markdown linting complete")
 
 lint-markdown-check:
-	$(call print_start, "Running markdownlint")
-	@markdownlint -c .markdownlint.jsonc . $(INDENT)
-	$(call print_end, "Markdown checks passed")
+	$(call run_cmd, "Running markdownlint", markdownlint -c .markdownlint.jsonc ., "Markdown checks passed")
 
 # YAML linting (global)
 lint-yaml:
 	$(call run_cmd, "Running yamlfix", uv run --group dev yamlfix $(YAMLFIX_EXCLUDE) ., "YAML linting complete")
 
 lint-yaml-check:
-	$(call print_start, "Running yamlfix --check")
-	@uv run --group dev yamlfix --check $(YAMLFIX_EXCLUDE) . $(INDENT)
-	$(call print_end, "YAML checks passed")
+	$(call run_cmd, "Running yamlfix --check", uv run --group dev yamlfix --check $(YAMLFIX_EXCLUDE) ., "YAML checks passed")
 
 # Version bumping
 BUMP_VERSION_SCRIPT := uv run scripts/bump-version.py

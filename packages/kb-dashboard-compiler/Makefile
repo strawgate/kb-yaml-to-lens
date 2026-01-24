@@ -90,10 +90,7 @@ test:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
 
 test-coverage:
-	$(call print_start, "Running pytest with coverage")
-	@uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json $(INDENT)
-	@echo ""
-	$(call print_end, "Coverage report generated:")
+	$(call run_cmd, "Running pytest with coverage", uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json, "Coverage report generated")
 	@echo "  • HTML report: htmlcov/index.html"
 	@echo "  • JSON report: coverage.json"
 	@echo ""
@@ -135,15 +132,9 @@ docker-test:
 	$(call run_cmd, "Testing Docker image", docker run --rm $(DOCKER_IMAGE) --help, "Docker image test passed")
 
 docker-publish:
-	$(call print_start, "Publishing Docker image to GHCR")
 	$(call require_var, CONFIRM_PUBLISH, "Set CONFIRM_PUBLISH=yes to confirm publishing to GHCR. Usage: make docker-publish CONFIRM_PUBLISH=yes")
 	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. See https://docs.docker.com/build/buildx/install/" && exit 1)
-	@docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		-t $(GHCR_REGISTRY) \
-		-f Dockerfile \
-		--push . $(INDENT)
-	$(call print_end, "Docker image published to GHCR")
+	$(call run_cmd, "Publishing Docker image to GHCR", docker buildx build --platform linux/amd64,linux/arm64 -t $(GHCR_REGISTRY) -f Dockerfile --push ., "Docker image published to GHCR")
 
 test-docker-smoke:
 	$(call run_cmd, "Running Docker smoke tests", bash scripts/test_docker_smoke.sh, "Docker smoke tests passed")
