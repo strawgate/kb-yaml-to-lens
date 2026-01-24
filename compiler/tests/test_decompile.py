@@ -150,3 +150,231 @@ class TestDecompileContext:
 
         with pytest.raises(DecompileError):
             context.warn('This should raise')
+
+
+class TestMetricDecompilation:
+    """Tests for Lens metric decompilation."""
+
+    def test_decompile_count_metric(self) -> None:
+        """Test decompiling a count metric."""
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensFieldMetricColumn,
+            KbnLensMetricColumnParams,
+        )
+        from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+        from dashboard_compiler.panels.charts.lens.metrics.decompile import decompile_lens_metric
+
+        column = KbnLensFieldMetricColumn(
+            label='Count of records',
+            customLabel=None,
+            dataType='number',
+            operationType='count',
+            scale='ratio',
+            sourceField='___records___',
+            params=KbnLensMetricColumnParams(),
+        )
+        context = DecompileContext()
+
+        result = decompile_lens_metric(column, 'col1', context=context)
+
+        assert isinstance(result, LensCountAggregatedMetric)
+        assert result.aggregation == 'count'
+        assert result.field is None
+        assert len(context.warnings) == 0
+
+    def test_decompile_sum_metric_with_label(self) -> None:
+        """Test decompiling a sum metric with custom label."""
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensFieldMetricColumn,
+            KbnLensMetricColumnParams,
+        )
+        from dashboard_compiler.panels.charts.lens.metrics.config import LensSumAggregatedMetric
+        from dashboard_compiler.panels.charts.lens.metrics.decompile import decompile_lens_metric
+
+        column = KbnLensFieldMetricColumn(
+            label='Total Bytes',
+            customLabel=True,
+            dataType='number',
+            operationType='sum',
+            scale='ratio',
+            sourceField='bytes',
+            params=KbnLensMetricColumnParams(),
+        )
+        context = DecompileContext()
+
+        result = decompile_lens_metric(column, 'col1', context=context)
+
+        assert isinstance(result, LensSumAggregatedMetric)
+        assert result.aggregation == 'sum'
+        assert result.field == 'bytes'
+        assert result.label == 'Total Bytes'
+        assert len(context.warnings) == 0
+
+    def test_decompile_formula_metric(self) -> None:
+        """Test decompiling a formula metric."""
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensFormulaColumn,
+            KbnLensFormulaColumnParams,
+        )
+        from dashboard_compiler.panels.charts.lens.metrics.config import LensFormulaMetric
+        from dashboard_compiler.panels.charts.lens.metrics.decompile import decompile_lens_metric
+
+        column = KbnLensFormulaColumn(
+            label='Error Rate',
+            customLabel=True,
+            dataType='number',
+            operationType='formula',
+            isBucketed=False,
+            scale='ratio',
+            references=[],
+            params=KbnLensFormulaColumnParams(
+                formula="count(kql='status:error') / count() * 100",
+            ),
+        )
+        context = DecompileContext()
+
+        result = decompile_lens_metric(column, 'col1', context=context)
+
+        assert isinstance(result, LensFormulaMetric)
+        assert result.formula == "count(kql='status:error') / count() * 100"
+        assert result.label == 'Error Rate'
+        assert len(context.warnings) == 0
+
+    def test_decompile_static_value(self) -> None:
+        """Test decompiling a static value metric."""
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensStaticValueColumn,
+            KbnLensStaticValueColumnParams,
+        )
+        from dashboard_compiler.panels.charts.lens.metrics.config import LensStaticValue
+        from dashboard_compiler.panels.charts.lens.metrics.decompile import decompile_lens_metric
+
+        column = KbnLensStaticValueColumn(
+            label='Maximum',
+            customLabel=True,
+            dataType='number',
+            operationType='static_value',
+            scale='ratio',
+            params=KbnLensStaticValueColumnParams(value=100),
+        )
+        context = DecompileContext()
+
+        result = decompile_lens_metric(column, 'col1', context=context)
+
+        assert isinstance(result, LensStaticValue)
+        assert result.value == 100
+        assert result.label == 'Maximum'
+        assert len(context.warnings) == 0
+
+
+class TestDimensionDecompilation:
+    """Tests for Lens dimension decompilation."""
+
+    def test_decompile_date_histogram_dimension(self) -> None:
+        """Test decompiling a date histogram dimension."""
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensDateHistogramDimensionColumn,
+            KbnLensDateHistogramDimensionColumnParams,
+        )
+        from dashboard_compiler.panels.charts.lens.dimensions.config import LensDateHistogramDimension
+        from dashboard_compiler.panels.charts.lens.dimensions.decompile import decompile_lens_dimension
+
+        column = KbnLensDateHistogramDimensionColumn(
+            label='@timestamp',
+            customLabel=None,
+            dataType='date',
+            operationType='date_histogram',
+            scale='interval',
+            sourceField='@timestamp',
+            params=KbnLensDateHistogramDimensionColumnParams(
+                interval='1h',
+                includeEmptyRows=True,
+                dropPartials=False,
+            ),
+        )
+        context = DecompileContext()
+
+        result = decompile_lens_dimension(column, 'col1', context=context)
+
+        assert isinstance(result, LensDateHistogramDimension)
+        assert result.type == 'date_histogram'
+        assert result.field == '@timestamp'
+        assert result.minimum_interval == '1h'
+        assert len(context.warnings) == 0
+
+    def test_decompile_terms_dimension(self) -> None:
+        """Test decompiling a terms dimension."""
+        from dashboard_compiler.panels.charts.lens.columns.view import (
+            KbnLensTermsDimensionColumn,
+            KbnLensTermsDimensionColumnParams,
+            KbnLensTermsOrderBy,
+        )
+        from dashboard_compiler.panels.charts.lens.dimensions.config import LensTermsDimension
+        from dashboard_compiler.panels.charts.lens.dimensions.decompile import decompile_lens_dimension
+
+        column = KbnLensTermsDimensionColumn(
+            label='Top 5 values of service.name',
+            customLabel=None,
+            dataType='string',
+            operationType='terms',
+            scale='ordinal',
+            sourceField='service.name',
+            params=KbnLensTermsDimensionColumnParams(
+                size=5,
+                orderBy=KbnLensTermsOrderBy(type='column', columnId='metric1'),
+                orderDirection='desc',
+                otherBucket=True,
+                missingBucket=False,
+            ),
+        )
+        context = DecompileContext()
+
+        result = decompile_lens_dimension(column, 'col1', context=context)
+
+        assert isinstance(result, LensTermsDimension)
+        assert result.type == 'values'
+        assert result.field == 'service.name'
+        assert result.size == 5
+        assert result.other_bucket is True
+        assert result.missing_bucket is False
+        assert len(context.warnings) == 0
+
+
+class TestChartDecompilation:
+    """Tests for chart decompilation helpers."""
+
+    def test_get_layer_id_from_layers_array(self) -> None:
+        """Test extracting layer ID from layers array."""
+        from dashboard_compiler.panels.charts.decompile import get_layer_id
+
+        viz_state = {
+            'layers': [{'layerId': 'layer-123'}],
+        }
+
+        result = get_layer_id(viz_state)
+
+        assert result == 'layer-123'
+
+    def test_get_layer_id_from_layer_id_field(self) -> None:
+        """Test extracting layer ID from layerId field."""
+        from dashboard_compiler.panels.charts.decompile import get_layer_id
+
+        viz_state = {
+            'layerId': 'layer-456',
+        }
+
+        result = get_layer_id(viz_state)
+
+        assert result == 'layer-456'
+
+    def test_get_data_view_from_references(self) -> None:
+        """Test extracting data view from references."""
+        from dashboard_compiler.panels.charts.decompile import get_data_view_from_references
+
+        references = [
+            {'type': 'index-pattern', 'id': 'logs-*', 'name': 'indexpattern-datasource-layer-layer-123'},
+        ]
+
+        result = get_data_view_from_references(references, 'layer-123')
+
+        assert result == 'logs-*'
