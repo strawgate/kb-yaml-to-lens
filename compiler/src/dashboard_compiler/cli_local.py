@@ -245,7 +245,7 @@ async def _upload_to_kibana(
     'output_format',
     type=click.Choice(['ndjson', 'json'], case_sensitive=False),
     default='ndjson',
-    help='Output format: "ndjson" for combined files (default), "json" for individual pretty-printed files per dashboard.',
+    help='Output format: "ndjson" for combined files (default), "json" for individual pretty-printed files named by dashboard ID.',
 )
 @click.option(
     '--upload',
@@ -291,7 +291,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     The --format option controls output format:
     - ndjson (default): Groups dashboards by directory into NDJSON files
-    - json: Creates individual pretty-printed JSON files per dashboard
+    - json: Creates individual pretty-printed JSON files named by dashboard ID
 
     By default, the command exits with code 0 on success. Use --exit-non-zero-on-change
     to enable CI sync detection mode, where the exit code equals the number of files
@@ -350,6 +350,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     errors: list[str] = []
     files_to_write: dict[Path, list[str]] = {}
     json_files_to_write: list[tuple[Path, str]] = []
+    json_filenames_seen: set[str] = set()
     changed_files_count = 0
 
     with create_progress() as progress:
@@ -366,8 +367,14 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             if len(compiled_jsons) > 0:
                 if output_format_lower == 'json':
                     for kbn_dashboard in kbn_dashboards:
-                        dashboard_name = kbn_dashboard.attributes.title
-                        safe_name = sanitize_filename(dashboard_name)
+                        if not kbn_dashboard.id:
+                            msg = f'Dashboard ID is required for JSON output: {yaml_file}'
+                            raise click.ClickException(msg)
+                        safe_name = sanitize_filename(kbn_dashboard.id)
+                        if safe_name in json_filenames_seen:
+                            msg = f'Duplicate dashboard ID after sanitization: {kbn_dashboard.id}'
+                            raise click.ClickException(msg)
+                        json_filenames_seen.add(safe_name)
                         json_file = output_dir / f'{safe_name}.json'
                         pretty_json = kbn_dashboard.model_dump_json(by_alias=True, indent=2)
                         json_files_to_write.append((json_file, pretty_json))

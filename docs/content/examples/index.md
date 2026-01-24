@@ -374,6 +374,48 @@ Horizontal Pod Autoscaler scaling behavior and capacity tracking.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### Redis OpenTelemetry Dashboards
+
+Redis database monitoring dashboards for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Redis instances with OpenTelemetry Redis Receiver.
+
+#### Overview
+
+Multi-instance monitoring with key metrics across all Redis instances.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Instance Details
+
+Detailed single-instance analysis including memory, connections, keyspace, and replication metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/instance-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/instance-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Database Metrics
+
+Per-database keyspace metrics including keys, TTL, and expiration statistics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/database-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/database-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### System Integration Dashboards
 
 Comprehensive monitoring dashboards for the Elastic System integration.
@@ -630,6 +672,24 @@ These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md)
 
     ```yaml
     --8<-- "examples/system_modern/14-windows-policy-object.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Apache HTTP Server OpenTelemetry Dashboard
+
+Apache HTTP Server monitoring dashboard for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Apache HTTP Server with OpenTelemetry Apache Receiver.
+
+#### Overview
+
+Server status, scoreboard, and performance metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (apache_otel/01-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/apache_otel/01-overview.yaml"
     ```
 <!-- markdownlint-enable MD046 -->
 
