@@ -1,13 +1,27 @@
 ---
+# Redis OpenTelemetry Overview Dashboard (ES|QL Version)
+# Provides cluster-level metrics and instance health monitoring
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver
+# Requires metrics-* with data_stream.dataset == "redisreceiver.otel"
 dashboards:
-  - name: '[Metrics Redis] Overview'
-    description: OpenTelemetry Redis Receiver - Overview dashboard showing key metrics across all Redis instances
+  - id: redis-overview
+    name: '[Metrics Redis] Overview'
+    description: OpenTelemetry Redis Receiver - Overview dashboard showing key metrics across all Redis instances (ES|QL)
     filters:
       - field: data_stream.dataset
         equals: redisreceiver.otel
+    controls:
+      - type: options
+        id: instance-filter
+        label: Instance
+        width: medium
+        data_view: metrics-*
+        field: resource.attributes.service.instance.id
     panels:
-      - position: {x: 0, y: 0}
-        size: {w: 48, h: 2}
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -19,364 +33,356 @@ dashboards:
               dashboard: redis-database-metrics
             - label: Redis Documentation
               url: https://redis.io/docs/
+
+      # Section Header
       - position: {x: 0, y: 2}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Redis Instance Overview'
-          font_size: 14
+
+      # KPI Metrics Row
       - title: Total Redis Instances
-        position: {x: 0, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 0, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE resource.attributes.service.instance.id IS NOT NULL
+            | STATS instances = COUNT_DISTINCT(resource.attributes.service.instance.id)
           primary:
-            aggregation: unique_count
-            field: resource.attributes.service.instance.id
+            field: instances
             label: Instances
       - title: Total Client Connections
-        position: {x: 8, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 8, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.clients.connected IS NOT NULL
+            | STATS clients = SUM(LAST_OVER_TIME(redis.clients.connected))
+              BY instance = resource.attributes.service.instance.id
+            | STATS clients = SUM(clients)
           primary:
-            aggregation: sum
-            field: redis.clients.connected
+            field: clients
             label: Clients
-      - title: Total Commands/sec
-        position: {x: 16, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+      - title: Commands/sec
+        hide_title: true
+        position: {x: 16, y: 5}
+        size: {w: 8, h: 5}
+        description: Gauge metric showing instantaneous commands per second
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.commands IS NOT NULL
+            | STATS commands_per_sec = SUM(LAST_OVER_TIME(redis.commands))
+              BY instance = resource.attributes.service.instance.id
+            | STATS commands_per_sec = SUM(commands_per_sec)
           primary:
-            aggregation: sum
-            field: redis.commands
+            field: commands_per_sec
             label: Commands/sec
-            format:
-              type: number
       - title: Cache Hit Rate
-        position: {x: 24, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 24, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
+            | STATS hits = SUM(RATE(redis.keyspace.hits)), misses = SUM(RATE(redis.keyspace.misses))
+            | EVAL hit_rate = hits / (hits + misses + 0.000001)
+            | KEEP hit_rate
           primary:
-            formula: average(redis.keyspace.hits) / (average(redis.keyspace.hits) + average(redis.keyspace.misses))
+            field: hit_rate
             label: Hit Rate
             format:
               type: percent
       - title: Total Memory Usage
-        position: {x: 32, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 32, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.used IS NOT NULL
+            | STATS memory = SUM(LAST_OVER_TIME(redis.memory.used))
+              BY instance = resource.attributes.service.instance.id
+            | STATS memory = SUM(memory)
           primary:
-            aggregation: sum
-            field: redis.memory.used
+            field: memory
             label: Memory
             format:
               type: bytes
       - title: Avg Memory Fragmentation
-        position: {x: 40, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 40, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.fragmentation_ratio IS NOT NULL
+            | STATS fragmentation = AVG(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
           primary:
-            aggregation: average
-            field: redis.memory.fragmentation_ratio
+            field: fragmentation
             label: Fragmentation
-            format:
-              type: number
-      - position: {x: 0, y: 8}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 10}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Memory & Performance Trends'
-          font_size: 14
+
+      # Memory Usage by Instance (Gauge - use LAST_OVER_TIME for current state)
       - title: Memory Usage by Instance
-        position: {x: 0, y: 10}
+        position: {x: 0, y: 13}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.used IS NOT NULL
+            | STATS memory = MAX(LAST_OVER_TIME(redis.memory.used))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Memory Used
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.memory.used
+            - field: memory
               label: Memory Used
               format:
                 type: bytes
+          breakdown:
+            field: instance
+
+      # Commands Per Second (Gauge metric - use LAST_OVER_TIME for current state)
       - title: Commands Per Second
-        position: {x: 24, y: 10}
+        position: {x: 24, y: 13}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.commands IS NOT NULL
+            | STATS commands = MAX(LAST_OVER_TIME(redis.commands))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Commands
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.commands
-              label: Commands
-              format:
-                type: number
+            - field: commands
+              label: Commands/sec
+          breakdown:
+            field: instance
+
+      # Client Connections Over Time (Gauge - use LAST_OVER_TIME for current state)
       - title: Client Connections Over Time
-        position: {x: 0, y: 22}
+        position: {x: 0, y: 25}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.clients.connected IS NOT NULL
+            | STATS clients = MAX(LAST_OVER_TIME(redis.clients.connected))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Connected Clients
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.clients.connected
+            - field: clients
               label: Connected Clients
-              format:
-                type: number
+          breakdown:
+            field: instance
+
+      # Keyspace Hit/Miss Rate (Counter metrics - use RATE)
       - title: Keyspace Hit/Miss Rate
-        position: {x: 24, y: 22}
+        position: {x: 24, y: 25}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
+            | STATS hits = SUM(RATE(redis.keyspace.hits)), misses = SUM(RATE(redis.keyspace.misses))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.keyspace.hits))
-              label: Hit Rate
-              format:
-                type: number
-            - formula: counter_rate(max(redis.keyspace.misses))
-              label: Miss Rate
-              format:
-                type: number
-      - position: {x: 0, y: 34}
-        size: {w: 48, h: 2}
+            - field: hits
+              label: Hits/sec
+            - field: misses
+              label: Misses/sec
+
+      # Section Header
+      - position: {x: 0, y: 37}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Key Eviction & Expiration'
-          font_size: 14
+
+      # Keys Evicted Rate (Counter - use RATE)
       - title: Keys Evicted Rate
-        position: {x: 0, y: 36}
+        position: {x: 0, y: 40}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keys.evicted IS NOT NULL
+            | STATS evicted = SUM(RATE(redis.keys.evicted))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Evicted
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.keys.evicted))
-              label: Evicted
-              format:
-                type: number
+            - field: evicted
+              label: Evicted/sec
+          breakdown:
+            field: instance
+
+      # Keys Expired Rate (Counter - use RATE)
       - title: Keys Expired Rate
-        position: {x: 24, y: 36}
+        position: {x: 24, y: 40}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keys.expired IS NOT NULL
+            | STATS expired = SUM(RATE(redis.keys.expired))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Expired
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.keys.expired))
-              label: Expired
-              format:
-                type: number
-      - position: {x: 0, y: 48}
-        size: {w: 48, h: 2}
+            - field: expired
+              label: Expired/sec
+          breakdown:
+            field: instance
+
+      # Section Header
+      - position: {x: 0, y: 52}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Network I/O'
-          font_size: 14
+
+      # Network Input (Counter - use RATE)
       - title: Network Input (Bytes Received)
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 55}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.net.input IS NOT NULL
+            | STATS input = SUM(RATE(redis.net.input))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Input
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.net.input))
+            - field: input
               label: Input
               format:
                 type: bytes
+          breakdown:
+            field: instance
+
+      # Network Output (Counter - use RATE)
       - title: Network Output (Bytes Sent)
-        position: {x: 24, y: 50}
+        position: {x: 24, y: 55}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.net.output IS NOT NULL
+            | STATS output = SUM(RATE(redis.net.output))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), instance = resource.attributes.service.instance.id
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: resource.attributes.service.instance.id
-            type: values
-            size: 20
-            sort:
-              by: Output
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.net.output))
+            - field: output
               label: Output
               format:
                 type: bytes
-      - position: {x: 0, y: 62}
-        size: {w: 48, h: 2}
+          breakdown:
+            field: instance
+
+      # Section Header
+      - position: {x: 0, y: 67}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Instance Summary Table'
-          font_size: 14
+
+      # Instance Summary DataTable
       - title: Redis Instance Metrics Summary
-        position: {x: 0, y: 64}
-        size: {w: 48, h: 25}
-        lens:
+        position: {x: 0, y: 70}
+        size: {w: 48, h: 20}
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "redisreceiver.otel"
+            - WHERE resource.attributes.service.instance.id IS NOT NULL
+            - STATS memory = MAX(LAST_OVER_TIME(redis.memory.used)), clients = MAX(LAST_OVER_TIME(redis.clients.connected)), commands = MAX(LAST_OVER_TIME(redis.commands)),
+              fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio)) BY instance = resource.attributes.service.instance.id
+            - KEEP instance, memory, clients, commands, fragmentation
+            - SORT memory DESC
+            - LIMIT 100
           dimensions:
-            - id: instance
-              type: values
-              field: resource.attributes.service.instance.id
-              label: Instance
-              size: 100
-          metrics:
-            - id: memory-used
-              aggregation: average
-              field: redis.memory.used
-              label: Memory Used
-              format:
-                type: bytes
-            - id: clients
-              aggregation: average
-              field: redis.clients.connected
-              label: Clients
-              format:
-                type: number
-            - id: commands
-              aggregation: average
-              field: redis.commands
-              label: Cmd/sec
-              format:
-                type: number
-            - id: hit-rate
-              formula: average(redis.keyspace.hits) / (average(redis.keyspace.hits) + average(redis.keyspace.misses))
-              label: Hit Rate
-              format:
-                type: percent
-            - id: fragmentation
-              aggregation: average
-              field: redis.memory.fragmentation_ratio
-              label: Fragmentation
-              format:
-                type: number
-            - id: uptime
-              aggregation: max
-              field: redis.uptime
-              label: Uptime (s)
-              format:
-                type: number
-          paging:
-            enabled: true
-            page_size: 20
+            - field: instance
+            - field: memory
+            - field: clients
+            - field: commands
+            - field: fragmentation

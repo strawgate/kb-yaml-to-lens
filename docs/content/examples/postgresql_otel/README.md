@@ -4,23 +4,20 @@ Comprehensive dashboards for monitoring PostgreSQL databases using OpenTelemetry
 
 ## Overview
 
-These dashboards provide visibility into PostgreSQL database performance, connections, transactions, and I/O metrics collected via the [OpenTelemetry PostgreSQL Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/postgresqlreceiver).
+This dashboard provides visibility into PostgreSQL database performance, connections, transactions, and I/O metrics collected via the [OpenTelemetry PostgreSQL Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/postgresqlreceiver).
 
-## Dashboards
+## Dashboard
 
-### 01-overview-lens.yaml
+### 02-overview-esql.yaml
 
-#### Lens-based Overview Dashboard
+ES|QL-based overview dashboard using the `TS` (time series) command for optimized time series analysis:
 
-Provides a comprehensive view of PostgreSQL performance using Lens visualizations:
-
-- **Navigation Links**: Quick access to all PostgreSQL dashboards
 - **KPI Metrics**: Total databases, active connections, max connections, database count
 - **Performance Summary Table**: Database-level metrics including:
   - Active connections per database
   - Database sizes
-  - Commit and rollback rates
-  - Block I/O operations
+  - Cumulative commit and rollback counts
+  - Block I/O totals
 - **Time Series Charts**:
   - Active connections over time by database
   - Transaction rates (commits and rollbacks)
@@ -29,24 +26,10 @@ Provides a comprehensive view of PostgreSQL performance using Lens visualization
 - **Distribution Charts**:
   - Database sizes (pie chart)
   - Connection states (pie chart)
+- **Metadata Table**: List of monitored databases and hosts
 
 **Data Source**: `metrics-*` index pattern
 **Filter**: `data_stream.dataset == "postgresqlreceiver.otel"`
-
-### 02-overview-esql.yaml
-
-#### ES|QL-based Overview Dashboard
-
-Similar visualizations to the Lens dashboard but using ES|QL queries for data aggregation:
-
-- Uses ES|QL `FROM metrics-*` syntax for KPI and aggregation queries
-- Uses ES|QL `TS metrics-*` syntax for time-series visualizations with `RATE()` and `TBUCKET()`
-- ES|QL metric panels for KPI metrics
-- ES|QL datatable for performance summary
-- ES|QL pie charts for distributions
-- 100% ES|QL-based (no Lens dependencies)
-
-**Note**: This dashboard uses ES|QL's `TS` (time series) command for time-series visualizations, which provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`. KPI metrics and aggregation panels use `FROM metrics-*` syntax.
 
 ## Metrics Reference
 
@@ -67,7 +50,6 @@ Similar visualizations to the Lens dashboard but using ES|QL queries for data ag
 
 - `resource.attributes.postgresql.database.name` - Database name
 - `resource.attributes.host.name` - Host name
-- `resource.attributes.postgresql.version` - PostgreSQL version
 - `attributes.source` - Block I/O source (heap_hit, heap_read, idx_hit, idx_read)
 - `attributes.operation` - Operation type (ins, upd, del, hot_upd)
 - `attributes.state` - Connection state
@@ -96,6 +78,10 @@ receivers:
     metrics:
       postgresql.backends:
         enabled: true
+      postgresql.connection.max:
+        enabled: true
+      postgresql.database.count:
+        enabled: true
       postgresql.commits:
         enabled: true
       postgresql.rollbacks:
@@ -112,17 +98,10 @@ receivers:
 
 ### Filters
 
-Both dashboards include controls for filtering by:
+The dashboard includes controls for filtering by:
 
 - **Database Name**: Filter to specific database(s)
 - **Host Name**: Filter to specific PostgreSQL host(s)
-
-### Navigation
-
-The navigation panel provides quick access between dashboards:
-
-- **Overview (Lens)**: Lens-based visualizations
-- **Overview (ES|QL)**: ES|QL-based visualizations
 
 ## Customization
 
@@ -137,29 +116,19 @@ All time series charts respect the dashboard time picker. Common time ranges:
 
 ### Modifying Aggregations
 
-For Lens panels, formulas can be adjusted:
-
-```yaml
-# Example: Change from sum to average
-formula: average(postgresql.backends)  # instead of sum()
-
-# Example: Add rate calculation
-formula: counter_rate(max(postgresql.commits))
-```
-
 For ES|QL panels, modify the query:
 
 ```sql
--- Example: Change aggregation interval (for FROM queries)
-STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 5 minutes)
-
--- Example: For TS (time series) queries, use TBUCKET instead
+-- Example: Change aggregation interval for TS (time series) queries
 STATS commits = SUM(RATE(postgresql.commits)) BY time_bucket = TBUCKET(5 minutes)
+
+-- Example: For FROM queries, use BUCKET instead
+STATS commits = MAX(postgresql.commits) BY time_bucket = BUCKET(@timestamp, 5 minutes)
 ```
 
 ### Adding Alerts
 
-These dashboards can be used as a foundation for creating alerts on:
+This dashboard can be used as a foundation for creating alerts on:
 
 - High connection count (approaching max_connections)
 - Elevated rollback rates (possible application issues)

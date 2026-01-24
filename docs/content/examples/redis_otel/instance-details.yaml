@@ -1,20 +1,27 @@
 ---
+# Redis OpenTelemetry Instance Details Dashboard (ES|QL Version)
+# Detailed metrics for a specific Redis instance
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver
+# Requires metrics-* with data_stream.dataset == "redisreceiver.otel"
 dashboards:
-  - name: '[Metrics Redis] Instance Details'
-    description: OpenTelemetry Redis Receiver - Detailed metrics for a specific Redis instance
+  - id: redis-instance-details
+    name: '[Metrics Redis] Instance Details'
+    description: OpenTelemetry Redis Receiver - Detailed metrics for a specific Redis instance (ES|QL)
     filters:
       - field: data_stream.dataset
         equals: redisreceiver.otel
     controls:
       - type: options
-        label: Redis Instance
+        id: instance-filter
+        label: Instance
         data_view: metrics-*
         field: resource.attributes.service.instance.id
         width: medium
-        match_technique: contains
     panels:
-      - position: {x: 0, y: 0}
-        size: {w: 48, h: 2}
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -26,505 +33,615 @@ dashboards:
               dashboard: redis-database-metrics
             - label: Redis Documentation
               url: https://redis.io/docs/
+
+      # Section Header
       - position: {x: 0, y: 2}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Redis Instance Health'
-          font_size: 14
+
+      # Health KPI Row
       - title: Uptime
-        position: {x: 0, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 0, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.uptime IS NOT NULL
+            | STATS uptime = MAX(TO_DOUBLE(redis.uptime))
           primary:
-            aggregation: max
-            field: redis.uptime
+            field: uptime
             label: Uptime (s)
-            format:
-              type: number
       - title: Connected Clients
-        position: {x: 8, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 8, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.clients.connected IS NOT NULL
+            | STATS clients = MAX(LAST_OVER_TIME(redis.clients.connected))
           primary:
-            aggregation: average
-            field: redis.clients.connected
+            field: clients
             label: Clients
-            format:
-              type: number
       - title: Blocked Clients
-        position: {x: 16, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 16, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.clients.blocked IS NOT NULL
+            | STATS blocked = MAX(LAST_OVER_TIME(redis.clients.blocked))
           primary:
-            aggregation: average
-            field: redis.clients.blocked
+            field: blocked
             label: Blocked
-            format:
-              type: number
       - title: Commands/sec
-        position: {x: 24, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 24, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.commands IS NOT NULL
+            | STATS commands = MAX(LAST_OVER_TIME(redis.commands))
           primary:
-            aggregation: average
-            field: redis.commands
+            field: commands
             label: Cmd/sec
-            format:
-              type: number
       - title: Connected Replicas
-        position: {x: 32, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 32, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.slaves.connected IS NOT NULL
+            | STATS replicas = MAX(LAST_OVER_TIME(redis.slaves.connected))
           primary:
-            aggregation: average
-            field: redis.slaves.connected
+            field: replicas
             label: Replicas
-            format:
-              type: number
       - title: Cache Hit Rate
-        position: {x: 40, y: 4}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 40, y: 5}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
+            | STATS hits = SUM(RATE(redis.keyspace.hits)), misses = SUM(RATE(redis.keyspace.misses))
+            | EVAL hit_rate = hits / (hits + misses + 0.000001)
+            | KEEP hit_rate
           primary:
-            formula: average(redis.keyspace.hits) / (average(redis.keyspace.hits) + average(redis.keyspace.misses))
+            field: hit_rate
             label: Hit Rate
             format:
               type: percent
-      - position: {x: 0, y: 8}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 10}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Memory Analysis'
-          font_size: 14
+
+      # Memory KPI Row
       - title: Memory Used
-        position: {x: 0, y: 10}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 0, y: 13}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.used IS NOT NULL
+            | STATS memory = MAX(LAST_OVER_TIME(redis.memory.used))
           primary:
-            aggregation: average
-            field: redis.memory.used
+            field: memory
             label: Used
             format:
               type: bytes
       - title: Memory Peak
-        position: {x: 8, y: 10}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 8, y: 13}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.peak IS NOT NULL
+            | STATS peak = MAX(LAST_OVER_TIME(redis.memory.peak))
           primary:
-            aggregation: average
-            field: redis.memory.peak
+            field: peak
             label: Peak
             format:
               type: bytes
       - title: Memory RSS
-        position: {x: 16, y: 10}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 16, y: 13}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.rss IS NOT NULL
+            | STATS rss = MAX(LAST_OVER_TIME(redis.memory.rss))
           primary:
-            aggregation: average
-            field: redis.memory.rss
+            field: rss
             label: RSS
             format:
               type: bytes
       - title: Fragmentation Ratio
-        position: {x: 24, y: 10}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 24, y: 13}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.fragmentation_ratio IS NOT NULL
+            | STATS fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
           primary:
-            aggregation: average
-            field: redis.memory.fragmentation_ratio
+            field: fragmentation
             label: Fragmentation
-            format:
-              type: number
       - title: Lua Memory
-        position: {x: 32, y: 10}
-        size: {w: 8, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 32, y: 13}
+        size: {w: 8, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.lua IS NOT NULL
+            | STATS lua = MAX(LAST_OVER_TIME(redis.memory.lua))
           primary:
-            aggregation: average
-            field: redis.memory.lua
+            field: lua
             label: Lua
             format:
               type: bytes
+
+      # Memory Usage Trend (Gauge metrics - use LAST_OVER_TIME for current state)
       - title: Memory Usage Trend
-        position: {x: 0, y: 14}
+        position: {x: 0, y: 18}
         size: {w: 48, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.used IS NOT NULL OR redis.memory.rss IS NOT NULL OR redis.memory.peak IS NOT NULL
+            | STATS used = MAX(LAST_OVER_TIME(redis.memory.used)),
+              rss = MAX(LAST_OVER_TIME(redis.memory.rss)),
+              peak = MAX(LAST_OVER_TIME(redis.memory.peak))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.memory.used
+            - field: used
               label: Used Memory
               format:
                 type: bytes
-            - aggregation: average
-              field: redis.memory.rss
+            - field: rss
               label: RSS
               format:
                 type: bytes
-            - aggregation: average
-              field: redis.memory.peak
+            - field: peak
               label: Peak
               format:
                 type: bytes
+
+      # Memory Fragmentation Over Time
       - title: Memory Fragmentation Over Time
-        position: {x: 0, y: 26}
+        position: {x: 0, y: 30}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.fragmentation_ratio IS NOT NULL
+            | STATS fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.memory.fragmentation_ratio
+            - field: fragmentation
               label: Fragmentation Ratio
-              format:
-                type: number
+
+      # Lua Script Memory Usage
       - title: Lua Script Memory Usage
-        position: {x: 24, y: 26}
+        position: {x: 24, y: 30}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.memory.lua IS NOT NULL
+            | STATS lua = MAX(LAST_OVER_TIME(redis.memory.lua))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.memory.lua
+            - field: lua
               label: Lua Memory
               format:
                 type: bytes
-      - position: {x: 0, y: 38}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 42}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Client Connections & Performance'
-          font_size: 14
+
+      # Client Connections Over Time
       - title: Client Connections Over Time
-        position: {x: 0, y: 40}
+        position: {x: 0, y: 45}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.clients.connected IS NOT NULL OR redis.clients.blocked IS NOT NULL
+            | STATS connected = MAX(LAST_OVER_TIME(redis.clients.connected)),
+              blocked = MAX(LAST_OVER_TIME(redis.clients.blocked))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.clients.connected
+            - field: connected
               label: Connected
-              format:
-                type: number
-            - aggregation: average
-              field: redis.clients.blocked
+            - field: blocked
               label: Blocked
-              format:
-                type: number
+
+      # Connection Activity (Counters - use RATE)
       - title: Connection Activity
-        position: {x: 24, y: 40}
+        position: {x: 24, y: 45}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.connections.received IS NOT NULL OR redis.connections.rejected IS NOT NULL
+            | STATS received = SUM(RATE(redis.connections.received)),
+              rejected = SUM(RATE(redis.connections.rejected))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.connections.received))
-              label: Received Rate
-              format:
-                type: number
-            - formula: counter_rate(max(redis.connections.rejected))
-              label: Rejected Rate
-              format:
-                type: number
+            - field: received
+              label: Received/sec
+            - field: rejected
+              label: Rejected/sec
+
+      # Client Buffer Sizes (Gauge metrics)
       - title: Client Buffer Sizes
-        position: {x: 0, y: 52}
+        position: {x: 0, y: 57}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.clients.max_input_buffer IS NOT NULL OR redis.clients.max_output_buffer IS NOT NULL
+            | STATS max_input = MAX(MAX_OVER_TIME(redis.clients.max_input_buffer)),
+              max_output = MAX(MAX_OVER_TIME(redis.clients.max_output_buffer))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: max
-              field: redis.clients.max_input_buffer
+            - field: max_input
               label: Max Input Buffer
               format:
                 type: bytes
-            - aggregation: max
-              field: redis.clients.max_output_buffer
+            - field: max_output
               label: Max Output Buffer
               format:
                 type: bytes
+
+      # Commands Processed Rate (Counter - use RATE)
       - title: Commands Processed Rate
-        position: {x: 24, y: 52}
+        position: {x: 24, y: 57}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.commands.processed IS NOT NULL
+            | STATS commands = SUM(RATE(redis.commands.processed))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.commands.processed))
+            - field: commands
               label: Commands/sec
-              format:
-                type: number
-      - position: {x: 0, y: 64}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 69}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keyspace Operations'
-          font_size: 14
+
+      # Keyspace Hit/Miss Ratio (Counter - use RATE)
       - title: Keyspace Hit/Miss Ratio
-        position: {x: 0, y: 66}
+        position: {x: 0, y: 72}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
+            | STATS hits = SUM(RATE(redis.keyspace.hits)),
+              misses = SUM(RATE(redis.keyspace.misses))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.keyspace.hits))
+            - field: hits
               label: Hits/sec
-              format:
-                type: number
-            - formula: counter_rate(max(redis.keyspace.misses))
+            - field: misses
               label: Misses/sec
-              format:
-                type: number
+
+      # Cache Hit Rate Over Time
       - title: Cache Hit Rate Over Time
-        position: {x: 24, y: 66}
+        position: {x: 24, y: 72}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
+            | STATS hits = SUM(RATE(redis.keyspace.hits)),
+              misses = SUM(RATE(redis.keyspace.misses))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | EVAL hit_rate = hits / (hits + misses + 0.000001)
+            | KEEP time_bucket, hit_rate
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: average(redis.keyspace.hits) / (average(redis.keyspace.hits) + average(redis.keyspace.misses))
+            - field: hit_rate
               label: Hit Rate
               format:
                 type: percent
+
+      # Key Eviction & Expiration (Counters - use RATE)
       - title: Key Eviction & Expiration
-        position: {x: 0, y: 78}
+        position: {x: 0, y: 84}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.keys.evicted IS NOT NULL OR redis.keys.expired IS NOT NULL
+            | STATS evicted = SUM(RATE(redis.keys.evicted)),
+              expired = SUM(RATE(redis.keys.expired))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.keys.evicted))
+            - field: evicted
               label: Evicted/sec
-              format:
-                type: number
-            - formula: counter_rate(max(redis.keys.expired))
+            - field: expired
               label: Expired/sec
-              format:
-                type: number
+
+      # RDB Changes Since Last Save
       - title: RDB Changes Since Last Save
-        position: {x: 24, y: 78}
+        position: {x: 24, y: 84}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: area
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.rdb.changes_since_last_save IS NOT NULL
+            | STATS changes = MAX(MAX_OVER_TIME(redis.rdb.changes_since_last_save))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.rdb.changes_since_last_save
+            - field: changes
               label: Unsaved Changes
-              format:
-                type: number
-      - position: {x: 0, y: 90}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 96}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Network I/O'
-          font_size: 14
+
+      # Network Traffic (Counters - use RATE)
       - title: Network Traffic
-        position: {x: 0, y: 92}
+        position: {x: 0, y: 99}
         size: {w: 48, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.net.input IS NOT NULL OR redis.net.output IS NOT NULL
+            | STATS input = SUM(RATE(redis.net.input)),
+              output = SUM(RATE(redis.net.output))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.net.input))
+            - field: input
               label: Input (bytes/sec)
               format:
                 type: bytes
-            - formula: counter_rate(max(redis.net.output))
+            - field: output
               label: Output (bytes/sec)
               format:
                 type: bytes
-      - position: {x: 0, y: 104}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 111}
+        size: {w: 48, h: 3}
         markdown:
           content: '## CPU Usage'
-          font_size: 14
+
+      # CPU Time by Type (Counter with attribute - use RATE)
       - title: CPU Time by Type
-        position: {x: 0, y: 106}
+        position: {x: 0, y: 114}
         size: {w: 48, h: 12}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.cpu.time IS NOT NULL
+            | STATS cpu_time = SUM(RATE(redis.cpu.time))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), state = attributes.state
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: attributes.state
-            type: values
-            size: 10
-            sort:
-              by: CPU Time
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(redis.cpu.time))
+            - field: cpu_time
               label: CPU Time
-              format:
-                type: number
-      - position: {x: 0, y: 118}
-        size: {w: 48, h: 2}
+          breakdown:
+            field: state
+
+      # Section Header
+      - position: {x: 0, y: 126}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Replication'
-          font_size: 14
+
+      # Replication Offset (Gauge)
       - title: Replication Offset
-        position: {x: 0, y: 120}
+        position: {x: 0, y: 129}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.replication.offset IS NOT NULL
+            | STATS offset = MAX(LAST_OVER_TIME(redis.replication.offset))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.replication.offset
+            - field: offset
               label: Replication Offset
               format:
                 type: bytes
+
+      # Replication Backlog (Gauge)
       - title: Replication Backlog
-        position: {x: 24, y: 120}
+        position: {x: 24, y: 129}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.replication.backlog_first_byte_offset IS NOT NULL
+            | STATS backlog = MAX(LAST_OVER_TIME(redis.replication.backlog_first_byte_offset))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.replication.backlog_first_byte_offset
+            - field: backlog
               label: Backlog Offset
               format:
                 type: bytes
+
+      # Connected Replicas Over Time
       - title: Connected Replicas Over Time
-        position: {x: 0, y: 132}
+        position: {x: 0, y: 141}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.slaves.connected IS NOT NULL
+            | STATS replicas = MAX(LAST_OVER_TIME(redis.slaves.connected))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.slaves.connected
+            - field: replicas
               label: Replicas
-              format:
-                type: number
+
+      # Fork Duration (Gauge)
       - title: Fork Duration
-        position: {x: 24, y: 132}
+        position: {x: 24, y: 141}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.latest_fork IS NOT NULL
+            | STATS fork_duration = MAX(MAX_OVER_TIME(redis.latest_fork))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.latest_fork
+            - field: fork_duration
               label: Fork Duration (μs)
-              format:
-                type: number
