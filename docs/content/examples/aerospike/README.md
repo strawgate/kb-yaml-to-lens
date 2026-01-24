@@ -27,6 +27,30 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `aerospikereceiver.otel`
 - **Data view**: `metrics-*`
 
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  aerospike:
+    endpoint: localhost:3000
+    collection_interval: 60s
+    metrics:
+      aerospike.node.memory.free:
+        enabled: true
+      aerospike.node.connection.open:
+        enabled: true
+      aerospike.namespace.memory.usage:
+        enabled: true
+      aerospike.namespace.memory.free:
+        enabled: true
+      aerospike.namespace.disk.available:
+        enabled: true
+      aerospike.namespace.query.count:
+        enabled: true
+      aerospike.namespace.transaction.count:
+        enabled: true
+```
+
 ## Metrics Reference
 
 ### Core Metrics (enabled by default)
@@ -64,16 +88,6 @@ All dashboards include navigation links for easy switching between views.
 | `aerospike.namespace` | Namespace name |
 | `attributes.type` | Connection or transaction type |
 | `attributes.index` | Index type (primary/secondary) |
-
-## Usage
-
-1. Configure the Aerospike receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/aerospike/ --upload
-   ```
 
 ## Related Resources
 

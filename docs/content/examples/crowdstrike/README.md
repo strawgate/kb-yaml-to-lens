@@ -30,16 +30,6 @@ These dashboards provide visibility into CrowdStrike Falcon EDR alerts, incident
 - **Data view**: `logs-*`
 - **Data stream datasets**: `crowdstrike.fdr`, `crowdstrike.falcon`, `crowdstrike.alert`, `crowdstrike.host`, `crowdstrike.vulnerability`
 
-## Usage
-
-1. Configure the CrowdStrike integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/crowdstrike/ --upload
-   ```
-
 ## Related
 
 See also: [CrowdStrike Modern Dashboards](../crowdstrike-modern/README.md) for workflow-centric SOC dashboards.

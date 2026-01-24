@@ -19,12 +19,33 @@ Both dashboards include navigation links for easy switching between views.
 
 - **MySQL**: MySQL 5.7+ or 8.x database server
 - **OpenTelemetry Collector**: Collector Contrib with MySQL receiver configured
-- **Kibana**: Version 8.x or later
+- **Kibana**: Version 9.2 or later (dashboards use ES|QL TS command)
 
 ## Data Requirements
 
 - **Data stream dataset**: `mysqlreceiver.otel`
 - **Data view**: `metrics-*`
+
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  mysql:
+    endpoint: localhost:3306
+    username: ${env:MYSQL_USERNAME}
+    password: ${env:MYSQL_PASSWORD}
+    collection_interval: 10s
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://your-elasticsearch-instance:9200"]
+
+service:
+  pipelines:
+    metrics:
+      receivers: [mysql]
+      exporters: [elasticsearch]
+```
 
 ## Metrics Reference
 
@@ -41,16 +62,6 @@ Both dashboards include navigation links for easy switching between views.
 | --------- | ----------- |
 | `resource.attributes.host.name` | MySQL host name |
 | `resource.attributes.service.instance.id` | MySQL instance identifier |
-
-## Usage
-
-1. Configure the MySQL receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/mysql_otel/ --upload
-   ```
 
 ## Related Resources
 

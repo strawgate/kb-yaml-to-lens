@@ -40,13 +40,3 @@ Based on the [aws_vpcflow_otel](https://github.com/elastic/integrations/tree/mai
 | `network.protocol.name` | Protocol name |
 | `network.interface.name` | Network interface name |
 | `cloud.account.id` | AWS account ID |
-
-## Usage
-
-1. Configure OpenTelemetry Collector for AWS VPC Flow Logs
-2. Ensure logs are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/aws_vpcflow_otel/ --upload
-   ```

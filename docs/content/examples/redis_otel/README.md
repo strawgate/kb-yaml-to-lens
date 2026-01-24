@@ -27,6 +27,25 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `redisreceiver.otel`
 - **Data view**: `metrics-*`
 
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  redis:
+    endpoint: localhost:6379
+    collection_interval: 10s
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://your-elasticsearch-instance:9200"]
+
+service:
+  pipelines:
+    metrics:
+      receivers: [redis]
+      exporters: [elasticsearch]
+```
+
 ## Metrics Reference
 
 | Metric | Description |
@@ -42,16 +61,6 @@ All dashboards include navigation links for easy switching between views.
 | Attribute | Description |
 | --------- | ----------- |
 | `resource.attributes.service.instance.id` | Redis instance identifier |
-
-## Usage
-
-1. Configure the Redis receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/redis_otel/ --upload
-   ```
 
 ## Related Resources
 

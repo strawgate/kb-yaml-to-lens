@@ -16,12 +16,44 @@ This dashboard provides visibility into PostgreSQL database performance, connect
 
 - **PostgreSQL**: PostgreSQL database server
 - **OpenTelemetry Collector**: Collector with PostgreSQL receiver configured
-- **Kibana**: Version 8.x or later
+- **Kibana**: Version 9.2 or later (dashboards use ES|QL TS command)
 
 ## Data Requirements
 
 - **Data stream dataset**: `postgresqlreceiver.otel`
 - **Data view**: `metrics-*`
+
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  postgresql:
+    endpoint: localhost:5432
+    transport: tcp
+    username: ${env:POSTGRES_USER}
+    password: ${env:POSTGRES_PASSWORD}
+    databases:
+      - postgres
+      - myapp_db
+    collection_interval: 60s
+    metrics:
+      postgresql.backends:
+        enabled: true
+      postgresql.connection.max:
+        enabled: true
+      postgresql.database.count:
+        enabled: true
+      postgresql.commits:
+        enabled: true
+      postgresql.rollbacks:
+        enabled: true
+      postgresql.blocks_read:
+        enabled: true
+      postgresql.db_size:
+        enabled: true
+      postgresql.operations:
+        enabled: true
+```
 
 ## Metrics Reference
 
@@ -47,16 +79,6 @@ This dashboard provides visibility into PostgreSQL database performance, connect
 | `attributes.source` | Block I/O source (heap_hit, heap_read, idx_hit, idx_read) |
 | `attributes.operation` | Operation type (ins, upd, del, hot_upd) |
 | `attributes.state` | Connection state |
-
-## Usage
-
-1. Configure the PostgreSQL receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboard:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/postgresql_otel/ --upload
-   ```
 
 ## Related Resources
 

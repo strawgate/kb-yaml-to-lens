@@ -16,12 +16,43 @@ These dashboards provide comprehensive monitoring for Apache HTTP Server 2.4.13+
 
 - **Apache HTTP Server**: Version 2.4.13 or later with `mod_status` enabled
 - **OpenTelemetry Collector**: Collector with Apache receiver configured
-- **Kibana**: Version 8.x or later
+- **Kibana**: Version 9.2 or later (dashboards use ES|QL TS command)
 
 ## Data Requirements
 
 - **Data stream dataset**: `apachereceiver.otel`
 - **Data view**: `metrics-*`
+
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  apache:
+    endpoint: "http://localhost/server-status?auto"
+    collection_interval: 10s
+
+processors:
+  resource:
+    attributes:
+      - key: server.address
+        from_attribute: apache.server.name
+        action: upsert
+      - key: server.port
+        from_attribute: apache.server.port
+        action: upsert
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://your-elasticsearch-instance:9200"]
+    # Additional Elasticsearch configuration...
+
+service:
+  pipelines:
+    metrics:
+      receivers: [apache]
+      processors: [resource]
+      exporters: [elasticsearch]
+```
 
 ## Metrics Reference
 
@@ -52,16 +83,6 @@ These dashboards provide comprehensive monitoring for Apache HTTP Server 2.4.13+
 | `attributes.scoreboard_state` | Scoreboard state |
 | `attributes.cpu_level` | CPU level (system, user, children) |
 | `attributes.cpu_mode` | CPU mode |
-
-## Usage
-
-1. Configure the Apache receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboard:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/apache_otel/ --upload
-   ```
 
 ## Related Resources
 

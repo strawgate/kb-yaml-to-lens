@@ -31,6 +31,52 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `elasticsearchreceiver.otel`
 - **Data view**: `metrics-*`
 
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  elasticsearch:
+    endpoint: http://localhost:9200
+    username: ${env:ELASTICSEARCH_USERNAME}
+    password: ${env:ELASTICSEARCH_PASSWORD}
+    collection_interval: 10s
+    metrics:
+      elasticsearch.cluster.health:
+        enabled: true
+      elasticsearch.cluster.nodes:
+        enabled: true
+      elasticsearch.cluster.data_nodes:
+        enabled: true
+      elasticsearch.cluster.shards:
+        enabled: true
+      elasticsearch.cluster.pending_tasks:
+        enabled: true
+      elasticsearch.node.documents:
+        enabled: true
+      elasticsearch.node.fs.disk.available:
+        enabled: true
+      elasticsearch.node.cache.memory.usage:
+        enabled: true
+      elasticsearch.process.cpu.usage:
+        enabled: true
+      jvm.memory.heap.used:
+        enabled: true
+      jvm.memory.heap.max:
+        enabled: true
+      jvm.gc.collections.count:
+        enabled: true
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://your-elasticsearch-instance:9200"]
+
+service:
+  pipelines:
+    metrics:
+      receivers: [elasticsearch]
+      exporters: [elasticsearch]
+```
+
 ## Metrics Reference
 
 **Critical Naming Convention:** The receiver uses two distinct metric naming patterns:
@@ -99,16 +145,6 @@ All dashboards include navigation links for easy switching between views.
 | `operation` | Operation type (read, write, index, search, etc.) |
 | `aggregation` | Shard aggregation type (total, primary, replica) |
 | `state` | Thread state, shard state, or health status |
-
-## Usage
-
-1. Configure the Elasticsearch receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/elasticsearch_otel/ --upload
-   ```
 
 ## Related Resources
 

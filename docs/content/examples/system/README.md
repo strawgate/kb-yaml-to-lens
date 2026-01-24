@@ -49,16 +49,6 @@ These dashboards provide monitoring for Linux/Unix systems, Windows systems, and
 - **Data view**: `metrics-*` (for metrics), `logs-*` (for logs)
 - **Data stream datasets**: `system.cpu`, `system.memory`, `system.network`, `system.filesystem`, `system.process`, `system.load`, `system.fsstat`, `system.syslog`, `system.auth`
 
-## Usage
-
-1. Configure the System integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system/ --upload
-   ```
-
 ## Related
 
-See also: [System Modern Dashboards](../system_modern/README.md) for dashboards following the Dashboard Style Guide best practices.
+See also: [System Modern Dashboards](../system_modern/README.md) for dashboards with modern UX patterns.

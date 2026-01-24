@@ -1,6 +1,6 @@
 # System Integration Dashboards (Modern)
 
-Modern monitoring dashboards for the Elastic System integration following the [Dashboard Style Guide](../../dashboard-style-guide.md) best practices.
+Modern monitoring dashboards for the Elastic System integration with progressive disclosure patterns.
 
 ## Overview
 
@@ -48,16 +48,6 @@ These dashboards provide the same functionality as the [classic System dashboard
 
 - **Data view**: `metrics-*` (for metrics), `logs-*` (for logs)
 - **Data stream datasets**: `system.cpu`, `system.memory`, `system.network`, `system.filesystem`, `system.process`, `system.syslog`, `system.auth`
-
-## Usage
-
-1. Configure the System integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system_modern/ --upload
-   ```
 
 ## Related
 

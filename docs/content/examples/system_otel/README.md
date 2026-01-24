@@ -30,6 +30,31 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `hostmetricsreceiver.otel`
 - **Data view**: `metrics-*`
 
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      cpu:
+      memory:
+      disk:
+      filesystem:
+      network:
+      load:
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://your-elasticsearch-instance:9200"]
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      exporters: [elasticsearch]
+```
+
 ## Metrics Reference
 
 | Metric | Description |
@@ -46,16 +71,6 @@ All dashboards include navigation links for easy switching between views.
 | --------- | ----------- |
 | `resource.attributes.host.name` | Host identifier |
 | `resource.attributes.os.type` | Operating system type |
-
-## Usage
-
-1. Configure the Host Metrics receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/system_otel/ --upload
-   ```
 
 ## Related Resources
 

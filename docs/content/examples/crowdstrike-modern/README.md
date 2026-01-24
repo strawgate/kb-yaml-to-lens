@@ -6,8 +6,6 @@ Workflow-centric security operations dashboards designed for modern SOC workflow
 
 Unlike the dataset-centric [CrowdStrike dashboards](../crowdstrike/README.md), these modern dashboards are organized by security workflow rather than data source, making them ideal for daily SOC operations.
 
-These dashboards follow the [Dashboard Style Guide](../../dashboard-style-guide.md) best practices with progressive disclosure pattern, consistent navigation, and control filters.
-
 ## Dashboards
 
 | Dashboard | File | Description |
@@ -29,16 +27,6 @@ All dashboards include consistent navigation for seamless workflow transitions.
 
 - **Data view**: `logs-*`
 - **Data stream datasets**: `crowdstrike.alert`, `crowdstrike.falcon`, `crowdstrike.fdr`
-
-## Usage
-
-1. Configure the CrowdStrike integration in Elastic Agent
-2. Ensure data is being ingested to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/crowdstrike-modern/ --upload
-   ```
 
 ## Related
 

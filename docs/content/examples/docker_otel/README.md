@@ -28,6 +28,25 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `dockerstatsreceiver.otel`
 - **Data view**: `metrics-*`
 
+## OpenTelemetry Collector Configuration
+
+```yaml
+receivers:
+  docker_stats:
+    endpoint: unix:///var/run/docker.sock
+    collection_interval: 10s
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://your-elasticsearch-instance:9200"]
+
+service:
+  pipelines:
+    metrics:
+      receivers: [docker_stats]
+      exporters: [elasticsearch]
+```
+
 ### Key Attributes
 
 | Attribute | Description |
@@ -36,13 +55,3 @@ All dashboards include navigation links for easy switching between views.
 | `container.name` | Container name |
 | `container.hostname` | Container hostname |
 | `container.id` | Container ID |
-
-## Usage
-
-1. Configure the Docker Stats receiver in your OpenTelemetry Collector
-2. Ensure metrics are being sent to Elasticsearch
-3. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/docker_otel/ --upload
-   ```

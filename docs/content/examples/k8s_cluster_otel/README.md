@@ -32,6 +32,47 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `kubernetesclusterreceiver.otel`
 - **Data view**: `metrics-*`
 
+## OpenTelemetry Collector Configuration
+
+### Receiver Configuration
+
+```yaml
+receivers:
+  k8s_cluster:
+    auth_type: serviceAccount
+    collection_interval: 10s
+    node_conditions_to_report: [Ready]
+    distribution: kubernetes
+    allocatable_types_to_report: [cpu, memory, ephemeral-storage, storage]
+    metadata_collection_interval: 5m
+
+exporters:
+  elasticsearch:
+    endpoints: ["https://elasticsearch:9200"]
+    auth:
+      authenticator: basicauth
+    mapping:
+      mode: ecs
+
+service:
+  pipelines:
+    metrics:
+      receivers: [k8s_cluster]
+      processors: [batch, resourcedetection, resource]
+      exporters: [elasticsearch]
+```
+
+### Receiver Configuration Options
+
+| YAML Key | Type | Description | Default |
+|----------|------|-------------|---------|
+| `auth_type` | string | Kubernetes API authentication method (`serviceAccount`, `kubeConfig`) | `serviceAccount` |
+| `collection_interval` | duration | Metric collection frequency | `10s` |
+| `node_conditions_to_report` | list | Node conditions to monitor | `[Ready]` |
+| `distribution` | string | Cluster type (`kubernetes`, `openshift`) | `kubernetes` |
+| `allocatable_types_to_report` | list | Node resource types to report | `[cpu, memory, ephemeral-storage, storage]` |
+| `metadata_collection_interval` | duration | Entity metadata collection frequency | `5m` |
+
 ## Metrics Reference
 
 For complete documentation, see [k8sclusterreceiver Metrics Documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/k8sclusterreceiver/documentation.md).
@@ -63,17 +104,6 @@ The `k8s.pod.phase` attribute uses numeric filter values:
 - `'5'` - Unknown
 
 **Note:** If your k8sclusterreceiver outputs string values (`Pending`, `Running`, etc.), update the dashboard filters accordingly.
-
-## Usage
-
-1. Configure RBAC permissions for the OpenTelemetry Collector ServiceAccount
-2. Configure the k8sclusterreceiver in your OpenTelemetry Collector
-3. Ensure metrics are being sent to Elasticsearch
-4. Compile and upload the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/k8s_cluster_otel/ --upload
-   ```
 
 ## Related Resources
 

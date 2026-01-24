@@ -45,13 +45,3 @@ Based on the dashboard from the [Elastic integrations repository](https://github
 | `rpc.method` | AWS API method/action called |
 | `source.address` | Source IP address of the request |
 | `user_agent.original` | User agent string of the client |
-
-## Usage
-
-1. Configure OpenTelemetry Collector for AWS CloudTrail
-2. Ensure logs are being sent to Elasticsearch
-3. Compile and upload the dashboard:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/aws_cloudtrail_otel/ --upload
-   ```
