@@ -17,6 +17,12 @@ dashboards:
         data_view: metrics-*
         field: resource.attributes.service.instance.id
         width: medium
+      - type: options
+        id: database-filter
+        label: Database
+        data_view: metrics-*
+        field: attributes.db
+        width: small
     panels:
       # Navigation Links
       - size: {w: 48, h: 2}
@@ -35,14 +41,14 @@ dashboards:
 
       # Section Header
       - position: {x: 0, y: 2}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Database Overview'
-          font_size: 14
 
       # KPI Row
       - title: Total Databases
-        position: {x: 0, y: 4}
+        hide_title: true
+        position: {x: 0, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -55,7 +61,8 @@ dashboards:
             field: databases
             label: Databases
       - title: Total Keys
-        position: {x: 12, y: 4}
+        hide_title: true
+        position: {x: 12, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -68,7 +75,8 @@ dashboards:
             field: keys
             label: Keys
       - title: Total Keys with Expiry
-        position: {x: 24, y: 4}
+        hide_title: true
+        position: {x: 24, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -81,7 +89,8 @@ dashboards:
             field: expires
             label: Keys w/ TTL
       - title: Avg TTL (All DBs)
-        position: {x: 36, y: 4}
+        hide_title: true
+        position: {x: 36, y: 5}
         size: {w: 12, h: 5}
         esql:
           type: metric
@@ -95,15 +104,14 @@ dashboards:
             label: Avg TTL (ms)
 
       # Section Header
-      - position: {x: 0, y: 9}
-        size: {w: 48, h: 2}
+      - position: {x: 0, y: 10}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keys by Database'
-          font_size: 14
 
       # Key Count by Database (Bar Chart)
       - title: Key Count by Database
-        position: {x: 0, y: 11}
+        position: {x: 0, y: 13}
         size: {w: 24, h: 12}
         esql:
           type: bar
@@ -125,7 +133,7 @@ dashboards:
 
       # Keys Distribution (Pie Chart)
       - title: Keys Distribution (Pie)
-        position: {x: 24, y: 11}
+        position: {x: 24, y: 13}
         size: {w: 24, h: 12}
         esql:
           type: pie
@@ -146,7 +154,7 @@ dashboards:
 
       # Key Count Trend by Database (Gauge - use AVG_OVER_TIME)
       - title: Key Count Trend by Database
-        position: {x: 0, y: 23}
+        position: {x: 0, y: 25}
         size: {w: 48, h: 12}
         esql:
           type: line
@@ -169,15 +177,14 @@ dashboards:
             field: db
 
       # Section Header
-      - position: {x: 0, y: 35}
-        size: {w: 48, h: 2}
+      - position: {x: 0, y: 37}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keys with Expiration'
-          font_size: 14
 
       # Keys with TTL by Database (Bar Chart)
       - title: Keys with TTL by Database
-        position: {x: 0, y: 37}
+        position: {x: 0, y: 40}
         size: {w: 24, h: 12}
         esql:
           type: bar
@@ -199,7 +206,7 @@ dashboards:
 
       # Keys with TTL Trend (Gauge - use AVG_OVER_TIME)
       - title: Keys with TTL Trend
-        position: {x: 24, y: 37}
+        position: {x: 24, y: 40}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -222,15 +229,14 @@ dashboards:
             field: db
 
       # Section Header
-      - position: {x: 0, y: 49}
-        size: {w: 48, h: 2}
+      - position: {x: 0, y: 52}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Average Time-To-Live (TTL)'
-          font_size: 14
 
       # Average TTL by Database (Bar Chart)
       - title: Average TTL by Database
-        position: {x: 0, y: 51}
+        position: {x: 0, y: 55}
         size: {w: 24, h: 12}
         esql:
           type: bar
@@ -252,7 +258,7 @@ dashboards:
 
       # Average TTL Trend by Database (Gauge - use AVG_OVER_TIME)
       - title: Average TTL Trend by Database
-        position: {x: 24, y: 51}
+        position: {x: 24, y: 55}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -275,15 +281,14 @@ dashboards:
             field: db
 
       # Section Header
-      - position: {x: 0, y: 63}
-        size: {w: 48, h: 2}
+      - position: {x: 0, y: 67}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Database Summary Table'
-          font_size: 14
 
       # Database Metrics Summary Table
       - title: Database Metrics Summary
-        position: {x: 0, y: 65}
+        position: {x: 0, y: 70}
         size: {w: 48, h: 20}
         esql:
           type: datatable
