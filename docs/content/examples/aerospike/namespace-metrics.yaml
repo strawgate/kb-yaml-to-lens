@@ -1,7 +1,6 @@
 ---
-# Aerospike Namespace Metrics Dashboard (ES|QL)
+# Aerospike Namespace Metrics Dashboard
 # Provides namespace-level storage and query statistics
-# Uses ES|QL with TS command for time-series optimization
 dashboards:
   - id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
     name: '[Metrics Aerospike] Namespace Metrics'
@@ -66,7 +65,7 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS memory_usage = SUM(aerospike.namespace.memory.usage)
+            | STATS memory_usage = AVG(aerospike.namespace.memory.usage)
           primary:
             field: memory_usage
             label: Memory Usage
@@ -84,9 +83,10 @@ dashboards:
             | STATS disk_available = AVG(aerospike.namespace.disk.available)
           primary:
             field: disk_available
-            label: Disk Available
+            label: Disk Available %
             format:
-              type: percent
+              type: number
+              suffix: '%'
       - title: Memory Free
         size: {w: 12, h: 5}
         position: {x: 36, y: 4}
@@ -99,15 +99,16 @@ dashboards:
             | STATS memory_free = AVG(aerospike.namespace.memory.free)
           primary:
             field: memory_free
-            label: Memory Free
+            label: Memory Free %
             format:
-              type: percent
+              type: number
+              suffix: '%'
 
       # Query Information Section
       - size: {w: 48, h: 2}
         position: {x: 0, y: 9}
         markdown:
-          content: '## Query Information'
+          content: '# Query Information'
 
       # Query Charts - Primary Index
       - title: Primary Index Queries Over Time
@@ -167,7 +168,7 @@ dashboards:
       - size: {w: 48, h: 2}
         position: {x: 0, y: 21}
         markdown:
-          content: '## Transaction Information'
+          content: '# Transaction Information'
 
       # Transaction Charts
       - title: Transaction Rate Over Time
@@ -179,6 +180,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.transaction.count IS NOT NULL
+            | WHERE attributes.type IS NOT NULL
             | STATS transaction_rate = SUM(RATE(aerospike.namespace.transaction.count)) BY time_bucket = TBUCKET(1 minute), transaction_type = attributes.type
             | SORT time_bucket ASC
           legend:
@@ -197,21 +199,21 @@ dashboards:
 
       # Storage Metrics Section
       - size: {w: 48, h: 2}
-        position: {x: 0, y: 33}
+        position: {x: 0, y: 34}
         markdown:
-          content: '## Storage Metrics'
+          content: '# Storage Metrics'
 
       # Storage Charts
       - title: Memory Usage Over Time
         size: {w: 24, h: 10}
-        position: {x: 0, y: 35}
+        position: {x: 0, y: 36}
         esql:
           type: line
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS memory_usage = SUM(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS memory_usage = AVG(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -227,7 +229,7 @@ dashboards:
             field: namespace
       - title: Disk Available Over Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 35}
+        position: {x: 24, y: 36}
         esql:
           type: line
           query: |
@@ -245,21 +247,22 @@ dashboards:
             - field: disk_available
               label: Disk Available %
               format:
-                type: percent
+                type: number
+                suffix: '%'
           breakdown:
             field: namespace
 
       # Distribution Charts
       - title: Memory Usage by Namespace
         size: {w: 24, h: 10}
-        position: {x: 0, y: 45}
+        position: {x: 0, y: 46}
         esql:
           type: pie
           query: |
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS memory_usage = SUM(aerospike.namespace.memory.usage) BY namespace = aerospike.namespace
+            | STATS memory_usage = AVG(aerospike.namespace.memory.usage) BY namespace = aerospike.namespace
             | SORT memory_usage DESC
             | LIMIT 20
           metrics:
@@ -273,7 +276,7 @@ dashboards:
             donut: medium
       - title: Memory Free by Namespace
         size: {w: 24, h: 10}
-        position: {x: 24, y: 45}
+        position: {x: 24, y: 46}
         esql:
           type: pie
           query: |
@@ -287,7 +290,8 @@ dashboards:
             - field: memory_free
               label: Memory Free %
               format:
-                type: percent
+                type: number
+                suffix: '%'
           dimensions:
             - field: namespace
           appearance:
@@ -296,7 +300,7 @@ dashboards:
       # Namespace Summary Table
       - title: Namespace Summary
         size: {w: 48, h: 12}
-        position: {x: 0, y: 55}
+        position: {x: 0, y: 56}
         description: Summary of namespace-level metrics
         esql:
           type: datatable
@@ -304,7 +308,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.namespace IS NOT NULL
-            - STATS memory_usage = SUM(aerospike.namespace.memory.usage), memory_free = AVG(aerospike.namespace.memory.free), disk_available =
+            - STATS memory_usage = AVG(aerospike.namespace.memory.usage), memory_free = AVG(aerospike.namespace.memory.free), disk_available =
               AVG(aerospike.namespace.disk.available) BY namespace = aerospike.namespace, node = aerospike.node.name
             - KEEP namespace, node, memory_usage, memory_free, disk_available
             - SORT namespace ASC, node ASC

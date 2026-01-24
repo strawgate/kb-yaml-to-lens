@@ -44,53 +44,13 @@
                 }
             },
             {
-                "panelIndex": "5f3adc95-ca8d-21c3-b195-d52328ee76c3",
+                "panelIndex": "9c0d7fed-d979-8849-283f-b2370adb152f",
                 "gridData": {
                     "x": 0,
                     "y": 2,
-                    "w": 48,
-                    "h": 2,
-                    "i": "5f3adc95-ca8d-21c3-b195-d52328ee76c3"
-                },
-                "type": "visualization",
-                "embeddableConfig": {
-                    "enhancements": {
-                        "dynamicActions": {
-                            "events": []
-                        }
-                    },
-                    "savedVis": {
-                        "type": "markdown",
-                        "id": "",
-                        "title": "",
-                        "description": "",
-                        "params": {
-                            "fontSize": 12,
-                            "openLinksInNewTab": false,
-                            "markdown": "**Note:** This dashboard uses ES|QL queries with the `TS` (time series) command for optimized time series analysis.\nThe `TS` command provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`.\n"
-                        },
-                        "uiState": {},
-                        "data": {
-                            "aggs": [],
-                            "searchSource": {
-                                "query": {
-                                    "query": "",
-                                    "language": "kuery"
-                                },
-                                "filter": []
-                            }
-                        }
-                    }
-                }
-            },
-            {
-                "panelIndex": "9b82cf47-ffa8-bd0f-ca61-050cf484f4cb",
-                "gridData": {
-                    "x": 0,
-                    "y": 4,
                     "w": 12,
                     "h": 5,
-                    "i": "9b82cf47-ffa8-bd0f-ca61-050cf484f4cb"
+                    "i": "9c0d7fed-d979-8849-283f-b2370adb152f"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -168,13 +128,13 @@
                 }
             },
             {
-                "panelIndex": "3b9470a9-389c-22d0-ed5d-f54536732bd5",
+                "panelIndex": "4ccee6ed-455c-eaba-210e-764d6da7c962",
                 "gridData": {
                     "x": 12,
-                    "y": 4,
+                    "y": 2,
                     "w": 12,
                     "h": 5,
-                    "i": "3b9470a9-389c-22d0-ed5d-f54536732bd5"
+                    "i": "4ccee6ed-455c-eaba-210e-764d6da7c962"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -252,13 +212,13 @@
                 }
             },
             {
-                "panelIndex": "11b6b3ad-790b-343c-3592-b242948e44c1",
+                "panelIndex": "7a8e932f-8b81-b648-4366-5ede37d2f443",
                 "gridData": {
                     "x": 24,
-                    "y": 4,
+                    "y": 2,
                     "w": 12,
                     "h": 5,
-                    "i": "11b6b3ad-790b-343c-3592-b242948e44c1"
+                    "i": "7a8e932f-8b81-b648-4366-5ede37d2f443"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -268,32 +228,32 @@
                         }
                     },
                     "attributes": {
-                        "title": "Total Connections",
+                        "title": "Avg Connections",
                         "visualizationType": "lnsMetric",
                         "type": "lens",
                         "references": [],
                         "state": {
                             "visualization": {
-                                "layerId": "fc7bd13d-7dd6-da8f-b812-98a1e155fc90",
+                                "layerId": "944946a8-a14b-3400-be39-6303d05b9365",
                                 "layerType": "data",
-                                "metricAccessor": "7f8cac25-2cca-b405-a653-5b329e84f644",
+                                "metricAccessor": "dfd78516-5a9a-6856-9ff4-3673c52a513d",
                                 "showBar": false
                             },
                             "query": {
-                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS total_connections = MAX(aerospike.node.connection.open)\n"
+                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS avg_connections = AVG(aerospike.node.connection.open)\n"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "fc7bd13d-7dd6-da8f-b812-98a1e155fc90": {
+                                        "944946a8-a14b-3400-be39-6303d05b9365": {
                                             "query": {
-                                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS total_connections = MAX(aerospike.node.connection.open)\n"
+                                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS avg_connections = AVG(aerospike.node.connection.open)\n"
                                             },
                                             "columns": [
                                                 {
-                                                    "fieldName": "total_connections",
-                                                    "columnId": "7f8cac25-2cca-b405-a653-5b329e84f644",
+                                                    "fieldName": "avg_connections",
+                                                    "columnId": "dfd78516-5a9a-6856-9ff4-3673c52a513d",
                                                     "label": "Connections",
                                                     "customLabel": true,
                                                     "meta": {
@@ -305,8 +265,8 @@
                                             ],
                                             "allColumns": [
                                                 {
-                                                    "fieldName": "total_connections",
-                                                    "columnId": "7f8cac25-2cca-b405-a653-5b329e84f644",
+                                                    "fieldName": "avg_connections",
+                                                    "columnId": "dfd78516-5a9a-6856-9ff4-3673c52a513d",
                                                     "label": "Connections",
                                                     "customLabel": true,
                                                     "meta": {
@@ -336,13 +296,13 @@
                 }
             },
             {
-                "panelIndex": "1e7d9b9f-4762-f3a7-f128-60813d4f8122",
+                "panelIndex": "8b89df68-83db-f948-f493-6f352dde6bea",
                 "gridData": {
                     "x": 36,
-                    "y": 4,
+                    "y": 2,
                     "w": 12,
                     "h": 5,
-                    "i": "1e7d9b9f-4762-f3a7-f128-60813d4f8122"
+                    "i": "8b89df68-83db-f948-f493-6f352dde6bea"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -358,9 +318,9 @@
                         "references": [],
                         "state": {
                             "visualization": {
-                                "layerId": "d759216e-b610-0cfd-5b59-20ebd179f2a3",
+                                "layerId": "d7926b61-f611-233c-9ead-c4b1cbc28f45",
                                 "layerType": "data",
-                                "metricAccessor": "410e7f3d-d480-889d-4904-6dcd3571efeb",
+                                "metricAccessor": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
                                 "showBar": false
                             },
                             "query": {
@@ -370,15 +330,15 @@
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "d759216e-b610-0cfd-5b59-20ebd179f2a3": {
+                                        "d7926b61-f611-233c-9ead-c4b1cbc28f45": {
                                             "query": {
                                                 "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free)\n"
                                             },
                                             "columns": [
                                                 {
                                                     "fieldName": "memory_free",
-                                                    "columnId": "410e7f3d-d480-889d-4904-6dcd3571efeb",
-                                                    "label": "Memory Free",
+                                                    "columnId": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
+                                                    "label": "Memory Free %",
                                                     "customLabel": true,
                                                     "meta": {
                                                         "type": "number",
@@ -387,9 +347,10 @@
                                                     "inMetricDimension": true,
                                                     "params": {
                                                         "format": {
-                                                            "id": "percent",
+                                                            "id": "number",
                                                             "params": {
-                                                                "decimals": 2
+                                                                "decimals": 2,
+                                                                "suffix": "%"
                                                             }
                                                         }
                                                     }
@@ -398,8 +359,8 @@
                                             "allColumns": [
                                                 {
                                                     "fieldName": "memory_free",
-                                                    "columnId": "410e7f3d-d480-889d-4904-6dcd3571efeb",
-                                                    "label": "Memory Free",
+                                                    "columnId": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
+                                                    "label": "Memory Free %",
                                                     "customLabel": true,
                                                     "meta": {
                                                         "type": "number",
@@ -408,9 +369,10 @@
                                                     "inMetricDimension": true,
                                                     "params": {
                                                         "format": {
-                                                            "id": "percent",
+                                                            "id": "number",
                                                             "params": {
-                                                                "decimals": 2
+                                                                "decimals": 2,
+                                                                "suffix": "%"
                                                             }
                                                         }
                                                     }
@@ -436,13 +398,13 @@
                 }
             },
             {
-                "panelIndex": "0164c67a-dc72-3046-500d-8d337ecd9f9e",
+                "panelIndex": "31812286-90b2-8f17-3e6a-764b04732199",
                 "gridData": {
                     "x": 0,
-                    "y": 9,
+                    "y": 7,
                     "w": 48,
                     "h": 15,
-                    "i": "0164c67a-dc72-3046-500d-8d337ecd9f9e"
+                    "i": "31812286-90b2-8f17-3e6a-764b04732199"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -480,19 +442,19 @@
                                         "isMetric": false
                                     }
                                 ],
-                                "layerId": "745fbd72-e492-3599-6fe3-e954477782c0",
+                                "layerId": "c9f2fb15-8339-5e4d-bde6-c6d376bb345e",
                                 "layerType": "data"
                             },
                             "query": {
-                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free), connections = SUM(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name\n| KEEP node, namespaces, memory_free, connections\n| SORT node ASC\n| LIMIT 100"
+                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name\n| KEEP node, namespaces, memory_free, connections\n| SORT node ASC\n| LIMIT 100"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "745fbd72-e492-3599-6fe3-e954477782c0": {
+                                        "c9f2fb15-8339-5e4d-bde6-c6d376bb345e": {
                                             "query": {
-                                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free), connections = SUM(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name\n| KEEP node, namespaces, memory_free, connections\n| SORT node ASC\n| LIMIT 100"
+                                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name\n| KEEP node, namespaces, memory_free, connections\n| SORT node ASC\n| LIMIT 100"
                                             },
                                             "columns": [
                                                 {
@@ -566,13 +528,13 @@
                 }
             },
             {
-                "panelIndex": "abdbe3ba-85e3-01e7-de9b-d295b0afd07d",
+                "panelIndex": "d62c14f6-1c66-3053-2c03-6e10aa594828",
                 "gridData": {
                     "x": 0,
-                    "y": 24,
+                    "y": 22,
                     "w": 48,
                     "h": 10,
-                    "i": "abdbe3ba-85e3-01e7-de9b-d295b0afd07d"
+                    "i": "d62c14f6-1c66-3053-2c03-6e10aa594828"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -590,9 +552,9 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "b3959288-fdd8-cb09-02cd-122fa73e3e92",
+                                        "layerId": "b5cbf4c4-3a5c-775f-96d4-de8b2f6ae336",
                                         "accessors": [
-                                            "a561d09e-fdd2-fa8c-9d61-0f7cfca144e7"
+                                            "a7d52c1d-3be3-361e-dd91-4139bfbc11b9"
                                         ],
                                         "layerType": "data",
                                         "seriesType": "line",
@@ -634,14 +596,14 @@
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "b3959288-fdd8-cb09-02cd-122fa73e3e92": {
+                                        "b5cbf4c4-3a5c-775f-96d4-de8b2f6ae336": {
                                             "query": {
                                                 "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                                             },
                                             "columns": [
                                                 {
                                                     "fieldName": "memory_free",
-                                                    "columnId": "a561d09e-fdd2-fa8c-9d61-0f7cfca144e7",
+                                                    "columnId": "a7d52c1d-3be3-361e-dd91-4139bfbc11b9",
                                                     "label": "Memory Free %",
                                                     "customLabel": true,
                                                     "meta": {
@@ -651,9 +613,10 @@
                                                     "inMetricDimension": true,
                                                     "params": {
                                                         "format": {
-                                                            "id": "percent",
+                                                            "id": "number",
                                                             "params": {
-                                                                "decimals": 2
+                                                                "decimals": 2,
+                                                                "suffix": "%"
                                                             }
                                                         }
                                                     }
@@ -674,7 +637,7 @@
                                             "allColumns": [
                                                 {
                                                     "fieldName": "memory_free",
-                                                    "columnId": "a561d09e-fdd2-fa8c-9d61-0f7cfca144e7",
+                                                    "columnId": "a7d52c1d-3be3-361e-dd91-4139bfbc11b9",
                                                     "label": "Memory Free %",
                                                     "customLabel": true,
                                                     "meta": {
@@ -684,9 +647,10 @@
                                                     "inMetricDimension": true,
                                                     "params": {
                                                         "format": {
-                                                            "id": "percent",
+                                                            "id": "number",
                                                             "params": {
-                                                                "decimals": 2
+                                                                "decimals": 2,
+                                                                "suffix": "%"
                                                             }
                                                         }
                                                     }
@@ -724,13 +688,13 @@
                 }
             },
             {
-                "panelIndex": "306c01ad-0b25-d223-ed27-4915a3832ef2",
+                "panelIndex": "02109986-b9e0-ff19-f536-b979acd8eae1",
                 "gridData": {
                     "x": 0,
-                    "y": 34,
+                    "y": 32,
                     "w": 48,
                     "h": 10,
-                    "i": "306c01ad-0b25-d223-ed27-4915a3832ef2"
+                    "i": "02109986-b9e0-ff19-f536-b979acd8eae1"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -748,7 +712,7 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "29335ce8-9456-c10d-a881-e408ff90682c",
+                                        "layerId": "fe8fbd43-d1b5-9d86-489c-1f27ddd5086b",
                                         "accessors": [
                                             "06858c01-d87e-cdda-a98c-4552adb8443a"
                                         ],
@@ -786,15 +750,15 @@
                                 "valueLabels": "hide"
                             },
                             "query": {
-                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = SUM(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
+                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "29335ce8-9456-c10d-a881-e408ff90682c": {
+                                        "fe8fbd43-d1b5-9d86-489c-1f27ddd5086b": {
                                             "query": {
-                                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = SUM(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
+                                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                                             },
                                             "columns": [
                                                 {
@@ -866,13 +830,13 @@
                 }
             },
             {
-                "panelIndex": "9a0396fa-2b8b-dbaf-a4b0-9bdf2732352e",
+                "panelIndex": "3eed98cc-ab5d-1332-ecd4-1568e58322ba",
                 "gridData": {
                     "x": 0,
-                    "y": 44,
+                    "y": 42,
                     "w": 24,
                     "h": 10,
-                    "i": "9a0396fa-2b8b-dbaf-a4b0-9bdf2732352e"
+                    "i": "3eed98cc-ab5d-1332-ecd4-1568e58322ba"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -890,7 +854,7 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "130d6a2d-0dc1-0837-c83c-30ec9e8e79c9",
+                                        "layerId": "9aae2f38-5e78-91fc-b963-9349162c30c2",
                                         "layerType": "data",
                                         "colorMapping": {
                                             "assignments": [],
@@ -914,7 +878,7 @@
                                             "3abe3552-e53d-5a3b-270c-353b0e16b5d6"
                                         ],
                                         "metrics": [
-                                            "447dc298-2282-c3c7-f7ad-db2cdb4ac632"
+                                            "0ff9803a-7f65-48a9-5b2e-5a09f4a46856"
                                         ],
                                         "numberDisplay": "percent",
                                         "categoryDisplay": "default",
@@ -931,14 +895,14 @@
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "130d6a2d-0dc1-0837-c83c-30ec9e8e79c9": {
+                                        "9aae2f38-5e78-91fc-b963-9349162c30c2": {
                                             "query": {
                                                 "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free) BY node = aerospike.node.name\n| SORT memory_free DESC\n| LIMIT 20\n"
                                             },
                                             "columns": [
                                                 {
                                                     "fieldName": "memory_free",
-                                                    "columnId": "447dc298-2282-c3c7-f7ad-db2cdb4ac632",
+                                                    "columnId": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
                                                     "label": "Memory Free %",
                                                     "customLabel": true,
                                                     "meta": {
@@ -948,9 +912,10 @@
                                                     "inMetricDimension": true,
                                                     "params": {
                                                         "format": {
-                                                            "id": "percent",
+                                                            "id": "number",
                                                             "params": {
-                                                                "decimals": 2
+                                                                "decimals": 2,
+                                                                "suffix": "%"
                                                             }
                                                         }
                                                     }
@@ -965,7 +930,7 @@
                                             "allColumns": [
                                                 {
                                                     "fieldName": "memory_free",
-                                                    "columnId": "447dc298-2282-c3c7-f7ad-db2cdb4ac632",
+                                                    "columnId": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
                                                     "label": "Memory Free %",
                                                     "customLabel": true,
                                                     "meta": {
@@ -975,9 +940,10 @@
                                                     "inMetricDimension": true,
                                                     "params": {
                                                         "format": {
-                                                            "id": "percent",
+                                                            "id": "number",
                                                             "params": {
-                                                                "decimals": 2
+                                                                "decimals": 2,
+                                                                "suffix": "%"
                                                             }
                                                         }
                                                     }
@@ -1009,13 +975,13 @@
                 }
             },
             {
-                "panelIndex": "67ba0b5c-9e85-3b6f-5187-bd155e767933",
+                "panelIndex": "b4ac67f4-a11b-a430-6b5e-629c133976fd",
                 "gridData": {
                     "x": 24,
-                    "y": 44,
+                    "y": 42,
                     "w": 24,
                     "h": 10,
-                    "i": "67ba0b5c-9e85-3b6f-5187-bd155e767933"
+                    "i": "b4ac67f4-a11b-a430-6b5e-629c133976fd"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -1033,7 +999,7 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "24b68943-b2a5-968c-3e0e-ac21d22aa908",
+                                        "layerId": "3231d4d4-9e5f-3825-2d09-b809c2ae7e6e",
                                         "layerType": "data",
                                         "colorMapping": {
                                             "assignments": [],
@@ -1068,15 +1034,15 @@
                                 "shape": "donut"
                             },
                             "query": {
-                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = SUM(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
+                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "24b68943-b2a5-968c-3e0e-ac21d22aa908": {
+                                        "3231d4d4-9e5f-3825-2d09-b809c2ae7e6e": {
                                             "query": {
-                                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = SUM(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
+                                                "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
                                             },
                                             "columns": [
                                                 {

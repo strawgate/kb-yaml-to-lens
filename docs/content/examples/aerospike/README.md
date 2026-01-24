@@ -4,7 +4,7 @@ Monitoring dashboards for Aerospike NoSQL database using OpenTelemetry metrics w
 
 ## Overview
 
-These dashboards provide comprehensive monitoring for Aerospike clusters, including cluster-level health metrics, per-node performance, and namespace-level storage and query statistics. All dashboards use ES|QL with the `TS` (time series) command for optimized time series analysis.
+These dashboards provide comprehensive monitoring for Aerospike clusters, including cluster-level health metrics, per-node performance, and namespace-level storage and query statistics.
 
 ## Dashboards
 
@@ -20,7 +20,7 @@ All dashboards include navigation links for easy switching between views.
 
 - **Aerospike**: Aerospike database cluster
 - **OpenTelemetry Collector**: Collector with Aerospike receiver configured
-- **Kibana**: Version 8.x or later with ES|QL support
+- **Kibana**: Version 9.2.0 or later (required for TS/TBUCKET/RATE/AVG_OVER_TIME)
 
 ## Data Requirements
 
@@ -29,17 +29,17 @@ Dashboards expect metrics from the OpenTelemetry Aerospike receiver:
 - **Data stream dataset**: `aerospikereceiver.otel`
 - **Data view**: `metrics-*`
 
-### Core Metrics
+### Core Metrics (enabled by default)
 
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
 | `aerospike.node.name` | Resource | - | Node identifier |
-| `aerospike.node.memory.free` | Gauge | % | Percentage of free memory on the node |
-| `aerospike.node.connection.open` | Gauge | connections | Current open connections (by type) |
+| `aerospike.node.memory.free` | Gauge | % (0-100) | Percentage of free memory on the node |
+| `aerospike.node.connection.open` | Sum | connections | Current open connections (by type) |
 | `aerospike.namespace` | Resource | - | Namespace identifier |
-| `aerospike.namespace.memory.usage` | Gauge | bytes | Memory usage per namespace (by component) |
-| `aerospike.namespace.memory.free` | Gauge | % | Percentage of free memory per namespace |
-| `aerospike.namespace.disk.available` | Gauge | % | Percentage of available disk per namespace |
+| `aerospike.namespace.memory.usage` | Sum | bytes | Memory usage per namespace (by component) |
+| `aerospike.namespace.memory.free` | Gauge | % (0-100) | Percentage of free memory per namespace |
+| `aerospike.namespace.disk.available` | Gauge | % (0-100) | Percentage of available disk per namespace |
 
 ### Counter Metrics (use RATE() for time-series)
 
@@ -47,7 +47,14 @@ Dashboards expect metrics from the OpenTelemetry Aerospike receiver:
 | ------ | ---- | ----------- |
 | `aerospike.namespace.query.count` | queries | Query count (by type, index, result) |
 | `aerospike.namespace.transaction.count` | transactions | Transaction count (by type, result) |
+
+### Extended Metrics (optional)
+
+| Metric | Unit | Description |
+| ------ | ---- | ----------- |
 | `aerospike.node.connection.count` | connections | Connection count (by type, operation) |
+| `aerospike.node.query.tracked` | queries | Queries exceeding tracking threshold |
+| `aerospike.namespace.scan.count` | scans | Scan count (by type, result) |
 
 ### Key Attributes
 
@@ -58,15 +65,6 @@ Dashboards expect metrics from the OpenTelemetry Aerospike receiver:
 | `attributes.type` | Connection or transaction type |
 | `attributes.index` | Index type (primary/secondary) |
 
-## ES|QL Features
-
-These dashboards use ES|QL queries with the following features:
-
-- **`TS` command**: Time series optimized queries for efficient time-based analysis
-- **`TBUCKET()`**: Automatic time bucketing for time series visualizations
-- **`RATE()`**: Native rate calculations for counter metrics
-- **`AVG_OVER_TIME()`**: Time-weighted averages for gauge metrics
-- **`FROM` queries**: Aggregation queries for KPI metrics and data tables
 
 ## Setup
 

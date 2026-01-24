@@ -1,7 +1,6 @@
 ---
-# Aerospike Overview Dashboard (ES|QL)
+# Aerospike Overview Dashboard
 # Provides cluster-level metrics and node health monitoring
-# Uses ES|QL with TS command for time-series optimization
 dashboards:
   - id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
     name: '[Metrics Aerospike] Overview'
@@ -36,19 +35,10 @@ dashboards:
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
 
-      # ES|QL Note
-      - size: {w: 48, h: 2}
-        position: {x: 0, y: 2}
-        markdown:
-          content: |
-            **Note:** This dashboard uses ES|QL queries with the `TS` (time series) command for optimized time series analysis.
-            The `TS` command provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`.
-          font_size: 12
-
       # KPI Metrics Row
       - title: Aerospike Nodes
         size: {w: 12, h: 5}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 2}
         esql:
           type: metric
           query: |
@@ -61,7 +51,7 @@ dashboards:
             label: Nodes
       - title: Unique Namespaces
         size: {w: 12, h: 5}
-        position: {x: 12, y: 4}
+        position: {x: 12, y: 2}
         esql:
           type: metric
           query: |
@@ -72,22 +62,22 @@ dashboards:
           primary:
             field: namespace_count
             label: Namespaces
-      - title: Total Connections
+      - title: Avg Connections
         size: {w: 12, h: 5}
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 2}
         esql:
           type: metric
           query: |
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.connection.open IS NOT NULL
-            | STATS total_connections = MAX(aerospike.node.connection.open)
+            | STATS avg_connections = AVG(aerospike.node.connection.open)
           primary:
-            field: total_connections
+            field: avg_connections
             label: Connections
       - title: Avg Memory Free
         size: {w: 12, h: 5}
-        position: {x: 36, y: 4}
+        position: {x: 36, y: 2}
         esql:
           type: metric
           query: |
@@ -97,14 +87,15 @@ dashboards:
             | STATS memory_free = AVG(aerospike.node.memory.free)
           primary:
             field: memory_free
-            label: Memory Free
+            label: Memory Free %
             format:
-              type: percent
+              type: number
+              suffix: '%'
 
       # Cluster Summary DataTable
       - title: Cluster Node Summary
         size: {w: 48, h: 15}
-        position: {x: 0, y: 9}
+        position: {x: 0, y: 7}
         description: Summary of node-level metrics across the cluster
         esql:
           type: datatable
@@ -112,7 +103,7 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.node.name IS NOT NULL
-            - STATS memory_free = AVG(aerospike.node.memory.free), connections = SUM(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace)
+            - STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace)
               BY node = aerospike.node.name
             - KEEP node, namespaces, memory_free, connections
             - SORT node ASC
@@ -123,10 +114,10 @@ dashboards:
             - field: memory_free
             - field: connections
 
-      # Memory Usage Over Time
+      # Memory Free Over Time
       - title: Memory Free Over Time
         size: {w: 48, h: 10}
-        position: {x: 0, y: 24}
+        position: {x: 0, y: 22}
         esql:
           type: line
           query: |
@@ -144,21 +135,22 @@ dashboards:
             - field: memory_free
               label: Memory Free %
               format:
-                type: percent
+                type: number
+                suffix: '%'
           breakdown:
             field: node
 
       # Connections Over Time
       - title: Open Connections Over Time
         size: {w: 48, h: 10}
-        position: {x: 0, y: 34}
+        position: {x: 0, y: 32}
         esql:
           type: line
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.connection.open IS NOT NULL
-            | STATS connections = SUM(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -174,7 +166,7 @@ dashboards:
       # Distribution Charts
       - title: Memory Free by Node
         size: {w: 24, h: 10}
-        position: {x: 0, y: 44}
+        position: {x: 0, y: 42}
         esql:
           type: pie
           query: |
@@ -188,21 +180,22 @@ dashboards:
             - field: memory_free
               label: Memory Free %
               format:
-                type: percent
+                type: number
+                suffix: '%'
           dimensions:
             - field: node
           appearance:
             donut: medium
       - title: Connections by Node
         size: {w: 24, h: 10}
-        position: {x: 24, y: 44}
+        position: {x: 24, y: 42}
         esql:
           type: pie
           query: |
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.connection.open IS NOT NULL
-            | STATS connections = SUM(aerospike.node.connection.open) BY node = aerospike.node.name
+            | STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name
             | SORT connections DESC
             | LIMIT 20
           metrics:
