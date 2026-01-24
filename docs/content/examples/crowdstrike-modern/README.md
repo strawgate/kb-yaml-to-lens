@@ -1,19 +1,12 @@
 # CrowdStrike Modern Dashboards
 
-Workflow-centric security operations dashboards designed for modern SOC workflows. These dashboards follow the [Dashboard Style Guide](../../dashboard-style-guide.md) best practices with progressive disclosure pattern, consistent navigation, and control filters.
+Workflow-centric security operations dashboards designed for modern SOC workflows.
 
 ## Overview
 
 Unlike the dataset-centric [CrowdStrike dashboards](../crowdstrike/README.md), these modern dashboards are organized by security workflow rather than data source, making them ideal for daily SOC operations.
 
-**Design principles:**
-
-- 4-layer hierarchy (Context → Summary → Analysis → Detail)
-- Navigation links at top
-- Limited metric cards (0-4)
-- Appropriate chart types
-- Tables at bottom with 10-row pagination
-- Controls for filtering
+These dashboards follow the [Dashboard Style Guide](../../dashboard-style-guide.md) best practices with progressive disclosure pattern, consistent navigation, and control filters.
 
 ## Dashboards
 
@@ -34,25 +27,14 @@ All dashboards include consistent navigation for seamless workflow transitions.
 
 ## Data Requirements
 
-Dashboards expect data from the CrowdStrike integration:
-
 - **Data view**: `logs-*`
-- **Data stream datasets**:
-  - `crowdstrike.alert`
-  - `crowdstrike.falcon`
-  - `crowdstrike.fdr`
+- **Data stream datasets**: `crowdstrike.alert`, `crowdstrike.falcon`, `crowdstrike.fdr`
 
 ## Usage
 
 1. Configure the CrowdStrike integration in Elastic Agent
 2. Ensure data is being ingested to Elasticsearch
-3. Compile the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/crowdstrike-modern/
-   ```
-
-4. Upload to Kibana:
+3. Compile and upload the dashboards:
 
    ```bash
    kb-dashboard compile --input-dir docs/content/examples/crowdstrike-modern/ --upload

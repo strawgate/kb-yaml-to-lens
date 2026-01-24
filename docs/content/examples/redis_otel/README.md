@@ -24,55 +24,14 @@ All dashboards include navigation links for easy switching between views.
 
 ## Data Requirements
 
-Dashboards expect metrics from the OpenTelemetry Redis receiver:
-
 - **Data stream dataset**: `redisreceiver.otel`
 - **Data view**: `metrics-*`
-
-### Key Metrics
-
-| Metric | Description |
-|--------|-------------|
-| `redis.clients.connected` | Number of connected clients |
-| `redis.commands` | Commands processed per second |
-| `redis.memory.used` | Memory used by Redis |
-| `redis.keyspace.*` | Per-database key statistics |
-| `redis.replication.*` | Replication metrics |
-
-### Key Attributes
-
-- `resource.attributes.service.instance.id` - Redis instance identifier
-
-## Configuration Example
-
-```yaml
-receivers:
-  redis:
-    endpoint: localhost:6379
-    collection_interval: 10s
-
-exporters:
-  elasticsearch:
-    endpoints: ["https://your-elasticsearch-instance:9200"]
-
-service:
-  pipelines:
-    metrics:
-      receivers: [redis]
-      exporters: [elasticsearch]
-```
 
 ## Usage
 
 1. Configure the Redis receiver in your OpenTelemetry Collector
 2. Ensure metrics are being sent to Elasticsearch
-3. Compile the dashboards:
-
-   ```bash
-   kb-dashboard compile --input-dir docs/content/examples/redis_otel/
-   ```
-
-4. Upload to Kibana:
+3. Compile and upload the dashboards:
 
    ```bash
    kb-dashboard compile --input-dir docs/content/examples/redis_otel/ --upload

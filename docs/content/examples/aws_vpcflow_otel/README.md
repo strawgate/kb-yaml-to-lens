@@ -2,30 +2,35 @@
 
 DevOps/SRE monitoring dashboards for AWS VPC Flow Logs collected via OpenTelemetry.
 
-## Usage
+## Overview
 
-```bash
-# Compile to NDJSON
-kb-dashboard compile --input-dir docs/content/examples/aws_vpcflow_otel --output-dir output
-
-# Compile and upload to Kibana (requires credentials)
-kb-dashboard compile --input-dir docs/content/examples/aws_vpcflow_otel --output-dir output --upload
-```
-
-## Data Requirements
-
-- **Data View:** `logs-*`
-- **Dataset:** `data_stream.dataset == "aws.vpcflow.otel"`
-- **Required Fields:** `@timestamp`, `aws.vpc.flow.action`, `aws.vpc.flow.bytes`, `aws.vpc.flow.packets`, `source.address`, `source.port`, `destination.address`, `destination.port`, `network.protocol.name`, `network.interface.name`, `cloud.account.id`
+Based on the [aws_vpcflow_otel](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) package from elastic/integrations.
 
 ## Dashboards
 
-| Dashboard | ID | Description |
-| --------- | -- | ----------- |
-| VPC Flow Logs Overview | `aws_vpcflow_otel-overview` | High-level KPIs and time-series trends |
-| Traffic Analysis | `aws_vpcflow_otel-traffic` | Traffic distribution, source analysis, and security deep dive |
-| Interface Analysis | `aws_vpcflow_otel-interface` | Per-interface analysis and account metrics |
+| Dashboard | File | Description |
+|-----------|------|-------------|
+| **VPC Flow Logs Overview** | `overview.yaml` | High-level KPIs and time-series trends |
+| **Traffic Analysis** | `traffic.yaml` | Traffic distribution, source analysis, and security deep dive |
+| **Interface Analysis** | `interface.yaml` | Per-interface analysis and account metrics |
 
-## Source
+## Prerequisites
 
-Based on the [aws_vpcflow_otel](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) package from elastic/integrations.
+- **AWS VPC Flow Logs**: Configured for OpenTelemetry collection
+- **OpenTelemetry Collector**: Configured for VPC Flow Logs
+- **Kibana**: Version 8.x or later
+
+## Data Requirements
+
+- **Data stream dataset**: `aws.vpcflow.otel`
+- **Data view**: `logs-*`
+
+## Usage
+
+1. Configure OpenTelemetry Collector for AWS VPC Flow Logs
+2. Ensure logs are being sent to Elasticsearch
+3. Compile and upload the dashboards:
+
+   ```bash
+   kb-dashboard compile --input-dir docs/content/examples/aws_vpcflow_otel/ --upload
+   ```

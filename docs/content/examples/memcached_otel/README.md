@@ -20,62 +20,19 @@ This dashboard provides comprehensive monitoring for Memcached instances, displa
 
 ## Data Requirements
 
-Dashboard expects metrics from the OpenTelemetry Memcached receiver:
-
 - **Data stream dataset**: `memcachedreceiver.otel`
 - **Data view**: `metrics-*`
-
-### Key Metrics
-
-| Metric | Description |
-|--------|-------------|
-| `memcached.current_items` | Current number of items in cache |
-| `memcached.bytes` | Storage bytes used |
-| `memcached.current_connections` | Active client connections |
-| `memcached.commands` | Command counts (get, set, etc.) |
-| `memcached.operation_hit_ratio` | Cache hit/miss ratio |
-
-### Key Attributes
-
-- `resource.attributes.host.name` - Memcached host name
-
-## Configuration Example
-
-```yaml
-receivers:
-  memcached:
-    endpoint: localhost:11211
-    collection_interval: 10s
-
-exporters:
-  elasticsearch:
-    endpoints: ["https://your-elasticsearch-instance:9200"]
-
-service:
-  pipelines:
-    metrics:
-      receivers: [memcached]
-      exporters: [elasticsearch]
-```
 
 ## Usage
 
 1. Configure the Memcached receiver in your OpenTelemetry Collector
 2. Ensure metrics are being sent to Elasticsearch
-3. Compile the dashboard:
+3. Compile and upload the dashboard:
 
    ```bash
-   kb-dashboard compile --input-file docs/content/examples/memcached_otel/01-memcached-overview.yaml
+   kb-dashboard compile --input-dir docs/content/examples/memcached_otel/ --upload
    ```
 
-4. Upload to Kibana:
+## Related Resources
 
-   ```bash
-   kb-dashboard compile --input-file docs/content/examples/memcached_otel/01-memcached-overview.yaml --upload
-   ```
-
-## Dashboard Controls
-
-The dashboard includes interactive controls for filtering:
-
-- **Host Name**: Filter by Memcached host
+- [OpenTelemetry Memcached Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/memcachedreceiver)
