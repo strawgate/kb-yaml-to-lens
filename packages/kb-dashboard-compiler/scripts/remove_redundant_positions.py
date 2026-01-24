@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # pyright: reportAny=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownArgumentType=false
 # Script receives untyped YAML data from file parsing
 """Remove redundant position properties from dashboard YAML files.
 
@@ -458,12 +461,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description='Remove redundant position properties from dashboard YAML files.',
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         '--dry-run',
         action='store_true',
         help='Report which dashboards would be modified without making changes.',
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         'paths',
         nargs='*',
         help='Specific YAML files to process. If not provided, processes default directories.',

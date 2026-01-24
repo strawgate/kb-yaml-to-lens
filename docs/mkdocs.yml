@@ -51,7 +51,7 @@ plugins:
       handlers:
         python:
           paths:
-            - ../packages/kb-dashboard/src
+            - ../packages/kb-dashboard-compiler/src
           inventories:
             - url: https://docs.python.org/3/objects.inv
           options:

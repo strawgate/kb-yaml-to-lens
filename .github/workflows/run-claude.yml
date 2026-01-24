@@ -165,7 +165,7 @@ jobs:
 
             ### Stage 4: Final Verification
             1. **As supervisor**, run final verification:
-                - Run `make ci` to verify changes will pass CI checks
+                - Run `make all ci` to verify changes will pass CI checks
                 - Review completeness against original request
                 - Ensure all sub-tasks are addressed
             2. If verification fails, either fix directly or delegate fixes to general-purpose agent

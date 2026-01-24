@@ -7,7 +7,7 @@ import pytest
 from dashboard_compiler.dashboard_compiler import load
 
 # Find all YAML files in docs/content/examples (recursively)
-# Use absolute path since tests run from packages/kb-dashboard directory
+# Use absolute path since tests run from packages/kb-dashboard-compiler directory
 _project_root = Path(__file__).parent.parent.parent.parent
 example_dir = _project_root / 'docs' / 'content' / 'examples'
 

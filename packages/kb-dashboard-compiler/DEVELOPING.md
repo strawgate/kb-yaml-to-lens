@@ -21,7 +21,7 @@ Run from the `compiler/` directory, or use pass-through from the repository root
 | Command | Purpose |
 | ------- | ------- |
 | `make ci` | Run all CI checks (lint + typecheck + test) |
-| `make fix` | Auto-fix Python and YAML linting |
+| `make fix` | Auto-fix Python linting issues |
 | `make test` | Run Python unit tests |
 | `make typecheck` | Run type checking with basedpyright |
 | `make compile` | Compile YAML dashboards to NDJSON |

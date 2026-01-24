@@ -26,10 +26,10 @@ jobs:
         Respond to PR review feedback on  #${{ github.event.pull_request.number }}.
 
         # WORKFLOW
-        1. Get open threads: `make gh-get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}"`
+        1. Get open threads: `make gh get-review-threads "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}"`
         2. For each thread: fix the code OR explain why you won't (with comment)
-        3. Resolve thread: `make gh-resolve-review-thread "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "THREAD_ID" "[optional comment]"`
-        4. Run `make check`, fix failures
+        3. Resolve thread: `make gh resolve-review-thread "${{ github.repository_owner }}" "${{ github.event.repository.name }}" "${{ github.event.pull_request.number }}" "THREAD_ID" "[optional comment]"`
+        4. Run `make all ci`, fix failures
         5. Commit and push
         6. Repeat until no open threads
 

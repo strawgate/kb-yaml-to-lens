@@ -20,7 +20,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run Python linting checks
-        working-directory: compiler
+        working-directory: packages/kb-dashboard-compiler
         run: make lint-python-check
   lint-markdown:
     name: Lint Markdown
@@ -40,8 +40,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run yamllint
-        working-directory: compiler
+      - name: Run yamlfix
         run: make lint-yaml-check
   typecheck-python:
     name: Type-check Python
@@ -52,7 +51,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run basedpyright
-        working-directory: compiler
+        working-directory: packages/kb-dashboard-compiler
         run: make typecheck
   test-python:
     name: Test Python (${{ matrix.os }})
@@ -70,7 +69,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run pytest
-        working-directory: compiler
+        working-directory: packages/kb-dashboard-compiler
         run: make test
   test-python-coverage:
     name: Test Python Code Coverage
@@ -85,7 +84,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run tests with coverage
-        working-directory: compiler
+        working-directory: packages/kb-dashboard-compiler
         run: make test-coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -93,16 +92,16 @@ jobs:
         with:
           name: coverage-report
           path: |
-            compiler/.coverage
-            compiler/htmlcov/
-            compiler/coverage.json
+            packages/kb-dashboard-compiler-compiler/.coverage
+            packages/kb-dashboard-compiler-compiler/htmlcov/
+            packages/kb-dashboard-compiler-compiler/coverage.json
           retention-days: 30
       - name: Comment coverage on PR
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: compiler
+          COVERAGE_PATH: packages/kb-dashboard-compiler
       - name: Print coverage comment outputs
         run: |
           echo "Coverage Vars: ${{ tojson(steps.coverage_comment.outputs) }}"
@@ -130,7 +129,7 @@ jobs:
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run smoke tests
-        working-directory: compiler
+        working-directory: packages/kb-dashboard-compiler
         run: make test-smoke
   test-markdown-links:
     name: Validate Documentation Links

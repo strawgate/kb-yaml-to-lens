@@ -22,7 +22,7 @@ Instructions for CodeRabbit to improve code review accuracy across the kb-yaml-t
 
 See component-specific CODERABBIT.md files for detailed review instructions:
 
-- **Compiler (Python):** [packages/kb-dashboard/CODERABBIT.md](packages/kb-dashboard/CODERABBIT.md)
+- **Compiler (Python):** [packages/kb-dashboard-compiler/CODERABBIT.md](packages/kb-dashboard-compiler/CODERABBIT.md)
 - **VS Code Extension (TypeScript):** [vscode-extension/CODERABBIT.md](vscode-extension/CODERABBIT.md)
 
 ---

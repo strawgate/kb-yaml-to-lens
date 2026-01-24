@@ -17,7 +17,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: uv sync --group dev
-      working-directory: compiler
+      working-directory: packages/kb-dashboard
     - name: Install markdownlint-cli
       shell: bash
       run: npm install -g markdownlint-cli

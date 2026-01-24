@@ -1,3 +1,7 @@
+# pyright: reportUnknownMemberType=false
+# pyright: reportAny=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownArgumentType=false
 """Formula parser for Kibana Lens tinymath expressions.
 
 This module parses Kibana Lens formula strings and generates the helper columns

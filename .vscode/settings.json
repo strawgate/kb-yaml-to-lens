@@ -1,10 +1,7 @@
 {
     "python.testing.pytestArgs": [
-        "compiler/tests"
+        "packages/kb-dashboard-compiler/tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.venvPath": "compiler/.venv",
-    "python.defaultInterpreterPath": "compiler/.venv/bin/python",
-    "yamlDashboard.pythonPath": "/Users/bill.easton/repos/kb-yaml-to-lens/compiler/.venv/bin/python",
 }

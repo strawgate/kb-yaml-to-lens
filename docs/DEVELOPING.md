@@ -27,7 +27,7 @@ cd docs && mkdocs serve
 cd docs && mkdocs build
 
 # Full check (lint + link verification)
-make check-docs
+make docs ci
 ```
 
 **From repository root:** Use `make docs <target>` (e.g., `make docs test-links`).
@@ -50,7 +50,7 @@ See existing files in `examples/` for patterns.
 
 ## Link Verification
 
-CI verifies all internal and external links. Run `make check-docs` before committing.
+CI verifies all internal and external links. Run `make docs ci` before committing.
 
 ## Build Hooks
 

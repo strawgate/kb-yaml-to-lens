@@ -84,20 +84,20 @@ ignore = [
 
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
-"packages/kb-dashboard/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
-"packages/kb-dashboard/tests/**/*.py" = [
+"packages/kb-dashboard-compiler/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-compiler/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
 ]
-"packages/kb-dashboard/src/dashboard_compiler/**/view.py" = [
+"packages/kb-dashboard-compiler/src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
     "ANN202", # Ignore missing return type for private serializer methods
     "ERA001", # Allow commented JSON structure documentation
 ]
-"packages/kb-dashboard/src/dashboard_compiler/lsp/grid_*.py" = [
+"packages/kb-dashboard-compiler/src/dashboard_compiler/lsp/grid_*.py" = [
     "PLR2004", # Allow magic numbers (CLI arg counts)
     "PLR0911", # Allow many return statements in grid_updater
     "PLR0912", # Allow many branches in grid_updater
@@ -127,14 +127,16 @@ typeCheckingMode = "recommended"
 reportImportCycles = "error"
 reportExplicitAny = false
 reportIncompatibleVariableOverride = false
-include = ["packages/kb-dashboard/src/dashboard_compiler", "packages/kb-dashboard/tests"]
+include = ["packages/kb-dashboard-compiler/src"]
 exclude = [
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",
 ]
+extraPaths = ["packages/kb-dashboard-compiler/src"]
+
 [[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard/tests"
+root = "packages/kb-dashboard-compiler/tests"
 # Tests use many libraries and test patterns that trigger type warnings.
 # The volume of warnings makes inline ignores impractical for test code.
 reportMissingTypeStubs = false
@@ -153,7 +155,7 @@ reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
 
 [[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard/src/dashboard_compiler/panels/charts/lens/metrics/formula_parser.py"
+root = "packages/kb-dashboard-compiler/src/dashboard_compiler/panels/charts/lens/metrics/formula_parser.py"
 # Formula parser uses TatSu which lacks type stubs and returns untyped AST structures.
 # With 100+ type unknowns, per-line ignores would severely harm readability.
 reportMissingTypeStubs = false
@@ -163,10 +165,7 @@ reportUnknownVariableType = false
 reportUnknownArgumentType = false
 
 [[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard/src/dashboard_compiler/yaml_roundtrip.py"
+root = "packages/kb-dashboard-compiler/src/dashboard_compiler/yaml_roundtrip.py"
 # ruamel.yaml lacks type stubs and returns dynamic types from load/dump operations.
 reportAny = false
 reportUnknownMemberType = false
-
-[[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard/src/dashboard_compiler"

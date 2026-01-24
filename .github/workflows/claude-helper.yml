@@ -26,21 +26,21 @@ jobs:
 
         # CAPABILITIES
         - Read/modify code, run `make` commands, search codebase
-        - Resolve PR review threads via `make gh-resolve-review-thread`
+        - Resolve PR review threads via `make gh resolve-review-thread`
         - DO NOT create GitHub issues
 
         # HELPER COMMANDS
-        - `make gh-get-review-threads OWNER REPO PR_NUMBER` - Get review threads
-        - `make gh-resolve-review-thread OWNER REPO PR_NUMBER THREAD_ID [COMMENT]` - Resolve thread
-        - `make gh-get-comments-since OWNER REPO ISSUE_NUMBER TIMESTAMP` - Get recent comments
+        - `make gh get-review-threads OWNER REPO PR_NUMBER` - Get review threads
+        - `make gh resolve-review-thread OWNER REPO PR_NUMBER THREAD_ID [COMMENT]` - Resolve thread
+        - `make gh get-comments-since OWNER REPO ISSUE_NUMBER TIMESTAMP` - Get recent comments
 
         # WORKFLOW
         1. Understand request
         2. Read relevant files
         3. Make changes following project patterns
-        4. Run `make check`
+        4. Run `make all ci`
         5. Check for new comments before finishing:
-           `make gh-get-comments-since ${{ github.repository_owner }} ${{ github.event.repository.name }} ${{ github.event.issue.number }} "${{ github.event.comment.created_at }}"`
+           `make gh get-comments-since ${{ github.repository_owner }} ${{ github.event.repository.name }} ${{ github.event.issue.number }} "${{ github.event.comment.created_at }}"`
       allowed-tools: mcp__repository-summary,mcp__context7,mcp__code-search,WebSearch,WebFetch,Bash(make:*,gh:pr:*,gh:issue:close:*)
     secrets:
       claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

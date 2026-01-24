@@ -10,14 +10,14 @@ See [DEVELOPING.md](DEVELOPING.md) for development setup and workflows.
 
 See [CODE_STYLE.md](CODE_STYLE.md) for project-wide conventions, and component-specific guides:
 
-- **Python:** [packages/kb-dashboard/CODE_STYLE.md](packages/kb-dashboard/CODE_STYLE.md)
+- **Python:** [packages/kb-dashboard-compiler/CODE_STYLE.md](packages/kb-dashboard-compiler/CODE_STYLE.md)
 - **TypeScript:** [vscode-extension/CODE_STYLE.md](vscode-extension/CODE_STYLE.md)
 
 ## Pull Request Process
 
 ### Before Submitting
 
-1. **Run all checks:** `make ci`
+1. **Run all checks:** `make all ci`
 2. **Self-review your changes:**
    - Does it solve the stated problem?
    - Does the code follow existing patterns?

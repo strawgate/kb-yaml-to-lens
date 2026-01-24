@@ -1,21 +1,13 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full lint-python lint-python-check lint-yaml lint-yaml-check build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
 DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
-
-# YAML linting exclusions (operates on parent directory)
-YAMLFIX_EXCLUDE := \
-	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
-	--exclude "compiler/.venv/**/*.yaml" --exclude "compiler/.venv/**/*.yml" \
-	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
-	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
-	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
 
 help:
 	@echo "Dashboard Compiler Commands:"
@@ -32,12 +24,8 @@ help:
 	@echo "  fix           - Auto-fix linting issues"
 	@echo ""
 	@echo "Linting:"
-	@echo "  lint          - Auto-fix Python and YAML linting issues"
-	@echo "  lint-check    - Check Python and YAML linting without fixing"
-	@echo "  lint-python       - Auto-fix Python issues (format + lint)"
-	@echo "  lint-python-check - Check Python without fixing"
-	@echo "  lint-yaml         - Auto-fix YAML issues"
-	@echo "  lint-yaml-check   - Check YAML without fixing"
+	@echo "  lint              - Auto-fix Python linting issues (format + lint)"
+	@echo "  lint-check        - Check Python linting without fixing"
 	@echo ""
 	@echo "Type Checking:"
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
@@ -82,34 +70,20 @@ check: ci
 
 fix: lint
 
-# Combined linting
-lint: lint-python lint-yaml
-	@echo "✓ All linting complete (with auto-fix)"
-
-lint-check: lint-python-check lint-yaml-check
-	@echo "✓ All linting checks passed"
-
 # Python linting
-lint-python:
+lint:
 	@echo "Running ruff format..."
 	@uv run ruff format .
 	@echo "Running ruff check --fix..."
 	@uv run ruff check . --fix
+	@echo "✓ Python linting complete (with auto-fix)"
 
-lint-python-check:
+lint-check:
 	@echo "Running ruff format --check..."
 	@uv run ruff format . --check --quiet
 	@echo "Running ruff check..."
 	@uv run ruff check . --quiet
-
-# YAML linting (operates on parent directory)
-lint-yaml:
-	@echo "Running yamlfix..."
-	uv run yamlfix $(YAMLFIX_EXCLUDE) ..
-
-lint-yaml-check:
-	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check $(YAMLFIX_EXCLUDE) .. > /dev/null 2>&1 && echo "✓ YAML checks passed" || uv run yamlfix --check $(YAMLFIX_EXCLUDE) ..
+	@echo "✓ Python linting checks passed"
 
 # Type checking
 typecheck:
