@@ -1,0 +1,23 @@
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+tsconfig.json
+**/*.map
+**/*.ts
+!out/**/*.d.ts
+node_modules/**
+*.vsix
+build/**
+dist/**
+scripts/**
+esbuild.js
+test/**
+.eslintrc.json
+TESTING.md
+AGENTS.md
+CLAUDE.md
+# Exclude unnecessary compiler files (bin/ and compiler/ are included)
+compiler/.venv/**
+compiler/**/__pycache__/**
+compiler/**/*.pyc

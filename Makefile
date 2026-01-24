@@ -8,14 +8,14 @@ ifeq ($(PARALLEL),1)
 MAKEFLAGS += --jobs=3 --output-sync=target
 endif
 
-.PHONY: all help install ci check fix test-unit test-e2e clean clean-full lint-markdown lint-markdown-check check-docs gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci compiler vscode docs
+.PHONY: all help install ci check fix test-unit test-e2e clean clean-full lint-markdown lint-markdown-check check-docs gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show packages-ci vscode-ci markdown-ci packages vscode docs
 
 all: check
 
 help:
 	@echo "=== Root Orchestration Commands ==="
 	@echo ""
-	@echo "  install       - Install all dependencies (compiler + vscode + markdownlint)"
+	@echo "  install       - Install all dependencies (packages + vscode + markdownlint)"
 	@echo "  check         - Run fast checks in parallel (lint + typecheck + unit tests)"
 	@echo "  ci            - Run comprehensive CI (check + e2e tests)"
 	@echo "  fix           - Auto-fix linting issues across all components"
@@ -32,14 +32,13 @@ help:
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run any component target directly from root:"
-	@echo "  make compiler <target>  - Run in compiler/"
-	@echo "  make vscode <target>    - Run in vscode-extension/"
-	@echo "  make docs <target>      - Run in docs/"
+	@echo "  make packages <target>  - Run in packages/"
+	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
+	@echo "  make docs <target>      - Run in packages/docs/"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make compiler help         - Show all compiler targets"
-	@echo "  make compiler test-smoke   - Run compiler smoke tests"
-	@echo "  make compiler docker-build - Build compiler Docker image"
+	@echo "  make packages help         - Show all packages targets"
+	@echo "  make packages test-smoke   - Run compiler smoke tests"
 	@echo "  make vscode help           - Show all vscode targets"
 	@echo "  make vscode prepare        - Prepare extension for dev"
 	@echo "  make vscode package        - Package extension"
@@ -67,8 +66,9 @@ endef
 install:
 	@echo "Installing all component dependencies..."
 	@echo ""
-	$(call run-in-component,compiler,install)
-	$(call run-in-component,vscode-extension,install)
+	@echo "→ Installing Python packages..."
+	uv sync --group dev
+	$(call run-in-component,packages/vscode-extension,install)
 	@echo "→ Installing global tools..."
 	@if command -v npm > /dev/null 2>&1; then \
 		npm install -g markdownlint-cli; \
@@ -80,14 +80,14 @@ install:
 
 # Component CI targets for parallel execution
 # Use `make check -j3` for parallel execution, `make check` for sequential
-compiler-ci:
-	@echo "→ Running compiler CI..."
-	@cd compiler && $(MAKE) ci
+packages-ci:
+	@echo "→ Running packages CI..."
+	@cd packages && $(MAKE) ci
 	@echo ""
 
 vscode-ci:
 	@echo "→ Running vscode-extension CI..."
-	@cd vscode-extension && $(MAKE) ci
+	@cd packages/vscode-extension && $(MAKE) ci
 	@echo ""
 
 markdown-ci:
@@ -95,7 +95,7 @@ markdown-ci:
 	@$(MAKE) lint-markdown-check
 	@echo ""
 
-check: compiler-ci vscode-ci markdown-ci
+check: packages-ci vscode-ci markdown-ci
 	@echo "✓ All fast checks passed!"
 
 ci: check test-e2e
@@ -104,8 +104,8 @@ ci: check test-e2e
 fix:
 	@echo "Auto-fixing linting issues across all components..."
 	@echo ""
-	$(call run-in-component,compiler,fix)
-	$(call run-in-component,vscode-extension,fix)
+	$(call run-in-component,packages,fix)
+	$(call run-in-component,packages/vscode-extension,fix)
 	@echo "→ Fixing markdown issues..."
 	@$(MAKE) lint-markdown
 	@echo ""
@@ -114,14 +114,14 @@ fix:
 test-unit:
 	@echo "Running unit tests across all components..."
 	@echo ""
-	$(call run-in-component,compiler,test)
-	$(call run-in-component,vscode-extension,test-unit)
+	$(call run-in-component,packages,test)
+	$(call run-in-component,packages/vscode-extension,test-unit)
 	@echo "✓ All unit tests passed"
 
 test-e2e:
 	@echo "Running end-to-end tests..."
 	@echo ""
-	$(call run-in-component,vscode-extension,test-e2e)
+	$(call run-in-component,packages/vscode-extension,test-e2e)
 	@echo "✓ E2E tests passed"
 
 # Markdown linting (global)
@@ -137,22 +137,22 @@ lint-markdown-check:
 clean:
 	@echo "Cleaning all components..."
 	@echo ""
-	$(call run-in-component,compiler,clean)
-	$(call run-in-component,vscode-extension,clean)
+	$(call run-in-component,packages,clean)
+	$(call run-in-component,packages/vscode-extension,clean)
 	@echo "✓ Cleaning complete"
 
 clean-full:
 	@echo "Deep cleaning all components..."
 	@echo ""
-	$(call run-in-component,compiler,clean-full)
-	$(call run-in-component,vscode-extension,clean)
+	$(call run-in-component,packages,clean-full)
+	$(call run-in-component,packages/vscode-extension,clean)
 	@echo "✓ Deep cleaning complete"
 
 check-docs:
 	@echo "Checking documentation (lint + links)..."
 	@echo ""
 	@$(MAKE) lint-markdown-check
-	@$(call run-in-component,docs,test-links)
+	@$(call run-in-component,packages/docs,test-links)
 	@echo ""
 	@echo "✓ Documentation checks passed"
 
@@ -193,15 +193,19 @@ bump-version-show:
 
 # Component pass-through targets
 # These allow running any target in a component's Makefile directly from the root
-# Example: `make compiler test` runs `make test` in compiler/
+# Example: `make packages test` runs `make test` in packages/
+packages:
+	@cd packages && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+
+# Legacy alias for compatibility
 compiler:
-	@cd compiler && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+	@cd packages && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
 
 vscode:
-	@cd vscode-extension && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+	@cd packages/vscode-extension && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
 
 docs:
-	@cd docs && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
+	@cd packages/docs && $(MAKE) $(filter-out $@,$(MAKECMDGOALS))
 
 # Prevent make from trying to build targets passed as arguments to scripts
 %:

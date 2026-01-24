@@ -1,0 +1,347 @@
+---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+# See ../../licenses/ELASTIC-LICENSE-2.0.txt for the full license text.
+#
+# This file is derived from the Elastic integrations repository:
+# https://github.com/elastic/integrations/tree/main/packages/system_otel
+#
+# Modified by kb-yaml-to-lens contributors to convert from Kibana JSON format
+# to YAML format for use as documentation examples.
+dashboards:
+  - id: otel-host-details-metrics
+    name: '[OTel System] Host Details - Metrics'
+    description: Detailed system metrics for OpenTelemetry hosts
+    filters:
+      - exists: resource.attributes.host.name
+      - field: data_stream.dataset
+        equals: hostmetricsreceiver.otel
+    controls:
+      - type: options
+        label: Host Name
+        data_view: metrics-*
+        field: resource.attributes.host.name
+    panels:
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Hosts Overview
+              dashboard: otel-hosts-overview
+            - label: Host Overview
+              dashboard: otel-host-details-overview
+            - label: Host Metrics
+              dashboard: otel-host-details-metrics
+            - label: Host Metadata
+              dashboard: otel-host-details-metadata
+            - label: Host Logs
+              dashboard: otel-host-details-logs
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # CPU SECTION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: CPU Section
+        size: {w: 48, h: 3}
+        markdown:
+          content: '## CPU'
+      - title: CPU Utilization
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
+              label: CPU Utilization
+              format:
+                type: percent
+      - title: CPU Utilization by State
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.state
+            size: 10
+          metrics:
+            - aggregation: average
+              field: metrics.system.cpu.utilization
+              label: CPU %
+              format:
+                type: percent
+      - title: Load Average
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: metrics.system.cpu.load_average.1m
+              label: 1m
+            - aggregation: average
+              field: metrics.system.cpu.load_average.5m
+              label: 5m
+            - aggregation: average
+              field: metrics.system.cpu.load_average.15m
+              label: 15m
+      - title: Normalized Load
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              label: Normalized Load
+              format:
+                type: percent
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # MEMORY SECTION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Memory Section
+        size: {w: 48, h: 3}
+        markdown:
+          content: '## Memory'
+      - title: Memory Utilization
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              label: Memory Utilization
+              format:
+                type: percent
+      - title: Memory Utilization by State
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.state
+            size: 10
+          metrics:
+            - aggregation: average
+              field: metrics.system.memory.utilization
+              label: Memory %
+              format:
+                type: percent
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # DISK SECTION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Disk Section
+        size: {w: 48, h: 3}
+        markdown:
+          content: '## Disk'
+      - title: Disk Usage by Mount Point
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.mountpoint
+            size: 10
+          metrics:
+            - aggregation: average
+              field: metrics.system.filesystem.utilization
+              label: Disk Usage
+              format:
+                type: percent
+      - title: Disk Operations by Device
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - formula: counter_rate(metrics.system.disk.operations)
+              label: Operations/sec
+      - title: Disk I/O by Device
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - formula: counter_rate(metrics.system.disk.io)
+              label: Bytes/sec
+              format:
+                type: bytes
+      - title: Disk I/O Time by Device
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - aggregation: average
+              field: metrics.system.disk.io_time
+              label: I/O Time
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # NETWORK SECTION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Network Section
+        size: {w: 48, h: 3}
+        markdown:
+          content: '## Network'
+      - title: Network I/O by Interface
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - aggregation: average
+              field: metrics.system.network.io
+              label: Bytes
+              format:
+                type: bytes
+      - title: Network Packets by Interface
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - aggregation: average
+              field: metrics.system.network.packets
+              label: Packets
+      - title: Network Errors by Interface
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - aggregation: sum
+              field: metrics.system.network.errors
+              label: Errors
+      - title: Network Dropped Packets by Interface
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.device
+            size: 10
+          metrics:
+            - aggregation: sum
+              field: metrics.system.network.dropped
+              label: Dropped
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # PAGING SECTION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Paging Section
+        size: {w: 48, h: 3}
+        markdown:
+          content: '## Paging / Swap'
+      - title: Paging Utilization
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: metrics.system.paging.utilization
+              label: Paging Utilization
+              format:
+                type: percent
+      - title: Paging Operations
+        size: {w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: attributes.direction
+            size: 5
+          metrics:
+            - aggregation: average
+              field: metrics.system.paging.operations
+              label: Operations

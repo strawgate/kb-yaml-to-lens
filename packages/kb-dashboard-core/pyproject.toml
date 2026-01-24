@@ -1,0 +1,124 @@
+[project]
+name = "kb-dashboard-core"
+version = "0.1.10"
+description = "Core compiler library for converting YAML dashboard definitions to Kibana Lens format"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
+]
+dependencies = [
+    "pyyaml>=6.0.3",
+    "ruamel.yaml>=0.18.0",
+    "pydantic>=2.12",
+    "beartype>=0.22",
+    "humanize>=4.15",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "kb_dashboard.core"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+addopts = "-vv"
+
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "A", "ARG", "B", "C4", "COM", "DTZ", "E", "EM", "F", "FURB", "I",
+    "LOG", "N", "PERF", "PIE", "PLR", "PLW", "PT", "PTH", "Q", "RET",
+    "RSE", "RUF", "S", "SIM", "TC", "TID", "TRY", "UP", "W",
+    "D", "ANN", "PLE", "T10", "ISC", "FA", "PGH", "INP",
+]
+ignore = [
+    "COM812",
+    "D203",
+    "D213",
+    "D413",
+    "D100",
+    "A002",
+    "ANN401",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = ["S101", "PLR2004", "INP001"]
+"src/kb_dashboard/core/**/view.py" = ["N815", "N803", "D101", "ANN202", "ERA001"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.isort]
+known-first-party = ["kb_dashboard"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.basedpyright]
+pythonVersion = "3.12"
+typeCheckingMode = "recommended"
+reportImportCycles = "error"
+reportExplicitAny = false
+reportIncompatibleVariableOverride = false
+include = ["src/kb_dashboard/core", "tests"]
+exclude = ["**/.venv/**", "**/output/**"]
+
+[[tool.basedpyright.executionEnvironments]]
+root = "tests"
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src/kb_dashboard/core"
+
+[tool.coverage.run]
+source = ["src/kb_dashboard/core"]
+branch = true
+relative_files = true
+omit = ["*/tests/*", "*/test_*.py", "*/__pycache__/*"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+skip_empty = true
+fail_under = 80

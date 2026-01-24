@@ -1,0 +1,17 @@
+[project]
+name = "kb-dashboard-docs"
+version = "0.1.10"
+description = "Documentation for kb-dashboard"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+[dependency-groups]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.32",
+    "mkdocstrings[python]>=1.0.0",
+    "pymdown-extensions>=10.0",
+    "griffe-pydantic>=1.1.8",
+    "griffe-fieldz>=0.4.0",
+    "mkdocs-click>=0.8.0",
+]

@@ -1,0 +1,5 @@
+---
+dashboards:
+  - name: Test Dashboard
+    description: A simple test dashboard
+    panels: []

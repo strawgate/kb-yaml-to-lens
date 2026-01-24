@@ -1,0 +1,1 @@
+"""Lens column chart components."""
