@@ -28,7 +28,6 @@ dashboards:
           font_size: 12
           links_in_new_tab: false
       - title: FDR Alerts
-        hide_title: true
         position:
           x: 7
           y: 0
@@ -47,7 +46,6 @@ dashboards:
             - field: event.kind
               equals: alert
       - title: Falcon Incidents
-        hide_title: true
         position:
           x: 14
           y: 0

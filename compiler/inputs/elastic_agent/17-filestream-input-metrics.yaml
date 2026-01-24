@@ -41,13 +41,11 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - grid: {x: 7, y: 0, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average Processing Time (Milliseconds)}
       - grid: {x: 15, y: 0, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -57,7 +55,6 @@ dashboards:
             label: Messages Read Total
             format: {type: number, decimals: 0}
       - grid: {x: 23, y: 0, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -67,7 +64,6 @@ dashboards:
             label: Current Active Files
             format: {type: number, decimals: 0}
       - grid: {x: 31, y: 0, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -77,7 +73,6 @@ dashboards:
             label: Files Closed Total
             format: {type: number, decimals: 0}
       - grid: {x: 39, y: 0, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -87,7 +82,6 @@ dashboards:
             label: Files Opened Total
             format: {type: number, decimals: 0}
       - grid: {x: 7, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -97,7 +91,6 @@ dashboards:
             label: Events Processed Total
             format: {type: number, decimals: 0}
       - grid: {x: 15, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -107,7 +100,6 @@ dashboards:
             label: Bytes Processed Total
             format: {type: bytes, decimals: 0}
       - grid: {x: 31, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -117,7 +109,6 @@ dashboards:
             label: 'Pipeline: Events Filtered'
             format: {type: number, decimals: 0}
       - grid: {x: 39, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -127,7 +118,6 @@ dashboards:
             label: Errors Total
             format: {type: number, decimals: 0}
       - grid: {x: 23, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

@@ -72,7 +72,6 @@ dashboards:
             field: winlog.event_id
             size: 25
       - title: Audit Policy Changes (4719)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 18}
         lens:
@@ -85,7 +84,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4719'
       - title: Registry Value Modified (4657)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 18}
         lens:
@@ -98,7 +96,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4657'
       - title: Object Access (4663)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 18}
         lens:
@@ -111,7 +108,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4663'
       - title: Task Scheduled (4698)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 36, y: 18}
         lens:

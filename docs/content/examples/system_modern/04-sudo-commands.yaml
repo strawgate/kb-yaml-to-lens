@@ -46,7 +46,6 @@ dashboards:
 
       # Summary Layer - Key Security Metrics
       - title: Total Commands
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -56,7 +55,6 @@ dashboards:
             aggregation: count
             label: Commands
       - title: Unique Users
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -67,7 +65,6 @@ dashboards:
             field: system.auth.sudo.user
             label: Users
       - title: Unique Hosts
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 3}
         lens:
@@ -78,7 +75,6 @@ dashboards:
             field: host.hostname
             label: Hosts
       - title: Unique Commands
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 3}
         lens:

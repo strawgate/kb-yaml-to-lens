@@ -41,7 +41,6 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: '[Elastic Agent] CEL Input'
-        hide_title: true
         grid: {x: 7, y: 0, w: 9, h: 8}
         lens:
           type: metric
@@ -52,7 +51,6 @@ dashboards:
             label: Unique CEL Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] Cloudwatch Input'
-        hide_title: true
         grid: {x: 16, y: 0, w: 9, h: 8}
         lens:
           type: metric
@@ -63,7 +61,6 @@ dashboards:
             label: Unique Cloudwatch Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] Filestream Input'
-        hide_title: true
         grid: {x: 25, y: 0, w: 9, h: 8}
         lens:
           type: metric
@@ -74,7 +71,6 @@ dashboards:
             label: Unique Filestream Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] HTTP Endpoint Input'
-        hide_title: true
         grid: {x: 7, y: 8, w: 9, h: 8}
         lens:
           type: metric
@@ -85,7 +81,6 @@ dashboards:
             label: Unique HTTP Endpoint Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] HTTP JSON Input'
-        hide_title: true
         grid: {x: 16, y: 8, w: 9, h: 8}
         lens:
           type: metric
@@ -96,7 +91,6 @@ dashboards:
             label: Unique HTTP JSON Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] S3 Input'
-        hide_title: true
         grid: {x: 25, y: 8, w: 9, h: 8}
         lens:
           type: metric
@@ -107,7 +101,6 @@ dashboards:
             label: Unique S3 Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] TCP Input'
-        hide_title: true
         grid: {x: 7, y: 16, w: 9, h: 8}
         lens:
           type: metric
@@ -118,7 +111,6 @@ dashboards:
             label: Unique TCP Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] UDP Input'
-        hide_title: true
         grid: {x: 16, y: 16, w: 9, h: 8}
         lens:
           type: metric
@@ -129,7 +121,6 @@ dashboards:
             label: Unique UDP Inputs
             format: {type: number, compact: true, decimals: 0}
       - title: '[Elastic Agent] Winlog Input'
-        hide_title: true
         grid: {x: 25, y: 16, w: 9, h: 8}
         lens:
           type: metric

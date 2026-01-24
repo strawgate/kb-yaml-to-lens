@@ -60,7 +60,6 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: Computer Account Changes (4742)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 18}
         lens:
@@ -73,7 +72,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4742'
       - title: Kerberos TGT Requests (4768)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 18}
         lens:
@@ -86,7 +84,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4768'
       - title: Kerberos Service Tickets (4769)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 18}
         lens:
@@ -99,7 +96,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4769'
       - title: Credential Validation (4776)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 36, y: 18}
         lens:

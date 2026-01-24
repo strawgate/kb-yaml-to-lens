@@ -115,11 +115,11 @@ Complete configuration details are available in [Lens Panel Configuration](panel
 
 **When to Use:** High-level KPIs, single counts, status breakdowns at dashboard top.
 
-**Best Practices:** Use sparingly (0-4 typical, 78% use zero). Group horizontally, position before detailed visualizations. Modern dashboards prefer charts over standalone metrics. Always use `hide_title: true` to avoid displaying redundant panel titles—the metric's primary label provides sufficient context.
+**Best Practices:** Use sparingly (0-4 typical, 78% use zero). Group horizontally, position before detailed visualizations. Modern dashboards prefer charts over standalone metrics. When the `primary_label` text matches or closely resembles the panel `title`, set `hide_title: true` to avoid displaying redundant text.
 
 ```yaml
 - title: Total Requests
-  hide_title: true
+  hide_title: true  # primary_label "Requests" conveys the same meaning as the title
   lens:
     type: metric
     metric:

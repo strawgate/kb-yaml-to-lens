@@ -56,7 +56,6 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: User Created (4720)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 0, y: 18}
         lens:
@@ -69,7 +68,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4720'
       - title: User Enabled (4722)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 12, y: 18}
         lens:
@@ -82,7 +80,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4722'
       - title: User Disabled (4725)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 24, y: 18}
         lens:
@@ -95,7 +92,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4725'
       - title: User Deleted (4726)
-        hide_title: true
         size: {w: 12, h: 8}
         position: {x: 36, y: 18}
         lens:

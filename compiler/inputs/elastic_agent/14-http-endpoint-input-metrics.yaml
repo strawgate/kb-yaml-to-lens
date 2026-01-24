@@ -41,7 +41,6 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: '[Elastic Agent] Average Processing Time'
-        hide_title: true
         grid: {x: 7, y: 0, w: 6, h: 7}
         lens:
           type: metric
@@ -49,42 +48,36 @@ dashboards:
           primary: {aggregation: last_value, field: filebeat_input.batch_processing_time.histogram.mean, label: Part of Average Processing Time
               (Milliseconds)}
       - title: '[Elastic Agent] Average Batch Size'
-        hide_title: true
         grid: {x: 13, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batch_size.histogram.mean, label: Part of Average Batch Size}
       - title: '[Elastic Agent] Batches Received'
-        hide_title: true
         grid: {x: 19, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batches_received_total, label: Part of Batches Received}
       - title: '[Elastic Agent] Batches Published'
-        hide_title: true
         grid: {x: 25, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batches_published_total, label: Part of Batches Published}
       - title: '[Elastic Agent] Events Published'
-        hide_title: true
         grid: {x: 31, y: 0, w: 5, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.events_published_total, label: Part of Events Published}
       - title: '[Elastic Agent] Average Request Size'
-        hide_title: true
         grid: {x: 36, y: 0, w: 6, h: 7}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.size.histogram.mean, label: Part of Average Request Size}
       - title: '[Elastic Agent] API Errors'
-        hide_title: true
         grid: {x: 42, y: 0, w: 6, h: 7}
         lens:
           type: metric

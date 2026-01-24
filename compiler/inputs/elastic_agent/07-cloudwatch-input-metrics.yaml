@@ -41,28 +41,24 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: '[Elastic Agent] Cloudwatch API Calls Total'
-        hide_title: true
         grid: {x: 7, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.api_calls_total, label: Total API Calls}
       - title: '[Elastic Agent] Cloudwatch Events Received Total'
-        hide_title: true
         grid: {x: 17, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.log_events_received_total, label: Cloudwatch Events Collected}
       - title: '[Elastic Agent] Elasticsearch Events Created'
-        hide_title: true
         grid: {x: 27, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.cloudwatch_events_created_total, label: Events Created}
       - title: '[Elastic Agent] Cloudwatch Unique Log Groups Total'
-        hide_title: true
         grid: {x: 37, y: 0, w: 10, h: 6}
         lens:
           type: metric

@@ -70,7 +70,6 @@ dashboards:
 
       # Summary Layer - Key Metrics
       - title: Total Events
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -80,7 +79,6 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Event Types
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -91,7 +89,6 @@ dashboards:
             field: winlog.event_id
             label: Event Types
       - title: Policy Changes (4719)
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 3}
         lens:
@@ -104,7 +101,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4719'
       - title: Unique Users
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 3}
         lens:

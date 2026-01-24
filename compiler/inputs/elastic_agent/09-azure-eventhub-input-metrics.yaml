@@ -41,55 +41,46 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - grid: {x: 7, y: 0, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.received_messages_total, label: Part of Received Messages}
       - grid: {x: 17, y: 0, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sanitized_messages_total, label: Part of Sanitized Messages}
       - grid: {x: 27, y: 0, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.processed_messages_total, label: Part of Processed Messages}
       - grid: {x: 37, y: 0, w: 11, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.invalid_json_messages_total, label: Part of Invalid JSON Messages}
       - grid: {x: 7, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.received_events_total, label: Part of Received Events}
       - grid: {x: 15, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sent_events_total, label: Part of Sent Events}
       - grid: {x: 23, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Received Bytes}
       - grid: {x: 31, y: 6, w: 8, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.decode_errors_total, label: Part of Decode Errors}
       - grid: {x: 39, y: 6, w: 9, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

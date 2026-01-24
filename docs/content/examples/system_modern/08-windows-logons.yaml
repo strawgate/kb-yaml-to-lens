@@ -65,7 +65,6 @@ dashboards:
 
       # Summary Layer - Key Logon Metrics
       - title: Total Logon Events
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -75,7 +74,6 @@ dashboards:
             aggregation: count
             label: Events
       - title: Successful Logons
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -88,7 +86,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4624'
       - title: Failed Logons
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 3}
         lens:
@@ -101,7 +98,6 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Logoffs
-        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 3}
         lens:

@@ -22,7 +22,6 @@ dashboards:
             - {label: Integrations, dashboard: elastic_agent-1a4e7280-6b5e-11ed-98de-67bdecd21824}
             - {label: Input Metrics, dashboard: elastic_agent-a8192f90-cd3f-11ed-869d-e7dc1b551cd2}
       - title: Current Active Agents
-        hide_title: true
         grid: {x: 8, y: 0, w: 15, h: 4}
         lens:
           type: metric
@@ -33,7 +32,6 @@ dashboards:
             label: Total Agents
             format: {type: number, compact: true, decimals: 0}
       - title: Current Active Agents
-        hide_title: true
         grid: {x: 23, y: 0, w: 6, h: 4}
         lens:
           type: metric
@@ -45,7 +43,6 @@ dashboards:
             label: Linux
             format: {type: number, compact: true, decimals: 0}
       - title: Current Active Agents
-        hide_title: true
         grid: {x: 29, y: 0, w: 6, h: 4}
         lens:
           type: metric
@@ -57,7 +54,6 @@ dashboards:
             label: macOS
             format: {type: number, compact: true, decimals: 0}
       - title: Current Active Agents
-        hide_title: true
         grid: {x: 35, y: 0, w: 6, h: 4}
         lens:
           type: metric
@@ -72,7 +68,6 @@ dashboards:
         markdown:
           content: '## Integration Volume'
       - grid: {x: 8, y: 7, w: 8, h: 4}
-        hide_title: true
         lens:
           type: metric
           data_view: logs-*
@@ -82,7 +77,6 @@ dashboards:
             label: Logs Datasets
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 16, y: 7, w: 8, h: 4}
-        hide_title: true
         lens:
           type: metric
           data_view: logs-*
@@ -97,7 +91,6 @@ dashboards:
           metrics:
             - {aggregation: count, label: Metrics}
       - grid: {x: 8, y: 11, w: 8, h: 4}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -107,7 +100,6 @@ dashboards:
             label: Metrics Datasets
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 16, y: 11, w: 8, h: 4}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

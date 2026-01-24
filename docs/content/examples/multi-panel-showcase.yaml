@@ -37,7 +37,6 @@ dashboards:
             - label: Project Repository
               url: https://github.com/strawgate/kb-yaml-to-lens
       - title: Total Document Count
-        hide_title: true
         description: Simple metric chart showing total count
         size:
           w: 24

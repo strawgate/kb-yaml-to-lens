@@ -41,49 +41,41 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - grid: {x: 7, y: 0, w: 11, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.errors_total, label: Part of Errors}
       - grid: {x: 18, y: 0, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.decode_errors_total, label: Part of Decode Errors}
       - grid: {x: 28, y: 0, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.abs_bytes_processed_total, label: Part of Bytes Processed}
       - grid: {x: 38, y: 0, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.abs_events_created_total, label: Part of Events Created}
       - grid: {x: 7, y: 6, w: 11, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.abs_blobs_listed_total, label: Part of Blobs Listed}
       - grid: {x: 18, y: 6, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.abs_blobs_requested_total, label: Part of Blobs Requested}
       - grid: {x: 28, y: 6, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.abs_blobs_inflight_gauge, label: Part of Objects In Flight}
       - grid: {x: 38, y: 6, w: 10, h: 6}
-        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

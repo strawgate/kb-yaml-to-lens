@@ -31,7 +31,6 @@ dashboards:
             ### [System overview](system-metrics-overview)
           font_size: 12
       - title: CPU Usage
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 0, y: 3}
         lens:
@@ -44,7 +43,6 @@ dashboards:
             format:
               type: percent
       - title: Memory Usage
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 8, y: 3}
         lens:
@@ -57,7 +55,6 @@ dashboards:
             format:
               type: percent
       - title: Disk I/O
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 16, y: 3}
         lens:
@@ -70,7 +67,6 @@ dashboards:
             format:
               type: bytes
       - title: Inbound Traffic
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 24, y: 3}
         lens:
@@ -83,7 +79,6 @@ dashboards:
             format:
               type: bytes
       - title: Outbound Traffic
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 32, y: 3}
         lens:
@@ -96,7 +91,6 @@ dashboards:
             format:
               type: bytes
       - title: Load Average
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 40, y: 3}
         lens:
@@ -107,7 +101,6 @@ dashboards:
             field: system.load.1
             label: Load 1m
       - title: Disk Write I/O
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 0, y: 11}
         lens:
@@ -120,7 +113,6 @@ dashboards:
             format:
               type: bytes
       - title: Max Disk Usage
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 8, y: 11}
         lens:

@@ -64,7 +64,6 @@ dashboards:
             field: winlog.event_id
             size: 20
       - title: Group Created
-        hide_title: true
         size: {w: 10, h: 8}
         position: {x: 0, y: 18}
         lens:
@@ -81,7 +80,6 @@ dashboards:
                 - '4754'
                 - '4759'
       - title: Member Added
-        hide_title: true
         size: {w: 10, h: 8}
         position: {x: 10, y: 18}
         lens:
@@ -98,7 +96,6 @@ dashboards:
                 - '4756'
                 - '4761'
       - title: Group Modified
-        hide_title: true
         size: {w: 8, h: 8}
         position: {x: 20, y: 18}
         lens:
@@ -116,7 +113,6 @@ dashboards:
                 - '4760'
                 - '4764'
       - title: Member Removed
-        hide_title: true
         size: {w: 10, h: 8}
         position: {x: 28, y: 18}
         lens:
@@ -133,7 +129,6 @@ dashboards:
                 - '4757'
                 - '4762'
       - title: Group Deleted
-        hide_title: true
         size: {w: 10, h: 8}
         position: {x: 38, y: 18}
         lens:
