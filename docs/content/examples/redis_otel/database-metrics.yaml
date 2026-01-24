@@ -14,7 +14,7 @@ dashboards:
         match_technique: contains
     panels:
       - position: {x: 0, y: 0}
-        size: {w: 48, h: 3}
+        size: {w: 48, h: 2}
         links:
           layout: horizontal
           items:
