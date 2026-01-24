@@ -1,17 +1,6 @@
 import json
 from typing import Any
 
-import pytest
-from freezegun.api import FrozenDateTimeFactory
-
-
-@pytest.fixture(autouse=True)
-def freezer(freezer: FrozenDateTimeFactory) -> FrozenDateTimeFactory:
-    """Fixture to freeze time for consistent timestamps in snapshots."""
-    # Freeze time to a fixed point for consistency in tests
-    freezer.move_to('2023-10-01T12:00:00Z')
-    return freezer
-
 
 def de_json_kbn_dashboard(kbn_dashboard_dict: dict[str, Any]) -> dict[str, Any]:
     """Deserialize any stringified JSON in the kibana dashboard."""
