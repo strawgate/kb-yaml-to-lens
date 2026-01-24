@@ -1,20 +1,33 @@
 ---
+# Redis OpenTelemetry Database Metrics Dashboard (ES|QL Version)
+# Per-database keyspace metrics
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver
+# Requires metrics-* with data_stream.dataset == "redisreceiver.otel"
 dashboards:
-  - name: '[Metrics Redis] Database Metrics'
-    description: OpenTelemetry Redis Receiver - Per-database keyspace metrics
+  - id: redis-database-metrics
+    name: '[Metrics Redis] Database Metrics'
+    description: OpenTelemetry Redis Receiver - Per-database keyspace metrics (ES|QL)
     filters:
       - field: data_stream.dataset
         equals: redisreceiver.otel
     controls:
       - type: options
-        label: Redis Instance
+        id: instance-filter
+        label: Instance
         data_view: metrics-*
         field: resource.attributes.service.instance.id
         width: medium
-        match_technique: contains
+      - type: options
+        id: db-filter
+        label: Database
+        data_view: metrics-*
+        field: attributes.db
+        width: small
     panels:
-      - position: {x: 0, y: 0}
-        size: {w: 48, h: 2}
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -26,288 +39,275 @@ dashboards:
               dashboard: redis-database-metrics
             - label: Redis Documentation
               url: https://redis.io/docs/
+
+      # Section Header
       - position: {x: 0, y: 2}
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Database Overview'
-          font_size: 14
+
+      # KPI Row
       - title: Total Databases
-        position: {x: 0, y: 4}
-        size: {w: 12, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 0, y: 5}
+        size: {w: 12, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE attributes.db IS NOT NULL
+            | STATS databases = COUNT_DISTINCT(attributes.db)
           primary:
-            aggregation: unique_count
-            field: attributes.db
+            field: databases
             label: Databases
-            format:
-              type: number
       - title: Total Keys
-        position: {x: 12, y: 4}
-        size: {w: 12, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 12, y: 5}
+        size: {w: 12, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.keys IS NOT NULL
+            | STATS keys = SUM(LAST_OVER_TIME(redis.db.keys)) BY db = attributes.db
+            | STATS keys = SUM(keys)
           primary:
-            aggregation: sum
-            field: redis.db.keys
+            field: keys
             label: Keys
-            format:
-              type: number
       - title: Total Keys with Expiry
-        position: {x: 24, y: 4}
-        size: {w: 12, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 24, y: 5}
+        size: {w: 12, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.expires IS NOT NULL
+            | STATS expires = SUM(LAST_OVER_TIME(redis.db.expires)) BY db = attributes.db
+            | STATS expires = SUM(expires)
           primary:
-            aggregation: sum
-            field: redis.db.expires
+            field: expires
             label: Keys w/ TTL
-            format:
-              type: number
       - title: Avg TTL (All DBs)
-        position: {x: 36, y: 4}
-        size: {w: 12, h: 4}
-        lens:
+        hide_title: true
+        position: {x: 36, y: 5}
+        size: {w: 12, h: 5}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.avg_ttl IS NOT NULL
+            | STATS avg_ttl = AVG(LAST_OVER_TIME(redis.db.avg_ttl))
           primary:
-            aggregation: average
-            field: redis.db.avg_ttl
+            field: avg_ttl
             label: Avg TTL (ms)
-            format:
-              type: number
-      - position: {x: 0, y: 8}
-        size: {w: 48, h: 2}
+
+      # Section Header
+      - position: {x: 0, y: 10}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keys by Database'
-          font_size: 14
+
+      # Key Count by Database (Bar Chart)
       - title: Key Count by Database
-        position: {x: 0, y: 10}
+        position: {x: 0, y: 13}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: bar
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.keys IS NOT NULL
+            | STATS keys = AVG(redis.db.keys) BY db = attributes.db
+            | SORT keys DESC
+            | LIMIT 16
           legend:
             visible: show
             position: right
           dimension:
-            field: attributes.db
-            type: values
-            label: Database
-            size: 16
-            sort:
-              by: Keys
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: db
           metrics:
-            - aggregation: average
-              field: redis.db.keys
+            - field: keys
               label: Keys
-              format:
-                type: number
+
+      # Keys Distribution (Pie Chart)
       - title: Keys Distribution (Pie)
-        position: {x: 24, y: 10}
+        position: {x: 24, y: 13}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: pie
-          data_view: metrics-*
-          dimensions:
-            - field: attributes.db
-              type: values
-              size: 16
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.keys IS NOT NULL
+            | STATS keys = AVG(redis.db.keys) BY db = attributes.db
+            | SORT keys DESC
+            | LIMIT 16
           metrics:
-            - aggregation: average
-              field: redis.db.keys
+            - field: keys
               label: Keys
+          dimensions:
+            - field: db
+          appearance:
+            donut: medium
+
+      # Key Count Trend by Database (Gauge - use LAST_OVER_TIME for current state)
       - title: Key Count Trend by Database
-        position: {x: 0, y: 22}
+        position: {x: 0, y: 25}
         size: {w: 48, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.keys IS NOT NULL
+            | STATS keys = MAX(LAST_OVER_TIME(redis.db.keys))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: attributes.db
-            type: values
-            size: 16
-            sort:
-              by: Keys
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.db.keys
+            - field: keys
               label: Keys
-              format:
-                type: number
-      - position: {x: 0, y: 34}
-        size: {w: 48, h: 2}
+          breakdown:
+            field: db
+
+      # Section Header
+      - position: {x: 0, y: 37}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Keys with Expiration'
-          font_size: 14
+
+      # Keys with TTL by Database (Bar Chart)
       - title: Keys with TTL by Database
-        position: {x: 0, y: 36}
+        position: {x: 0, y: 40}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: bar
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.expires IS NOT NULL
+            | STATS expires = AVG(redis.db.expires) BY db = attributes.db
+            | SORT expires DESC
+            | LIMIT 16
           legend:
             visible: show
             position: right
           dimension:
-            field: attributes.db
-            type: values
-            label: Database
-            size: 16
-            sort:
-              by: Expires
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: db
           metrics:
-            - aggregation: average
-              field: redis.db.expires
+            - field: expires
               label: Expires
-              format:
-                type: number
+
+      # Keys with TTL Trend (Gauge - use LAST_OVER_TIME for current state)
       - title: Keys with TTL Trend
-        position: {x: 24, y: 36}
+        position: {x: 24, y: 40}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.expires IS NOT NULL
+            | STATS expires = MAX(LAST_OVER_TIME(redis.db.expires))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: attributes.db
-            type: values
-            size: 16
-            sort:
-              by: Expires
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.db.expires
+            - field: expires
               label: Expires
-              format:
-                type: number
-      - position: {x: 0, y: 48}
-        size: {w: 48, h: 2}
+          breakdown:
+            field: db
+
+      # Section Header
+      - position: {x: 0, y: 52}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Average Time-To-Live (TTL)'
-          font_size: 14
+
+      # Average TTL by Database (Bar Chart)
       - title: Average TTL by Database
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 55}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: bar
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.avg_ttl IS NOT NULL
+            | STATS avg_ttl = AVG(redis.db.avg_ttl) BY db = attributes.db
+            | SORT avg_ttl DESC
+            | LIMIT 16
           legend:
             visible: show
             position: right
           dimension:
-            field: attributes.db
-            type: values
-            label: Database
-            size: 16
-            sort:
-              by: Avg TTL
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: db
           metrics:
-            - aggregation: average
-              field: redis.db.avg_ttl
+            - field: avg_ttl
               label: Avg TTL
-              format:
-                type: number
+
+      # Average TTL Trend by Database (Gauge - use LAST_OVER_TIME for current state)
       - title: Average TTL Trend by Database
-        position: {x: 24, y: 50}
+        position: {x: 24, y: 55}
         size: {w: 24, h: 12}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "redisreceiver.otel"
+            | WHERE redis.db.avg_ttl IS NOT NULL
+            | STATS avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db
+            | SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: Time
-          breakdown:
-            field: attributes.db
-            type: values
-            size: 16
-            sort:
-              by: Avg TTL
-              direction: desc
-            other_bucket: false
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: average
-              field: redis.db.avg_ttl
+            - field: avg_ttl
               label: Avg TTL
-              format:
-                type: number
-      - position: {x: 0, y: 62}
-        size: {w: 48, h: 2}
+          breakdown:
+            field: db
+
+      # Section Header
+      - position: {x: 0, y: 67}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Database Summary Table'
-          font_size: 14
+
+      # Database Metrics Summary Table
       - title: Database Metrics Summary
-        position: {x: 0, y: 64}
-        size: {w: 48, h: 25}
-        lens:
+        position: {x: 0, y: 70}
+        size: {w: 48, h: 20}
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "redisreceiver.otel"
+            - WHERE attributes.db IS NOT NULL
+            - STATS keys = MAX(LAST_OVER_TIME(redis.db.keys)), expires = MAX(LAST_OVER_TIME(redis.db.expires)), avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
+              BY db = attributes.db
+            - EVAL expire_pct = expires / (keys + 0.000001)
+            - KEEP db, keys, expires, expire_pct, avg_ttl
+            - SORT keys DESC
+            - LIMIT 100
           dimensions:
-            - id: database
-              type: values
-              field: attributes.db
-              label: Database
-              size: 16
-          metrics:
-            - id: keys
-              aggregation: average
-              field: redis.db.keys
-              label: Total Keys
-              format:
-                type: number
-            - id: expires
-              aggregation: average
-              field: redis.db.expires
-              label: Keys w/ Expiry
-              format:
-                type: number
-            - id: expire-percent
-              formula: average(redis.db.expires) / average(redis.db.keys)
-              label: Expiry %
-              format:
-                type: percent
-            - id: avg-ttl
-              aggregation: average
-              field: redis.db.avg_ttl
-              label: Avg TTL (ms)
-              format:
-                type: number
-          paging:
-            enabled: true
-            page_size: 20
+            - field: db
+            - field: keys
+            - field: expires
+            - field: expire_pct
+            - field: avg_ttl

@@ -11,17 +11,19 @@
 # to YAML format for use as documentation examples.
 dashboards:
   - id: otel-hosts-overview
-    name: '[OTel] Hosts Overview'
+    name: '[OTel System] Hosts Overview'
     description: Overview of all OpenTelemetry-monitored hosts with key performance metrics
     filters:
       - exists: resource.attributes.host.name
       - field: data_stream.dataset
         equals: hostmetricsreceiver.otel
     panels:
-      - title: Navigation Links
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
         size: {w: 48, h: 3}
         position: {x: 0, y: 0}
-        description: Links to related dashboards
         links:
           layout: horizontal
           items:
@@ -35,9 +37,18 @@ dashboards:
               dashboard: otel-host-details-metadata
             - label: Host Logs
               dashboard: otel-host-details-logs
-      - title: Number of Hosts
-        size: {w: 48, h: 4}
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # FLEET HEALTH SUMMARY
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Fleet Health
+        size: {w: 48, h: 2}
         position: {x: 0, y: 3}
+        markdown:
+          content: '## Fleet Health'
+      - title: Total Hosts
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -45,9 +56,9 @@ dashboards:
             aggregation: unique_count
             field: resource.attributes.host.name
             label: Total Hosts
-      - title: Hosts by OS
-        size: {w: 48, h: 4}
-        position: {x: 0, y: 7}
+      - title: Hosts by OS Type
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -59,9 +70,89 @@ dashboards:
             aggregation: unique_count
             field: resource.attributes.host.name
             label: Hosts
+      - title: CPU Utilization Fleet
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: >-
+              1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+              wait'))
+            label: Avg CPU
+            format:
+              type: percent
+      - title: Memory Utilization Fleet
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+            label: Avg Memory
+            format:
+              type: percent
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # FLEET TRENDS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Fleet Trends
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 13}
+        markdown:
+          content: '## Fleet Trends'
+      - title: CPU Utilization Over Time
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 15}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: resource.attributes.host.name
+            size: 10
+          metrics:
+            - formula: >-
+                1 - (average(metrics.system.cpu.utilization, kql='attributes.state: idle') + average(metrics.system.cpu.utilization, kql='attributes.state:
+                wait'))
+              label: CPU Utilization
+              format:
+                type: percent
+      - title: Memory Utilization Over Time
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 15}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: resource.attributes.host.name
+            size: 10
+          metrics:
+            - formula: "average(metrics.system.memory.utilization, kql='attributes.state : \"used\"')"
+              label: Memory Utilization
+              format:
+                type: percent
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # HOST DETAILS TABLE
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Host Details
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 27}
+        markdown:
+          content: '## Host Details'
       - title: Host Performance Summary
-        size: {w: 48, h: 25}
-        position: {x: 0, y: 11}
+        size: {w: 48, h: 20}
+        position: {x: 0, y: 29}
         lens:
           type: datatable
           data_view: metrics-*
@@ -69,7 +160,13 @@ dashboards:
             - id: hostname
               type: values
               field: resource.attributes.host.name
+              label: Host
               size: 100
+            - id: os
+              type: values
+              field: resource.attributes.os.type
+              label: OS
+              size: 1
           metrics:
             - id: cpu-util
               formula: >-
@@ -88,6 +185,12 @@ dashboards:
               label: Normalized Load
               format:
                 type: percent
+            - id: disk-util
+              aggregation: average
+              field: metrics.system.filesystem.utilization
+              label: Disk %
+              format:
+                type: percent
           paging:
             enabled: true
-            page_size: 20
+            page_size: 10

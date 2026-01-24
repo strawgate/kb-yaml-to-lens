@@ -11,7 +11,7 @@
 # to YAML format for use as documentation examples.
 dashboards:
   - id: otel-host-details-logs
-    name: '[OTel] Host Details - Logs'
+    name: '[OTel System] Host Details - Logs'
     description: Host log messages from OpenTelemetry logs collection
     filters:
       - exists: resource.attributes.host.name
@@ -20,11 +20,17 @@ dashboards:
         label: Host Name
         data_view: logs-*
         field: resource.attributes.host.name
+      - type: options
+        label: Log Level
+        data_view: logs-*
+        field: log.level
     panels:
-      - title: Navigation Links
-        size: {w: 48, h: 2}
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
-        description: Links to related dashboards
         links:
           layout: horizontal
           items:
@@ -38,9 +44,58 @@ dashboards:
               dashboard: otel-host-details-metadata
             - label: Host Logs
               dashboard: otel-host-details-logs
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # LOG SUMMARY
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Log Summary
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
+        markdown:
+          content: '## Log Summary'
+      - title: Log Events Over Time
+        size: {w: 32, h: 12}
+        position: {x: 0, y: 5}
+        lens:
+          type: area
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            type: values
+            field: log.level
+            size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Log Level Distribution
+        size: {w: 16, h: 12}
+        position: {x: 32, y: 5}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - field: log.level
+              type: values
+              label: Level
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # LOG DETAILS TABLE
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Log Details
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 17}
+        markdown:
+          content: '## Log Details'
       - title: Logs
-        size: {w: 48, h: 56}
-        position: {x: 0, y: 2}
+        size: {w: 48, h: 40}
+        position: {x: 0, y: 19}
         esql:
           type: datatable
           query:
@@ -48,7 +103,9 @@ dashboards:
             - WHERE resource.attributes.host.name IS NOT NULL
             - SORT @timestamp DESC
             - LIMIT 1000
-            - KEEP message, @timestamp
+            - KEEP @timestamp, log.level, log.logger, message
           dimensions:
             - field: '@timestamp'
+            - field: log.level
+            - field: log.logger
             - field: message

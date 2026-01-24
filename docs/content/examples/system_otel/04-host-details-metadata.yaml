@@ -11,7 +11,7 @@
 # to YAML format for use as documentation examples.
 dashboards:
   - id: otel-host-details-metadata
-    name: '[OTel] Host Details - Metadata'
+    name: '[OTel System] Host Details - Metadata'
     description: Host resource attributes and metadata from OpenTelemetry hostmetricsreceiver
     filters:
       - exists: resource.attributes.host.name
@@ -23,10 +23,12 @@ dashboards:
         data_view: metrics-*
         field: resource.attributes.host.name
     panels:
-      - title: Navigation Links
-        size: {w: 48, h: 2}
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
         position: {x: 0, y: 0}
-        description: Links to related dashboards
         links:
           layout: horizontal
           items:
@@ -40,9 +42,18 @@ dashboards:
               dashboard: otel-host-details-metadata
             - label: Host Logs
               dashboard: otel-host-details-logs
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # HOST & OS METADATA
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Host & OS Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
+        markdown:
+          content: '## Host & Operating System'
       - title: Host Metadata
         size: {w: 24, h: 12}
-        position: {x: 0, y: 2}
+        position: {x: 0, y: 5}
         esql:
           type: datatable
           query:
@@ -62,9 +73,38 @@ dashboards:
           dimensions:
             - field: Resource Attribute
             - field: Value
-      - title: Host CPU Metadata
+      - title: Operating System Metadata
         size: {w: 24, h: 12}
-        position: {x: 24, y: 2}
+        position: {x: 24, y: 5}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE resource.attributes.host.name IS NOT NULL
+            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
+            - LIMIT 1
+            - STATS BY description = resource.attributes.os.description, type = resource.attributes.os.type
+            - EVAL str = CONCAT("os.description$", description, "|", "os.type$",type)
+            - EVAL arr = SPLIT(str, "|")
+            - MV_EXPAND arr
+            - EVAL pairs = SPLIT(arr, "$")
+            - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
+            - KEEP `Resource Attribute`, `Value`
+          dimensions:
+            - field: Resource Attribute
+            - field: Value
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # CPU METADATA
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: CPU Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 17}
+        markdown:
+          content: '## CPU'
+      - title: Host CPU Metadata
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 19}
         esql:
           type: datatable
           query:
@@ -85,29 +125,18 @@ dashboards:
           dimensions:
             - field: Resource Attribute
             - field: Value
-      - title: Operating System Metadata
-        size: {w: 24, h: 7}
-        position: {x: 0, y: 14}
-        esql:
-          type: datatable
-          query:
-            - FROM metrics-*
-            - WHERE resource.attributes.host.name IS NOT NULL
-            - WHERE data_stream.dataset == "hostmetricsreceiver.otel"
-            - LIMIT 1
-            - STATS BY description = resource.attributes.os.description, type = resource.attributes.os.type
-            - EVAL str = CONCAT("os.description$", description, "|", "os.type$",type)
-            - EVAL arr = SPLIT(str, "|")
-            - MV_EXPAND arr
-            - EVAL pairs = SPLIT(arr, "$")
-            - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
-            - KEEP `Resource Attribute`, `Value`
-          dimensions:
-            - field: Resource Attribute
-            - field: Value
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # CLOUD METADATA
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Cloud Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 31}
+        markdown:
+          content: '## Cloud'
       - title: Cloud Metadata
-        size: {w: 24, h: 12}
-        position: {x: 24, y: 14}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 33}
         esql:
           type: datatable
           query:
@@ -127,9 +156,18 @@ dashboards:
           dimensions:
             - field: Resource Attribute
             - field: Value
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # KUBERNETES METADATA
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Kubernetes Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 45}
+        markdown:
+          content: '## Kubernetes'
       - title: Kubernetes Metadata
-        size: {w: 24, h: 5}
-        position: {x: 0, y: 21}
+        size: {w: 48, h: 8}
+        position: {x: 0, y: 47}
         esql:
           type: datatable
           query:
