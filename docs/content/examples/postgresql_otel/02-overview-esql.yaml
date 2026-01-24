@@ -32,19 +32,10 @@ dashboards:
             - label: Overview (ES|QL)
               dashboard: postgresql-otel-overview-esql
 
-      # ES|QL Note
-      - size: {w: 48, h: 2}
-        position: {x: 0, y: 2}
-        markdown:
-          content: |
-            **Note:** This dashboard uses ES|QL queries with the `TS` (time series) command for optimized time series analysis.
-            The `TS` command provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`.
-          font_size: 12
-
       # KPI Metrics Row using ES|QL
       - title: Total Databases
         size: {w: 12, h: 5}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 2}
         esql:
           type: metric
           query: |
@@ -57,7 +48,7 @@ dashboards:
             label: Databases
       - title: Active Connections
         size: {w: 12, h: 5}
-        position: {x: 12, y: 4}
+        position: {x: 12, y: 2}
         esql:
           type: metric
           query: |
@@ -70,7 +61,7 @@ dashboards:
             label: Active Backends
       - title: Max Connections
         size: {w: 12, h: 5}
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 2}
         esql:
           type: metric
           query: |
@@ -83,7 +74,7 @@ dashboards:
             label: Max Connections
       - title: Database Count
         size: {w: 12, h: 5}
-        position: {x: 36, y: 4}
+        position: {x: 36, y: 2}
         esql:
           type: metric
           query: |
@@ -98,7 +89,7 @@ dashboards:
       # Performance Summary DataTable using ES|QL
       - title: Database Performance Summary
         size: {w: 48, h: 18}
-        position: {x: 0, y: 9}
+        position: {x: 0, y: 7}
         description: Shows cumulative counter values and current state metrics per database. The commit_total, rollback_total, and blocks_read_total
           columns are cumulative totals (not per-second rates). For rate calculations, see the time-series charts below which use the TS command
           with RATE().
@@ -124,7 +115,7 @@ dashboards:
       # Connections Over Time using ES|QL TS
       - title: Active Connections Over Time
         size: {w: 48, h: 10}
-        position: {x: 0, y: 27}
+        position: {x: 0, y: 25}
         esql:
           type: line
           query: |
@@ -147,7 +138,7 @@ dashboards:
       # Transaction Metrics using ES|QL TS
       - title: Transaction Rate - Commits
         size: {w: 24, h: 10}
-        position: {x: 0, y: 37}
+        position: {x: 0, y: 35}
         esql:
           type: area
           mode: stacked
@@ -172,7 +163,7 @@ dashboards:
             field: database
       - title: Transaction Rate - Rollbacks
         size: {w: 24, h: 10}
-        position: {x: 24, y: 37}
+        position: {x: 24, y: 35}
         esql:
           type: area
           mode: stacked
@@ -199,7 +190,7 @@ dashboards:
       # Block I/O Metrics using ES|QL TS
       - title: Block I/O - By Source
         size: {w: 48, h: 12}
-        position: {x: 0, y: 47}
+        position: {x: 0, y: 45}
         esql:
           type: line
           query: |
@@ -222,7 +213,7 @@ dashboards:
       # Database Operations using ES|QL TS
       - title: Database Operations by Type
         size: {w: 48, h: 12}
-        position: {x: 0, y: 59}
+        position: {x: 0, y: 57}
         esql:
           type: bar
           mode: stacked
@@ -246,7 +237,7 @@ dashboards:
       # Database Sizes using ES|QL Pie Chart
       - title: Database Sizes
         size: {w: 24, h: 10}
-        position: {x: 0, y: 71}
+        position: {x: 0, y: 69}
         esql:
           type: pie
           query: |
@@ -270,7 +261,7 @@ dashboards:
       # Connection State Distribution using ES|QL
       - title: Connection States
         size: {w: 24, h: 10}
-        position: {x: 24, y: 71}
+        position: {x: 24, y: 69}
         esql:
           type: pie
           query: |
@@ -295,7 +286,7 @@ dashboards:
       # Database Metadata Table
       - title: Database Metadata
         size: {w: 48, h: 12}
-        position: {x: 0, y: 81}
+        position: {x: 0, y: 79}
         esql:
           type: datatable
           query:
