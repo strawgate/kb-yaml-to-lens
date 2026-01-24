@@ -84,67 +84,137 @@ service:
 1. **JVM Metrics** - Use `jvm.*` prefix (NO `elasticsearch.` prefix)
 2. **Elasticsearch Metrics** - Use `elasticsearch.*` prefix
 
-### Cluster Metrics
+### Cluster Metrics (default enabled)
 
-| Metric | Type | Description |
-| ------ | ---- | ----------- |
-| `elasticsearch.cluster.health` | Gauge | Cluster health status (green/yellow/red) |
-| `elasticsearch.cluster.nodes` | Gauge | Total number of nodes in cluster |
-| `elasticsearch.cluster.data_nodes` | Gauge | Number of data nodes in cluster |
-| `elasticsearch.cluster.shards` | Gauge | Number of shards (by aggregation, state) |
-| `elasticsearch.cluster.pending_tasks` | Gauge | Number of pending cluster tasks |
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.cluster.health` | Sum | `{status}` | Cluster health (green/yellow/red) | `status` |
+| `elasticsearch.cluster.nodes` | Sum | `{nodes}` | Total node count | — |
+| `elasticsearch.cluster.data_nodes` | Sum | `{nodes}` | Data node count | — |
+| `elasticsearch.cluster.shards` | Sum | `{shards}` | Shard count by state | `state` |
+| `elasticsearch.cluster.pending_tasks` | Sum | `{tasks}` | Pending cluster tasks | — |
+| `elasticsearch.cluster.in_flight_fetch` | Sum | `{fetches}` | Unfinished fetches | — |
+| `elasticsearch.cluster.published_states.full` | Sum | `1` | Published cluster states | — |
+| `elasticsearch.cluster.published_states.differences` | Sum | `1` | Differences between states | `state` |
+| `elasticsearch.cluster.state_queue` | Sum | `1` | Cluster states in queue | `state` |
+| `elasticsearch.cluster.state_update.count` | Sum | `1` | State update attempts | `state` |
+| `elasticsearch.cluster.state_update.time` | Sum | `ms` | Time updating cluster state | `state`, `type` |
 
-### Node Metrics
+### Node Metrics (default enabled)
 
-| Metric | Type | Description |
-| ------ | ---- | ----------- |
-| `elasticsearch.node.documents` | Gauge | Documents on node |
-| `elasticsearch.node.fs.disk.available` | Gauge | Available disk space |
-| `elasticsearch.node.http.connections` | Gauge | HTTP connections |
-| `elasticsearch.node.cache.memory.usage` | Gauge | Cache memory usage (by cache_name) |
-| `elasticsearch.node.thread_pool.tasks.queued` | Gauge | Queued thread pool tasks |
-| `elasticsearch.process.cpu.usage` | Gauge | Process CPU usage (0-1) |
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.node.documents` | Sum | `{documents}` | Documents on node | `state` |
+| `elasticsearch.node.fs.disk.available` | Sum | `By` | Available disk space | — |
+| `elasticsearch.node.fs.disk.free` | Sum | `By` | Unallocated disk space | — |
+| `elasticsearch.node.fs.disk.total` | Sum | `By` | Total disk space | — |
+| `elasticsearch.node.http.connections` | Sum | `{connections}` | HTTP connections to node | — |
+| `elasticsearch.node.cache.memory.usage` | Sum | `By` | Cache size on node | `cache_name` |
+| `elasticsearch.node.cache.count` | Sum | `{count}` | Query cache hits/misses | `type` |
+| `elasticsearch.node.cache.evictions` | Sum | `{evictions}` | Cache evictions | `cache_name` |
+| `elasticsearch.node.cluster.connections` | Sum | `{connections}` | Cluster TCP connections | — |
+| `elasticsearch.node.cluster.io` | Sum | `By` | Cluster network bytes | `direction` |
+| `elasticsearch.node.disk.io.read` | Sum | `KiBy` | Disk bytes read (Linux) | — |
+| `elasticsearch.node.disk.io.write` | Sum | `KiBy` | Disk bytes written (Linux) | — |
+| `elasticsearch.node.ingest.documents` | Sum | `{documents}` | Documents ingested lifetime | — |
+| `elasticsearch.node.ingest.documents.current` | Sum | `{documents}` | Documents currently ingesting | — |
+| `elasticsearch.node.ingest.operations.failed` | Sum | `{operation}` | Failed ingest operations | — |
+| `elasticsearch.node.open_files` | Sum | `{files}` | Open file descriptors | — |
+| `elasticsearch.node.operations.completed` | Sum | `{operations}` | Operations completed | `operation` |
+| `elasticsearch.node.operations.time` | Sum | `ms` | Operation time | `operation` |
+| `elasticsearch.node.pipeline.ingest.documents.current` | Sum | `{documents}` | Documents in pipeline | `name` |
+| `elasticsearch.node.pipeline.ingest.documents.preprocessed` | Sum | `{documents}` | Documents preprocessed | `name` |
+| `elasticsearch.node.pipeline.ingest.operations.failed` | Sum | `{operation}` | Failed pipeline ops | `name` |
+| `elasticsearch.node.script.compilations` | Sum | `{compilations}` | Script compilations | — |
+| `elasticsearch.node.script.cache_evictions` | Sum | `1` | Script cache evictions | — |
+| `elasticsearch.node.script.compilation_limit_triggered` | Sum | `1` | Circuit breaker triggers | — |
+| `elasticsearch.node.shards.size` | Sum | `By` | Shard storage size | — |
+| `elasticsearch.node.shards.data_set.size` | Sum | `By` | Dataset size of shards | — |
+| `elasticsearch.node.shards.reserved.size` | Sum | `By` | Reserved shard size | — |
+| `elasticsearch.node.thread_pool.tasks.queued` | Sum | `{tasks}` | Queued tasks | `thread_pool_name` |
+| `elasticsearch.node.thread_pool.tasks.finished` | Sum | `{tasks}` | Finished tasks | `thread_pool_name`, `state` |
+| `elasticsearch.node.thread_pool.threads` | Sum | `{threads}` | Thread count | `thread_pool_name`, `state` |
+| `elasticsearch.node.translog.operations` | Sum | `{operations}` | Transaction log ops | — |
+| `elasticsearch.node.translog.size` | Sum | `By` | Transaction log size | — |
+| `elasticsearch.node.translog.uncommitted.size` | Sum | `By` | Uncommitted translog size | — |
+| `elasticsearch.os.cpu.usage` | Gauge | `%` | System CPU usage | — |
+| `elasticsearch.os.cpu.load_avg.1m` | Gauge | `1` | 1-minute load average | — |
+| `elasticsearch.os.cpu.load_avg.5m` | Gauge | `1` | 5-minute load average | — |
+| `elasticsearch.os.cpu.load_avg.15m` | Gauge | `1` | 15-minute load average | — |
+| `elasticsearch.os.memory` | Gauge | `By` | Physical memory | `state` |
+| `elasticsearch.process.cpu.usage` | Gauge | `1` | Process CPU usage (0-1) | — |
 
-### JVM Metrics
+### JVM Metrics (default enabled)
 
-| Metric | Type | Description |
-| ------ | ---- | ----------- |
-| `jvm.memory.heap.used` | Gauge | Used heap memory |
-| `jvm.memory.heap.max` | Gauge | Maximum heap memory |
-| `jvm.gc.collections.count` | Counter | GC collection count (by name) |
-| `jvm.gc.collections.elapsed` | Counter | GC collection time (by name) |
-| `jvm.threads.count` | Gauge | JVM thread count |
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `jvm.memory.heap.used` | Gauge | `By` | Used heap memory | — |
+| `jvm.memory.heap.max` | Gauge | `By` | Maximum heap memory | — |
+| `jvm.memory.heap.committed` | Gauge | `By` | Committed heap memory | — |
+| `jvm.memory.nonheap.used` | Gauge | `By` | Used non-heap memory | — |
+| `jvm.memory.nonheap.committed` | Gauge | `By` | Committed non-heap | — |
+| `jvm.memory.pool.used` | Gauge | `By` | Memory pool usage | `name` |
+| `jvm.memory.pool.max` | Gauge | `By` | Memory pool maximum | `name` |
+| `jvm.gc.collections.count` | Sum | `1` | GC collection count | `name` |
+| `jvm.gc.collections.elapsed` | Sum | `ms` | GC elapsed time | `name` |
+| `jvm.classes.loaded` | Gauge | `1` | Loaded classes | — |
+| `jvm.threads.count` | Gauge | `1` | JVM thread count | — |
 
-### Index Metrics
+### Index Metrics (default enabled)
 
-| Metric | Type | Description |
-| ------ | ---- | ----------- |
-| `elasticsearch.index.documents` | Gauge | Number of documents in index |
-| `elasticsearch.index.shards.size` | Gauge | Size of index shards |
-| `elasticsearch.index.segments.count` | Gauge | Number of segments in index |
-| `elasticsearch.index.operations.completed` | Counter | Completed index operations (by operation) |
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.index.documents` | Sum | `{documents}` | Documents in index | `state`, `aggregation` |
+| `elasticsearch.index.shards.size` | Sum | `By` | Index shard size | `aggregation` |
+| `elasticsearch.index.segments.count` | Sum | `{segments}` | Segments in index | `aggregation` |
+| `elasticsearch.index.operations.completed` | Sum | `{operations}` | Completed operations | `operation`, `aggregation` |
+| `elasticsearch.index.operations.time` | Sum | `ms` | Operation time | `operation`, `aggregation` |
+| `elasticsearch.index.operations.merge.current` | Gauge | `{merges}` | Active segment merges | `aggregation` |
 
-### Circuit Breaker Metrics
+### Circuit Breaker Metrics (default enabled)
 
-| Metric | Type | Description |
-| ------ | ---- | ----------- |
-| `elasticsearch.breaker.memory.estimated` | Gauge | Estimated memory used by circuit breaker |
-| `elasticsearch.breaker.memory.limit` | Gauge | Maximum memory for circuit breaker |
-| `elasticsearch.breaker.tripped` | Counter | Total circuit breaker trips |
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.breaker.memory.estimated` | Gauge | `By` | Estimated memory used | `name` |
+| `elasticsearch.breaker.memory.limit` | Sum | `By` | Memory limit | `name` |
+| `elasticsearch.breaker.tripped` | Sum | `1` | Circuit breaker trips | `name` |
 
-### Attributes
+### Indexing Pressure Metrics (default enabled)
+
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.indexing_pressure.memory.limit` | Gauge | `By` | Indexing memory limit | — |
+| `elasticsearch.indexing_pressure.memory.total.primary_rejections` | Sum | `1` | Primary rejections | — |
+| `elasticsearch.indexing_pressure.memory.total.replica_rejections` | Sum | `1` | Replica rejections | — |
+| `elasticsearch.memory.indexing_pressure` | Sum | `By` | Indexing memory | `stage` |
+
+### Metric Attributes
+
+| Attribute | Values | Description |
+| --------- | ------ | ----------- |
+| `status` | `green`, `yellow`, `red` | Cluster health status |
+| `state` (shards) | `active`, `active_primary`, `initializing`, `relocating`, `unassigned`, `unassigned_delayed` | Shard state |
+| `state` (documents) | `active`, `deleted` | Document state |
+| `state` (queue) | `pending`, `committed` | Queue state |
+| `state` (memory) | `free`, `used` | Memory state |
+| `state` (threads) | `active`, `idle` | Thread state |
+| `type` (update) | `computation_time`, `context_construction_time`, `notification_time`, `publication_time` | State update type |
+| `cache_name` | `fielddata`, `query`, `request` | Cache type |
+| `thread_pool_name` | `analyze`, `fetch_shard_store`, `get`, `listener`, `search`, `write` | Thread pool |
+| `operation` | `index`, `delete`, `get`, `query`, `fetch`, `scroll`, `suggest`, `merge`, `refresh`, `flush`, `warmer` | Operation type |
+| `aggregation` | `total`, `primaries`, `replicas` | Shard aggregation |
+| `direction` | `sent`, `received` | Network direction |
+| `name` | Various | Circuit breaker, GC, or memory pool name |
+| `stage` | `coordinating`, `primary`, `replica` | Indexing pressure stage |
+
+### Resource Attributes
 
 | Attribute | Description |
 | --------- | ----------- |
 | `elasticsearch.cluster.name` | Cluster identifier |
 | `elasticsearch.node.name` | Node identifier |
+| `elasticsearch.node.version` | Node version |
 | `elasticsearch.index.name` | Index name |
-| `cache_name` | Cache type (fielddata, query, request) |
-| `thread_pool_name` | Thread pool type (search, write, get, etc.) |
-| `name` | Circuit breaker type, GC collector name, or JVM memory pool name |
-| `operation` | Operation type (read, write, index, search, etc.) |
-| `aggregation` | Shard aggregation type (total, primary, replica) |
-| `state` | Thread state, shard state, or health status |
 
 ## Related Resources
 

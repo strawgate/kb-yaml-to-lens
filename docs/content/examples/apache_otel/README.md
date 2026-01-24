@@ -56,33 +56,40 @@ service:
 
 ## Metrics Reference
 
-| Metric | Description | Type | Unit |
-|--------|-------------|------|------|
-| `apache.requests` | Total requests serviced | Sum | requests |
-| `apache.traffic` | Total HTTP server traffic | Sum | bytes |
-| `apache.current_connections` | Active connections | Sum | connections |
-| `apache.connections.async` | Async connections by state (writing, keepalive, closing) | Gauge | connections |
-| `apache.uptime` | Server uptime | Sum | seconds |
-| `apache.cpu.load` | Current CPU load percentage | Gauge | percent |
-| `apache.cpu.time` | CPU time by level and mode | Sum | {jiff} |
-| `apache.request.time` | Total request processing time | Sum | ms |
-| `apache.load.1` | Server load (1 minute average) | Gauge | percent |
-| `apache.load.5` | Server load (5 minute average) | Gauge | percent |
-| `apache.load.15` | Server load (15 minute average) | Gauge | percent |
-| `apache.workers` | Workers by state | Sum | workers |
-| `apache.scoreboard` | Scoreboard by state | Sum | workers |
+All metrics are enabled by default.
 
-### Attributes
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `apache.requests` | Sum | `{requests}` | Number of requests serviced | — |
+| `apache.traffic` | Sum | `By` | Total HTTP server traffic | — |
+| `apache.current_connections` | Sum | `{connections}` | Number of active connections currently attached | — |
+| `apache.connections.async` | Gauge | `{connections}` | Number of connections in different asynchronous states | `connection_state` |
+| `apache.uptime` | Sum | `s` | Time the server has been running | — |
+| `apache.cpu.load` | Gauge | `%` | Current processor load | — |
+| `apache.cpu.time` | Sum | `{jiff}` | Jiffs used by processes of given category | `level`, `mode` |
+| `apache.request.time` | Sum | `ms` | Total time spent on handling requests | — |
+| `apache.load.1` | Gauge | `%` | Average server load over last 1 minute | — |
+| `apache.load.5` | Gauge | `%` | Average server load over last 5 minutes | — |
+| `apache.load.15` | Gauge | `%` | Average server load over last 15 minutes | — |
+| `apache.workers` | Sum | `{workers}` | Number of workers currently attached | `state` |
+| `apache.scoreboard` | Sum | `{workers}` | Count of workers decoded from Apache's scoreboard | `state` |
+
+### Metric Attributes
+
+| Attribute | Values | Description |
+| --------- | ------ | ----------- |
+| `connection_state` | `writing`, `keepalive`, `closing` | Async connection state |
+| `level` | `self`, `children` | CPU level |
+| `mode` | `system`, `user` | CPU mode |
+| `state` (workers) | `busy`, `idle` | Worker state |
+| `state` (scoreboard) | `open`, `waiting`, `starting`, `reading`, `sending`, `keepalive`, `dnslookup`, `closing`, `logging`, `finishing`, `idle_cleanup`, `unknown` | Scoreboard state |
+
+### Resource Attributes
 
 | Attribute | Description |
 | --------- | ----------- |
-| `server.address` | Apache server hostname/address |
-| `server.port` | Apache server port |
-| `attributes.connection_state` | Async connection state (writing, keepalive, closing) |
-| `attributes.workers_state` | Worker state |
-| `attributes.scoreboard_state` | Scoreboard state |
-| `attributes.cpu_level` | CPU level (system, user, children) |
-| `attributes.cpu_mode` | CPU mode |
+| `apache.server.name` | Apache HTTP server name |
+| `apache.server.port` | Apache HTTP server port |
 
 ## Related Resources
 
