@@ -343,7 +343,7 @@ def _walk_ast(  # noqa: PLR0911, PLR0912
             # Get position info
             start, end = 0, len(formula_text)
             parseinfo = node.get('parseinfo')
-            if parseinfo:
+            if parseinfo is not None:
                 try:
                     start = parseinfo.pos
                     end = parseinfo.endpos
@@ -555,7 +555,7 @@ def _extract_aggregation_info(  # noqa: PLR0912
     start = 0
     end = len(formula_text)
     parseinfo = node.get('parseinfo')
-    if parseinfo:
+    if parseinfo is not None:
         try:
             start = parseinfo.pos
             end = parseinfo.endpos
@@ -646,7 +646,7 @@ def build_tinymath_ast_with_refs(
         The tinymathAST structure with column references.
 
     """
-    if parse_result.is_simple_literal:
+    if parse_result.is_simple_literal is True:
         return parse_result.tinymath_ast
 
     full_ref_refs = full_ref_column_refs or {}

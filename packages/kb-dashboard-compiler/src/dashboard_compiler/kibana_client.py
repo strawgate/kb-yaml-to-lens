@@ -190,11 +190,11 @@ class KibanaClient:
 
         """
         headers = {'kbn-xsrf': 'true'}
-        if self.api_key:
+        if self.api_key is not None:
             headers['Authorization'] = f'ApiKey {self.api_key}'
 
         auth = None
-        if self.username and self.password:
+        if self.username is not None and self.password is not None:
             auth = aiohttp.BasicAuth(self.username, self.password)
 
         return headers, auth
@@ -283,7 +283,7 @@ class KibanaClient:
 
         """
         endpoint = '/api/saved_objects/_import'
-        if overwrite:
+        if overwrite is True:
             endpoint += '?overwrite=true'
 
         data = aiohttp.FormData()

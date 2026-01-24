@@ -119,7 +119,7 @@ def _create_aggregation_column(
 
     # Create filter if kql was specified
     filter_query: KbnQuery | None = None
-    if agg_info.filter_query:
+    if agg_info.filter_query is not None:
         filter_query = KbnQuery(query=agg_info.filter_query, language='kuery')
 
     return KbnLensFormulaAggColumn(

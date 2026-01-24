@@ -144,7 +144,7 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim_id in zip(lens_pie_chart.dimensions, all_dimension_ids, strict=True):
-        if dim_config.collapse:
+        if dim_config.collapse is not None:
             if collapse_fns is None:
                 collapse_fns = {}
             collapse_fns[compiled_dim_id] = str(dim_config.collapse)
@@ -189,7 +189,7 @@ def compile_esql_pie_chart(
 
     collapse_fns: dict[str, str] | None = None
     for dim_config, compiled_dim in zip(esql_pie_chart.dimensions, dimensions, strict=True):
-        if dim_config.collapse:
+        if dim_config.collapse is not None:
             if collapse_fns is None:
                 collapse_fns = {}
             collapse_fns[compiled_dim.columnId] = str(dim_config.collapse)
