@@ -59,5 +59,5 @@ test-links:
 
 clean:
 	$(call print_start, "Cleaning documentation build artifacts")
-	@rm -rf site/
+	@rm -rf site/ llms.txt llms-full.txt 2>/dev/null || true
 	$(call print_end, "Clean complete")

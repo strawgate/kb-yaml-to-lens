@@ -2,7 +2,11 @@
 # Common helper functions and variables used across all component Makefiles
 # Include this file with: include ../Makefile.shared (or ../Makefile.shared from subdirectories)
 
+# Force use of bash for PIPESTATUS support
+SHELL := /bin/bash
+
 # Helper to indent command output (4 spaces) while preserving exit codes
+# Note: Requires bash (SHELL := /bin/bash) for PIPESTATUS support
 INDENT = 2>&1 | sed 's/^/    /' ; exit $${PIPESTATUS[0]}
 
 # Helper functions for consistent message formatting

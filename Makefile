@@ -136,13 +136,20 @@ ifeq ($(_FIRST_GOAL),gh)
 endif
 
 compiler:
-	@$(MAKE) -C packages/kb-dashboard-compiler $(_ARGS)
+	@$(MAKE) SHELL=/bin/bash -C packages/kb-dashboard-compiler $(_ARGS)
 
 vscode:
-	@$(MAKE) -C vscode-extension $(_ARGS)
+	@$(MAKE) SHELL=/bin/bash -C vscode-extension $(_ARGS)
 
 docs:
-	@$(MAKE) -C packages/kb-dashboard-docs $(_ARGS)
+	@$(MAKE) SHELL=/bin/bash -C packages/kb-dashboard-docs $(_ARGS)
 
 gh:
-	@$(MAKE) -C .github/scripts $(_ARGS)
+	@$(MAKE) SHELL=/bin/bash -C .github/scripts $(_ARGS)
+
+# Prevent make from trying to build targets passed as arguments to 'all'
+# Without this, 'make all clean' would try to run 'clean' after the all target completes
+ifeq ($(_FIRST_GOAL),all)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif

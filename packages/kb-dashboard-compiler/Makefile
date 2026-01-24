@@ -4,7 +4,7 @@
 # Include shared helpers
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean clean-full build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean build publish publish-test
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -56,8 +56,7 @@ help:
 	@echo "  publish-test  - Publish package to TestPyPI"
 	@echo ""
 	@echo "Cleaning:"
-	@echo "  clean         - Clean cache and temporary files"
-	@echo "  clean-full    - Clean all including virtual environment"
+	@echo "  clean         - Clean cache, temporary files, and virtual environment"
 	@echo ""
 
 all: ci
@@ -152,13 +151,12 @@ test-docker-smoke:
 # Cleaning
 clean:
 	$(call print_start, "Cleaning up")
-	@rm -rf __pycache__ **/__pycache__ .pytest_cache **/.pytest_cache .ruff_cache **/.ruff_cache 2>/dev/null || true
+	@find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+	@find . -type d -name '.pytest_cache' -exec rm -rf {} + 2>/dev/null || true
+	@find . -type d -name '.ruff_cache' -exec rm -rf {} + 2>/dev/null || true
 	@find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete 2>/dev/null || true
+	@rm -rf .venv htmlcov/ .coverage coverage.json 2>/dev/null || true
 	$(call print_end, "Cleanup complete")
-
-clean-full: clean
-	$(call run_cmd, "Removing virtual environment", rm -rf .venv, "Virtual environment removed")
-	$(call print_end, "Full cleanup complete")
 
 # PyPI Publishing
 build:

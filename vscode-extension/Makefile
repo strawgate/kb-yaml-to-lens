@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only package install-vscode install-cursor clean prepare prepare-all clean-binaries
+.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only package install-vscode install-cursor clean prepare prepare-all
 
 # Include shared helpers
 include ../Makefile.shared
@@ -42,8 +42,7 @@ help:
 	@echo "  prepare-all      - Download uv for all platforms + bundle compiler (for release)"
 	@echo ""
 	@echo "Cleaning:"
-	@echo "  clean            - Clean build artifacts"
-	@echo "  clean-binaries   - Clean downloaded binaries and bundled compiler"
+	@echo "  clean            - Clean build artifacts, dependencies, and binaries"
 
 install:
 	$(call run_cmd, "Installing VSCode extension dependencies", npm ci, "VSCode extension dependencies installed")
@@ -146,10 +145,5 @@ prepare-all:
 
 clean:
 	$(call print_start, "Cleaning build artifacts")
-	@rm -rf out/ node_modules/ 2>/dev/null || true
+	@rm -rf out/ node_modules/ bin/ compiler/ *.vsix 2>/dev/null || true
 	$(call print_end, "Build artifacts cleaned")
-
-clean-binaries:
-	$(call print_start, "Cleaning downloaded binaries and bundled compiler")
-	@rm -rf bin/ compiler/ 2>/dev/null || true
-	$(call print_end, "Binaries cleaned")
