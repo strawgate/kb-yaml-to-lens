@@ -42,7 +42,6 @@ dashboards:
 
       # KPI Metrics Row
       - title: Total Redis Instances
-        hide_title: true
         position: {x: 0, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -56,7 +55,6 @@ dashboards:
             field: instances
             label: Instances
       - title: Total Client Connections
-        hide_title: true
         position: {x: 8, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -89,7 +87,6 @@ dashboards:
             field: commands_per_sec
             label: Commands/sec
       - title: Cache Hit Rate
-        hide_title: true
         position: {x: 24, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -107,7 +104,6 @@ dashboards:
             format:
               type: percent
       - title: Total Memory Usage
-        hide_title: true
         position: {x: 32, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -125,7 +121,6 @@ dashboards:
             format:
               type: bytes
       - title: Avg Memory Fragmentation
-        hide_title: true
         position: {x: 40, y: 5}
         size: {w: 8, h: 5}
         esql:

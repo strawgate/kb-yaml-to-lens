@@ -42,7 +42,6 @@ dashboards:
 
       # Health KPI Row
       - title: Uptime
-        hide_title: true
         position: {x: 0, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -56,7 +55,6 @@ dashboards:
             field: uptime
             label: Uptime (s)
       - title: Connected Clients
-        hide_title: true
         position: {x: 8, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -84,7 +82,6 @@ dashboards:
             field: blocked
             label: Blocked
       - title: Commands/sec
-        hide_title: true
         position: {x: 24, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -98,7 +95,6 @@ dashboards:
             field: commands
             label: Cmd/sec
       - title: Connected Replicas
-        hide_title: true
         position: {x: 32, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -112,7 +108,6 @@ dashboards:
             field: replicas
             label: Replicas
       - title: Cache Hit Rate
-        hide_title: true
         position: {x: 40, y: 5}
         size: {w: 8, h: 5}
         esql:
@@ -138,7 +133,6 @@ dashboards:
 
       # Memory KPI Row
       - title: Memory Used
-        hide_title: true
         position: {x: 0, y: 13}
         size: {w: 8, h: 5}
         esql:
@@ -154,7 +148,6 @@ dashboards:
             format:
               type: bytes
       - title: Memory Peak
-        hide_title: true
         position: {x: 8, y: 13}
         size: {w: 8, h: 5}
         esql:
@@ -186,7 +179,6 @@ dashboards:
             format:
               type: bytes
       - title: Fragmentation Ratio
-        hide_title: true
         position: {x: 24, y: 13}
         size: {w: 8, h: 5}
         esql:
@@ -200,7 +192,6 @@ dashboards:
             field: fragmentation
             label: Fragmentation
       - title: Lua Memory
-        hide_title: true
         position: {x: 32, y: 13}
         size: {w: 8, h: 5}
         esql:
