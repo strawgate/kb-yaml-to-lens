@@ -3,6 +3,11 @@
 # Comprehensive PostgreSQL metrics dashboard using OpenTelemetry PostgreSQL receiver
 # Uses ES|QL with TS command for time-series optimization
 #
+# Requirements:
+#   - data_stream.dataset == "postgresqlreceiver.otel"
+#   - Enable postgresql.connection.max metric for the Max Connections KPI panel
+#   - Enable postgresql.database.count metric for the Database Count KPI panel
+#
 # Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/postgresqlreceiver
 dashboards:
   - id: postgresql-otel-overview-esql
@@ -45,7 +50,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE postgresql.backends IS NOT NULL
-            - STATS active_backends = MAX(LAST_OVER_TIME(postgresql.backends))
+            - STATS active_backends = SUM(LAST_OVER_TIME(postgresql.backends))
           primary:
             field: active_backends
             label: Active Backends
@@ -82,7 +87,7 @@ dashboards:
       - title: Database Performance Summary
         size: {w: 48, h: 18}
         position: {x: 0, y: 6}
-        description: Current state metrics per database. Counter metrics show cumulative values.
+        description: Peak metrics per database over the selected time range. Counter metrics show maximum cumulative values.
         esql:
           type: datatable
           query:

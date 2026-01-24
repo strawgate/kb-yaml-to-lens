@@ -78,6 +78,10 @@ receivers:
     metrics:
       postgresql.backends:
         enabled: true
+      postgresql.connection.max:
+        enabled: true
+      postgresql.database.count:
+        enabled: true
       postgresql.commits:
         enabled: true
       postgresql.rollbacks:
