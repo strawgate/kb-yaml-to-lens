@@ -50,7 +50,7 @@ dashboards:
       - title: Total HPAs
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
+        position: {x: 0, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -62,7 +62,7 @@ dashboards:
       - title: Current Replicas
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
+        position: {x: 12, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -74,7 +74,7 @@ dashboards:
       - title: Desired Replicas
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
+        position: {x: 24, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -86,7 +86,7 @@ dashboards:
       - title: Max Replicas Limit
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
+        position: {x: 36, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -107,7 +107,7 @@ dashboards:
           font_size: 14
       - title: Scaling Activity (Current vs Desired)
         size: {w: 24, h: 14}
-        position: {x: 0, y: 15}
+        position: {x: 0, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -123,7 +123,7 @@ dashboards:
             - exists: k8s.hpa.name
       - title: Capacity Headroom (Min / Current / Max)
         size: {w: 24, h: 14}
-        position: {x: 24, y: 15}
+        position: {x: 24, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -151,7 +151,7 @@ dashboards:
           font_size: 14
       - title: HPA Status by Name
         size: {w: 48, h: 14}
-        position: {x: 0, y: 31}
+        position: {x: 0, y: 32}
         lens:
           type: datatable
           data_view: metrics-*

@@ -46,7 +46,7 @@ dashboards:
       - title: Running Pods
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
+        position: {x: 0, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -59,7 +59,7 @@ dashboards:
       - title: Pending Pods
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
+        position: {x: 12, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -72,7 +72,7 @@ dashboards:
       - title: Failed Pods
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
+        position: {x: 24, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -85,7 +85,7 @@ dashboards:
       - title: Container Restarts
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
+        position: {x: 36, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -169,7 +169,7 @@ dashboards:
           font_size: 14
       - title: Deployments - Desired vs Available
         size: {w: 24, h: 12}
-        position: {x: 0, y: 29}
+        position: {x: 0, y: 30}
         lens:
           type: line
           data_view: metrics-*
@@ -185,7 +185,7 @@ dashboards:
             - exists: k8s.deployment.name
       - title: Container Restarts by Namespace
         size: {w: 24, h: 12}
-        position: {x: 24, y: 29}
+        position: {x: 24, y: 30}
         lens:
           type: bar
           data_view: metrics-*
@@ -213,7 +213,7 @@ dashboards:
           font_size: 14
       - title: Deployments Missing Replicas
         size: {w: 48, h: 12}
-        position: {x: 0, y: 43}
+        position: {x: 0, y: 44}
         lens:
           type: datatable
           data_view: metrics-*

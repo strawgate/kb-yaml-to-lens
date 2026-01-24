@@ -33,7 +33,7 @@ dashboards:
           font_size: 14
       - title: Total Databases
         hide_title: true
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         size: {w: 12, h: 4}
         lens:
           type: metric
@@ -46,7 +46,7 @@ dashboards:
               type: number
       - title: Total Keys
         hide_title: true
-        position: {x: 12, y: 4}
+        position: {x: 12, y: 5}
         size: {w: 12, h: 4}
         lens:
           type: metric
@@ -58,7 +58,7 @@ dashboards:
             format:
               type: number
       - title: Total Keys with Expiry
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 5}
         size: {w: 12, h: 4}
         lens:
           type: metric
@@ -70,7 +70,7 @@ dashboards:
             format:
               type: number
       - title: Avg TTL (All DBs)
-        position: {x: 36, y: 4}
+        position: {x: 36, y: 5}
         size: {w: 12, h: 4}
         lens:
           type: metric
@@ -81,13 +81,13 @@ dashboards:
             label: Avg TTL (ms)
             format:
               type: number
-      - position: {x: 0, y: 8}
+      - position: {x: 0, y: 9}
         size: {w: 48, h: 3}
         markdown:
           content: '## Keys by Database'
           font_size: 14
       - title: Key Count by Database
-        position: {x: 0, y: 10}
+        position: {x: 0, y: 12}
         size: {w: 24, h: 12}
         lens:
           type: bar
@@ -112,7 +112,7 @@ dashboards:
               format:
                 type: number
       - title: Keys Distribution (Pie)
-        position: {x: 24, y: 10}
+        position: {x: 24, y: 12}
         size: {w: 24, h: 12}
         lens:
           type: pie
@@ -126,7 +126,7 @@ dashboards:
               field: redis.db.keys
               label: Keys
       - title: Key Count Trend by Database
-        position: {x: 0, y: 22}
+        position: {x: 0, y: 24}
         size: {w: 48, h: 12}
         lens:
           type: line
@@ -153,13 +153,13 @@ dashboards:
               label: Keys
               format:
                 type: number
-      - position: {x: 0, y: 34}
+      - position: {x: 0, y: 36}
         size: {w: 48, h: 3}
         markdown:
           content: '## Keys with Expiration'
           font_size: 14
       - title: Keys with TTL by Database
-        position: {x: 0, y: 36}
+        position: {x: 0, y: 39}
         size: {w: 24, h: 12}
         lens:
           type: bar
@@ -184,7 +184,7 @@ dashboards:
               format:
                 type: number
       - title: Keys with TTL Trend
-        position: {x: 24, y: 36}
+        position: {x: 24, y: 39}
         size: {w: 24, h: 12}
         lens:
           type: line
@@ -211,13 +211,13 @@ dashboards:
               label: Expires
               format:
                 type: number
-      - position: {x: 0, y: 48}
+      - position: {x: 0, y: 51}
         size: {w: 48, h: 3}
         markdown:
           content: '## Average Time-To-Live (TTL)'
           font_size: 14
       - title: Average TTL by Database
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 54}
         size: {w: 24, h: 12}
         lens:
           type: bar
@@ -242,7 +242,7 @@ dashboards:
               format:
                 type: number
       - title: Average TTL Trend by Database
-        position: {x: 24, y: 50}
+        position: {x: 24, y: 54}
         size: {w: 24, h: 12}
         lens:
           type: line
@@ -269,13 +269,13 @@ dashboards:
               label: Avg TTL
               format:
                 type: number
-      - position: {x: 0, y: 62}
+      - position: {x: 0, y: 66}
         size: {w: 48, h: 3}
         markdown:
           content: '## Database Summary Table'
           font_size: 14
       - title: Database Metrics Summary
-        position: {x: 0, y: 64}
+        position: {x: 0, y: 69}
         size: {w: 48, h: 25}
         lens:
           type: datatable

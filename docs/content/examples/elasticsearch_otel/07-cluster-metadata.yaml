@@ -43,7 +43,7 @@ dashboards:
           content: '### Cluster Configuration'
       - title: Cluster Summary
         size: {w: 24, h: 12}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         esql:
           type: datatable
           query:
@@ -61,7 +61,7 @@ dashboards:
             - field: Data Nodes
       - title: Cluster Health Status
         size: {w: 24, h: 12}
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 5}
         esql:
           type: datatable
           query:
@@ -88,7 +88,7 @@ dashboards:
           content: '### Node Configuration'
       - title: Node Metadata
         size: {w: 48, h: 15}
-        position: {x: 0, y: 18}
+        position: {x: 0, y: 19}
         esql:
           type: datatable
           query:
@@ -107,7 +107,7 @@ dashboards:
           content: '### Node Resource Usage'
       - title: Node CPU and Memory
         size: {w: 24, h: 15}
-        position: {x: 0, y: 35}
+        position: {x: 0, y: 36}
         esql:
           type: datatable
           query:
@@ -125,7 +125,7 @@ dashboards:
             - field: Memory Used (GB)
       - title: Node Disk Usage
         size: {w: 24, h: 15}
-        position: {x: 24, y: 35}
+        position: {x: 24, y: 36}
         esql:
           type: datatable
           query:
@@ -150,7 +150,7 @@ dashboards:
           content: '### Index Configuration'
       - title: Index Statistics
         size: {w: 48, h: 15}
-        position: {x: 0, y: 52}
+        position: {x: 0, y: 53}
         esql:
           type: datatable
           query:
@@ -178,7 +178,7 @@ dashboards:
           content: '### Thread Pool Configuration'
       - title: Thread Pool Status by Node
         size: {w: 48, h: 15}
-        position: {x: 0, y: 69}
+        position: {x: 0, y: 70}
         esql:
           type: datatable
           query:
@@ -204,7 +204,7 @@ dashboards:
           content: '### Cache Configuration'
       - title: Cache Memory Usage by Node
         size: {w: 48, h: 15}
-        position: {x: 0, y: 86}
+        position: {x: 0, y: 87}
         esql:
           type: datatable
           query:
@@ -227,7 +227,7 @@ dashboards:
           content: '### JVM Configuration'
       - title: JVM Memory Configuration
         size: {w: 24, h: 15}
-        position: {x: 0, y: 103}
+        position: {x: 0, y: 104}
         esql:
           type: datatable
           query:
@@ -248,7 +248,7 @@ dashboards:
             - field: Non-Heap Used (MB)
       - title: JVM Thread and Class Information
         size: {w: 24, h: 15}
-        position: {x: 24, y: 103}
+        position: {x: 24, y: 104}
         esql:
           type: datatable
           query:
@@ -271,7 +271,7 @@ dashboards:
           content: '### Circuit Breaker Configuration'
       - title: Circuit Breaker Limits
         size: {w: 48, h: 15}
-        position: {x: 0, y: 120}
+        position: {x: 0, y: 121}
         esql:
           type: datatable
           query:

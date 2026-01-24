@@ -123,7 +123,7 @@ dashboards:
           font_size: 14
       - title: CPU Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 11}
+        position: {x: 0, y: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -151,7 +151,7 @@ dashboards:
               equals: system.cpu
       - title: System Load Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 11}
+        position: {x: 24, y: 12}
         lens:
           type: line
           data_view: metrics-*
@@ -176,13 +176,13 @@ dashboards:
       - title: Memory Performance
         hide_title: true
         size: {w: 48, h: 3}
-        position: {x: 0, y: 23}
+        position: {x: 0, y: 24}
         markdown:
           content: '## Memory'
           font_size: 14
       - title: Memory Usage Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 25}
+        position: {x: 0, y: 27}
         lens:
           type: area
           mode: stacked
@@ -206,7 +206,7 @@ dashboards:
               equals: system.memory
       - title: Memory Utilization Percentage
         size: {w: 24, h: 12}
-        position: {x: 24, y: 25}
+        position: {x: 24, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -227,13 +227,13 @@ dashboards:
       - title: Network Performance
         hide_title: true
         size: {w: 48, h: 3}
-        position: {x: 0, y: 37}
+        position: {x: 0, y: 39}
         markdown:
           content: '## Network'
           font_size: 14
       - title: Network Traffic - Inbound
         size: {w: 24, h: 12}
-        position: {x: 0, y: 39}
+        position: {x: 0, y: 42}
         lens:
           type: line
           data_view: metrics-*
@@ -255,7 +255,7 @@ dashboards:
               equals: system.network
       - title: Network Traffic - Outbound
         size: {w: 24, h: 12}
-        position: {x: 24, y: 39}
+        position: {x: 24, y: 42}
         lens:
           type: line
           data_view: metrics-*
@@ -280,13 +280,13 @@ dashboards:
       - title: Disk I/O
         hide_title: true
         size: {w: 48, h: 3}
-        position: {x: 0, y: 51}
+        position: {x: 0, y: 54}
         markdown:
           content: '## Disk I/O'
           font_size: 14
       - title: Disk Read Throughput
         size: {w: 24, h: 12}
-        position: {x: 0, y: 53}
+        position: {x: 0, y: 57}
         lens:
           type: line
           data_view: metrics-*
@@ -304,7 +304,7 @@ dashboards:
               equals: system.diskio
       - title: Disk Write Throughput
         size: {w: 24, h: 12}
-        position: {x: 24, y: 53}
+        position: {x: 24, y: 57}
         lens:
           type: line
           data_view: metrics-*
@@ -325,13 +325,13 @@ dashboards:
       - title: Filesystem
         hide_title: true
         size: {w: 48, h: 3}
-        position: {x: 0, y: 65}
+        position: {x: 0, y: 69}
         markdown:
           content: '## Filesystem'
           font_size: 14
       - title: Filesystem Usage by Mount Point
         size: {w: 24, h: 12}
-        position: {x: 0, y: 67}
+        position: {x: 0, y: 72}
         lens:
           type: bar
           mode: stacked
@@ -351,7 +351,7 @@ dashboards:
               equals: system.filesystem
       - title: Filesystem Usage Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 67}
+        position: {x: 24, y: 72}
         lens:
           type: line
           data_view: metrics-*
@@ -376,13 +376,13 @@ dashboards:
       - title: Processes
         hide_title: true
         size: {w: 48, h: 3}
-        position: {x: 0, y: 79}
+        position: {x: 0, y: 84}
         markdown:
           content: '## Top Processes'
           font_size: 14
       - title: Top Processes by CPU
         size: {w: 24, h: 15}
-        position: {x: 0, y: 81}
+        position: {x: 0, y: 87}
         lens:
           type: datatable
           data_view: metrics-*
@@ -412,7 +412,7 @@ dashboards:
               equals: system.process
       - title: Top Processes by Memory
         size: {w: 24, h: 15}
-        position: {x: 24, y: 81}
+        position: {x: 24, y: 87}
         lens:
           type: datatable
           data_view: metrics-*

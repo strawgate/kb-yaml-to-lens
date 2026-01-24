@@ -50,7 +50,7 @@ dashboards:
       - title: Ready Containers
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
+        position: {x: 0, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -63,7 +63,7 @@ dashboards:
       - title: Not Ready Containers
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
+        position: {x: 12, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,7 +76,7 @@ dashboards:
       - title: Total Restarts
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
+        position: {x: 24, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -87,7 +87,7 @@ dashboards:
             - exists: k8s.container.restarts
       - title: Containers Restarting
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
+        position: {x: 36, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -109,7 +109,7 @@ dashboards:
           font_size: 14
       - title: Deployments
         size: {w: 24, h: 12}
-        position: {x: 0, y: 15}
+        position: {x: 0, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -125,7 +125,7 @@ dashboards:
             - exists: k8s.deployment.name
       - title: StatefulSets
         size: {w: 24, h: 12}
-        position: {x: 24, y: 15}
+        position: {x: 24, y: 16}
         lens:
           type: line
           data_view: metrics-*
@@ -183,7 +183,7 @@ dashboards:
           font_size: 14
       - title: Container Readiness Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 41}
+        position: {x: 0, y: 42}
         lens:
           type: area
           mode: stacked
@@ -208,7 +208,7 @@ dashboards:
                 color: '#D36086'
       - title: Top Restarting Containers
         size: {w: 24, h: 12}
-        position: {x: 24, y: 41}
+        position: {x: 24, y: 42}
         lens:
           type: bar
           data_view: metrics-*
@@ -238,7 +238,7 @@ dashboards:
           font_size: 14
       - title: Deployment Status
         size: {w: 24, h: 12}
-        position: {x: 0, y: 55}
+        position: {x: 0, y: 56}
         lens:
           type: datatable
           data_view: metrics-*
@@ -262,7 +262,7 @@ dashboards:
             - exists: k8s.deployment.name
       - title: StatefulSet Status
         size: {w: 24, h: 12}
-        position: {x: 24, y: 55}
+        position: {x: 24, y: 56}
         lens:
           type: datatable
           data_view: metrics-*

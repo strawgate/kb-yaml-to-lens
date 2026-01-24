@@ -43,7 +43,7 @@ dashboards:
           content: '### Circuit Breaker Overview'
       - title: Circuit Breaker Utilization %
         size: {w: 48, h: 12}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         lens:
           type: datatable
           data_view: metrics-*
@@ -81,12 +81,12 @@ dashboards:
             page_size: 20
       - title: Circuit Breaker Memory Usage Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 16}
+        position: {x: 0, y: 17}
         markdown:
           content: '### Circuit Breaker Memory Usage'
       - title: Request Circuit Breaker
         size: {w: 24, h: 10}
-        position: {x: 0, y: 18}
+        position: {x: 0, y: 20}
         lens:
           type: line
           data_view: metrics-*
@@ -113,7 +113,7 @@ dashboards:
                 type: bytes
       - title: Request Breaker Utilization %
         size: {w: 24, h: 10}
-        position: {x: 24, y: 18}
+        position: {x: 24, y: 20}
         lens:
           type: line
           data_view: metrics-*
@@ -134,7 +134,7 @@ dashboards:
                 type: percent
       - title: Field Data Circuit Breaker
         size: {w: 24, h: 10}
-        position: {x: 0, y: 28}
+        position: {x: 0, y: 30}
         lens:
           type: line
           data_view: metrics-*
@@ -161,7 +161,7 @@ dashboards:
                 type: bytes
       - title: Field Data Breaker Utilization %
         size: {w: 24, h: 10}
-        position: {x: 24, y: 28}
+        position: {x: 24, y: 30}
         lens:
           type: line
           data_view: metrics-*
@@ -182,7 +182,7 @@ dashboards:
                 type: percent
       - title: Parent Circuit Breaker
         size: {w: 24, h: 10}
-        position: {x: 0, y: 38}
+        position: {x: 0, y: 40}
         lens:
           type: line
           data_view: metrics-*
@@ -209,7 +209,7 @@ dashboards:
                 type: bytes
       - title: Parent Breaker Utilization %
         size: {w: 24, h: 10}
-        position: {x: 24, y: 38}
+        position: {x: 24, y: 40}
         lens:
           type: line
           data_view: metrics-*
@@ -230,12 +230,12 @@ dashboards:
                 type: percent
       - title: Circuit Breaker Trips Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 48}
+        position: {x: 0, y: 50}
         markdown:
           content: '### Circuit Breaker Trips'
       - title: Trip Events by Breaker
         size: {w: 48, h: 10}
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -251,7 +251,7 @@ dashboards:
               label: Trips/sec
       - title: Trip Events by Node
         size: {w: 48, h: 12}
-        position: {x: 0, y: 60}
+        position: {x: 0, y: 63}
         lens:
           type: datatable
           data_view: metrics-*
@@ -275,12 +275,12 @@ dashboards:
             page_size: 20
       - title: All Circuit Breakers Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 72}
+        position: {x: 0, y: 75}
         markdown:
           content: '### All Circuit Breakers'
       - title: All Breakers Memory Usage
         size: {w: 48, h: 12}
-        position: {x: 0, y: 74}
+        position: {x: 0, y: 78}
         lens:
           type: area
           mode: stacked

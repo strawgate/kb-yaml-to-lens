@@ -47,7 +47,7 @@ dashboards:
           content: '### CPU'
       - title: CPU Utilization
         size: {w: 24, h: 12}
-        position: {x: 0, y: 5}
+        position: {x: 0, y: 6}
         lens:
           type: line
           data_view: metrics-*
@@ -63,7 +63,7 @@ dashboards:
                 type: percent
       - title: CPU Utilization by State
         size: {w: 24, h: 12}
-        position: {x: 24, y: 5}
+        position: {x: 24, y: 6}
         lens:
           type: area
           data_view: metrics-*
@@ -79,7 +79,7 @@ dashboards:
               label: CPU %
       - title: Load Average
         size: {w: 24, h: 12}
-        position: {x: 0, y: 17}
+        position: {x: 0, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -98,7 +98,7 @@ dashboards:
               label: 15m
       - title: Normalized Load
         size: {w: 24, h: 12}
-        position: {x: 24, y: 17}
+        position: {x: 24, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -112,12 +112,12 @@ dashboards:
                 type: percent
       - title: Memory Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 29}
+        position: {x: 0, y: 30}
         markdown:
           content: '### Memory'
       - title: Memory Utilization
         size: {w: 24, h: 12}
-        position: {x: 0, y: 31}
+        position: {x: 0, y: 33}
         lens:
           type: area
           data_view: metrics-*
@@ -131,7 +131,7 @@ dashboards:
                 type: percent
       - title: Memory Utilization by State
         size: {w: 24, h: 12}
-        position: {x: 24, y: 31}
+        position: {x: 24, y: 33}
         lens:
           type: area
           data_view: metrics-*
@@ -147,12 +147,12 @@ dashboards:
               label: Memory %
       - title: Disk Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 43}
+        position: {x: 0, y: 45}
         markdown:
           content: '### Disk'
       - title: Disk Usage by Mount Point
         size: {w: 24, h: 12}
-        position: {x: 0, y: 45}
+        position: {x: 0, y: 48}
         lens:
           type: line
           data_view: metrics-*
@@ -170,7 +170,7 @@ dashboards:
                 type: percent
       - title: Disk Operations
         size: {w: 24, h: 12}
-        position: {x: 24, y: 45}
+        position: {x: 24, y: 48}
         lens:
           type: area
           data_view: metrics-*

@@ -43,7 +43,7 @@ dashboards:
           content: '### JVM Memory'
       - title: JVM Heap Usage %
         size: {w: 24, h: 10}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -61,7 +61,7 @@ dashboards:
                 type: percent
       - title: JVM Heap Usage (Bytes)
         size: {w: 24, h: 10}
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 5}
         lens:
           type: area
           mode: stacked
@@ -81,7 +81,7 @@ dashboards:
                 type: bytes
       - title: JVM Heap Committed
         size: {w: 24, h: 10}
-        position: {x: 0, y: 14}
+        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -100,7 +100,7 @@ dashboards:
                 type: bytes
       - title: JVM Non-Heap Usage
         size: {w: 24, h: 10}
-        position: {x: 24, y: 14}
+        position: {x: 24, y: 15}
         lens:
           type: area
           mode: stacked
@@ -120,12 +120,12 @@ dashboards:
                 type: bytes
       - title: Garbage Collection Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 24}
+        position: {x: 0, y: 25}
         markdown:
           content: '### Garbage Collection'
       - title: GC Collection Count
         size: {w: 24, h: 10}
-        position: {x: 0, y: 26}
+        position: {x: 0, y: 28}
         lens:
           type: line
           data_view: metrics-*
@@ -141,7 +141,7 @@ dashboards:
               label: Collections/sec
       - title: GC Collection Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 26}
+        position: {x: 24, y: 28}
         lens:
           type: line
           data_view: metrics-*
@@ -157,7 +157,7 @@ dashboards:
               label: Time (ms/sec)
       - title: GC Collectors by Node
         size: {w: 48, h: 12}
-        position: {x: 0, y: 36}
+        position: {x: 0, y: 38}
         lens:
           type: datatable
           data_view: metrics-*
@@ -181,12 +181,12 @@ dashboards:
               label: Time (ms/sec)
       - title: Thread Management Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 48}
+        position: {x: 0, y: 50}
         markdown:
           content: '### Thread Management'
       - title: JVM Thread Count
         size: {w: 24, h: 10}
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -203,7 +203,7 @@ dashboards:
               label: Thread Count
       - title: JVM Classes Loaded
         size: {w: 24, h: 10}
-        position: {x: 24, y: 50}
+        position: {x: 24, y: 53}
         lens:
           type: line
           data_view: metrics-*
@@ -220,12 +220,12 @@ dashboards:
               label: Classes Loaded
       - title: Memory Pool Usage Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 60}
+        position: {x: 0, y: 63}
         markdown:
           content: '### Memory Pool Usage'
       - title: Memory Pool Usage
         size: {w: 24, h: 12}
-        position: {x: 0, y: 62}
+        position: {x: 0, y: 66}
         lens:
           type: area
           mode: stacked
@@ -245,7 +245,7 @@ dashboards:
                 type: bytes
       - title: Memory Pool Max
         size: {w: 24, h: 12}
-        position: {x: 24, y: 62}
+        position: {x: 24, y: 66}
         lens:
           type: line
           data_view: metrics-*

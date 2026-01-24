@@ -50,7 +50,7 @@ dashboards:
       - title: Successful Jobs
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
+        position: {x: 0, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -62,7 +62,7 @@ dashboards:
       - title: Failed Jobs
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
+        position: {x: 12, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -74,7 +74,7 @@ dashboards:
       - title: Active Jobs
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
+        position: {x: 24, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -86,7 +86,7 @@ dashboards:
       - title: Active CronJobs
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
+        position: {x: 36, y: 6}
         lens:
           type: metric
           data_view: metrics-*
@@ -101,13 +101,13 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Execution Trends
         size: {w: 48, h: 3}
-        position: {x: 0, y: 13}
+        position: {x: 0, y: 14}
         markdown:
           content: '## 📈 Job Execution Trends'
           font_size: 14
       - title: Job Success vs Failure Trend
         size: {w: 48, h: 14}
-        position: {x: 0, y: 15}
+        position: {x: 0, y: 17}
         lens:
           type: area
           mode: stacked
@@ -139,13 +139,13 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Job Details
         size: {w: 48, h: 3}
-        position: {x: 0, y: 29}
+        position: {x: 0, y: 31}
         markdown:
           content: '## 🔍 Job Details'
           font_size: 14
       - title: Jobs by Status
         size: {w: 48, h: 14}
-        position: {x: 0, y: 31}
+        position: {x: 0, y: 34}
         lens:
           type: datatable
           data_view: metrics-*

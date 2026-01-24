@@ -43,7 +43,7 @@ dashboards:
           content: '### CPU & Memory'
       - title: CPU Usage Over Time
         size: {w: 24, h: 10}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -62,7 +62,7 @@ dashboards:
                 type: percent
       - title: Memory Usage Over Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 5}
         lens:
           type: area
           mode: stacked
@@ -81,12 +81,12 @@ dashboards:
                 type: bytes
       - title: Disk I/O Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 14}
+        position: {x: 0, y: 15}
         markdown:
           content: '### Disk I/O'
       - title: Disk Read Operations
         size: {w: 24, h: 10}
-        position: {x: 0, y: 16}
+        position: {x: 0, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -102,7 +102,7 @@ dashboards:
               label: Read Ops/sec
       - title: Disk Write Operations
         size: {w: 24, h: 10}
-        position: {x: 24, y: 16}
+        position: {x: 24, y: 18}
         lens:
           type: line
           data_view: metrics-*
@@ -118,12 +118,12 @@ dashboards:
               label: Write Ops/sec
       - title: Operations Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 26}
+        position: {x: 0, y: 28}
         markdown:
           content: '### Operations'
       - title: Document Operations
         size: {w: 24, h: 10}
-        position: {x: 0, y: 28}
+        position: {x: 0, y: 31}
         lens:
           type: line
           data_view: metrics-*
@@ -140,7 +140,7 @@ dashboards:
               label: Document Count
       - title: Indexing Operations
         size: {w: 24, h: 10}
-        position: {x: 24, y: 28}
+        position: {x: 24, y: 31}
         lens:
           type: line
           data_view: metrics-*
@@ -156,12 +156,12 @@ dashboards:
               label: Index Ops/sec
       - title: Cache Performance Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 38}
+        position: {x: 0, y: 41}
         markdown:
           content: '### Cache Performance'
       - title: Field Data Cache Evictions
         size: {w: 24, h: 10}
-        position: {x: 0, y: 40}
+        position: {x: 0, y: 44}
         lens:
           type: line
           data_view: metrics-*
@@ -180,7 +180,7 @@ dashboards:
               label: Evictions/sec
       - title: Query Cache Evictions
         size: {w: 24, h: 10}
-        position: {x: 24, y: 40}
+        position: {x: 24, y: 44}
         lens:
           type: line
           data_view: metrics-*
@@ -199,7 +199,7 @@ dashboards:
               label: Evictions/sec
       - title: Field Data Cache Size
         size: {w: 24, h: 10}
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 54}
         lens:
           type: area
           mode: stacked
@@ -222,7 +222,7 @@ dashboards:
                 type: bytes
       - title: Query Cache Size
         size: {w: 24, h: 10}
-        position: {x: 24, y: 50}
+        position: {x: 24, y: 54}
         lens:
           type: area
           mode: stacked
@@ -245,12 +245,12 @@ dashboards:
                 type: bytes
       - title: Thread Pool Metrics Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 60}
+        position: {x: 0, y: 64}
         markdown:
           content: '### Thread Pool Metrics'
       - title: Thread Pool Queue Size - Search
         size: {w: 24, h: 10}
-        position: {x: 0, y: 62}
+        position: {x: 0, y: 67}
         lens:
           type: line
           data_view: metrics-*
@@ -270,7 +270,7 @@ dashboards:
               label: Queue Size
       - title: Thread Pool Queue Size - Write
         size: {w: 24, h: 10}
-        position: {x: 24, y: 62}
+        position: {x: 24, y: 67}
         lens:
           type: line
           data_view: metrics-*
@@ -290,7 +290,7 @@ dashboards:
               label: Queue Size
       - title: Thread Pool Active Threads - Search
         size: {w: 24, h: 10}
-        position: {x: 0, y: 72}
+        position: {x: 0, y: 77}
         lens:
           type: line
           data_view: metrics-*
@@ -310,7 +310,7 @@ dashboards:
               label: Active Threads
       - title: Thread Pool Active Threads - Write
         size: {w: 24, h: 10}
-        position: {x: 24, y: 72}
+        position: {x: 24, y: 77}
         lens:
           type: line
           data_view: metrics-*
@@ -330,7 +330,7 @@ dashboards:
               label: Active Threads
       - title: Thread Pool Rejections
         size: {w: 48, h: 10}
-        position: {x: 0, y: 82}
+        position: {x: 0, y: 87}
         lens:
           type: line
           data_view: metrics-*

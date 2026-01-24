@@ -43,7 +43,7 @@ dashboards:
           content: '### Node Health'
       - title: Document Count
         size: {w: 12, h: 6}
-        position: {x: 0, y: 4}
+        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -54,7 +54,7 @@ dashboards:
       - title: Open Files
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 12, y: 4}
+        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -65,7 +65,7 @@ dashboards:
       - title: HTTP Connections
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 24, y: 4}
+        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,7 +76,7 @@ dashboards:
       - title: Active Nodes
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 36, y: 4}
+        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -86,12 +86,12 @@ dashboards:
             label: Nodes
       - title: CPU & Memory Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 10}
+        position: {x: 0, y: 11}
         markdown:
           content: '### CPU & Memory'
       - title: CPU Usage by Node
         size: {w: 24, h: 8}
-        position: {x: 0, y: 12}
+        position: {x: 0, y: 14}
         lens:
           type: line
           data_view: metrics-*
@@ -110,7 +110,7 @@ dashboards:
                 type: percent
       - title: Memory Usage by Node
         size: {w: 24, h: 8}
-        position: {x: 24, y: 12}
+        position: {x: 24, y: 14}
         lens:
           type: line
           data_view: metrics-*
@@ -129,12 +129,12 @@ dashboards:
                 type: percent
       - title: Disk Space Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 20}
+        position: {x: 0, y: 22}
         markdown:
           content: '### Disk Space'
       - title: Disk Space Available
         size: {w: 24, h: 8}
-        position: {x: 0, y: 22}
+        position: {x: 0, y: 25}
         lens:
           type: bar
           data_view: metrics-*
@@ -150,7 +150,7 @@ dashboards:
                 type: bytes
       - title: Disk Usage %
         size: {w: 24, h: 8}
-        position: {x: 24, y: 22}
+        position: {x: 24, y: 25}
         lens:
           type: bar
           data_view: metrics-*
@@ -165,12 +165,12 @@ dashboards:
                 type: percent
       - title: Cache Performance Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 30}
+        position: {x: 0, y: 33}
         markdown:
           content: '### Cache Performance'
       - title: Cache Evictions
         size: {w: 24, h: 8}
-        position: {x: 0, y: 32}
+        position: {x: 0, y: 36}
         lens:
           type: datatable
           data_view: metrics-*
@@ -189,7 +189,7 @@ dashboards:
               label: Query Cache
       - title: Cache Memory Usage
         size: {w: 24, h: 8}
-        position: {x: 24, y: 32}
+        position: {x: 24, y: 36}
         lens:
           type: datatable
           data_view: metrics-*
@@ -212,12 +212,12 @@ dashboards:
                 type: bytes
       - title: Thread Pool Overview Section
         size: {w: 48, h: 3}
-        position: {x: 0, y: 40}
+        position: {x: 0, y: 44}
         markdown:
           content: '### Thread Pool Overview'
       - title: Thread Pool Queue Size
         size: {w: 48, h: 12}
-        position: {x: 0, y: 42}
+        position: {x: 0, y: 47}
         lens:
           type: datatable
           data_view: metrics-*
