@@ -1,0 +1,361 @@
+---
+dashboards:
+  - id: crowdstrike-modern-investigation-8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e
+    name: '[CrowdStrike Modern] Threat Investigation'
+    description: Deep-dive threat analysis dashboard for investigating detections, mapping MITRE ATT&CK techniques, tracking IOCs, and analyzing
+      threat actor behavior patterns.
+    filters:
+      - or:
+          - field: data_stream.dataset
+            equals: crowdstrike.alert
+          - field: data_stream.dataset
+            equals: crowdstrike.falcon
+    controls:
+      - type: options
+        label: Threat Technique
+        width: medium
+        data_view: logs-*
+        field: threat.technique.name
+        match_technique: contains
+      - type: options
+        label: Threat Tactic
+        width: medium
+        data_view: logs-*
+        field: threat.tactic.name
+        match_technique: contains
+      - type: options
+        label: Severity
+        width: small
+        data_view: logs-*
+        field: crowdstrike.event.SeverityName
+        match_technique: exact
+    panels:
+      # Context Layer - Navigation
+      - title: Dashboard Navigation
+        position:
+          x: 0
+          y: 0
+        size:
+          w: 48
+          h: 4
+        links:
+          layout: horizontal
+          items:
+            - label: SOC Dashboard
+              dashboard: crowdstrike-modern-soc-7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
+            - label: Threat Investigation
+              dashboard: crowdstrike-modern-investigation-8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e
+            - label: Asset & Vulnerability
+              dashboard: crowdstrike-modern-assets-9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f
+            - label: Compliance & Audit
+              dashboard: crowdstrike-modern-compliance-0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a
+
+      # Analysis Layer - Threat Activity Over Time
+      - title: Threat Detections Over Time
+        description: Time series of threat detections showing attack campaign patterns
+        position:
+          x: 0
+          y: 4
+        size:
+          w: 48
+          h: 15
+        lens:
+          type: area
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: crowdstrike.event.SeverityName
+            type: values
+            size: 5
+            sort:
+              by: Detection Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Detection Count
+
+      # Analysis Layer - MITRE ATT&CK Techniques
+      - title: MITRE ATT&CK Techniques
+        description: Threat techniques observed mapped to MITRE framework
+        position:
+          x: 0
+          y: 19
+        size:
+          w: 16
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: threat.technique.name
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - exists: threat.technique.name
+
+      # Analysis Layer - MITRE ATT&CK Tactics
+      - title: MITRE ATT&CK Tactics
+        description: Threat tactics showing attacker objectives and kill chain stages
+        position:
+          x: 16
+          y: 19
+        size:
+          w: 16
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: threat.tactic.name
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - exists: threat.tactic.name
+
+      # Analysis Layer - Severity Distribution
+      - title: Threat Severity Levels
+        description: Distribution of threat detections by severity for prioritization
+        position:
+          x: 32
+          y: 19
+        size:
+          w: 16
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.event.SeverityName
+              type: values
+              size: 5
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: false
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.falcon
+
+      # Analysis Layer - IOC Sources
+      - title: IOC Sources
+        description: Indicator of Compromise sources providing threat intelligence
+        position:
+          x: 0
+          y: 34
+        size:
+          w: 16
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.alert.ioc_source
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.alert
+
+      # Analysis Layer - IOC Types
+      - title: IOC Types
+        description: Types of indicators detected in threat activity
+        position:
+          x: 16
+          y: 34
+        size:
+          w: 16
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.alert.ioc_type
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.alert
+
+      # Analysis Layer - Event Actions
+      - title: Threat Event Actions
+        description: Specific actions taken by threats during attacks
+        position:
+          x: 32
+          y: 34
+        size:
+          w: 16
+          h: 15
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: event.action
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+
+      # Detail Layer - Top Source IPs
+      - title: Top 10 Source IP Addresses
+        description: External IP addresses with highest threat activity
+        position:
+          x: 0
+          y: 49
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: source.ip
+            type: values
+            size: 10
+            sort:
+              by: Detection Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Detection Count
+          filters:
+            - exists: source.ip
+
+      # Detail Layer - Top Source Domains
+      - title: Top 10 Source Domains
+        description: Malicious domains involved in threat activity
+        position:
+          x: 24
+          y: 49
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: source.domain
+            type: values
+            size: 10
+            sort:
+              by: Detection Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Detection Count
+          filters:
+            - exists: source.domain
+
+      # Detail Layer - Affected Hosts
+      - title: Top 10 Compromised Hosts
+        description: Hosts with highest threat detection volume requiring remediation
+        position:
+          x: 0
+          y: 64
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: host.name
+            type: values
+            size: 10
+            sort:
+              by: Threat Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Threat Count
+
+      # Detail Layer - Target Files
+      - title: Top 10 Targeted Files
+        description: Files most frequently targeted or modified by threats
+        position:
+          x: 24
+          y: 64
+        size:
+          w: 24
+          h: 15
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            field: file.name
+            type: values
+            size: 10
+            sort:
+              by: Access Count
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Access Count
+          filters:
+            - exists: file.name

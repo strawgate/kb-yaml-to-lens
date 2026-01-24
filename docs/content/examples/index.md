@@ -306,6 +306,26 @@ Detailed single-container performance analysis and resource utilization.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### Apache HTTP Server OpenTelemetry Dashboard
+
+Apache HTTP Server monitoring dashboard using OpenTelemetry metrics.
+
+**Use this when:** Monitoring Apache web servers with OpenTelemetry Apache Receiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/apache_http_server_otel) dashboard. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
+
+#### Apache Logs Overview
+
+Apache HTTP Server log analysis with request breakdowns, status codes, and traffic patterns.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (apache_http_server_otel/apache-logs-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/apache_http_server_otel/apache-logs-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### AWS VPC Flow Logs OpenTelemetry Dashboards
 
 AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnected navigation.
@@ -325,6 +345,8 @@ Includes 3 interconnected dashboards with navigation links:
 
     ```yaml
     --8<-- "examples/aws_vpcflow_otel/dashboards.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
 
 ### Redis OpenTelemetry Dashboards
 
@@ -365,6 +387,140 @@ Per-database keyspace metrics including keys, TTL, and expiration statistics.
 
     ```yaml
     --8<-- "examples/redis_otel/database-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### CrowdStrike Security Dashboards
+
+Security monitoring dashboards for CrowdStrike EDR data streams. Includes both dataset-centric dashboards (organized by data source) and workflow-centric modern dashboards (organized by security workflow).
+
+**Use this when:** Monitoring CrowdStrike Falcon EDR alerts, incidents, vulnerabilities, and host data.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/crowdstrike) dashboards. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
+
+#### Overview Dashboard
+
+High-level entry point with navigation to all CrowdStrike dashboards.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Alert Dashboard
+
+Comprehensive alert monitoring with 16 panels covering status, severity, IOCs, and network context.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/alert.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/alert.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Falcon Overview
+
+Falcon incidents with MITRE ATT&CK technique and tactic mapping.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/falcon-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/falcon-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### FDR Overview
+
+Falcon Data Replicator events and alerts monitoring.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/fdr-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/fdr-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Host Dashboard
+
+Host device monitoring with OS platform distribution and activity tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/host.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/host.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Vulnerability Dashboard
+
+Vulnerability tracking with severity, status, and confidence breakdowns.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/vulnerability.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/vulnerability.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### CrowdStrike Modern Dashboards
+
+Workflow-centric security operations dashboards designed for modern SOC workflows. These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md) best practices with progressive disclosure pattern, consistent navigation, and control filters.
+
+**Use this when:** Building workflow-centric security dashboards for daily SOC operations, threat investigation, vulnerability management, or compliance reporting.
+
+#### SOC Dashboard
+
+Real-time security event monitoring, alert triage, and incident response coordination.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/soc.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/soc.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Threat Investigation
+
+Deep-dive threat analysis with MITRE ATT&CK mapping and IOC tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/threat-investigation.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/threat-investigation.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Asset & Vulnerability Management
+
+Asset inventory and vulnerability tracking for risk assessment and patch prioritization.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/asset-vulnerability.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/asset-vulnerability.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Compliance & Audit
+
+Compliance monitoring and audit trail analysis for regulatory reporting.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/compliance-audit.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/compliance-audit.yaml"
     ```
 <!-- markdownlint-enable MD046 -->
 
