@@ -1,0 +1,91 @@
+---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+#
+# This file is derived from the Elastic integrations repository:
+# https://github.com/elastic/integrations/tree/main/packages/elastic_agent
+#
+# Converted by kb-yaml-to-lens from Kibana JSON format to YAML format.
+dashboards:
+  - id: elastic_agent-0600ffa0-6b5e-11ed-98de-67bdecd21824
+    name: '[Elastic Agent] Concerning Agents'
+    panels:
+      - title: Navigation
+        grid: {x: 0, y: 0, w: 8, h: 49}
+        links:
+          layout: horizontal
+          items:
+            - {label: Overview, dashboard: elastic_agent-a148dc70-6b3c-11ed-98de-67bdecd21824}
+            - {label: Concerning Agents, dashboard: elastic_agent-0600ffa0-6b5e-11ed-98de-67bdecd21824}
+            - {label: Agent Metrics, dashboard: elastic_agent-f47f18cc-9c7d-4278-b2ea-a6dee816d395}
+            - {label: Integrations, dashboard: elastic_agent-1a4e7280-6b5e-11ed-98de-67bdecd21824}
+            - {label: Input Metrics, dashboard: elastic_agent-a8192f90-cd3f-11ed-869d-e7dc1b551cd2}
+      - grid: {x: 8, y: 0, w: 40, h: 3}
+        markdown:
+          content: '## Problematic Agents'
+      - title: '[Elastic Agent] Agents with Errors'
+        grid: {x: 8, y: 3, w: 40, h: 11}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - {id: dim0, type: values, field: agent.name, size: 100, label: Agents}
+          metrics:
+            - id: metric1
+              aggregation: count
+              label: Errors
+              format: {type: number, decimals: 0}
+            - id: metric2
+              formula: "defaults(count(kql='log.level : \"error\" '), 0)"
+              label: Errors Logged
+              format: {type: number, decimals: 0}
+            - {id: metric3, aggregation: count, label: Part of Errors Logged}
+            - id: metric5
+              aggregation: count
+              label: Warnings
+              format: {type: number, decimals: 0}
+            - id: metric6
+              aggregation: count
+              label: Warnings Logged
+              format: {type: number, decimals: 0}
+      - grid: {x: 8, y: 14, w: 40, h: 5}
+        markdown:
+          content: "### Output and Queue\n\nHigh values for queue utilization and output latency help identify when the Agent (requires 8.17.2\
+            \ and newer) is getting back-pressure from the system it's sending events to, which limits event throughput."
+      - title: '[Elastic Agent] Agent Queue and Output Latency'
+        grid: {x: 8, y: 19, w: 40, h: 13}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - {id: dim0, type: values, field: agent.name, size: 100, label: Agents}
+          metrics:
+            - id: metric1
+              aggregation: median
+              field: beat.stats.libbeat.pipeline.queue.filled.pct
+              label: Queue (p50)
+              format: {type: percent, decimals: 0}
+            - id: metric2
+              formula: percentile(beat.stats.libbeat.pipeline.queue.filled.pct, percentile=90)
+              label: Queue (p90)
+              format: {type: percent, decimals: 0}
+            - id: metric3
+              aggregation: max
+              field: beat.stats.libbeat.pipeline.queue.filled.pct
+              label: Queue (Max)
+              format: {type: percent, decimals: 0}
+            - id: metric4
+              aggregation: median
+              field: beat.stats.libbeat.output.write.latency.histogram.median
+              label: Output Latency (Median)
+              format: {type: duration, decimals: 2}
+            - id: metric5
+              aggregation: max
+              field: beat.stats.libbeat.output.write.latency.histogram.p99
+              label: Output Latency (p99)
+              format: {type: duration, decimals: 2}
+      - title: Elastic-Agent errors
+        grid: {x: 8, y: 32, w: 40, h: 21}
+        markdown:
+          content: '*Search panel: Elastic-Agent errors*'
