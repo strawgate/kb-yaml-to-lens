@@ -1,0 +1,505 @@
+---
+# MySQL OpenTelemetry Overview Dashboard (ES|QL Version)
+# Comprehensive MySQL metrics dashboard using OpenTelemetry MySQL receiver
+# Uses ES|QL with TS command for time-series optimization
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver
+dashboards:
+  - id: mysql-otel-overview-esql
+    name: '[Metrics MySQL] Overview (ES|QL)'
+    description: Comprehensive MySQL metrics dashboard using OpenTelemetry MySQL receiver (ES|QL version with TS command)
+    controls:
+      - type: options
+        label: MySQL Host
+        data_view: metrics-*
+        field: resource.attributes.host.name
+      - type: options
+        label: MySQL Instance
+        data_view: metrics-*
+        field: resource.attributes.service.instance.id
+    filters:
+      - field: data_stream.dataset
+        equals: mysqlreceiver.otel
+    panels:
+      # Navigation Links
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: MySQL Overview (Lens)
+              dashboard: mysql-otel-overview-lens
+            - label: MySQL Overview (ES|QL)
+              dashboard: mysql-otel-overview-esql
+
+      # Overview Metrics Row (y=2, h=6)
+      - title: Active Connections
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 2}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE threads == "connected"
+            - STATS active_connections = MAX(mysql.threads)
+          primary:
+            field: active_connections
+            label: Active Connections
+      - title: Buffer Pool Efficiency
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 2}
+        description: Ratio of clean to total buffer pool pages
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - STATS clean_pages = MAX(mysql.buffer_pool.usage) BY buffer_pool_data
+            - WHERE buffer_pool_data == "clean" OR buffer_pool_data == "dirty"
+            - STATS total_clean = SUM(clean_pages) BY buffer_pool_data
+            - STATS efficiency = SUM(CASE(buffer_pool_data == "clean", total_clean, 0)) / SUM(total_clean)
+          primary:
+            field: efficiency
+            label: Buffer Pool Efficiency
+            format:
+              type: percent
+      - title: InnoDB Operations Rate
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 2}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.operations IS NOT NULL
+            - STATS ops_rate = SUM(RATE(mysql.operations))
+          primary:
+            field: ops_rate
+            label: InnoDB Ops/sec
+      - title: Handler Operations Rate
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 2}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.handlers IS NOT NULL
+            - STATS handler_rate = SUM(RATE(mysql.handlers))
+          primary:
+            field: handler_rate
+            label: Handler Ops/sec
+
+      # Buffer Pool Performance Section (y=8)
+      - title: Buffer Pool Usage Over Time
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 8}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.buffer_pool.usage IS NOT NULL
+            - STATS usage = MAX(mysql.buffer_pool.usage) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), buffer_pool_data
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: usage
+              label: Buffer Pool Usage
+              format:
+                type: bytes
+          breakdown:
+            field: buffer_pool_data
+      - title: Buffer Pool Pages
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 8}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.buffer_pool.pages IS NOT NULL
+            - STATS pages = MAX(mysql.buffer_pool.pages) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), buffer_pool_pages
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: pages
+              label: Buffer Pool Pages
+          breakdown:
+            field: buffer_pool_pages
+      - title: Buffer Pool Operations
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 17}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.buffer_pool.operations IS NOT NULL
+            - STATS ops_rate = SUM(RATE(mysql.buffer_pool.operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), buffer_pool_operations
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: ops_rate
+              label: Operations/sec
+          breakdown:
+            field: buffer_pool_operations
+      - title: Buffer Pool Page Flushes
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 17}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.buffer_pool.page_flushes IS NOT NULL
+            - STATS flush_rate = SUM(RATE(mysql.buffer_pool.page_flushes)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute))
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: flush_rate
+              label: Page Flushes/sec
+
+      # InnoDB Operations Section (y=26)
+      - title: Row Operations
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 26}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.row_operations IS NOT NULL
+            - STATS row_ops_rate = SUM(RATE(mysql.row_operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), row_operations
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: row_ops_rate
+              label: Row Ops/sec
+          breakdown:
+            field: row_operations
+      - title: Page Operations
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 26}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.page_operations IS NOT NULL
+            - STATS page_ops_rate = SUM(RATE(mysql.page_operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), page_operations
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: page_ops_rate
+              label: Page Ops/sec
+          breakdown:
+            field: page_operations
+      - title: InnoDB Operations (fsyncs, reads, writes)
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 35}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.operations IS NOT NULL
+            - STATS ops_rate = SUM(RATE(mysql.operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), operations
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: ops_rate
+              label: Operations/sec
+          breakdown:
+            field: operations
+      - title: Double Writes
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 35}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.double_writes IS NOT NULL
+            - STATS double_writes_rate = SUM(RATE(mysql.double_writes)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), double_writes
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: double_writes_rate
+              label: Double Writes/sec
+          breakdown:
+            field: double_writes
+
+      # Handler Operations Section (y=44)
+      - title: Top Handler Operations
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 44}
+        description: Top 10 handler operations by count
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.handlers IS NOT NULL
+            - STATS handler_rate = SUM(RATE(mysql.handlers)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), handler
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: handler_rate
+              label: Handler Ops/sec
+          breakdown:
+            field: handler
+
+      # Locks & Waits Section (y=53)
+      - title: Lock Waits
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 53}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.locks IS NOT NULL
+            - STATS lock_rate = SUM(RATE(mysql.locks)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), locks
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: lock_rate
+              label: Locks/sec
+          breakdown:
+            field: locks
+      - title: Row Lock Waits
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 53}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.row_locks IS NOT NULL
+            - STATS row_lock_waits = MAX(mysql.row_locks) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), row_locks
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: row_lock_waits
+              label: Row Lock Waits
+          breakdown:
+            field: row_locks
+
+      # Log Operations Section (y=62)
+      - title: Log Operations
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 62}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.log_operations IS NOT NULL
+            - STATS log_ops_rate = SUM(RATE(mysql.log_operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), log_operations
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: log_ops_rate
+              label: Log Ops/sec
+          breakdown:
+            field: log_operations
+
+      # Table I/O Waits Section (y=71)
+      - title: Table I/O Wait Count (Top 10 Tables)
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 71}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.table.io.wait.count IS NOT NULL
+            - STATS table_io_wait_rate = SUM(RATE(mysql.table.io.wait.count)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), table_name
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: table_io_wait_rate
+              label: Table I/O Waits/sec
+          breakdown:
+            field: table_name
+      - title: Index I/O Wait Count (Top 10 Indexes)
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 71}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.index.io.wait.count IS NOT NULL
+            - STATS index_io_wait_rate = SUM(RATE(mysql.index.io.wait.count)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), index_name
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: index_io_wait_rate
+              label: Index I/O Waits/sec
+          breakdown:
+            field: index_name
+
+      # Resources Section (y=80)
+      - title: Opened Resources
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 80}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.opened_resources IS NOT NULL
+            - STATS opened_rate = SUM(RATE(mysql.opened_resources)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), opened_resources
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: opened_rate
+              label: Opened Resources/sec
+          breakdown:
+            field: opened_resources
+      - title: Temporary Resources
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 80}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.tmp_resources IS NOT NULL
+            - STATS tmp_rate = SUM(RATE(mysql.tmp_resources)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), tmp_resources
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: tmp_rate
+              label: Temp Resources/sec
+          breakdown:
+            field: tmp_resources
+
+      # Threads & Sorts Section (y=89)
+      - title: Thread Metrics
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 89}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.threads IS NOT NULL
+            - STATS thread_count = MAX(mysql.threads) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), threads
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: thread_count
+              label: Threads
+          breakdown:
+            field: threads
+      - title: Sort Operations
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 89}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.sorts IS NOT NULL
+            - STATS sorts_rate = SUM(RATE(mysql.sorts)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute)), sorts
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: sorts_rate
+              label: Sorts/sec
+          breakdown:
+            field: sorts
+
+      # Uptime & Connection Stats (y=98)
+      - title: MySQL Uptime
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 98}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.uptime IS NOT NULL
+            - STATS uptime_sec = MAX(mysql.uptime) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
+              minute, MAX(@timestamp) + 1 minute))
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: uptime_sec
+              label: Uptime (seconds)
+      - title: MySQLx Connections
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 98}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mysqlreceiver.otel"
+            - WHERE mysql.mysqlx_connections IS NOT NULL
+            - STATS mysqlx_conn_rate = SUM(RATE(mysql.mysqlx_connections)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
+              DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), mysqlx_connections
+            - ORDER time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: mysqlx_conn_rate
+              label: MySQLx Connections/sec
+          breakdown:
+            field: mysqlx_connections
+
+      # Info Panel about Disabled Metrics (y=107)
+      - size: {w: 48, h: 6}
+        position: {x: 0, y: 107}
+        markdown:
+          content: |
+            ## Disabled Metrics (Not Available by Default)
+            The following metrics are **disabled by default** in the MySQL receiver and require explicit configuration to enable:
+            - **Connection Metrics**: `mysql.connection.count`, `mysql.connection.errors`, `mysql.max_used_connections`
+            - **Query Metrics**: `mysql.query.count`, `mysql.query.slow.count`, `mysql.query.client.count`
+            - **Replication**: `mysql.replica.time_behind_source`, `mysql.replica.sql_delay`
+            - **Table Metrics**: `mysql.table.rows`, `mysql.table.size`, `mysql.table.average_row_length`
+            - **Command Metrics**: `mysql.commands`
+            To enable these metrics, update your MySQL receiver configuration in the OpenTelemetry Collector.
+          font_size: 12

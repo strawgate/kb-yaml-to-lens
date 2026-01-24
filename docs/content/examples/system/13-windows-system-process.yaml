@@ -25,7 +25,8 @@ dashboards:
           - '5059'
     panels:
       - title: Windows Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -44,7 +45,8 @@ dashboards:
             - label: Policy & Object
               dashboard: system-windows-policy-object
       - title: System & Process Events Over Time
-        grid: {x: 0, y: 3, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -60,7 +62,8 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: Audit Log Cleared (1102)
-        grid: {x: 0, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -71,7 +74,8 @@ dashboards:
             - field: winlog.event_id
               equals: '1102'
       - title: Process Created (4688)
-        grid: {x: 12, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -82,7 +86,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4688'
       - title: Process Terminated (4689)
-        grid: {x: 24, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -93,7 +98,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4689'
       - title: Service Installed (4697)
-        grid: {x: 36, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -104,7 +110,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4697'
       - title: Event Distribution
-        grid: {x: 0, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -115,7 +122,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Top Processes
-        grid: {x: 24, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -135,7 +143,8 @@ dashboards:
                 - '4688'
                 - '4689'
       - title: Process Activity by User
-        grid: {x: 0, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -158,7 +167,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4688'
       - title: Recent System & Process Events
-        grid: {x: 24, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

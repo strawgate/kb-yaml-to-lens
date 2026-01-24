@@ -29,7 +29,8 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: System Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -48,7 +49,8 @@ dashboards:
 
       # Summary Layer - Key Metrics (limited to 4)
       - title: Total Hosts
-        grid: {x: 0, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -57,7 +59,8 @@ dashboards:
             field: host.name
             label: Hosts
       - title: Average CPU Utilization
-        grid: {x: 12, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +74,8 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Average Memory Usage
-        grid: {x: 24, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -85,7 +89,8 @@ dashboards:
             - field: data_stream.dataset
               equals: system.memory
       - title: Average Disk Usage
-        grid: {x: 36, y: 3, w: 12, h: 6}
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -101,7 +106,8 @@ dashboards:
 
       # Analysis Layer - Time Series Charts
       - title: CPU Utilization Over Time
-        grid: {x: 0, y: 9, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -122,7 +128,8 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Memory Usage Over Time
-        grid: {x: 24, y: 9, w: 24, h: 12}
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 9}
         lens:
           type: line
           data_view: metrics-*
@@ -143,7 +150,8 @@ dashboards:
             - field: data_stream.dataset
               equals: system.memory
       - title: Network Traffic Over Time
-        grid: {x: 0, y: 21, w: 48, h: 12}
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 21}
         lens:
           type: area
           mode: stacked
@@ -168,7 +176,8 @@ dashboards:
 
       # Detail Layer - Host Summary Table
       - title: Host Performance Summary
-        grid: {x: 0, y: 33, w: 48, h: 20}
+        size: {w: 48, h: 20}
+        position: {x: 0, y: 33}
         description: Click a host name to view detailed metrics
         lens:
           type: datatable

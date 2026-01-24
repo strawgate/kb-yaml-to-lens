@@ -13,7 +13,8 @@ dashboards:
           - '4767'
     panels:
       - title: Windows Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -28,7 +29,8 @@ dashboards:
             - label: Group Management
               dashboard: system-windows-group-management
       - title: Failed and Blocked Events Over Time
-        grid: {x: 0, y: 3, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -44,7 +46,8 @@ dashboards:
             field: winlog.event_id
             size: 10
       - title: Failed Logons (4625)
-        grid: {x: 0, y: 18, w: 16, h: 8}
+        size: {w: 16, h: 8}
+        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -55,7 +58,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Account Lockouts (4740)
-        grid: {x: 16, y: 18, w: 16, h: 8}
+        size: {w: 16, h: 8}
+        position: {x: 16, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -66,7 +70,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4740'
       - title: Account Unlocks (4767)
-        grid: {x: 32, y: 18, w: 16, h: 8}
+        size: {w: 16, h: 8}
+        position: {x: 32, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -77,7 +82,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4767'
       - title: Failed Logon Reasons
-        grid: {x: 0, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -91,7 +97,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Top Failed Users
-        grid: {x: 24, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -109,7 +116,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Failed Logons by Source IP
-        grid: {x: 0, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -129,7 +137,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Recent Failed and Blocked Events
-        grid: {x: 24, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*
