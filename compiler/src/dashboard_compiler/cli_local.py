@@ -518,6 +518,62 @@ def disassemble(input_file: Path | None, output: Path) -> None:
         raise click.ClickException(msg) from e
 
 
+@click.command('decompile')
+@click.argument('input_file', type=click.Path(exists=True, path_type=Path))
+@click.option(
+    '-o',
+    '--output',
+    type=click.Path(path_type=Path),
+    default=None,
+    help='Output file path. If not specified, writes to stdout.',
+)
+@click.option(
+    '--strict',
+    is_flag=True,
+    help='Fail on unsupported features instead of warning and continuing.',
+)
+def decompile(input_file: Path, output: Path | None, strict: bool) -> None:
+    r"""Decompile a Kibana dashboard NDJSON file to YAML format.
+
+    This command reverses the compilation process, transforming Kibana
+    dashboard JSON (in NDJSON format) back into the YAML configuration
+    format that can be edited and recompiled.
+
+    Note: Some information may be lost during decompilation as the YAML
+    format uses a simplified representation. Explicit grid positions and
+    generated IDs are preserved.
+
+    \b
+    Examples:
+        # Decompile to stdout
+        kb-dashboard decompile dashboard.ndjson
+
+        # Decompile to a file
+        kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
+
+        # Strict mode - fail on unsupported features
+        kb-dashboard decompile dashboard.ndjson --strict -o dashboard.yaml
+    """
+    from dashboard_compiler.dashboard_decompiler import decompile_to_yaml
+
+    try:
+        yaml_content, warnings = decompile_to_yaml(input_file, strict=strict)
+
+        for warning in warnings:
+            print_warning(str(warning))
+
+        if output is not None:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(yaml_content, encoding='utf-8')
+            print_success(f'Decompiled dashboard to: {output}')
+        else:
+            print_plain(yaml_content)
+
+    except Exception as e:
+        msg = f'Error decompiling dashboard: {e}'
+        raise click.ClickException(msg) from e
+
+
 @click.command()
 def lsp() -> None:
     """Start the Language Server Protocol (LSP) server for IDE integration.

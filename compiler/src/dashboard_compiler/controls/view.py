@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Annotated, Literal
 
-from pydantic import Field, field_serializer
+from pydantic import Field, field_serializer, field_validator
 
 from dashboard_compiler.shared.model import BaseModel
 from dashboard_compiler.shared.view import BaseVwModel, OmitIfNone, RootDict
@@ -262,6 +262,42 @@ class KbnControlGroupInput(BaseModel):
     ignoreParentSettingsJSON: KbnIgnoreParentSettingsJson
     panelsJSON: KbnControlPanelsJson
     showApplySelections: bool
+
+    @field_validator('chainingSystem', mode='before')
+    @classmethod
+    def parse_chaining_system(cls, v: str | ChainingSystemEnum) -> ChainingSystemEnum:
+        """Parse chainingSystem from string if needed."""
+        if isinstance(v, str):
+            return ChainingSystemEnum(v)
+        return v
+
+    @field_validator('controlStyle', mode='before')
+    @classmethod
+    def parse_control_style(cls, v: str | ControlStyleEnum) -> ControlStyleEnum:
+        """Parse controlStyle from string if needed."""
+        if isinstance(v, str):
+            return ControlStyleEnum(v)
+        return v
+
+    @field_validator('ignoreParentSettingsJSON', mode='before')
+    @classmethod
+    def parse_ignore_parent_settings_json(cls, v: str | dict[str, object]) -> dict[str, object]:
+        """Parse ignoreParentSettingsJSON if it's a stringified JSON object."""
+        if isinstance(v, str):
+            import json
+
+            return json.loads(v)  # pyright: ignore[reportAny]
+        return v
+
+    @field_validator('panelsJSON', mode='before')
+    @classmethod
+    def parse_panels_json(cls, v: str | dict[str, object]) -> dict[str, object]:
+        """Parse panelsJSON if it's a stringified JSON object."""
+        if isinstance(v, str):
+            import json
+
+            return json.loads(v)  # pyright: ignore[reportAny]
+        return v
 
     @field_serializer('ignoreParentSettingsJSON', when_used='always')
     def serialize_parent_settings_json(self, value: KbnIgnoreParentSettingsJson) -> str:

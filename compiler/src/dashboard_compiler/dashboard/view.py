@@ -1,7 +1,7 @@
 import json
-from typing import Annotated
+from typing import Annotated, Any
 
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, Field, field_serializer, field_validator
 
 from dashboard_compiler.controls.view import KbnControlGroupInput
 from dashboard_compiler.panels.view import KbnBasePanel, KbnSavedObjectMeta
@@ -34,6 +34,22 @@ class KbnDashboardAttributes(BaseVwModel):
     timeTo: Annotated[str | None, OmitIfNone()] = Field(default=None)
     version: int
     controlGroupInput: KbnControlGroupInput | None = None
+
+    @field_validator('panelsJSON', mode='before')
+    @classmethod
+    def parse_panels_json(cls, v: str | list[Any]) -> list[Any]:
+        """Parse panelsJSON if it's a stringified JSON array."""
+        if isinstance(v, str):
+            return json.loads(v)  # pyright: ignore[reportAny]
+        return v
+
+    @field_validator('optionsJSON', mode='before')
+    @classmethod
+    def parse_options_json(cls, v: str | dict[str, Any]) -> dict[str, Any]:
+        """Parse optionsJSON if it's a stringified JSON object."""
+        if isinstance(v, str):
+            return json.loads(v)  # pyright: ignore[reportAny]
+        return v
 
     @field_serializer('panelsJSON', when_used='always')
     def panels_json_stringified(self, panelsJSON: list[KbnBasePanel]) -> str:

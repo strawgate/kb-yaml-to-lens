@@ -17,7 +17,7 @@ import sys
 import rich_click as click
 
 from dashboard_compiler.cli_context import CliContext
-from dashboard_compiler.cli_local import compile_dashboards, disassemble, lsp
+from dashboard_compiler.cli_local import compile_dashboards, decompile, disassemble, lsp
 from dashboard_compiler.cli_remote import (
     export_for_issue,
     extract_sample_data_command,
@@ -81,6 +81,7 @@ def cli(ctx: click.Context, loglevel: str) -> None:
 
 # Register local file operation commands
 cli.add_command(compile_dashboards)
+cli.add_command(decompile)
 cli.add_command(disassemble)
 cli.add_command(lsp)
 

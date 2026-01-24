@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any
 
-from pydantic import Field, field_serializer
+from pydantic import Field, field_serializer, field_validator
 
 from dashboard_compiler.filters.view import KbnFilter
 from dashboard_compiler.queries.view import KbnQuery
@@ -54,6 +54,16 @@ class KbnSavedObjectMeta(BaseModel):
     """Represents the 'kibanaSavedObjectMeta' object in the Kibana JSON structure."""
 
     searchSourceJSON: KbnSearchSourceJSON = Field(...)
+
+    @field_validator('searchSourceJSON', mode='before')
+    @classmethod
+    def parse_search_source_json(cls, v: str | dict[str, object]) -> dict[str, object]:
+        """Parse searchSourceJSON if it's a stringified JSON object."""
+        if isinstance(v, str):
+            import json
+
+            return json.loads(v)  # pyright: ignore[reportAny]
+        return v
 
     @field_serializer('searchSourceJSON', when_used='always')
     def search_source_json_stringified(self, searchSourceJSON: KbnSearchSourceJSON) -> str:
