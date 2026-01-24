@@ -48,6 +48,18 @@ Complete ES|QL syntax reference for creating dashboards with ES|QL queries. Help
 - Aggregation and time series functions
 - Dashboard query patterns for different chart types
 
+### [Creating Dashboards from OTel Receivers](otel-dashboard-guide.md)
+
+Systematic guide for building Kibana dashboards from OpenTelemetry Collector receiver data. Based on lessons learned from extensive dashboard development and review.
+
+**Key topics:**
+
+- Locating and understanding receiver documentation
+- Field path patterns for OTel data (metrics, attributes, resources)
+- ES|QL and Lens formula patterns for counter vs gauge metrics
+- Validation checklist for metric names, attributes, and queries
+- Common pitfalls and how to avoid them
+
 ## LLM Resources
 
 ### llms.txt

@@ -11,7 +11,7 @@ _For those who wield the power of Elasticsearch Query Language:_
 ```text
 FROM the indexes, data flows,
 WHERE the data goes, nobody knows.
-STATS works on numbers, ORDER shows the best,
+STATS works on numbers, SORT shows the best,
 LIMIT lets the engine rest.
 
 ESQL queries, powerful and clean,
@@ -68,7 +68,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS event_count = COUNT(*) BY event.category
-            | ORDER event_count DESC
+            | SORT event_count DESC
             | LIMIT 5
           metrics:
             - field: "event_count"
@@ -116,7 +116,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(event.created, 1 hour)
-            | ORDER timestamp_bucket ASC
+            | SORT timestamp_bucket ASC
           time_field: "event.created"  # Use event.created instead of @timestamp
           dimension:
             field: "timestamp_bucket"
@@ -193,7 +193,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS error_count = COUNT(error.code) BY error_type
-            | ORDER error_count DESC
+            | SORT error_count DESC
             | LIMIT 10
           metrics:
             - field: "error_count"
@@ -235,7 +235,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), event.category
-            | ORDER timestamp_bucket ASC
+            | SORT timestamp_bucket ASC
           mode: stacked
           dimension:
             field: "timestamp_bucket"
@@ -276,7 +276,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), service.name
-            | ORDER timestamp_bucket ASC
+            | SORT timestamp_bucket ASC
           dimension:
             field: "timestamp_bucket"
           metrics:
@@ -317,7 +317,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), host.name
-            | ORDER timestamp_bucket ASC
+            | SORT timestamp_bucket ASC
           mode: stacked
           dimension:
             field: "timestamp_bucket"
@@ -385,7 +385,7 @@ dashboards:
                     avg_response_time = AVG(response.time),
                     success_rate = COUNT(status == 200) / COUNT(*) * 100,
                     precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
-            | ORDER timestamp_bucket ASC
+            | SORT timestamp_bucket ASC
           dimension:
             field: "timestamp_bucket"
           metrics:
@@ -441,7 +441,7 @@ dashboards:
           query: |
             FROM logs-*
             | STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 1 hour)
-            | ORDER time_bucket ASC
+            | SORT time_bucket ASC
           dimension:
             field: "time_bucket"
             data_type: "date"  # Tells Kibana this is a date field for proper formatting

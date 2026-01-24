@@ -50,14 +50,14 @@ GRANULARITY_TO_BARS = {
 
 def _resolve_order_by(
     sort: Sort | None,
-    kbn_column_name_to_id: dict[str, str],
+    kbn_column_label_to_id: dict[str, str],
     kbn_metric_column_by_id: Mapping[str, KbnLensMetricColumnTypes],
 ) -> KbnLensTermsOrderBy:
     """Resolve ordering for terms dimensions.
 
     Args:
         sort: The sort configuration from the dimension.
-        kbn_column_name_to_id: Mapping of column names to their IDs.
+        kbn_column_label_to_id: Mapping of column labels to their IDs.
         kbn_metric_column_by_id: Mapping of column IDs to metric columns.
 
     Returns:
@@ -68,12 +68,17 @@ def _resolve_order_by(
 
     """
     if sort is not None:
-        if sort.by not in kbn_column_name_to_id:
+        # Look up by label first, then by column ID directly
+        if sort.by in kbn_column_label_to_id:
+            column_id = kbn_column_label_to_id[sort.by]
+        elif sort.by in kbn_metric_column_by_id:
+            column_id = sort.by
+        else:
             msg = f"Sort column '{sort.by}' not found in available metric columns"
             raise ValueError(msg)
         return KbnLensTermsOrderBy(
             type='column',
-            columnId=kbn_column_name_to_id[sort.by],
+            columnId=column_id,
         )
 
     if len(kbn_metric_column_by_id) > 0:
@@ -117,7 +122,7 @@ def compile_lens_dimension(
         tuple[str, KbnLensDimensionColumnTypes]: A tuple containing the dimension ID and the compiled Kibana view model.
 
     """
-    kbn_column_name_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
+    kbn_column_label_to_id = {column.label: column_id for column_id, column in kbn_metric_column_by_id.items()}
 
     custom_label = True if dimension.label is not None else None
 
@@ -145,7 +150,7 @@ def compile_lens_dimension(
 
         order_by = _resolve_order_by(
             sort=dimension.sort,
-            kbn_column_name_to_id=kbn_column_name_to_id,
+            kbn_column_label_to_id=kbn_column_label_to_id,
             kbn_metric_column_by_id=kbn_metric_column_by_id,
         )
 
@@ -189,7 +194,7 @@ def compile_lens_dimension(
 
         order_by = _resolve_order_by(
             sort=dimension.sort,
-            kbn_column_name_to_id=kbn_column_name_to_id,
+            kbn_column_label_to_id=kbn_column_label_to_id,
             kbn_metric_column_by_id=kbn_metric_column_by_id,
         )
 
