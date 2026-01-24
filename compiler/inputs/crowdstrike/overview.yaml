@@ -1,7 +1,7 @@
 ---
 dashboards:
   - id: crowdstrike-e64e8fe0-8210-11ee-bae0-937af575b750
-    name: '[Crowdstrike] Overview'
+    name: '[CrowdStrike] Overview'
     description: High-level overview of CrowdStrike data with navigation to specific dashboards.
     panels:
       - title: Table of Contents
@@ -13,7 +13,7 @@ dashboards:
           h: 41
         markdown:
           content: |
-            ## **Crowdstrike**
+            ## **CrowdStrike**
 
             ### Navigation
             **Overview**

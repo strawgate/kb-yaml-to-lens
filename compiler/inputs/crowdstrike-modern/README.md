@@ -27,7 +27,7 @@ This directory contains 4 workflow-centric dashboards designed for modern securi
 
 ### 1. Security Operations Center (SOC)
 **File:** `soc.yaml`
-**Dashboard ID:** `crowdstrike-modern-soc-7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p`
+**Dashboard ID:** `crowdstrike-modern-soc-7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d`
 **Panels:** 12 (Standard complexity)
 
 **Purpose:** Real-time security event monitoring, alert triage, and incident response coordination.
@@ -55,7 +55,7 @@ This directory contains 4 workflow-centric dashboards designed for modern securi
 
 ### 2. Threat Investigation
 **File:** `threat-investigation.yaml`
-**Dashboard ID:** `crowdstrike-modern-investigation-8b9c0d1e-2f3g-4h5i-6j7k-8l9m0n1o2p3q`
+**Dashboard ID:** `crowdstrike-modern-investigation-8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e`
 **Panels:** 12 (Standard complexity)
 
 **Purpose:** Deep-dive threat analysis, MITRE ATT&CK mapping, IOC tracking, and threat actor behavior analysis.
@@ -83,7 +83,7 @@ This directory contains 4 workflow-centric dashboards designed for modern securi
 
 ### 3. Asset & Vulnerability Management
 **File:** `asset-vulnerability.yaml`
-**Dashboard ID:** `crowdstrike-modern-assets-9c0d1e2f-3g4h-5i6j-7k8l-9m0n1o2p3q4r`
+**Dashboard ID:** `crowdstrike-modern-assets-9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f`
 **Panels:** 10 (Standard complexity)
 
 **Purpose:** Asset inventory, vulnerability tracking, risk assessment, and patch prioritization.
@@ -111,7 +111,7 @@ This directory contains 4 workflow-centric dashboards designed for modern securi
 
 ### 4. Compliance & Audit
 **File:** `compliance-audit.yaml`
-**Dashboard ID:** `crowdstrike-modern-compliance-0d1e2f3g-4h5i-6j7k-8l9m-0n1o2p3q4r5s`
+**Dashboard ID:** `crowdstrike-modern-compliance-0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a`
 **Panels:** 12 (Standard complexity)
 
 **Purpose:** Compliance monitoring, audit trail analysis, user activity tracking, and regulatory reporting.

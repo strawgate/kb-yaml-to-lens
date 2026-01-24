@@ -1,8 +1,8 @@
 ---
 dashboards:
   - id: crowdstrike-a4972bc0-fb53-11eb-abed-07307b3f2b0f
-    name: '[Crowdstrike] FDR Overview'
-    description: Summarised overview for Crowdstrike FDR events.
+    name: '[CrowdStrike] FDR Overview'
+    description: Summarised overview for CrowdStrike FDR events.
     filters:
       - field: data_stream.dataset
         equals: crowdstrike.fdr
@@ -16,7 +16,7 @@ dashboards:
           h: 57
         markdown:
           content: |
-            ## **Crowdstrike**
+            ## **CrowdStrike**
 
             ### Navigation
             [Overview](/app/dashboards#/view/crowdstrike-e64e8fe0-8210-11ee-bae0-937af575b750)
@@ -27,7 +27,7 @@ dashboards:
             [Vulnerability](/app/dashboards#/view/crowdstrike-63da2573-4e68-4e7d-a06b-6858edb60fd5)
 
             ### Overview
-            This dashboard shows statistics specific to alerts and their different alert types received from Crowdstrike FDR.
+            This dashboard shows statistics specific to alerts and their different alert types received from CrowdStrike FDR.
           font_size: 12
           links_in_new_tab: false
       - title: Top Users

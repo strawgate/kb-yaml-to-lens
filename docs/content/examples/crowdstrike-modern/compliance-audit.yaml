@@ -1,6 +1,6 @@
 ---
 dashboards:
-  - id: crowdstrike-modern-compliance-0d1e2f3g-4h5i-6j7k-8l9m-0n1o2p3q4r5s
+  - id: crowdstrike-modern-compliance-0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a
     name: '[CrowdStrike Modern] Compliance & Audit'
     description: Compliance monitoring and audit trail dashboard for security event tracking, user activity analysis, access patterns, and regulatory
       reporting requirements.
@@ -44,13 +44,13 @@ dashboards:
           layout: horizontal
           items:
             - label: SOC Dashboard
-              dashboard: crowdstrike-modern-soc-7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p
+              dashboard: crowdstrike-modern-soc-7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
             - label: Threat Investigation
-              dashboard: crowdstrike-modern-investigation-8b9c0d1e-2f3g-4h5i-6j7k-8l9m0n1o2p3q
+              dashboard: crowdstrike-modern-investigation-8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e
             - label: Asset & Vulnerability
-              dashboard: crowdstrike-modern-assets-9c0d1e2f-3g4h-5i6j-7k8l-9m0n1o2p3q4r
+              dashboard: crowdstrike-modern-assets-9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f
             - label: Compliance & Audit
-              dashboard: crowdstrike-modern-compliance-0d1e2f3g-4h5i-6j7k-8l9m-0n1o2p3q4r5s
+              dashboard: crowdstrike-modern-compliance-0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a
 
       # Analysis Layer - Audit Events Over Time
       - title: Security Audit Events Over Time
