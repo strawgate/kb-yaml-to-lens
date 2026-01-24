@@ -128,7 +128,7 @@ export class PreviewPanel {
                 const gridInfo = await this.extractGridInfo(dashboardPath, dashboardIndex);
                 const errorMessage = compileError instanceof Error ? compileError.message : String(compileError);
                 this.panel.webview.html = this.getLayoutOnlyContent(dashboardPath, gridInfo, errorMessage);
-            } catch (gridError) {
+            } catch (_gridError) {
                 // Both compilation and grid extraction failed - show the original error
                 this.panel.webview.html = getErrorContent(compileError, 'Compilation Error');
             }

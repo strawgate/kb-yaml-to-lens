@@ -1,6 +1,9 @@
 # Root Makefile - Global orchestration for all components
 # Component-specific commands are in each component's Makefile
 
+# Include shared helpers
+include Makefile.shared
+
 # Components for pass-through commands
 COMPONENTS := packages/kb-dashboard-compiler vscode-extension
 
@@ -15,6 +18,8 @@ YAMLFIX_EXCLUDE := \
 .PHONY: help all lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler vscode docs gh
 
 help:
+	@echo "Root Makefile - Global Commands"
+	@echo ""
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run target in all components:"
@@ -46,7 +51,10 @@ help:
 	@echo ""
 	@echo "=== Version Bumping ==="
 	@echo ""
-	@echo "  bump-patch / bump-minor / bump-major / bump-version-show"
+	@echo "  bump-patch         - Bump patch version (x.y.Z)"
+	@echo "  bump-minor         - Bump minor version (x.Y.0)"
+	@echo "  bump-major         - Bump major version (X.0.0)"
+	@echo "  bump-version-show  - Show current version"
 
 # Run target across all components
 # Usage: make all <target>
@@ -58,41 +66,43 @@ all:
 		exit 1; \
 	fi; \
 	for component in $(COMPONENTS); do \
-		echo "→ $$component..."; \
+		printf "▸ Component: %s\n" "$$component"; \
 		$(MAKE) -C $$component $$target || exit 1; \
 	done; \
-	echo "✓ All components: $$target complete"
+	printf "✓ All components: %s complete\n" "$$target"
 
 # Markdown linting (global)
 lint-markdown:
-	@echo "Running markdownlint --fix..."
-	markdownlint --fix -c .markdownlint.jsonc .
+	$(call run_cmd, "Running markdownlint --fix", markdownlint --fix -c .markdownlint.jsonc ., "Markdown linting complete")
 
 lint-markdown-check:
-	@echo "Running markdownlint..."
-	@markdownlint -c .markdownlint.jsonc . > /dev/null 2>&1 && echo "✓ Markdown checks passed" || (markdownlint -c .markdownlint.jsonc . && exit 1)
+	$(call print_start, "Running markdownlint")
+	@markdownlint -c .markdownlint.jsonc . $(INDENT)
+	$(call print_end, "Markdown checks passed")
 
 # YAML linting (global)
 lint-yaml:
-	@echo "Running yamlfix..."
-	cd packages/kb-dashboard-compiler && uv run yamlfix $(YAMLFIX_EXCLUDE) ../..
+	$(call run_cmd, "Running yamlfix", cd packages/kb-dashboard-compiler && uv run yamlfix $(YAMLFIX_EXCLUDE) ../.., "YAML linting complete")
 
 lint-yaml-check:
-	@echo "Running yamlfix --check..."
-	@cd packages/kb-dashboard-compiler && uv run yamlfix --check $(YAMLFIX_EXCLUDE) ../.. > /dev/null 2>&1 && echo "✓ YAML checks passed" || (uv run yamlfix --check $(YAMLFIX_EXCLUDE) ../.. && exit 1)
+	$(call print_start, "Running yamlfix --check")
+	@cd packages/kb-dashboard-compiler && uv run yamlfix --check $(YAMLFIX_EXCLUDE) ../.. $(INDENT)
+	$(call print_end, "YAML checks passed")
 
 # Version bumping
+BUMP_VERSION_SCRIPT := uv run scripts/bump-version.py
+
 bump-patch:
-	@uv run scripts/bump-version.py patch
+	@$(BUMP_VERSION_SCRIPT) patch
 
 bump-minor:
-	@uv run scripts/bump-version.py minor
+	@$(BUMP_VERSION_SCRIPT) minor
 
 bump-major:
-	@uv run scripts/bump-version.py major
+	@$(BUMP_VERSION_SCRIPT) major
 
 bump-version-show:
-	@uv run scripts/bump-version.py show
+	@$(BUMP_VERSION_SCRIPT) show
 
 # Component pass-through targets
 compiler:

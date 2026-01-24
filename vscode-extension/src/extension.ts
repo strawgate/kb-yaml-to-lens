@@ -54,7 +54,7 @@ function hasDashboardsKey(uri: string): boolean {
         // This regex matches 'dashboards:' only when it appears at column 0 (no leading spaces/tabs)
         // The /m flag enables multiline mode so ^ matches the start of any line
         return /^dashboards\s*:/m.test(content);
-    } catch (error) {
+    } catch (_error) {
         // If we can't access the document, don't apply the schema
         return false;
     }
@@ -83,7 +83,7 @@ async function hasDashboardsKeyAsync(uri: vscode.Uri): Promise<boolean> {
         }
 
         return /^dashboards\s*:/m.test(content);
-    } catch (error) {
+    } catch (_error) {
         return false;
     }
 }
