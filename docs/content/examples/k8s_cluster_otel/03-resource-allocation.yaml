@@ -23,7 +23,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -43,13 +42,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Capacity
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## 📊 Cluster Capacity (Requests vs Limits)'
           font_size: 14
       - title: CPU Requests vs Limits
         size: {w: 24, h: 12}
-        position: {x: 0, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -65,7 +62,6 @@ dashboards:
             - exists: k8s.container.name
       - title: Memory Requests vs Limits
         size: {w: 24, h: 12}
-        position: {x: 24, y: 5}
         lens:
           type: line
           data_view: metrics-*
@@ -85,7 +81,6 @@ dashboards:
             - exists: k8s.container.name
       - title: Storage Requests vs Limits
         size: {w: 24, h: 12}
-        position: {x: 0, y: 17}
         lens:
           type: line
           data_view: metrics-*
@@ -105,7 +100,6 @@ dashboards:
             - exists: k8s.container.storage_request
       - title: Resource Quota Usage
         size: {w: 24, h: 12}
-        position: {x: 24, y: 17}
         lens:
           type: bar
           mode: stacked
@@ -136,13 +130,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Namespace Allocation
         size: {w: 48, h: 2}
-        position: {x: 0, y: 29}
         markdown:
           content: '## 🏷️ Resource Allocation by Namespace'
           font_size: 14
       - title: CPU by Namespace
         size: {w: 24, h: 14}
-        position: {x: 0, y: 31}
         lens:
           type: bar
           mode: stacked
@@ -163,7 +155,6 @@ dashboards:
             - exists: k8s.container.name
       - title: Memory by Namespace
         size: {w: 24, h: 14}
-        position: {x: 24, y: 31}
         lens:
           type: bar
           mode: stacked
@@ -192,13 +183,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Pod Details
         size: {w: 48, h: 2}
-        position: {x: 0, y: 45}
         markdown:
           content: '## 🔍 Pod Resource Details'
           font_size: 14
       - title: Pod Resource Summary
         size: {w: 48, h: 14}
-        position: {x: 0, y: 47}
         lens:
           type: datatable
           data_view: metrics-*

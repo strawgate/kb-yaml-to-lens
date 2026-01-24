@@ -36,7 +36,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -56,7 +55,6 @@ dashboards:
               dashboard: system-windows-system-process
       - title: Policy & Object Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -73,7 +71,6 @@ dashboards:
             size: 25
       - title: Audit Policy Changes (4719)
         size: {w: 12, h: 8}
-        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -85,7 +82,6 @@ dashboards:
               equals: '4719'
       - title: Registry Value Modified (4657)
         size: {w: 12, h: 8}
-        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -97,7 +93,6 @@ dashboards:
               equals: '4657'
       - title: Object Access (4663)
         size: {w: 12, h: 8}
-        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -109,7 +104,6 @@ dashboards:
               equals: '4663'
       - title: Task Scheduled (4698)
         size: {w: 12, h: 8}
-        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -121,7 +115,6 @@ dashboards:
               equals: '4698'
       - title: Event Distribution
         size: {w: 24, h: 15}
-        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -133,7 +126,6 @@ dashboards:
             - aggregation: count
       - title: Top Users
         size: {w: 24, h: 15}
-        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -149,7 +141,6 @@ dashboards:
               label: Events
       - title: Object Types Accessed
         size: {w: 24, h: 15}
-        position: {x: 0, y: 41}
         lens:
           type: pie
           data_view: logs-*
@@ -167,7 +158,6 @@ dashboards:
                 - '4670'
       - title: Recent Policy & Object Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

@@ -30,7 +30,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -50,12 +49,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Log Summary
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## Log Summary'
       - title: Log Events Over Time
         size: {w: 32, h: 12}
-        position: {x: 0, y: 5}
         lens:
           type: area
           mode: stacked
@@ -72,7 +69,6 @@ dashboards:
               label: Events
       - title: Log Level Distribution
         size: {w: 16, h: 12}
-        position: {x: 32, y: 5}
         lens:
           type: pie
           data_view: logs-*
@@ -90,12 +86,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Log Details
         size: {w: 48, h: 2}
-        position: {x: 0, y: 17}
         markdown:
           content: '## Log Details'
       - title: Logs
         size: {w: 48, h: 40}
-        position: {x: 0, y: 19}
         esql:
           type: datatable
           query:

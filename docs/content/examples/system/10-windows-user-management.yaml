@@ -24,7 +24,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -40,7 +39,6 @@ dashboards:
               dashboard: system-windows-group-management
       - title: User Management Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -57,7 +55,6 @@ dashboards:
             size: 15
       - title: User Created (4720)
         size: {w: 12, h: 8}
-        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -69,7 +66,6 @@ dashboards:
               equals: '4720'
       - title: User Enabled (4722)
         size: {w: 12, h: 8}
-        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -81,7 +77,6 @@ dashboards:
               equals: '4722'
       - title: User Disabled (4725)
         size: {w: 12, h: 8}
-        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -93,7 +88,6 @@ dashboards:
               equals: '4725'
       - title: User Deleted (4726)
         size: {w: 12, h: 8}
-        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -105,7 +99,6 @@ dashboards:
               equals: '4726'
       - title: Event Distribution
         size: {w: 24, h: 15}
-        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -117,7 +110,6 @@ dashboards:
             - aggregation: count
       - title: Affected Users
         size: {w: 24, h: 15}
-        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -133,7 +125,6 @@ dashboards:
               label: Events
       - title: User Management by Actor
         size: {w: 24, h: 15}
-        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -151,7 +142,6 @@ dashboards:
             page_size: 10
       - title: Recent User Management Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

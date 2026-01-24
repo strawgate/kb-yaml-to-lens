@@ -28,7 +28,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -48,13 +47,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Key Metrics
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## Key Metrics'
       - title: CPU Utilization
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -68,7 +65,6 @@ dashboards:
       - title: Normalized Load
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -80,7 +76,6 @@ dashboards:
       - title: Memory Utilization
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -92,7 +87,6 @@ dashboards:
       - title: Disk Usage
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -108,12 +102,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Resource Trends
         size: {w: 48, h: 2}
-        position: {x: 0, y: 13}
         markdown:
           content: '## Resource Trends'
       - title: CPU Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -129,7 +121,6 @@ dashboards:
                 type: percent
       - title: Memory Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 15}
         lens:
           type: area
           data_view: metrics-*
@@ -143,7 +134,6 @@ dashboards:
                 type: percent
       - title: Normalized Load Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 27}
         lens:
           type: line
           data_view: metrics-*
@@ -157,7 +147,6 @@ dashboards:
                 type: percent
       - title: Disk Usage by Mount Point
         size: {w: 24, h: 12}
-        position: {x: 24, y: 27}
         lens:
           type: line
           data_view: metrics-*

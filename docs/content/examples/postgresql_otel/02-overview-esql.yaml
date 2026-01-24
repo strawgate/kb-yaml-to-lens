@@ -31,7 +31,6 @@ dashboards:
       - title: Total Databases
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 0, y: 0}
         esql:
           type: metric
           query:
@@ -45,7 +44,6 @@ dashboards:
       - title: Active Connections
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 12, y: 0}
         esql:
           type: metric
           query:
@@ -59,7 +57,6 @@ dashboards:
       - title: Max Connections
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 24, y: 0}
         description: Requires postgresql.connection.max metric (enable in OTel collector)
         esql:
           type: metric
@@ -74,7 +71,6 @@ dashboards:
       - title: Database Count
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 36, y: 0}
         description: Requires postgresql.database.count metric (enable in OTel collector)
         esql:
           type: metric
@@ -90,7 +86,6 @@ dashboards:
       # Performance Summary DataTable (y=6)
       - title: Database Performance Summary
         size: {w: 48, h: 18}
-        position: {x: 0, y: 6}
         description: Peak metrics per database over the selected time range. Counter metrics show maximum cumulative values.
         esql:
           type: datatable
@@ -114,7 +109,6 @@ dashboards:
       # Connections Over Time (y=24)
       - title: Active Connections Over Time
         size: {w: 48, h: 10}
-        position: {x: 0, y: 24}
         esql:
           type: line
           query:
@@ -138,7 +132,6 @@ dashboards:
       # Transaction Rates (y=34)
       - title: Commits Rate
         size: {w: 24, h: 10}
-        position: {x: 0, y: 34}
         esql:
           type: area
           mode: stacked
@@ -163,7 +156,6 @@ dashboards:
             field: database
       - title: Rollbacks Rate
         size: {w: 24, h: 10}
-        position: {x: 24, y: 34}
         esql:
           type: area
           mode: stacked
@@ -190,7 +182,6 @@ dashboards:
       # Block I/O (y=44)
       - title: Block I/O by Source
         size: {w: 48, h: 12}
-        position: {x: 0, y: 44}
         esql:
           type: line
           query:
@@ -213,7 +204,6 @@ dashboards:
       # Database Operations (y=56)
       - title: Operations by Type
         size: {w: 48, h: 12}
-        position: {x: 0, y: 56}
         esql:
           type: bar
           mode: stacked
@@ -238,7 +228,6 @@ dashboards:
       # Distribution Charts (y=68)
       - title: Database Sizes
         size: {w: 24, h: 10}
-        position: {x: 0, y: 68}
         esql:
           type: pie
           query:
@@ -260,7 +249,6 @@ dashboards:
             donut: medium
       - title: Connection States
         size: {w: 24, h: 10}
-        position: {x: 24, y: 68}
         esql:
           type: pie
           query:
@@ -285,7 +273,6 @@ dashboards:
       # Metadata Table (y=78)
       - title: Database Metadata
         size: {w: 48, h: 12}
-        position: {x: 0, y: 78}
         description: List of monitored databases and their host locations
         esql:
           type: datatable

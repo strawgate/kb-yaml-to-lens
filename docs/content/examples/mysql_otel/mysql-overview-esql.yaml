@@ -24,7 +24,6 @@ dashboards:
       # Navigation Links
       - title: Navigation Links
         size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -37,7 +36,6 @@ dashboards:
       - title: Active Connections
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 0, y: 2}
         esql:
           type: metric
           query:
@@ -51,7 +49,6 @@ dashboards:
       - title: Buffer Pool Efficiency
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 12, y: 2}
         description: Ratio of clean to total buffer pool pages
         esql:
           type: metric
@@ -70,7 +67,6 @@ dashboards:
       - title: InnoDB Operations Rate
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 24, y: 2}
         esql:
           type: metric
           query:
@@ -84,7 +80,6 @@ dashboards:
       - title: Handler Operations Rate
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 36, y: 2}
         esql:
           type: metric
           query:
@@ -99,7 +94,6 @@ dashboards:
       # Buffer Pool Performance Section (y=8)
       - title: Buffer Pool Usage Over Time
         size: {w: 24, h: 9}
-        position: {x: 0, y: 8}
         esql:
           type: line
           query:
@@ -119,7 +113,6 @@ dashboards:
             field: status
       - title: Buffer Pool Pages
         size: {w: 24, h: 9}
-        position: {x: 24, y: 8}
         esql:
           type: line
           query:
@@ -137,7 +130,6 @@ dashboards:
             field: kind
       - title: Buffer Pool Operations
         size: {w: 24, h: 9}
-        position: {x: 0, y: 17}
         esql:
           type: line
           query:
@@ -156,7 +148,6 @@ dashboards:
             field: operation
       - title: Buffer Pool Page Flushes
         size: {w: 24, h: 9}
-        position: {x: 24, y: 17}
         esql:
           type: line
           query:
@@ -174,7 +165,6 @@ dashboards:
       # InnoDB Operations Section (y=26)
       - title: Row Operations
         size: {w: 24, h: 9}
-        position: {x: 0, y: 26}
         esql:
           type: line
           query:
@@ -192,7 +182,6 @@ dashboards:
             field: operation
       - title: Page Operations
         size: {w: 24, h: 9}
-        position: {x: 24, y: 26}
         esql:
           type: line
           query:
@@ -210,7 +199,6 @@ dashboards:
             field: operation
       - title: InnoDB Operations (fsyncs, reads, writes)
         size: {w: 24, h: 9}
-        position: {x: 0, y: 35}
         esql:
           type: line
           query:
@@ -228,7 +216,6 @@ dashboards:
             field: operation
       - title: Double Writes
         size: {w: 24, h: 9}
-        position: {x: 24, y: 35}
         esql:
           type: line
           query:
@@ -248,7 +235,6 @@ dashboards:
       # Handler Operations Section (y=44)
       - title: Handler Operations
         size: {w: 48, h: 9}
-        position: {x: 0, y: 44}
         description: Handler operations rate by type
         esql:
           type: line
@@ -269,7 +255,6 @@ dashboards:
       # Locks & Waits Section (y=53)
       - title: Lock Waits
         size: {w: 24, h: 9}
-        position: {x: 0, y: 53}
         esql:
           type: line
           query:
@@ -287,7 +272,6 @@ dashboards:
             field: kind
       - title: Row Lock Waits
         size: {w: 24, h: 9}
-        position: {x: 24, y: 53}
         esql:
           type: line
           query:
@@ -307,7 +291,6 @@ dashboards:
       # Log Operations Section (y=62)
       - title: Log Operations
         size: {w: 48, h: 9}
-        position: {x: 0, y: 62}
         esql:
           type: line
           query:
@@ -327,7 +310,6 @@ dashboards:
       # Table I/O Waits Section (y=71)
       - title: Table I/O Waits/sec by Table
         size: {w: 24, h: 9}
-        position: {x: 0, y: 71}
         esql:
           type: line
           query:
@@ -346,7 +328,6 @@ dashboards:
             field: table
       - title: Index I/O Waits/sec by Index
         size: {w: 24, h: 9}
-        position: {x: 24, y: 71}
         esql:
           type: line
           query:
@@ -367,7 +348,6 @@ dashboards:
       # Resources Section (y=80)
       - title: Opened Resources
         size: {w: 24, h: 9}
-        position: {x: 0, y: 80}
         esql:
           type: line
           query:
@@ -385,7 +365,6 @@ dashboards:
             field: kind
       - title: Temporary Resources
         size: {w: 24, h: 9}
-        position: {x: 24, y: 80}
         esql:
           type: line
           query:
@@ -405,7 +384,6 @@ dashboards:
       # Threads & Sorts Section (y=89)
       - title: Thread Metrics
         size: {w: 24, h: 9}
-        position: {x: 0, y: 89}
         esql:
           type: line
           query:
@@ -423,7 +401,6 @@ dashboards:
             field: kind
       - title: Sort Operations
         size: {w: 24, h: 9}
-        position: {x: 24, y: 89}
         esql:
           type: line
           query:
@@ -443,7 +420,6 @@ dashboards:
       # Uptime & Connection Stats (y=98)
       - title: MySQL Uptime
         size: {w: 24, h: 9}
-        position: {x: 0, y: 98}
         description: MySQL server uptime rate (should be 1 second/second when running)
         esql:
           type: line
@@ -460,7 +436,6 @@ dashboards:
               label: Uptime Rate (sec/sec)
       - title: MySQLx Connections
         size: {w: 24, h: 9}
-        position: {x: 24, y: 98}
         esql:
           type: line
           query:

@@ -9,7 +9,6 @@ dashboards:
     panels:
       - title: Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -23,7 +22,6 @@ dashboards:
               dashboard: system-users-groups
       - title: Syslog events by hostname
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -40,7 +38,6 @@ dashboards:
             size: 10
       - title: Syslog hostnames and processes
         size: {w: 24, h: 15}
-        position: {x: 0, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -55,7 +52,6 @@ dashboards:
             - aggregation: count
       - title: Recent Syslog Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 18}
         lens:
           type: datatable
           data_view: logs-*

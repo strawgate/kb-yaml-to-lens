@@ -24,7 +24,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -44,7 +43,6 @@ dashboards:
               dashboard: system-windows-system-process
       - title: Directory Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -61,7 +59,6 @@ dashboards:
             size: 15
       - title: Computer Account Changes (4742)
         size: {w: 12, h: 8}
-        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -73,7 +70,6 @@ dashboards:
               equals: '4742'
       - title: Kerberos TGT Requests (4768)
         size: {w: 12, h: 8}
-        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -85,7 +81,6 @@ dashboards:
               equals: '4768'
       - title: Kerberos Service Tickets (4769)
         size: {w: 12, h: 8}
-        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -97,7 +92,6 @@ dashboards:
               equals: '4769'
       - title: Credential Validation (4776)
         size: {w: 12, h: 8}
-        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -109,7 +103,6 @@ dashboards:
               equals: '4776'
       - title: Event Distribution
         size: {w: 24, h: 15}
-        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -121,7 +114,6 @@ dashboards:
             - aggregation: count
       - title: Top Accounts
         size: {w: 24, h: 15}
-        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -148,7 +140,6 @@ dashboards:
                 - '4776'
       - title: Events by Source
         size: {w: 24, h: 15}
-        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -166,7 +157,6 @@ dashboards:
             page_size: 10
       - title: Recent Directory Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

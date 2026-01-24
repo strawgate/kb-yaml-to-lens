@@ -12,7 +12,6 @@ dashboards:
     name: '[Elastic Agent] Unified Logs Input Metrics'
     panels:
       - title: Table of Contents
-        grid: {x: 0, y: 0, w: 7, h: 39}
         links:
           layout: horizontal
           items:
@@ -40,8 +39,8 @@ dashboards:
             - {label: Unified Logs, dashboard: elastic_agent-9eab2fa0-5e7c-11f0-89d2-bb7ceae5af7f}
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
+        size: {w: 7, h: 39}
       - title: Errors, Total
-        grid: {x: 7, y: 0, w: 41, h: 39}
         lens:
           type: line
           data_view: metrics-*
@@ -54,3 +53,4 @@ dashboards:
               field: filebeat_input.errors_total
               label: Total Errors
               format: {type: number, decimals: 0}
+        size: {w: 41, h: 39}

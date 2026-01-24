@@ -21,7 +21,6 @@ dashboards:
     panels:
       # Navigation Links
       - size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -35,15 +34,13 @@ dashboards:
               url: https://redis.io/docs/
 
       # Section Header
-      - position: {x: 0, y: 2}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Redis Instance Overview'
 
       # KPI Metrics Row
       - title: Total Redis Instances
         hide_title: true
-        position: {x: 0, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -57,7 +54,6 @@ dashboards:
             label: Instances
       - title: Total Client Connections
         hide_title: true
-        position: {x: 8, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -73,7 +69,6 @@ dashboards:
             label: Clients
       - title: Commands/sec
         hide_title: true
-        position: {x: 16, y: 5}
         size: {w: 8, h: 5}
         description: Gauge metric showing instantaneous commands per second
         esql:
@@ -90,7 +85,6 @@ dashboards:
             label: Commands/sec
       - title: Cache Hit Rate
         hide_title: true
-        position: {x: 24, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -108,7 +102,6 @@ dashboards:
               type: percent
       - title: Total Memory Usage
         hide_title: true
-        position: {x: 32, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -126,7 +119,6 @@ dashboards:
               type: bytes
       - title: Avg Memory Fragmentation
         hide_title: true
-        position: {x: 40, y: 5}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -140,14 +132,12 @@ dashboards:
             label: Fragmentation
 
       # Section Header
-      - position: {x: 0, y: 10}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Memory & Performance Trends'
 
       # Memory Usage by Instance (Gauge - use LAST_OVER_TIME for current state)
       - title: Memory Usage by Instance
-        position: {x: 0, y: 13}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -174,7 +164,6 @@ dashboards:
 
       # Commands Per Second (Gauge metric - use LAST_OVER_TIME for current state)
       - title: Commands Per Second
-        position: {x: 24, y: 13}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -198,7 +187,6 @@ dashboards:
 
       # Client Connections Over Time (Gauge - use LAST_OVER_TIME for current state)
       - title: Client Connections Over Time
-        position: {x: 0, y: 25}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -222,7 +210,6 @@ dashboards:
 
       # Keyspace Hit/Miss Rate (Counter metrics - use RATE)
       - title: Keyspace Hit/Miss Rate
-        position: {x: 24, y: 25}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -246,14 +233,12 @@ dashboards:
               label: Misses/sec
 
       # Section Header
-      - position: {x: 0, y: 37}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Key Eviction & Expiration'
 
       # Keys Evicted Rate (Counter - use RATE)
       - title: Keys Evicted Rate
-        position: {x: 0, y: 40}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -277,7 +262,6 @@ dashboards:
 
       # Keys Expired Rate (Counter - use RATE)
       - title: Keys Expired Rate
-        position: {x: 24, y: 40}
         size: {w: 24, h: 12}
         esql:
           type: line
@@ -300,14 +284,12 @@ dashboards:
             field: instance
 
       # Section Header
-      - position: {x: 0, y: 52}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Network I/O'
 
       # Network Input (Counter - use RATE)
       - title: Network Input (Bytes Received)
-        position: {x: 0, y: 55}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -334,7 +316,6 @@ dashboards:
 
       # Network Output (Counter - use RATE)
       - title: Network Output (Bytes Sent)
-        position: {x: 24, y: 55}
         size: {w: 24, h: 12}
         esql:
           type: area
@@ -360,14 +341,12 @@ dashboards:
             field: instance
 
       # Section Header
-      - position: {x: 0, y: 67}
-        size: {w: 48, h: 3}
+      - size: {w: 48, h: 3}
         markdown:
           content: '## Instance Summary Table'
 
       # Instance Summary DataTable
       - title: Redis Instance Metrics Summary
-        position: {x: 0, y: 70}
         size: {w: 48, h: 20}
         esql:
           type: datatable

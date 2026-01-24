@@ -12,7 +12,6 @@ dashboards:
     name: '[Elastic Agent] UDP Input Metrics'
     panels:
       - title: Table of Contents
-        grid: {x: 0, y: 0, w: 7, h: 76}
         links:
           layout: horizontal
           items:
@@ -40,38 +39,38 @@ dashboards:
             - {label: Unified Logs, dashboard: elastic_agent-9eab2fa0-5e7c-11f0-89d2-bb7ceae5af7f}
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
+        size: {w: 7, h: 76}
       - title: '[Elastic Agent] UDP Average Processing Time'
-        grid: {x: 7, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average Processing Time}
+        size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Queue Length'
-        grid: {x: 15, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.receive_queue_length, label: Part of Queue Length}
+        size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Total Bytes Processed'
-        grid: {x: 23, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Total Bytes Processed}
+        size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Events Created'
-        grid: {x: 31, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.received_events_total, label: Part of Events Created}
+        size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Packet Drops'
-        grid: {x: 39, y: 0, w: 8, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.system_packet_drops, label: Part of Packets Dropped}
+        size: {w: 8, h: 6}
       - title: '[Elastic Agent] UDP Time Between Packets (Milliseconds)'
-        grid: {x: 7, y: 6, w: 40, h: 14}
         lens:
           type: area
           data_view: metrics-*
@@ -83,8 +82,8 @@ dashboards:
             - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.mean, label: Part of Average}
             - {formula: 'divide(last_value(filebeat_input.arrival_period.histogram.p99), 1000000)', label: 99th Percentile}
             - {aggregation: last_value, field: filebeat_input.arrival_period.histogram.p99, label: Part of 99th Percentile}
+        size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Processing Time (Milliseconds)'
-        grid: {x: 7, y: 20, w: 40, h: 14}
         lens:
           type: area
           data_view: metrics-*
@@ -96,8 +95,8 @@ dashboards:
             - {aggregation: last_value, field: filebeat_input.processing_time.histogram.mean, label: Part of Average}
             - {formula: 'divide(last_value(filebeat_input.processing_time.histogram.p99), 1000000)', label: 99th Percentile}
             - {aggregation: last_value, field: filebeat_input.processing_time.histogram.p99, label: Part of 99th Percentile}
+        size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Packets Dropped'
-        grid: {x: 7, y: 34, w: 40, h: 14}
         lens:
           type: area
           data_view: metrics-*
@@ -106,8 +105,8 @@ dashboards:
             type: date_histogram
           metrics:
             - {aggregation: max, field: filebeat_input.system_packet_drops}
+        size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Bytes Processed'
-        grid: {x: 7, y: 48, w: 40, h: 14}
         lens:
           type: area
           data_view: metrics-*
@@ -117,8 +116,8 @@ dashboards:
           metrics:
             - {formula: 'pick_max(differences(max(filebeat_input.received_bytes_total)), 0)', label: Bytes Processed}
             - {aggregation: max, field: filebeat_input.received_bytes_total, label: Part of Bytes Processed}
+        size: {w: 40, h: 14}
       - title: '[Elastic Agent] UDP Events Created'
-        grid: {x: 7, y: 62, w: 40, h: 14}
         lens:
           type: area
           data_view: metrics-*
@@ -128,3 +127,4 @@ dashboards:
           metrics:
             - {formula: 'pick_max(differences(max(filebeat_input.received_events_total)), 0)', label: Events Created}
             - {aggregation: max, field: filebeat_input.received_events_total, label: Part of Events Created}
+        size: {w: 40, h: 14}

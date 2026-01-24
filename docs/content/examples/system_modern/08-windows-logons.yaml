@@ -42,7 +42,6 @@ dashboards:
       # Context Layer - Navigation
       - title: Windows Security Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -66,7 +65,6 @@ dashboards:
       # Summary Layer - Key Logon Metrics
       - title: Total Logon Events
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -75,7 +73,6 @@ dashboards:
             label: Events
       - title: Successful Logons
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -87,7 +84,6 @@ dashboards:
               equals: '4624'
       - title: Failed Logons
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -99,7 +95,6 @@ dashboards:
               equals: '4625'
       - title: Logoffs
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -115,7 +110,6 @@ dashboards:
       # Analysis Layer - Time Series
       - title: Logon Events Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -134,7 +128,6 @@ dashboards:
       # Analysis Layer - Categorical Breakdowns
       - title: Logon Types
         size: {w: 16, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -147,7 +140,6 @@ dashboards:
               label: Events
       - title: Event Distribution
         size: {w: 16, h: 12}
-        position: {x: 16, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -160,7 +152,6 @@ dashboards:
               label: Events
       - title: Top Users
         size: {w: 16, h: 12}
-        position: {x: 32, y: 21}
         lens:
           type: bar
           mode: stacked
@@ -179,7 +170,6 @@ dashboards:
       # Analysis Layer - Source Analysis
       - title: Logons by Source IP
         size: {w: 24, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -200,7 +190,6 @@ dashboards:
             size: 5
       - title: User and Logon Type Distribution
         size: {w: 24, h: 15}
-        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -218,7 +207,6 @@ dashboards:
       # Detail Layer - Audit Log Table
       - title: Logon Event Audit Log
         size: {w: 48, h: 18}
-        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

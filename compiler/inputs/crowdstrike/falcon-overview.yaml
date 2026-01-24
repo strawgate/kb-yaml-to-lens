@@ -8,9 +8,6 @@ dashboards:
         equals: crowdstrike.falcon
     panels:
       - title: Table of Contents
-        position:
-          x: 0
-          y: 0
         size:
           w: 7
           h: 69
@@ -31,9 +28,6 @@ dashboards:
           font_size: 12
           links_in_new_tab: false
       - title: Incidents by ECS Category
-        position:
-          x: 7
-          y: 0
         size:
           w: 10
           h: 17
@@ -58,9 +52,6 @@ dashboards:
             - field: crowdstrike.event.Category
               equals: Incidents
       - title: Events by Severity
-        position:
-          x: 17
-          y: 0
         size:
           w: 10
           h: 17
@@ -82,9 +73,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Events by Technique Name
-        position:
-          x: 27
-          y: 0
         size:
           w: 10
           h: 17
@@ -106,9 +94,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Events by Tactic Name
-        position:
-          x: 37
-          y: 0
         size:
           w: 11
           h: 17
@@ -130,9 +115,6 @@ dashboards:
             - aggregation: count
               label: Count
       - title: Events over Time by Event Type
-        position:
-          x: 7
-          y: 17
         size:
           w: 41
           h: 18
@@ -156,9 +138,6 @@ dashboards:
             - aggregation: count
               label: Activity by Event type
       - title: Top Related Hosts
-        position:
-          x: 7
-          y: 35
         size:
           w: 21
           h: 17
@@ -179,9 +158,6 @@ dashboards:
             - aggregation: count
               label: Count of records
       - title: Top Related Users
-        position:
-          x: 28
-          y: 35
         size:
           w: 20
           h: 17

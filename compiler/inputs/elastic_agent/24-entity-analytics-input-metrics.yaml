@@ -12,7 +12,6 @@ dashboards:
     name: '[Elastic Agent] Entity Analytics Input Metrics'
     panels:
       - title: Table of Contents
-        grid: {x: 0, y: 0, w: 7, h: 39}
         links:
           layout: horizontal
           items:
@@ -40,28 +39,28 @@ dashboards:
             - {label: Unified Logs, dashboard: elastic_agent-9eab2fa0-5e7c-11f0-89d2-bb7ceae5af7f}
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
-      - grid: {x: 7, y: 0, w: 11, h: 7}
-        lens:
+        size: {w: 7, h: 39}
+      - lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sync_total, label: Part of Full Sync}
-      - grid: {x: 18, y: 0, w: 10, h: 7}
-        lens:
+        size: {w: 11, h: 7}
+      - lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sync_error, label: Part of Full Sync Errors}
-      - grid: {x: 28, y: 0, w: 10, h: 7}
-        lens:
+        size: {w: 10, h: 7}
+      - lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.update_total, label: Part of Incremental Updates}
-      - grid: {x: 38, y: 0, w: 10, h: 7}
-        lens:
+        size: {w: 10, h: 7}
+      - lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.update_error, label: Part of Incremental Update Errors}
+        size: {w: 10, h: 7}
       - title: Full Synchronization Processing Time
-        grid: {x: 7, y: 7, w: 21, h: 32}
         lens:
           type: line
           data_view: metrics-*
@@ -73,8 +72,8 @@ dashboards:
             - {formula: median(filebeat_input.sync_processing_time.histogram.mean)/1000000, label: Mean}
             - {aggregation: median, field: filebeat_input.sync_processing_time.histogram.p99, label: Part of 99th Percentile}
             - {aggregation: median, field: filebeat_input.sync_processing_time.histogram.mean, label: Part of Mean}
+        size: {w: 21, h: 32}
       - title: Incremental Update Processing Time
-        grid: {x: 28, y: 7, w: 20, h: 32}
         lens:
           type: line
           data_view: metrics-*
@@ -86,3 +85,4 @@ dashboards:
             - {formula: median(filebeat_input.update_processing_time.histogram.mean)/1000000, label: Mean}
             - {aggregation: median, field: filebeat_input.update_processing_time.histogram.p99, label: Part of 99th Percentile}
             - {aggregation: median, field: filebeat_input.update_processing_time.histogram.mean, label: Part of Mean}
+        size: {w: 20, h: 32}

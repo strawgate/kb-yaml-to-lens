@@ -18,7 +18,6 @@ dashboards:
     panels:
       - title: Navigation Links
         size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -38,13 +37,11 @@ dashboards:
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Index Overview Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 2}
         markdown:
           content: '### Index Overview'
       - title: Total Indices
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 0, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -55,7 +52,6 @@ dashboards:
       - title: Total Index Size
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 12, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -66,7 +62,6 @@ dashboards:
       - title: Total Segment Count
         hide_title: true
         size: {w: 12, h: 6}
-        position: {x: 24, y: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,7 +71,6 @@ dashboards:
             label: Segments
       - title: Index Size Distribution
         size: {w: 24, h: 12}
-        position: {x: 0, y: 10}
         lens:
           type: datatable
           data_view: metrics-*
@@ -108,7 +102,6 @@ dashboards:
             page_size: 20
       - title: Index Shard Distribution
         size: {w: 24, h: 12}
-        position: {x: 24, y: 10}
         lens:
           type: datatable
           data_view: metrics-*
@@ -130,12 +123,10 @@ dashboards:
             page_size: 20
       - title: Operations Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 22}
         markdown:
           content: '### Operations'
       - title: Index Operations Rate
         size: {w: 24, h: 10}
-        position: {x: 0, y: 24}
         lens:
           type: line
           data_view: metrics-*
@@ -154,7 +145,6 @@ dashboards:
               label: Index Ops/sec
       - title: Index Operation Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 24}
         lens:
           type: line
           data_view: metrics-*
@@ -173,7 +163,6 @@ dashboards:
               label: Time (ms/sec)
       - title: Search Operations Rate
         size: {w: 24, h: 10}
-        position: {x: 0, y: 34}
         lens:
           type: line
           data_view: metrics-*
@@ -192,7 +181,6 @@ dashboards:
               label: Search Ops/sec
       - title: Search Operation Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 34}
         lens:
           type: line
           data_view: metrics-*
@@ -211,7 +199,6 @@ dashboards:
               label: Time (ms/sec)
       - title: Merge Operations Rate
         size: {w: 24, h: 10}
-        position: {x: 0, y: 44}
         lens:
           type: line
           data_view: metrics-*
@@ -230,7 +217,6 @@ dashboards:
               label: Merge Ops/sec
       - title: Merge Operation Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 44}
         lens:
           type: line
           data_view: metrics-*
@@ -249,12 +235,10 @@ dashboards:
               label: Time (ms/sec)
       - title: Segments Section
         size: {w: 48, h: 2}
-        position: {x: 0, y: 54}
         markdown:
           content: '### Segments'
       - title: Segment Count Over Time
         size: {w: 24, h: 10}
-        position: {x: 0, y: 56}
         lens:
           type: line
           data_view: metrics-*
@@ -271,7 +255,6 @@ dashboards:
               label: Segment Count
       - title: Segment Memory Usage
         size: {w: 24, h: 10}
-        position: {x: 24, y: 56}
         lens:
           type: area
           mode: stacked

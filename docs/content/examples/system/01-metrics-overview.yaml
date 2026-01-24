@@ -21,7 +21,6 @@ dashboards:
       - title: System Overview
         hide_title: true
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         markdown:
           content: |
             # System overview
@@ -29,7 +28,6 @@ dashboards:
           font_size: 12
       - title: Total Hosts
         size: {w: 12, h: 7}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -39,7 +37,6 @@ dashboards:
             label: Total Hosts
       - title: Inbound Traffic
         size: {w: 12, h: 7}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -54,7 +51,6 @@ dashboards:
               equals: system.network
       - title: System Overview Table
         size: {w: 48, h: 20}
-        position: {x: 0, y: 10}
         lens:
           type: datatable
           data_view: metrics-*
@@ -93,7 +89,6 @@ dashboards:
             page_size: 10
       - title: CPU Usage (%)
         size: {w: 12, h: 7}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -108,7 +103,6 @@ dashboards:
               equals: system.cpu
       - title: Memory Usage (%)
         size: {w: 12, h: 7}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: metrics-*
@@ -123,7 +117,6 @@ dashboards:
               equals: system.memory
       - title: Outbound Traffic
         size: {w: 12, h: 7}
-        position: {x: 0, y: 30}
         lens:
           type: metric
           data_view: metrics-*
@@ -138,7 +131,6 @@ dashboards:
               equals: system.network
       - title: Disk Usage (%)
         size: {w: 12, h: 7}
-        position: {x: 12, y: 30}
         lens:
           type: metric
           data_view: metrics-*
@@ -153,7 +145,6 @@ dashboards:
               equals: system.fsstat
       - title: Load Average (5m)
         size: {w: 12, h: 7}
-        position: {x: 24, y: 30}
         lens:
           type: metric
           data_view: metrics-*
@@ -166,7 +157,6 @@ dashboards:
               equals: system.load
       - title: Number of CPUs
         size: {w: 12, h: 7}
-        position: {x: 36, y: 30}
         lens:
           type: metric
           data_view: metrics-*

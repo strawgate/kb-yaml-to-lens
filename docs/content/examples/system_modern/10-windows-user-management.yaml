@@ -44,7 +44,6 @@ dashboards:
       # Context Layer - Navigation
       - title: Windows Security Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -68,7 +67,6 @@ dashboards:
       # Summary Layer - Key Metrics
       - title: Total Events
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -77,7 +75,6 @@ dashboards:
             label: Events
       - title: Users Created (4720)
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -89,7 +86,6 @@ dashboards:
               equals: '4720'
       - title: Users Deleted (4726)
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -101,7 +97,6 @@ dashboards:
               equals: '4726'
       - title: Password Changes (4723/4724)
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -117,7 +112,6 @@ dashboards:
       # Analysis Layer - Time Series
       - title: User Management Events Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -136,7 +130,6 @@ dashboards:
       # Analysis Layer - Event Distribution
       - title: Event Types
         size: {w: 16, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -149,7 +142,6 @@ dashboards:
               label: Events
       - title: Events by Host
         size: {w: 16, h: 12}
-        position: {x: 16, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -162,7 +154,6 @@ dashboards:
               label: Events
       - title: Top Administrators
         size: {w: 16, h: 12}
-        position: {x: 32, y: 21}
         lens:
           type: bar
           mode: stacked
@@ -181,7 +172,6 @@ dashboards:
       # Analysis Layer - User Analysis
       - title: Target Users
         size: {w: 24, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -202,7 +192,6 @@ dashboards:
             size: 5
       - title: Administrator and Event Distribution
         size: {w: 24, h: 15}
-        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -220,7 +209,6 @@ dashboards:
       # Detail Layer - Audit Log Table
       - title: User Management Audit Log
         size: {w: 48, h: 18}
-        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

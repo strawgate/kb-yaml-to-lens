@@ -34,9 +34,6 @@ dashboards:
     panels:
       # Context Layer - Navigation
       - title: Dashboard Navigation
-        position:
-          x: 0
-          y: 0
         size:
           w: 48
           h: 4
@@ -55,9 +52,6 @@ dashboards:
       # Analysis Layer - Audit Events Over Time
       - title: Security Audit Events Over Time
         description: Time series of security events for compliance reporting and trend analysis
-        position:
-          x: 0
-          y: 4
         size:
           w: 48
           h: 15
@@ -84,9 +78,6 @@ dashboards:
       # Analysis Layer - Event Categories
       - title: Event Category Distribution
         description: Security event types for compliance categorization
-        position:
-          x: 0
-          y: 19
         size:
           w: 16
           h: 15
@@ -111,9 +102,6 @@ dashboards:
       # Analysis Layer - Event Kinds
       - title: Event Kind Distribution
         description: Event classification for audit trail completeness
-        position:
-          x: 16
-          y: 19
         size:
           w: 16
           h: 15
@@ -138,9 +126,6 @@ dashboards:
       # Analysis Layer - FDR Event Categories
       - title: FDR Event Categories
         description: Flight Data Recorder event types for detailed system activity
-        position:
-          x: 32
-          y: 19
         size:
           w: 16
           h: 15
@@ -168,9 +153,6 @@ dashboards:
       # Analysis Layer - Alert Status for Compliance
       - title: Alert Response Status
         description: Alert handling status for incident response compliance
-        position:
-          x: 0
-          y: 34
         size:
           w: 16
           h: 15
@@ -198,9 +180,6 @@ dashboards:
       # Analysis Layer - Falcon Status
       - title: Falcon Event Status
         description: Detection status tracking for compliance reporting
-        position:
-          x: 16
-          y: 34
         size:
           w: 16
           h: 15
@@ -228,9 +207,6 @@ dashboards:
       # Analysis Layer - Platform Coverage
       - title: Platform Coverage
         description: OS platform distribution for compliance scope verification
-        position:
-          x: 32
-          y: 34
         size:
           w: 16
           h: 15
@@ -255,9 +231,6 @@ dashboards:
       # Detail Layer - Top Event Actions
       - title: Top 10 Event Actions
         description: Most frequent security actions for audit trail analysis
-        position:
-          x: 0
-          y: 49
         size:
           w: 24
           h: 15
@@ -280,9 +253,6 @@ dashboards:
       # Detail Layer - Top Users
       - title: Top 10 Users by Activity
         description: User activity levels for access pattern analysis
-        position:
-          x: 24
-          y: 49
         size:
           w: 24
           h: 15
@@ -305,9 +275,6 @@ dashboards:
       # Detail Layer - Most Active Hosts
       - title: Top 10 Most Active Hosts
         description: Host activity for system usage and coverage verification
-        position:
-          x: 0
-          y: 64
         size:
           w: 24
           h: 15
@@ -330,9 +297,6 @@ dashboards:
       # Detail Layer - Device Activity
       - title: Top 10 Devices by Event Volume
         description: Device identifiers for endpoint compliance tracking
-        position:
-          x: 24
-          y: 64
         size:
           w: 24
           h: 15

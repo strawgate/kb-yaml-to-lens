@@ -19,8 +19,6 @@ dashboards:
     panels:
       # Overview Metrics Row (y=0, h=5)
       - title: Current Items
-        hide_title: true
-        position: {x: 0, y: 0}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -33,8 +31,6 @@ dashboards:
             field: items
             label: Items in Cache
       - title: Storage Used
-        hide_title: true
-        position: {x: 8, y: 0}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -49,8 +45,6 @@ dashboards:
             format:
               type: bytes
       - title: Current Connections
-        hide_title: true
-        position: {x: 16, y: 0}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -63,8 +57,6 @@ dashboards:
             field: connections
             label: Active Connections
       - title: Threads
-        hide_title: true
-        position: {x: 24, y: 0}
         size: {w: 8, h: 5}
         esql:
           type: metric
@@ -77,8 +69,6 @@ dashboards:
             field: threads
             label: Threads
       - title: Average Hit Ratio
-        hide_title: true
-        position: {x: 32, y: 0}
         size: {w: 16, h: 5}
         esql:
           type: metric
@@ -95,7 +85,6 @@ dashboards:
 
       # Performance Section (y=5)
       - title: Hit Ratio Over Time
-        position: {x: 0, y: 5}
         size: {w: 24, h: 10}
         esql:
           type: line
@@ -118,7 +107,6 @@ dashboards:
           breakdown:
             field: operation
       - title: Operations Rate
-        position: {x: 24, y: 5}
         size: {w: 24, h: 10}
         esql:
           type: line
@@ -141,7 +129,6 @@ dashboards:
 
       # Commands Section (y=15)
       - title: Commands Executed
-        position: {x: 0, y: 15}
         size: {w: 24, h: 10}
         esql:
           type: area
@@ -163,7 +150,6 @@ dashboards:
           breakdown:
             field: command
       - title: CPU Usage
-        position: {x: 24, y: 15}
         size: {w: 24, h: 10}
         esql:
           type: area
@@ -187,7 +173,6 @@ dashboards:
 
       # Capacity Section (y=25)
       - title: Items Over Time
-        position: {x: 0, y: 25}
         size: {w: 24, h: 10}
         esql:
           type: line
@@ -203,7 +188,6 @@ dashboards:
             - field: items
               label: Current Items
       - title: Storage Over Time
-        position: {x: 24, y: 25}
         size: {w: 24, h: 10}
         esql:
           type: line
@@ -223,7 +207,6 @@ dashboards:
 
       # Health Section (y=35)
       - title: Evictions Rate
-        position: {x: 0, y: 35}
         size: {w: 24, h: 10}
         esql:
           type: line
@@ -239,7 +222,6 @@ dashboards:
             - field: evictions_rate
               label: Evictions/sec
       - title: Current Connections Over Time
-        position: {x: 24, y: 35}
         size: {w: 12, h: 10}
         esql:
           type: line
@@ -255,7 +237,6 @@ dashboards:
             - field: connections
               label: Current Connections
       - title: New Connections Rate
-        position: {x: 36, y: 35}
         size: {w: 12, h: 10}
         esql:
           type: line
@@ -273,7 +254,6 @@ dashboards:
 
       # Network Section (y=45)
       - title: Network Traffic - Received
-        position: {x: 0, y: 45}
         size: {w: 24, h: 10}
         esql:
           type: area
@@ -293,7 +273,6 @@ dashboards:
               format:
                 type: bytes
       - title: Network Traffic - Sent
-        position: {x: 24, y: 45}
         size: {w: 24, h: 10}
         esql:
           type: area

@@ -49,7 +49,6 @@ dashboards:
       # Context Layer - Navigation
       - title: Windows Security Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -73,7 +72,6 @@ dashboards:
       # Summary Layer - Key Metrics
       - title: Total Events
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -82,7 +80,6 @@ dashboards:
             label: Events
       - title: Process Created (4688)
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -94,7 +91,6 @@ dashboards:
               equals: '4688'
       - title: Services Installed (7045)
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -106,7 +102,6 @@ dashboards:
               equals: '7045'
       - title: Scheduled Tasks
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -125,7 +120,6 @@ dashboards:
       # Analysis Layer - Time Series
       - title: System Events Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: bar
           mode: stacked
@@ -144,7 +138,6 @@ dashboards:
       # Analysis Layer - Event Distribution
       - title: Event Types
         size: {w: 16, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -157,7 +150,6 @@ dashboards:
               label: Events
       - title: Events by Host
         size: {w: 16, h: 12}
-        position: {x: 16, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -170,7 +162,6 @@ dashboards:
               label: Events
       - title: Top Users
         size: {w: 16, h: 12}
-        position: {x: 32, y: 21}
         lens:
           type: bar
           mode: stacked
@@ -189,7 +180,6 @@ dashboards:
       # Analysis Layer - Process Analysis
       - title: Top Processes
         size: {w: 24, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: bar
           mode: stacked
@@ -206,7 +196,6 @@ dashboards:
               label: Events
       - title: Process and User Distribution
         size: {w: 24, h: 15}
-        position: {x: 24, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -224,7 +213,6 @@ dashboards:
       # Detail Layer - Audit Log Table
       - title: System Event Audit Log
         size: {w: 48, h: 18}
-        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

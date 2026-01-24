@@ -27,7 +27,6 @@ dashboards:
       # Navigation Links
       - title: Navigation Links
         size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -38,7 +37,6 @@ dashboards:
 
       # Info Panel about Optional Metrics
       - size: {w: 48, h: 4}
-        position: {x: 0, y: 2}
         markdown:
           content: |
             ## Optional Metrics Dashboard
@@ -50,7 +48,6 @@ dashboards:
       # Connection Metrics Section (y=6)
       - title: Connection Count
         size: {w: 24, h: 9}
-        position: {x: 0, y: 6}
         description: Number of connections (mysql.connection.count)
         esql:
           type: line
@@ -67,7 +64,6 @@ dashboards:
               label: Connection Count
       - title: Max Used Connections
         size: {w: 24, h: 9}
-        position: {x: 24, y: 6}
         description: Maximum number of connections used (mysql.max_used_connections)
         esql:
           type: line
@@ -84,7 +80,6 @@ dashboards:
               label: Max Used Connections
       - title: Connection Errors
         size: {w: 48, h: 9}
-        position: {x: 0, y: 15}
         description: Connection errors by type (mysql.connection.errors)
         esql:
           type: line
@@ -105,7 +100,6 @@ dashboards:
       # Query Metrics Section (y=24)
       - title: Query Count
         size: {w: 24, h: 9}
-        position: {x: 0, y: 24}
         description: Total query count rate (mysql.query.count)
         esql:
           type: line
@@ -122,7 +116,6 @@ dashboards:
               label: Queries/sec
       - title: Slow Query Count
         size: {w: 24, h: 9}
-        position: {x: 24, y: 24}
         description: Slow query rate (mysql.query.slow.count)
         esql:
           type: line
@@ -139,7 +132,6 @@ dashboards:
               label: Slow Queries/sec
       - title: Client Query Count
         size: {w: 48, h: 9}
-        position: {x: 0, y: 33}
         description: Client query count rate (mysql.query.client.count)
         esql:
           type: line
@@ -158,7 +150,6 @@ dashboards:
       # Command Metrics Section (y=42)
       - title: Commands by Type
         size: {w: 48, h: 9}
-        position: {x: 0, y: 42}
         description: Command execution rate by type (mysql.commands)
         esql:
           type: line
@@ -179,7 +170,6 @@ dashboards:
       # Replication Metrics Section (y=51)
       - title: Replica Time Behind Source
         size: {w: 24, h: 9}
-        position: {x: 0, y: 51}
         description: Replication lag in seconds (mysql.replica.time_behind_source)
         esql:
           type: line
@@ -196,7 +186,6 @@ dashboards:
               label: Seconds Behind Source
       - title: Replica SQL Delay
         size: {w: 24, h: 9}
-        position: {x: 24, y: 51}
         description: Configured replication delay (mysql.replica.sql_delay)
         esql:
           type: line
@@ -215,7 +204,6 @@ dashboards:
       # Table Metrics Section (y=60)
       - title: Table Rows by Table
         size: {w: 24, h: 9}
-        position: {x: 0, y: 60}
         description: Row count per table (mysql.table.rows)
         esql:
           type: line
@@ -234,7 +222,6 @@ dashboards:
             field: table
       - title: Table Size by Table
         size: {w: 24, h: 9}
-        position: {x: 24, y: 60}
         description: Table size in bytes by table (mysql.table.size)
         esql:
           type: line
@@ -255,7 +242,6 @@ dashboards:
             field: table
       - title: Table Average Row Length
         size: {w: 48, h: 9}
-        position: {x: 0, y: 69}
         description: Average row length per table (mysql.table.average_row_length)
         esql:
           type: line
@@ -278,7 +264,6 @@ dashboards:
       # Additional Optional Metrics (y=78)
       - title: Client Network I/O
         size: {w: 24, h: 9}
-        position: {x: 0, y: 78}
         description: Network bytes sent/received (mysql.client.network.io)
         esql:
           type: line
@@ -299,7 +284,6 @@ dashboards:
             field: kind
       - title: Joins by Type
         size: {w: 24, h: 9}
-        position: {x: 24, y: 78}
         description: Join operations by type (mysql.joins)
         esql:
           type: line
@@ -320,7 +304,6 @@ dashboards:
       # Table Lock Metrics (y=87)
       - title: Table Lock Wait Read
         size: {w: 24, h: 9}
-        position: {x: 0, y: 87}
         description: Table read lock wait count (mysql.table.lock_wait.read.count)
         esql:
           type: line
@@ -339,7 +322,6 @@ dashboards:
             field: kind
       - title: Table Lock Wait Write
         size: {w: 24, h: 9}
-        position: {x: 24, y: 87}
         description: Table write lock wait count (mysql.table.lock_wait.write.count)
         esql:
           type: line
@@ -360,7 +342,6 @@ dashboards:
       # Table Open Cache and Prepared Statements (y=96)
       - title: Table Open Cache
         size: {w: 24, h: 9}
-        position: {x: 0, y: 96}
         description: Table open cache hits/misses (mysql.table_open_cache)
         esql:
           type: line
@@ -379,7 +360,6 @@ dashboards:
             field: status
       - title: Prepared Statements
         size: {w: 24, h: 9}
-        position: {x: 24, y: 96}
         description: Prepared statement operations (mysql.prepared_statements)
         esql:
           type: line
@@ -400,7 +380,6 @@ dashboards:
       # Statement Events (y=105)
       - title: Statement Events by Schema
         size: {w: 48, h: 9}
-        position: {x: 0, y: 105}
         description: Statement event count by schema (mysql.statement_event.count)
         esql:
           type: line
@@ -421,7 +400,6 @@ dashboards:
       # MySQLx Worker Threads (y=114)
       - title: MySQLx Worker Threads
         size: {w: 48, h: 9}
-        position: {x: 0, y: 114}
         description: MySQLx worker threads by status (mysql.mysqlx_worker_threads)
         esql:
           type: line

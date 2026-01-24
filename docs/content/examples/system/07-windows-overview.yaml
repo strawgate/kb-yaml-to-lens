@@ -11,7 +11,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -33,7 +32,6 @@ dashboards:
               dashboard: system-windows-policy-object
       - title: Windows Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -50,7 +48,6 @@ dashboards:
             size: 10
       - title: Event IDs
         size: {w: 16, h: 15}
-        position: {x: 0, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -62,7 +59,6 @@ dashboards:
             - aggregation: count
       - title: Hosts
         size: {w: 16, h: 15}
-        position: {x: 16, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -74,7 +70,6 @@ dashboards:
             - aggregation: count
       - title: Event Actions
         size: {w: 16, h: 15}
-        position: {x: 32, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -86,7 +81,6 @@ dashboards:
             - aggregation: count
       - title: Recent Windows Events
         size: {w: 48, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: datatable
           data_view: logs-*

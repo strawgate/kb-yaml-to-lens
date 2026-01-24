@@ -30,7 +30,6 @@ dashboards:
       # Context Layer - Navigation
       - title: System Log Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -48,7 +47,6 @@ dashboards:
       # Summary Layer - Key Metrics (2 metrics for logs)
       - title: Total Events
         size: {w: 16, h: 6}
-        position: {x: 0, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -57,7 +55,6 @@ dashboards:
             label: Events
       - title: Unique Hosts
         size: {w: 16, h: 6}
-        position: {x: 16, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -67,7 +64,6 @@ dashboards:
             label: Hosts
       - title: Unique Programs
         size: {w: 16, h: 6}
-        position: {x: 32, y: 3}
         lens:
           type: metric
           data_view: logs-*
@@ -79,7 +75,6 @@ dashboards:
       # Analysis Layer - Time Series
       - title: Syslog Events Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 9}
         lens:
           type: area
           mode: stacked
@@ -98,7 +93,6 @@ dashboards:
       # Analysis Layer - Categorical Breakdowns
       - title: Top Programs
         size: {w: 24, h: 12}
-        position: {x: 0, y: 21}
         lens:
           type: bar
           mode: stacked
@@ -115,7 +109,6 @@ dashboards:
               label: Events
       - title: Events by Priority
         size: {w: 12, h: 12}
-        position: {x: 24, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -128,7 +121,6 @@ dashboards:
               label: Events
       - title: Events by Facility
         size: {w: 12, h: 12}
-        position: {x: 36, y: 21}
         lens:
           type: pie
           data_view: logs-*
@@ -143,7 +135,6 @@ dashboards:
       # Analysis Layer - Hierarchical View
       - title: Host and Program Distribution
         size: {w: 48, h: 15}
-        position: {x: 0, y: 33}
         lens:
           type: pie
           data_view: logs-*
@@ -161,7 +152,6 @@ dashboards:
       # Detail Layer - Event Log Table
       - title: Recent Syslog Events
         size: {w: 48, h: 18}
-        position: {x: 0, y: 48}
         lens:
           type: datatable
           data_view: logs-*

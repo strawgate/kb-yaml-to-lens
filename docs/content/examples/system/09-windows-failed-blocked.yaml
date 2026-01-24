@@ -14,7 +14,6 @@ dashboards:
     panels:
       - title: Windows Dashboards
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -30,7 +29,6 @@ dashboards:
               dashboard: system-windows-group-management
       - title: Failed and Blocked Events Over Time
         size: {w: 48, h: 15}
-        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -47,7 +45,6 @@ dashboards:
             size: 10
       - title: Failed Logons (4625)
         size: {w: 16, h: 8}
-        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -59,7 +56,6 @@ dashboards:
               equals: '4625'
       - title: Account Lockouts (4740)
         size: {w: 16, h: 8}
-        position: {x: 16, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -71,7 +67,6 @@ dashboards:
               equals: '4740'
       - title: Account Unlocks (4767)
         size: {w: 16, h: 8}
-        position: {x: 32, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -83,7 +78,6 @@ dashboards:
               equals: '4767'
       - title: Failed Logon Reasons
         size: {w: 24, h: 15}
-        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -98,7 +92,6 @@ dashboards:
               equals: '4625'
       - title: Top Failed Users
         size: {w: 24, h: 15}
-        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -117,7 +110,6 @@ dashboards:
               equals: '4625'
       - title: Failed Logons by Source IP
         size: {w: 24, h: 15}
-        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -138,7 +130,6 @@ dashboards:
               equals: '4625'
       - title: Recent Failed and Blocked Events
         size: {w: 24, h: 15}
-        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

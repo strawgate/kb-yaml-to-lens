@@ -23,7 +23,6 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Navigation
         size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -43,13 +42,11 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Fleet Health
         size: {w: 48, h: 2}
-        position: {x: 0, y: 3}
         markdown:
           content: '## Fleet Health'
       - title: Total Hosts
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 0, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -60,7 +57,6 @@ dashboards:
       - title: Hosts by OS Type
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 12, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -75,7 +71,6 @@ dashboards:
       - title: CPU Utilization Fleet
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 24, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -89,7 +84,6 @@ dashboards:
       - title: Memory Utilization Fleet
         hide_title: true
         size: {w: 12, h: 8}
-        position: {x: 36, y: 5}
         lens:
           type: metric
           data_view: metrics-*
@@ -104,12 +98,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Fleet Trends
         size: {w: 48, h: 2}
-        position: {x: 0, y: 13}
         markdown:
           content: '## Fleet Trends'
       - title: CPU Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 0, y: 15}
         lens:
           type: line
           data_view: metrics-*
@@ -129,7 +121,6 @@ dashboards:
                 type: percent
       - title: Memory Utilization Over Time
         size: {w: 24, h: 12}
-        position: {x: 24, y: 15}
         lens:
           type: area
           data_view: metrics-*
@@ -151,12 +142,10 @@ dashboards:
       # ═══════════════════════════════════════════════════════════════════════
       - title: Host Details
         size: {w: 48, h: 2}
-        position: {x: 0, y: 27}
         markdown:
           content: '## Host Details'
       - title: Host Performance Summary
         size: {w: 48, h: 20}
-        position: {x: 0, y: 29}
         lens:
           type: datatable
           data_view: metrics-*
