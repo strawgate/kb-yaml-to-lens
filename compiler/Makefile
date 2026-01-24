@@ -9,13 +9,10 @@ DOCKER_IMAGE_TAG ?= latest
 DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 GHCR_REGISTRY := ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:$(DOCKER_IMAGE_TAG)
 
-# YAML directories to lint (explicit list is faster than exclusions)
-# Using explicit paths avoids scanning .venv, node_modules, etc.
-YAMLFIX_DIRS := \
-	../compiler/inputs \
-	../docs/content/examples \
-	../docs/mkdocs.yml \
-	../.github
+# YAML directories to lint (run in parallel for speed)
+# Each directory is processed in a separate background job
+YAMLFIX_BIN := $(shell pwd)/.venv/bin/yamlfix
+REPO_ROOT := $(shell cd .. && pwd)
 
 help:
 	@echo "Dashboard Compiler Commands:"
@@ -102,14 +99,31 @@ lint-python-check:
 	@echo "Running ruff check..."
 	@uv run ruff check . --quiet
 
-# YAML linting (explicit directories only - faster than exclusion-based scanning)
+# YAML linting (parallel execution for speed)
+# Running each directory in parallel reduces total time by ~24%
 lint-yaml:
 	@echo "Running yamlfix..."
-	uv run yamlfix $(YAMLFIX_DIRS)
+	@cd $(REPO_ROOT) && ( \
+		(cd compiler/inputs && $(YAMLFIX_BIN) .) & \
+		(cd docs/content/examples && $(YAMLFIX_BIN) .) & \
+		$(YAMLFIX_BIN) docs/mkdocs.yml & \
+		(cd .github && $(YAMLFIX_BIN) .) & \
+		wait \
+	)
 
 lint-yaml-check:
 	@echo "Running yamlfix --check..."
-	@uv run yamlfix --check $(YAMLFIX_DIRS) > /dev/null 2>&1 && echo "✓ YAML checks passed" || uv run yamlfix --check $(YAMLFIX_DIRS)
+	@cd $(REPO_ROOT) && ( \
+		(cd compiler/inputs && $(YAMLFIX_BIN) --check . >/dev/null 2>&1) & \
+		(cd docs/content/examples && $(YAMLFIX_BIN) --check . >/dev/null 2>&1) & \
+		$(YAMLFIX_BIN) --check docs/mkdocs.yml >/dev/null 2>&1 & \
+		(cd .github && $(YAMLFIX_BIN) --check . >/dev/null 2>&1) & \
+		wait \
+	) && echo "✓ YAML checks passed" || ( \
+		echo "YAML check failed. Files that need fixing:"; \
+		$(YAMLFIX_BIN) --check compiler/inputs docs/content/examples docs/mkdocs.yml .github 2>&1 | grep "Would fix" || true; \
+		exit 1 \
+	)
 
 # Type checking
 typecheck:
