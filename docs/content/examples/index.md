@@ -254,6 +254,26 @@ Host log messages (ES|QL datatable).
     ```
 <!-- markdownlint-enable MD046 -->
 
+### AWS CloudTrail OpenTelemetry Dashboard
+
+AWS CloudTrail activity monitoring dashboard using ES|QL for data processing.
+
+**Use this when:** Monitoring AWS API calls and user actions via CloudTrail with OpenTelemetry.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_cloudtrail_otel) dashboard. This example demonstrates advanced ES|QL features including calculated fields, nested dimensions, and string manipulation.
+
+#### CloudTrail Logs Overview
+
+Comprehensive CloudTrail activity visualization with success/failure tracking, service breakdowns, and user analysis.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aws_cloudtrail_otel/cloudtrail-logs-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_cloudtrail_otel/cloudtrail-logs-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### Docker OpenTelemetry Dashboards
 
 Docker container monitoring dashboards for OpenTelemetry metrics.
@@ -283,6 +303,655 @@ Detailed single-container performance analysis and resource utilization.
 
     ```yaml
     --8<-- "examples/docker_otel/02-container-stats.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Elasticsearch OpenTelemetry Dashboards
+
+Comprehensive Elasticsearch cluster monitoring dashboards using OpenTelemetry's Elasticsearch receiver. Includes a complete OpenTelemetry Collector configuration and detailed setup guide.
+
+**Use this when:** Monitoring Elasticsearch clusters with OpenTelemetry Elasticsearch Receiver.
+
+**Includes:** 7 dashboards covering cluster health, node metrics, JVM monitoring, index statistics, and circuit breakers. See [elasticsearch_otel/README.md](elasticsearch_otel/README.md) for complete setup instructions and OpenTelemetry Collector configuration.
+
+#### Cluster Overview
+
+High-level cluster health, node counts, shard distribution, and pending tasks.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/01-cluster-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/01-cluster-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Node Overview
+
+Node-level summary with CPU, memory, disk, and operations.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/02-node-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/02-node-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Node Metrics
+
+Detailed node performance metrics including cache and thread pools.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/03-node-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/03-node-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Index Metrics
+
+Index-level statistics, shard sizes, segments, and operations.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/04-index-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/04-index-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### JVM Health
+
+JVM memory (heap/non-heap), garbage collection, threads, and memory pools.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/05-jvm-health.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/05-jvm-health.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Circuit Breakers
+
+Circuit breaker memory usage, limits, and trip events.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/06-circuit-breakers.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/06-circuit-breakers.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Cluster Metadata
+
+Cluster configuration and metadata exploration using ES|QL.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (elasticsearch_otel/07-cluster-metadata.yaml)"
+
+    ```yaml
+    --8<-- "examples/elasticsearch_otel/07-cluster-metadata.yaml"
+### Kubernetes Cluster OpenTelemetry Dashboards
+
+Comprehensive Kubernetes cluster monitoring dashboards using the OpenTelemetry k8sclusterreceiver.
+
+**Use this when:** Monitoring Kubernetes clusters with OpenTelemetry Collector's k8sclusterreceiver.
+
+**Note:** See the [README](k8s_cluster_otel/README.md) for RBAC configuration, OpenTelemetry Collector setup, and deployment instructions.
+
+#### Cluster Overview
+
+Entry point for cluster health triage - pods, workloads, and deployment health.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/01-cluster-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/01-cluster-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Workload Health
+
+Deployment, StatefulSet, DaemonSet, and container health monitoring.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/02-workload-health.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/02-workload-health.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Resource Allocation
+
+CPU, memory, and storage requests vs limits for capacity planning.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/03-resource-allocation.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/03-resource-allocation.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Batch Jobs
+
+Job and CronJob execution status and completion tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/04-batch-jobs.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/04-batch-jobs.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Autoscaling
+
+Horizontal Pod Autoscaler scaling behavior and capacity tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (k8s_cluster_otel/05-autoscaling.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/05-autoscaling.yaml"
+### Apache HTTP Server OpenTelemetry Dashboard
+
+Apache HTTP Server monitoring dashboard using OpenTelemetry metrics.
+
+**Use this when:** Monitoring Apache web servers with OpenTelemetry Apache Receiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/apache_http_server_otel) dashboard. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
+
+#### Apache Logs Overview
+
+Apache HTTP Server log analysis with request breakdowns, status codes, and traffic patterns.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (apache_http_server_otel/apache-logs-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/apache_http_server_otel/apache-logs-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### AWS VPC Flow Logs OpenTelemetry Dashboards
+
+AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnected navigation.
+
+**Use this when:** Monitoring AWS VPC network traffic with OpenTelemetry AWS VPC Flow Logs receiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboards. Demonstrates ES|QL queries with area charts, bar charts, datatables, and dashboard links. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
+
+Includes 3 interconnected dashboards with navigation links:
+
+- **VPC Flow Logs Overview** (`aws_vpcflow_otel-overview`) - High-level KPIs, quick insights, and time-series trends
+- **Traffic Analysis** (`aws_vpcflow_otel-traffic`) - Traffic distribution, source analysis, security deep dive, and top sources/destinations
+- **Interface Analysis** (`aws_vpcflow_otel-interface`) - Per-interface analysis, bandwidth by interface, and per-account metrics
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/dashboards.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Redis OpenTelemetry Dashboards
+
+Redis database monitoring dashboards for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Redis instances with OpenTelemetry Redis Receiver.
+
+#### Overview
+
+Multi-instance monitoring with key metrics across all Redis instances.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Instance Details
+
+Detailed single-instance analysis including memory, connections, keyspace, and replication metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/instance-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/instance-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Database Metrics
+
+Per-database keyspace metrics including keys, TTL, and expiration statistics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/database-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/database-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### CrowdStrike Security Dashboards
+
+Security monitoring dashboards for CrowdStrike EDR data streams. Includes both dataset-centric dashboards (organized by data source) and workflow-centric modern dashboards (organized by security workflow).
+
+**Use this when:** Monitoring CrowdStrike Falcon EDR alerts, incidents, vulnerabilities, and host data.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/crowdstrike) dashboards. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
+
+#### Overview Dashboard
+
+High-level entry point with navigation to all CrowdStrike dashboards.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Alert Dashboard
+
+Comprehensive alert monitoring with 16 panels covering status, severity, IOCs, and network context.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/alert.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/alert.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Falcon Overview
+
+Falcon incidents with MITRE ATT&CK technique and tactic mapping.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/falcon-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/falcon-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### FDR Overview
+
+Falcon Data Replicator events and alerts monitoring.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/fdr-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/fdr-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Host Dashboard
+
+Host device monitoring with OS platform distribution and activity tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/host.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/host.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Vulnerability Dashboard
+
+Vulnerability tracking with severity, status, and confidence breakdowns.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike/vulnerability.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/vulnerability.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### CrowdStrike Modern Dashboards
+
+Workflow-centric security operations dashboards designed for modern SOC workflows. These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md) best practices with progressive disclosure pattern, consistent navigation, and control filters.
+
+**Use this when:** Building workflow-centric security dashboards for daily SOC operations, threat investigation, vulnerability management, or compliance reporting.
+
+#### SOC Dashboard
+
+Real-time security event monitoring, alert triage, and incident response coordination.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/soc.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/soc.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Threat Investigation
+
+Deep-dive threat analysis with MITRE ATT&CK mapping and IOC tracking.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/threat-investigation.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/threat-investigation.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Asset & Vulnerability Management
+
+Asset inventory and vulnerability tracking for risk assessment and patch prioritization.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/asset-vulnerability.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/asset-vulnerability.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Compliance & Audit
+
+Compliance monitoring and audit trail analysis for regulatory reporting.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (crowdstrike-modern/compliance-audit.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/compliance-audit.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### System Integration Dashboards
+
+Comprehensive monitoring dashboards for the Elastic System integration.
+
+**Use this when:** Monitoring Linux/Unix systems, Windows systems, and Windows security events.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/system) dashboards. Licensed under [Elastic License 2.0](../licenses/ELASTIC-LICENSE-2.0.txt).
+
+#### Classic Dashboards
+
+These dashboards are direct conversions from the Elastic System integration.
+
+**Metrics Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/01-metrics-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/01-metrics-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/02-host-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/02-host-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Log Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/03-syslog.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/03-syslog.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/04-sudo-commands.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/04-sudo-commands.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/05-ssh-logins.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/05-ssh-logins.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/06-users-groups.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/06-users-groups.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Windows Security Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/07-windows-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/07-windows-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/08-windows-logons.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/08-windows-logons.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/09-windows-failed-blocked.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/09-windows-failed-blocked.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/10-windows-user-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/10-windows-user-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/11-windows-group-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/11-windows-group-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/12-windows-directory-monitoring.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/12-windows-directory-monitoring.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/13-windows-system-process.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/13-windows-system-process.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system/14-windows-policy-object.yaml)"
+
+    ```yaml
+    --8<-- "examples/system/14-windows-policy-object.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Modern Dashboards
+
+These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md) best practices with:
+
+- 4-layer hierarchy (Context → Summary → Analysis → Detail)
+- Navigation links at top
+- Limited metric cards (0-4)
+- Appropriate chart types
+- Tables at bottom with 10-row pagination
+- Controls for filtering
+
+**Metrics Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/01-metrics-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/01-metrics-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/02-host-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/02-host-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Log Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/03-syslog.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/03-syslog.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/04-sudo-commands.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/04-sudo-commands.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/05-ssh-logins.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/05-ssh-logins.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/06-users-groups.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/06-users-groups.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+**Windows Security Dashboards:**
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/07-windows-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/07-windows-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/08-windows-logons.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/08-windows-logons.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/09-windows-failed-blocked.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/09-windows-failed-blocked.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/10-windows-user-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/10-windows-user-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/11-windows-group-management.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/11-windows-group-management.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/12-windows-directory-monitoring.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/12-windows-directory-monitoring.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/13-windows-system-process.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/13-windows-system-process.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (system_modern/14-windows-policy-object.yaml)"
+
+    ```yaml
+    --8<-- "examples/system_modern/14-windows-policy-object.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Apache HTTP Server OpenTelemetry Dashboard
+
+Apache HTTP Server monitoring dashboard for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Apache HTTP Server with OpenTelemetry Apache Receiver.
+
+#### Overview
+
+Server status, scoreboard, and performance metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (apache_otel/01-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/apache_otel/01-overview.yaml"
     ```
 <!-- markdownlint-enable MD046 -->
 

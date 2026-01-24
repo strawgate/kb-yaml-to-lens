@@ -1,0 +1,149 @@
+---
+dashboards:
+  - id: crowdstrike-e64e8fe0-8210-11ee-bae0-937af575b750
+    name: '[CrowdStrike] Overview'
+    description: High-level overview of CrowdStrike data with navigation to specific dashboards.
+    panels:
+      - title: Table of Contents
+        position:
+          x: 0
+          y: 0
+        size:
+          w: 7
+          h: 41
+        markdown:
+          content: |
+            ## **CrowdStrike**
+
+            ### Navigation
+            **Overview**
+            [FDR](/app/dashboards#/view/crowdstrike-a4972bc0-fb53-11eb-abed-07307b3f2b0f)
+            [Falcon](/app/dashboards#/view/crowdstrike-ad80a080-821b-11ee-bae0-937af575b750)
+            [Alert](/app/dashboards#/view/crowdstrike-d8070b00-99b3-11ee-bf4d-afbc95e0486c)
+            [Host](/app/dashboards#/view/crowdstrike-2921b7f0-99b5-11ee-bf4d-afbc95e0486c)
+            [Vulnerability](/app/dashboards#/view/crowdstrike-63da2573-4e68-4e7d-a06b-6858edb60fd5)
+
+            ### Overview
+            High-level overview showing FDR alerts, Falcon incidents, and event trends across all CrowdStrike data streams.
+          font_size: 12
+          links_in_new_tab: false
+      - title: FDR Alerts
+        position:
+          x: 7
+          y: 0
+        size:
+          w: 7
+          h: 7
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: FDR Alerts
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.fdr
+            - field: event.kind
+              equals: alert
+      - title: Falcon Incidents
+        position:
+          x: 14
+          y: 0
+        size:
+          w: 7
+          h: 7
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Falcon Incidents
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.falcon
+            - field: crowdstrike.event.Category
+              equals: Incidents
+      - title: Events over Time by Data Stream
+        position:
+          x: 21
+          y: 0
+        size:
+          w: 27
+          h: 21
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: data_stream.dataset
+            type: values
+            size: 10
+            sort:
+              by: Count
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: FDR Alert Types
+        position:
+          x: 7
+          y: 7
+        size:
+          w: 7
+          h: 14
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: event.action
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.fdr
+            - field: event.kind
+              equals: alert
+      - title: Falcon Incident Types
+        position:
+          x: 14
+          y: 7
+        size:
+          w: 7
+          h: 14
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: event.action
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: data_stream.dataset
+              equals: crowdstrike.falcon
+            - field: crowdstrike.event.Category
+              equals: Incidents

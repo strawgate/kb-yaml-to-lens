@@ -1,0 +1,177 @@
+---
+# Kubernetes Autoscaling Dashboard
+# SRE Question: "Is autoscaling working? Am I hitting limits?"
+dashboards:
+  - id: k8s-cluster-hpa
+    name: '[Metrics K8s Cluster] Autoscaling'
+    description: Horizontal Pod Autoscaler scaling behavior and capacity tracking
+    controls:
+      - type: options
+        label: Namespace
+        data_view: metrics-*
+        field: k8s.namespace.name
+      - type: options
+        label: HPA
+        data_view: metrics-*
+        field: k8s.hpa.name
+    filters:
+      - field: data_stream.dataset
+        equals: kubernetesclusterreceiver.otel
+    panels:
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: 📊 Overview
+              dashboard: k8s-cluster-overview
+            - label: ⚙️ Workloads
+              dashboard: k8s-cluster-workloads
+            - label: 📦 Resources
+              dashboard: k8s-cluster-resources
+            - label: 🔄 Batch Jobs
+              dashboard: k8s-cluster-batch
+            - label: 📈 Autoscaling
+              dashboard: k8s-cluster-hpa
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # HPA STATUS SUMMARY (4 metric cards)
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: HPA Status Summary
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
+        markdown:
+          content: '## 📈 HPA Status Summary'
+          font_size: 14
+      - title: Total HPAs
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(k8s.hpa.name)
+            label: HPAs
+          filters:
+            - exists: k8s.hpa.name
+      - title: Current Replicas
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.hpa.current_replicas)
+            label: Current
+          filters:
+            - exists: k8s.hpa.name
+      - title: Desired Replicas
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.hpa.desired_replicas)
+            label: Desired
+          filters:
+            - exists: k8s.hpa.name
+      - title: Max Replicas Limit
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.hpa.max_replicas)
+            label: Max Total
+          filters:
+            - exists: k8s.hpa.name
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # SCALING BEHAVIOR
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Scaling Behavior
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 13}
+        markdown:
+          content: '## 🔄 Scaling Behavior'
+          font_size: 14
+      - title: Scaling Activity (Current vs Desired)
+        size: {w: 24, h: 14}
+        position: {x: 0, y: 15}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.hpa.current_replicas)
+              label: Current Replicas
+            - formula: sum(k8s.hpa.desired_replicas)
+              label: Desired Replicas
+          filters:
+            - exists: k8s.hpa.name
+      - title: Capacity Headroom (Min / Current / Max)
+        size: {w: 24, h: 14}
+        position: {x: 24, y: 15}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.hpa.min_replicas)
+              label: Min Replicas
+            - formula: sum(k8s.hpa.current_replicas)
+              label: Current Replicas
+            - formula: sum(k8s.hpa.max_replicas)
+              label: Max Replicas
+          filters:
+            - exists: k8s.hpa.name
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # HPA DETAILS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: HPA Details
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 29}
+        markdown:
+          content: '## 🔍 HPA Configuration & Status'
+          font_size: 14
+      - title: HPA Status by Name
+        size: {w: 48, h: 14}
+        position: {x: 0, y: 31}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.hpa.name
+              type: values
+              size: 25
+              label: HPA
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - field: k8s.hpa.current_replicas
+              aggregation: max
+              label: Current
+            - field: k8s.hpa.desired_replicas
+              aggregation: max
+              label: Desired
+            - field: k8s.hpa.min_replicas
+              aggregation: max
+              label: Min
+            - field: k8s.hpa.max_replicas
+              aggregation: max
+              label: Max
+          filters:
+            - exists: k8s.hpa.name

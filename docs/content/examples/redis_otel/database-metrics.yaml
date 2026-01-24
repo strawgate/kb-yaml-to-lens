@@ -1,0 +1,313 @@
+---
+dashboards:
+  - name: '[Metrics Redis] Database Metrics'
+    description: OpenTelemetry Redis Receiver - Per-database keyspace metrics
+    filters:
+      - field: data_stream.dataset
+        equals: redisreceiver.otel
+    controls:
+      - type: options
+        label: Redis Instance
+        data_view: metrics-*
+        field: resource.attributes.service.instance.id
+        width: medium
+        match_technique: contains
+    panels:
+      - position: {x: 0, y: 0}
+        size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: redis-overview
+            - label: Instance Details
+              dashboard: redis-instance-details
+            - label: Database Metrics
+              dashboard: redis-database-metrics
+            - label: Redis Documentation
+              url: https://redis.io/docs/
+      - position: {x: 0, y: 2}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Database Overview'
+          font_size: 14
+      - title: Total Databases
+        position: {x: 0, y: 4}
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: attributes.db
+            label: Databases
+            format:
+              type: number
+      - title: Total Keys
+        position: {x: 12, y: 4}
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: redis.db.keys
+            label: Keys
+            format:
+              type: number
+      - title: Total Keys with Expiry
+        position: {x: 24, y: 4}
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: sum
+            field: redis.db.expires
+            label: Keys w/ TTL
+            format:
+              type: number
+      - title: Avg TTL (All DBs)
+        position: {x: 36, y: 4}
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: redis.db.avg_ttl
+            label: Avg TTL (ms)
+            format:
+              type: number
+      - position: {x: 0, y: 8}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Keys by Database'
+          font_size: 14
+      - title: Key Count by Database
+        position: {x: 0, y: 10}
+        size: {w: 24, h: 12}
+        lens:
+          type: bar
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: attributes.db
+            type: values
+            label: Database
+            size: 16
+            sort:
+              by: Keys
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: average
+              field: redis.db.keys
+              label: Keys
+              format:
+                type: number
+      - title: Keys Distribution (Pie)
+        position: {x: 24, y: 10}
+        size: {w: 24, h: 12}
+        lens:
+          type: pie
+          data_view: metrics-*
+          dimensions:
+            - field: attributes.db
+              type: values
+              size: 16
+          metrics:
+            - aggregation: average
+              field: redis.db.keys
+              label: Keys
+      - title: Key Count Trend by Database
+        position: {x: 0, y: 22}
+        size: {w: 48, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: attributes.db
+            type: values
+            size: 16
+            sort:
+              by: Keys
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: average
+              field: redis.db.keys
+              label: Keys
+              format:
+                type: number
+      - position: {x: 0, y: 34}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Keys with Expiration'
+          font_size: 14
+      - title: Keys with TTL by Database
+        position: {x: 0, y: 36}
+        size: {w: 24, h: 12}
+        lens:
+          type: bar
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: attributes.db
+            type: values
+            label: Database
+            size: 16
+            sort:
+              by: Expires
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: average
+              field: redis.db.expires
+              label: Expires
+              format:
+                type: number
+      - title: Keys with TTL Trend
+        position: {x: 24, y: 36}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: attributes.db
+            type: values
+            size: 16
+            sort:
+              by: Expires
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: average
+              field: redis.db.expires
+              label: Expires
+              format:
+                type: number
+      - position: {x: 0, y: 48}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Average Time-To-Live (TTL)'
+          font_size: 14
+      - title: Average TTL by Database
+        position: {x: 0, y: 50}
+        size: {w: 24, h: 12}
+        lens:
+          type: bar
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: attributes.db
+            type: values
+            label: Database
+            size: 16
+            sort:
+              by: Avg TTL
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: average
+              field: redis.db.avg_ttl
+              label: Avg TTL
+              format:
+                type: number
+      - title: Average TTL Trend by Database
+        position: {x: 24, y: 50}
+        size: {w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: Time
+          breakdown:
+            field: attributes.db
+            type: values
+            size: 16
+            sort:
+              by: Avg TTL
+              direction: desc
+            other_bucket: false
+            missing_bucket: false
+          metrics:
+            - aggregation: average
+              field: redis.db.avg_ttl
+              label: Avg TTL
+              format:
+                type: number
+      - position: {x: 0, y: 62}
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Database Summary Table'
+          font_size: 14
+      - title: Database Metrics Summary
+        position: {x: 0, y: 64}
+        size: {w: 48, h: 25}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: database
+              type: values
+              field: attributes.db
+              label: Database
+              size: 16
+          metrics:
+            - id: keys
+              aggregation: average
+              field: redis.db.keys
+              label: Total Keys
+              format:
+                type: number
+            - id: expires
+              aggregation: average
+              field: redis.db.expires
+              label: Keys w/ Expiry
+              format:
+                type: number
+            - id: expire-percent
+              formula: average(redis.db.expires) / average(redis.db.keys)
+              label: Expiry %
+              format:
+                type: percent
+            - id: avg-ttl
+              aggregation: average
+              field: redis.db.avg_ttl
+              label: Avg TTL (ms)
+              format:
+                type: number
+          paging:
+            enabled: true
+            page_size: 20

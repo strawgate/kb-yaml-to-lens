@@ -1,0 +1,238 @@
+---
+# Kubernetes Cluster Overview Dashboard
+# SRE Entry Point: "Is my cluster healthy? Where should I look?"
+dashboards:
+  - id: k8s-cluster-overview
+    name: '[Metrics K8s Cluster] Overview'
+    description: High-level Kubernetes cluster health for rapid SRE triage
+    controls:
+      - type: options
+        label: Namespace
+        data_view: metrics-*
+        field: k8s.namespace.name
+    filters:
+      - field: data_stream.dataset
+        equals: kubernetesclusterreceiver.otel
+    panels:
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: 📊 Overview
+              dashboard: k8s-cluster-overview
+            - label: ⚙️ Workloads
+              dashboard: k8s-cluster-workloads
+            - label: 📦 Resources
+              dashboard: k8s-cluster-resources
+            - label: 🔄 Batch Jobs
+              dashboard: k8s-cluster-batch
+            - label: 📈 Autoscaling
+              dashboard: k8s-cluster-hpa
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # CLUSTER HEALTH SUMMARY (4 metric cards - at-a-glance health)
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Cluster Health
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
+        markdown:
+          content: '## 🏥 Cluster Health'
+          font_size: 14
+      - title: Running Pods
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(k8s.pod.name)
+            label: Running
+          filters:
+            - field: k8s.pod.phase
+              equals: '2'
+      - title: Pending Pods
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(k8s.pod.name)
+            label: Pending
+          filters:
+            - field: k8s.pod.phase
+              equals: '1'
+      - title: Failed Pods
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(k8s.pod.name)
+            label: Failed
+          filters:
+            - field: k8s.pod.phase
+              equals: '4'
+      - title: Container Restarts
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 5}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(k8s.container.restarts)
+            label: Restarts
+          filters:
+            - exists: k8s.container.restarts
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # ANALYSIS: Pod Health Distribution & Trends
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Pod Health Distribution
+        size: {w: 20, h: 14}
+        position: {x: 0, y: 13}
+        lens:
+          type: pie
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.pod.phase
+              type: values
+              label: Status
+              size: 5
+          metrics:
+            - aggregation: unique_count
+              field: k8s.pod.name
+              label: Pods
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: '1'
+                color: '#FEC514'
+              - value: '2'
+                color: '#54B399'
+              - value: '3'
+                color: '#6092C0'
+              - value: '4'
+                color: '#D36086'
+              - value: '5'
+                color: '#9170B8'
+      - title: Pod Health Over Time
+        size: {w: 28, h: 14}
+        position: {x: 20, y: 13}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: k8s.pod.phase
+            type: values
+            size: 5
+          metrics:
+            - aggregation: unique_count
+              field: k8s.pod.name
+              label: Pods
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: '1'
+                color: '#FEC514'
+              - value: '2'
+                color: '#54B399'
+              - value: '3'
+                color: '#6092C0'
+              - value: '4'
+                color: '#D36086'
+              - value: '5'
+                color: '#9170B8'
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # WORKLOAD HEALTH PREVIEW
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Workload Health
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 27}
+        markdown:
+          content: '## 🚀 Workload Health Preview'
+          font_size: 14
+      - title: Deployments - Desired vs Available
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 29}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.deployment.desired)
+              label: Desired
+            - formula: sum(k8s.deployment.available)
+              label: Available
+          filters:
+            - exists: k8s.deployment.name
+      - title: Container Restarts by Namespace
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 29}
+        lens:
+          type: bar
+          data_view: metrics-*
+          dimension:
+            field: k8s.namespace.name
+            type: values
+            size: 10
+            sort:
+              by: Restarts
+              direction: desc
+          metrics:
+            - formula: sum(k8s.container.restarts)
+              label: Restarts
+          filters:
+            - exists: k8s.container.restarts
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # DETAIL: Unhealthy Deployments Table
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Unhealthy Deployments
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 41}
+        markdown:
+          content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
+          font_size: 14
+      - title: Deployments Missing Replicas
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 43}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.deployment.name
+              type: values
+              size: 25
+              label: Deployment
+              sort:
+                by: Missing
+                direction: desc
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - field: k8s.deployment.desired
+              aggregation: max
+              label: Desired
+            - field: k8s.deployment.available
+              aggregation: max
+              label: Available
+            - formula: max(k8s.deployment.desired) - max(k8s.deployment.available)
+              label: Missing
+          filters:
+            - exists: k8s.deployment.name

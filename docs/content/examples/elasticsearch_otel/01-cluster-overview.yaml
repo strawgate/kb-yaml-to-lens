@@ -1,0 +1,197 @@
+---
+dashboards:
+  - id: elasticsearch-otel-cluster-overview
+    name: '[Elasticsearch OTel] Cluster Overview'
+    description: Overview of Elasticsearch cluster health and key metrics
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    panels:
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: Cluster Health Status
+        size: {w: 12, h: 6}
+        position: {x: 0, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          breakdown:
+            field: status
+            label: Health
+            size: 3
+          primary:
+            aggregation: unique_count
+            field: elasticsearch.cluster.name
+            label: Clusters
+      - title: Active Clusters
+        size: {w: 12, h: 6}
+        position: {x: 12, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: elasticsearch.cluster.name
+            label: Clusters
+      - title: Total Nodes
+        size: {w: 12, h: 6}
+        position: {x: 24, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: elasticsearch.cluster.nodes
+            label: Nodes
+      - title: Data Nodes
+        size: {w: 12, h: 6}
+        position: {x: 36, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: elasticsearch.cluster.data_nodes
+            label: Data Nodes
+      - title: Cluster Health Over Time
+        size: {w: 48, h: 8}
+        position: {x: 0, y: 8}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.cluster.name
+            type: values
+            size: 10
+          metrics:
+            - aggregation: average
+              field: elasticsearch.cluster.nodes
+              label: Total Nodes
+            - aggregation: average
+              field: elasticsearch.cluster.data_nodes
+              label: Data Nodes
+      - title: Shard Distribution
+        size: {w: 16, h: 8}
+        position: {x: 0, y: 16}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: cluster
+              type: values
+              field: elasticsearch.cluster.name
+              label: Cluster
+              size: 20
+          metrics:
+            - id: active_primary
+              formula: "max(elasticsearch.cluster.shards, kql='shard_state: active_primary')"
+              label: Active Primary
+            - id: active
+              formula: "max(elasticsearch.cluster.shards, kql='shard_state: active')"
+              label: Active Shards
+            - id: initializing
+              formula: "max(elasticsearch.cluster.shards, kql='shard_state: initializing')"
+              label: Initializing
+            - id: relocating
+              formula: "max(elasticsearch.cluster.shards, kql='shard_state: relocating')"
+              label: Relocating
+            - id: unassigned
+              formula: "max(elasticsearch.cluster.shards, kql='shard_state: unassigned')"
+              label: Unassigned
+      - title: Pending Tasks
+        size: {w: 16, h: 8}
+        position: {x: 16, y: 16}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.cluster.name
+            type: values
+            size: 10
+          metrics:
+            - aggregation: max
+              field: elasticsearch.cluster.pending_tasks
+              label: Pending Tasks
+      - title: In-Flight Fetches
+        size: {w: 16, h: 8}
+        position: {x: 32, y: 16}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.cluster.name
+            type: values
+            size: 10
+          metrics:
+            - aggregation: max
+              field: elasticsearch.cluster.in_flight_fetch
+              label: In-Flight Fetches
+      - title: Index Statistics
+        size: {w: 24, h: 8}
+        position: {x: 0, y: 24}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: cluster
+              type: values
+              field: elasticsearch.cluster.name
+              label: Cluster
+              size: 20
+          metrics:
+            - id: indices
+              aggregation: unique_count
+              field: elasticsearch.index.name
+              label: Indices
+            - id: state_queue
+              aggregation: average
+              field: elasticsearch.cluster.state_queue
+              label: State Queue
+      - title: Shards Over Time
+        size: {w: 24, h: 8}
+        position: {x: 24, y: 24}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: active_primary')"
+              label: Active Primary
+            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: active')"
+              label: Active
+            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: initializing')"
+              label: Initializing
+            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: relocating')"
+              label: Relocating
+            - formula: "max(elasticsearch.cluster.shards, kql='shard_state: unassigned')"
+              label: Unassigned

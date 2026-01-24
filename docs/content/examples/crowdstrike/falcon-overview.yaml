@@ -1,0 +1,203 @@
+---
+dashboards:
+  - id: crowdstrike-ad80a080-821b-11ee-bae0-937af575b750
+    name: '[CrowdStrike] Falcon Overview'
+    description: Statistics about the different Incidents and events collected from CrowdStrike Falcon.
+    filters:
+      - field: data_stream.dataset
+        equals: crowdstrike.falcon
+    panels:
+      - title: Table of Contents
+        position:
+          x: 0
+          y: 0
+        size:
+          w: 7
+          h: 69
+        markdown:
+          content: |
+            ## **CrowdStrike**
+
+            ### Navigation
+            [Overview](/app/dashboards#/view/crowdstrike-e64e8fe0-8210-11ee-bae0-937af575b750)
+            [FDR](/app/dashboards#/view/crowdstrike-a4972bc0-fb53-11eb-abed-07307b3f2b0f)
+            **Falcon**
+            [Alert](/app/dashboards#/view/crowdstrike-d8070b00-99b3-11ee-bf4d-afbc95e0486c)
+            [Host](/app/dashboards#/view/crowdstrike-2921b7f0-99b5-11ee-bf4d-afbc95e0486c)
+            [Vulnerability](/app/dashboards#/view/crowdstrike-63da2573-4e68-4e7d-a06b-6858edb60fd5)
+
+            ### Overview
+            This dashboard shows statistics about the different Incidents and events collected from CrowdStrike Falcon.
+          font_size: 12
+          links_in_new_tab: false
+      - title: Incidents by ECS Category
+        position:
+          x: 7
+          y: 0
+        size:
+          w: 10
+          h: 17
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: event.category
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+          filters:
+            - field: crowdstrike.event.Category
+              equals: Incidents
+      - title: Events by Severity
+        position:
+          x: 17
+          y: 0
+        size:
+          w: 10
+          h: 17
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: crowdstrike.event.SeverityName
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Events by Technique Name
+        position:
+          x: 27
+          y: 0
+        size:
+          w: 10
+          h: 17
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: threat.technique.name
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Events by Tactic Name
+        position:
+          x: 37
+          y: 0
+        size:
+          w: 11
+          h: 17
+        lens:
+          type: pie
+          data_view: logs-*
+          appearance:
+            donut: medium
+          dimensions:
+            - field: threat.tactic.name
+              type: values
+              size: 10
+              sort:
+                by: Count
+                direction: desc
+              other_bucket: true
+              missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count
+      - title: Events over Time by Event Type
+        position:
+          x: 7
+          y: 17
+        size:
+          w: 41
+          h: 18
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            label: '@timestamp'
+          breakdown:
+            field: event.action
+            type: values
+            size: 10
+            sort:
+              by: Activity by Event type
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Activity by Event type
+      - title: Top Related Hosts
+        position:
+          x: 7
+          y: 35
+        size:
+          w: 21
+          h: 17
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: host.name
+            type: values
+            size: 10
+            sort:
+              by: Count of records
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count of records
+      - title: Top Related Users
+        position:
+          x: 28
+          y: 35
+        size:
+          w: 20
+          h: 17
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: user.name
+            type: values
+            size: 10
+            sort:
+              by: Count of records
+              direction: desc
+            other_bucket: true
+            missing_bucket: false
+          metrics:
+            - aggregation: count
+              label: Count of records

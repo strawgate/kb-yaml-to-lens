@@ -10,7 +10,8 @@ from dashboard_compiler.dashboard_compiler import load
 # Use absolute path since tests run from compiler/ directory
 _project_root = Path(__file__).parent.parent.parent
 example_dir = _project_root / 'docs' / 'content' / 'examples'
-example_files = sorted(example_dir.rglob('*.yaml'))
+
+example_files = sorted(f for f in example_dir.rglob('*.yaml'))
 
 # Ensure we actually found example files (fail fast if path is wrong)
 assert len(example_files) > 0, (
