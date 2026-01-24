@@ -23,6 +23,31 @@ This dashboard provides visibility into PostgreSQL database performance, connect
 - **Data stream dataset**: `postgresqlreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+### Key PostgreSQL Metrics
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `postgresql.backends` | Gauge | Number of active connections/backends |
+| `postgresql.connection.max` | Gauge | Maximum configured connections |
+| `postgresql.database.count` | Gauge | Total number of databases |
+| `postgresql.commits` | Counter | Total transaction commits |
+| `postgresql.rollbacks` | Counter | Total transaction rollbacks |
+| `postgresql.blocks_read` | Counter | Blocks read from disk and cache |
+| `postgresql.db_size` | Gauge | Database size in bytes |
+| `postgresql.operations` | Counter | Database operations (insert, update, delete, hot update) |
+
+### Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `resource.attributes.postgresql.database.name` | Database name |
+| `resource.attributes.host.name` | Host name |
+| `attributes.source` | Block I/O source (heap_hit, heap_read, idx_hit, idx_read) |
+| `attributes.operation` | Operation type (ins, upd, del, hot_upd) |
+| `attributes.state` | Connection state |
+
 ## Usage
 
 1. Configure the PostgreSQL receiver in your OpenTelemetry Collector

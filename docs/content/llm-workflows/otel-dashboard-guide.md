@@ -116,15 +116,39 @@ filters:
 
 ### Time Series Queries
 
-Use the `TS` source command with `TBUCKET()` for time series data:
+Use the `TS` source command with dynamic bucketing for time series data. Always use `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` so dashboards remain readable across different time ranges:
 
 ```esql
 TS metrics-*
 | WHERE data_stream.dataset == "apachereceiver.otel"
 | WHERE apache.requests IS NOT NULL
-| STATS rate = SUM(RATE(apache.requests)) BY time_bucket = TBUCKET(1 minute)
+| STATS rate = SUM(RATE(apache.requests)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
 | SORT time_bucket ASC
 ```
+
+### Time Bucket Sizing Best Practices
+
+Always use dynamic bucketing with both FROM and TS queries:
+
+```esql
+# Recommended pattern for all queries
+BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+```
+
+| Parameter | Description |
+| --------- | ----------- |
+| `@timestamp` | The timestamp field to bucket |
+| `20` | Target number of buckets (20-50 recommended) |
+| `?_tstart` | Kibana time range start (auto-populated) |
+| `?_tend` | Kibana time range end (auto-populated) |
+
+**Why dynamic bucketing is essential:**
+
+- Fixed intervals like `BUCKET(@timestamp, 1 minute)` create 10,080 data points for 1 week
+- Fixed intervals like `BUCKET(@timestamp, 5 minutes)` create 2,016 data points for 1 week
+- `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` creates exactly ~20 data points regardless of time range
+
+**Note:** Avoid `TBUCKET(interval)` as it uses fixed intervals that don't scale with the dashboard time range.
 
 ### Counter Metrics
 
@@ -266,7 +290,8 @@ Before finalizing a dashboard, verify:
 ### Query Correctness
 
 - [ ] Counter metrics use `RATE()`, not `MAX()`/`AVG()`
-- [ ] Time series queries use `TS` + `TBUCKET()`, not `FROM` + `BUCKET()`
+- [ ] All time bucketing uses `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for dynamic sizing
+- [ ] No fixed-interval bucketing like `TBUCKET(5 minutes)` or `BUCKET(@timestamp, 1 hour)`
 - [ ] Field names with special characters are backtick-escaped
 - [ ] All queries include NULL checks for optional metrics
 - [ ] Use `SORT` not `ORDER` in ES|QL

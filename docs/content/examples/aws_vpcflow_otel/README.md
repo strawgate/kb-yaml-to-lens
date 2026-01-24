@@ -25,6 +25,22 @@ Based on the [aws_vpcflow_otel](https://github.com/elastic/integrations/tree/mai
 - **Data stream dataset**: `aws.vpcflow.otel`
 - **Data view**: `logs-*`
 
+## Field Reference
+
+| Field | Description |
+|-------|-------------|
+| `@timestamp` | Event timestamp |
+| `aws.vpc.flow.action` | Allow/Deny action |
+| `aws.vpc.flow.bytes` | Bytes transferred |
+| `aws.vpc.flow.packets` | Packets transferred |
+| `source.address` | Source IP address |
+| `source.port` | Source port |
+| `destination.address` | Destination IP address |
+| `destination.port` | Destination port |
+| `network.protocol.name` | Protocol name |
+| `network.interface.name` | Network interface name |
+| `cloud.account.id` | AWS account ID |
+
 ## Usage
 
 1. Configure OpenTelemetry Collector for AWS VPC Flow Logs

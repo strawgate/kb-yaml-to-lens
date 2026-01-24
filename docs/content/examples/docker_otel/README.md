@@ -28,6 +28,15 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `dockerstatsreceiver.otel`
 - **Data view**: `metrics-*`
 
+### Key Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `container.image.name` | Container image name |
+| `container.name` | Container name |
+| `container.hostname` | Container hostname |
+| `container.id` | Container ID |
+
 ## Usage
 
 1. Configure the Docker Stats receiver in your OpenTelemetry Collector

@@ -98,7 +98,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.operation_hit_ratio IS NOT NULL
-            | STATS hit_ratio = AVG(AVG_OVER_TIME(memcached.operation_hit_ratio)) BY time_bucket = TBUCKET(1 minute), operation = attributes.operation
+            | STATS hit_ratio = AVG(AVG_OVER_TIME(memcached.operation_hit_ratio)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation = attributes.operation
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -121,7 +121,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.operations IS NOT NULL
-            | STATS ops_rate = SUM(RATE(memcached.operations)) BY time_bucket = TBUCKET(1 minute), type = attributes.type
+            | STATS ops_rate = SUM(RATE(memcached.operations)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), type = attributes.type
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -145,7 +145,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.commands IS NOT NULL
-            | STATS cmd_rate = SUM(RATE(memcached.commands)) BY time_bucket = TBUCKET(1 minute), command = attributes.command
+            | STATS cmd_rate = SUM(RATE(memcached.commands)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), command = attributes.command
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -167,7 +167,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.cpu.usage IS NOT NULL
-            | STATS cpu_rate = SUM(RATE(memcached.cpu.usage)) BY time_bucket = TBUCKET(1 minute), state = attributes.state
+            | STATS cpu_rate = SUM(RATE(memcached.cpu.usage)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), state = attributes.state
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -190,7 +190,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.current_items IS NOT NULL
-            | STATS items = AVG(AVG_OVER_TIME(memcached.current_items)) BY time_bucket = TBUCKET(1 minute)
+            | STATS items = AVG(AVG_OVER_TIME(memcached.current_items)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -206,7 +206,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.bytes IS NOT NULL
-            | STATS bytes = AVG(AVG_OVER_TIME(memcached.bytes)) BY time_bucket = TBUCKET(1 minute)
+            | STATS bytes = AVG(AVG_OVER_TIME(memcached.bytes)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -226,7 +226,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.evictions IS NOT NULL
-            | STATS evictions_rate = SUM(RATE(memcached.evictions)) BY time_bucket = TBUCKET(1 minute)
+            | STATS evictions_rate = SUM(RATE(memcached.evictions)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -242,7 +242,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.connections.current IS NOT NULL
-            | STATS connections = AVG(AVG_OVER_TIME(memcached.connections.current)) BY time_bucket = TBUCKET(1 minute)
+            | STATS connections = AVG(AVG_OVER_TIME(memcached.connections.current)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -258,7 +258,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.connections.total IS NOT NULL
-            | STATS conn_rate = SUM(RATE(memcached.connections.total)) BY time_bucket = TBUCKET(1 minute)
+            | STATS conn_rate = SUM(RATE(memcached.connections.total)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -278,7 +278,7 @@ dashboards:
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.network IS NOT NULL
             | WHERE attributes.direction == "received"
-            | STATS bytes_rate = SUM(RATE(memcached.network)) BY time_bucket = TBUCKET(1 minute)
+            | STATS bytes_rate = SUM(RATE(memcached.network)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -298,7 +298,7 @@ dashboards:
             | WHERE data_stream.dataset == "memcachedreceiver.otel"
             | WHERE memcached.network IS NOT NULL
             | WHERE attributes.direction == "sent"
-            | STATS bytes_rate = SUM(RATE(memcached.network)) BY time_bucket = TBUCKET(1 minute)
+            | STATS bytes_rate = SUM(RATE(memcached.network)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket

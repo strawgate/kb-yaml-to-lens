@@ -58,7 +58,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.connection.count IS NOT NULL
-            | STATS connection_count = MAX(mysql.connection.count) BY time_bucket = TBUCKET(1 minute)
+            | STATS connection_count = MAX(mysql.connection.count) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -75,7 +75,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.max_used_connections IS NOT NULL
-            | STATS max_connections = MAX(mysql.max_used_connections) BY time_bucket = TBUCKET(1 minute)
+            | STATS max_connections = MAX(mysql.max_used_connections) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -92,7 +92,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.connection.errors IS NOT NULL
-            | STATS error_count = MAX(mysql.connection.errors) BY time_bucket = TBUCKET(1 minute), error = attributes.error
+            | STATS error_count = MAX(mysql.connection.errors) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), error = attributes.error
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -113,7 +113,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.query.count IS NOT NULL
-            | STATS query_rate = SUM(RATE(mysql.query.count)) BY time_bucket = TBUCKET(1 minute)
+            | STATS query_rate = SUM(RATE(mysql.query.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -130,7 +130,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.query.slow.count IS NOT NULL
-            | STATS slow_query_rate = SUM(RATE(mysql.query.slow.count)) BY time_bucket = TBUCKET(1 minute)
+            | STATS slow_query_rate = SUM(RATE(mysql.query.slow.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -147,7 +147,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.query.client.count IS NOT NULL
-            | STATS client_query_rate = SUM(RATE(mysql.query.client.count)) BY time_bucket = TBUCKET(1 minute)
+            | STATS client_query_rate = SUM(RATE(mysql.query.client.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -166,7 +166,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.commands IS NOT NULL
-            | STATS command_rate = SUM(RATE(mysql.commands)) BY time_bucket = TBUCKET(1 minute), command = attributes.command
+            | STATS command_rate = SUM(RATE(mysql.commands)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), command = attributes.command
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -187,7 +187,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.replica.time_behind_source IS NOT NULL
-            | STATS lag_seconds = MAX(mysql.replica.time_behind_source) BY time_bucket = TBUCKET(1 minute)
+            | STATS lag_seconds = MAX(mysql.replica.time_behind_source) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -204,7 +204,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.replica.sql_delay IS NOT NULL
-            | STATS sql_delay = MAX(mysql.replica.sql_delay) BY time_bucket = TBUCKET(1 minute)
+            | STATS sql_delay = MAX(mysql.replica.sql_delay) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -223,7 +223,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.table.rows IS NOT NULL
-            | STATS row_count = MAX(mysql.table.rows) BY time_bucket = TBUCKET(1 minute), table = attributes.table
+            | STATS row_count = MAX(mysql.table.rows) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), table = attributes.table
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -242,7 +242,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.table.size IS NOT NULL
-            | STATS size_bytes = MAX(mysql.table.size) BY time_bucket = TBUCKET(1 minute), table = attributes.table
+            | STATS size_bytes = MAX(mysql.table.size) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), table = attributes.table
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -263,7 +263,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.table.average_row_length IS NOT NULL
-            | STATS avg_row_length = MAX(mysql.table.average_row_length) BY time_bucket = TBUCKET(1 minute), table = attributes.table
+            | STATS avg_row_length = MAX(mysql.table.average_row_length) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), table = attributes.table
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -286,7 +286,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.client.network.io IS NOT NULL
-            | STATS io_bytes = SUM(RATE(mysql.client.network.io)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | STATS io_bytes = SUM(RATE(mysql.client.network.io)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), kind = attributes.kind
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -307,7 +307,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.joins IS NOT NULL
-            | STATS joins_rate = SUM(RATE(mysql.joins)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | STATS joins_rate = SUM(RATE(mysql.joins)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), kind = attributes.kind
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -328,7 +328,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.table.lock_wait.read.count IS NOT NULL
-            | STATS lock_count = SUM(RATE(mysql.table.lock_wait.read.count)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | STATS lock_count = SUM(RATE(mysql.table.lock_wait.read.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), kind = attributes.kind
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -347,7 +347,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.table.lock_wait.write.count IS NOT NULL
-            | STATS lock_count = SUM(RATE(mysql.table.lock_wait.write.count)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | STATS lock_count = SUM(RATE(mysql.table.lock_wait.write.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), kind = attributes.kind
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -368,7 +368,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.table_open_cache IS NOT NULL
-            | STATS cache_count = SUM(RATE(mysql.table_open_cache)) BY time_bucket = TBUCKET(1 minute), status = attributes.status
+            | STATS cache_count = SUM(RATE(mysql.table_open_cache)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), status = attributes.status
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -387,7 +387,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.prepared_statements IS NOT NULL
-            | STATS stmt_count = SUM(RATE(mysql.prepared_statements)) BY time_bucket = TBUCKET(1 minute), command = attributes.command
+            | STATS stmt_count = SUM(RATE(mysql.prepared_statements)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), command = attributes.command
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -408,7 +408,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.statement_event.count IS NOT NULL
-            | STATS event_count = SUM(RATE(mysql.statement_event.count)) BY time_bucket = TBUCKET(1 minute), schema = attributes.schema
+            | STATS event_count = SUM(RATE(mysql.statement_event.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), schema = attributes.schema
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -429,7 +429,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "mysqlreceiver.otel"
             | WHERE mysql.mysqlx_worker_threads IS NOT NULL
-            | STATS thread_count = MAX(mysql.mysqlx_worker_threads) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | STATS thread_count = MAX(mysql.mysqlx_worker_threads) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), kind = attributes.kind
             | SORT time_bucket ASC
           dimension:
             field: time_bucket

@@ -30,6 +30,23 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `hostmetricsreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+| Metric | Description |
+|--------|-------------|
+| `system.cpu.utilization` | CPU utilization percentage |
+| `system.memory.usage` | Memory usage |
+| `system.disk.*` | Disk I/O metrics |
+| `system.network.*` | Network traffic metrics |
+| `system.filesystem.*` | Filesystem usage metrics |
+
+### Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `resource.attributes.host.name` | Host identifier |
+| `resource.attributes.os.type` | Operating system type |
+
 ## Usage
 
 1. Configure the Host Metrics receiver in your OpenTelemetry Collector

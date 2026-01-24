@@ -25,6 +25,27 @@ Based on the dashboard from the [Elastic integrations repository](https://github
 - **Data stream dataset**: `aws.cloudtrail.otel`
 - **Data view**: `logs-*`
 
+## Field Reference
+
+### Core Fields
+
+| Field | Description |
+|-------|-------------|
+| `@timestamp` | Event timestamp |
+| `data_stream.dataset` | Should equal `aws.cloudtrail.otel` |
+
+### AWS CloudTrail Fields
+
+| Field | Description |
+|-------|-------------|
+| `aws.access_key.id` | AWS access key ID used for the API call |
+| `aws.error.code` | Error code if the operation failed |
+| `rpc.service` | AWS service name (e.g., s3, ec2) |
+| `rpc.system` | Event type/system |
+| `rpc.method` | AWS API method/action called |
+| `source.address` | Source IP address of the request |
+| `user_agent.original` | User agent string of the client |
+
 ## Usage
 
 1. Configure OpenTelemetry Collector for AWS CloudTrail

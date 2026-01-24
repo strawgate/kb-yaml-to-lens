@@ -23,6 +23,22 @@ This dashboard provides comprehensive monitoring for Memcached instances, displa
 - **Data stream dataset**: `memcachedreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+| Metric | Description |
+|--------|-------------|
+| `memcached.current_items` | Current number of items in cache |
+| `memcached.bytes` | Storage bytes used |
+| `memcached.current_connections` | Active client connections |
+| `memcached.commands` | Command counts (get, set, etc.) |
+| `memcached.operation_hit_ratio` | Cache hit/miss ratio |
+
+### Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `resource.attributes.host.name` | Memcached host name |
+
 ## Usage
 
 1. Configure the Memcached receiver in your OpenTelemetry Collector

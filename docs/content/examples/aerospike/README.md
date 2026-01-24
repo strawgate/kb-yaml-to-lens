@@ -20,12 +20,50 @@ All dashboards include navigation links for easy switching between views.
 
 - **Aerospike**: Aerospike database cluster
 - **OpenTelemetry Collector**: Collector with Aerospike receiver configured
-- **Kibana**: Version 9.2.0 or later (required for TS/TBUCKET/RATE/AVG_OVER_TIME)
+- **Kibana**: Version 9.2.0 or later (required for TS/BUCKET/RATE/AVG_OVER_TIME)
 
 ## Data Requirements
 
 - **Data stream dataset**: `aerospikereceiver.otel`
 - **Data view**: `metrics-*`
+
+## Metrics Reference
+
+### Core Metrics (enabled by default)
+
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `aerospike.node.name` | Resource | - | Node identifier |
+| `aerospike.node.memory.free` | Gauge | % (0-100) | Percentage of free memory on the node |
+| `aerospike.node.connection.open` | Sum | connections | Current open connections (by type) |
+| `aerospike.namespace` | Resource | - | Namespace identifier |
+| `aerospike.namespace.memory.usage` | Sum | bytes | Memory usage per namespace (by component) |
+| `aerospike.namespace.memory.free` | Gauge | % (0-100) | Percentage of free memory per namespace |
+| `aerospike.namespace.disk.available` | Gauge | % (0-100) | Percentage of available disk per namespace |
+
+### Counter Metrics (use RATE() for time-series)
+
+| Metric | Unit | Description |
+| ------ | ---- | ----------- |
+| `aerospike.namespace.query.count` | queries | Query count (by type, index, result) |
+| `aerospike.namespace.transaction.count` | transactions | Transaction count (by type, result) |
+
+### Extended Metrics (optional)
+
+| Metric | Unit | Description |
+| ------ | ---- | ----------- |
+| `aerospike.node.connection.count` | connections | Connection count (by type, operation) |
+| `aerospike.node.query.tracked` | queries | Queries exceeding tracking threshold |
+| `aerospike.namespace.scan.count` | scans | Scan count (by type, result) |
+
+### Key Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `aerospike.node.name` | Node name |
+| `aerospike.namespace` | Namespace name |
+| `attributes.type` | Connection or transaction type |
+| `attributes.index` | Index type (primary/secondary) |
 
 ## Usage
 

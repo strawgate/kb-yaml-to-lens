@@ -124,7 +124,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.memory.free IS NOT NULL
-            | STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -150,7 +150,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.connection.open IS NOT NULL
-            | STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name
             | SORT time_bucket ASC
           legend:
             visible: show

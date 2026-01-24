@@ -121,7 +121,7 @@ dashboards:
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.query.count IS NOT NULL
             | WHERE attributes.index == "primary"
-            | STATS query_rate = SUM(RATE(aerospike.namespace.query.count)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS query_rate = SUM(RATE(aerospike.namespace.query.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -148,7 +148,7 @@ dashboards:
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.query.count IS NOT NULL
             | WHERE attributes.index == "secondary"
-            | STATS query_rate = SUM(RATE(aerospike.namespace.query.count)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS query_rate = SUM(RATE(aerospike.namespace.query.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -181,7 +181,7 @@ dashboards:
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.transaction.count IS NOT NULL
             | WHERE attributes.type IS NOT NULL
-            | STATS transaction_rate = SUM(RATE(aerospike.namespace.transaction.count)) BY time_bucket = TBUCKET(1 minute), transaction_type = attributes.type
+            | STATS transaction_rate = SUM(RATE(aerospike.namespace.transaction.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), transaction_type = attributes.type
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -213,7 +213,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS memory_usage = AVG(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS memory_usage = AVG(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -236,7 +236,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.disk.available IS NOT NULL
-            | STATS disk_available = AVG(AVG_OVER_TIME(aerospike.namespace.disk.available)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS disk_available = AVG(AVG_OVER_TIME(aerospike.namespace.disk.available)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show

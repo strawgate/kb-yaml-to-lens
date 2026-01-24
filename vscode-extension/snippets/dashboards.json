@@ -332,7 +332,7 @@
       "    type: line",
       "    query: |",
       "      FROM ${9:logs-*}",
-      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:time_bucket} = BUCKET(@timestamp, 1 hour)",
+      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:time_bucket} = BUCKET(@timestamp, 20, ?_tstart, ?_tend)",
       "      ${13:| WHERE field == \"value\"}",
       "    metrics:",
       "      - field: ${10:metric_value}"
@@ -399,7 +399,7 @@
       "    type: area",
       "    query: |",
       "      FROM ${9:logs-*}",
-      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:time_bucket} = BUCKET(@timestamp, 1 hour)",
+      "      | STATS ${10:metric_value} = ${11:COUNT(*)} BY ${12:time_bucket} = BUCKET(@timestamp, 20, ?_tstart, ?_tend)",
       "      ${13:| SORT ${12:time_bucket} ASC}",
       "    metrics:",
       "      - field: ${10:metric_value}"
@@ -704,7 +704,7 @@
       "    type: ${9|line,bar,area|}",
       "    query: |",
       "      FROM ${10:logs-*}",
-      "      | STATS ${11:metric_value} = ${12|COUNT(*),AVG(field),SUM(field)|} BY ${13:time_bucket} = BUCKET(@timestamp, 1 hour)",
+      "      | STATS ${11:metric_value} = ${12|COUNT(*),AVG(field),SUM(field)|} BY ${13:time_bucket} = BUCKET(@timestamp, 20, ?_tstart, ?_tend)",
       "      ${14:| SORT ${13:time_bucket} ASC}",
       "    metrics:",
       "      - field: ${11:metric_value}",
@@ -786,7 +786,7 @@
     "prefix": "esql-bucket",
     "body": [
       "FROM ${1:logs-*}",
-      "| STATS ${2:event_count} = COUNT(*) BY ${3:time_bucket} = BUCKET(@timestamp, ${4|1 hour,1 day,1 week,5 minutes,15 minutes|})",
+      "| STATS ${2:event_count} = COUNT(*) BY ${3:time_bucket} = BUCKET(@timestamp, ${4|20,50,100|}, ?_tstart, ?_tend)",
       "| SORT ${3:time_bucket} ASC"
     ],
     "description": "ES|QL query with time bucketing for time series analysis"
@@ -796,7 +796,7 @@
     "body": [
       "TS ${1:metrics-*}",
       "| WHERE @timestamp >= NOW() - ${2:1 hour}",
-      "| STATS ${3|SUM,AVG,MAX,MIN|}(RATE(${4:request_count})) BY TBUCKET(${5|1 hour,5 minutes,15 minutes,1 day|}), ${6:host.name}"
+      "| STATS ${3|SUM,AVG,MAX,MIN|}(RATE(${4:request_count})) BY time_bucket = BUCKET(@timestamp, ${5|20,50,100|}, ?_tstart, ?_tend), ${6:host.name}"
     ],
     "description": "ES|QL time series query using TS command with RATE aggregation (Elasticsearch 9.2+)"
   },

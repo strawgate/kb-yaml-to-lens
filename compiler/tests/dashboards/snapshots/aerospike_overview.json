@@ -552,7 +552,7 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "b5cbf4c4-3a5c-775f-96d4-de8b2f6ae336",
+                                        "layerId": "a34d8da0-7194-688a-1b51-f094e2ba22cf",
                                         "accessors": [
                                             "a7d52c1d-3be3-361e-dd91-4139bfbc11b9"
                                         ],
@@ -590,15 +590,15 @@
                                 "valueLabels": "hide"
                             },
                             "query": {
-                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
+                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "b5cbf4c4-3a5c-775f-96d4-de8b2f6ae336": {
+                                        "a34d8da0-7194-688a-1b51-f094e2ba22cf": {
                                             "query": {
-                                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
+                                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                                             },
                                             "columns": [
                                                 {
@@ -712,7 +712,7 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "fe8fbd43-d1b5-9d86-489c-1f27ddd5086b",
+                                        "layerId": "ecf12b9e-10ca-ef99-e0ce-b23c12fe9025",
                                         "accessors": [
                                             "06858c01-d87e-cdda-a98c-4552adb8443a"
                                         ],
@@ -750,15 +750,15 @@
                                 "valueLabels": "hide"
                             },
                             "query": {
-                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
+                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "fe8fbd43-d1b5-9d86-489c-1f27ddd5086b": {
+                                        "ecf12b9e-10ca-ef99-e0ce-b23c12fe9025": {
                                             "query": {
-                                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name\n| SORT time_bucket ASC\n"
+                                                "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                                             },
                                             "columns": [
                                                 {

@@ -32,6 +32,38 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `kubernetesclusterreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+For complete documentation, see [k8sclusterreceiver Metrics Documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/k8sclusterreceiver/documentation.md).
+
+### Metric Categories Summary
+
+| Category | Example Metrics | Description |
+|----------|----------------|-------------|
+| **Containers** | `k8s.container.cpu_limit`, `k8s.container.memory_request`, `k8s.container.restarts` | Container resource allocation and health |
+| **Pods** | `k8s.pod.phase` | Pod lifecycle status |
+| **Deployments** | `k8s.deployment.desired`, `k8s.deployment.available` | Deployment replica status |
+| **StatefulSets** | `k8s.statefulset.desired_pods`, `k8s.statefulset.ready_pods` | StatefulSet pod status |
+| **DaemonSets** | `k8s.daemonset.desired_scheduled_nodes`, `k8s.daemonset.ready_nodes` | DaemonSet node coverage |
+| **ReplicaSets** | `k8s.replicaset.desired`, `k8s.replicaset.available` | ReplicaSet replica status |
+| **Jobs** | `k8s.job.active_pods`, `k8s.job.successful_pods`, `k8s.job.failed_pods` | Job execution status |
+| **CronJobs** | `k8s.cronjob.active_jobs` | Scheduled job status |
+| **HPAs** | `k8s.hpa.current_replicas`, `k8s.hpa.desired_replicas` | Autoscaling behavior |
+| **Resource Quotas** | `k8s.resource_quota.hard_limit`, `k8s.resource_quota.used` | Namespace resource limits |
+| **Namespaces** | `k8s.namespace.phase` | Namespace status |
+
+### Phase Value Encoding
+
+The `k8s.pod.phase` attribute uses numeric filter values:
+
+- `'1'` - Pending
+- `'2'` - Running
+- `'3'` - Succeeded
+- `'4'` - Failed
+- `'5'` - Unknown
+
+**Note:** If your k8sclusterreceiver outputs string values (`Pending`, `Running`, etc.), update the dashboard filters accordingly.
+
 ## Usage
 
 1. Configure RBAC permissions for the OpenTelemetry Collector ServiceAccount

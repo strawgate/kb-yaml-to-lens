@@ -27,6 +27,22 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `redisreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+| Metric | Description |
+|--------|-------------|
+| `redis.clients.connected` | Number of connected clients |
+| `redis.commands` | Commands processed per second |
+| `redis.memory.used` | Memory used by Redis |
+| `redis.keyspace.*` | Per-database key statistics |
+| `redis.replication.*` | Replication metrics |
+
+### Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `resource.attributes.service.instance.id` | Redis instance identifier |
+
 ## Usage
 
 1. Configure the Redis receiver in your OpenTelemetry Collector

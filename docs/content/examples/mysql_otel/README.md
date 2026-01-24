@@ -26,6 +26,22 @@ Both dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `mysqlreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+| Metric | Description |
+|--------|-------------|
+| `mysql.threads` | Thread counts (connected, running, etc.) |
+| `mysql.buffer_pool.*` | InnoDB buffer pool metrics |
+| `mysql.commands` | Command execution counts |
+| `mysql.queries` | Query statistics |
+
+### Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `resource.attributes.host.name` | MySQL host name |
+| `resource.attributes.service.instance.id` | MySQL instance identifier |
+
 ## Usage
 
 1. Configure the MySQL receiver in your OpenTelemetry Collector

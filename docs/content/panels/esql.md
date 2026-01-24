@@ -115,7 +115,7 @@ dashboards:
           type: bar
           query: |
             FROM logs-*
-            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(event.created, 1 hour)
+            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(event.created, 20, ?_tstart, ?_tend)
             | SORT timestamp_bucket ASC
           time_field: "event.created"  # Use event.created instead of @timestamp
           dimension:
@@ -123,6 +123,8 @@ dashboards:
           metrics:
             - field: "event_count"
 ```
+
+**Note:** The `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` syntax creates ~20 buckets that automatically adapt to the dashboard time range. The `?_tstart` and `?_tend` parameters are auto-populated by Kibana.
 
 ---
 
@@ -234,7 +236,7 @@ dashboards:
           type: bar
           query: |
             FROM logs-*
-            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), event.category
+            | STATS event_count = COUNT(*) BY timestamp_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), event.category
             | SORT timestamp_bucket ASC
           mode: stacked
           dimension:
@@ -275,7 +277,7 @@ dashboards:
           type: line
           query: |
             FROM logs-*
-            | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), service.name
+            | STATS avg_response_time = AVG(response.time) BY timestamp_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), service.name
             | SORT timestamp_bucket ASC
           dimension:
             field: "timestamp_bucket"
@@ -316,7 +318,7 @@ dashboards:
           type: area
           query: |
             FROM logs-*
-            | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour), host.name
+            | STATS bytes_total = SUM(bytes) BY timestamp_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), host.name
             | SORT timestamp_bucket ASC
           mode: stacked
           dimension:
@@ -384,7 +386,7 @@ dashboards:
                     event_count = COUNT(*),
                     avg_response_time = AVG(response.time),
                     success_rate = COUNT(status == 200) / COUNT(*) * 100,
-                    precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 1 hour)
+                    precise_value = AVG(bytes) BY timestamp_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT timestamp_bucket ASC
           dimension:
             field: "timestamp_bucket"
@@ -434,13 +436,13 @@ Used to specify a dimension/grouping column from your ESQL query result.
 dashboards:
   - name: "Time Series with BUCKET Example"
     panels:
-      - title: "Events Over Time (Hourly Buckets)"
+      - title: "Events Over Time (Adaptive Buckets)"
         size: {w: 48, h: 20}
         esql:
           type: bar
           query: |
             FROM logs-*
-            | STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 1 hour)
+            | STATS event_count = COUNT(*) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: "time_bucket"

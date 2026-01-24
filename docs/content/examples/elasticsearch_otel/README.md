@@ -31,6 +31,75 @@ All dashboards include navigation links for easy switching between views.
 - **Data stream dataset**: `elasticsearchreceiver.otel`
 - **Data view**: `metrics-*`
 
+## Metrics Reference
+
+**Critical Naming Convention:** The receiver uses two distinct metric naming patterns:
+
+1. **JVM Metrics** - Use `jvm.*` prefix (NO `elasticsearch.` prefix)
+2. **Elasticsearch Metrics** - Use `elasticsearch.*` prefix
+
+### Cluster Metrics
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `elasticsearch.cluster.health` | Gauge | Cluster health status (green/yellow/red) |
+| `elasticsearch.cluster.nodes` | Gauge | Total number of nodes in cluster |
+| `elasticsearch.cluster.data_nodes` | Gauge | Number of data nodes in cluster |
+| `elasticsearch.cluster.shards` | Gauge | Number of shards (by aggregation, state) |
+| `elasticsearch.cluster.pending_tasks` | Gauge | Number of pending cluster tasks |
+
+### Node Metrics
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `elasticsearch.node.documents` | Gauge | Documents on node |
+| `elasticsearch.node.fs.disk.available` | Gauge | Available disk space |
+| `elasticsearch.node.http.connections` | Gauge | HTTP connections |
+| `elasticsearch.node.cache.memory.usage` | Gauge | Cache memory usage (by cache_name) |
+| `elasticsearch.node.thread_pool.tasks.queued` | Gauge | Queued thread pool tasks |
+| `elasticsearch.process.cpu.usage` | Gauge | Process CPU usage (0-1) |
+
+### JVM Metrics
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `jvm.memory.heap.used` | Gauge | Used heap memory |
+| `jvm.memory.heap.max` | Gauge | Maximum heap memory |
+| `jvm.gc.collections.count` | Counter | GC collection count (by name) |
+| `jvm.gc.collections.elapsed` | Counter | GC collection time (by name) |
+| `jvm.threads.count` | Gauge | JVM thread count |
+
+### Index Metrics
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `elasticsearch.index.documents` | Gauge | Number of documents in index |
+| `elasticsearch.index.shards.size` | Gauge | Size of index shards |
+| `elasticsearch.index.segments.count` | Gauge | Number of segments in index |
+| `elasticsearch.index.operations.completed` | Counter | Completed index operations (by operation) |
+
+### Circuit Breaker Metrics
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `elasticsearch.breaker.memory.estimated` | Gauge | Estimated memory used by circuit breaker |
+| `elasticsearch.breaker.memory.limit` | Gauge | Maximum memory for circuit breaker |
+| `elasticsearch.breaker.tripped` | Counter | Total circuit breaker trips |
+
+### Attributes
+
+| Attribute | Description |
+| --------- | ----------- |
+| `elasticsearch.cluster.name` | Cluster identifier |
+| `elasticsearch.node.name` | Node identifier |
+| `elasticsearch.index.name` | Index name |
+| `cache_name` | Cache type (fielddata, query, request) |
+| `thread_pool_name` | Thread pool type (search, write, get, etc.) |
+| `name` | Circuit breaker type, GC collector name, or JVM memory pool name |
+| `operation` | Operation type (read, write, index, search, etc.) |
+| `aggregation` | Shard aggregation type (total, primary, replica) |
+| `state` | Thread state, shard state, or health status |
+
 ## Usage
 
 1. Configure the Elasticsearch receiver in your OpenTelemetry Collector
