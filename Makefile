@@ -8,7 +8,7 @@ ifeq ($(PARALLEL),1)
 MAKEFLAGS += --jobs=3 --output-sync=target
 endif
 
-.PHONY: all help install ci check fix test-unit test-e2e clean clean-full lint-markdown lint-markdown-check check-docs gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci compiler vscode docs
+.PHONY: all help install ci check fix test-unit test-e2e clean clean-full lint-markdown lint-markdown-check check-docs docs-build-strict gh-get-review-threads gh-resolve-review-thread gh-get-latest-review gh-check-latest-review gh-get-comments-since gh-minimize-outdated-comments gh-check-repo-activity bump-patch bump-minor bump-major bump-version-show compiler-ci vscode-ci markdown-ci compiler vscode docs
 
 all: check
 
@@ -155,6 +155,9 @@ check-docs:
 	@$(call run-in-component,docs,test-links)
 	@echo ""
 	@echo "✓ Documentation checks passed"
+
+docs-build-strict:
+	$(call run-in-component,docs,build-strict)
 
 # GitHub Workflow Helper Commands
 gh-get-review-threads:
