@@ -264,6 +264,35 @@ For use with the TS source command (Elasticsearch 9.2+):
 | `FIRST_OVER_TIME(field)` | Earliest value by timestamp | `STATS MAX(FIRST_OVER_TIME(value))` |
 | `LAST_OVER_TIME(field)` | Latest value by timestamp | `STATS MAX(LAST_OVER_TIME(value))` |
 
+### Choosing the Right Gauge Aggregation
+
+For **gauge metrics** (point-in-time values like connections, memory, counts), choose based on what question you're answering:
+
+| Use Case | Function | When to Use |
+| -------- | -------- | ----------- |
+| Current state | `LAST_OVER_TIME()` | Connection counts, thread counts, buffer sizes, queue depths - "what is the value now?" |
+| Typical value | `AVG_OVER_TIME()` | CPU utilization, memory percentage, load averages - "what is the typical value?" |
+| Peak detection | `MAX_OVER_TIME()` | Finding spikes in latency, memory high-water marks |
+| Minimum threshold | `MIN_OVER_TIME()` | Detecting drops in available resources |
+
+**Recommended patterns:**
+
+```esql
+# Current active connections (use LAST_OVER_TIME for current state)
+TS metrics-*
+| STATS connections = MAX(LAST_OVER_TIME(postgresql.backends))
+
+# Average CPU over time (use AVG_OVER_TIME for typical value)
+TS metrics-*
+| STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
+
+# Peak memory usage (use MAX_OVER_TIME for high-water mark)
+TS metrics-*
+| STATS peak_memory = MAX(MAX_OVER_TIME(process.memory.usage))
+```
+
+**Note:** When aggregating across multiple time series (e.g., multiple hosts), wrap with `MAX()`, `SUM()`, or `AVG()` as appropriate for your use case.
+
 Time bucketing function (for use with TS source command):
 
 | Function | Description | Example |
@@ -529,14 +558,19 @@ FROM metrics-*
 | STATS requests = MAX(apache.requests)
 ```
 
-**Gauge metrics** (point-in-time values) use standard aggregations:
+**Gauge metrics** (point-in-time values) use `*_OVER_TIME()` functions. Choose based on your use case:
+
+| Gauge Type | Function | Examples |
+| ---------- | -------- | -------- |
+| Current state | `LAST_OVER_TIME()` | Connection counts, buffer sizes, queue depths |
+| Typical value | `AVG_OVER_TIME()` | CPU utilization, memory percentage |
 
 ```esql
-# Current value
+# Current value - use LAST_OVER_TIME for "what is it now?"
 TS metrics-*
 | STATS connections = MAX(LAST_OVER_TIME(mysql.connections))
 
-# Average over time
+# Average over time - use AVG_OVER_TIME for "what is the typical value?"
 TS metrics-*
 | STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
 ```

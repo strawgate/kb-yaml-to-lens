@@ -26,10 +26,22 @@ OTel receivers emit metrics with specific types that determine how you query the
 
 | Metric Type | Description | Query Approach |
 | ----------- | ----------- | -------------- |
-| **Gauge** | Point-in-time value | Use `MAX()`, `AVG()`, or `LAST_OVER_TIME()` |
+| **Gauge** | Point-in-time value | See [Gauge Function Selection](#gauge-function-selection) below |
 | **Sum (Cumulative)** | Monotonically increasing counter | Use `RATE()` for per-second rates |
 | **Sum (Delta)** | Change since last measurement | Use `SUM()` to aggregate |
 | **Histogram** | Distribution of values | Query bucket boundaries |
+
+#### Gauge Function Selection
+
+For gauge metrics with the `TS` command, choose the right `*_OVER_TIME()` function:
+
+| Use Case | Function | Examples |
+| -------- | -------- | -------- |
+| Current state | `LAST_OVER_TIME()` | Connection counts, thread counts, buffer sizes, queue depths |
+| Typical value | `AVG_OVER_TIME()` | CPU utilization, memory percentage, load averages |
+| Peak detection | `MAX_OVER_TIME()` | Latency spikes, memory high-water marks |
+
+**Rule of thumb:** If the metric answers "how many/much right now?", use `LAST_OVER_TIME()`. If it answers "what's the average/typical level?", use `AVG_OVER_TIME()`.
 
 ### 3. Verify Attribute Names
 
@@ -130,14 +142,16 @@ FROM metrics-*
 
 ### Gauge Metrics
 
-Gauges represent point-in-time values. Use aggregations directly or with `*_OVER_TIME()` functions:
+Gauges represent point-in-time values. Choose the right `*_OVER_TIME()` function based on the metric semantics:
 
 ```esql
-# Current value (latest)
+# Current state - use LAST_OVER_TIME for "how many right now?"
+# Examples: connection counts, thread counts, buffer sizes, queue depths
 TS metrics-*
 | STATS connections = MAX(LAST_OVER_TIME(apache.current_connections))
 
-# Average over time window
+# Typical value - use AVG_OVER_TIME for "what's the average level?"
+# Examples: CPU utilization, memory percentage, load averages
 TS metrics-*
 | STATS avg_cpu = MAX(AVG_OVER_TIME(apache.cpu.load))
 ```
