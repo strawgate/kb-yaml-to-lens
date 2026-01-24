@@ -11,19 +11,17 @@ dashboards:
         equals: aerospikereceiver.otel
     controls:
       - type: options
-        id: aerospike-node-ns-filter
-        label: Aerospike Node
+        id: node-filter
+        label: Node
         width: medium
         data_view: metrics-*
         field: aerospike.node.name
-        match_technique: contains
       - type: options
-        id: aerospike-namespace-filter
-        label: Aerospike Namespace
+        id: namespace-filter
+        label: Namespace
         width: medium
         data_view: metrics-*
         field: aerospike.namespace
-        match_technique: prefix
     panels:
       # Navigation Links
       - size: {w: 48, h: 2}
@@ -43,8 +41,7 @@ dashboards:
         position: {x: 0, y: 2}
         markdown:
           content: |
-            This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.
-            Filter to a specific node and namespace before using this dashboard.
+            Namespace-level storage and query statistics for Aerospike. Use the Node and Namespace filters to focus on specific resources.
 
       # KPI Metrics Row
       - title: Selected Namespaces
@@ -60,7 +57,7 @@ dashboards:
           primary:
             field: namespace_count
             label: Namespaces
-      - title: Total Objects
+      - title: Memory Usage
         size: {w: 12, h: 5}
         position: {x: 12, y: 4}
         esql:
@@ -69,11 +66,13 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS total_objects = MAX(aerospike.namespace.memory.usage)
+            | STATS memory_usage = SUM(aerospike.namespace.memory.usage)
           primary:
-            field: total_objects
-            label: Objects
-      - title: Disk Usage
+            field: memory_usage
+            label: Memory Usage
+            format:
+              type: bytes
+      - title: Disk Available
         size: {w: 12, h: 5}
         position: {x: 24, y: 4}
         esql:
@@ -82,13 +81,13 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.disk.available IS NOT NULL
-            | STATS disk_available = MAX(aerospike.namespace.disk.available)
+            | STATS disk_available = AVG(aerospike.namespace.disk.available)
           primary:
             field: disk_available
             label: Disk Available
             format:
-              type: bytes
-      - title: Memory Usage
+              type: percent
+      - title: Memory Free
         size: {w: 12, h: 5}
         position: {x: 36, y: 4}
         esql:
@@ -97,12 +96,12 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.free IS NOT NULL
-            | STATS memory_free = MAX(aerospike.namespace.memory.free)
+            | STATS memory_free = AVG(aerospike.namespace.memory.free)
           primary:
             field: memory_free
             label: Memory Free
             format:
-              type: bytes
+              type: percent
 
       # Query Information Section
       - size: {w: 48, h: 2}
@@ -212,7 +211,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS memory_usage = MAX(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS memory_usage = SUM(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -226,7 +225,7 @@ dashboards:
                 type: bytes
           breakdown:
             field: namespace
-      - title: Disk Usage Over Time
+      - title: Disk Available Over Time
         size: {w: 24, h: 10}
         position: {x: 24, y: 35}
         esql:
@@ -235,7 +234,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.disk.available IS NOT NULL
-            | STATS disk_available = MAX(AVG_OVER_TIME(aerospike.namespace.disk.available)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | STATS disk_available = AVG(AVG_OVER_TIME(aerospike.namespace.disk.available)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -244,9 +243,9 @@ dashboards:
             field: time_bucket
           metrics:
             - field: disk_available
-              label: Disk Available
+              label: Disk Available %
               format:
-                type: bytes
+                type: percent
           breakdown:
             field: namespace
 
@@ -260,7 +259,7 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.namespace.memory.usage IS NOT NULL
-            | STATS memory_usage = MAX(aerospike.namespace.memory.usage) BY namespace = aerospike.namespace
+            | STATS memory_usage = SUM(aerospike.namespace.memory.usage) BY namespace = aerospike.namespace
             | SORT memory_usage DESC
             | LIMIT 20
           metrics:
@@ -272,7 +271,7 @@ dashboards:
             - field: namespace
           appearance:
             donut: medium
-      - title: Disk Available by Namespace
+      - title: Memory Free by Namespace
         size: {w: 24, h: 10}
         position: {x: 24, y: 45}
         esql:
@@ -280,15 +279,15 @@ dashboards:
           query: |
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
-            | WHERE aerospike.namespace.disk.available IS NOT NULL
-            | STATS disk_available = MAX(aerospike.namespace.disk.available) BY namespace = aerospike.namespace
-            | SORT disk_available DESC
+            | WHERE aerospike.namespace.memory.free IS NOT NULL
+            | STATS memory_free = AVG(aerospike.namespace.memory.free) BY namespace = aerospike.namespace
+            | SORT memory_free DESC
             | LIMIT 20
           metrics:
-            - field: disk_available
-              label: Disk Available
+            - field: memory_free
+              label: Memory Free %
               format:
-                type: bytes
+                type: percent
           dimensions:
             - field: namespace
           appearance:
@@ -305,10 +304,9 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.namespace IS NOT NULL
-            - STATS memory_usage = MAX(aerospike.namespace.memory.usage), memory_free = MAX(aerospike.namespace.memory.free), disk_available =
-              MAX(aerospike.namespace.disk.available), query_count = MAX(aerospike.namespace.query.count), transaction_count = MAX(aerospike.namespace.transaction.count)
-              BY namespace = aerospike.namespace, node = aerospike.node.name
-            - KEEP namespace, node, memory_usage, memory_free, disk_available, query_count, transaction_count
+            - STATS memory_usage = SUM(aerospike.namespace.memory.usage), memory_free = AVG(aerospike.namespace.memory.free), disk_available =
+              AVG(aerospike.namespace.disk.available) BY namespace = aerospike.namespace, node = aerospike.node.name
+            - KEEP namespace, node, memory_usage, memory_free, disk_available
             - SORT namespace ASC, node ASC
             - LIMIT 100
           dimensions:
@@ -317,5 +315,3 @@ dashboards:
             - field: memory_usage
             - field: memory_free
             - field: disk_available
-            - field: query_count
-            - field: transaction_count

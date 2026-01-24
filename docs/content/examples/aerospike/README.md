@@ -29,21 +29,25 @@ Dashboards expect metrics from the OpenTelemetry Aerospike receiver:
 - **Data stream dataset**: `aerospikereceiver.otel`
 - **Data view**: `metrics-*`
 
-### Key Metrics
+### Core Metrics
 
-| Metric | Description |
-| ------ | ----------- |
-| `aerospike.node.name` | Node identifier |
-| `aerospike.node.memory.free` | Free memory on the node |
-| `aerospike.node.memory.used` | Used memory on the node |
-| `aerospike.node.connection.open` | Open connections on the node |
-| `aerospike.node.connection.count` | Connection count on the node |
-| `aerospike.namespace` | Namespace identifier |
-| `aerospike.namespace.memory.usage` | Memory usage per namespace |
-| `aerospike.namespace.memory.free` | Free memory per namespace |
-| `aerospike.namespace.disk.available` | Available disk per namespace |
-| `aerospike.namespace.query.count` | Query count per namespace |
-| `aerospike.namespace.transaction.count` | Transaction count per namespace |
+| Metric | Type | Unit | Description |
+| ------ | ---- | ---- | ----------- |
+| `aerospike.node.name` | Resource | - | Node identifier |
+| `aerospike.node.memory.free` | Gauge | % | Percentage of free memory on the node |
+| `aerospike.node.connection.open` | Gauge | connections | Current open connections (by type) |
+| `aerospike.namespace` | Resource | - | Namespace identifier |
+| `aerospike.namespace.memory.usage` | Gauge | bytes | Memory usage per namespace (by component) |
+| `aerospike.namespace.memory.free` | Gauge | % | Percentage of free memory per namespace |
+| `aerospike.namespace.disk.available` | Gauge | % | Percentage of available disk per namespace |
+
+### Counter Metrics (use RATE() for time-series)
+
+| Metric | Unit | Description |
+| ------ | ---- | ----------- |
+| `aerospike.namespace.query.count` | queries | Query count (by type, index, result) |
+| `aerospike.namespace.transaction.count` | transactions | Transaction count (by type, result) |
+| `aerospike.node.connection.count` | connections | Connection count (by type, operation) |
 
 ### Key Attributes
 
@@ -85,11 +89,7 @@ receivers:
     metrics:
       aerospike.node.memory.free:
         enabled: true
-      aerospike.node.memory.used:
-        enabled: true
       aerospike.node.connection.open:
-        enabled: true
-      aerospike.node.connection.count:
         enabled: true
       aerospike.namespace.memory.usage:
         enabled: true

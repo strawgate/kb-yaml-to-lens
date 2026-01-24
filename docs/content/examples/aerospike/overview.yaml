@@ -11,11 +11,15 @@ dashboards:
         equals: aerospikereceiver.otel
     controls:
       - type: options
+        id: node-filter
         label: Node
+        width: medium
         data_view: metrics-*
         field: aerospike.node.name
       - type: options
+        id: namespace-filter
         label: Namespace
+        width: medium
         data_view: metrics-*
         field: aerospike.namespace
     panels:
@@ -81,7 +85,7 @@ dashboards:
           primary:
             field: total_connections
             label: Connections
-      - title: Total Memory Free
+      - title: Avg Memory Free
         size: {w: 12, h: 5}
         position: {x: 36, y: 4}
         esql:
@@ -90,12 +94,12 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.memory.free IS NOT NULL
-            | STATS memory_free = MAX(aerospike.node.memory.free)
+            | STATS memory_free = AVG(aerospike.node.memory.free)
           primary:
             field: memory_free
             label: Memory Free
             format:
-              type: bytes
+              type: percent
 
       # Cluster Summary DataTable
       - title: Cluster Node Summary
@@ -108,16 +112,15 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "aerospikereceiver.otel"
             - WHERE aerospike.node.name IS NOT NULL
-            - STATS memory_free = MAX(aerospike.node.memory.free), memory_used = MAX(aerospike.node.memory.used), connections = MAX(aerospike.node.connection.open),
-              namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name
-            - KEEP node, namespaces, memory_free, memory_used, connections
+            - STATS memory_free = AVG(aerospike.node.memory.free), connections = SUM(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace)
+              BY node = aerospike.node.name
+            - KEEP node, namespaces, memory_free, connections
             - SORT node ASC
             - LIMIT 100
           dimensions:
             - field: node
             - field: namespaces
             - field: memory_free
-            - field: memory_used
             - field: connections
 
       # Memory Usage Over Time
@@ -130,7 +133,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.memory.free IS NOT NULL
-            | STATS memory_free = MAX(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -139,9 +142,9 @@ dashboards:
             field: time_bucket
           metrics:
             - field: memory_free
-              label: Memory Free
+              label: Memory Free %
               format:
-                type: bytes
+                type: percent
           breakdown:
             field: node
 
@@ -155,7 +158,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.connection.open IS NOT NULL
-            | STATS connections = MAX(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | STATS connections = SUM(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -169,7 +172,7 @@ dashboards:
             field: node
 
       # Distribution Charts
-      - title: Memory Distribution by Node
+      - title: Memory Free by Node
         size: {w: 24, h: 10}
         position: {x: 0, y: 44}
         esql:
@@ -178,14 +181,14 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.memory.free IS NOT NULL
-            | STATS memory_free = MAX(aerospike.node.memory.free) BY node = aerospike.node.name
+            | STATS memory_free = AVG(aerospike.node.memory.free) BY node = aerospike.node.name
             | SORT memory_free DESC
             | LIMIT 20
           metrics:
             - field: memory_free
-              label: Memory Free
+              label: Memory Free %
               format:
-                type: bytes
+                type: percent
           dimensions:
             - field: node
           appearance:
@@ -199,7 +202,7 @@ dashboards:
             FROM metrics-*
             | WHERE data_stream.dataset == "aerospikereceiver.otel"
             | WHERE aerospike.node.connection.open IS NOT NULL
-            | STATS connections = MAX(aerospike.node.connection.open) BY node = aerospike.node.name
+            | STATS connections = SUM(aerospike.node.connection.open) BY node = aerospike.node.name
             | SORT connections DESC
             | LIMIT 20
           metrics:
