@@ -10,8 +10,8 @@ references
 reference
 plan-*
 site/
-docs/content/llms.txt
-docs/content/llms-full.txt
+llms.txt
+llms-full.txt
 *.ndjson
 dashboards.ndjson
 *.env
