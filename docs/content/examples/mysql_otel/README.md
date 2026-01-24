@@ -10,8 +10,8 @@ These dashboards provide comprehensive monitoring for MySQL database instances, 
 
 | Dashboard | File | Description |
 |-----------|------|-------------|
-| **Overview (Lens)** | `mysql-overview-lens.yaml` | Comprehensive MySQL metrics using Lens visualizations |
-| **Overview (ES\|QL)** | `mysql-overview-esql.yaml` | MySQL metrics using ES\|QL queries |
+| **Overview** | `mysql-overview-esql.yaml` | Comprehensive MySQL metrics using ES\|QL queries |
+| **Extended** | `mysql-extended-esql.yaml` | Extended MySQL metrics for optional/disabled metrics |
 
 Both dashboards include navigation links for easy switching between views.
 
