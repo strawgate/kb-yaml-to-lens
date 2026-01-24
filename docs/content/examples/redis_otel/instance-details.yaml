@@ -229,7 +229,7 @@ dashboards:
             | STATS used = MAX(LAST_OVER_TIME(redis.memory.used)),
               rss = MAX(LAST_OVER_TIME(redis.memory.rss)),
               peak = MAX(LAST_OVER_TIME(redis.memory.peak))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -261,7 +261,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.fragmentation_ratio IS NOT NULL
             | STATS fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -280,7 +280,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.lua IS NOT NULL
             | STATS lua = MAX(LAST_OVER_TIME(redis.memory.lua))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -308,7 +308,7 @@ dashboards:
             | WHERE redis.clients.connected IS NOT NULL OR redis.clients.blocked IS NOT NULL
             | STATS connected = MAX(LAST_OVER_TIME(redis.clients.connected)),
               blocked = MAX(LAST_OVER_TIME(redis.clients.blocked))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -333,7 +333,7 @@ dashboards:
             | WHERE redis.connections.received IS NOT NULL OR redis.connections.rejected IS NOT NULL
             | STATS received = SUM(RATE(redis.connections.received)),
               rejected = SUM(RATE(redis.connections.rejected))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -358,7 +358,7 @@ dashboards:
             | WHERE redis.clients.max_input_buffer IS NOT NULL OR redis.clients.max_output_buffer IS NOT NULL
             | STATS max_input = MAX(MAX_OVER_TIME(redis.clients.max_input_buffer)),
               max_output = MAX(MAX_OVER_TIME(redis.clients.max_output_buffer))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -386,7 +386,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.commands.processed IS NOT NULL
             | STATS commands = SUM(RATE(redis.commands.processed))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -413,7 +413,7 @@ dashboards:
             | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
             | STATS hits = SUM(RATE(redis.keyspace.hits)),
               misses = SUM(RATE(redis.keyspace.misses))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -438,7 +438,7 @@ dashboards:
             | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
             | STATS hits = SUM(RATE(redis.keyspace.hits)),
               misses = SUM(RATE(redis.keyspace.misses))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | EVAL hit_rate = hits / (hits + misses + 0.000001)
             | KEEP time_bucket, hit_rate
             | SORT time_bucket ASC
@@ -462,7 +462,7 @@ dashboards:
             | WHERE redis.keys.evicted IS NOT NULL OR redis.keys.expired IS NOT NULL
             | STATS evicted = SUM(RATE(redis.keys.evicted)),
               expired = SUM(RATE(redis.keys.expired))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -486,7 +486,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.rdb.changes_since_last_save IS NOT NULL
             | STATS changes = MAX(MAX_OVER_TIME(redis.rdb.changes_since_last_save))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -512,7 +512,7 @@ dashboards:
             | WHERE redis.net.input IS NOT NULL OR redis.net.output IS NOT NULL
             | STATS input = SUM(RATE(redis.net.input)),
               output = SUM(RATE(redis.net.output))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -547,7 +547,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.cpu.time IS NOT NULL
             | STATS cpu_time = SUM(RATE(redis.cpu.time))
-              BY time_bucket = TBUCKET(1 minute), state = attributes.state
+              BY time_bucket = TBUCKET(5 minutes), state = attributes.state
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -577,7 +577,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.replication.offset IS NOT NULL
             | STATS offset = MAX(LAST_OVER_TIME(redis.replication.offset))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -598,7 +598,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.replication.backlog_first_byte_offset IS NOT NULL
             | STATS backlog = MAX(LAST_OVER_TIME(redis.replication.backlog_first_byte_offset))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -619,7 +619,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.slaves.connected IS NOT NULL
             | STATS replicas = MAX(LAST_OVER_TIME(redis.slaves.connected))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -638,7 +638,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.latest_fork IS NOT NULL
             | STATS fork_duration = MAX(MAX_OVER_TIME(redis.latest_fork))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket

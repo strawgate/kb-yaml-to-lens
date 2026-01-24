@@ -166,7 +166,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.keys IS NOT NULL
             | STATS keys = MAX(LAST_OVER_TIME(redis.db.keys))
-              BY time_bucket = TBUCKET(1 minute), db = attributes.db
+              BY time_bucket = TBUCKET(5 minutes), db = attributes.db
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -218,7 +218,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.expires IS NOT NULL
             | STATS expires = MAX(LAST_OVER_TIME(redis.db.expires))
-              BY time_bucket = TBUCKET(1 minute), db = attributes.db
+              BY time_bucket = TBUCKET(5 minutes), db = attributes.db
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -270,7 +270,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.avg_ttl IS NOT NULL
             | STATS avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
-              BY time_bucket = TBUCKET(1 minute), db = attributes.db
+              BY time_bucket = TBUCKET(5 minutes), db = attributes.db
             | SORT time_bucket ASC
           legend:
             visible: show

@@ -157,7 +157,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.used IS NOT NULL
             | STATS memory = MAX(LAST_OVER_TIME(redis.memory.used))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -183,7 +183,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.commands IS NOT NULL
             | STATS commands = MAX(LAST_OVER_TIME(redis.commands))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -207,7 +207,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.clients.connected IS NOT NULL
             | STATS clients = MAX(LAST_OVER_TIME(redis.clients.connected))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -232,7 +232,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.keyspace.hits IS NOT NULL OR redis.keyspace.misses IS NOT NULL
             | STATS hits = SUM(RATE(redis.keyspace.hits)), misses = SUM(RATE(redis.keyspace.misses))
-              BY time_bucket = TBUCKET(1 minute)
+              BY time_bucket = TBUCKET(5 minutes)
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -262,7 +262,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.keys.evicted IS NOT NULL
             | STATS evicted = SUM(RATE(redis.keys.evicted))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -286,7 +286,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.keys.expired IS NOT NULL
             | STATS expired = SUM(RATE(redis.keys.expired))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -317,7 +317,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.net.input IS NOT NULL
             | STATS input = SUM(RATE(redis.net.input))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -344,7 +344,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.net.output IS NOT NULL
             | STATS output = SUM(RATE(redis.net.output))
-              BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
+              BY time_bucket = TBUCKET(5 minutes), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
             visible: show
