@@ -5,346 +5,408 @@
 # See ../../licenses/ELASTIC-LICENSE-2.0.txt for the full license text.
 #
 # Dashboard for Apache HTTP Server metrics collected via OpenTelemetry apachereceiver.
+# Uses ES|QL with TS command for time-series optimization.
 # Source: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/apachereceiver
+#
+# Apache OTel Receiver Metrics Reference:
+# - apache.uptime (counter): Server uptime in seconds
+# - apache.requests (counter): Total requests serviced
+# - apache.traffic (counter): Total traffic in bytes
+# - apache.cpu.time (counter): CPU time in jiffies
+# - apache.request.time (counter): Request processing time in ms
+# - apache.cpu.load (gauge): Current CPU load percentage
+# - apache.load.1, apache.load.5, apache.load.15 (gauge): Load averages
+# - apache.current_connections (gauge): Current connections
+# - apache.connections.async (gauge): Async connections by state
+# - apache.workers (gauge): Worker counts by state (busy/idle)
+# - apache.scoreboard (gauge): Detailed worker status
+#
+# Attributes:
+# - attributes.state: Used by apache.workers (busy/idle) and apache.scoreboard (various states)
+# - attributes.connection_state: Used by apache.connections.async (writing/keepalive/closing)
+#
+# Resource Attributes:
+# - resource.attributes.apache.server.name
+# - resource.attributes.apache.server.port
 dashboards:
   - id: otel-apache-overview
     name: '[OTel] Apache HTTP Server - Overview'
     description: Overview of Apache HTTP Server metrics from OpenTelemetry apachereceiver
     controls:
       - type: options
-        label: Server Address
+        label: Server Name
         data_view: metrics-*
-        field: server.address
+        field: resource.attributes.apache.server.name
       - type: options
         label: Server Port
         data_view: metrics-*
-        field: server.port
+        field: resource.attributes.apache.server.port
     filters:
       - field: data_stream.dataset
         equals: apachereceiver.otel
     panels:
-      - title: Navigation Links
-        size: {w: 48, h: 3}
-        position: {x: 0, y: 0}
-        description: Links to related Apache HTTP Server dashboards
-        links:
-          layout: horizontal
-          items:
-            - label: Apache Overview
-              dashboard: otel-apache-overview
-      - title: Total Requests
+      # Overview Metrics Row
+      - title: Request Rate
         size: {w: 12, h: 6}
-        position: {x: 0, y: 3}
-        lens:
+        position: {x: 0, y: 0}
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.requests IS NOT NULL
+            - STATS requests_rate = SUM(RATE(apache.requests))
           primary:
-            formula: counter_rate(max(apache.requests))
+            field: requests_rate
             label: Requests/sec
             format:
               type: number
-      - title: Total Traffic
+      - title: Traffic Rate
         size: {w: 12, h: 6}
-        position: {x: 12, y: 3}
-        lens:
+        position: {x: 12, y: 0}
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.traffic IS NOT NULL
+            - STATS traffic_rate = SUM(RATE(apache.traffic))
           primary:
-            formula: counter_rate(max(apache.traffic))
+            field: traffic_rate
             label: Traffic/sec
             format:
               type: bytes
       - title: Active Connections
         size: {w: 12, h: 6}
-        position: {x: 24, y: 3}
-        lens:
+        position: {x: 24, y: 0}
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.current_connections IS NOT NULL
+            - STATS connections = MAX(LAST_OVER_TIME(apache.current_connections))
           primary:
-            formula: average(apache.current_connections)
+            field: connections
             label: Connections
             format:
               type: number
               pattern: 0,0
-      - title: Server Uptime
+      - title: CPU Load
         size: {w: 12, h: 6}
-        position: {x: 36, y: 3}
-        lens:
+        position: {x: 36, y: 0}
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.cpu.load IS NOT NULL
+            - STATS cpu_load = AVG(AVG_OVER_TIME(apache.cpu.load))
           primary:
-            formula: max(apache.uptime)
-            label: Uptime
-            format:
-              type: duration
-      - title: CPU Load (Current)
-        size: {w: 12, h: 6}
-        position: {x: 0, y: 9}
-        lens:
-          type: metric
-          data_view: metrics-*
-          primary:
-            formula: average(apache.cpu.load)
+            field: cpu_load
             label: CPU Load
             format:
               type: percent
+
+      # Time Series Charts
       - title: Request Rate Over Time
         size: {w: 24, h: 10}
-        position: {x: 12, y: 9}
-        lens:
+        position: {x: 0, y: 6}
+        esql:
           type: line
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.requests IS NOT NULL
+            - STATS requests_rate = SUM(RATE(apache.requests)) BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: server.address
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(apache.requests))
+            - field: requests_rate
               label: Requests/sec
               format:
                 type: number
-      - title: Traffic Rate Over Time
-        size: {w: 12, h: 10}
-        position: {x: 36, y: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
           breakdown:
-            field: server.address
-            type: values
-            size: 10
+            field: resource.attributes.apache.server.name
+      - title: Traffic Rate Over Time
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 6}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.traffic IS NOT NULL
+            - STATS traffic_rate = SUM(RATE(apache.traffic)) BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(apache.traffic))
+            - field: traffic_rate
               label: Traffic/sec
               format:
                 type: bytes
+          breakdown:
+            field: resource.attributes.apache.server.name
       - title: CPU Time Rate
         size: {w: 24, h: 10}
-        position: {x: 0, y: 19}
-        lens:
+        position: {x: 0, y: 16}
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.cpu.time IS NOT NULL
+            - STATS cpu_time_rate = SUM(RATE(apache.cpu.time)) BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: server.address
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(apache.cpu.time))
+            - field: cpu_time_rate
               label: CPU Time/sec
               format:
-                type: duration
+                type: number
+          breakdown:
+            field: resource.attributes.apache.server.name
       - title: Request Processing Time Rate
         size: {w: 24, h: 10}
-        position: {x: 24, y: 19}
-        lens:
+        position: {x: 24, y: 16}
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.request.time IS NOT NULL
+            - STATS request_time_rate = SUM(RATE(apache.request.time)) BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: server.address
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(apache.request.time))
+            - field: request_time_rate
               label: Request Time/sec
               format:
-                type: duration
-      - title: CPU Load
-        size: {w: 16, h: 10}
-        position: {x: 0, y: 29}
-        lens:
-          type: line
-          data_view: metrics-*
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
+                type: number
+                suffix: ms
           breakdown:
-            field: server.address
-            type: values
-            size: 10
+            field: resource.attributes.apache.server.name
+
+      # Server Load and Connection Metrics
+      - title: Server Load Average
+        size: {w: 16, h: 10}
+        position: {x: 0, y: 26}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE `apache.load.1` IS NOT NULL
+            - STATS load_1m = AVG(AVG_OVER_TIME(`apache.load.1`)), load_5m = AVG(AVG_OVER_TIME(`apache.load.5`)), load_15m = AVG(AVG_OVER_TIME(`apache.load.15`))
+              BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
           metrics:
-            - formula: average(apache.load.1)
+            - field: load_1m
               label: 1-min Load
               format:
                 type: percent
-            - formula: average(apache.load.5)
+            - field: load_5m
               label: 5-min Load
               format:
                 type: percent
-            - formula: average(apache.load.15)
+            - field: load_15m
               label: 15-min Load
               format:
                 type: percent
+          breakdown:
+            field: resource.attributes.apache.server.name
       - title: Connection Metrics
         size: {w: 16, h: 10}
-        position: {x: 16, y: 29}
-        lens:
+        position: {x: 16, y: 26}
+        esql:
           type: line
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.current_connections IS NOT NULL
+            - STATS connections = AVG(AVG_OVER_TIME(apache.current_connections)) BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: server.address
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: average(apache.current_connections)
+            - field: connections
               label: Current Connections
               format:
                 type: number
                 pattern: 0,0
+          breakdown:
+            field: resource.attributes.apache.server.name
+      - title: CPU Load Over Time
+        size: {w: 16, h: 10}
+        position: {x: 32, y: 26}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.cpu.load IS NOT NULL
+            - STATS cpu_load = AVG(AVG_OVER_TIME(apache.cpu.load)) BY time_bucket = TBUCKET(1 minute), resource.attributes.apache.server.name
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: cpu_load
+              label: CPU Load
+              format:
+                type: percent
+          breakdown:
+            field: resource.attributes.apache.server.name
+
+      # Async Connections and Workers
       - title: Async Connections by State
         size: {w: 24, h: 12}
-        position: {x: 0, y: 39}
-        lens:
+        position: {x: 0, y: 36}
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.connections.async IS NOT NULL
+            - STATS connections = AVG(AVG_OVER_TIME(apache.connections.async)) BY time_bucket = TBUCKET(1 minute), attributes.connection_state
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.connection_state
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: average(apache.connections.async)
+            - field: connections
               label: Async Connections
               format:
                 type: number
                 pattern: 0,0
-      - title: Uptime by Server
-        size: {w: 16, h: 10}
-        position: {x: 32, y: 29}
-        lens:
-          type: line
-          data_view: metrics-*
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
           breakdown:
-            field: server.address
-            type: values
-            size: 10
-          metrics:
-            - formula: max(apache.uptime)
-              label: Uptime
-              format:
-                type: duration
+            field: attributes.connection_state
       - title: Worker Distribution
         size: {w: 24, h: 12}
-        position: {x: 24, y: 39}
-        lens:
+        position: {x: 24, y: 36}
+        esql:
           type: pie
-          data_view: metrics-*
-          dimensions:
-            - field: attributes.workers_state
-              type: values
-              size: 10
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.workers IS NOT NULL
+            - STATS workers = AVG(AVG_OVER_TIME(apache.workers)) BY state = attributes.state
+            - SORT workers DESC
+            - LIMIT 10
           metrics:
-            - formula: average(apache.workers)
+            - field: workers
               label: Workers
               format:
                 type: number
                 pattern: 0,0
+          dimensions:
+            - field: state
+          appearance:
+            donut: medium
+
+      # Scoreboard and Workers Over Time
       - title: Scoreboard Status
         size: {w: 48, h: 12}
-        position: {x: 0, y: 51}
-        lens:
+        position: {x: 0, y: 48}
+        esql:
           type: bar
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.scoreboard IS NOT NULL
+            - STATS scoreboard = AVG(AVG_OVER_TIME(apache.scoreboard)) BY time_bucket = TBUCKET(1 minute), attributes.state
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.scoreboard_state
-            type: values
-            size: 15
+            field: time_bucket
           metrics:
-            - formula: average(apache.scoreboard)
+            - field: scoreboard
               label: Scoreboard
               format:
                 type: number
                 pattern: 0,0
+          breakdown:
+            field: attributes.state
       - title: Workers by State Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 63}
-        lens:
+        position: {x: 0, y: 60}
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE apache.workers IS NOT NULL
+            - STATS workers = AVG(AVG_OVER_TIME(apache.workers)) BY time_bucket = TBUCKET(1 minute), attributes.state
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.workers_state
-            type: values
-            size: 10
+            field: time_bucket
           metrics:
-            - formula: average(apache.workers)
+            - field: workers
               label: Workers
               format:
                 type: number
                 pattern: 0,0
+          breakdown:
+            field: attributes.state
+
+      # Server Performance Summary
       - title: Server Performance Summary
         size: {w: 48, h: 20}
-        position: {x: 0, y: 75}
-        lens:
+        position: {x: 0, y: 72}
+        description: Shows current state metrics per server. For request and traffic rates, see the time-series charts above.
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "apachereceiver.otel"
+            - WHERE resource.attributes.apache.server.name IS NOT NULL
+            - STATS connections = ROUND(MAX(apache.current_connections), 0), cpu_load_pct = ROUND(AVG(apache.cpu.load) * 100, 1), load_1m = ROUND(AVG(`apache.load.1`),
+              2), busy_workers = ROUND(MAX(apache.workers), 0) BY server_name = resource.attributes.apache.server.name, server_port = resource.attributes.apache.server.port
+            - KEEP server_name, server_port, connections, cpu_load_pct, load_1m, busy_workers
+            - SORT server_name ASC
+            - LIMIT 100
           dimensions:
-            - id: server
-              type: values
-              field: server.address
-              label: Server Address
-              size: 50
-            - id: port
-              type: values
-              field: server.port
-              label: Port
-              size: 50
-          metrics:
-            - id: req-rate
-              formula: counter_rate(max(apache.requests))
-              label: Requests/sec
-              format:
-                type: number
-            - id: traffic-rate
-              formula: counter_rate(max(apache.traffic))
-              label: Traffic/sec
-              format:
-                type: bytes
-            - id: connections
-              formula: average(apache.current_connections)
-              label: Connections
-              format:
-                type: number
-                pattern: 0,0
-            - id: cpu-load
-              formula: average(apache.load.1)
-              label: CPU Load (1m)
-              format:
-                type: percent
-            - id: uptime
-              formula: max(apache.uptime)
-              label: Uptime
-              format:
-                type: duration
-          paging:
-            enabled: true
-            page_size: 20
+            - field: server_name
+            - field: server_port
+            - field: connections
+            - field: cpu_load_pct
+            - field: load_1m
+            - field: busy_workers

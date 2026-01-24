@@ -489,6 +489,90 @@ FROM logs-*
 
 ---
 
+## OpenTelemetry Data Patterns
+
+When querying OpenTelemetry metrics data, follow these patterns:
+
+### Field Path Conventions
+
+OTel data uses specific field path patterns:
+
+```esql
+# Metric values - use metric name directly
+TS metrics-*
+| WHERE apache.requests IS NOT NULL
+
+# Metric attributes - always prefix with "attributes."
+TS metrics-*
+| WHERE attributes.state == "running"
+
+# Resource attributes - use full path
+TS metrics-*
+| WHERE resource.attributes.service.name == "my-service"
+
+# Filter by data stream
+TS metrics-*
+| WHERE data_stream.dataset == "apachereceiver.otel"
+```
+
+### Counter vs Gauge Metrics
+
+**Counter metrics** (cumulative, always increasing) must use `RATE()`:
+
+```esql
+# CORRECT - Use RATE() for counters
+TS metrics-*
+| STATS request_rate = SUM(RATE(apache.requests))
+
+# WRONG - MAX() on counter gives cumulative total
+FROM metrics-*
+| STATS requests = MAX(apache.requests)
+```
+
+**Gauge metrics** (point-in-time values) use standard aggregations:
+
+```esql
+# Current value
+TS metrics-*
+| STATS connections = MAX(LAST_OVER_TIME(mysql.connections))
+
+# Average over time
+TS metrics-*
+| STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
+```
+
+### Escaping Special Field Names
+
+Field names with numeric suffixes require backticks:
+
+```esql
+# WRONG - Parser error
+WHERE apache.load.1 IS NOT NULL
+
+# CORRECT - Backtick escape
+WHERE `apache.load.1` IS NOT NULL
+| STATS load = AVG(AVG_OVER_TIME(`apache.load.1`))
+```
+
+### Dimensional Queries
+
+Filter or group by metric dimensions using the `attributes` prefix:
+
+```esql
+# Filter by dimension value
+TS metrics-*
+| WHERE attributes.operation == "insert"
+| STATS ops = SUM(RATE(mysql.operations))
+
+# Group by dimension
+TS metrics-*
+| STATS ops = SUM(RATE(mysql.operations)) BY operation = attributes.operation
+```
+
+For comprehensive OTel dashboard guidance, see [Creating Dashboards from OTel Receivers](otel-dashboard-guide.md).
+
+---
+
 ## Additional Resources
 
 - [ESQL Panel Configuration](../panels/esql.md) - Dashboard panel setup

@@ -1,15 +1,30 @@
 ---
+# Aerospike Overview Dashboard
+# Provides cluster-level metrics and node health monitoring
 dashboards:
   - id: 4d5b8a67-c5d9-478c-8128-e09cccc7f8ef
     name: '[Metrics Aerospike] Overview'
-    description: ''
+    description: Aerospike cluster overview with node health and performance metrics using ES|QL
+    filters:
+      - field: data_stream.dataset
+        equals: aerospikereceiver.otel
+    controls:
+      - type: options
+        id: node-filter
+        label: Node
+        width: medium
+        data_view: metrics-*
+        field: aerospike.node.name
+      - type: options
+        id: namespace-filter
+        label: Namespace
+        width: medium
+        data_view: metrics-*
+        field: aerospike.namespace
     panels:
-      - size:
-          w: 48
-          h: 2
-        position:
-          x: 0
-          y: 0
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -19,94 +34,174 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - size:
-          w: 10
-          h: 3
-        position:
-          x: 0
-          y: 2
-        lens:
+
+      # KPI Metrics Row
+      - title: Aerospike Nodes
+        size: {w: 12, h: 5}
+        position: {x: 0, y: 2}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.name IS NOT NULL
+            | STATS node_count = COUNT_DISTINCT(aerospike.node.name)
           primary:
-            aggregation: unique_count
-            field: aerospike.node.name
-            label: Aerospike Nodes
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - size:
-          w: 38
-          h: 9
-        position:
-          x: 10
-          y: 2
-        lens:
-          type: line
-          data_view: metrics-*
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: '@timestamp'
-          breakdown:
-            field: aerospike.node.name
-            type: values
-            size: 15
-            sort:
-              by: Free Memory
-              direction: asc
-            other_bucket: true
-            missing_bucket: false
-          metrics:
-            - aggregation: min
-              label: Free Memory
-              field: aerospike.node.memory.free
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - size:
-          w: 10
-          h: 3
-        position:
-          x: 0
-          y: 5
-        lens:
+            field: node_count
+            label: Nodes
+      - title: Unique Namespaces
+        size: {w: 12, h: 5}
+        position: {x: 12, y: 2}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace IS NOT NULL
+            | STATS namespace_count = COUNT_DISTINCT(aerospike.namespace)
           primary:
-            aggregation: unique_count
-            field: aerospike.namespace
-            label: Unique Namespaces
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - size:
-          w: 48
-          h: 9
-        position:
-          x: 0
-          y: 11
-        lens:
+            field: namespace_count
+            label: Namespaces
+      - title: Avg Connections
+        size: {w: 12, h: 5}
+        position: {x: 24, y: 2}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.connection.open IS NOT NULL
+            | STATS avg_connections = AVG(aerospike.node.connection.open)
+          primary:
+            field: avg_connections
+            label: Connections
+      - title: Avg Memory Free
+        size: {w: 12, h: 5}
+        position: {x: 36, y: 2}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.memory.free IS NOT NULL
+            | STATS memory_free = AVG(aerospike.node.memory.free)
+          primary:
+            field: memory_free
+            label: Memory Free %
+            format:
+              type: number
+              suffix: '%'
+
+      # Cluster Summary DataTable
+      - title: Cluster Node Summary
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 7}
+        description: Summary of node-level metrics across the cluster
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "aerospikereceiver.otel"
+            - WHERE aerospike.node.name IS NOT NULL
+            - STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace)
+              BY node = aerospike.node.name
+            - KEEP node, namespaces, memory_free, connections
+            - SORT node ASC
+            - LIMIT 100
+          dimensions:
+            - field: node
+            - field: namespaces
+            - field: memory_free
+            - field: connections
+
+      # Memory Free Over Time
+      - title: Memory Free Over Time
+        size: {w: 48, h: 10}
+        position: {x: 0, y: 22}
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.memory.free IS NOT NULL
+            | STATS memory_free = AVG(AVG_OVER_TIME(aerospike.node.memory.free)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: '@timestamp'
-          breakdown:
-            field: aerospike.node.name
-            type: values
-            size: 15
-            sort:
-              by: Open Connections
-              direction: desc
-            other_bucket: true
-            missing_bucket: false
+            field: time_bucket
           metrics:
-            - aggregation: max
-              field: aerospike.node.connection.open
+            - field: memory_free
+              label: Memory Free %
+              format:
+                type: number
+                suffix: '%'
+          breakdown:
+            field: node
+
+      # Connections Over Time
+      - title: Open Connections Over Time
+        size: {w: 48, h: 10}
+        position: {x: 0, y: 32}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.connection.open IS NOT NULL
+            | STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = TBUCKET(1 minute), node = aerospike.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: connections
               label: Open Connections
-          filters:
-            - exists: aerospike.node.connection.open
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
+          breakdown:
+            field: node
+
+      # Distribution Charts
+      - title: Memory Free by Node
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 42}
+        esql:
+          type: pie
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.memory.free IS NOT NULL
+            | STATS memory_free = AVG(aerospike.node.memory.free) BY node = aerospike.node.name
+            | SORT memory_free DESC
+            | LIMIT 20
+          metrics:
+            - field: memory_free
+              label: Memory Free %
+              format:
+                type: number
+                suffix: '%'
+          dimensions:
+            - field: node
+          appearance:
+            donut: medium
+      - title: Connections by Node
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 42}
+        esql:
+          type: pie
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.node.connection.open IS NOT NULL
+            | STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name
+            | SORT connections DESC
+            | LIMIT 20
+          metrics:
+            - field: connections
+              label: Connections
+          dimensions:
+            - field: node
+          appearance:
+            donut: medium

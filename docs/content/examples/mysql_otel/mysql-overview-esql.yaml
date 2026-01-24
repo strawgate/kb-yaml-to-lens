@@ -104,7 +104,7 @@ dashboards:
             - WHERE mysql.buffer_pool.usage IS NOT NULL
             - STATS usage = MAX(mysql.buffer_pool.usage) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), buffer_pool_data
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -125,7 +125,7 @@ dashboards:
             - WHERE mysql.buffer_pool.pages IS NOT NULL
             - STATS pages = MAX(mysql.buffer_pool.pages) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), buffer_pool_pages
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -144,7 +144,7 @@ dashboards:
             - WHERE mysql.buffer_pool.operations IS NOT NULL
             - STATS ops_rate = SUM(RATE(mysql.buffer_pool.operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), buffer_pool_operations
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -163,7 +163,7 @@ dashboards:
             - WHERE mysql.buffer_pool.page_flushes IS NOT NULL
             - STATS flush_rate = SUM(RATE(mysql.buffer_pool.page_flushes)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute))
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -182,7 +182,7 @@ dashboards:
             - WHERE mysql.row_operations IS NOT NULL
             - STATS row_ops_rate = SUM(RATE(mysql.row_operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), row_operations
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -201,7 +201,7 @@ dashboards:
             - WHERE mysql.page_operations IS NOT NULL
             - STATS page_ops_rate = SUM(RATE(mysql.page_operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), page_operations
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -220,7 +220,7 @@ dashboards:
             - WHERE mysql.operations IS NOT NULL
             - STATS ops_rate = SUM(RATE(mysql.operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), operations
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -239,7 +239,7 @@ dashboards:
             - WHERE mysql.double_writes IS NOT NULL
             - STATS double_writes_rate = SUM(RATE(mysql.double_writes)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), double_writes
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -261,7 +261,7 @@ dashboards:
             - WHERE mysql.handlers IS NOT NULL
             - STATS handler_rate = SUM(RATE(mysql.handlers)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), handler
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -282,7 +282,7 @@ dashboards:
             - WHERE mysql.locks IS NOT NULL
             - STATS lock_rate = SUM(RATE(mysql.locks)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), locks
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -301,7 +301,7 @@ dashboards:
             - WHERE mysql.row_locks IS NOT NULL
             - STATS row_lock_waits = MAX(mysql.row_locks) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), row_locks
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -322,7 +322,7 @@ dashboards:
             - WHERE mysql.log_operations IS NOT NULL
             - STATS log_ops_rate = SUM(RATE(mysql.log_operations)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), log_operations
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -343,7 +343,7 @@ dashboards:
             - WHERE mysql.table.io.wait.count IS NOT NULL
             - STATS table_io_wait_rate = SUM(RATE(mysql.table.io.wait.count)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), table_name
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -362,7 +362,7 @@ dashboards:
             - WHERE mysql.index.io.wait.count IS NOT NULL
             - STATS index_io_wait_rate = SUM(RATE(mysql.index.io.wait.count)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), index_name
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -383,7 +383,7 @@ dashboards:
             - WHERE mysql.opened_resources IS NOT NULL
             - STATS opened_rate = SUM(RATE(mysql.opened_resources)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), opened_resources
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -402,7 +402,7 @@ dashboards:
             - WHERE mysql.tmp_resources IS NOT NULL
             - STATS tmp_rate = SUM(RATE(mysql.tmp_resources)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), tmp_resources
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -423,7 +423,7 @@ dashboards:
             - WHERE mysql.threads IS NOT NULL
             - STATS thread_count = MAX(mysql.threads) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), threads
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -442,7 +442,7 @@ dashboards:
             - WHERE mysql.sorts IS NOT NULL
             - STATS sorts_rate = SUM(RATE(mysql.sorts)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute)), sorts
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -463,7 +463,7 @@ dashboards:
             - WHERE mysql.uptime IS NOT NULL
             - STATS uptime_sec = MAX(mysql.uptime) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)), DATE_TRUNC(1
               minute, MAX(@timestamp) + 1 minute))
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
@@ -480,7 +480,7 @@ dashboards:
             - WHERE mysql.mysqlx_connections IS NOT NULL
             - STATS mysqlx_conn_rate = SUM(RATE(mysql.mysqlx_connections)) BY time_bucket = BUCKET(@timestamp, 50, DATE_TRUNC(1 minute, MIN(@timestamp)),
               DATE_TRUNC(1 minute, MAX(@timestamp) + 1 minute)), mysqlx_connections
-            - ORDER time_bucket ASC
+            - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:

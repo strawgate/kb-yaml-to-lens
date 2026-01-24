@@ -48,7 +48,7 @@ service:
 
 ### 01-apache-overview.yaml
 
-Main overview dashboard displaying Apache HTTP Server performance and health metrics.
+Main overview dashboard displaying Apache HTTP Server performance and health metrics using ES|QL queries with the `TS` (time series) command for optimized time series analysis.
 
 **Sections:**
 

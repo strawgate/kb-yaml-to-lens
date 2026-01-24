@@ -1,28 +1,30 @@
 ---
+# Aerospike Namespace Metrics Dashboard
+# Provides namespace-level storage and query statistics
 dashboards:
   - id: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
     name: '[Metrics Aerospike] Namespace Metrics'
-    description: ''
+    description: Namespace-level storage and query statistics for Aerospike using ES|QL
+    filters:
+      - field: data_stream.dataset
+        equals: aerospikereceiver.otel
     controls:
       - type: options
-        label: Aerospike Node
+        id: node-filter
+        label: Node
         width: medium
         data_view: metrics-*
         field: aerospike.node.name
-        match_technique: contains
       - type: options
-        label: Aerospike Namespace
+        id: namespace-filter
+        label: Namespace
         width: medium
         data_view: metrics-*
         field: aerospike.namespace
-        match_technique: prefix
     panels:
-      - size:
-          w: 48
-          h: 2
-        position:
-          x: 0
-          y: 0
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -32,142 +34,288 @@ dashboards:
               dashboard: 36bd5b4a-9c5b-4377-827d-f2e64d860f60
             - label: Namespace Metrics
               dashboard: c9484395-aa2b-43c4-84ad-12a7feb8c7d1
-      - size:
-          w: 48
-          h: 2
-        position:
-          x: 0
-          y: 2
+
+      # Context Note
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
         markdown:
-          content: "This dashboard is intended to be used with a single Aerospike node and a single Aerospike namespace.\nFilter to a specific\
-            \ node and namespace before using this dashboard.\n"
-      - size:
-          w: 9
-          h: 4
-        position:
-          x: 0
-          y: 4
-        lens:
+          content: |
+            Namespace-level storage and query statistics for Aerospike. Use the Node and Namespace filters to focus on specific resources.
+
+      # KPI Metrics Row
+      - title: Selected Namespaces
+        size: {w: 12, h: 5}
+        position: {x: 0, y: 4}
+        esql:
           type: metric
-          data_view: metrics-*
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace IS NOT NULL
+            | STATS namespace_count = COUNT_DISTINCT(aerospike.namespace)
           primary:
-            aggregation: unique_count
-            field: aerospike.namespace
-            label: Selected Namespaces
-          filters:
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - size:
-          w: 48
-          h: 3
-        position:
-          x: 0
-          y: 8
+            field: namespace_count
+            label: Namespaces
+      - title: Memory Usage
+        size: {w: 12, h: 5}
+        position: {x: 12, y: 4}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.memory.usage IS NOT NULL
+            | STATS memory_usage = AVG(aerospike.namespace.memory.usage)
+          primary:
+            field: memory_usage
+            label: Memory Usage
+            format:
+              type: bytes
+      - title: Disk Available
+        size: {w: 12, h: 5}
+        position: {x: 24, y: 4}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.disk.available IS NOT NULL
+            | STATS disk_available = AVG(aerospike.namespace.disk.available)
+          primary:
+            field: disk_available
+            label: Disk Available %
+            format:
+              type: number
+              suffix: '%'
+      - title: Memory Free
+        size: {w: 12, h: 5}
+        position: {x: 36, y: 4}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.memory.free IS NOT NULL
+            | STATS memory_free = AVG(aerospike.namespace.memory.free)
+          primary:
+            field: memory_free
+            label: Memory Free %
+            format:
+              type: number
+              suffix: '%'
+
+      # Query Information Section
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 9}
         markdown:
-          content: "## Query Information\n"
-      - size:
-          w: 24
-          h: 12
-        position:
-          x: 0
-          y: 11
-        lens:
+          content: '# Query Information'
+
+      # Query Charts - Primary Index
+      - title: Primary Index Queries Over Time
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 11}
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.query.count IS NOT NULL
+            | WHERE attributes.index == "primary"
+            | STATS query_rate = SUM(RATE(aerospike.namespace.query.count)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: '@timestamp'
-          breakdown:
-            field: attributes.type
-            type: values
-            size: 50
-            sort:
-              by: Queries per Second
-              direction: asc
-            other_bucket: false
-            missing_bucket: true
+            field: time_bucket
           metrics:
-            - aggregation: max
-              label: Queries per Second
-              field: metrics.aerospike.namespace.query.count
-          filters:
-            - field: attributes.index
-              equals: primary
-            - not:
-                field: aerospike.namespace.query.count
-                equals: '0'
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - size:
-          w: 24
-          h: 12
-        position:
-          x: 24
-          y: 11
-        lens:
+            - field: query_rate
+              label: Queries/sec
+              format:
+                type: number
+                decimals: 2
+          breakdown:
+            field: namespace
+
+      # Query Charts - Secondary Index
+      - title: Secondary Index Queries Over Time
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 11}
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.query.count IS NOT NULL
+            | WHERE attributes.index == "secondary"
+            | STATS query_rate = SUM(RATE(aerospike.namespace.query.count)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: '@timestamp'
-          breakdown:
-            field: attributes.type
-            type: values
-            size: 50
-            sort:
-              by: Queries per Second
-              direction: desc
-            other_bucket: false
-            missing_bucket: true
+            field: time_bucket
           metrics:
-            - aggregation: min
-              label: Queries per Second
-              field: aerospike.namespace.query.count
-          filters:
-            - field: metrics.aerospike.namespace.query.count
-              gte: '1'
-            - field: attributes.index
-              equals: secondary
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
-      - size:
-          w: 48
-          h: 3
-        position:
-          x: 0
-          y: 23
+            - field: query_rate
+              label: Queries/sec
+              format:
+                type: number
+                decimals: 2
+          breakdown:
+            field: namespace
+
+      # Transaction Information Section
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 21}
         markdown:
-          content: "## Transaction Information\n"
-      - size:
-          w: 48
-          h: 10
-        position:
-          x: 0
-          y: 26
-        lens:
+          content: '# Transaction Information'
+
+      # Transaction Charts
+      - title: Transaction Rate Over Time
+        size: {w: 48, h: 10}
+        position: {x: 0, y: 23}
+        esql:
           type: line
-          data_view: metrics-*
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.transaction.count IS NOT NULL
+            | WHERE attributes.type IS NOT NULL
+            | STATS transaction_rate = SUM(RATE(aerospike.namespace.transaction.count)) BY time_bucket = TBUCKET(1 minute), transaction_type = attributes.type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-            label: '@timestamp'
-          breakdown:
-            field: attributes.type
-            type: values
-            size: 50
-            sort:
-              by: Transactions per Second
-              direction: desc
-            other_bucket: false
-            missing_bucket: true
+            field: time_bucket
           metrics:
-            - aggregation: min
-              label: Transactions per Second
-              field: metrics.aerospike.namespace.transaction.count
-          filters:
-            - field: aerospike.namespace.transaction.count
-              gte: '1'
-            - field: data_stream.dataset
-              equals: aerospikereceiver.otel
+            - field: transaction_rate
+              label: Transactions/sec
+              format:
+                type: number
+                decimals: 2
+          breakdown:
+            field: transaction_type
+
+      # Storage Metrics Section
+      - size: {w: 48, h: 2}
+        position: {x: 0, y: 34}
+        markdown:
+          content: '# Storage Metrics'
+
+      # Storage Charts
+      - title: Memory Usage Over Time
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 36}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.memory.usage IS NOT NULL
+            | STATS memory_usage = AVG(AVG_OVER_TIME(aerospike.namespace.memory.usage)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: memory_usage
+              label: Memory Usage
+              format:
+                type: bytes
+          breakdown:
+            field: namespace
+      - title: Disk Available Over Time
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 36}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.disk.available IS NOT NULL
+            | STATS disk_available = AVG(AVG_OVER_TIME(aerospike.namespace.disk.available)) BY time_bucket = TBUCKET(1 minute), namespace = aerospike.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: disk_available
+              label: Disk Available %
+              format:
+                type: number
+                suffix: '%'
+          breakdown:
+            field: namespace
+
+      # Distribution Charts
+      - title: Memory Usage by Namespace
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 46}
+        esql:
+          type: pie
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.memory.usage IS NOT NULL
+            | STATS memory_usage = AVG(aerospike.namespace.memory.usage) BY namespace = aerospike.namespace
+            | SORT memory_usage DESC
+            | LIMIT 20
+          metrics:
+            - field: memory_usage
+              label: Memory Usage
+              format:
+                type: bytes
+          dimensions:
+            - field: namespace
+          appearance:
+            donut: medium
+      - title: Memory Free by Namespace
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 46}
+        esql:
+          type: pie
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "aerospikereceiver.otel"
+            | WHERE aerospike.namespace.memory.free IS NOT NULL
+            | STATS memory_free = AVG(aerospike.namespace.memory.free) BY namespace = aerospike.namespace
+            | SORT memory_free DESC
+            | LIMIT 20
+          metrics:
+            - field: memory_free
+              label: Memory Free %
+              format:
+                type: number
+                suffix: '%'
+          dimensions:
+            - field: namespace
+          appearance:
+            donut: medium
+
+      # Namespace Summary Table
+      - title: Namespace Summary
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 56}
+        description: Summary of namespace-level metrics
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "aerospikereceiver.otel"
+            - WHERE aerospike.namespace IS NOT NULL
+            - STATS memory_usage = AVG(aerospike.namespace.memory.usage), memory_free = AVG(aerospike.namespace.memory.free), disk_available =
+              AVG(aerospike.namespace.disk.available) BY namespace = aerospike.namespace, node = aerospike.node.name
+            - KEEP namespace, node, memory_usage, memory_free, disk_available
+            - SORT namespace ASC, node ASC
+            - LIMIT 100
+          dimensions:
+            - field: namespace
+            - field: node
+            - field: memory_usage
+            - field: memory_free
+            - field: disk_available
