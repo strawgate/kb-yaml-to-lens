@@ -1,0 +1,440 @@
+---
+# MySQL OpenTelemetry Extended Dashboard (ES|QL Version)
+# Dashboard for optional MySQL metrics that require explicit configuration to enable
+# Uses ES|QL with TS command for time-series optimization
+#
+# These metrics are disabled by default in the MySQL receiver. To enable them, update
+# your OpenTelemetry Collector configuration for the MySQL receiver.
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver
+dashboards:
+  - id: mysql-otel-extended-esql
+    name: '[Metrics MySQL] Extended'
+    description: Extended MySQL metrics dashboard for optional metrics (connection, query, replication, table metrics)
+    controls:
+      - type: options
+        label: MySQL Host
+        data_view: metrics-*
+        field: resource.attributes.host.name
+      - type: options
+        label: MySQL Instance
+        data_view: metrics-*
+        field: resource.attributes.service.instance.id
+    filters:
+      - field: data_stream.dataset
+        equals: mysqlreceiver.otel
+    panels:
+      # Navigation Links
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: MySQL Overview
+              dashboard: mysql-otel-overview-esql
+            - label: MySQL Extended
+              dashboard: mysql-otel-extended-esql
+
+      # Info Panel about Optional Metrics
+      - size: {w: 48, h: 4}
+        position: {x: 0, y: 2}
+        markdown:
+          content: |
+            ## Optional Metrics Dashboard
+            This dashboard displays **optional metrics** that are disabled by default in the MySQL receiver.
+            To enable these metrics, update your MySQL receiver configuration in the OpenTelemetry Collector.
+            If panels show no data, the corresponding metric has not been enabled.
+          font_size: 12
+
+      # Connection Metrics Section (y=6)
+      - title: Connection Count
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 6}
+        description: Number of connections (mysql.connection.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.connection.count IS NOT NULL
+            | STATS connection_count = MAX(mysql.connection.count) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: connection_count
+              label: Connection Count
+      - title: Max Used Connections
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 6}
+        description: Maximum number of connections used (mysql.max_used_connections)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.max_used_connections IS NOT NULL
+            | STATS max_connections = MAX(mysql.max_used_connections) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: max_connections
+              label: Max Used Connections
+      - title: Connection Errors
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 15}
+        description: Connection errors by type (mysql.connection.errors)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.connection.errors IS NOT NULL
+            | STATS error_count = MAX(mysql.connection.errors) BY time_bucket = TBUCKET(1 minute), error = attributes.error
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: error_count
+              label: Errors
+          breakdown:
+            field: error
+
+      # Query Metrics Section (y=24)
+      - title: Query Count
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 24}
+        description: Total query count rate (mysql.query.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.query.count IS NOT NULL
+            | STATS query_rate = SUM(RATE(mysql.query.count)) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: query_rate
+              label: Queries/sec
+      - title: Slow Query Count
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 24}
+        description: Slow query rate (mysql.query.slow.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.query.slow.count IS NOT NULL
+            | STATS slow_query_rate = SUM(RATE(mysql.query.slow.count)) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: slow_query_rate
+              label: Slow Queries/sec
+      - title: Client Query Count
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 33}
+        description: Client query count rate (mysql.query.client.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.query.client.count IS NOT NULL
+            | STATS client_query_rate = SUM(RATE(mysql.query.client.count)) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: client_query_rate
+              label: Client Queries/sec
+
+      # Command Metrics Section (y=42)
+      - title: Commands by Type
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 42}
+        description: Command execution rate by type (mysql.commands)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.commands IS NOT NULL
+            | STATS command_rate = SUM(RATE(mysql.commands)) BY time_bucket = TBUCKET(1 minute), command = attributes.command
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: command_rate
+              label: Commands/sec
+          breakdown:
+            field: command
+
+      # Replication Metrics Section (y=51)
+      - title: Replica Time Behind Source
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 51}
+        description: Replication lag in seconds (mysql.replica.time_behind_source)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.replica.time_behind_source IS NOT NULL
+            | STATS lag_seconds = MAX(mysql.replica.time_behind_source) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: lag_seconds
+              label: Seconds Behind Source
+      - title: Replica SQL Delay
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 51}
+        description: Configured replication delay (mysql.replica.sql_delay)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.replica.sql_delay IS NOT NULL
+            | STATS sql_delay = MAX(mysql.replica.sql_delay) BY time_bucket = TBUCKET(1 minute)
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: sql_delay
+              label: SQL Delay (seconds)
+
+      # Table Metrics Section (y=60)
+      - title: Table Rows by Table
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 60}
+        description: Row count per table (mysql.table.rows)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.table.rows IS NOT NULL
+            | STATS row_count = MAX(mysql.table.rows) BY time_bucket = TBUCKET(1 minute), table = attributes.table
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: row_count
+              label: Rows
+          breakdown:
+            field: table
+      - title: Table Size by Table
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 60}
+        description: Table size in bytes by table (mysql.table.size)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.table.size IS NOT NULL
+            | STATS size_bytes = MAX(mysql.table.size) BY time_bucket = TBUCKET(1 minute), table = attributes.table
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: size_bytes
+              label: Size
+              format:
+                type: bytes
+          breakdown:
+            field: table
+      - title: Table Average Row Length
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 69}
+        description: Average row length per table (mysql.table.average_row_length)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.table.average_row_length IS NOT NULL
+            | STATS avg_row_length = MAX(mysql.table.average_row_length) BY time_bucket = TBUCKET(1 minute), table = attributes.table
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: avg_row_length
+              label: Avg Row Length
+              format:
+                type: bytes
+          breakdown:
+            field: table
+
+      # Additional Optional Metrics (y=78)
+      - title: Client Network I/O
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 78}
+        description: Network bytes sent/received (mysql.client.network.io)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.client.network.io IS NOT NULL
+            | STATS io_bytes = SUM(RATE(mysql.client.network.io)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: io_bytes
+              label: Bytes/sec
+              format:
+                type: bytes
+          breakdown:
+            field: kind
+      - title: Joins by Type
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 78}
+        description: Join operations by type (mysql.joins)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.joins IS NOT NULL
+            | STATS joins_rate = SUM(RATE(mysql.joins)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: joins_rate
+              label: Joins/sec
+          breakdown:
+            field: kind
+
+      # Table Lock Metrics (y=87)
+      - title: Table Lock Wait Read
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 87}
+        description: Table read lock wait count (mysql.table.lock_wait.read.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.table.lock_wait.read.count IS NOT NULL
+            | STATS lock_count = SUM(RATE(mysql.table.lock_wait.read.count)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: lock_count
+              label: Read Lock Waits/sec
+          breakdown:
+            field: kind
+      - title: Table Lock Wait Write
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 87}
+        description: Table write lock wait count (mysql.table.lock_wait.write.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.table.lock_wait.write.count IS NOT NULL
+            | STATS lock_count = SUM(RATE(mysql.table.lock_wait.write.count)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: lock_count
+              label: Write Lock Waits/sec
+          breakdown:
+            field: kind
+
+      # Table Open Cache and Prepared Statements (y=96)
+      - title: Table Open Cache
+        size: {w: 24, h: 9}
+        position: {x: 0, y: 96}
+        description: Table open cache hits/misses (mysql.table_open_cache)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.table_open_cache IS NOT NULL
+            | STATS cache_count = SUM(RATE(mysql.table_open_cache)) BY time_bucket = TBUCKET(1 minute), status = attributes.status
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: cache_count
+              label: Operations/sec
+          breakdown:
+            field: status
+      - title: Prepared Statements
+        size: {w: 24, h: 9}
+        position: {x: 24, y: 96}
+        description: Prepared statement operations (mysql.prepared_statements)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.prepared_statements IS NOT NULL
+            | STATS stmt_count = SUM(RATE(mysql.prepared_statements)) BY time_bucket = TBUCKET(1 minute), command = attributes.command
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: stmt_count
+              label: Statements/sec
+          breakdown:
+            field: command
+
+      # Statement Events (y=105)
+      - title: Statement Events by Schema
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 105}
+        description: Statement event count by schema (mysql.statement_event.count)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.statement_event.count IS NOT NULL
+            | STATS event_count = SUM(RATE(mysql.statement_event.count)) BY time_bucket = TBUCKET(1 minute), schema = attributes.schema
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: event_count
+              label: Events/sec
+          breakdown:
+            field: schema
+
+      # MySQLx Worker Threads (y=114)
+      - title: MySQLx Worker Threads
+        size: {w: 48, h: 9}
+        position: {x: 0, y: 114}
+        description: MySQLx worker threads by status (mysql.mysqlx_worker_threads)
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mysqlreceiver.otel"
+            | WHERE mysql.mysqlx_worker_threads IS NOT NULL
+            | STATS thread_count = MAX(mysql.mysqlx_worker_threads) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            | SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: thread_count
+              label: Threads
+          breakdown:
+            field: kind
