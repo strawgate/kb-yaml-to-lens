@@ -48,7 +48,7 @@ dashboards:
       # LOG SUMMARY
       # ═══════════════════════════════════════════════════════════════════════
       - title: Log Summary
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Log Summary'
       - title: Log Events Over Time
@@ -85,7 +85,7 @@ dashboards:
       # LOG DETAILS TABLE
       # ═══════════════════════════════════════════════════════════════════════
       - title: Log Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Log Details'
       - title: Logs

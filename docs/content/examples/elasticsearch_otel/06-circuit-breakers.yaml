@@ -36,7 +36,7 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Circuit Breaker Overview Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Circuit Breaker Overview'
       - title: Circuit Breaker Utilization %
@@ -77,7 +77,7 @@ dashboards:
             enabled: true
             page_size: 20
       - title: Circuit Breaker Memory Usage Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Circuit Breaker Memory Usage'
       - title: Request Circuit Breaker
@@ -219,7 +219,7 @@ dashboards:
               format:
                 type: percent
       - title: Circuit Breaker Trips Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Circuit Breaker Trips'
       - title: Trip Events by Breaker
@@ -261,7 +261,7 @@ dashboards:
             enabled: true
             page_size: 20
       - title: All Circuit Breakers Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### All Circuit Breakers'
       - title: All Breakers Memory Usage

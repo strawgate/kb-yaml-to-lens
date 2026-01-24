@@ -41,7 +41,7 @@ dashboards:
       # FLEET HEALTH SUMMARY
       # ═══════════════════════════════════════════════════════════════════════
       - title: Fleet Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Fleet Health'
       - title: Total Hosts
@@ -97,7 +97,7 @@ dashboards:
       # FLEET TRENDS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Fleet Trends
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Fleet Trends'
       - title: CPU Utilization Over Time
@@ -141,7 +141,7 @@ dashboards:
       # HOST DETAILS TABLE
       # ═══════════════════════════════════════════════════════════════════════
       - title: Host Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Host Details'
       - title: Host Performance Summary

@@ -36,7 +36,7 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: CPU & Memory Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### CPU & Memory'
       - title: CPU Usage Over Time
@@ -76,7 +76,7 @@ dashboards:
               format:
                 type: bytes
       - title: Disk I/O Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Disk I/O'
       - title: Disk Read Operations
@@ -110,7 +110,7 @@ dashboards:
             - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: write')"
               label: Write Ops/sec
       - title: Operations Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Operations'
       - title: Document Operations
@@ -145,7 +145,7 @@ dashboards:
             - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: index')"
               label: Index Ops/sec
       - title: Cache Performance Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Cache Performance'
       - title: Field Data Cache Evictions
@@ -229,7 +229,7 @@ dashboards:
               format:
                 type: bytes
       - title: Thread Pool Metrics Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Thread Pool Metrics'
       - title: Thread Pool Queue Size - Search

@@ -46,7 +46,7 @@ dashboards:
       # CPU SECTION
       # ═══════════════════════════════════════════════════════════════════════
       - title: CPU Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## CPU'
       - title: CPU Utilization
@@ -119,7 +119,7 @@ dashboards:
       # MEMORY SECTION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Memory Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Memory'
       - title: Memory Utilization
@@ -159,7 +159,7 @@ dashboards:
       # DISK SECTION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Disk Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Disk'
       - title: Disk Usage by Mount Point
@@ -235,7 +235,7 @@ dashboards:
       # NETWORK SECTION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Network Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Network'
       - title: Network I/O by Interface
@@ -311,7 +311,7 @@ dashboards:
       # PAGING SECTION
       # ═══════════════════════════════════════════════════════════════════════
       - title: Paging Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Paging / Swap'
       - title: Paging Utilization
