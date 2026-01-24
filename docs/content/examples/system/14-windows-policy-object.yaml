@@ -35,7 +35,8 @@ dashboards:
           - '4958'
     panels:
       - title: Windows Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -54,7 +55,8 @@ dashboards:
             - label: System & Process
               dashboard: system-windows-system-process
       - title: Policy & Object Events Over Time
-        grid: {x: 0, y: 3, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -70,7 +72,8 @@ dashboards:
             field: winlog.event_id
             size: 25
       - title: Audit Policy Changes (4719)
-        grid: {x: 0, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -81,7 +84,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4719'
       - title: Registry Value Modified (4657)
-        grid: {x: 12, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -92,7 +96,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4657'
       - title: Object Access (4663)
-        grid: {x: 24, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -103,7 +108,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4663'
       - title: Task Scheduled (4698)
-        grid: {x: 36, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -114,7 +120,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4698'
       - title: Event Distribution
-        grid: {x: 0, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -125,7 +132,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Top Users
-        grid: {x: 24, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -140,7 +148,8 @@ dashboards:
             - aggregation: count
               label: Events
       - title: Object Types Accessed
-        grid: {x: 0, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 41}
         lens:
           type: pie
           data_view: logs-*
@@ -157,7 +166,8 @@ dashboards:
                 - '4663'
                 - '4670'
       - title: Recent Policy & Object Events
-        grid: {x: 24, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

@@ -7,7 +7,8 @@ dashboards:
       - exists: system.auth.ssh.event
     panels:
       - title: Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -20,7 +21,8 @@ dashboards:
             - label: New users and groups
               dashboard: system-users-groups
       - title: SSH login attempts over time
-        grid: {x: 0, y: 3, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -36,7 +38,8 @@ dashboards:
             field: system.auth.ssh.event
             size: 10
       - title: SSH events
-        grid: {x: 0, y: 18, w: 16, h: 15}
+        size: {w: 16, h: 15}
+        position: {x: 0, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -47,7 +50,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: SSH users
-        grid: {x: 16, y: 18, w: 16, h: 15}
+        size: {w: 16, h: 15}
+        position: {x: 16, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -58,7 +62,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: SSH methods
-        grid: {x: 32, y: 18, w: 16, h: 15}
+        size: {w: 16, h: 15}
+        position: {x: 32, y: 18}
         lens:
           type: pie
           data_view: logs-*
@@ -69,7 +74,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Recent SSH Login Attempts
-        grid: {x: 0, y: 33, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 33}
         lens:
           type: datatable
           data_view: logs-*

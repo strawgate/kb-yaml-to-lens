@@ -23,7 +23,8 @@ dashboards:
           - '4783'
     panels:
       - title: Windows Dashboards
-        grid: {x: 0, y: 0, w: 48, h: 3}
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
         links:
           layout: horizontal
           items:
@@ -42,7 +43,8 @@ dashboards:
             - label: System & Process
               dashboard: system-windows-system-process
       - title: Directory Events Over Time
-        grid: {x: 0, y: 3, w: 48, h: 15}
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 3}
         lens:
           type: bar
           mode: stacked
@@ -58,7 +60,8 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: Computer Account Changes (4742)
-        grid: {x: 0, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 0, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -69,7 +72,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4742'
       - title: Kerberos TGT Requests (4768)
-        grid: {x: 12, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 12, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -80,7 +84,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4768'
       - title: Kerberos Service Tickets (4769)
-        grid: {x: 24, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 24, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -91,7 +96,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4769'
       - title: Credential Validation (4776)
-        grid: {x: 36, y: 18, w: 12, h: 8}
+        size: {w: 12, h: 8}
+        position: {x: 36, y: 18}
         lens:
           type: metric
           data_view: logs-*
@@ -102,7 +108,8 @@ dashboards:
             - field: winlog.event_id
               equals: '4776'
       - title: Event Distribution
-        grid: {x: 0, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 26}
         lens:
           type: pie
           data_view: logs-*
@@ -113,7 +120,8 @@ dashboards:
           metrics:
             - aggregation: count
       - title: Top Accounts
-        grid: {x: 24, y: 26, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 26}
         lens:
           type: bar
           data_view: logs-*
@@ -139,7 +147,8 @@ dashboards:
                 - '4772'
                 - '4776'
       - title: Events by Source
-        grid: {x: 0, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 41}
         lens:
           type: datatable
           data_view: logs-*
@@ -156,7 +165,8 @@ dashboards:
             enabled: true
             page_size: 10
       - title: Recent Directory Events
-        grid: {x: 24, y: 41, w: 24, h: 15}
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 41}
         lens:
           type: datatable
           data_view: logs-*

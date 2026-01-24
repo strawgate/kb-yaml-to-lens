@@ -374,6 +374,28 @@ Horizontal Pod Autoscaler scaling behavior and capacity tracking.
     ```
 <!-- markdownlint-enable MD046 -->
 
+### AWS VPC Flow Logs OpenTelemetry Dashboards
+
+AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnected navigation.
+
+**Use this when:** Monitoring AWS VPC network traffic with OpenTelemetry AWS VPC Flow Logs receiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboards. Demonstrates ES|QL queries with area charts, bar charts, datatables, and dashboard links. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
+
+Includes 3 interconnected dashboards with navigation links:
+
+- **VPC Flow Logs Overview** (`aws_vpcflow_otel-overview`) - High-level KPIs, quick insights, and time-series trends
+- **Traffic Analysis** (`aws_vpcflow_otel-traffic`) - Traffic distribution, source analysis, security deep dive, and top sources/destinations
+- **Interface Analysis** (`aws_vpcflow_otel-interface`) - Per-interface analysis, bandwidth by interface, and per-account metrics
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/dashboards.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### Redis OpenTelemetry Dashboards
 
 Redis database monitoring dashboards for OpenTelemetry metrics.
