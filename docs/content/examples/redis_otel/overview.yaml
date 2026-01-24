@@ -3,6 +3,7 @@
 # Provides cluster-level metrics and instance health monitoring
 #
 # Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver
+# Requires metrics-* with data_stream.dataset == "redisreceiver.otel"
 dashboards:
   - id: redis-overview
     name: '[Metrics Redis] Overview'
@@ -61,10 +62,12 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.clients.connected IS NOT NULL
-            | STATS clients = SUM(redis.clients.connected)
+            | STATS clients = SUM(LAST_OVER_TIME(redis.clients.connected))
+              BY instance = resource.attributes.service.instance.id
+            | STATS clients = SUM(clients)
           primary:
             field: clients
             label: Clients
@@ -76,10 +79,12 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.commands IS NOT NULL
-            | STATS commands_per_sec = SUM(redis.commands)
+            | STATS commands_per_sec = SUM(LAST_OVER_TIME(redis.commands))
+              BY instance = resource.attributes.service.instance.id
+            | STATS commands_per_sec = SUM(commands_per_sec)
           primary:
             field: commands_per_sec
             label: Commands/sec
@@ -108,10 +113,12 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.used IS NOT NULL
-            | STATS memory = SUM(redis.memory.used)
+            | STATS memory = SUM(LAST_OVER_TIME(redis.memory.used))
+              BY instance = resource.attributes.service.instance.id
+            | STATS memory = SUM(memory)
           primary:
             field: memory
             label: Memory
@@ -124,10 +131,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.fragmentation_ratio IS NOT NULL
-            | STATS fragmentation = AVG(redis.memory.fragmentation_ratio)
+            | STATS fragmentation = AVG(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
           primary:
             field: fragmentation
             label: Fragmentation
@@ -138,7 +145,7 @@ dashboards:
         markdown:
           content: '## Memory & Performance Trends'
 
-      # Memory Usage by Instance (Gauge - use AVG_OVER_TIME)
+      # Memory Usage by Instance (Gauge - use LAST_OVER_TIME for current state)
       - title: Memory Usage by Instance
         position: {x: 0, y: 13}
         size: {w: 24, h: 12}
@@ -149,7 +156,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.used IS NOT NULL
-            | STATS memory = MAX(AVG_OVER_TIME(redis.memory.used))
+            | STATS memory = MAX(LAST_OVER_TIME(redis.memory.used))
               BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
@@ -165,7 +172,7 @@ dashboards:
           breakdown:
             field: instance
 
-      # Commands Per Second (Gauge metric - use AVG_OVER_TIME)
+      # Commands Per Second (Gauge metric - use LAST_OVER_TIME for current state)
       - title: Commands Per Second
         position: {x: 24, y: 13}
         size: {w: 24, h: 12}
@@ -175,7 +182,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.commands IS NOT NULL
-            | STATS commands = MAX(AVG_OVER_TIME(redis.commands))
+            | STATS commands = MAX(LAST_OVER_TIME(redis.commands))
               BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:
@@ -189,7 +196,7 @@ dashboards:
           breakdown:
             field: instance
 
-      # Client Connections Over Time (Sum type but not cumulative - use MAX)
+      # Client Connections Over Time (Gauge - use LAST_OVER_TIME for current state)
       - title: Client Connections Over Time
         position: {x: 0, y: 25}
         size: {w: 24, h: 12}
@@ -199,7 +206,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.clients.connected IS NOT NULL
-            | STATS clients = MAX(AVG_OVER_TIME(redis.clients.connected))
+            | STATS clients = MAX(LAST_OVER_TIME(redis.clients.connected))
               BY time_bucket = TBUCKET(1 minute), instance = resource.attributes.service.instance.id
             | SORT time_bucket ASC
           legend:

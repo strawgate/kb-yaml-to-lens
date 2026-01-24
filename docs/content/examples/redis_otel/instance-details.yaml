@@ -3,6 +3,7 @@
 # Detailed metrics for a specific Redis instance
 #
 # Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver
+# Requires metrics-* with data_stream.dataset == "redisreceiver.otel"
 dashboards:
   - id: redis-instance-details
     name: '[Metrics Redis] Instance Details'
@@ -61,10 +62,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.clients.connected IS NOT NULL
-            | STATS clients = AVG(redis.clients.connected)
+            | STATS clients = MAX(LAST_OVER_TIME(redis.clients.connected))
           primary:
             field: clients
             label: Clients
@@ -75,10 +76,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.clients.blocked IS NOT NULL
-            | STATS blocked = AVG(redis.clients.blocked)
+            | STATS blocked = MAX(LAST_OVER_TIME(redis.clients.blocked))
           primary:
             field: blocked
             label: Blocked
@@ -89,10 +90,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.commands IS NOT NULL
-            | STATS commands = AVG(redis.commands)
+            | STATS commands = MAX(LAST_OVER_TIME(redis.commands))
           primary:
             field: commands
             label: Cmd/sec
@@ -103,10 +104,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.slaves.connected IS NOT NULL
-            | STATS replicas = AVG(redis.slaves.connected)
+            | STATS replicas = MAX(LAST_OVER_TIME(redis.slaves.connected))
           primary:
             field: replicas
             label: Replicas
@@ -143,10 +144,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.used IS NOT NULL
-            | STATS memory = AVG(redis.memory.used)
+            | STATS memory = MAX(LAST_OVER_TIME(redis.memory.used))
           primary:
             field: memory
             label: Used
@@ -159,10 +160,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.peak IS NOT NULL
-            | STATS peak = AVG(redis.memory.peak)
+            | STATS peak = MAX(LAST_OVER_TIME(redis.memory.peak))
           primary:
             field: peak
             label: Peak
@@ -175,10 +176,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.rss IS NOT NULL
-            | STATS rss = AVG(redis.memory.rss)
+            | STATS rss = MAX(LAST_OVER_TIME(redis.memory.rss))
           primary:
             field: rss
             label: RSS
@@ -191,10 +192,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.fragmentation_ratio IS NOT NULL
-            | STATS fragmentation = AVG(redis.memory.fragmentation_ratio)
+            | STATS fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
           primary:
             field: fragmentation
             label: Fragmentation
@@ -205,17 +206,17 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.lua IS NOT NULL
-            | STATS lua = AVG(redis.memory.lua)
+            | STATS lua = MAX(LAST_OVER_TIME(redis.memory.lua))
           primary:
             field: lua
             label: Lua
             format:
               type: bytes
 
-      # Memory Usage Trend (Gauge metrics - use AVG_OVER_TIME)
+      # Memory Usage Trend (Gauge metrics - use LAST_OVER_TIME for current state)
       - title: Memory Usage Trend
         position: {x: 0, y: 18}
         size: {w: 48, h: 12}
@@ -225,9 +226,9 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.used IS NOT NULL OR redis.memory.rss IS NOT NULL OR redis.memory.peak IS NOT NULL
-            | STATS used = MAX(AVG_OVER_TIME(redis.memory.used)),
-              rss = MAX(AVG_OVER_TIME(redis.memory.rss)),
-              peak = MAX(AVG_OVER_TIME(redis.memory.peak))
+            | STATS used = MAX(LAST_OVER_TIME(redis.memory.used)),
+              rss = MAX(LAST_OVER_TIME(redis.memory.rss)),
+              peak = MAX(LAST_OVER_TIME(redis.memory.peak))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           legend:
@@ -259,7 +260,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.fragmentation_ratio IS NOT NULL
-            | STATS fragmentation = MAX(AVG_OVER_TIME(redis.memory.fragmentation_ratio))
+            | STATS fragmentation = MAX(LAST_OVER_TIME(redis.memory.fragmentation_ratio))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           dimension:
@@ -278,7 +279,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.memory.lua IS NOT NULL
-            | STATS lua = MAX(AVG_OVER_TIME(redis.memory.lua))
+            | STATS lua = MAX(LAST_OVER_TIME(redis.memory.lua))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           dimension:
@@ -305,8 +306,8 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.clients.connected IS NOT NULL OR redis.clients.blocked IS NOT NULL
-            | STATS connected = MAX(AVG_OVER_TIME(redis.clients.connected)),
-              blocked = MAX(AVG_OVER_TIME(redis.clients.blocked))
+            | STATS connected = MAX(LAST_OVER_TIME(redis.clients.connected)),
+              blocked = MAX(LAST_OVER_TIME(redis.clients.blocked))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           legend:
@@ -575,7 +576,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.replication.offset IS NOT NULL
-            | STATS offset = MAX(AVG_OVER_TIME(redis.replication.offset))
+            | STATS offset = MAX(LAST_OVER_TIME(redis.replication.offset))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           dimension:
@@ -596,7 +597,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.replication.backlog_first_byte_offset IS NOT NULL
-            | STATS backlog = MAX(AVG_OVER_TIME(redis.replication.backlog_first_byte_offset))
+            | STATS backlog = MAX(LAST_OVER_TIME(redis.replication.backlog_first_byte_offset))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           dimension:
@@ -617,7 +618,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.slaves.connected IS NOT NULL
-            | STATS replicas = MAX(AVG_OVER_TIME(redis.slaves.connected))
+            | STATS replicas = MAX(LAST_OVER_TIME(redis.slaves.connected))
               BY time_bucket = TBUCKET(1 minute)
             | SORT time_bucket ASC
           dimension:

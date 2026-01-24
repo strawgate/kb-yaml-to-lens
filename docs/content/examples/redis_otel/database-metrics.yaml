@@ -3,6 +3,7 @@
 # Per-database keyspace metrics
 #
 # Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver
+# Requires metrics-* with data_stream.dataset == "redisreceiver.otel"
 dashboards:
   - id: redis-database-metrics
     name: '[Metrics Redis] Database Metrics'
@@ -67,10 +68,11 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.keys IS NOT NULL
-            | STATS keys = SUM(redis.db.keys)
+            | STATS keys = SUM(LAST_OVER_TIME(redis.db.keys)) BY db = attributes.db
+            | STATS keys = SUM(keys)
           primary:
             field: keys
             label: Keys
@@ -81,10 +83,11 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.expires IS NOT NULL
-            | STATS expires = SUM(redis.db.expires)
+            | STATS expires = SUM(LAST_OVER_TIME(redis.db.expires)) BY db = attributes.db
+            | STATS expires = SUM(expires)
           primary:
             field: expires
             label: Keys w/ TTL
@@ -95,10 +98,10 @@ dashboards:
         esql:
           type: metric
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.avg_ttl IS NOT NULL
-            | STATS avg_ttl = AVG(redis.db.avg_ttl)
+            | STATS avg_ttl = AVG(LAST_OVER_TIME(redis.db.avg_ttl))
           primary:
             field: avg_ttl
             label: Avg TTL (ms)
@@ -152,7 +155,7 @@ dashboards:
           appearance:
             donut: medium
 
-      # Key Count Trend by Database (Gauge - use AVG_OVER_TIME)
+      # Key Count Trend by Database (Gauge - use LAST_OVER_TIME for current state)
       - title: Key Count Trend by Database
         position: {x: 0, y: 25}
         size: {w: 48, h: 12}
@@ -162,7 +165,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.keys IS NOT NULL
-            | STATS keys = MAX(AVG_OVER_TIME(redis.db.keys))
+            | STATS keys = MAX(LAST_OVER_TIME(redis.db.keys))
               BY time_bucket = TBUCKET(1 minute), db = attributes.db
             | SORT time_bucket ASC
           legend:
@@ -204,7 +207,7 @@ dashboards:
             - field: expires
               label: Expires
 
-      # Keys with TTL Trend (Gauge - use AVG_OVER_TIME)
+      # Keys with TTL Trend (Gauge - use LAST_OVER_TIME for current state)
       - title: Keys with TTL Trend
         position: {x: 24, y: 40}
         size: {w: 24, h: 12}
@@ -214,7 +217,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.expires IS NOT NULL
-            | STATS expires = MAX(AVG_OVER_TIME(redis.db.expires))
+            | STATS expires = MAX(LAST_OVER_TIME(redis.db.expires))
               BY time_bucket = TBUCKET(1 minute), db = attributes.db
             | SORT time_bucket ASC
           legend:
@@ -256,7 +259,7 @@ dashboards:
             - field: avg_ttl
               label: Avg TTL
 
-      # Average TTL Trend by Database (Gauge - use AVG_OVER_TIME)
+      # Average TTL Trend by Database (Gauge - use LAST_OVER_TIME for current state)
       - title: Average TTL Trend by Database
         position: {x: 24, y: 55}
         size: {w: 24, h: 12}
@@ -266,7 +269,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.avg_ttl IS NOT NULL
-            | STATS avg_ttl = MAX(AVG_OVER_TIME(redis.db.avg_ttl))
+            | STATS avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
               BY time_bucket = TBUCKET(1 minute), db = attributes.db
             | SORT time_bucket ASC
           legend:
