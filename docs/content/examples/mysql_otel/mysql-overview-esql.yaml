@@ -34,6 +34,7 @@ dashboards:
 
       # Overview Metrics Row (y=2, h=6)
       - title: Active Connections
+        hide_title: true
         size: {w: 12, h: 6}
         esql:
           type: metric
@@ -46,6 +47,7 @@ dashboards:
             field: active_connections
             label: Active Connections
       - title: Buffer Pool Efficiency
+        hide_title: true
         size: {w: 12, h: 6}
         description: Ratio of clean to total buffer pool pages
         esql:
@@ -63,6 +65,7 @@ dashboards:
             format:
               type: percent
       - title: InnoDB Operations Rate
+        hide_title: true
         size: {w: 12, h: 6}
         esql:
           type: metric
@@ -75,6 +78,7 @@ dashboards:
             field: ops_rate
             label: InnoDB Ops/sec
       - title: Handler Operations Rate
+        hide_title: true
         size: {w: 12, h: 6}
         esql:
           type: metric

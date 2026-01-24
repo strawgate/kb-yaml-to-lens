@@ -50,6 +50,7 @@ dashboards:
         markdown:
           content: '## Key Metrics'
       - title: CPU Utilization
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -62,6 +63,7 @@ dashboards:
             format:
               type: percent
       - title: Normalized Load
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -72,6 +74,7 @@ dashboards:
             format:
               type: percent
       - title: Memory Utilization
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -82,6 +85,7 @@ dashboards:
             format:
               type: percent
       - title: Disk Usage
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric

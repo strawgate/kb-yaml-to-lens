@@ -42,6 +42,7 @@ dashboards:
           content: '## 🏥 Cluster Health'
           font_size: 14
       - title: Running Pods
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -53,6 +54,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '2'
       - title: Pending Pods
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -64,6 +66,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '1'
       - title: Failed Pods
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -75,6 +78,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '4'
       - title: Container Restarts
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric

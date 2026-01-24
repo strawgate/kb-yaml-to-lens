@@ -46,6 +46,7 @@ dashboards:
           content: '## 🐳 Container Health'
           font_size: 14
       - title: Ready Containers
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -57,6 +58,7 @@ dashboards:
             - field: k8s.container.ready
               equals: '1'
       - title: Not Ready Containers
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -68,6 +70,7 @@ dashboards:
             - field: k8s.container.ready
               equals: '0'
       - title: Total Restarts
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -78,6 +81,7 @@ dashboards:
           filters:
             - exists: k8s.container.restarts
       - title: Containers Restarting
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric

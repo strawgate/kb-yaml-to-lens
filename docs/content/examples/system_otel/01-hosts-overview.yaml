@@ -45,6 +45,7 @@ dashboards:
         markdown:
           content: '## Fleet Health'
       - title: Total Hosts
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -54,6 +55,7 @@ dashboards:
             field: resource.attributes.host.name
             label: Total Hosts
       - title: Hosts by OS Type
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -67,6 +69,7 @@ dashboards:
             field: resource.attributes.host.name
             label: Hosts
       - title: CPU Utilization Fleet
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
@@ -79,6 +82,7 @@ dashboards:
             format:
               type: percent
       - title: Memory Utilization Fleet
+        hide_title: true
         size: {w: 12, h: 8}
         lens:
           type: metric
