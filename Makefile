@@ -24,17 +24,18 @@ include Makefile.shared
 # Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
-COMPONENTS := packages/kb-dashboard-compiler vscode-extension
+COMPONENTS := packages/kb-dashboard-compiler packages/kb-dashboard-mcp vscode-extension
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := \
 	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-compiler/.venv/**/*.yaml" --exclude "packages/kb-dashboard-compiler/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-mcp/.venv/**/*.yaml" --exclude "packages/kb-dashboard-mcp/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
 	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler mcp vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -42,10 +43,11 @@ help:
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run target in all components:"
-	@echo "  make all <target>       - Run in compiler + vscode"
+	@echo "  make all <target>       - Run in compiler + mcp + vscode"
 	@echo ""
 	@echo "Run target in single component:"
 	@echo "  make compiler <target>  - Run in packages/kb-dashboard-compiler/"
+	@echo "  make mcp <target>       - Run in packages/kb-dashboard-mcp/"
 	@echo "  make vscode <target>    - Run in vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
 	@echo "  make gh <target>        - Run in .github/scripts/"
@@ -187,6 +189,11 @@ ifeq ($(_FIRST_GOAL),compiler)
   $(eval $(_ARGS):;@:)
 endif
 
+ifeq ($(_FIRST_GOAL),mcp)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 ifeq ($(_FIRST_GOAL),vscode)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
@@ -209,6 +216,9 @@ endif
 
 compiler:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-compiler $(_ARGS)
+
+mcp:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-mcp $(_ARGS)
 
 vscode:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C vscode-extension $(_ARGS)
