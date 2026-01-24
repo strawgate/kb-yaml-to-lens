@@ -45,18 +45,10 @@ dashboards:
       - field: data_stream.dataset
         equals: apachereceiver.otel
     panels:
-      - size: {w: 48, h: 2}
-        position: {x: 0, y: 0}
-        markdown:
-          content: |
-            **Note:** This dashboard uses ES|QL queries with the `TS` (time series) command for optimized time series analysis.
-            The `TS` command provides native rate calculations via `RATE()` and efficient time bucketing via `TBUCKET()`.
-          font_size: 12
-
       # Overview Metrics Row
       - title: Request Rate
         size: {w: 12, h: 6}
-        position: {x: 0, y: 2}
+        position: {x: 0, y: 0}
         esql:
           type: metric
           query:
@@ -71,7 +63,7 @@ dashboards:
               type: number
       - title: Traffic Rate
         size: {w: 12, h: 6}
-        position: {x: 12, y: 2}
+        position: {x: 12, y: 0}
         esql:
           type: metric
           query:
@@ -86,7 +78,7 @@ dashboards:
               type: bytes
       - title: Active Connections
         size: {w: 12, h: 6}
-        position: {x: 24, y: 2}
+        position: {x: 24, y: 0}
         esql:
           type: metric
           query:
@@ -102,7 +94,7 @@ dashboards:
               pattern: 0,0
       - title: CPU Load
         size: {w: 12, h: 6}
-        position: {x: 36, y: 2}
+        position: {x: 36, y: 0}
         esql:
           type: metric
           query:
@@ -119,7 +111,7 @@ dashboards:
       # Time Series Charts
       - title: Request Rate Over Time
         size: {w: 24, h: 10}
-        position: {x: 0, y: 8}
+        position: {x: 0, y: 6}
         esql:
           type: line
           query:
@@ -142,7 +134,7 @@ dashboards:
             field: resource.attributes.apache.server.name
       - title: Traffic Rate Over Time
         size: {w: 24, h: 10}
-        position: {x: 24, y: 8}
+        position: {x: 24, y: 6}
         esql:
           type: line
           query:
@@ -165,7 +157,7 @@ dashboards:
             field: resource.attributes.apache.server.name
       - title: CPU Time Rate
         size: {w: 24, h: 10}
-        position: {x: 0, y: 18}
+        position: {x: 0, y: 16}
         esql:
           type: area
           mode: stacked
@@ -189,7 +181,7 @@ dashboards:
             field: resource.attributes.apache.server.name
       - title: Request Processing Time Rate
         size: {w: 24, h: 10}
-        position: {x: 24, y: 18}
+        position: {x: 24, y: 16}
         esql:
           type: area
           mode: stacked
@@ -216,7 +208,7 @@ dashboards:
       # Server Load and Connection Metrics
       - title: Server Load Average
         size: {w: 16, h: 10}
-        position: {x: 0, y: 28}
+        position: {x: 0, y: 26}
         esql:
           type: line
           query:
@@ -248,7 +240,7 @@ dashboards:
             field: resource.attributes.apache.server.name
       - title: Connection Metrics
         size: {w: 16, h: 10}
-        position: {x: 16, y: 28}
+        position: {x: 16, y: 26}
         esql:
           type: line
           query:
@@ -272,7 +264,7 @@ dashboards:
             field: resource.attributes.apache.server.name
       - title: CPU Load Over Time
         size: {w: 16, h: 10}
-        position: {x: 32, y: 28}
+        position: {x: 32, y: 26}
         esql:
           type: line
           query:
@@ -297,7 +289,7 @@ dashboards:
       # Async Connections and Workers
       - title: Async Connections by State
         size: {w: 24, h: 12}
-        position: {x: 0, y: 38}
+        position: {x: 0, y: 36}
         esql:
           type: area
           mode: stacked
@@ -322,7 +314,7 @@ dashboards:
             field: attributes.connection_state
       - title: Worker Distribution
         size: {w: 24, h: 12}
-        position: {x: 24, y: 38}
+        position: {x: 24, y: 36}
         esql:
           type: pie
           query:
@@ -346,7 +338,7 @@ dashboards:
       # Scoreboard and Workers Over Time
       - title: Scoreboard Status
         size: {w: 48, h: 12}
-        position: {x: 0, y: 50}
+        position: {x: 0, y: 48}
         esql:
           type: bar
           mode: stacked
@@ -371,7 +363,7 @@ dashboards:
             field: attributes.state
       - title: Workers by State Over Time
         size: {w: 48, h: 12}
-        position: {x: 0, y: 62}
+        position: {x: 0, y: 60}
         esql:
           type: area
           mode: stacked
@@ -398,24 +390,23 @@ dashboards:
       # Server Performance Summary
       - title: Server Performance Summary
         size: {w: 48, h: 20}
-        position: {x: 0, y: 74}
-        description: Shows cumulative counter values and current state metrics per server. The requests_total and traffic_total columns are cumulative
-          totals (not per-second rates). For rate calculations, see the time-series charts above which use the TS command with RATE().
+        position: {x: 0, y: 72}
+        description: Shows current state metrics per server. For request and traffic rates, see the time-series charts above.
         esql:
           type: datatable
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "apachereceiver.otel"
             - WHERE resource.attributes.apache.server.name IS NOT NULL
-            - STATS requests_total = ROUND(MAX(apache.requests), 0), traffic_total = MAX(apache.traffic), connections = ROUND(MAX(apache.current_connections),
-              0), cpu_load = ROUND(AVG(apache.cpu.load) * 100, 1) BY server_name = resource.attributes.apache.server.name, server_port = resource.attributes.apache.server.port
-            - KEEP server_name, server_port, requests_total, traffic_total, connections, cpu_load
+            - STATS connections = ROUND(MAX(apache.current_connections), 0), cpu_load_pct = ROUND(AVG(apache.cpu.load) * 100, 1), load_1m = ROUND(AVG(`apache.load.1`),
+              2), busy_workers = ROUND(MAX(apache.workers), 0) BY server_name = resource.attributes.apache.server.name, server_port = resource.attributes.apache.server.port
+            - KEEP server_name, server_port, connections, cpu_load_pct, load_1m, busy_workers
             - SORT server_name ASC
             - LIMIT 100
           dimensions:
             - field: server_name
             - field: server_port
-            - field: requests_total
-            - field: traffic_total
             - field: connections
-            - field: cpu_load
+            - field: cpu_load_pct
+            - field: load_1m
+            - field: busy_workers
