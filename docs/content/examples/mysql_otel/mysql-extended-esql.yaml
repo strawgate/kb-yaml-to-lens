@@ -36,7 +36,7 @@ dashboards:
               dashboard: mysql-otel-extended-esql
 
       # Info Panel about Optional Metrics
-      - size: {w: 48, h: 4}
+      - size: {w: 48, h: 5}
         markdown:
           content: |
             ## Optional Metrics Dashboard
@@ -45,7 +45,7 @@ dashboards:
             If panels show no data, the corresponding metric has not been enabled.
           font_size: 12
 
-      # Connection Metrics Section (y=6)
+      # Connection Metrics Section (y=7)
       - title: Connection Count
         size: {w: 24, h: 9}
         description: Number of connections (mysql.connection.count)
@@ -97,7 +97,7 @@ dashboards:
           breakdown:
             field: error
 
-      # Query Metrics Section (y=24)
+      # Query Metrics Section (y=25)
       - title: Query Count
         size: {w: 24, h: 9}
         description: Total query count rate (mysql.query.count)
@@ -147,7 +147,7 @@ dashboards:
             - field: client_query_rate
               label: Client Queries/sec
 
-      # Command Metrics Section (y=42)
+      # Command Metrics Section (y=43)
       - title: Commands by Type
         size: {w: 48, h: 9}
         description: Command execution rate by type (mysql.commands)
@@ -167,7 +167,7 @@ dashboards:
           breakdown:
             field: command
 
-      # Replication Metrics Section (y=51)
+      # Replication Metrics Section (y=52)
       - title: Replica Time Behind Source
         size: {w: 24, h: 9}
         description: Replication lag in seconds (mysql.replica.time_behind_source)
@@ -201,7 +201,7 @@ dashboards:
             - field: sql_delay
               label: SQL Delay (seconds)
 
-      # Table Metrics Section (y=60)
+      # Table Metrics Section (y=61)
       - title: Table Rows by Table
         size: {w: 24, h: 9}
         description: Row count per table (mysql.table.rows)
@@ -261,7 +261,7 @@ dashboards:
           breakdown:
             field: table
 
-      # Additional Optional Metrics (y=78)
+      # Additional Optional Metrics (y=79)
       - title: Client Network I/O
         size: {w: 24, h: 9}
         description: Network bytes sent/received (mysql.client.network.io)
@@ -301,7 +301,7 @@ dashboards:
           breakdown:
             field: kind
 
-      # Table Lock Metrics (y=87)
+      # Table Lock Metrics (y=88)
       - title: Table Lock Wait Read
         size: {w: 24, h: 9}
         description: Table read lock wait count (mysql.table.lock_wait.read.count)
@@ -339,7 +339,7 @@ dashboards:
           breakdown:
             field: kind
 
-      # Table Open Cache and Prepared Statements (y=96)
+      # Table Open Cache and Prepared Statements (y=97)
       - title: Table Open Cache
         size: {w: 24, h: 9}
         description: Table open cache hits/misses (mysql.table_open_cache)
@@ -377,7 +377,7 @@ dashboards:
           breakdown:
             field: command
 
-      # Statement Events (y=105)
+      # Statement Events (y=106)
       - title: Statement Events by Schema
         size: {w: 48, h: 9}
         description: Statement event count by schema (mysql.statement_event.count)
@@ -397,7 +397,7 @@ dashboards:
           breakdown:
             field: schema
 
-      # MySQLx Worker Threads (y=114)
+      # MySQLx Worker Threads (y=115)
       - title: MySQLx Worker Threads
         size: {w: 48, h: 9}
         description: MySQLx worker threads by status (mysql.mysqlx_worker_threads)

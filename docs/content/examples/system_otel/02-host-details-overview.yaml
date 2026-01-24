@@ -46,7 +46,7 @@ dashboards:
       # KEY METRICS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Key Metrics
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Key Metrics'
       - title: CPU Utilization
@@ -101,7 +101,7 @@ dashboards:
       # RESOURCE TRENDS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Resource Trends
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## Resource Trends'
       - title: CPU Utilization Over Time

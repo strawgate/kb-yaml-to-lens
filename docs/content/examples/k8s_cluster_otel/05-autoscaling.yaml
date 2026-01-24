@@ -41,7 +41,7 @@ dashboards:
       # HPA STATUS SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
       - title: HPA Status Summary
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 📈 HPA Status Summary'
           font_size: 14
@@ -94,7 +94,7 @@ dashboards:
       # SCALING BEHAVIOR
       # ═══════════════════════════════════════════════════════════════════════
       - title: Scaling Behavior
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🔄 Scaling Behavior'
           font_size: 14
@@ -135,7 +135,7 @@ dashboards:
       # HPA DETAILS
       # ═══════════════════════════════════════════════════════════════════════
       - title: HPA Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🔍 HPA Configuration & Status'
           font_size: 14

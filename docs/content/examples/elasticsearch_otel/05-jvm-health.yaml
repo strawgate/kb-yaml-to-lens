@@ -36,7 +36,7 @@ dashboards:
             - label: Cluster Metadata
               dashboard: elasticsearch-otel-cluster-metadata
       - title: JVM Memory Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### JVM Memory'
       - title: JVM Heap Usage %
@@ -113,7 +113,7 @@ dashboards:
               format:
                 type: bytes
       - title: Garbage Collection Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Garbage Collection'
       - title: GC Collection Count
@@ -170,7 +170,7 @@ dashboards:
               formula: counter_rate(max(jvm.gc.collections.elapsed))
               label: Time (ms/sec)
       - title: Thread Management Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Thread Management'
       - title: JVM Thread Count
@@ -206,7 +206,7 @@ dashboards:
               field: jvm.classes.loaded
               label: Classes Loaded
       - title: Memory Pool Usage Section
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '### Memory Pool Usage'
       - title: Memory Pool Usage

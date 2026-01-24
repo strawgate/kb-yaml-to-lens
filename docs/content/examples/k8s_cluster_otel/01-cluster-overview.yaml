@@ -37,7 +37,7 @@ dashboards:
       # CLUSTER HEALTH SUMMARY (4 metric cards - at-a-glance health)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Cluster Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🏥 Cluster Health'
           font_size: 14
@@ -154,7 +154,7 @@ dashboards:
       # WORKLOAD HEALTH PREVIEW
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🚀 Workload Health Preview'
           font_size: 14
@@ -195,7 +195,7 @@ dashboards:
       # DETAIL: Unhealthy Deployments Table
       # ═══════════════════════════════════════════════════════════════════════
       - title: Unhealthy Deployments
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
           font_size: 14

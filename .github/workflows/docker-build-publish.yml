@@ -38,6 +38,7 @@ jobs:
           tags: kb-dashboard-compiler:test
           cache-from: type=gha
       - name: Run smoke tests
+        working-directory: compiler
         run: IMAGE_NAME="kb-dashboard-compiler:test" make test-docker-smoke
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3

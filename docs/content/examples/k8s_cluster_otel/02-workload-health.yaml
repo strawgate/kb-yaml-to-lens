@@ -41,7 +41,7 @@ dashboards:
       # CONTAINER HEALTH SUMMARY (4 metric cards)
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🐳 Container Health'
           font_size: 14
@@ -97,7 +97,7 @@ dashboards:
       # DEPLOYMENT HEALTH
       # ═══════════════════════════════════════════════════════════════════════
       - title: Deployment Health
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🚀 Deployment Health (Desired vs Available)'
           font_size: 14
@@ -166,7 +166,7 @@ dashboards:
       # CONTAINER ANALYSIS
       # ═══════════════════════════════════════════════════════════════════════
       - title: Container Analysis
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 📊 Container Analysis'
           font_size: 14
@@ -218,7 +218,7 @@ dashboards:
       # DETAIL TABLES
       # ═══════════════════════════════════════════════════════════════════════
       - title: Workload Details
-        size: {w: 48, h: 2}
+        size: {w: 48, h: 3}
         markdown:
           content: '## 🔍 Workload Status Details'
           font_size: 14

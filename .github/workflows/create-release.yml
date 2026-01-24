@@ -41,8 +41,6 @@ jobs:
             ```bash
             docker pull ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:${{ steps.get_version.outputs.VERSION }}
             ```
-            **Standalone Binaries:**
-            Download platform-specific binaries from the assets below.
             **VS Code Extension:**
             Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=strawgate.kb-dashboard-compiler).
           draft: false
