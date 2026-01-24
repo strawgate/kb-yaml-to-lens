@@ -22,9 +22,10 @@ Options:
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
@@ -38,6 +39,8 @@ from dashboard_compiler.panels.config import (
     GRID_WIDTH_WHOLE,
 )
 from dashboard_compiler.yaml_roundtrip import dump_roundtrip, load_roundtrip
+
+logger = logging.getLogger(__name__)
 
 # Default input directories relative to compiler/
 DEFAULT_INPUT_DIRS = [
@@ -60,12 +63,26 @@ DEFAULT_WIDTH = GRID_WIDTH_QUARTER  # 12
 DEFAULT_HEIGHT = 8
 
 
+def _safe_int(value: Any, default: int) -> int:
+    """Safely convert a value to int, returning default on failure."""
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+
 def resolve_width(w: Any) -> int:
     """Resolve a width value (int or semantic string) to grid units."""
     if isinstance(w, int):
         return w
     if isinstance(w, str) and w in SEMANTIC_WIDTHS:
         return SEMANTIC_WIDTHS[w]
+    # Unexpected type or unknown semantic - could indicate config error
+    logger.warning(f'Unexpected width value: {w!r} (type: {type(w).__name__}), using default {DEFAULT_WIDTH}')
     return DEFAULT_WIDTH
 
 
@@ -87,14 +104,14 @@ def extract_panel_size_from_yaml(panel: CommentedMap) -> tuple[int, int]:
     if isinstance(grid, CommentedMap):
         w = grid.get('w', DEFAULT_WIDTH)
         h = grid.get('h', DEFAULT_HEIGHT)
-        return (resolve_width(w), int(h))
+        return (resolve_width(w), _safe_int(h, DEFAULT_HEIGHT))
 
     # Check for size format (CrowdStrike style)
     size = panel.get('size')
     if isinstance(size, CommentedMap):
         w = size.get('w', DEFAULT_WIDTH)
         h = size.get('h', DEFAULT_HEIGHT)
-        return (resolve_width(w), int(h))
+        return (resolve_width(w), _safe_int(h, DEFAULT_HEIGHT))
 
     # Default size
     return (DEFAULT_WIDTH, DEFAULT_HEIGHT)
@@ -115,13 +132,17 @@ def extract_panel_position_from_yaml(panel: CommentedMap) -> tuple[int, int] | N
     """
     # Check for grid format (Elastic Agent style)
     grid = panel.get('grid')
-    if isinstance(grid, CommentedMap) and 'x' in grid and 'y' in grid:
-        return (int(grid.get('x')), int(grid.get('y')))
+    if isinstance(grid, CommentedMap):
+        x_val, y_val = grid.get('x'), grid.get('y')
+        if x_val is not None and y_val is not None:
+            return (int(x_val), int(y_val))
 
     # Check for position format (CrowdStrike style)
     position = panel.get('position')
-    if isinstance(position, CommentedMap) and 'x' in position and 'y' in position:
-        return (int(position.get('x')), int(position.get('y')))
+    if isinstance(position, CommentedMap):
+        x_val, y_val = position.get('x'), position.get('y')
+        if x_val is not None and y_val is not None:
+            return (int(x_val), int(y_val))
 
     return None
 
@@ -156,10 +177,11 @@ def _make_error_result(error: str, dashboard_name: str) -> dict[str, Any]:
 
 def _get_layout_algorithm(dashboard: CommentedMap) -> LayoutAlgorithm:
     """Extract layout algorithm from dashboard settings."""
+    valid_algorithms = get_args(LayoutAlgorithm)
     settings = dashboard.get('settings')
     if isinstance(settings, CommentedMap):
         algo = settings.get('layout_algorithm')
-        if algo in ('up-left', 'left-right', 'blocked', 'first-available-gap'):
+        if algo in valid_algorithms:
             return algo
     return 'up-left'
 
@@ -260,9 +282,14 @@ def _convert_grid_to_size(panel: CommentedMap) -> bool:
     if not isinstance(grid, CommentedMap) or 'x' not in grid or 'y' not in grid:
         return False
 
+    # Get fallback values from existing size if present
+    existing_size = panel.get('size')
+    fallback_w = existing_size.get('w', DEFAULT_WIDTH) if isinstance(existing_size, CommentedMap) else DEFAULT_WIDTH
+    fallback_h = existing_size.get('h', DEFAULT_HEIGHT) if isinstance(existing_size, CommentedMap) else DEFAULT_HEIGHT
+
     new_size = CommentedMap()
-    new_size['w'] = grid.get('w')
-    new_size['h'] = grid.get('h')
+    new_size['w'] = grid.get('w', fallback_w)
+    new_size['h'] = grid.get('h', fallback_h)
     new_size.fa.set_flow_style()
 
     del panel['grid']
@@ -285,7 +312,7 @@ def remove_positions_from_yaml(yaml_path: str) -> dict[str, Any]:  # noqa: PLR09
         return {'success': False, 'error': f'Failed to load: {e}'}
 
     dashboards = document.get('dashboards')
-    if not dashboards or not isinstance(dashboards, CommentedSeq) or len(dashboards) == 0:
+    if dashboards is None or not isinstance(dashboards, CommentedSeq) or len(dashboards) == 0:
         return {'success': False, 'error': 'No dashboards found'}
 
     dashboard = dashboards[0]
@@ -293,7 +320,7 @@ def remove_positions_from_yaml(yaml_path: str) -> dict[str, Any]:  # noqa: PLR09
         return {'success': False, 'error': 'Invalid dashboard structure'}
 
     panels = dashboard.get('panels')
-    if not panels or not isinstance(panels, CommentedSeq):
+    if panels is None or not isinstance(panels, CommentedSeq) or len(panels) == 0:
         return {'success': False, 'error': 'No panels found'}
 
     modified_count = 0
