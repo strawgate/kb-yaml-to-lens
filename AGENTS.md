@@ -62,6 +62,19 @@ Read the component-specific AGENTS.md before working in that component:
 
 ---
 
+## LLM Workflows
+
+Specialized guides for LLM-driven dashboard creation tasks:
+
+| Workflow | When to Use |
+| -------- | ----------- |
+| [OTel Dashboard Guide](docs/content/llm-workflows/otel-dashboard-guide.md) | Creating dashboards from OpenTelemetry Collector receiver data |
+| [ES\|QL Language Reference](docs/content/llm-workflows/esql-language-reference.md) | Writing ES\|QL queries for dashboard panels |
+| [Dashboard Decompiling Guide](docs/content/dashboard-decompiling-guide.md) | Converting existing Kibana JSON dashboards to YAML |
+| [Dashboard Style Guide](docs/content/dashboard-style-guide.md) | Layout, sizing, and design patterns |
+
+---
+
 ## Additional Resources
 
 | Resource | Location |

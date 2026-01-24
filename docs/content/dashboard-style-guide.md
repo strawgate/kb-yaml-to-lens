@@ -377,6 +377,10 @@ sync_tooltips: false
 - Metric cards: 8 grid units
 - Charts: 12-15 grid units
 - Tables: 15-20 grid units (allow for pagination)
+- Markdown headers (at default font_size 12):
+  - Headers h4-h6: 2 grid units
+  - Headers h1-h3: 3 grid units
+  - Header with one line of text below: 5 grid units
 
 ### Panel Ordering
 

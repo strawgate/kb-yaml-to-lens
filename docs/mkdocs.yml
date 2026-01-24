@@ -137,6 +137,7 @@ nav:
               - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
               - Dashboard Style Guide: dashboard-style-guide.md
               - ES|QL Language Reference: llm-workflows/esql-language-reference.md
+              - OTel Dashboard Guide: llm-workflows/otel-dashboard-guide.md
           - Custom Color Assignments: advanced/color-assignments.md
           - Legend Configuration: advanced/legend-configuration.md
           - ES|QL "views": advanced/esql-views.md
