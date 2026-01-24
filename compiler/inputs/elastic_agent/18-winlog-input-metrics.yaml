@@ -41,6 +41,7 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: '[Elastic Agent] Winlog Errors Total'
+        hide_title: true
         grid: {x: 7, y: 0, w: 8, h: 5}
         lens:
           type: metric
@@ -51,6 +52,7 @@ dashboards:
             label: Errors Total
             format: {type: number, compact: true, decimals: 2}
       - title: '[Elastic Agent] Winlog Discarded Total'
+        hide_title: true
         grid: {x: 15, y: 0, w: 8, h: 5}
         lens:
           type: metric
@@ -61,18 +63,21 @@ dashboards:
             label: Discarded Events Total
             format: {type: number, compact: true, decimals: 2}
       - title: '[Elastic Agent] Winlog Source Time Difference'
+        hide_title: true
         grid: {x: 23, y: 0, w: 9, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.source_lag_time.histogram.max, label: Part of Current Time Lag}
       - title: '[Elastic Agent] Winlog Unique Channels'
+        hide_title: true
         grid: {x: 40, y: 0, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: unique_count, field: filebeat_input.provider, label: Unique Windows Channels}
       - title: '[Elastic Agent] Winlog Events Total'
+        hide_title: true
         grid: {x: 32, y: 0, w: 8, h: 5}
         lens:
           type: metric

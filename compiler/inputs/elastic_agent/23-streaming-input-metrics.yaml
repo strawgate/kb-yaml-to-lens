@@ -41,24 +41,28 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: Total Bytes Received
+        hide_title: true
         grid: {x: 7, y: 0, w: 11, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.received_bytes_total, label: Part of Total Bytes Received}
       - title: CEL Evaluation Errors
+        hide_title: true
         grid: {x: 18, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.cel_eval_errors, label: Part of CEL Evaluation Errors}
       - title: Write Control Errors
+        hide_title: true
         grid: {x: 28, y: 0, w: 10, h: 6}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.write_control_errors, label: Part of Write Control Errors}
       - title: Total Errors
+        hide_title: true
         grid: {x: 38, y: 0, w: 10, h: 6}
         lens:
           type: metric

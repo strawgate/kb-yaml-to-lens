@@ -44,6 +44,7 @@ dashboards:
 
       # KPI Metrics Row
       - title: Selected Namespaces
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 0, y: 4}
         esql:
@@ -57,6 +58,7 @@ dashboards:
             field: namespace_count
             label: Namespaces
       - title: Memory Usage
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 12, y: 4}
         esql:
@@ -72,6 +74,7 @@ dashboards:
             format:
               type: bytes
       - title: Disk Available
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 24, y: 4}
         esql:
@@ -88,6 +91,7 @@ dashboards:
               type: number
               suffix: '%'
       - title: Memory Free
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 36, y: 4}
         esql:

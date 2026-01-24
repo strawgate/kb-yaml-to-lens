@@ -28,6 +28,7 @@ dashboards:
             View metrics for all monitored hosts. Use the Host name control to filter by specific hosts.
           font_size: 12
       - title: Total Hosts
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 0, y: 3}
         lens:
@@ -38,6 +39,7 @@ dashboards:
             field: host.name
             label: Total Hosts
       - title: Inbound Traffic
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 12, y: 3}
         lens:
@@ -92,6 +94,7 @@ dashboards:
             enabled: true
             page_size: 10
       - title: CPU Usage (%)
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 24, y: 3}
         lens:
@@ -107,6 +110,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Memory Usage (%)
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 36, y: 3}
         lens:
@@ -122,6 +126,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.memory
       - title: Outbound Traffic
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 0, y: 30}
         lens:
@@ -137,6 +142,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.network
       - title: Disk Usage (%)
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 12, y: 30}
         lens:
@@ -152,6 +158,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.fsstat
       - title: Load Average (5m)
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 24, y: 30}
         lens:
@@ -165,6 +172,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.load
       - title: Number of CPUs
+        hide_title: true
         size: {w: 12, h: 7}
         position: {x: 36, y: 30}
         lens:

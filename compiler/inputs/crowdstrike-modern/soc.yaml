@@ -54,6 +54,7 @@ dashboards:
 
       # Summary Layer - Key Metrics
       - title: Total Security Events
+        hide_title: true
         description: Total security events across all data streams in selected time range
         position:
           x: 0
@@ -68,6 +69,7 @@ dashboards:
             aggregation: count
             label: Total Events
       - title: Critical Alerts
+        hide_title: true
         description: Number of critical severity alerts requiring immediate attention
         position:
           x: 12
@@ -85,6 +87,7 @@ dashboards:
             - field: crowdstrike.alert.severity
               equals: critical
       - title: Active Threats
+        hide_title: true
         description: Unique threat detections requiring investigation
         position:
           x: 24
@@ -102,6 +105,7 @@ dashboards:
           filters:
             - exists: threat.technique.name
       - title: Affected Hosts
+        hide_title: true
         description: Number of unique hosts with security events
         position:
           x: 36

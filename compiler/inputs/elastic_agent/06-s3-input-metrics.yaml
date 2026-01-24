@@ -41,6 +41,7 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - title: '[Elastic Agent] S3 Total Documents Created'
+        hide_title: true
         grid: {x: 7, y: 0, w: 9, h: 5}
         lens:
           type: metric
@@ -51,24 +52,28 @@ dashboards:
             label: Total Documents Created
             format: {type: number, compact: true, decimals: 2}
       - title: '[Elastic Agent] SQS Messages Total'
+        hide_title: true
         grid: {x: 16, y: 0, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sqs_messages_received_total, label: SQS Messages Received Total}
       - title: '[Elastic Agent] SQS Messages Deleted Total'
+        hide_title: true
         grid: {x: 24, y: 0, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sqs_messages_deleted_total, label: SQS Messages Deleted Total}
       - title: '[Elastic Agent] SQS Messages Inflight'
+        hide_title: true
         grid: {x: 40, y: 0, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.sqs_messages_inflight_gauge, label: SQS Messages Inflight}
       - title: '[Elastic Agent] S3 Total Bytes'
+        hide_title: true
         grid: {x: 7, y: 5, w: 9, h: 5}
         lens:
           type: metric
@@ -79,18 +84,21 @@ dashboards:
             label: Total Bytes Processed
             format: {type: bytes, decimals: 2}
       - title: '[Elastic Agent] S3 Requested Objects Total'
+        hide_title: true
         grid: {x: 16, y: 5, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.s3_objects_requested_total, label: S3 Objects Requested Total}
       - title: '[Elastic Agent] S3 Objects Acked Total'
+        hide_title: true
         grid: {x: 24, y: 5, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.s3_objects_acked_total, label: S3 Objects Acked Total (No SQS)}
       - title: '[Elastic Agent] SQS Messages Error Total'
+        hide_title: true
         grid: {x: 32, y: 0, w: 8, h: 5}
         lens:
           type: metric
@@ -100,12 +108,14 @@ dashboards:
             field: filebeat_input.sqs_messages_returned_total
             label: SQS Messages Returned (Error) Total
       - title: '[Elastic Agent] S3 Objects Inflight'
+        hide_title: true
         grid: {x: 40, y: 5, w: 8, h: 5}
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.s3_objects_inflight_gauge, label: S3 Objects Inflight (No SQS)}
       - title: '[Elastic Agent] S3 Objects Processed Total'
+        hide_title: true
         grid: {x: 32, y: 5, w: 8, h: 5}
         lens:
           type: metric

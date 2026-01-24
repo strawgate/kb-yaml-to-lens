@@ -49,6 +49,7 @@ dashboards:
 
       # Summary Layer - Key Metrics (limited to 4)
       - title: Total Hosts
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -59,6 +60,7 @@ dashboards:
             field: host.name
             label: Hosts
       - title: Average CPU Utilization
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -74,6 +76,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Average Memory Usage
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 3}
         lens:
@@ -89,6 +92,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.memory
       - title: Average Disk Usage
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 3}
         lens:

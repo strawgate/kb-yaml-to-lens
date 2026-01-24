@@ -34,6 +34,7 @@ dashboards:
             drill into more detailed views.\n**Key Metrics:**\n- Total log volume\n- Unique hosts reporting\n- Log level distribution\n"
           font_size: 12
       - title: Total Events
+        hide_title: true
         description: Total log events in the selected time range
         size:
           w: 12
@@ -48,6 +49,7 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Hosts
+        hide_title: true
         description: Number of unique hosts reporting
         size:
           w: 12
@@ -63,6 +65,7 @@ dashboards:
             field: host.name
             label: Hosts
       - title: Error Rate
+        hide_title: true
         description: Percentage of error-level logs
         size:
           w: 12
@@ -80,6 +83,7 @@ dashboards:
             - field: log.level
               equals: error
       - title: Warning Rate
+        hide_title: true
         description: Percentage of warning-level logs
         size:
           w: 12

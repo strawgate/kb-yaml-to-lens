@@ -41,56 +41,67 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - grid: {x: 7, y: 0, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.errors_total, label: Part of Total Errors}
       - grid: {x: 14, y: 0, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.decode_errors_total, label: Part of Decode Errors}
       - grid: {x: 21, y: 0, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_failed_jobs_total, label: Part of Total Failed Jobs}
       - grid: {x: 28, y: 0, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_expired_failed_jobs_total, label: Part of Expired Failed Jobs}
       - grid: {x: 35, y: 0, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_bytes_processed_total, label: Part of Bytes Processed}
       - grid: {x: 42, y: 0, w: 6, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_events_created_total, label: Part of Events Created}
       - grid: {x: 7, y: 6, w: 9, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_objects_listed_total, label: Part of Objects Listed}
       - grid: {x: 16, y: 6, w: 9, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_objects_requested_total, label: Part of Objects Requested}
       - grid: {x: 25, y: 6, w: 9, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_objects_published_total, label: Part of Objects Published}
       - grid: {x: 34, y: 6, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.gcs_objects_tracked_gauge, label: Part of Objects Tracked}
       - grid: {x: 41, y: 6, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

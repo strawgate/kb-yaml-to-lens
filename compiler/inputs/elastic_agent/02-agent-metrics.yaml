@@ -40,6 +40,7 @@ dashboards:
         markdown:
           content: '## Agent-level Metrics'
       - grid: {x: 8, y: 9, w: 5, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -53,6 +54,7 @@ dashboards:
               suffix: ' '
           breakdown: {field: component.id, type: values, size: 5}
       - grid: {x: 13, y: 9, w: 5, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -62,11 +64,13 @@ dashboards:
             label: Components
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 18, y: 9, w: 4, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: unique_count, field: data_stream.dataset, label: Datasets}
       - grid: {x: 22, y: 9, w: 4, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -75,6 +79,7 @@ dashboards:
             label: Metrics Ingest
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 26, y: 9, w: 5, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -83,6 +88,7 @@ dashboards:
             label: Logs Ingest
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 31, y: 9, w: 5, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -96,6 +102,7 @@ dashboards:
               decimals: 0
               suffix: ' Events'
       - grid: {x: 36, y: 9, w: 6, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -106,6 +113,7 @@ dashboards:
             format: {type: duration, decimals: 2}
           breakdown: {field: component.id, type: values, size: 8}
       - grid: {x: 42, y: 9, w: 6, h: 3}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

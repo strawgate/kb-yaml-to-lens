@@ -70,6 +70,7 @@ dashboards:
               label: 99th Percentile
               format: {type: bytes, decimals: 2}
       - grid: {x: 7, y: 26, w: 6, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -79,6 +80,7 @@ dashboards:
             label: Get Requests Total
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 13, y: 26, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -88,6 +90,7 @@ dashboards:
             label: Put Requests Total
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 20, y: 26, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -97,6 +100,7 @@ dashboards:
             label: Post Requests Total
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 27, y: 26, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -106,6 +110,7 @@ dashboards:
             label: Patch Requests Total
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 34, y: 26, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -115,6 +120,7 @@ dashboards:
             label: Total Requests
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 41, y: 26, w: 7, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -214,6 +220,7 @@ dashboards:
               label: 99th Percentile
               format: {type: number, decimals: 0}
       - grid: {x: 7, y: 6, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -223,6 +230,7 @@ dashboards:
             label: Total Responses
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 17, y: 6, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -232,6 +240,7 @@ dashboards:
             label: Pipeline Events Published Total
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 27, y: 6, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -241,6 +250,7 @@ dashboards:
             label: Pipeline Events Filtered Total
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 37, y: 6, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -250,6 +260,7 @@ dashboards:
             label: 5xx HTTP Responses
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 7, y: 0, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -259,6 +270,7 @@ dashboards:
             label: 1xx HTTP Responses
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 17, y: 0, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -268,6 +280,7 @@ dashboards:
             label: 2xx HTTP Responses
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 27, y: 0, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -277,6 +290,7 @@ dashboards:
             label: 3xx HTTP Responses
             format: {type: number, compact: true, decimals: 0}
       - grid: {x: 37, y: 0, w: 10, h: 6}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

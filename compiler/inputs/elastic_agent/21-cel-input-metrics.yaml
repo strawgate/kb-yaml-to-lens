@@ -40,12 +40,14 @@ dashboards:
             - {label: Unix, dashboard: elastic_agent-86203230-6081-11f0-89d2-bb7ceae5af7f}
             - {label: Winlog, dashboard: elastic_agent-1badd650-d136-11ed-b85f-4be0157fc90c}
       - grid: {x: 7, y: 0, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.cel_processing_time.histogram.mean, label: Part of Average Processing Time
               (Milliseconds)}
       - grid: {x: 27, y: 0, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -55,6 +57,7 @@ dashboards:
             label: Batches Published
             format: {type: number, decimals: 0}
       - grid: {x: 7, y: 7, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -64,6 +67,7 @@ dashboards:
             label: Events Received
             format: {type: number, decimals: 0}
       - grid: {x: 17, y: 7, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -73,6 +77,7 @@ dashboards:
             label: Events Published
             format: {type: number, decimals: 0}
       - grid: {x: 27, y: 7, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -82,6 +87,7 @@ dashboards:
             label: Pipeline Events Published Total
             format: {type: number, decimals: 0}
       - grid: {x: 37, y: 7, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
@@ -115,12 +121,14 @@ dashboards:
             - {formula: 'divide(last_value(filebeat_input.cel_processing_time.histogram.p99), 1000000)', label: 99th Percentile}
             - {aggregation: last_value, field: filebeat_input.cel_processing_time.histogram.p99, label: Part of 99th Percentile}
       - grid: {x: 17, y: 0, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*
           primary: {aggregation: last_value, field: filebeat_input.batch_processing_time.histogram.mean, label: Part of Average Batch Processing
               Time (Milliseconds)}
       - grid: {x: 37, y: 0, w: 10, h: 7}
+        hide_title: true
         lens:
           type: metric
           data_view: metrics-*

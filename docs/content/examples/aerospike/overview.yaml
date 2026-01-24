@@ -37,6 +37,7 @@ dashboards:
 
       # KPI Metrics Row
       - title: Aerospike Nodes
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 0, y: 2}
         esql:
@@ -50,6 +51,7 @@ dashboards:
             field: node_count
             label: Nodes
       - title: Unique Namespaces
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 12, y: 2}
         esql:
@@ -63,6 +65,7 @@ dashboards:
             field: namespace_count
             label: Namespaces
       - title: Avg Connections
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 24, y: 2}
         esql:
@@ -76,6 +79,7 @@ dashboards:
             field: avg_connections
             label: Connections
       - title: Avg Memory Free
+        hide_title: true
         size: {w: 12, h: 5}
         position: {x: 36, y: 2}
         esql:

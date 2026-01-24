@@ -18,6 +18,7 @@ dashboards:
             \ same panel\nEach panel below demonstrates a different filtering pattern.\n"
           font_size: 12
       - title: Error Logs Only
+        hide_title: true
         description: "Using equals filter: log.level = 'error'"
         size:
           w: 12
@@ -35,6 +36,7 @@ dashboards:
             - field: log.level
               equals: error
       - title: HTTP Requests Only
+        hide_title: true
         description: 'Using exists filter: http.response.status_code exists'
         size:
           w: 12
@@ -51,6 +53,7 @@ dashboards:
           filters:
             - exists: http.response.status_code
       - title: Slow Requests (≥500ms)
+        hide_title: true
         description: 'Using gte filter: http.response.time >= 500'
         size:
           w: 12
@@ -68,6 +71,7 @@ dashboards:
             - field: http.response.time
               gte: '500'
       - title: Non-Success HTTP Codes
+        hide_title: true
         description: 'Using not filter: NOT (http.response.status_code = 200)'
         size:
           w: 12

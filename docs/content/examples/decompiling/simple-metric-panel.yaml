@@ -4,6 +4,7 @@ dashboards:
     description: Example showing a converted metric panel
     panels:
       - title: Total Documents
+        hide_title: true
         description: Count of all documents in the index
         size: {w: 24, h: 15}
         esql:

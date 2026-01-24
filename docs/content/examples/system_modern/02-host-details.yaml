@@ -53,6 +53,7 @@ dashboards:
 
       # Summary Layer - Key Host Metrics (4 metrics max)
       - title: CPU
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 3}
         lens:
@@ -68,6 +69,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Memory
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 3}
         lens:
@@ -83,6 +85,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.memory
       - title: Disk Usage
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 3}
         lens:
@@ -98,6 +101,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.filesystem
       - title: Load Average
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 36, y: 3}
         lens:

@@ -42,6 +42,7 @@ dashboards:
         markdown:
           content: '### Index Overview'
       - title: Total Indices
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 0, y: 4}
         lens:
@@ -52,6 +53,7 @@ dashboards:
             field: elasticsearch.index.name
             label: Indices
       - title: Total Index Size
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 12, y: 4}
         lens:
@@ -62,6 +64,7 @@ dashboards:
             field: elasticsearch.index.shards.size
             label: Total Size
       - title: Total Segment Count
+        hide_title: true
         size: {w: 12, h: 6}
         position: {x: 24, y: 4}
         lens:
