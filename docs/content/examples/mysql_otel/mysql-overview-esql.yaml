@@ -241,10 +241,10 @@ dashboards:
             field: kind
 
       # Handler Operations Section (y=44)
-      - title: Top Handler Operations
+      - title: Handler Operations
         size: {w: 48, h: 9}
         position: {x: 0, y: 44}
-        description: Top 10 handler operations by count
+        description: Handler operations rate by type
         esql:
           type: line
           query:
@@ -289,13 +289,13 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "mysqlreceiver.otel"
             - WHERE mysql.row_locks IS NOT NULL
-            - STATS row_lock_waits = MAX(mysql.row_locks) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
+            - STATS row_lock_rate = SUM(RATE(mysql.row_locks)) BY time_bucket = TBUCKET(1 minute), kind = attributes.kind
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
-            - field: row_lock_waits
-              label: Row Lock Waits
+            - field: row_lock_rate
+              label: Row Locks/sec
           breakdown:
             field: kind
 
@@ -320,7 +320,7 @@ dashboards:
             field: operation
 
       # Table I/O Waits Section (y=71)
-      - title: Table I/O Wait Count by Table
+      - title: Table I/O Waits/sec by Table
         size: {w: 24, h: 9}
         position: {x: 0, y: 71}
         esql:
@@ -338,7 +338,7 @@ dashboards:
               label: Table I/O Waits/sec
           breakdown:
             field: table
-      - title: Index I/O Wait Count by Index
+      - title: Index I/O Waits/sec by Index
         size: {w: 24, h: 9}
         position: {x: 24, y: 71}
         esql:
@@ -437,19 +437,20 @@ dashboards:
       - title: MySQL Uptime
         size: {w: 24, h: 9}
         position: {x: 0, y: 98}
+        description: MySQL server uptime rate (should be 1 second/second when running)
         esql:
           type: line
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "mysqlreceiver.otel"
             - WHERE mysql.uptime IS NOT NULL
-            - STATS uptime_sec = MAX(mysql.uptime) BY time_bucket = TBUCKET(1 minute)
+            - STATS uptime_rate = SUM(RATE(mysql.uptime)) BY time_bucket = TBUCKET(1 minute)
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
           metrics:
-            - field: uptime_sec
-              label: Uptime (seconds)
+            - field: uptime_rate
+              label: Uptime Rate (sec/sec)
       - title: MySQLx Connections
         size: {w: 24, h: 9}
         position: {x: 24, y: 98}
@@ -468,19 +469,3 @@ dashboards:
               label: MySQLx Connections/sec
           breakdown:
             field: status
-
-      # Info Panel about Disabled Metrics (y=107)
-      - size: {w: 48, h: 6}
-        position: {x: 0, y: 107}
-        markdown:
-          content: |
-            ## Disabled Metrics (Not Available by Default)
-            The following metrics are **disabled by default** in the MySQL receiver and require explicit configuration to enable:
-            - **Connection Metrics**: `mysql.connection.count`, `mysql.connection.errors`, `mysql.max_used_connections`
-            - **Query Metrics**: `mysql.query.count`, `mysql.query.slow.count`, `mysql.query.client.count`
-            - **Replication**: `mysql.replica.time_behind_source`, `mysql.replica.sql_delay`
-            - **Table Metrics**: `mysql.table.rows`, `mysql.table.size`, `mysql.table.average_row_length`
-            - **Command Metrics**: `mysql.commands`
-            To enable these metrics, update your MySQL receiver configuration in the OpenTelemetry Collector.
-            See the **Extended Dashboard** for panels covering these optional metrics.
-          font_size: 12

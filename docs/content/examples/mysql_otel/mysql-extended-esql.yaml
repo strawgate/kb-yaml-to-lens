@@ -235,7 +235,7 @@ dashboards:
       - title: Table Size by Table
         size: {w: 24, h: 9}
         position: {x: 24, y: 60}
-        description: Table size in bytes by type (mysql.table.size)
+        description: Table size in bytes by table (mysql.table.size)
         esql:
           type: line
           query: |
