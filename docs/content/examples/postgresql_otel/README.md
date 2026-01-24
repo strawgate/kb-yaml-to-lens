@@ -90,16 +90,6 @@ receivers:
         enabled: true
 ```
 
-### Compiling Dashboards
-
-```bash
-# From the compiler directory
-cd compiler
-
-# Compile the dashboard
-make compile INPUTS=../docs/content/examples/postgresql_otel/02-overview-esql.yaml
-```
-
 ## Usage
 
 ### Filters
@@ -148,16 +138,3 @@ This dashboard can be used as a foundation for creating alerts on:
 - [Elastic Observability](https://www.elastic.co/observability)
 - [Dashboard Compiler Documentation](../../index.md)
 - [ES|QL Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/esql.html)
-
-## Contributing
-
-To enhance this dashboard:
-
-1. Test compilation with `make check`
-2. Verify against actual PostgreSQL metrics data
-3. Update this README with any new panel descriptions
-4. Submit a pull request
-
-## License
-
-These dashboard examples are part of the kb-yaml-to-lens project and follow the same license.
