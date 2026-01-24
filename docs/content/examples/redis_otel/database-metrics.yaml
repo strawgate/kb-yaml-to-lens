@@ -166,7 +166,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.keys IS NOT NULL
             | STATS keys = MAX(LAST_OVER_TIME(redis.db.keys))
-              BY time_bucket = TBUCKET(5 minutes), db = attributes.db
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -218,7 +218,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.expires IS NOT NULL
             | STATS expires = MAX(LAST_OVER_TIME(redis.db.expires))
-              BY time_bucket = TBUCKET(5 minutes), db = attributes.db
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -270,7 +270,7 @@ dashboards:
             | WHERE data_stream.dataset == "redisreceiver.otel"
             | WHERE redis.db.avg_ttl IS NOT NULL
             | STATS avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
-              BY time_bucket = TBUCKET(5 minutes), db = attributes.db
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -296,10 +296,11 @@ dashboards:
         esql:
           type: datatable
           query:
-            - FROM metrics-*
+            - TS metrics-*
             - WHERE data_stream.dataset == "redisreceiver.otel"
             - WHERE attributes.db IS NOT NULL
-            - STATS keys = AVG(redis.db.keys), expires = AVG(redis.db.expires), avg_ttl = AVG(redis.db.avg_ttl) BY db = attributes.db
+            - STATS keys = MAX(LAST_OVER_TIME(redis.db.keys)), expires = MAX(LAST_OVER_TIME(redis.db.expires)), avg_ttl = MAX(LAST_OVER_TIME(redis.db.avg_ttl))
+              BY db = attributes.db
             - EVAL expire_pct = expires / (keys + 0.000001)
             - KEEP db, keys, expires, expire_pct, avg_ttl
             - SORT keys DESC
