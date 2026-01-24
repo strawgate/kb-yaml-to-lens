@@ -1,0 +1,266 @@
+---
+# Dashboard example for PostgreSQL monitoring using OpenTelemetry PostgreSQL receiver.
+# See the README.md in this directory for more information.
+dashboards:
+  - id: postgresql-otel-overview-lens
+    name: '[PostgreSQL OTel] Overview - Lens'
+    description: Overview of PostgreSQL databases with key performance metrics using Lens visualizations
+    filters:
+      - field: data_stream.dataset
+        equals: postgresqlreceiver.otel
+      - exists: resource.attributes.postgresql.database.name
+    controls:
+      - type: options
+        label: Database Name
+        data_view: metrics-*
+        field: resource.attributes.postgresql.database.name
+      - type: options
+        label: Host Name
+        data_view: metrics-*
+        field: resource.attributes.host.name
+    panels:
+      # Navigation Links
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        description: Links to related PostgreSQL dashboards
+        links:
+          layout: horizontal
+          items:
+            - label: Overview (Lens)
+              dashboard: postgresql-otel-overview-lens
+            - label: Overview (ES|QL)
+              dashboard: postgresql-otel-overview-esql
+
+      # KPI Metrics Row
+      - title: Total Databases
+        size: {w: 12, h: 5}
+        position: {x: 0, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: unique_count(resource.attributes.postgresql.database.name)
+            label: Databases
+      - title: Active Connections
+        size: {w: 12, h: 5}
+        position: {x: 12, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: sum(postgresql.backends)
+            label: Active Backends
+      - title: Max Connections
+        size: {w: 12, h: 5}
+        position: {x: 24, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: max(postgresql.connection.max)
+            label: Max Connections
+      - title: Database Count
+        size: {w: 12, h: 5}
+        position: {x: 36, y: 2}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            formula: max(postgresql.database.count)
+            label: Total DB Count
+
+      # Performance Summary DataTable
+      - title: Database Performance Summary
+        size: {w: 48, h: 18}
+        position: {x: 0, y: 7}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: database
+              type: values
+              field: resource.attributes.postgresql.database.name
+              label: Database
+              size: 100
+          metrics:
+            - id: backends
+              formula: sum(postgresql.backends)
+              label: Active Connections
+              format:
+                type: number
+                pattern: 0,0
+            - id: db-size
+              formula: max(postgresql.db_size)
+              label: Database Size
+              format:
+                type: bytes
+            - id: commit-rate
+              formula: counter_rate(max(postgresql.commits))
+              label: Commits/sec
+              format:
+                type: number
+                pattern: 0,0.00
+            - id: rollback-rate
+              formula: counter_rate(max(postgresql.rollbacks))
+              label: Rollbacks/sec
+              format:
+                type: number
+                pattern: 0,0.00
+            - id: blocks-read
+              formula: counter_rate(max(postgresql.blocks_read))
+              label: Blocks Read/sec
+              format:
+                type: number
+                pattern: 0,0.0
+          paging:
+            enabled: true
+            page_size: 20
+
+      # Connections Over Time
+      - title: Active Connections Over Time
+        size: {w: 48, h: 10}
+        position: {x: 0, y: 25}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: resource.attributes.postgresql.database.name
+            type: values
+            size: 20
+          metrics:
+            - formula: sum(postgresql.backends)
+              label: Active Connections
+
+      # Transaction Metrics
+      - title: Transaction Rate - Commits
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 35}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: resource.attributes.postgresql.database.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(postgresql.commits))
+              label: Commits/sec
+              format:
+                type: number
+                pattern: 0,0.00
+      - title: Transaction Rate - Rollbacks
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 35}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: resource.attributes.postgresql.database.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(postgresql.rollbacks))
+              label: Rollbacks/sec
+              format:
+                type: number
+                pattern: 0,0.00
+
+      # Block I/O Metrics
+      - title: Block I/O - By Source
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 45}
+        lens:
+          type: line
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.source
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(postgresql.blocks_read))
+              label: Blocks Read/sec
+
+      # Database Operations
+      - title: Database Operations by Type
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 57}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: attributes.operation
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(postgresql.operations))
+              label: Operations/sec
+
+      # Database Sizes
+      - title: Database Sizes
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 69}
+        lens:
+          type: pie
+          data_view: metrics-*
+          dimensions:
+            - field: resource.attributes.postgresql.database.name
+              type: values
+              size: 20
+          metrics:
+            - formula: max(postgresql.db_size)
+              label: Size
+              format:
+                type: bytes
+          appearance:
+            donut: medium
+
+      # Connection State Distribution
+      - title: Connection States
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 69}
+        lens:
+          type: pie
+          data_view: metrics-*
+          dimensions:
+            - field: attributes.state
+              type: values
+              size: 10
+          metrics:
+            - formula: sum(postgresql.backends)
+              label: Connections
+          appearance:
+            donut: medium

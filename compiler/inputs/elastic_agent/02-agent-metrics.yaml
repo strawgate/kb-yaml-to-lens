@@ -1,0 +1,433 @@
+---
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License 2.0;
+# you may not use this file except in compliance with the Elastic License 2.0.
+#
+# This file is derived from the Elastic integrations repository:
+# https://github.com/elastic/integrations/tree/main/packages/elastic_agent
+#
+# Converted by kb-yaml-to-lens from Kibana JSON format to YAML format.
+dashboards:
+  - id: elastic_agent-f47f18cc-9c7d-4278-b2ea-a6dee816d395
+    name: '[Elastic Agent] Agent metrics'
+    description: Elastic Agent metrics dashboard
+    panels:
+      - grid: {x: 0, y: 0, w: 8, h: 27}
+        links:
+          layout: horizontal
+          items:
+            - {label: Overview, dashboard: elastic_agent-a148dc70-6b3c-11ed-98de-67bdecd21824}
+            - {label: Concerning Agents, dashboard: elastic_agent-0600ffa0-6b5e-11ed-98de-67bdecd21824}
+            - {label: Agent Metrics, dashboard: elastic_agent-f47f18cc-9c7d-4278-b2ea-a6dee816d395}
+            - {label: Integrations, dashboard: elastic_agent-1a4e7280-6b5e-11ed-98de-67bdecd21824}
+            - {label: Input Metrics, dashboard: elastic_agent-a8192f90-cd3f-11ed-869d-e7dc1b551cd2}
+      - grid: {x: 8, y: 0, w: 40, h: 2}
+        markdown: {content: This dashboard is designed to be viewed only after filtering to a specific Agent.}
+      - grid: {x: 8, y: 2, w: 40, h: 4}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - {id: dim0, type: values, field: agent.name, size: 5, label: Selected Agent}
+          metrics:
+            - {id: metric1, aggregation: last_value, field: elastic_agent.version, label: Version}
+            - {id: metric2, aggregation: last_value, field: host.architecture, label: Architecture}
+            - {id: metric3, aggregation: last_value, field: host.os.name, label: OS}
+            - {id: metric4, aggregation: last_value, field: host.os.version, label: OS Version}
+            - {id: metric5, aggregation: last_value, field: host.os.kernel, label: Kernel}
+            - {id: metric6, aggregation: last_value, field: '@timestamp', label: Last Seen}
+      - grid: {x: 8, y: 6, w: 40, h: 3}
+        markdown:
+          content: '## Agent-level Metrics'
+      - grid: {x: 8, y: 9, w: 5, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: last_value
+            field: beat.stats.info.uptime.ms
+            label: ' Uptime'
+            format:
+              type: duration
+              decimals: 0
+              suffix: ' '
+          breakdown: {field: component.id, type: values, size: 5}
+      - grid: {x: 13, y: 9, w: 5, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: component.id
+            label: Components
+            format: {type: number, compact: true, decimals: 0}
+      - grid: {x: 18, y: 9, w: 4, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary: {aggregation: unique_count, field: data_stream.dataset, label: Datasets}
+      - grid: {x: 22, y: 9, w: 4, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: count
+            label: Metrics Ingest
+            format: {type: number, compact: true, decimals: 0}
+      - grid: {x: 26, y: 9, w: 5, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: count
+            label: Logs Ingest
+            format: {type: number, compact: true, decimals: 0}
+      - grid: {x: 31, y: 9, w: 5, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: last_value
+            field: beat.stats.libbeat.output.write.errors
+            label: Output Errors
+            format:
+              type: number
+              compact: true
+              decimals: 0
+              suffix: ' Events'
+      - grid: {x: 36, y: 9, w: 6, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: last_value
+            field: beat.stats.libbeat.output.write.latency.histogram.median
+            label: Write Latency
+            format: {type: duration, decimals: 2}
+          breakdown: {field: component.id, type: values, size: 8}
+      - grid: {x: 42, y: 9, w: 6, h: 3}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: unique_count
+            field: beat.stats.info.ephemeral_id
+            label: Component Restarts
+            format: {type: number, decimals: 0}
+          breakdown: {field: component.id, type: values, size: 8}
+      - grid: {x: 8, y: 12, w: 22, h: 10}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 100}
+          metrics:
+            - formula: "pick_max(\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.time.ms),0)\n      )/interval(),\n\
+                \    0\n  ),\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.pct),0)),\n    0\n  )\n)"
+              label: ' CPU Usage'
+            - {aggregation: max, field: system.process.cpu.total.time.ms, label: Part of  CPU Usage}
+            - {aggregation: max, field: system.process.cpu.total.pct, label: Part of  CPU Usage}
+      - grid: {x: 30, y: 12, w: 18, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {formula: 'pick_max(counter_rate(max(beat.stats.cgroup.cpu.stats.throttled.ns))/1000000000,0)', label: Throttle %}
+            - {aggregation: max, field: beat.stats.cgroup.cpu.stats.throttled.ns, label: Part of Throttle %}
+      - grid: {x: 8, y: 22, w: 22, h: 10}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          metrics:
+            - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes, label: cgroup limit}
+      - grid: {x: 30, y: 22, w: 18, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {aggregation: max, field: system.process.cgroup.memory.mem.usage.bytes, label: cgroup memory usage}
+      - grid: {x: 8, y: 32, w: 21, h: 10}
+        title: '[Elastic Agent] Acknowledged Events /s'
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {formula: "counter_rate(max(beat.stats.libbeat.output.events.acked), kql='')", label: Success}
+            - {formula: abs(counter_rate(max(beat.stats.libbeat.output.events.total))-counter_rate(max(beat.stats.libbeat.output.events.acked))-counter_rate(max(beat.stats.libbeat.output.events.active))),
+              label: Failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part of Success}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.total, label: Part of Failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.acked, label: Part of Failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.active, label: Part of Failed}
+      - grid: {x: 29, y: 32, w: 19, h: 10}
+        title: '[Elastic Agent] Dropped Events Rate /s'
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: beat.stats.libbeat.output.type, type: values, size: 5}
+          metrics:
+            - {formula: counter_rate(max(beat.stats.libbeat.output.events.dropped)), label: Dropped}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.duplicates}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.failed}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.toomany}
+            - {aggregation: max, field: beat.stats.libbeat.output.events.dropped, label: Part of Dropped}
+      - grid: {x: 0, y: 42, w: 48, h: 4}
+        markdown:
+          content: '## Component-Level Metrics'
+      - grid: {x: 0, y: 46, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 10}
+          metrics:
+            - formula: "pick_max(\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.time.ms),0)\n      )/interval(),\n\
+                \    0\n  ),\n  pick_max(\n    differences(\n      defaults(max(system.process.cpu.total.pct),0)),\n    0\n  )\n)"
+              label: CPU Usage
+            - {aggregation: max, field: system.process.cpu.total.time.ms, label: Part of CPU Usage}
+            - {aggregation: max, field: system.process.cpu.total.pct, label: Part of CPU Usage}
+      - grid: {x: 24, y: 46, w: 24, h: 12}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 10}
+          metrics:
+            - formula: "defaults(\n   max(system.process.memory.rss.bytes),\n   max(system.process.memory.size)\n)"
+              label: ' '
+            - aggregation: max
+              field: system.process.memory.rss.bytes
+              label: 'Part of  '
+            - aggregation: max
+              field: system.process.memory.size
+              label: 'Part of  '
+      - grid: {x: 0, y: 58, w: 24, h: 9}
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: elastic_agent.process, type: values, size: 10}
+          metrics:
+            - aggregation: max
+              field: system.process.fd.open
+              label: ' '
+      - grid: {x: 24, y: 58, w: 24, h: 9}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - {id: dim0, type: values, field: elastic_agent.process, size: 10, label: Component}
+          metrics:
+            - id: metric1
+              aggregation: last_value
+              field: system.process.fd.open
+              label: ' Open Handles (Current)'
+            - id: metric2
+              aggregation: max
+              field: system.process.fd.open
+              label: Open Handles (Max)
+              format: {type: number, decimals: 0}
+            - {id: metric3, aggregation: last_value, field: system.process.fd.limit.soft, label: Handle Limit (Soft)}
+            - {id: metric4, aggregation: last_value, field: system.process.fd.limit.hard, label: Handle Limit (Hard)}
+      - grid: {x: 0, y: 67, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {aggregation: max, field: system.process.fd.open, label: Open File Descriptors}
+      - grid: {x: 24, y: 67, w: 24, h: 9}
+        title: '[Elastic Agent] Output Write Latency'
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - aggregation: max
+              field: beat.stats.libbeat.output.write.latency.histogram.median
+              label: Write Latency (Median)
+              format: {type: duration, decimals: 2}
+      - grid: {x: 0, y: 76, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.total}
+      - grid: {x: 24, y: 76, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.dropped}
+      - grid: {x: 0, y: 85, w: 24, h: 9}
+        title: '[Elastic Agent] Output Batches'
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.batches}
+      - grid: {x: 24, y: 85, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.write.errors}
+      - grid: {x: 0, y: 94, w: 24, h: 9}
+        title: '[Elastic Agent] Active Events'
+        lens:
+          type: area
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - aggregation: max
+              field: beat.stats.libbeat.output.events.active
+              label: ' '
+      - grid: {x: 24, y: 94, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.write.bytes}
+      - grid: {x: 0, y: 103, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.failed}
+      - grid: {x: 24, y: 103, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.acked}
+      - grid: {x: 0, y: 112, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.toomany}
+      - grid: {x: 24, y: 112, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: agent.name, type: values, size: 10}
+          metrics:
+            - {aggregation: max, field: beat.stats.libbeat.output.events.duplicates}
+      - grid: {x: 0, y: 122, w: 24, h: 10}
+        lens:
+          type: line
+          data_view: metrics-*
+          metrics:
+            - aggregation: max
+              field: beat.stats.libbeat.pipeline.queue.max_events
+              label: max_events
+              format: {type: number, decimals: 0}
+      - grid: {x: 24, y: 122, w: 24, h: 10}
+        lens:
+          type: area
+          data_view: metrics-*
+          metrics:
+            - {aggregation: max, field: system.process.cgroup.memory.mem.limit.bytes, label: Container Limit}
+      - grid: {x: 0, y: 132, w: 24, h: 9}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+            minimum_interval: m
+          breakdown: {field: component.id, type: values, size: 15}
+          metrics:
+            - {formula: counter_rate(max(beat.stats.cgroup.cpu.stats.throttled.ns))/1000000000, label: Throttle %}
+            - {aggregation: max, field: beat.stats.cgroup.cpu.stats.throttled.ns, label: Part of Throttle %}

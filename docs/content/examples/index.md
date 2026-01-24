@@ -326,6 +326,70 @@ Apache HTTP Server log analysis with request breakdowns, status codes, and traff
     ```
 <!-- markdownlint-enable MD046 -->
 
+### AWS VPC Flow Logs OpenTelemetry Dashboards
+
+AWS VPC Flow Logs monitoring dashboards for OpenTelemetry data with interconnected navigation.
+
+**Use this when:** Monitoring AWS VPC network traffic with OpenTelemetry AWS VPC Flow Logs receiver.
+
+**Note:** Based on the [Elastic integrations repository](https://github.com/elastic/integrations/tree/main/packages/aws_vpcflow_otel) dashboards. Demonstrates ES|QL queries with area charts, bar charts, datatables, and dashboard links. See the [README](aws_vpcflow_otel/README.md) for data requirements and panel details.
+
+Includes 3 interconnected dashboards with navigation links:
+
+- **VPC Flow Logs Overview** (`aws_vpcflow_otel-overview`) - High-level KPIs, quick insights, and time-series trends
+- **Traffic Analysis** (`aws_vpcflow_otel-traffic`) - Traffic distribution, source analysis, security deep dive, and top sources/destinations
+- **Interface Analysis** (`aws_vpcflow_otel-interface`) - Per-interface analysis, bandwidth by interface, and per-account metrics
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (aws_vpcflow_otel/dashboards.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/dashboards.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Redis OpenTelemetry Dashboards
+
+Redis database monitoring dashboards for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Redis instances with OpenTelemetry Redis Receiver.
+
+#### Overview
+
+Multi-instance monitoring with key metrics across all Redis instances.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Instance Details
+
+Detailed single-instance analysis including memory, connections, keyspace, and replication metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/instance-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/instance-details.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+#### Database Metrics
+
+Per-database keyspace metrics including keys, TTL, and expiration statistics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (redis_otel/database-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/database-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### CrowdStrike Security Dashboards
 
 Security monitoring dashboards for CrowdStrike EDR data streams. Includes both dataset-centric dashboards (organized by data source) and workflow-centric modern dashboards (organized by security workflow).
@@ -716,6 +780,24 @@ These dashboards follow the [Dashboard Style Guide](../dashboard-style-guide.md)
 
     ```yaml
     --8<-- "examples/system_modern/14-windows-policy-object.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
+### Apache HTTP Server OpenTelemetry Dashboard
+
+Apache HTTP Server monitoring dashboard for OpenTelemetry metrics.
+
+**Use this when:** Monitoring Apache HTTP Server with OpenTelemetry Apache Receiver.
+
+#### Overview
+
+Server status, scoreboard, and performance metrics.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (apache_otel/01-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/apache_otel/01-overview.yaml"
     ```
 <!-- markdownlint-enable MD046 -->
 
