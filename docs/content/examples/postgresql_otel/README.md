@@ -26,7 +26,7 @@ ES|QL-based overview dashboard using the `TS` (time series) command for optimize
 - **Distribution Charts**:
   - Database sizes (pie chart)
   - Connection states (pie chart)
-- **Metadata Table**: List of monitored databases and hosts
+- **Metadata Table**: List of monitored databases and instances
 
 **Data Source**: `metrics-*` index pattern
 **Filter**: `data_stream.dataset == "postgresqlreceiver.otel"`
@@ -49,7 +49,7 @@ ES|QL-based overview dashboard using the `TS` (time series) command for optimize
 ### Attributes
 
 - `resource.attributes.postgresql.database.name` - Database name
-- `resource.attributes.host.name` - Host name
+- `resource.attributes.service.instance.id` - PostgreSQL instance (host:port format)
 - `attributes.source` - Block I/O source (heap_hit, heap_read, idx_hit, idx_read)
 - `attributes.operation` - Operation type (ins, upd, del, hot_upd)
 - `attributes.state` - Connection state
@@ -101,7 +101,7 @@ receivers:
 The dashboard includes controls for filtering by:
 
 - **Database Name**: Filter to specific database(s)
-- **Host Name**: Filter to specific PostgreSQL host(s)
+- **Instance**: Filter to specific PostgreSQL instance(s) by host:port
 
 ## Customization
 

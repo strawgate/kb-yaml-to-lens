@@ -19,9 +19,9 @@ dashboards:
         data_view: metrics-*
         field: resource.attributes.postgresql.database.name
       - type: options
-        label: Host Name
+        label: Instance
         data_view: metrics-*
-        field: resource.attributes.host.name
+        field: resource.attributes.service.instance.id
     filters:
       - field: data_stream.dataset
         equals: postgresqlreceiver.otel
@@ -289,10 +289,10 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - STATS BY database = resource.attributes.postgresql.database.name, host = resource.attributes.host.name
-            - KEEP database, host
+            - STATS BY database = resource.attributes.postgresql.database.name, instance = resource.attributes.service.instance.id
+            - KEEP database, instance
             - SORT database ASC
             - LIMIT 100
           dimensions:
             - field: database
-            - field: host
+            - field: instance
