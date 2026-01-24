@@ -1,0 +1,342 @@
+---
+dashboards:
+  - id: system-host-overview
+    name: '[Metrics System] Host overview'
+    description: Overview of host metrics
+    filters:
+      - field: data_stream.dataset
+        in:
+          - system.cpu
+          - system.diskio
+          - system.fsstat
+          - system.load
+          - system.memory
+          - system.network
+          - system.process
+          - system.process.summary
+          - system.socket_summary
+          - system.uptime
+    controls:
+      - type: options
+        label: host.name
+        data_view: metrics-*
+        field: host.name
+    panels:
+      - title: System Navigation
+        hide_title: true
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        markdown:
+          content: |
+            ### [System overview](system-metrics-overview)
+          font_size: 12
+      - title: CPU Usage
+        grid: {x: 0, y: 3, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.cpu.total.norm.pct
+            label: CPU %
+            format:
+              type: percent
+      - title: Memory Usage
+        grid: {x: 8, y: 3, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.memory.actual.used.pct
+            label: Memory %
+            format:
+              type: percent
+      - title: Disk I/O
+        grid: {x: 16, y: 3, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.diskio.read.bytes
+            label: Read
+            format:
+              type: bytes
+      - title: Inbound Traffic
+        grid: {x: 24, y: 3, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.network.in.bytes
+            label: Inbound
+            format:
+              type: bytes
+      - title: Outbound Traffic
+        grid: {x: 32, y: 3, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.network.out.bytes
+            label: Outbound
+            format:
+              type: bytes
+      - title: Load Average
+        grid: {x: 40, y: 3, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.load.1
+            label: Load 1m
+      - title: Disk Write I/O
+        grid: {x: 0, y: 11, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.diskio.write.bytes
+            label: Write
+            format:
+              type: bytes
+      - title: Max Disk Usage
+        grid: {x: 8, y: 11, w: 8, h: 8}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: system.filesystem.used.pct
+            label: Max Disk %
+            format:
+              type: percent
+      - title: CPU
+        hide_title: true
+        grid: {x: 0, y: 19, w: 48, h: 2}
+        markdown:
+          content: |
+            ## CPU
+          font_size: 12
+      - title: Top processes by CPU usage
+        grid: {x: 0, y: 21, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: process-name
+              type: values
+              field: system.process.name
+              size: 10
+          metrics:
+            - id: avg-cpu
+              aggregation: average
+              field: system.process.cpu.total.norm.pct
+              label: CPU %
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 10
+      - title: CPU usage over time
+        grid: {x: 24, y: 21, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.cpu.total.norm.pct
+              label: CPU %
+              format:
+                type: percent
+      - title: System load
+        grid: {x: 0, y: 33, w: 48, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.load.1
+              label: 1 min
+            - aggregation: average
+              field: system.load.5
+              label: 5 min
+            - aggregation: average
+              field: system.load.15
+              label: 15 min
+      - title: Memory
+        hide_title: true
+        grid: {x: 0, y: 45, w: 48, h: 2}
+        markdown:
+          content: |
+            ## Memory
+          font_size: 12
+      - title: Top processes by memory usage
+        grid: {x: 0, y: 47, w: 24, h: 12}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: process-name
+              type: values
+              field: system.process.name
+              size: 10
+          metrics:
+            - id: avg-memory
+              aggregation: average
+              field: system.process.memory.rss.pct
+              label: Memory %
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 10
+      - title: Memory usage over time
+        grid: {x: 24, y: 47, w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.memory.actual.used.bytes
+              label: Used
+              format:
+                type: bytes
+            - aggregation: average
+              field: system.memory.actual.free
+              label: Free
+              format:
+                type: bytes
+      - title: Network
+        hide_title: true
+        grid: {x: 0, y: 59, w: 48, h: 2}
+        markdown:
+          content: |
+            ## Network
+          font_size: 12
+      - title: Inbound traffic
+        grid: {x: 0, y: 61, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.network.in.bytes
+              label: Inbound
+              format:
+                type: bytes
+          breakdown:
+            type: values
+            field: system.network.name
+            size: 5
+      - title: Outbound traffic
+        grid: {x: 24, y: 61, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.network.out.bytes
+              label: Outbound
+              format:
+                type: bytes
+          breakdown:
+            type: values
+            field: system.network.name
+            size: 5
+      - title: Disk I/O
+        hide_title: true
+        grid: {x: 0, y: 73, w: 48, h: 2}
+        markdown:
+          content: |
+            ## Disk I/O
+          font_size: 12
+      - title: Disk read throughput
+        grid: {x: 0, y: 75, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.diskio.read.bytes
+              label: Read
+              format:
+                type: bytes
+      - title: Disk write throughput
+        grid: {x: 24, y: 75, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.diskio.write.bytes
+              label: Write
+              format:
+                type: bytes
+      - title: Filesystem
+        hide_title: true
+        grid: {x: 0, y: 87, w: 48, h: 2}
+        markdown:
+          content: |
+            ## Filesystem
+          font_size: 12
+      - title: Filesystem usage by mount point
+        grid: {x: 0, y: 89, w: 24, h: 12}
+        lens:
+          type: bar
+          mode: percentage
+          data_view: metrics-*
+          dimension:
+            type: values
+            field: system.filesystem.mount_point
+            size: 10
+          metrics:
+            - aggregation: average
+              field: system.filesystem.used.bytes
+              label: Used
+              format:
+                type: bytes
+      - title: Filesystem usage over time
+        grid: {x: 24, y: 89, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.filesystem.used.pct
+              label: Usage %
+              format:
+                type: percent
+          breakdown:
+            type: values
+            field: system.filesystem.mount_point
+            size: 5

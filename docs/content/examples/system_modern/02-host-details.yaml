@@ -1,0 +1,417 @@
+---
+# Modern System Host Details Dashboard
+# Following Dashboard Style Guide best practices:
+# - Sectioned layout with markdown headers for organization
+# - Performance metrics use line charts (not pie charts)
+# - Paired charts for comparison (read/write, in/out)
+# - Tables for process-level detail
+# - Host filter control for single-host focus
+dashboards:
+  - id: system-modern-host-details
+    name: '[Metrics System] Host Details'
+    description: >-
+      Detailed performance metrics for a specific host.
+      Use the host filter to select a host for analysis.
+    filters:
+      - field: data_stream.dataset
+        in:
+          - system.cpu
+          - system.diskio
+          - system.filesystem
+          - system.load
+          - system.memory
+          - system.network
+          - system.process
+          - system.socket_summary
+          - system.uptime
+    controls:
+      - type: options
+        label: Host
+        data_view: metrics-*
+        field: host.name
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: System Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Metrics Overview
+              dashboard: system-modern-metrics-overview
+            - label: Host Details
+              dashboard: system-modern-host-details
+            - label: Syslog
+              dashboard: system-modern-syslog
+            - label: Sudo Commands
+              dashboard: system-modern-sudo-commands
+            - label: SSH Logins
+              dashboard: system-modern-ssh-logins
+            - label: Users & Groups
+              dashboard: system-modern-users-groups
+
+      # Summary Layer - Key Host Metrics (4 metrics max)
+      - title: CPU
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.cpu.total.norm.pct
+            label: CPU %
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.cpu
+      - title: Memory
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.memory.actual.used.pct
+            label: Memory %
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.memory
+      - title: Disk Usage
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: max
+            field: system.filesystem.used.pct
+            label: Max Disk %
+            format:
+              type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.filesystem
+      - title: Load Average
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: metrics-*
+          primary:
+            aggregation: average
+            field: system.load.1
+            label: 1 min
+          filters:
+            - field: data_stream.dataset
+              equals: system.load
+
+      # CPU Section
+      - title: CPU Performance
+        hide_title: true
+        grid: {x: 0, y: 9, w: 48, h: 2}
+        markdown:
+          content: '## CPU Performance'
+          font_size: 14
+      - title: CPU Utilization Over Time
+        grid: {x: 0, y: 11, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.cpu.total.norm.pct
+              label: Total
+              format:
+                type: percent
+            - aggregation: average
+              field: system.cpu.user.norm.pct
+              label: User
+              format:
+                type: percent
+            - aggregation: average
+              field: system.cpu.system.norm.pct
+              label: System
+              format:
+                type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.cpu
+      - title: System Load Over Time
+        grid: {x: 24, y: 11, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.load.1
+              label: 1 min
+            - aggregation: average
+              field: system.load.5
+              label: 5 min
+            - aggregation: average
+              field: system.load.15
+              label: 15 min
+          filters:
+            - field: data_stream.dataset
+              equals: system.load
+
+      # Memory Section
+      - title: Memory Performance
+        hide_title: true
+        grid: {x: 0, y: 23, w: 48, h: 2}
+        markdown:
+          content: '## Memory'
+          font_size: 14
+      - title: Memory Usage Over Time
+        grid: {x: 0, y: 25, w: 24, h: 12}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.memory.actual.used.bytes
+              label: Used
+              format:
+                type: bytes
+            - aggregation: average
+              field: system.memory.actual.free
+              label: Free
+              format:
+                type: bytes
+          filters:
+            - field: data_stream.dataset
+              equals: system.memory
+      - title: Memory Utilization Percentage
+        grid: {x: 24, y: 25, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.memory.actual.used.pct
+              label: Used %
+              format:
+                type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.memory
+
+      # Network Section
+      - title: Network Performance
+        hide_title: true
+        grid: {x: 0, y: 37, w: 48, h: 2}
+        markdown:
+          content: '## Network'
+          font_size: 14
+      - title: Network Traffic - Inbound
+        grid: {x: 0, y: 39, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.network.in.bytes
+              label: Bytes In
+              format:
+                type: bytes
+          breakdown:
+            type: values
+            field: system.network.name
+            size: 5
+          filters:
+            - field: data_stream.dataset
+              equals: system.network
+      - title: Network Traffic - Outbound
+        grid: {x: 24, y: 39, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.network.out.bytes
+              label: Bytes Out
+              format:
+                type: bytes
+          breakdown:
+            type: values
+            field: system.network.name
+            size: 5
+          filters:
+            - field: data_stream.dataset
+              equals: system.network
+
+      # Disk I/O Section
+      - title: Disk I/O
+        hide_title: true
+        grid: {x: 0, y: 51, w: 48, h: 2}
+        markdown:
+          content: '## Disk I/O'
+          font_size: 14
+      - title: Disk Read Throughput
+        grid: {x: 0, y: 53, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.diskio.read.bytes
+              label: Read
+              format:
+                type: bytes
+          filters:
+            - field: data_stream.dataset
+              equals: system.diskio
+      - title: Disk Write Throughput
+        grid: {x: 24, y: 53, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.diskio.write.bytes
+              label: Write
+              format:
+                type: bytes
+          filters:
+            - field: data_stream.dataset
+              equals: system.diskio
+
+      # Filesystem Section
+      - title: Filesystem
+        hide_title: true
+        grid: {x: 0, y: 65, w: 48, h: 2}
+        markdown:
+          content: '## Filesystem'
+          font_size: 14
+      - title: Filesystem Usage by Mount Point
+        grid: {x: 0, y: 67, w: 24, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            type: values
+            field: system.filesystem.mount_point
+            size: 10
+          metrics:
+            - aggregation: average
+              field: system.filesystem.used.pct
+              label: Used %
+              format:
+                type: percent
+          filters:
+            - field: data_stream.dataset
+              equals: system.filesystem
+      - title: Filesystem Usage Over Time
+        grid: {x: 24, y: 67, w: 24, h: 12}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: average
+              field: system.filesystem.used.pct
+              label: Usage %
+              format:
+                type: percent
+          breakdown:
+            type: values
+            field: system.filesystem.mount_point
+            size: 5
+          filters:
+            - field: data_stream.dataset
+              equals: system.filesystem
+
+      # Processes Section - Detail Layer
+      - title: Processes
+        hide_title: true
+        grid: {x: 0, y: 79, w: 48, h: 2}
+        markdown:
+          content: '## Top Processes'
+          font_size: 14
+      - title: Top Processes by CPU
+        grid: {x: 0, y: 81, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: process-name
+              type: values
+              field: system.process.name
+              size: 10
+          metrics:
+            - id: avg-cpu
+              aggregation: average
+              field: system.process.cpu.total.norm.pct
+              label: Avg CPU %
+              format:
+                type: percent
+            - id: max-cpu
+              aggregation: max
+              field: system.process.cpu.total.norm.pct
+              label: Max CPU %
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 10
+          filters:
+            - field: data_stream.dataset
+              equals: system.process
+      - title: Top Processes by Memory
+        grid: {x: 24, y: 81, w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: process-name
+              type: values
+              field: system.process.name
+              size: 10
+          metrics:
+            - id: avg-memory
+              aggregation: average
+              field: system.process.memory.rss.pct
+              label: Avg Memory %
+              format:
+                type: percent
+            - id: max-memory
+              aggregation: max
+              field: system.process.memory.rss.pct
+              label: Max Memory %
+              format:
+                type: percent
+          paging:
+            enabled: true
+            page_size: 10
+          filters:
+            - field: data_stream.dataset
+              equals: system.process

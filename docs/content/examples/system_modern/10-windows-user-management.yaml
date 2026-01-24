@@ -1,0 +1,237 @@
+---
+# Modern Windows User Management Dashboard
+# Following Dashboard Style Guide best practices:
+# - IAM event analysis: user creation, modification, deletion
+# - Action-focused metrics for quick status
+# - User and administrator tracking
+# - Detailed audit table at bottom
+dashboards:
+  - id: system-modern-windows-user-management
+    name: '[Logs System] Windows User Management'
+    description: >-
+      Windows user account management events including creation, modification, and deletion.
+      Monitor privileged user management activities.
+    filters:
+      - field: event.module
+        equals: system
+      - field: winlog.event_id
+        in:
+          - '4720'
+          - '4722'
+          - '4723'
+          - '4724'
+          - '4725'
+          - '4726'
+          - '4738'
+          - '4781'
+    controls:
+      - type: options
+        label: Hostname
+        data_view: logs-*
+        field: host.hostname
+        width: medium
+      - type: options
+        label: Target User
+        data_view: logs-*
+        field: winlog.event_data.TargetUserName
+        width: medium
+      - type: options
+        label: Subject User
+        data_view: logs-*
+        field: winlog.event_data.SubjectUserName
+        width: medium
+    panels:
+      # Context Layer - Navigation
+      - title: Windows Security Dashboards
+        grid: {x: 0, y: 0, w: 48, h: 3}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: system-modern-windows-overview
+            - label: Logons
+              dashboard: system-modern-windows-logons
+            - label: Failed & Blocked
+              dashboard: system-modern-windows-failed-blocked
+            - label: User Management
+              dashboard: system-modern-windows-user-management
+            - label: Group Management
+              dashboard: system-modern-windows-group-management
+            - label: Directory Monitoring
+              dashboard: system-modern-windows-directory-monitoring
+            - label: System & Process
+              dashboard: system-modern-windows-system-process
+            - label: Policy & Object
+              dashboard: system-modern-windows-policy-object
+
+      # Summary Layer - Key Metrics
+      - title: Total Events
+        grid: {x: 0, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Events
+      - title: Users Created (4720)
+        grid: {x: 12, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Created
+          filters:
+            - field: winlog.event_id
+              equals: '4720'
+      - title: Users Deleted (4726)
+        grid: {x: 24, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Deleted
+          filters:
+            - field: winlog.event_id
+              equals: '4726'
+      - title: Password Changes (4723/4724)
+        grid: {x: 36, y: 3, w: 12, h: 6}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            label: Password Changes
+          filters:
+            - field: winlog.event_id
+              in:
+                - '4723'
+                - '4724'
+
+      # Analysis Layer - Time Series
+      - title: User Management Events Over Time
+        grid: {x: 0, y: 9, w: 48, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 10
+
+      # Analysis Layer - Event Distribution
+      - title: Event Types
+        grid: {x: 0, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Events by Host
+        grid: {x: 16, y: 21, w: 16, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.hostname
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+      - title: Top Administrators
+        grid: {x: 32, y: 21, w: 16, h: 12}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.SubjectUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Analysis Layer - User Analysis
+      - title: Target Users
+        grid: {x: 0, y: 33, w: 24, h: 15}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: logs-*
+          dimension:
+            type: values
+            field: winlog.event_data.TargetUserName
+            size: 10
+            sort:
+              by: Events
+              direction: desc
+          metrics:
+            - aggregation: count
+              label: Events
+          breakdown:
+            type: values
+            field: winlog.event_id
+            size: 5
+      - title: Administrator and Event Distribution
+        grid: {x: 24, y: 33, w: 24, h: 15}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: winlog.event_data.SubjectUserName
+              size: 10
+            - type: values
+              field: winlog.event_id
+              size: 10
+          metrics:
+            - aggregation: count
+              label: Events
+
+      # Detail Layer - Audit Log Table
+      - title: User Management Audit Log
+        grid: {x: 0, y: 48, w: 48, h: 18}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - id: timestamp
+              field: '@timestamp'
+              type: date_histogram
+            - id: hostname
+              type: values
+              field: host.hostname
+            - id: event-id
+              type: values
+              field: winlog.event_id
+            - id: subject-user
+              type: values
+              field: winlog.event_data.SubjectUserName
+            - id: target-user
+              type: values
+              field: winlog.event_data.TargetUserName
+          metrics:
+            - id: count
+              aggregation: count
+              label: Count
+          paging:
+            enabled: true
+            page_size: 10
