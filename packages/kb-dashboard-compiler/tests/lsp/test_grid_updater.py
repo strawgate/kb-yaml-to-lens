@@ -1,14 +1,9 @@
 """Tests for grid updater utilities."""
 
-from __future__ import annotations
-
 import textwrap
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    import pytest
+import pytest
 
 from dashboard_compiler.dashboard_compiler import load
 from dashboard_compiler.lsp import grid_updater

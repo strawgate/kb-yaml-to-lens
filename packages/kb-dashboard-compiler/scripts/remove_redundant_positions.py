@@ -3,6 +3,7 @@
 # pyright: reportUnknownMemberType=false
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownArgumentType=false
+# pyright: reportMissingTypeStubs=false
 # Script receives untyped YAML data from file parsing
 """Remove redundant position properties from dashboard YAML files.
 
@@ -21,8 +22,6 @@ Arguments:
 Options:
     --dry-run    Report which dashboards would be modified without making changes.
 """
-
-from __future__ import annotations
 
 import argparse
 import logging

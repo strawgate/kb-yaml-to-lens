@@ -43,9 +43,9 @@ def load_roundtrip(path: str) -> CommentedMap:
     yaml = _create_yaml()
     file_path = Path(path)
     with file_path.open(encoding='utf-8') as f:
-        document: Any = yaml.load(f)
+        document: Any = yaml.load(f)  # pyright: ignore[reportUnknownMemberType, reportAny]
     if not isinstance(document, CommentedMap):
-        actual_type = type(document).__name__ if document is not None else 'None'
+        actual_type = type(document).__name__ if document is not None else 'None'  # pyright: ignore[reportAny]
         msg = f'Expected YAML document root to be a mapping, got {actual_type}'
         raise TypeError(msg)
     return document
@@ -61,4 +61,4 @@ def dump_roundtrip(document: CommentedMap, path: str) -> None:
     yaml = _create_yaml()
     file_path = Path(path)
     with file_path.open(mode='w', encoding='utf-8') as f:
-        yaml.dump(document, f)
+        yaml.dump(document, f)  # pyright: ignore[reportUnknownMemberType]

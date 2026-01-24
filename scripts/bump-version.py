@@ -12,7 +12,7 @@ Usage:
     python scripts/bump-version.py patch --dry-run   # Preview changes
 """
 
-from __future__ import annotations
+
 
 import json
 import re

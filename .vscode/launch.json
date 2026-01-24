@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
@@ -13,22 +12,31 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Compile Dashboards",
+            "name": "Compile Example Dashboards",
             "type": "debugpy",
             "request": "launch",
             "module": "dashboard_compiler.cli",
-            "args": ["compile"],
+            "args": [
+                "compile",
+                "--input-dir",
+                "packages/kb-dashboard-docs/content/examples"
+            ],
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/packages/kb-dashboard-compiler"
+            "cwd": "${workspaceFolder}"
         },
         {
-            "name": "Compile Dashboards and Upload",
+            "name": "Compile Example Dashboards and Upload",
             "type": "debugpy",
             "request": "launch",
             "module": "dashboard_compiler.cli",
-            "args": ["compile", "--input-dir", "../../docs/content/examples", "--upload"],
+            "args": [
+                "compile",
+                "--input-dir",
+                "packages/kb-dashboard-docs/content/examples",
+                "--upload"
+            ],
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/packages/kb-dashboard-compiler"
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

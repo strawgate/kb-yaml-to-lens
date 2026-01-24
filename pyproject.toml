@@ -123,19 +123,24 @@ pythonVersion = "3.12"
 typeCheckingMode = "recommended"
 reportImportCycles = "error"
 reportExplicitAny = false
-reportIncompatibleVariableOverride = false
-include = ["packages/kb-dashboard-compiler/src"]
+include = ["packages"]
 exclude = [
     "**/.venv/**",
     "**/output/**",
     "**/*.old.py",
+    "**/kb-dashboard-docs/**",  # Docs hooks use mkdocs which isn't in root deps
 ]
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-compiler/src"
 extraPaths = ["packages/kb-dashboard-compiler/src"]
+reportIncompatibleVariableOverride = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-compiler/tests"
 # Tests use many libraries and test patterns that trigger type warnings.
 # The volume of warnings makes inline ignores impractical for test code.
+extraPaths = ["packages/kb-dashboard-compiler/src"]
 reportMissingTypeStubs = false
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
@@ -150,16 +155,6 @@ reportImplicitOverride = false
 reportPrivateUsage = false
 reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
-
-[[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard-compiler/src/dashboard_compiler/panels/charts/lens/metrics/formula_parser.py"
-# Formula parser uses TatSu which lacks type stubs and returns untyped AST structures.
-# With 100+ type unknowns, per-line ignores would severely harm readability.
-reportMissingTypeStubs = false
-reportAny = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
-reportUnknownArgumentType = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-compiler/src/dashboard_compiler/yaml_roundtrip.py"

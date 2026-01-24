@@ -1,12 +1,7 @@
 """Tests for round-trip YAML preservation."""
 
-from __future__ import annotations
-
 import textwrap
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from pathlib import Path
 
 from dashboard_compiler.lsp import grid_updater
 

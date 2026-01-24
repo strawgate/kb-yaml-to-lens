@@ -2,6 +2,7 @@
 # pyright: reportAny=false
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownArgumentType=false
+# pyright: reportMissingTypeStubs=false
 """Formula parser for Kibana Lens tinymath expressions.
 
 This module parses Kibana Lens formula strings and generates the helper columns
@@ -11,8 +12,6 @@ tinymathAST, and proper reference chains.
 Based on Kibana's tinymath grammar:
 https://github.com/elastic/kibana/blob/main/src/platform/packages/private/kbn-tinymath/src/grammar.peggy
 """
-
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any

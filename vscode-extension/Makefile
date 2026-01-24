@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only package install-vscode install-cursor clean prepare prepare-all
+.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all
 
 # Include shared helpers
 include ../Makefile.shared
@@ -26,6 +26,9 @@ help:
 	@echo "  lint             - Check linting (compiles first)"
 	@echo "  lint-check       - Alias for lint"
 	@echo "  lint-only        - Check linting (no compile, for CI)"
+	@echo ""
+	@echo "Type Checking:"
+	@echo "  typecheck        - Run TypeScript type checking (no emit)"
 	@echo ""
 	@echo "Testing:"
 	@echo "  test             - Run all tests"
@@ -93,6 +96,9 @@ lint-only:
 lint: install compile lint-only
 
 lint-check: lint
+
+typecheck: install
+	$(call run_cmd, "Running TypeScript type checking", npx tsc --noEmit, "Type checking passed")
 
 package: install
 	$(call run_cmd, "Creating .vsix package", npm run package, ".vsix package created")

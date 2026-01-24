@@ -3,7 +3,14 @@
 # Include this file with: include ../Makefile.shared (or ../Makefile.shared from subdirectories)
 
 # Force use of bash for PIPESTATUS support
-SHELL := /bin/bash
+# Allow SHELL to be overridden from command line (e.g., make SHELL=bash)
+# On Windows in CI, bash is available via Git Bash when shell: bash is specified in actions
+# The root Makefile will set SHELL appropriately for the platform
+ifndef SHELL
+  # Default to /bin/bash for Unix-like systems
+  # On Windows, the root Makefile should override this with 'bash' (in PATH)
+  SHELL := /bin/bash
+endif
 
 # Helper to indent command output (4 spaces) while preserving exit codes
 # Note: Requires bash (SHELL := /bin/bash) for PIPESTATUS support

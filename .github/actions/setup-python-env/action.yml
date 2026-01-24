@@ -15,7 +15,10 @@ runs:
         python-version: '3.12'
     - name: Install UV
       uses: astral-sh/setup-uv@v7
-    - name: Install Python dependencies
+    - name: Install root Python dependencies
+      shell: bash
+      run: uv sync --group dev
+    - name: Install compiler Python dependencies
       shell: bash
       run: make compiler install
     - name: Setup Xvfb

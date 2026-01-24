@@ -1,14 +1,10 @@
 """Tests for the Kibana client."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 import pytest
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 from dashboard_compiler.kibana_client import HTTP_SERVICE_UNAVAILABLE, KibanaClient
 

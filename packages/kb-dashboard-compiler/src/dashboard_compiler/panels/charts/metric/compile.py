@@ -1,22 +1,24 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 from dashboard_compiler.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
 if TYPE_CHECKING:
     from dashboard_compiler.panels.charts.esql.columns.view import (
-        KbnESQLColumnTypes,
         KbnESQLFieldDimensionColumn,
         KbnESQLMetricColumnTypes,
     )
     from dashboard_compiler.panels.charts.lens.columns.view import (
-        KbnLensColumnTypes,
         KbnLensMetricColumnTypes,
     )
-    from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
+from dashboard_compiler.panels.charts.esql.columns.view import (
+    KbnESQLColumnTypes,
+)
+from dashboard_compiler.panels.charts.lens.columns.view import (
+    KbnLensColumnTypes,
+)
 from dashboard_compiler.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from dashboard_compiler.panels.charts.lens.metrics.compile import compile_lens_metric
+from dashboard_compiler.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from dashboard_compiler.panels.charts.metric.view import (
     KbnESQLMetricVisualizationState,
     KbnMetricVisualizationState,

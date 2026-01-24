@@ -12,6 +12,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 # Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
 _USE_ASCII = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
@@ -31,7 +32,7 @@ def get_panel_info(dir_path: Path) -> list[tuple[str, str, str]]:
     Returns:
         List of tuples containing (filename, panel_type, panel_title)
     """
-    panels = []
+    panels: list[tuple[str, str, str]] = []
     panels_dir = dir_path / 'panels'
 
     if not panels_dir.exists():
@@ -44,9 +45,9 @@ def get_panel_info(dir_path: Path) -> list[tuple[str, str, str]]:
 
         try:
             with fname.open() as f:
-                panel = json.load(f)
-                ptype = panel.get('type', 'unknown')
-                title = panel.get('title', panel.get('panelConfig', {}).get('title', '(no title)'))
+                panel: dict[str, Any] = json.load(f)  # pyright: ignore[reportAny]
+                ptype: str = panel.get('type', 'unknown')  # pyright: ignore[reportAny]
+                title: str = panel.get('title', panel.get('panelConfig', {}).get('title', '(no title)'))  # pyright: ignore[reportAny]
                 panels.append((fname.name, ptype, title))
         except (json.JSONDecodeError, OSError) as e:
             print(f'Warning: Could not read {fname}: {e}', file=sys.stderr)

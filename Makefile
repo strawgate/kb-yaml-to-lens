@@ -4,6 +4,21 @@
 # Include shared helpers
 include Makefile.shared
 
+# Detect OS and set appropriate shell for recursive make calls
+# On Windows in GitHub Actions, bash is available via Git Bash when shell: bash is used
+# GitHub Actions sets RUNNER_OS environment variable (Windows, Linux, macOS)
+# If RUNNER_OS is Windows, use 'bash' directly (in PATH), otherwise use /bin/bash
+ifdef RUNNER_OS
+  ifeq ($(RUNNER_OS),Windows)
+    MAKE_SHELL := bash
+  else
+    MAKE_SHELL := /bin/bash
+  endif
+else
+  # Not in GitHub Actions - default to /bin/bash for Unix-like systems
+  MAKE_SHELL := /bin/bash
+endif
+
 # Components for pass-through commands
 COMPONENTS := packages/kb-dashboard-compiler vscode-extension
 
@@ -134,11 +149,11 @@ lint-markdown-check:
 
 # YAML linting (global)
 lint-yaml:
-	$(call run_cmd, "Running yamlfix", cd packages/kb-dashboard-compiler && uv run yamlfix $(YAMLFIX_EXCLUDE) ../.., "YAML linting complete")
+	$(call run_cmd, "Running yamlfix", uv run --group dev yamlfix $(YAMLFIX_EXCLUDE) ., "YAML linting complete")
 
 lint-yaml-check:
 	$(call print_start, "Running yamlfix --check")
-	@cd packages/kb-dashboard-compiler && uv run yamlfix --check $(YAMLFIX_EXCLUDE) ../.. $(INDENT)
+	@uv run --group dev yamlfix --check $(YAMLFIX_EXCLUDE) . $(INDENT)
 	$(call print_end, "YAML checks passed")
 
 # Version bumping
@@ -193,16 +208,16 @@ ifeq ($(_FIRST_GOAL),root)
 endif
 
 compiler:
-	@$(MAKE) SHELL=/bin/bash -C packages/kb-dashboard-compiler $(_ARGS)
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-compiler $(_ARGS)
 
 vscode:
-	@$(MAKE) SHELL=/bin/bash -C vscode-extension $(_ARGS)
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C vscode-extension $(_ARGS)
 
 docs:
-	@$(MAKE) SHELL=/bin/bash -C packages/kb-dashboard-docs $(_ARGS)
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-docs $(_ARGS)
 
 gh:
-	@$(MAKE) SHELL=/bin/bash -C .github/scripts $(_ARGS)
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C .github/scripts $(_ARGS)
 
 # Prevent make from trying to build targets passed as arguments to 'all'
 # Without this, 'make all clean' would try to run 'clean' after the all target completes
