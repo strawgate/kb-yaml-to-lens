@@ -1,0 +1,230 @@
+---
+# Kubernetes Resource Allocation Dashboard
+# SRE Question: "Am I running out of resources? Are workloads over/under-provisioned?"
+dashboards:
+  - id: k8s-cluster-resources
+    name: '[Metrics K8s Cluster] Resource Allocation'
+    description: CPU, memory, and storage requests vs limits for capacity planning
+    controls:
+      - type: options
+        label: Namespace
+        data_view: metrics-*
+        field: k8s.namespace.name
+      - type: options
+        label: Node
+        data_view: metrics-*
+        field: k8s.node.name
+    filters:
+      - field: data_stream.dataset
+        equals: kubernetesclusterreceiver.otel
+    panels:
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAVIGATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Navigation
+        size: {w: 48, h: 3}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: 📊 Overview
+              dashboard: k8s-cluster-overview
+            - label: ⚙️ Workloads
+              dashboard: k8s-cluster-workloads
+            - label: 📦 Resources
+              dashboard: k8s-cluster-resources
+            - label: 🔄 Batch Jobs
+              dashboard: k8s-cluster-batch
+            - label: 📈 Autoscaling
+              dashboard: k8s-cluster-hpa
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # CLUSTER CAPACITY OVERVIEW
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Cluster Capacity
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 3}
+        markdown:
+          content: '## 📊 Cluster Capacity (Requests vs Limits)'
+          font_size: 14
+      - title: CPU Requests vs Limits
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 5}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.container.cpu_request)
+              label: CPU Requests
+            - formula: sum(k8s.container.cpu_limit)
+              label: CPU Limits
+          filters:
+            - exists: k8s.container.name
+      - title: Memory Requests vs Limits
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 5}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.container.memory_request)
+              label: Memory Requests
+              format:
+                type: bytes
+            - formula: sum(k8s.container.memory_limit)
+              label: Memory Limits
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.name
+      - title: Storage Requests vs Limits
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 17}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          metrics:
+            - formula: sum(k8s.container.storage_request)
+              label: Storage Requests
+              format:
+                type: bytes
+            - formula: sum(k8s.container.storage_limit)
+              label: Storage Limits
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.storage_request
+      - title: Resource Quota Usage
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 17}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: resource
+            type: values
+            size: 10
+            label: Resource Type
+          metrics:
+            - field: k8s.resource_quota.used
+              aggregation: max
+              label: Used
+            - formula: max(k8s.resource_quota.hard_limit) - max(k8s.resource_quota.used)
+              label: Available
+          filters:
+            - exists: k8s.resource_quota.hard_limit
+          color:
+            palette: eui_amsterdam_color_blind
+            assignments:
+              - value: Used
+                color: '#6092C0'
+              - value: Available
+                color: '#54B399'
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # NAMESPACE ALLOCATION
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Namespace Allocation
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 29}
+        markdown:
+          content: '## 🏷️ Resource Allocation by Namespace'
+          font_size: 14
+      - title: CPU by Namespace
+        size: {w: 24, h: 14}
+        position: {x: 0, y: 31}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: k8s.namespace.name
+            type: values
+            size: 15
+            sort:
+              by: CPU Limits
+              direction: desc
+          metrics:
+            - formula: sum(k8s.container.cpu_request)
+              label: CPU Requests
+            - formula: sum(k8s.container.cpu_limit)
+              label: CPU Limits
+          filters:
+            - exists: k8s.container.name
+      - title: Memory by Namespace
+        size: {w: 24, h: 14}
+        position: {x: 24, y: 31}
+        lens:
+          type: bar
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: k8s.namespace.name
+            type: values
+            size: 15
+            sort:
+              by: Memory Limits
+              direction: desc
+          metrics:
+            - formula: sum(k8s.container.memory_request)
+              label: Memory Requests
+              format:
+                type: bytes
+            - formula: sum(k8s.container.memory_limit)
+              label: Memory Limits
+              format:
+                type: bytes
+          filters:
+            - exists: k8s.container.name
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # POD RESOURCE DETAILS
+      # ═══════════════════════════════════════════════════════════════════════
+      - title: Pod Details
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 45}
+        markdown:
+          content: '## 🔍 Pod Resource Details'
+          font_size: 14
+      - title: Pod Resource Summary
+        size: {w: 48, h: 14}
+        position: {x: 0, y: 47}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - field: k8s.pod.name
+              type: values
+              size: 25
+              label: Pod
+            - field: k8s.namespace.name
+              type: values
+              size: 1
+              label: Namespace
+          metrics:
+            - formula: sum(k8s.container.cpu_request)
+              label: CPU Req
+            - formula: sum(k8s.container.cpu_limit)
+              label: CPU Lim
+            - formula: sum(k8s.container.memory_request)
+              label: Mem Req
+              format:
+                type: bytes
+            - formula: sum(k8s.container.memory_limit)
+              label: Mem Lim
+              format:
+                type: bytes
+            - formula: sum(k8s.container.restarts)
+              label: Restarts
+          filters:
+            - exists: k8s.container.name

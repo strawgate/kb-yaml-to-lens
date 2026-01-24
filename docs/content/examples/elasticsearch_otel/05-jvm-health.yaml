@@ -1,0 +1,264 @@
+---
+dashboards:
+  - id: elasticsearch-otel-jvm-health
+    name: '[Elasticsearch OTel] JVM Health'
+    description: JVM health metrics for Elasticsearch nodes
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    controls:
+      - type: options
+        label: Cluster Name
+        data_view: metrics-*
+        field: elasticsearch.cluster.name
+      - type: options
+        label: Node Name
+        data_view: metrics-*
+        field: elasticsearch.node.name
+    panels:
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: JVM Memory Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
+        markdown:
+          content: '### JVM Memory'
+      - title: JVM Heap Usage %
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 4}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: average(jvm.memory.heap.used) / (average(jvm.memory.heap.max) + 0.000001)
+              label: Heap Usage %
+              format:
+                type: percent
+      - title: JVM Heap Usage (Bytes)
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 4}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: jvm.memory.heap.used
+              label: Heap Used
+              format:
+                type: bytes
+      - title: JVM Heap Committed
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 14}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: jvm.memory.heap.committed
+              label: Heap Committed
+              format:
+                type: bytes
+      - title: JVM Non-Heap Usage
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 14}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: jvm.memory.nonheap.used
+              label: Non-Heap Used
+              format:
+                type: bytes
+      - title: Garbage Collection Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 24}
+        markdown:
+          content: '### Garbage Collection'
+      - title: GC Collection Count
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 26}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: name
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(jvm.gc.collections.count))
+              label: Collections/sec
+      - title: GC Collection Time
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 26}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: name
+            type: values
+            size: 10
+          metrics:
+            - formula: counter_rate(max(jvm.gc.collections.elapsed))
+              label: Time (ms/sec)
+      - title: GC Collectors by Node
+        size: {w: 48, h: 12}
+        position: {x: 0, y: 36}
+        lens:
+          type: datatable
+          data_view: metrics-*
+          dimensions:
+            - id: node
+              type: values
+              field: elasticsearch.node.name
+              label: Node
+              size: 50
+            - id: collector
+              type: values
+              field: name
+              label: Collector
+              size: 10
+          metrics:
+            - id: count
+              formula: counter_rate(max(jvm.gc.collections.count))
+              label: Collections/sec
+            - id: time
+              formula: counter_rate(max(jvm.gc.collections.elapsed))
+              label: Time (ms/sec)
+      - title: Thread Management Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 48}
+        markdown:
+          content: '### Thread Management'
+      - title: JVM Thread Count
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 50}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: jvm.threads.count
+              label: Thread Count
+      - title: JVM Classes Loaded
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 50}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: jvm.classes.loaded
+              label: Classes Loaded
+      - title: Memory Pool Usage Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 60}
+        markdown:
+          content: '### Memory Pool Usage'
+      - title: Memory Pool Usage
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 62}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: name
+            type: values
+            size: 10
+          metrics:
+            - aggregation: average
+              field: jvm.memory.pool.used
+              label: Used
+              format:
+                type: bytes
+      - title: Memory Pool Max
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 62}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: name
+            type: values
+            size: 10
+          metrics:
+            - aggregation: average
+              field: jvm.memory.pool.max
+              label: Max
+              format:
+                type: bytes

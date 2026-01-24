@@ -1,0 +1,346 @@
+---
+dashboards:
+  - id: elasticsearch-otel-node-metrics
+    name: '[Elasticsearch OTel] Node Metrics'
+    description: Detailed time series metrics for Elasticsearch nodes
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    controls:
+      - type: options
+        label: Cluster Name
+        data_view: metrics-*
+        field: elasticsearch.cluster.name
+      - type: options
+        label: Node Name
+        data_view: metrics-*
+        field: elasticsearch.node.name
+    panels:
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: CPU & Memory Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
+        markdown:
+          content: '### CPU & Memory'
+      - title: CPU Usage Over Time
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 4}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.process.cpu.usage
+              label: CPU %
+              format:
+                type: percent
+      - title: Memory Usage Over Time
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 4}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: "average(elasticsearch.os.memory, kql='memory_state: used')"
+              label: Memory Used
+              format:
+                type: bytes
+      - title: Disk I/O Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 14}
+        markdown:
+          content: '### Disk I/O'
+      - title: Disk Read Operations
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 16}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: read')"
+              label: Read Ops/sec
+      - title: Disk Write Operations
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 16}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: write')"
+              label: Write Ops/sec
+      - title: Operations Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 26}
+        markdown:
+          content: '### Operations'
+      - title: Document Operations
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 28}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.documents
+              label: Document Count
+      - title: Indexing Operations
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 28}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: "counter_rate(max(elasticsearch.node.operations.completed), kql='operation: index')"
+              label: Index Ops/sec
+      - title: Cache Performance Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 38}
+        markdown:
+          content: '### Cache Performance'
+      - title: Field Data Cache Evictions
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 40}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: cache_name
+              equals: fielddata
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.node.cache.evictions))
+              label: Evictions/sec
+      - title: Query Cache Evictions
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 40}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: cache_name
+              equals: query
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - formula: counter_rate(max(elasticsearch.node.cache.evictions))
+              label: Evictions/sec
+      - title: Field Data Cache Size
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 50}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          filters:
+            - field: cache_name
+              equals: fielddata
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.cache.memory.usage
+              label: Memory Usage
+              format:
+                type: bytes
+      - title: Query Cache Size
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 50}
+        lens:
+          type: area
+          mode: stacked
+          data_view: metrics-*
+          filters:
+            - field: cache_name
+              equals: query
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.cache.memory.usage
+              label: Memory Usage
+              format:
+                type: bytes
+      - title: Thread Pool Metrics Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 60}
+        markdown:
+          content: '### Thread Pool Metrics'
+      - title: Thread Pool Queue Size - Search
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 62}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: thread_pool_name
+              equals: search
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.thread_pool.tasks.queued
+              label: Queue Size
+      - title: Thread Pool Queue Size - Write
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 62}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: thread_pool_name
+              equals: write
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.thread_pool.tasks.queued
+              label: Queue Size
+      - title: Thread Pool Active Threads - Search
+        size: {w: 24, h: 10}
+        position: {x: 0, y: 72}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: thread_pool_name
+              equals: search
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.thread_pool.threads
+              label: Active Threads
+      - title: Thread Pool Active Threads - Write
+        size: {w: 24, h: 10}
+        position: {x: 24, y: 72}
+        lens:
+          type: line
+          data_view: metrics-*
+          filters:
+            - field: thread_pool_name
+              equals: write
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: elasticsearch.node.name
+            type: values
+            size: 20
+          metrics:
+            - aggregation: average
+              field: elasticsearch.node.thread_pool.threads
+              label: Active Threads
+      - title: Thread Pool Rejections
+        size: {w: 48, h: 10}
+        position: {x: 0, y: 82}
+        lens:
+          type: line
+          data_view: metrics-*
+          dimension:
+            field: '@timestamp'
+            type: date_histogram
+          breakdown:
+            field: thread_pool_name
+            type: values
+            size: 10
+          metrics:
+            - formula: "counter_rate(max(elasticsearch.node.thread_pool.tasks.finished), kql='state: rejected')"
+              label: Rejections/sec

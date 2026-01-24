@@ -1,0 +1,293 @@
+---
+dashboards:
+  - id: elasticsearch-otel-cluster-metadata
+    name: '[Elasticsearch OTel] Cluster Metadata'
+    description: Elasticsearch cluster and node metadata via ES|QL
+    filters:
+      - field: data_stream.dataset
+        equals: elasticsearchreceiver.otel
+    controls:
+      - type: options
+        label: Cluster Name
+        data_view: metrics-*
+        field: elasticsearch.cluster.name
+      - type: options
+        label: Node Name
+        data_view: metrics-*
+        field: elasticsearch.node.name
+    panels:
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 0}
+        links:
+          layout: horizontal
+          items:
+            - label: Cluster Overview
+              dashboard: elasticsearch-otel-cluster-overview
+            - label: Node Overview
+              dashboard: elasticsearch-otel-node-overview
+            - label: Node Metrics
+              dashboard: elasticsearch-otel-node-metrics
+            - label: Index Metrics
+              dashboard: elasticsearch-otel-index-metrics
+            - label: JVM Health
+              dashboard: elasticsearch-otel-jvm-health
+            - label: Circuit Breakers
+              dashboard: elasticsearch-otel-circuit-breakers
+            - label: Cluster Metadata
+              dashboard: elasticsearch-otel-cluster-metadata
+      - title: Cluster Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 2}
+        markdown:
+          content: '### Cluster Configuration'
+      - title: Cluster Summary
+        size: {w: 24, h: 12}
+        position: {x: 0, y: 4}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.cluster.name IS NOT NULL
+            - STATS nodes = MAX(elasticsearch.cluster.nodes), data_nodes = MAX(elasticsearch.cluster.data_nodes) BY cluster = elasticsearch.cluster.name
+            - EVAL nodes_int = TO_INTEGER(nodes)
+            - EVAL data_nodes_int = TO_INTEGER(data_nodes)
+            - KEEP cluster, nodes_int, data_nodes_int
+            - RENAME nodes_int AS `Total Nodes`, data_nodes_int AS `Data Nodes`
+          dimensions:
+            - field: cluster
+            - field: Total Nodes
+            - field: Data Nodes
+      - title: Cluster Health Status
+        size: {w: 24, h: 12}
+        position: {x: 24, y: 4}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.cluster.name IS NOT NULL
+            - STATS pending_tasks = MAX(elasticsearch.cluster.pending_tasks), in_flight = MAX(elasticsearch.cluster.in_flight_fetch), state_queue
+              = MAX(elasticsearch.cluster.state_queue) BY cluster = elasticsearch.cluster.name, health = status
+            - EVAL pending_tasks_int = TO_INTEGER(pending_tasks)
+            - EVAL in_flight_int = TO_INTEGER(in_flight)
+            - EVAL state_queue_int = TO_INTEGER(state_queue)
+            - KEEP cluster, health, pending_tasks_int, in_flight_int, state_queue_int
+            - RENAME pending_tasks_int AS `Pending Tasks`, in_flight_int AS `In-Flight Fetches`, state_queue_int AS `State Queue`
+          dimensions:
+            - field: cluster
+            - field: health
+            - field: Pending Tasks
+            - field: In-Flight Fetches
+            - field: State Queue
+      - title: Node Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 16}
+        markdown:
+          content: '### Node Configuration'
+      - title: Node Metadata
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 18}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS count = COUNT(*) BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
+            - KEEP node, cluster
+          dimensions:
+            - field: node
+            - field: cluster
+      - title: Node Resource Usage Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 33}
+        markdown:
+          content: '### Node Resource Usage'
+      - title: Node CPU and Memory
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 35}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS cpu_usage = AVG(elasticsearch.process.cpu.usage), mem_used = AVG(elasticsearch.os.memory) BY node = elasticsearch.node.name
+            - EVAL cpu_percent = ROUND(cpu_usage * 100, 1)
+            - EVAL mem_gb = ROUND(mem_used / 1073741824, 2)
+            - KEEP node, cpu_percent, mem_gb
+            - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory Used (GB)`
+          dimensions:
+            - field: node
+            - field: CPU %
+            - field: Memory Used (GB)
+      - title: Node Disk Usage
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 35}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS disk_avail = AVG(elasticsearch.node.fs.disk.available), disk_total = AVG(elasticsearch.node.fs.disk.total) BY node = elasticsearch.node.name
+            - EVAL disk_avail_gb = ROUND(disk_avail / 1073741824, 2)
+            - EVAL disk_total_gb = ROUND(disk_total / 1073741824, 2)
+            - EVAL disk_used_pct = CASE(disk_total IS NULL OR disk_total == 0, null, ROUND((1 - (disk_avail / disk_total)) * 100, 1))
+            - KEEP node, disk_avail_gb, disk_total_gb, disk_used_pct
+            - RENAME disk_avail_gb AS `Disk Available (GB)`, disk_total_gb AS `Disk Total (GB)`, disk_used_pct AS `Disk Used %`
+          dimensions:
+            - field: node
+            - field: Disk Available (GB)
+            - field: Disk Total (GB)
+            - field: Disk Used %
+      - title: Index Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 50}
+        markdown:
+          content: '### Index Configuration'
+      - title: Index Statistics
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 52}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.index.name IS NOT NULL
+            - STATS size = AVG(elasticsearch.index.shards.size), segments = AVG(elasticsearch.index.segments.count), segment_size = AVG(elasticsearch.index.segments.size)
+              BY index_name = elasticsearch.index.name
+            - EVAL size_mb = ROUND(size / 1048576, 2)
+            - EVAL segments_int = TO_INTEGER(segments)
+            - EVAL segment_size_mb = ROUND(segment_size / 1048576, 2)
+            - KEEP index_name, size_mb, segments_int, segment_size_mb
+            - RENAME size_mb AS `Size (MB)`, segments_int AS `Segment Count`, segment_size_mb AS `Segment Size (MB)`
+            - SORT `Size (MB)` DESC
+            - LIMIT 100
+          dimensions:
+            - field: index_name
+            - field: Size (MB)
+            - field: Segment Count
+            - field: Segment Size (MB)
+      - title: Thread Pool Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 67}
+        markdown:
+          content: '### Thread Pool Configuration'
+      - title: Thread Pool Status by Node
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 69}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS threads = AVG(elasticsearch.node.thread_pool.threads), queue = AVG(elasticsearch.node.thread_pool.tasks.queued) BY node =
+              elasticsearch.node.name, pool = thread_pool_name
+            - EVAL threads_int = TO_INTEGER(threads)
+            - EVAL queue_int = TO_INTEGER(queue)
+            - KEEP node, pool, threads_int, queue_int
+            - RENAME threads_int AS Threads, queue_int AS `Queue Size`
+            - WHERE Threads > 0 OR `Queue Size` > 0
+          dimensions:
+            - field: node
+            - field: pool
+            - field: Threads
+            - field: Queue Size
+      - title: Cache Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 84}
+        markdown:
+          content: '### Cache Configuration'
+      - title: Cache Memory Usage by Node
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 86}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS mem_usage = AVG(elasticsearch.node.cache.memory.usage) BY node = elasticsearch.node.name, cache = cache_name
+            - EVAL mem_usage_mb = ROUND(mem_usage / 1048576, 2)
+            - KEEP node, cache, mem_usage_mb
+            - RENAME mem_usage_mb AS `Memory Usage (MB)`
+            - WHERE `Memory Usage (MB)` > 0
+          dimensions:
+            - field: node
+            - field: cache
+            - field: Memory Usage (MB)
+      - title: JVM Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 101}
+        markdown:
+          content: '### JVM Configuration'
+      - title: JVM Memory Configuration
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 103}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS heap_max = AVG(jvm.memory.heap.max), heap_used = AVG(jvm.memory.heap.used), nonheap_used = AVG(jvm.memory.nonheap.used) BY
+              node = elasticsearch.node.name
+            - EVAL heap_max_gb = ROUND(heap_max / 1073741824, 2)
+            - EVAL heap_used_gb = ROUND(heap_used / 1073741824, 2)
+            - EVAL nonheap_used_mb = ROUND(nonheap_used / 1048576, 2)
+            - KEEP node, heap_max_gb, heap_used_gb, nonheap_used_mb
+            - RENAME heap_max_gb AS `Heap Max (GB)`, heap_used_gb AS `Heap Used (GB)`, nonheap_used_mb AS `Non-Heap Used (MB)`
+          dimensions:
+            - field: node
+            - field: Heap Max (GB)
+            - field: Heap Used (GB)
+            - field: Non-Heap Used (MB)
+      - title: JVM Thread and Class Information
+        size: {w: 24, h: 15}
+        position: {x: 24, y: 103}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS threads = AVG(jvm.threads.count), classes = AVG(jvm.classes.loaded) BY node = elasticsearch.node.name
+            - EVAL threads_int = TO_INTEGER(threads)
+            - EVAL classes_int = TO_INTEGER(classes)
+            - KEEP node, threads_int, classes_int
+            - RENAME threads_int AS `Thread Count`, classes_int AS `Classes Loaded`
+          dimensions:
+            - field: node
+            - field: Thread Count
+            - field: Classes Loaded
+      - title: Circuit Breaker Configuration Section
+        size: {w: 48, h: 2}
+        position: {x: 0, y: 118}
+        markdown:
+          content: '### Circuit Breaker Configuration'
+      - title: Circuit Breaker Limits
+        size: {w: 48, h: 15}
+        position: {x: 0, y: 120}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
+            - WHERE elasticsearch.node.name IS NOT NULL
+            - STATS estimated = AVG(elasticsearch.breaker.memory.estimated), limit = AVG(elasticsearch.breaker.memory.limit) BY node = elasticsearch.node.name,
+              breaker = name
+            - EVAL estimated_mb = ROUND(estimated / 1048576, 2)
+            - EVAL limit_mb = ROUND(limit / 1048576, 2)
+            - EVAL utilization_pct = CASE(limit == 0 OR limit IS NULL, null, ROUND((estimated / limit) * 100, 1))
+            - KEEP node, breaker, estimated_mb, limit_mb, utilization_pct
+            - RENAME estimated_mb AS `Estimated (MB)`, limit_mb AS `Limit (MB)`, utilization_pct AS `Utilization %`
+          dimensions:
+            - field: node
+            - field: breaker
+            - field: Estimated (MB)
+            - field: Limit (MB)
+            - field: Utilization %
