@@ -258,8 +258,7 @@ def _validate_auth(api_key: str | None, username: str | None, password: str | No
     """
     if api_key is not None and (username is not None or password is not None):
         msg = (
-            f'Cannot use --{service}-api-key together with --{service}-username or '
-            f'--{service}-password. Choose one authentication method.'
+            f'Cannot use --{service}-api-key together with --{service}-username or --{service}-password. Choose one authentication method.'
         )
         raise click.UsageError(msg)
 
