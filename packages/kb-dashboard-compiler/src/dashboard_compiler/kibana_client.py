@@ -31,8 +31,10 @@ class KibanaErrorDetail(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    message: str | None = Field(default=None, description='Error message from Kibana')
-    type: str | None = Field(default=None, description='Error type identifier')
+    message: str | None = None
+    """Error message from Kibana."""
+    type: str | None = None
+    """Error type identifier."""
 
 
 # ============================================================================
@@ -45,8 +47,10 @@ class LayoutDimensions(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
-    width: int = Field(..., description='Screenshot width in pixels')
-    height: int = Field(..., description='Screenshot height in pixels')
+    width: int
+    """Screenshot width in pixels."""
+    height: int
+    """Screenshot height in pixels."""
 
 
 class ScreenshotLayout(BaseModel):
@@ -54,8 +58,10 @@ class ScreenshotLayout(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
-    id: Literal['preserve_layout'] = Field(default='preserve_layout', description='Layout type identifier')
-    dimensions: LayoutDimensions = Field(..., description='Layout dimensions')
+    id: Literal['preserve_layout'] = 'preserve_layout'
+    """Layout type identifier."""
+    dimensions: LayoutDimensions
+    """Layout dimensions."""
 
 
 class ScreenshotTimeRange(BaseModel):
@@ -63,8 +69,10 @@ class ScreenshotTimeRange(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
-    from_time: str = Field(..., serialization_alias='from', description='Start time (ISO 8601 or relative)')
-    to: str = Field(..., description='End time (ISO 8601 or relative)')
+    from_time: str = Field(..., serialization_alias='from')
+    """Start time (ISO 8601 or relative)."""
+    to: str
+    """End time (ISO 8601 or relative)."""
 
 
 class DashboardLocatorParams(BaseModel):
@@ -72,13 +80,16 @@ class DashboardLocatorParams(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
-    dashboard_id: str = Field(..., serialization_alias='dashboardId', description='Dashboard ID to screenshot')
-    use_hash: bool = Field(default=False, serialization_alias='useHash', description='Whether to use hash routing')
-    view_mode: Literal['view', 'edit'] = Field(default='view', serialization_alias='viewMode', description='Dashboard view mode')
-    preserve_saved_filters: bool = Field(default=True, serialization_alias='preserveSavedFilters', description='Preserve saved filters')
-    time_range: ScreenshotTimeRange | None = Field(
-        default=None, serialization_alias='timeRange', description='Optional time range override'
-    )
+    dashboard_id: str = Field(..., serialization_alias='dashboardId')
+    """Dashboard ID to screenshot."""
+    use_hash: bool = Field(default=False, serialization_alias='useHash')
+    """Whether to use hash routing."""
+    view_mode: Literal['view', 'edit'] = Field(default='view', serialization_alias='viewMode')
+    """Dashboard view mode."""
+    preserve_saved_filters: bool = Field(default=True, serialization_alias='preserveSavedFilters')
+    """Preserve saved filters."""
+    time_range: ScreenshotTimeRange | None = Field(default=None, serialization_alias='timeRange')
+    """Optional time range override."""
 
 
 class LocatorParams(BaseModel):
@@ -86,8 +97,10 @@ class LocatorParams(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
-    id: Literal['DASHBOARD_APP_LOCATOR'] = Field(default='DASHBOARD_APP_LOCATOR', description='Locator type identifier')
-    params: DashboardLocatorParams = Field(..., description='Dashboard locator parameters')
+    id: Literal['DASHBOARD_APP_LOCATOR'] = 'DASHBOARD_APP_LOCATOR'
+    """Locator type identifier."""
+    params: DashboardLocatorParams
+    """Dashboard locator parameters."""
 
 
 class JobParams(BaseModel):
@@ -95,9 +108,12 @@ class JobParams(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
-    layout: ScreenshotLayout = Field(..., description='Screenshot layout configuration')
-    browser_timezone: str = Field(..., serialization_alias='browserTimezone', description='Browser timezone for rendering')
-    locator_params: LocatorParams = Field(..., serialization_alias='locatorParams', description='Dashboard locator configuration')
+    layout: ScreenshotLayout
+    """Screenshot layout configuration."""
+    browser_timezone: str = Field(..., serialization_alias='browserTimezone')
+    """Browser timezone for rendering."""
+    locator_params: LocatorParams = Field(..., serialization_alias='locatorParams')
+    """Dashboard locator configuration."""
 
 
 # ============================================================================
@@ -111,8 +127,11 @@ class SavedObjectResult(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     id: str
+    """Saved object ID."""
     destination_id: str | None = Field(default=None, validation_alias='destinationId')
+    """Destination ID if object was relocated."""
     type: str
+    """Saved object type."""
 
 
 class SavedObjectError(BaseModel):
@@ -120,9 +139,12 @@ class SavedObjectError(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
-    error: KibanaErrorDetail | None = Field(default=None, description='Structured error details from Kibana')
-    message: str | None = Field(default=None, description='Top-level error message')
-    status_code: int | None = Field(default=None, alias='statusCode', description='HTTP status code')
+    error: KibanaErrorDetail | None = None
+    """Structured error details from Kibana."""
+    message: str | None = None
+    """Top-level error message."""
+    status_code: int | None = Field(default=None, alias='statusCode')
+    """HTTP status code."""
 
     def get_error_message(self) -> str:
         """Extract the most descriptive error message available.
@@ -143,12 +165,14 @@ class KibanaSavedObjectsResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
-    success: bool = Field(default=False, description='Whether the import was successful')
-    success_count: int = Field(default=0, alias='successCount', description='Number of successfully imported objects')
-    success_results: list[SavedObjectResult] = Field(
-        default_factory=list, alias='successResults', description='List of successfully imported objects'
-    )
-    errors: list[SavedObjectError] = Field(default_factory=list, description='List of errors encountered during import')
+    success: bool = False
+    """Whether the import was successful."""
+    success_count: int = Field(default=0, alias='successCount')
+    """Number of successfully imported objects."""
+    success_results: list[SavedObjectResult] = Field(default_factory=list, alias='successResults')
+    """List of successfully imported objects."""
+    errors: list[SavedObjectError] = Field(default_factory=list)
+    """List of errors encountered during import."""
 
 
 class KibanaReportingJobResponse(BaseModel):
@@ -156,7 +180,8 @@ class KibanaReportingJobResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    path: str = Field(..., description='Path to poll for job completion')
+    path: str
+    """Path to poll for job completion."""
 
 
 class EsqlColumn(BaseModel):
