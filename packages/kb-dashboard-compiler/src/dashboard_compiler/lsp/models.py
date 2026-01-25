@@ -15,10 +15,6 @@ from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict
 
-# Import the canonical ES|QL models from kibana_client
-# These are the single source of truth for ES|QL response shapes
-from dashboard_compiler.kibana_client import EsqlColumn, EsqlResponse
-
 # Re-export for schema generation
 __all__ = [
     'BaseLSPModel',
@@ -61,6 +57,79 @@ class BaseLSPModel(BaseModel):
 
 
 # ============================================================================
+# Grid Model (must be defined before request models that reference it)
+# ============================================================================
+
+
+class Grid(BaseLSPModel):
+    """Grid position and size for a panel."""
+
+    x: int
+    """X position in the grid (column)."""
+    y: int
+    """Y position in the grid (row)."""
+    w: int
+    """Width in grid units."""
+    h: int
+    """Height in grid units."""
+
+
+# ============================================================================
+# ES|QL Models (extra='allow' for flexible API responses)
+# Note: Using inline model_config (not ClassVar) for pydantic2zod compatibility
+# ============================================================================
+
+
+class EsqlColumn(BaseModel):
+    """Column definition in ES|QL query results."""
+
+    # Using inline model_config (not ClassVar) for pydantic2zod compatibility
+    model_config = ConfigDict(extra='allow')  # pyright: ignore[reportUnannotatedClassAttribute]
+    name: str
+    """Column name."""
+    type: str
+    """Column data type (e.g., keyword, long, date)."""
+
+
+class EsqlResponse(BaseModel):
+    """Response from ES|QL query execution via Kibana.
+
+    This model represents the structured result of an ES|QL query,
+    containing column definitions and row values.
+    """
+
+    # Using inline model_config (not ClassVar) for pydantic2zod compatibility
+    model_config = ConfigDict(extra='allow')  # pyright: ignore[reportUnannotatedClassAttribute]
+    columns: list[EsqlColumn]
+    """Column definitions with name and type."""
+    values: list[list[Any]]
+    """Row values as nested arrays."""
+    took: int | None = None
+    """Query execution time in milliseconds."""
+    is_partial: bool | None = None
+    """Whether results are partial."""
+
+    @property
+    def row_count(self) -> int:
+        """Return the number of rows in the result."""
+        return len(self.values)
+
+    @property
+    def column_count(self) -> int:
+        """Return the number of columns in the result."""
+        return len(self.columns)
+
+    def to_dicts(self) -> list[dict[str, Any]]:
+        """Convert results to a list of dictionaries with column names as keys.
+
+        Returns:
+            List of dictionaries, each representing a row with column names as keys.
+        """
+        # Values are dynamic JSON types from Elasticsearch
+        return [{col.name: val for col, val in zip(self.columns, row, strict=False)} for row in self.values]
+
+
+# ============================================================================
 # LSP Request Models
 # ============================================================================
 
@@ -97,7 +166,7 @@ class UpdateGridLayoutRequest(BaseLSPModel):
     """Path to the YAML file containing dashboards."""
     panel_id: str
     """ID of the panel to update."""
-    grid: 'Grid'
+    grid: Grid
     """New grid coordinates with x, y, w, h."""
     dashboard_index: int = 0
     """Index of the dashboard (default: 0)."""
@@ -142,19 +211,6 @@ class EsqlExecuteRequest(BaseLSPModel):
 # ============================================================================
 # Grid Layout Models
 # ============================================================================
-
-
-class Grid(BaseLSPModel):
-    """Grid position and size for a panel."""
-
-    x: int
-    """X position in the grid (column)."""
-    y: int
-    """Y position in the grid (row)."""
-    w: int
-    """Width in grid units."""
-    h: int
-    """Height in grid units."""
 
 
 class PanelGridInfo(BaseLSPModel):

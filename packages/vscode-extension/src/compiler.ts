@@ -23,7 +23,7 @@ import {
     SchemaResult as SchemaResultSchema,
     type DashboardInfoType,
     type DashboardGridInfoType,
-    type EsqlQueryResultType,
+    type EsqlResponseType,
     type GridType,
     type SchemaResultType,
 } from './schemas';
@@ -34,7 +34,7 @@ export type {
     DashboardGridInfoType as DashboardGridInfo,
     PanelGridInfoType as PanelGridInfo,
     EsqlColumnType as EsqlColumn,
-    EsqlQueryResultType as EsqlQueryResult,
+    EsqlResponseType as EsqlQueryResult,
     GridType as Grid,
 } from './schemas';
 
@@ -272,7 +272,7 @@ export class DashboardCompilerLSP {
         password: string,
         apiKey: string,
         sslVerify: boolean
-    ): Promise<EsqlQueryResultType> {
+    ): Promise<EsqlResponseType> {
         if (!this.client) {
             throw new Error('LSP client not started');
         }

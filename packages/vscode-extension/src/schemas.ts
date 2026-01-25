@@ -15,7 +15,7 @@ export {
     DashboardGridInfo,
     DashboardInfo,
     EsqlColumn,
-    EsqlQueryResult,
+    EsqlResponse,
     // LSP request schemas
     CompileRequest,
     GetDashboardsRequest,
@@ -37,7 +37,7 @@ export {
     type DashboardGridInfoType,
     type DashboardInfoType,
     type EsqlColumnType,
-    type EsqlQueryResultType,
+    type EsqlResponseType,
     // Inferred types - requests
     type CompileRequestType,
     type GetDashboardsRequestType,

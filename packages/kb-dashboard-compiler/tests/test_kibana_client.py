@@ -14,7 +14,6 @@ from dashboard_compiler.kibana_client import (
     DashboardLocatorParams,
     EsqlErrorDetail,
     EsqlErrorResponse,
-    EsqlResponse,
     IndexTemplateResponse,
     JobParams,
     KibanaClient,
@@ -25,6 +24,7 @@ from dashboard_compiler.kibana_client import (
     ScreenshotTimeRange,
     _esql_response_adapter,
 )
+from dashboard_compiler.lsp.models import EsqlColumn, EsqlResponse
 
 
 @dataclass
@@ -619,8 +619,6 @@ class TestEsqlResponseModels:
 
     def test_esql_response_to_dicts(self) -> None:
         """Test converting ES|QL results to list of dicts."""
-        from dashboard_compiler.kibana_client import EsqlColumn
-
         response = EsqlResponse(
             columns=[
                 EsqlColumn(name='host', type='keyword'),

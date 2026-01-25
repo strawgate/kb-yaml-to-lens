@@ -14,10 +14,11 @@ OUTPUT_FILE="$VSCODE_DIR/src/schemas.generated.ts"
 echo "Generating Zod schemas from Pydantic models..."
 
 # Generate schemas using pydantic2zod
+# Parse directly from the canonical lsp/models.py (single source of truth)
 cd "$COMPILER_DIR"
-PYTHONPATH="scripts:${PYTHONPATH:-}" uv run python -c "
+PYTHONPATH="src:${PYTHONPATH:-}" uv run python -c "
 from pydantic2zod import Compiler
-output = Compiler().parse('export_lsp_schemas').to_zod()
+output = Compiler().parse('dashboard_compiler.lsp.models').to_zod()
 print(output)
 " > "$OUTPUT_FILE.tmp" 2>/dev/null
 
@@ -127,7 +128,7 @@ export function parseUploadResult(result: unknown): { dashboardUrl: string; dash
  * Parse an ES|QL execute result with validation.
  * @throws Error if the result indicates failure or has invalid structure
  */
-export function parseEsqlExecuteResult(result: unknown): EsqlQueryResultType {
+export function parseEsqlExecuteResult(result: unknown): EsqlResponseType {
     const parsed = EsqlExecuteResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'ES|QL query execution failed');

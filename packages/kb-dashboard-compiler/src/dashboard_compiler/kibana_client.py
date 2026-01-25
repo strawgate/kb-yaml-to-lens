@@ -12,6 +12,8 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, TypeAdapter
 
+from dashboard_compiler.lsp.models import EsqlResponse
+
 logger = logging.getLogger(__name__)
 
 HTTP_OK = 200
@@ -183,62 +185,6 @@ class KibanaReportingJobResponse(BaseModel):
 
     path: str
     """Path to poll for job completion."""
-
-
-class EsqlColumn(BaseModel):
-    """Represents a column definition in ES|QL query results.
-
-    Note: Uses pydantic.BaseModel directly (not shared.model.BaseModel) because this is
-    a view model for API responses, requiring extra='allow' and mutable instances.
-    """
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
-
-    name: str
-    """Column name."""
-    type: str
-    """Column data type (e.g., keyword, long, date)."""
-
-
-class EsqlResponse(BaseModel):
-    """Response from ES|QL query execution via Kibana.
-
-    This model represents the structured result of an ES|QL query,
-    containing column definitions and row values.
-
-    Note: Uses pydantic.BaseModel directly (not shared.model.BaseModel) because this is
-    a view model for API responses, requiring extra='allow' and mutable instances.
-    """
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
-
-    columns: list[EsqlColumn] = Field(default_factory=list)
-    """Column definitions with name and type."""
-    values: list[list[Any]] = Field(default_factory=list)
-    """Row values as nested arrays."""
-    took: int | None = None
-    """Query execution time in milliseconds."""
-    is_partial: bool = False
-    """Whether results are partial."""
-
-    @property
-    def row_count(self) -> int:
-        """Return the number of rows in the result."""
-        return len(self.values)
-
-    @property
-    def column_count(self) -> int:
-        """Return the number of columns in the result."""
-        return len(self.columns)
-
-    def to_dicts(self) -> list[dict[str, Any]]:
-        """Convert results to a list of dictionaries with column names as keys.
-
-        Returns:
-            List of dictionaries, each representing a row with column names as keys.
-        """
-        # Values are dynamic JSON types from Elasticsearch; col.name is typed, val is Any from ES
-        return [{col.name: val for col, val in zip(self.columns, row, strict=False)} for row in self.values]  # pyright: ignore[reportAny]
 
 
 class EsqlRootCause(BaseModel):
