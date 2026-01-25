@@ -117,6 +117,19 @@ service:
 | `host.name` | MySQL host name |
 | `service.instance.id` | MySQL instance identifier |
 
+## Metrics Not Used in Dashboards
+
+The following default metrics are available from the MySQL receiver but are not currently visualized in the dashboards:
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `mysql.buffer_pool.data_pages` | Sum | `1` | Number of data pages in the InnoDB buffer pool | `status` |
+| `mysql.buffer_pool.limit` | Sum | `By` | Configured size of the InnoDB buffer pool | — |
+| `mysql.index.io.wait.time` | Sum | `ns` | Total I/O wait time for an index | `operation`, `table`, `schema`, `index` |
+| `mysql.table.io.wait.time` | Sum | `ns` | Total I/O wait time for a table | `operation`, `table`, `schema` |
+
+All optional metrics listed above are used in the Extended dashboard.
+
 ## Related Resources
 
 - [OpenTelemetry MySQL Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mysqlreceiver)

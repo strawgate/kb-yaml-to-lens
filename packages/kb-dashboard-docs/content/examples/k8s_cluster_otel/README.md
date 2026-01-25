@@ -198,6 +198,31 @@ The `k8s.pod.phase` metric uses numeric values:
 | `k8s.container.status.state` | `terminated`, `running`, `waiting` | Container state |
 | `condition` | `Ready`, `MemoryPressure`, `PIDPressure`, `DiskPressure` | Node condition |
 
+## Metrics Not Used in Dashboards
+
+The following metrics are available from the k8sclusterreceiver but are not currently visualized in the dashboards:
+
+### Default Metrics Not Used
+
+| Metric | Type | Unit | Description |
+|--------|------|------|-------------|
+| `k8s.container.ephemeralstorage_limit` | Gauge | `By` | Maximum ephemeral storage limit |
+| `k8s.container.ephemeralstorage_request` | Gauge | `By` | Ephemeral storage requested |
+| `k8s.statefulset.updated_pods` | Gauge | `{pod}` | Pods created from current version |
+| `k8s.daemonset.current_scheduled_nodes` | Gauge | `{node}` | Nodes running daemon pods as intended |
+| `k8s.daemonset.misscheduled_nodes` | Gauge | `{node}` | Nodes running daemon pods incorrectly |
+| `k8s.job.max_parallel_pods` | Gauge | `{pod}` | Maximum concurrent pods |
+| `k8s.namespace.phase` | Gauge | — | Current phase (1=active, 0=terminating) |
+
+### Optional Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `k8s.container.status.reason` | Sum | `{container}` | Container count by status reason | `k8s.container.status.reason` |
+| `k8s.container.status.state` | Sum | `{container}` | Container count by state | `k8s.container.status.state` |
+| `k8s.node.condition` | Gauge | `{condition}` | Node condition status | `condition` |
+| `k8s.pod.status_reason` | Gauge | — | Pod status reason (numeric encoding) | — |
+
 ## Related Resources
 
 - [OpenTelemetry k8sclusterreceiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sclusterreceiver)

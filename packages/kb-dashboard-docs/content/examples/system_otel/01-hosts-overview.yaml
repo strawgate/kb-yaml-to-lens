@@ -46,7 +46,7 @@ dashboards:
           content: '## Fleet Health'
       - title: Total Hosts
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -59,7 +59,7 @@ dashboards:
               decimals: 0
       - title: Hosts by OS Type
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -76,7 +76,7 @@ dashboards:
               decimals: 0
       - title: CPU Utilization Fleet
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -89,7 +89,7 @@ dashboards:
               type: percent
       - title: Memory Utilization Fleet
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*

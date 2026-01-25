@@ -98,3 +98,22 @@ service:
 | `container.image.id` | Container image ID | Enabled |
 | `container.runtime` | Container runtime | Enabled |
 | `container.command_line` | Container command line | Disabled |
+
+## Metrics Not Used in Dashboards
+
+The following default metrics are available but not currently visualized in the dashboards:
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `container.cpu.usage.kernelmode` | Sum | `ns` | CPU time in kernel mode | — |
+| `container.cpu.usage.usermode` | Sum | `ns` | CPU time in user mode | — |
+| `container.memory.file` | Sum | `By` | Filesystem cache memory (cgroups v2) | — |
+| `container.memory.total_cache` | Sum | `By` | Memory with block devices | — |
+| `container.network.io.usage.rx_dropped` | Sum | `{packets}` | Incoming packets dropped | `interface` |
+| `container.network.io.usage.tx_dropped` | Sum | `{packets}` | Outgoing packets dropped | `interface` |
+
+All optional metrics (60+) listed in the "Optional Metrics" section above are also not used in the current dashboards. See the [OpenTelemetry Docker Stats Receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/dockerstatsreceiver) for details on enabling these metrics.
+
+## Related Resources
+
+- [OpenTelemetry Docker Stats Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/dockerstatsreceiver)

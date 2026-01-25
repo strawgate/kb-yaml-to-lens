@@ -43,7 +43,7 @@ dashboards:
               dashboard: docker-otel-overview
             - label: Container Stats
               dashboard: docker-otel-container-stats
-      - size: {w: 6, h: 6}
+      - size: {w: 6, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -53,7 +53,7 @@ dashboards:
             format:
               type: number
               decimals: 0
-      - size: {w: 6, h: 6}
+      - size: {w: 6, h: 4}
         lens:
           type: metric
           data_view: metrics-*

@@ -41,7 +41,7 @@ dashboards:
           content: '### Index Overview'
       - title: Total Indices
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -51,7 +51,7 @@ dashboards:
             label: Indices
       - title: Total Index Size
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -61,7 +61,7 @@ dashboards:
             label: Total Size
       - title: Total Segment Count
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
