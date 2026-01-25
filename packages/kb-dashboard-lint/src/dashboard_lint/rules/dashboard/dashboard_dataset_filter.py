@@ -17,6 +17,14 @@ class DashboardDatasetFilterRule(DashboardRule):
     Adding a dataset filter helps scope dashboards to specific data sources
     and improves query performance by limiting the data scanned.
 
+    Only value-matching filters (PhraseFilter and PhrasesFilter) satisfy this
+    rule because they restrict the dataset to specific values. ExistsFilter
+    only asserts the presence of the dataset field without limiting which
+    datasets are included.
+
+    The rule inspects dashboard.filters for PhraseFilter or PhrasesFilter
+    matching the configured field name.
+
     Options:
         field (str): Field name to check for. Default: 'data_stream.dataset'.
     """

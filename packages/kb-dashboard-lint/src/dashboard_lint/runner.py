@@ -3,7 +3,7 @@
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.config import LintConfig, get_effective_config
 from dashboard_lint.registry import RuleRegistry, default_registry
-from dashboard_lint.types import Severity, Violation
+from dashboard_lint.types import Violation
 
 
 class LintRunner:
@@ -47,7 +47,7 @@ class LintRunner:
                 rule.default_severity,
             )
 
-            if not enabled or severity == Severity.OFF:
+            if not enabled:
                 continue
 
             for dashboard in dashboards:

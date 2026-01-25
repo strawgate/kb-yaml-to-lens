@@ -74,9 +74,12 @@ default_registry = RuleRegistry()
 
 
 def register_rule(rule: Rule) -> Rule:
-    """Register a rule with the default registry.
+    """Register a rule instance with the default registry.
 
-    This function can be used as a decorator or called directly.
+    This function expects a Rule instance, not a class. It does not instantiate
+    classes. For class decorator usage, use the specialized decorators in
+    dashboard_lint/rules/core/decorators.py (e.g., @panel_rule, @chart_rule,
+    @dashboard_rule) which handle instantiation before calling register_rule.
 
     Args:
         rule: The rule instance to register.
@@ -85,11 +88,7 @@ def register_rule(rule: Rule) -> Rule:
         The rule instance (unchanged).
 
     Example:
-        @register_rule
-        class MyRule:
-            ...
-
-        # Or:
+        # Register an existing instance
         register_rule(MyRule())
 
     """

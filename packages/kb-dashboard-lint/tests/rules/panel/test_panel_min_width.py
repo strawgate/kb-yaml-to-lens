@@ -130,3 +130,25 @@ class TestPanelMinWidthRule:
 
         assert len(violations) == 1
         assert 'width 6' in violations[0].message
+
+    def test_width_at_boundary_passes(self) -> None:
+        """Width exactly at min_width should pass (uses >= comparison)."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Boundary Panel',
+                    size=Size(w=6, h=5),
+                    lens=LensMetricPanelConfig(
+                        type='metric',
+                        data_view='logs-*',
+                        primary=LensCountAggregatedMetric(aggregation='count'),
+                    ),
+                ),
+            ],
+        )
+
+        rule = PanelMinWidthRule()
+        violations = rule.check(dashboard, {'min_width': 6})
+
+        assert len(violations) == 0

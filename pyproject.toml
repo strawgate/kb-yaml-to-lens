@@ -94,6 +94,10 @@ ignore = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
+    "F401", # Allow side-effect imports for rule registration
+]
+"packages/kb-dashboard-lint/src/dashboard_lint/cli.py" = [
+    "F401", # Allow side-effect imports for rule registration
 ]
 "packages/kb-dashboard-compiler/src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
@@ -107,6 +111,12 @@ ignore = [
     "PLR0911", # Allow many return statements in grid_updater
     "PLR0912", # Allow many branches in grid_updater
     "PLR0915", # Allow many statements in grid_updater
+]
+"packages/kb-dashboard-lint/src/dashboard_lint/config.py" = [
+    "PLR0911", # Allow many return statements for config loading
+]
+"packages/kb-dashboard-lint/src/dashboard_lint/yaml_position_resolver.py" = [
+    "PLR0911", # Allow many return statements in navigation logic
 ]
 
 [tool.ruff.format]

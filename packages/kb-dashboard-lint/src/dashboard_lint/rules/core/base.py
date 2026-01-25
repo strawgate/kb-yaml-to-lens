@@ -40,6 +40,11 @@ _UNION_TYPE: Any = typing.Union
 # Type alias for flexible return types from check methods
 type ViolationResult = Violation | list[Violation] | None
 
+# Class-level caches for extracted types (keyed by class)
+# Using class-level dicts because rule instances are frozen dataclasses
+_panel_types_cache: dict[type, tuple[type, ...] | None] = {}
+_config_types_cache: dict[type, tuple[type, ...] | None] = {}
+
 
 def normalize_result(result: ViolationResult) -> list[Violation]:
     """Normalize rule check results to a list.
@@ -286,8 +291,6 @@ class PanelRule[PanelT: BasePanel](ABC):
     id: str
     description: str
     default_severity: Severity
-    _panel_types: tuple[type, ...] | None = None
-    """Cached panel types extracted from generic. Use get_panel_types()."""
 
     def get_panel_types(self) -> tuple[type, ...] | None:
         """Get panel types to filter, extracted from generic type parameter.
@@ -296,13 +299,10 @@ class PanelRule[PanelT: BasePanel](ABC):
             Tuple of panel types to check, or None to check all panels.
 
         """
-        if self._panel_types is None:
-            extracted = _extract_types_from_generic(type(self), PanelRule)
-            # Cache the result (even if None) to avoid repeated extraction
-            # We use a sentinel to distinguish "not extracted" from "extracted as None"
-            if extracted is not None:
-                object.__setattr__(self, '_panel_types', extracted)
-        return self._panel_types
+        cls = type(self)
+        if cls not in _panel_types_cache:
+            _panel_types_cache[cls] = _extract_types_from_generic(cls, PanelRule)
+        return _panel_types_cache[cls]
 
     @abstractmethod
     def check_panel(
@@ -389,8 +389,6 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
     id: str
     description: str
     default_severity: Severity
-    _config_types: tuple[type, ...] | None = None
-    """Cached config types extracted from generic. Use get_config_types()."""
 
     def get_config_types(self) -> tuple[type, ...] | None:
         """Get config types to filter, extracted from generic type parameter.
@@ -399,11 +397,10 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
             Tuple of config types to check, or None to check all configs.
 
         """
-        if self._config_types is None:
-            extracted = _extract_types_from_generic(type(self), ChartRule)
-            if extracted is not None:
-                object.__setattr__(self, '_config_types', extracted)
-        return self._config_types
+        cls = type(self)
+        if cls not in _config_types_cache:
+            _config_types_cache[cls] = _extract_types_from_generic(cls, ChartRule)
+        return _config_types_cache[cls]
 
     @abstractmethod
     def check_chart(

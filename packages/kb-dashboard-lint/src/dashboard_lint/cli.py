@@ -183,7 +183,7 @@ def check(
         kb-dashboard-lint check --config .dashboard-lint.yaml
     """
     # Import rules to register them
-    import dashboard_lint.rules  # noqa: F401  # pyright: ignore[reportUnusedImport]
+    import dashboard_lint.rules  # pyright: ignore[reportUnusedImport]
     from dashboard_compiler import load
 
     # Validate input options
@@ -205,7 +205,7 @@ def check(
         else:
             console.print('[red]Error: No input specified[/red]')
             sys.exit(1)
-    except Exception as e:
+    except (FileNotFoundError, PermissionError, OSError) as e:
         console.print(f'[red]Error loading dashboards: {e}[/red]')
         sys.exit(1)
 
@@ -241,7 +241,7 @@ def check(
 def list_rules() -> None:
     """List all available lint rules."""
     # Import rules to register them
-    import dashboard_lint.rules  # noqa: F401  # pyright: ignore[reportUnusedImport]
+    import dashboard_lint.rules  # pyright: ignore[reportUnusedImport]
     from dashboard_lint.registry import default_registry
 
     table = Table(title='Available Lint Rules')

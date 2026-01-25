@@ -12,7 +12,10 @@ from dashboard_compiler.panels.charts.config import (
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
-# Minimum recommended heights for different chart types
+# Minimum recommended heights for different chart types.
+# Update this mapping when new chart types are added or height requirements change.
+# If a chart type is not in this mapping and no custom override is provided via
+# options['min_heights'], no height check is performed and the chart is allowed.
 MIN_HEIGHTS: dict[str, int] = {
     'metric': 3,
     'gauge': 3,
@@ -54,6 +57,11 @@ class PanelHeightForContentRule(ChartRule[AnyChartConfig]):
         options: dict[str, Any],
     ) -> ViolationResult:
         """Check panel for insufficient height based on chart type.
+
+        Height resolution:
+        1. Check options['min_heights'] for custom override by chart_type
+        2. Fall back to MIN_HEIGHTS defaults
+        3. If chart_type not found in either, no check is performed (passes)
 
         Args:
             panel: The chart panel to check.

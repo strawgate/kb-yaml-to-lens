@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from dashboard_lint.registry import default_registry
 from dashboard_lint.types import Severity
@@ -192,6 +192,9 @@ def load_config(path: Path | None = None) -> LintConfig:
     except yaml.YAMLError as e:
         logger.warning('Failed to parse config file %s: %s', path, e)
         return LintConfig()
-    except Exception as e:
+    except ValidationError as e:
+        logger.warning('Failed to validate config file %s: %s', path, e)
+        return LintConfig()
+    except OSError as e:
         logger.warning('Failed to load config file %s: %s', path, e)
         return LintConfig()

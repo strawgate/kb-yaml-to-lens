@@ -1,6 +1,6 @@
 """Tests for the lint runner."""
 
-import dashboard_lint.rules as _rules  # noqa: F401  # pyright: ignore[reportUnusedImport]
+import dashboard_lint.rules as _rules  # pyright: ignore[reportUnusedImport]
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.config import LintConfig, RuleConfig
 from dashboard_lint.registry import default_registry

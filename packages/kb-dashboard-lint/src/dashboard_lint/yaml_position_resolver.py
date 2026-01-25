@@ -17,6 +17,9 @@ from dashboard_lint.types import SourcePosition, SourceRange
 # Pattern to parse path segments like "panels[2]" or "metrics[0]" or "lens"
 PATH_SEGMENT_PATTERN = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_]*)(?:\[(\d+)\])?$')
 
+# Default character span for end position estimation when no better info available
+_DEFAULT_HIGHLIGHT_WIDTH = 40
+
 
 class YamlPositionResolver:
     """Resolves Dashboard object paths to YAML source positions.
@@ -133,7 +136,7 @@ class YamlPositionResolver:
 
         return segments
 
-    def _navigate_to_node(  # noqa: PLR0911
+    def _navigate_to_node(
         self,
         segments: list[tuple[str, int | None]],
     ) -> tuple[CommentedMap | CommentedSeq | None, str | int | None]:
@@ -264,10 +267,10 @@ class YamlPositionResolver:
                     return SourcePosition(line=next_pos.line - 1, character=0)
 
             # Default: end of line
-            return SourcePosition(line=start.line, character=start.character + 40)
+            return SourcePosition(line=start.line, character=start.character + _DEFAULT_HIGHLIGHT_WIDTH)
 
         # Fallback: end of line
-        return SourcePosition(line=start.line, character=start.character + 40)
+        return SourcePosition(line=start.line, character=start.character + _DEFAULT_HIGHLIGHT_WIDTH)
 
     def resolve(self, path: str) -> SourceRange | None:
         """Resolve a path to its source range in the YAML file.

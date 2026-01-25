@@ -95,16 +95,38 @@ class DimensionMissingLabelRule(ChartRule[BreakdownConfig]):
             Violation if dimension missing label, None otherwise.
 
         """
+        violations: list[Violation] = []
+
+        # Check dimension field (XY charts and Mosaic charts have this)
+        if (
+            isinstance(config, (LensLinePanelConfig, LensBarPanelConfig, LensAreaPanelConfig, LensMosaicPanelConfig))
+            and config.dimension is not None
+            and _dimension_has_empty_label(config.dimension)
+        ):
+            field_name = _get_dimension_field(config.dimension)
+            violations.append(
+                Violation(
+                    rule_id=self.id,
+                    message=f"Dimension '{field_name}' should have an explicit label",
+                    severity=self.default_severity,
+                    dashboard_name=context.dashboard_name,
+                    panel_title=context.panel_title,
+                    location=context.location('dimension'),
+                )
+            )
+
         # Check breakdown dimension
         if config.breakdown is not None and _dimension_has_empty_label(config.breakdown):
             field_name = _get_dimension_field(config.breakdown)
-            return Violation(
-                rule_id=self.id,
-                message=f"Dimension '{field_name}' should have an explicit label",
-                severity=self.default_severity,
-                dashboard_name=context.dashboard_name,
-                panel_title=context.panel_title,
-                location=context.location('breakdown'),
+            violations.append(
+                Violation(
+                    rule_id=self.id,
+                    message=f"Dimension '{field_name}' should have an explicit label",
+                    severity=self.default_severity,
+                    dashboard_name=context.dashboard_name,
+                    panel_title=context.panel_title,
+                    location=context.location('breakdown'),
+                )
             )
 
-        return None
+        return violations if violations else None
