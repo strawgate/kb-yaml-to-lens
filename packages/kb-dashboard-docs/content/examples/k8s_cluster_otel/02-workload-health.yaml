@@ -54,6 +54,9 @@ dashboards:
           primary:
             formula: unique_count(k8s.container.name)
             label: Ready
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.container.ready
               equals: '1'
@@ -66,6 +69,9 @@ dashboards:
           primary:
             formula: unique_count(k8s.container.name)
             label: Not Ready
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.container.ready
               equals: '0'
@@ -78,6 +84,9 @@ dashboards:
           primary:
             formula: sum(k8s.container.restarts)
             label: Restarts
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.container.restarts
       - title: Containers Restarting
@@ -89,6 +98,9 @@ dashboards:
           primary:
             formula: unique_count(k8s.container.name)
             label: With Restarts
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.container.restarts
               gt: '0'
@@ -112,8 +124,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.deployment.desired)
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.deployment.available)
               label: Available
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.deployment.name
       - title: StatefulSets
@@ -127,8 +145,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.statefulset.desired_pods)
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.statefulset.ready_pods)
               label: Ready
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.statefulset.name
       - title: DaemonSets
@@ -142,8 +166,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.daemonset.desired_scheduled_nodes)
               label: Desired Nodes
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.daemonset.ready_nodes)
               label: Ready Nodes
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.daemonset.name
       - title: ReplicaSets
@@ -157,8 +187,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.replicaset.desired)
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.replicaset.available)
               label: Available
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.replicaset.name
 
@@ -187,6 +223,9 @@ dashboards:
             - aggregation: unique_count
               field: k8s.container.name
               label: Containers
+              format:
+                type: number
+                decimals: 0
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -210,6 +249,9 @@ dashboards:
             - field: k8s.container.restarts
               aggregation: max
               label: Restarts
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: k8s.container.restarts
               gt: '0'
@@ -240,9 +282,15 @@ dashboards:
             - field: k8s.deployment.desired
               aggregation: max
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - field: k8s.deployment.available
               aggregation: max
               label: Available
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.deployment.name
       - title: StatefulSet Status
@@ -263,11 +311,20 @@ dashboards:
             - field: k8s.statefulset.desired_pods
               aggregation: max
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - field: k8s.statefulset.ready_pods
               aggregation: max
               label: Ready
+              format:
+                type: number
+                decimals: 0
             - field: k8s.statefulset.current_pods
               aggregation: max
               label: Current
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.statefulset.name

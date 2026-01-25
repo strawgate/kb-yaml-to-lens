@@ -44,6 +44,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: crowdstrike.event.Category
               equals: Incidents
@@ -66,6 +69,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: Events by Technique Name
         size:
           w: 10
@@ -85,6 +91,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: Events by Tactic Name
         size:
           w: 11
@@ -104,6 +113,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: Events over Time by Event Type
         size:
           w: 41
@@ -143,6 +155,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count of records
+              format:
+                type: number
+                decimals: 0
       - title: Top Related Users
         size:
           w: 20
@@ -161,3 +176,6 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count of records
+              format:
+                type: number
+                decimals: 0

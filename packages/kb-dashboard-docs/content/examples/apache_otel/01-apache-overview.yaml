@@ -92,6 +92,7 @@ dashboards:
             format:
               type: number
               pattern: 0,0
+              decimals: 0
       - title: CPU Load
         hide_title: true
         size: {w: 12, h: 6}
@@ -254,6 +255,7 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
+                decimals: 0
           breakdown:
             field: resource.attributes.apache.server.name
       - title: CPU Load Over Time
@@ -302,6 +304,7 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
+                decimals: 0
           breakdown:
             field: attributes.connection_state
       - title: Worker Distribution
@@ -321,6 +324,7 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
+                decimals: 0
           dimensions:
             - field: state
           appearance:
@@ -349,6 +353,7 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
+                decimals: 0
           breakdown:
             field: attributes.state
       - title: Workers by State Over Time
@@ -373,6 +378,7 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
+                decimals: 0
           breakdown:
             field: attributes.state
 

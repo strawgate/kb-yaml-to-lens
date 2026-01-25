@@ -61,6 +61,9 @@ dashboards:
             field: container.id
             aggregation: unique_count
             label: Selected Containers
+            format:
+              type: number
+              decimals: 0
 
       # Container info table
       - title: Container info

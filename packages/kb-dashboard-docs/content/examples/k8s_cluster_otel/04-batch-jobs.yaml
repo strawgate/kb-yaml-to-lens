@@ -54,6 +54,9 @@ dashboards:
           primary:
             formula: sum(k8s.job.successful_pods)
             label: Successful
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.job.name
       - title: Failed Jobs
@@ -65,6 +68,9 @@ dashboards:
           primary:
             formula: sum(k8s.job.failed_pods)
             label: Failed
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.job.name
       - title: Active Jobs
@@ -76,6 +82,9 @@ dashboards:
           primary:
             formula: sum(k8s.job.active_pods)
             label: Active
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.job.name
       - title: Active CronJobs
@@ -87,6 +96,9 @@ dashboards:
           primary:
             formula: sum(k8s.cronjob.active_jobs)
             label: Active
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.cronjob.name
 
@@ -110,10 +122,19 @@ dashboards:
           metrics:
             - formula: sum(k8s.job.successful_pods)
               label: Successful
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.job.failed_pods)
               label: Failed
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.job.active_pods)
               label: Active
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.job.name
           color:
@@ -152,14 +173,26 @@ dashboards:
             - field: k8s.job.active_pods
               aggregation: max
               label: Active
+              format:
+                type: number
+                decimals: 0
             - field: k8s.job.successful_pods
               aggregation: max
               label: Successful
+              format:
+                type: number
+                decimals: 0
             - field: k8s.job.failed_pods
               aggregation: max
               label: Failed
+              format:
+                type: number
+                decimals: 0
             - field: k8s.job.desired_successful_pods
               aggregation: max
               label: Desired
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.job.name

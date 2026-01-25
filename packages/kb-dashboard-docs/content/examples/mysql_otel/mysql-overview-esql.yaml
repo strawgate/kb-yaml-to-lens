@@ -46,6 +46,9 @@ dashboards:
           primary:
             field: active_connections
             label: Active Connections
+            format:
+              type: number
+              decimals: 0
       - title: Buffer Pool Efficiency
         hide_title: true
         size: {w: 12, h: 6}
@@ -397,6 +400,9 @@ dashboards:
           metrics:
             - field: thread_count
               label: Threads
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: kind
       - title: Sort Operations

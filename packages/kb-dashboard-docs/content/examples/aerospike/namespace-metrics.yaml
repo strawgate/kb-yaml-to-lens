@@ -54,6 +54,9 @@ dashboards:
           primary:
             field: namespace_count
             label: Namespaces
+            format:
+              type: number
+              decimals: 0
       - title: Memory Usage
         size: {w: 12, h: 5}
         position: {x: 12, y: 4}

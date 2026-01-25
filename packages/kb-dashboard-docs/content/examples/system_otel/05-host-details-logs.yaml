@@ -67,6 +67,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Events
+              format:
+                type: number
+                decimals: 0
       - title: Log Level Distribution
         size: {w: 16, h: 12}
         lens:
@@ -80,6 +83,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Events
+              format:
+                type: number
+                decimals: 0
 
       # ═══════════════════════════════════════════════════════════════════════
       # LOG DETAILS TABLE
