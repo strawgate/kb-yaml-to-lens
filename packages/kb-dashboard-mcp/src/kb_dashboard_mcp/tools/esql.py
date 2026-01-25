@@ -9,9 +9,8 @@ from fastmcp.tools import Tool
 from kb_dashboard_mcp.models import EsqlQueryResult
 
 if TYPE_CHECKING:
+    from dashboard_compiler.kibana_client import KibanaClient
     from fastmcp import FastMCP
-
-    from kb_dashboard_mcp.client import KibanaClient
 
 
 async def execute_esql(
@@ -36,7 +35,7 @@ async def execute_esql(
         msg = 'Query cannot be empty'
         raise ValueError(msg)
 
-    result = await client.esql_query(query=query, columnar=columnar)
+    result = await client.esql_query_raw(query=query, columnar=columnar)
 
     columns: list[dict[str, str]] = result.get('columns', [])
     values: list[list[Any]] = result.get('values', [])

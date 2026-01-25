@@ -6,18 +6,7 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
-
-from kb_dashboard_mcp.client import KibanaClient, KibanaClientConfig
-
-
-@pytest.fixture
-def kibana_config() -> KibanaClientConfig:
-    """Create a test KibanaClientConfig."""
-    return KibanaClientConfig(
-        kibana_url='https://kibana.example.com:5601',
-        api_key='test-api-key',
-        verify_ssl=False,
-    )
+from dashboard_compiler.kibana_client import KibanaClient
 
 
 @pytest.fixture
@@ -25,11 +14,10 @@ def mock_kibana_client() -> AsyncMock:
     """Create a mock KibanaClient."""
     client = AsyncMock(spec=KibanaClient)
 
-    client.esql_query = AsyncMock()
+    client.esql_query_raw = AsyncMock()
     client.get_data_streams = AsyncMock()
     client.test_grok_pattern = AsyncMock()
     client.simulate_ingest = AsyncMock()
-    client.ping = AsyncMock(return_value=True)
     client.close = AsyncMock()
 
     return client

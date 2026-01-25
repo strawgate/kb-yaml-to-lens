@@ -563,3 +563,186 @@ class KibanaClient:
 
             # Parse response into Pydantic model for type safety
             return EsqlResponse.model_validate(result)
+
+    async def esql_query_raw(
+        self,
+        query: str,
+        columnar: bool = False,
+    ) -> dict[str, Any]:
+        """Execute an ES|QL query and return the raw response dict.
+
+        This is a lower-level method that returns the raw Elasticsearch response
+        without Pydantic validation. Useful for MCP tools that need direct access
+        to the response structure.
+
+        Args:
+            query: The ES|QL query string to execute
+            columnar: Whether to return results in columnar format
+
+        Returns:
+            Raw response dict with columns and values
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response contains an error message
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_query', 'method': 'POST'}
+
+        request_body: dict[str, Any] = {'query': query}
+        if columnar:
+            request_body['columnar'] = True
+
+        timeout = aiohttp.ClientTimeout(total=30)
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+            timeout=timeout,
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'ES|QL query failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+
+            if not isinstance(result, dict):
+                msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
+                raise TypeError(msg)
+
+            if 'error' in result:
+                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
+                if isinstance(error_info, dict):
+                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                elif isinstance(error_info, str):
+                    error_msg = error_info
+                else:
+                    error_msg = str(error_info)  # pyright: ignore[reportUnknownArgumentType]
+                msg = f'ES|QL query error: {error_msg}'
+                raise ValueError(msg)
+
+            return dict(result)  # pyright: ignore[reportUnknownArgumentType]
+
+    async def get_data_streams(self, name: str | None = None) -> dict[str, Any]:
+        """Get data stream information via Kibana's console proxy.
+
+        Args:
+            name: Optional name pattern to filter data streams (supports wildcards).
+
+        Returns:
+            Data stream information from Elasticsearch.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            ValueError: If the response indicates an error
+
+        """
+        path = '/_data_stream'
+        if name is not None:
+            path = f'/_data_stream/{name}'
+
+        endpoint = '/api/console/proxy'
+        params = {'path': path, 'method': 'GET'}
+
+        async with await self._post(
+            endpoint,
+            params=params,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'Get data streams failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            return json_response
+
+    async def test_grok_pattern(
+        self,
+        grok_pattern: str,
+        text: list[str],
+        pattern_definitions: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Test a grok pattern against sample text via Kibana's console proxy.
+
+        Args:
+            grok_pattern: The grok pattern to test.
+            text: Sample text lines to match against.
+            pattern_definitions: Optional custom pattern definitions.
+
+        Returns:
+            Match results from Elasticsearch text_structure API.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            ValueError: If the response indicates an error
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_text_structure/test_grok_pattern', 'method': 'POST'}
+
+        request_body: dict[str, Any] = {
+            'grok_pattern': grok_pattern,
+            'text': text,
+        }
+        if pattern_definitions is not None:
+            request_body['pattern_definitions'] = pattern_definitions
+
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'Grok pattern test failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            return json_response
+
+    async def simulate_ingest(
+        self,
+        pipeline: dict[str, Any],
+        docs: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Simulate an ingest pipeline via Kibana's console proxy.
+
+        Args:
+            pipeline: The pipeline configuration.
+            docs: Documents to simulate.
+
+        Returns:
+            Simulation results from Elasticsearch.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            ValueError: If the response indicates an error
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_ingest/pipeline/_simulate', 'method': 'POST'}
+
+        request_body = {
+            'pipeline': pipeline,
+            'docs': docs,
+        }
+
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'Ingest simulation failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
+            return json_response

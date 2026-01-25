@@ -9,9 +9,8 @@ from fastmcp.tools import Tool
 from kb_dashboard_mcp.models import DissectMatchResult, GrokMatchResult
 
 if TYPE_CHECKING:
+    from dashboard_compiler.kibana_client import KibanaClient
     from fastmcp import FastMCP
-
-    from kb_dashboard_mcp.client import KibanaClient
 
 
 async def run_grok_pattern_test(

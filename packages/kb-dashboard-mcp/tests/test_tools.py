@@ -79,18 +79,18 @@ class TestDataStreamSummarize:
         sample_esql_response: dict[str, Any],
     ) -> None:
         """Test summarizing a data stream with data."""
-        mock_kibana_client.esql_query.return_value = sample_esql_response
+        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
 
         result = await summarize_single_data_stream(mock_kibana_client, 'logs-test')
 
         assert result.data_stream == 'logs-test'
         assert len(result.fields) == 3
         assert len(result.sample_rows) == 3
-        mock_kibana_client.esql_query.assert_called_once_with(query='FROM logs-test | LIMIT 200')
+        mock_kibana_client.esql_query_raw.assert_called_once_with(query='FROM logs-test | LIMIT 200')
 
     async def test_summarize_empty_data_stream(self, mock_kibana_client: AsyncMock) -> None:
         """Test summarizing an empty data stream."""
-        mock_kibana_client.esql_query.return_value = {'columns': [], 'values': []}
+        mock_kibana_client.esql_query_raw.return_value = {'columns': [], 'values': []}
 
         result = await summarize_single_data_stream(mock_kibana_client, 'empty-stream')
 
@@ -109,14 +109,14 @@ class TestDataStreamSummarize:
         sample_esql_response: dict[str, Any],
     ) -> None:
         """Test summarizing multiple data streams."""
-        mock_kibana_client.esql_query.return_value = sample_esql_response
+        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
 
         result = await summarize_data_streams(mock_kibana_client, ['logs-test', 'metrics-test'])
 
         assert len(result) == 2
         assert result[0].data_stream == 'logs-test'
         assert result[1].data_stream == 'metrics-test'
-        assert mock_kibana_client.esql_query.call_count == 2
+        assert mock_kibana_client.esql_query_raw.call_count == 2
 
 
 class TestListDataStreams:
@@ -168,14 +168,14 @@ class TestExecuteEsql:
         sample_esql_response: dict[str, Any],
     ) -> None:
         """Test executing an ES|QL query."""
-        mock_kibana_client.esql_query.return_value = sample_esql_response
+        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
 
         result = await execute_esql(mock_kibana_client, 'FROM logs-* | LIMIT 10')
 
         assert len(result.columns) == 3
         assert len(result.values) == 3
         assert result.is_columnar is False
-        mock_kibana_client.esql_query.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=False)
+        mock_kibana_client.esql_query_raw.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=False)
 
     async def test_execute_esql_columnar(
         self,
@@ -183,12 +183,12 @@ class TestExecuteEsql:
         sample_esql_response: dict[str, Any],
     ) -> None:
         """Test executing an ES|QL query in columnar format."""
-        mock_kibana_client.esql_query.return_value = sample_esql_response
+        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
 
         result = await execute_esql(mock_kibana_client, 'FROM logs-* | LIMIT 10', columnar=True)
 
         assert result.is_columnar is True
-        mock_kibana_client.esql_query.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=True)
+        mock_kibana_client.esql_query_raw.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=True)
 
     async def test_execute_esql_empty_query(self, mock_kibana_client: AsyncMock) -> None:
         """Test that empty queries raise ValueError."""

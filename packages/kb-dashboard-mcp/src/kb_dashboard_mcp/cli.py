@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import Literal
 
 import rich_click as click
+from dashboard_compiler.kibana_client import KibanaClient
 
 from kb_dashboard_mcp import __version__
-from kb_dashboard_mcp.client import KibanaClient, KibanaClientConfig
 from kb_dashboard_mcp.server import build_mcp_server
 
 
@@ -27,29 +27,18 @@ class ServerConfig:
 
 def build_kibana_client(config: ServerConfig) -> KibanaClient:
     """Build a KibanaClient with the given configuration."""
-    client_config = KibanaClientConfig(
-        kibana_url=config.kibana_url,
+    return KibanaClient(
+        url=config.kibana_url,
         api_key=config.api_key,
         username=config.username,
         password=config.password,
-        verify_ssl=config.verify_ssl,
+        ssl_verify=config.verify_ssl,
     )
-    return KibanaClient(client_config)
 
 
 async def run_server(config: ServerConfig) -> None:
     """Run the MCP server."""
     client = build_kibana_client(config)
-
-    try:
-        connected = await client.ping()
-    except Exception as e:
-        msg = f'Failed to connect to Kibana: {e}'
-        raise click.ClickException(msg) from e
-
-    if not connected:
-        msg = 'Failed to connect to Kibana'
-        raise click.ClickException(msg)
 
     mcp = await build_mcp_server(client)
 

@@ -24,7 +24,7 @@ make ci
 ## Development Commands
 
 | Command | Purpose |
-|---------|---------|
+| ------- | ------- |
 | `make install` | Install dependencies |
 | `make ci` | Run all CI checks (lint + typecheck + test) |
 | `make fix` | Auto-fix linting issues |

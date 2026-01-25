@@ -11,9 +11,8 @@ from fastmcp.tools import Tool
 from kb_dashboard_mcp.models import DataStreamFieldSummary, DataStreamInfo, DataStreamRowExample, DataStreamSummary
 
 if TYPE_CHECKING:
+    from dashboard_compiler.kibana_client import KibanaClient
     from fastmcp import FastMCP
-
-    from kb_dashboard_mcp.client import KibanaClient
 
 
 # Pattern to validate data stream names (alphanumeric, -, _, ., and *)
@@ -96,7 +95,7 @@ async def summarize_single_data_stream(client: KibanaClient, data_stream: str) -
         raise ValueError(msg)
 
     esql_query = f'FROM {data_stream} | LIMIT 200'
-    result = await client.esql_query(query=esql_query)
+    result = await client.esql_query_raw(query=esql_query)
 
     columns: list[dict[str, Any]] | None = result.get('columns')
 

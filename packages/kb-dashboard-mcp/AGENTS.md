@@ -32,17 +32,23 @@ The server uses FastMCP to register tools that LLMs can invoke:
 - **Models** for request/response are defined in `models.py`
 - **Tool implementations** are in the `tools/` directory
 
-### Elasticsearch Client
+### Kibana Client
 
-The `AsyncElasticsearch` client is injected into tool closures:
+This package uses the `KibanaClient` from `kb-dashboard-compiler` to proxy requests through Kibana's console API. This enables:
+
+- Unified authentication through Kibana
+- Access to Kibana-specific features (screenshots, etc.)
+- Simpler configuration (just Kibana URL, no ES URL needed)
 
 ```python
-async def build_mcp_server(es: AsyncElasticsearch) -> FastMCP:
+from dashboard_compiler.kibana_client import KibanaClient
+
+async def build_mcp_server(client: KibanaClient) -> FastMCP:
     mcp = FastMCP(name='kb-dashboard-mcp')
 
     async def my_tool(param: str) -> MyResult:
-        # Use `es` from closure
-        result = await es.some_operation()
+        # Use `client` from closure
+        result = await client.esql_query_raw(query='...')
         return MyResult(...)
 
     mcp.add_tool(Tool.from_function(my_tool))
@@ -51,12 +57,12 @@ async def build_mcp_server(es: AsyncElasticsearch) -> FastMCP:
 
 ### Error Handling
 
-- Validate inputs before making ES calls
+- Validate inputs before making Kibana calls
 - Return structured error responses for tool failures
 - Use Pydantic validation for input models
 
 ### Testing
 
-- Mock the `AsyncElasticsearch` client in tests
+- Mock the `KibanaClient` from `dashboard_compiler` in tests
 - Test tool registration and invocation
 - Verify Pydantic model serialization

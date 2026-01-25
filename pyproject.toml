@@ -173,8 +173,8 @@ reportUnknownMemberType = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-mcp/src"
-extraPaths = ["packages/kb-dashboard-mcp/src"]
-# elasticsearch-py returns untyped responses; FastMCP tool registration returns unused Tool objects
+extraPaths = ["packages/kb-dashboard-mcp/src", "packages/kb-dashboard-compiler/src"]
+# FastMCP tool registration returns unused Tool objects
 reportMissingTypeStubs = false
 reportAny = false
 reportUnusedCallResult = false
@@ -184,7 +184,7 @@ reportIncompatibleVariableOverride = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-mcp/tests"
-extraPaths = ["packages/kb-dashboard-mcp/src"]
+extraPaths = ["packages/kb-dashboard-mcp/src", "packages/kb-dashboard-compiler/src"]
 # Test code has relaxed type checking
 reportMissingTypeStubs = false
 reportUnknownParameterType = false

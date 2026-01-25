@@ -9,7 +9,7 @@ from fastmcp import FastMCP
 from kb_dashboard_mcp.tools import register_data_stream_tools, register_esql_tools, register_pattern_tools
 
 if TYPE_CHECKING:
-    from kb_dashboard_mcp.client import KibanaClient
+    from dashboard_compiler.kibana_client import KibanaClient
 
 
 async def build_mcp_server(client: KibanaClient) -> FastMCP:
