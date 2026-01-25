@@ -119,3 +119,79 @@ class TestDatatableAtBottomRule:
         violations = rule.check(dashboard_with_only_datatable, {})
 
         assert len(violations) == 0
+
+    def test_detects_only_datatable_above_when_multiple(self) -> None:
+        """Should flag only the datatable above other visualizations when multiple exist."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Data Table Above',
+                    lens=LensDatatablePanelConfig(
+                        type='datatable',
+                        data_view='logs-*',
+                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        dimensions=[LensTermsDimension(field='host.name')],
+                    ),
+                    position=Position(x=0, y=0),
+                ),
+                LensPanel(
+                    title='Metric',
+                    lens=LensMetricPanelConfig(
+                        type='metric',
+                        data_view='logs-*',
+                        primary=LensCountAggregatedMetric(aggregation='count'),
+                    ),
+                    position=Position(x=0, y=10),
+                ),
+                LensPanel(
+                    title='Data Table Below',
+                    lens=LensDatatablePanelConfig(
+                        type='datatable',
+                        data_view='logs-*',
+                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        dimensions=[LensTermsDimension(field='host.name')],
+                    ),
+                    position=Position(x=0, y=20),
+                ),
+            ],
+        )
+
+        rule = DatatableAtBottomRule()
+        violations = rule.check(dashboard, {})
+
+        assert len(violations) == 1
+        assert violations[0].rule_id == 'datatable-at-bottom'
+        assert 'Data Table Above' in violations[0].message or 'y=0' in violations[0].message
+
+    def test_passes_datatable_same_y_as_non_datatable(self) -> None:
+        """Should not flag datatable at same y-coordinate as non-datatable."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Data Table',
+                    lens=LensDatatablePanelConfig(
+                        type='datatable',
+                        data_view='logs-*',
+                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        dimensions=[LensTermsDimension(field='host.name')],
+                    ),
+                    position=Position(x=0, y=10),
+                ),
+                LensPanel(
+                    title='Metric',
+                    lens=LensMetricPanelConfig(
+                        type='metric',
+                        data_view='logs-*',
+                        primary=LensCountAggregatedMetric(aggregation='count'),
+                    ),
+                    position=Position(x=24, y=10),
+                ),
+            ],
+        )
+
+        rule = DatatableAtBottomRule()
+        violations = rule.check(dashboard, {})
+
+        assert len(violations) == 0

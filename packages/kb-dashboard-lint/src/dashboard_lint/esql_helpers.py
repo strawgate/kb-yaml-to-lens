@@ -5,7 +5,33 @@ This module provides utilities for analyzing ES|QL queries in lint rules.
 
 import re
 
+from dashboard_compiler.panels.charts.config import (
+    ESQLAreaPanelConfig,
+    ESQLBarPanelConfig,
+    ESQLDatatablePanelConfig,
+    ESQLGaugePanelConfig,
+    ESQLHeatmapPanelConfig,
+    ESQLLinePanelConfig,
+    ESQLMetricPanelConfig,
+    ESQLMosaicPanelConfig,
+    ESQLPiePanelConfig,
+    ESQLTagcloudPanelConfig,
+)
 from dashboard_compiler.queries.config import ESQLQuery
+
+type ESQLConfig = (
+    ESQLMetricPanelConfig
+    | ESQLGaugePanelConfig
+    | ESQLHeatmapPanelConfig
+    | ESQLPiePanelConfig
+    | ESQLLinePanelConfig
+    | ESQLBarPanelConfig
+    | ESQLAreaPanelConfig
+    | ESQLTagcloudPanelConfig
+    | ESQLDatatablePanelConfig
+    | ESQLMosaicPanelConfig
+)
+"""Union type for all ES|QL panel configuration types."""
 
 
 def get_query_string(query: ESQLQuery) -> str:

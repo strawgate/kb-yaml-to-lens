@@ -2,21 +2,9 @@
 
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
-    ESQLAreaPanelConfig,
-    ESQLBarPanelConfig,
-    ESQLDatatablePanelConfig,
-    ESQLGaugePanelConfig,
-    ESQLHeatmapPanelConfig,
-    ESQLLinePanelConfig,
-    ESQLMetricPanelConfig,
-    ESQLMosaicPanelConfig,
-    ESQLPanel,
-    ESQLPiePanelConfig,
-    ESQLTagcloudPanelConfig,
-    LensPanel,
-)
+from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_lint.esql_helpers import (
+    ESQLConfig,
     find_single_equals,
     find_sql_like_wildcards,
     find_sql_order_by,
@@ -25,19 +13,6 @@ from dashboard_lint.esql_helpers import (
 )
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
-
-type ESQLConfig = (
-    ESQLMetricPanelConfig
-    | ESQLGaugePanelConfig
-    | ESQLHeatmapPanelConfig
-    | ESQLPiePanelConfig
-    | ESQLLinePanelConfig
-    | ESQLBarPanelConfig
-    | ESQLAreaPanelConfig
-    | ESQLTagcloudPanelConfig
-    | ESQLDatatablePanelConfig
-    | ESQLMosaicPanelConfig
-)
 
 
 @chart_rule

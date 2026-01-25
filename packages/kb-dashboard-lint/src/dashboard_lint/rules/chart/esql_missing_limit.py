@@ -5,42 +5,16 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from dashboard_compiler.panels.charts.config import (
-    ESQLAreaPanelConfig,
-    ESQLBarPanelConfig,
-    ESQLDatatablePanelConfig,
-    ESQLGaugePanelConfig,
-    ESQLHeatmapPanelConfig,
-    ESQLLinePanelConfig,
-    ESQLMetricPanelConfig,
-    ESQLMosaicPanelConfig,
-    ESQLPanel,
-    ESQLPiePanelConfig,
-    ESQLTagcloudPanelConfig,
-    LensPanel,
-)
-from dashboard_lint.esql_helpers import get_query_string
+from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+from dashboard_lint.esql_helpers import ESQLConfig, get_query_string
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
-
-type ESQLConfig = (
-    ESQLMetricPanelConfig
-    | ESQLGaugePanelConfig
-    | ESQLHeatmapPanelConfig
-    | ESQLPiePanelConfig
-    | ESQLLinePanelConfig
-    | ESQLBarPanelConfig
-    | ESQLAreaPanelConfig
-    | ESQLTagcloudPanelConfig
-    | ESQLDatatablePanelConfig
-    | ESQLMosaicPanelConfig
-)
 
 # Pattern to detect SORT with DESC
 SORT_DESC_PATTERN = re.compile(r'\bSORT\b[^|]*\bDESC\b', re.IGNORECASE)
 
-# Pattern to detect LIMIT clause
-LIMIT_PATTERN = re.compile(r'\bLIMIT\b', re.IGNORECASE)
+# Pattern to detect LIMIT as a command (at start of statement or after pipe)
+LIMIT_PATTERN = re.compile(r'(?:^|\|)\s*LIMIT\b', re.IGNORECASE)
 
 
 class ESQLMissingLimitOptions(BaseModel):

@@ -8,7 +8,7 @@ from dashboard_compiler.panels.base import BasePanel
 from dashboard_lint.rules.core import PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
 
-DEFAULT_PREFIXES = [
+DEFAULT_PREFIXES: tuple[str, ...] = (
     'Chart of',
     'Graph of',
     'Table of',
@@ -18,7 +18,7 @@ DEFAULT_PREFIXES = [
     'Total of',
     'Sum of',
     'Average of',
-]
+)
 
 
 class PanelTitleRedundantPrefixOptions(BaseModel):
@@ -27,7 +27,7 @@ class PanelTitleRedundantPrefixOptions(BaseModel):
     model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     prefixes: list[str] = Field(
-        default=DEFAULT_PREFIXES,
+        default_factory=lambda: list(DEFAULT_PREFIXES),
         description='List of redundant prefixes to check for (case-insensitive)',
     )
 

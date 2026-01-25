@@ -17,7 +17,7 @@ class MetricExcessiveCountOptions(BaseModel):
 
     max_count: int = Field(
         default=4,
-        ge=1,
+        ge=0,
         description='Maximum number of metric panels before warning',
     )
 

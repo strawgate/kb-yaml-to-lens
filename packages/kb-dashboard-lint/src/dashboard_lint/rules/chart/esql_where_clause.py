@@ -3,47 +3,13 @@
 import re
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
-    ESQLAreaPanelConfig,
-    ESQLBarPanelConfig,
-    ESQLDatatablePanelConfig,
-    ESQLGaugePanelConfig,
-    ESQLHeatmapPanelConfig,
-    ESQLLinePanelConfig,
-    ESQLMetricPanelConfig,
-    ESQLMosaicPanelConfig,
-    ESQLPanel,
-    ESQLPiePanelConfig,
-    ESQLTagcloudPanelConfig,
-    LensPanel,
-)
-from dashboard_compiler.queries.config import ESQLQuery
+from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+from dashboard_lint.esql_helpers import ESQLConfig, get_query_string
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 # Pattern to match WHERE clause (case insensitive)
 WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)
-
-type ESQLConfig = (
-    ESQLMetricPanelConfig
-    | ESQLGaugePanelConfig
-    | ESQLHeatmapPanelConfig
-    | ESQLPiePanelConfig
-    | ESQLLinePanelConfig
-    | ESQLBarPanelConfig
-    | ESQLAreaPanelConfig
-    | ESQLTagcloudPanelConfig
-    | ESQLDatatablePanelConfig
-    | ESQLMosaicPanelConfig
-)
-
-
-def _get_query_string(query: ESQLQuery) -> str:
-    """Extract query string from an ESQLQuery, joining list parts with newlines."""
-    root = query.root
-    if isinstance(root, list):
-        return '\n'.join(str(part) for part in root)
-    return str(root)
 
 
 @chart_rule
@@ -80,7 +46,7 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig, EmptyOptions]):
             Violation if no WHERE clause found, None otherwise.
 
         """
-        query_str = _get_query_string(config.query)
+        query_str = get_query_string(config.query)
 
         # Check for WHERE clause
         if WHERE_PATTERN.search(query_str) is None:
