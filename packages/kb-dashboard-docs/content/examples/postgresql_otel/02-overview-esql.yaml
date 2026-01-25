@@ -100,12 +100,18 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+              label: Database
           metrics:
             - field: backends_count
+              label: Active Backends
             - field: size_bytes
+              label: Size (Bytes)
             - field: commit_total
+              label: Total Commits
             - field: rollback_total
+              label: Total Rollbacks
             - field: blocks_read_total
+              label: Blocks Read
 
       # Connections Over Time (y=24)
       - title: Active Connections Over Time
@@ -287,7 +293,9 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+              label: Database
             - field: instance
+              label: Instance
           metrics:
             - field: sample_count
               label: Samples

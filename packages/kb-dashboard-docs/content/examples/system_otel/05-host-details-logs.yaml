@@ -100,9 +100,13 @@ dashboards:
             - LIMIT 1000
           dimensions:
             - field: '@timestamp'
+              label: Timestamp
             - field: log.level
+              label: Level
             - field: log.logger
+              label: Logger
             - field: message
+              label: Message
           metrics:
             - field: log_count
               label: Count

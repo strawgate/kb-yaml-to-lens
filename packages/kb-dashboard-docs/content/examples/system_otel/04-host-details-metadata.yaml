@@ -69,7 +69,9 @@ dashboards:
             - STATS `Value` = MV_DEDUPE(TOP(value, 400, "asc")), value_count = COUNT() BY `Resource Attribute`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
           metrics:
             - field: value_count
               label: Count
@@ -92,7 +94,9 @@ dashboards:
             - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
           metrics:
             - field: value_count
               label: Count
@@ -126,7 +130,9 @@ dashboards:
             - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
           metrics:
             - field: value_count
               label: Count
@@ -159,7 +165,9 @@ dashboards:
             - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
           metrics:
             - field: value_count
               label: Count
@@ -186,7 +194,9 @@ dashboards:
             - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
           metrics:
             - field: value_count
               label: Count
