@@ -9,8 +9,7 @@ from dashboard_compiler.panels.charts.config import (
     LensPanel,
     LensPanelConfig,
 )
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 # Minimum recommended heights for different chart types
@@ -28,7 +27,7 @@ MIN_HEIGHTS: dict[str, int] = {
 }
 
 
-@chart_rule  # type: ignore[misc]
+@chart_rule
 @dataclass(frozen=True)
 class PanelHeightForContentRule(ChartRule):
     """Rule: Panels should have minimum height for their chart type.

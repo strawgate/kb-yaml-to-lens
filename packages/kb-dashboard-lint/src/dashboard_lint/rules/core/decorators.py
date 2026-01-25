@@ -5,7 +5,6 @@ instances and registering them with the default registry.
 """
 
 from collections.abc import Callable
-from typing import Literal
 
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_lint.registry import register_rule
@@ -42,21 +41,20 @@ def panel_rule[T](
     def decorator(cls: type[T]) -> type[T]:
         # Set panel_types on the class if provided and not already set
         if panel_types is not None:
-            # Store on class for the instance to inherit
             original_init = cls.__init__  # type: ignore[misc]
 
             def patched_init(self: T, *args: object, **kwargs: object) -> None:
                 original_init(self, *args, **kwargs)
                 # Use object.__setattr__ for frozen dataclasses
-                self_panel_types = getattr(self, 'panel_types', None)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+                self_panel_types = getattr(self, 'panel_types', None)
                 if self_panel_types is None:
                     object.__setattr__(self, 'panel_types', panel_types)
 
-            cls.__init__ = patched_init  # type: ignore[misc]
+            cls.__init__ = patched_init  # type: ignore[method-assign]
 
         # Create instance and register
         instance = cls()
-        _ = register_rule(instance)  # pyright: ignore[reportArgumentType]
+        register_rule(instance)  # type: ignore[arg-type]
         return cls
 
     if cls is not None:
@@ -69,8 +67,7 @@ def panel_rule[T](
 def chart_rule[T](
     cls: type[T] | None = None,
     *,
-    chart_types: tuple[str, ...] | None = None,
-    panel_types: tuple[Literal['lens', 'esql'], ...] | None = None,
+    config_types: tuple[type, ...] | None = None,
 ) -> type[T] | Callable[[type[T]], type[T]]:
     """Register a chart rule with the default registry.
 
@@ -81,15 +78,15 @@ def chart_rule[T](
         class MyRule(ChartRule):
             ...
 
-        @chart_rule(chart_types=('metric', 'gauge'))
+        @chart_rule(config_types=(LensGaugePanelConfig, ESQLGaugePanelConfig))
         @dataclass(frozen=True)
         class MyRule(ChartRule):
             ...
 
     Args:
         cls: The rule class (when used without arguments).
-        chart_types: Optional tuple of chart types to filter.
-        panel_types: Optional tuple of panel types ('lens', 'esql') to filter.
+        config_types: Optional tuple of config types to filter. Use actual
+            config classes like LensGaugePanelConfig instead of strings.
 
     Returns:
         The decorated class (unchanged except for registration side effect).
@@ -97,24 +94,21 @@ def chart_rule[T](
     """
 
     def decorator(cls: type[T]) -> type[T]:
-        original_init = cls.__init__  # type: ignore[misc]
+        if config_types is not None:
+            original_init = cls.__init__  # type: ignore[misc]
 
-        def patched_init(self: T, *args: object, **kwargs: object) -> None:
-            original_init(self, *args, **kwargs)
-            # Use object.__setattr__ for frozen dataclasses
-            self_chart_types = getattr(self, 'chart_types', None)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            self_panel_types = getattr(self, 'panel_types', None)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            if chart_types is not None and self_chart_types is None:
-                object.__setattr__(self, 'chart_types', chart_types)
-            if panel_types is not None and self_panel_types is None:
-                object.__setattr__(self, 'panel_types', panel_types)
+            def patched_init(self: T, *args: object, **kwargs: object) -> None:
+                original_init(self, *args, **kwargs)
+                # Use object.__setattr__ for frozen dataclasses
+                self_config_types: tuple[type, ...] | None = getattr(self, 'config_types', None)
+                if self_config_types is None:
+                    object.__setattr__(self, 'config_types', config_types)
 
-        if chart_types is not None or panel_types is not None:
-            cls.__init__ = patched_init  # type: ignore[misc]
+            cls.__init__ = patched_init  # type: ignore[method-assign]
 
         # Create instance and register
         instance = cls()
-        _ = register_rule(instance)  # pyright: ignore[reportArgumentType]
+        register_rule(instance)  # type: ignore[arg-type]
         return cls
 
     if cls is not None:
@@ -141,5 +135,5 @@ def dashboard_rule[T](cls: type[T]) -> type[T]:
 
     """
     instance = cls()
-    _ = register_rule(instance)  # pyright: ignore[reportArgumentType]
+    register_rule(instance)  # type: ignore[arg-type]
     return cls

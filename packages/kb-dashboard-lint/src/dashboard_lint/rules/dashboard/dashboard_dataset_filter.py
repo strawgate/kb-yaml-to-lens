@@ -5,8 +5,7 @@ from typing import Any
 
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.filters import PhraseFilter, PhrasesFilter
-from dashboard_lint.rules._base import DashboardRule, ViolationResult
-from dashboard_lint.rules._decorators import dashboard_rule
+from dashboard_lint.rules.core import DashboardRule, ViolationResult, dashboard_rule
 from dashboard_lint.types import Severity, Violation
 
 

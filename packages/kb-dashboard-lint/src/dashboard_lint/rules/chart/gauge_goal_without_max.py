@@ -11,12 +11,11 @@ from dashboard_compiler.panels.charts.config import (
     LensPanel,
     LensPanelConfig,
 )
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 
-@chart_rule(chart_types=('gauge',))  # type: ignore[misc]
+@chart_rule(config_types=(LensGaugePanelConfig, ESQLGaugePanelConfig))
 @dataclass(frozen=True)
 class GaugeGoalWithoutMaxRule(ChartRule):
     """Rule: Gauge charts with goals should define maximum values.
@@ -48,12 +47,12 @@ class GaugeGoalWithoutMaxRule(ChartRule):
             Violation if goal present without max, None otherwise.
 
         """
-        has_goal = False
-        has_max = False
+        # Type is guaranteed by config_types filter
+        if not isinstance(config, (LensGaugePanelConfig, ESQLGaugePanelConfig)):
+            return None
 
-        if isinstance(config, (LensGaugePanelConfig, ESQLGaugePanelConfig)):
-            has_goal = config.goal is not None
-            has_max = config.maximum is not None
+        has_goal = config.goal is not None
+        has_max = config.maximum is not None
 
         if has_goal and not has_max:
             return Violation(

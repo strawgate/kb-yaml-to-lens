@@ -22,8 +22,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensMultiTermsDimension,
     LensTermsDimension,
 )
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 # Lens config types that have a breakdown dimension
@@ -72,7 +71,7 @@ def _dimension_has_empty_label(dimension: BaseLensDimension) -> bool:
     return dimension.label is None or len(dimension.label) == 0
 
 
-@chart_rule(panel_types=('lens',))  # type: ignore[misc]
+@chart_rule(config_types=CONFIGS_WITH_BREAKDOWN)
 @dataclass(frozen=True)
 class DimensionMissingLabelRule(ChartRule):
     """Rule: Dimensions should have explicit labels.
@@ -105,8 +104,8 @@ class DimensionMissingLabelRule(ChartRule):
             Violation if dimension missing label, None otherwise.
 
         """
-        # Only check Lens configs with breakdown dimension
-        if not isinstance(config, CONFIGS_WITH_BREAKDOWN):  # pyright: ignore[reportUnnecessaryIsInstance]
+        # Type is guaranteed by config_types filter
+        if not isinstance(config, CONFIGS_WITH_BREAKDOWN):
             return None
 
         # Check breakdown dimension

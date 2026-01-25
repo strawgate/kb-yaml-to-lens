@@ -12,12 +12,11 @@ from dashboard_compiler.panels.charts.config import (
     LensPanelConfig,
 )
 from dashboard_compiler.panels.charts.datatable.config import DatatableDensityEnum
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 
-@chart_rule(chart_types=('datatable',))  # type: ignore[misc]
+@chart_rule(config_types=(LensDatatablePanelConfig, ESQLDatatablePanelConfig))
 @dataclass(frozen=True)
 class DatatableRowDensityRule(ChartRule):
     """Rule: Large datatables should consider compact density.
@@ -53,14 +52,18 @@ class DatatableRowDensityRule(ChartRule):
 
         """
         min_cols = options.get('min_columns', 5)
+
+        # Type is guaranteed by config_types filter
+        if not isinstance(config, (LensDatatablePanelConfig, ESQLDatatablePanelConfig)):
+            return None
+
         column_count = 0
         is_compact = False
 
-        if isinstance(config, (LensDatatablePanelConfig, ESQLDatatablePanelConfig)):
-            if config.columns is not None:
-                column_count = len(config.columns)
-            if config.appearance is not None and config.appearance.density == DatatableDensityEnum.COMPACT:
-                is_compact = True
+        if config.columns is not None:
+            column_count = len(config.columns)
+        if config.appearance is not None and config.appearance.density == DatatableDensityEnum.COMPACT:
+            is_compact = True
 
         if column_count >= min_cols and not is_compact:
             return Violation(

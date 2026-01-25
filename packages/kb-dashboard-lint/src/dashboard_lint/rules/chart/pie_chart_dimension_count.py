@@ -11,12 +11,11 @@ from dashboard_compiler.panels.charts.config import (
     LensPanelConfig,
     LensPiePanelConfig,
 )
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 
-@chart_rule(chart_types=('pie',))  # type: ignore[misc]
+@chart_rule(config_types=(LensPiePanelConfig, ESQLPiePanelConfig))
 @dataclass(frozen=True)
 class PieChartDimensionCountRule(ChartRule):
     """Rule: Pie charts with multiple dimensions may be hard to read.
@@ -53,10 +52,12 @@ class PieChartDimensionCountRule(ChartRule):
 
         """
         max_dims = options.get('max_dimensions', 1)
-        dimension_count = 0
 
-        if isinstance(config, (LensPiePanelConfig, ESQLPiePanelConfig)):
-            dimension_count = len(config.dimensions)
+        # Type is guaranteed by config_types filter
+        if not isinstance(config, (LensPiePanelConfig, ESQLPiePanelConfig)):
+            return None
+
+        dimension_count = len(config.dimensions)
 
         if dimension_count > max_dims:
             return Violation(

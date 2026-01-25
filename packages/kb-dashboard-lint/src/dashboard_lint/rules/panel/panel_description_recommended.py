@@ -5,8 +5,7 @@ from typing import Any
 
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.markdown import MarkdownPanel
-from dashboard_lint.rules._base import PanelContext, PanelRule, ViolationResult
-from dashboard_lint.rules._decorators import panel_rule
+from dashboard_lint.rules.core import PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
 
 

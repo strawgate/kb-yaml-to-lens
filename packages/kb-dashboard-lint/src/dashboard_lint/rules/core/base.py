@@ -219,21 +219,25 @@ class ChartRule(ABC):
     """Base class for chart-level rules with automatic iteration.
 
     Chart rules check LensPanel and ESQLPanel configurations. The base
-    class handles iteration and filtering by chart type and panel type.
+    class handles iteration and filtering by config type.
 
     Subclasses must implement check_chart() and define id, description,
-    and default_severity as class attributes. Optionally set chart_types
-    and/or panel_types to filter which charts to check.
+    and default_severity as class attributes. Optionally set config_types
+    to filter which chart configuration types to check.
+
+    Example:
+        @chart_rule(config_types=(LensGaugePanelConfig, ESQLGaugePanelConfig))
+        @dataclass(frozen=True)
+        class GaugeRule(ChartRule):
+            ...
+
     """
 
     id: str
     description: str
     default_severity: Severity
-    chart_types: tuple[str, ...] | None = None
-    """Chart types to check (e.g., ('metric', 'gauge')). None means all."""
-
-    panel_types: tuple[Literal['lens', 'esql'], ...] | None = None
-    """Panel types to check. None means both lens and esql."""
+    config_types: tuple[type, ...] | None = None
+    """Config types to check (e.g., (LensGaugePanelConfig,)). None means all."""
 
     @abstractmethod
     def check_chart(
@@ -261,7 +265,7 @@ class ChartRule(ABC):
         """Implement Rule protocol with automatic chart iteration.
 
         Iterates over all LensPanel and ESQLPanel instances, filtering by
-        chart_types and panel_types if specified, and calls check_chart.
+        config_types if specified, and calls check_chart for each.
 
         Args:
             dashboard: The dashboard to check.
@@ -290,12 +294,8 @@ class ChartRule(ABC):
                 # Not a chart panel (e.g., MarkdownPanel)
                 continue
 
-            # Filter by panel type if specified
-            if self.panel_types is not None and panel_type not in self.panel_types:
-                continue
-
-            # Filter by chart type if specified
-            if self.chart_types is not None and chart_type not in self.chart_types:
+            # Filter by config type if specified
+            if self.config_types is not None and not isinstance(config, self.config_types):
                 continue
 
             context = ChartContext(

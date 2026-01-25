@@ -11,33 +11,30 @@ from dashboard_compiler.panels.charts.config import (
     LensPanelConfig,
 )
 from dashboard_compiler.queries.config import ESQLQuery
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 # Pattern to match WHERE clause (case insensitive)
 WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)
 
 
-def _get_query_string(query: object) -> str:
-    """Extract query string from an ESQLQuery or query-like object.
+def _get_query_string(query: ESQLQuery) -> str:
+    """Extract query string from an ESQLQuery.
 
     Args:
-        query: Query object (ESQLQuery with root attr, or str/list directly).
+        query: Query object with 'root' attribute containing the query.
 
     Returns:
         Single string with the full query.
 
     """
-    # Handle ESQLQuery root model (has 'root' attribute with the actual query)
-    if isinstance(query, ESQLQuery):
-        return str(query.root)
-    if isinstance(query, list):
-        return '\n'.join(str(part) for part in query)
-    return str(query)
+    root = query.root
+    if isinstance(root, list):
+        return '\n'.join(str(part) for part in root)
+    return str(root)
 
 
-@chart_rule(panel_types=('esql',))  # type: ignore[misc]
+@chart_rule
 @dataclass(frozen=True)
 class ESQLWhereClauseRule(ChartRule):
     """Rule: ES|QL queries should include a WHERE clause.
@@ -70,11 +67,12 @@ class ESQLWhereClauseRule(ChartRule):
             Violation if no WHERE clause found, None otherwise.
 
         """
-        # ESQLPanelConfig has a query field, but the base class doesn't define it
-        # All ESQL panel config types inherit from ESQLPanelConfig and have query
-        if not hasattr(config, 'query'):
+        # Only check ESQL panels
+        if context.panel_type != 'esql':
             return None
 
+        # All ESQL configs have a query field from ESQLPanelFieldsMixin
+        # Access it directly since we've verified panel_type is 'esql'
         query_str = _get_query_string(config.query)  # type: ignore[union-attr]
 
         # Check for WHERE clause

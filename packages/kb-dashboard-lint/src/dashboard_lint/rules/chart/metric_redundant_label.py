@@ -11,12 +11,11 @@ from dashboard_compiler.panels.charts.config import (
     LensPanel,
     LensPanelConfig,
 )
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 
-@chart_rule(chart_types=('metric',))  # type: ignore[misc]
+@chart_rule(config_types=(LensMetricPanelConfig, ESQLMetricPanelConfig))
 @dataclass(frozen=True)
 class MetricRedundantLabelRule(ChartRule):
     """Rule: Metric primary label should not duplicate panel title.
@@ -57,10 +56,11 @@ class MetricRedundantLabelRule(ChartRule):
         if panel.hide_title is True:
             return None
 
-        primary_label: str | None = None
+        # Type is guaranteed by config_types filter
+        if not isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
+            return None
 
-        if isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
-            primary_label = config.primary.label
+        primary_label = config.primary.label
 
         # Check if primary label matches title
         if primary_label is not None and primary_label.strip().lower() == panel.title.strip().lower():

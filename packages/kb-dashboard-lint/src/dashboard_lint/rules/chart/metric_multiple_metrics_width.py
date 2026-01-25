@@ -11,12 +11,11 @@ from dashboard_compiler.panels.charts.config import (
     LensPanel,
     LensPanelConfig,
 )
-from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
-from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 
-@chart_rule(chart_types=('metric',))  # type: ignore[misc]
+@chart_rule(config_types=(LensMetricPanelConfig, ESQLMetricPanelConfig))
 @dataclass(frozen=True)
 class MetricMultipleMetricsWidthRule(ChartRule):
     """Rule: Metric panels with multiple metrics need adequate width.
@@ -57,14 +56,16 @@ class MetricMultipleMetricsWidthRule(ChartRule):
         # Use .width property which resolves semantic widths to integers
         width = panel.size.width
 
+        # Type is guaranteed by config_types filter
+        if not isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
+            return None
+
         # Count metrics
         metric_count = 1  # Always have primary
-
-        if isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
-            if config.secondary is not None:
-                metric_count += 1
-            if config.maximum is not None:
-                metric_count += 1
+        if config.secondary is not None:
+            metric_count += 1
+        if config.maximum is not None:
+            metric_count += 1
 
         if metric_count > 1 and width < min_width:
             return Violation(
