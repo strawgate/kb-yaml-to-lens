@@ -124,6 +124,19 @@ class SavedObjectError(BaseModel):
     message: str | None = Field(default=None, description='Top-level error message')
     status_code: int | None = Field(default=None, alias='statusCode', description='HTTP status code')
 
+    def get_error_message(self) -> str:
+        """Extract the most descriptive error message available.
+
+        Returns:
+            Error message from nested error detail, top-level message, or 'Unknown error'.
+
+        """
+        if self.error is not None and self.error.message is not None:
+            return self.error.message
+        if self.message is not None:
+            return self.message
+        return 'Unknown error'
+
 
 class KibanaSavedObjectsResponse(BaseModel):
     """Response from Kibana saved objects import API."""
