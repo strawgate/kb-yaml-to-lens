@@ -4,13 +4,11 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+from dashboard_compiler.kibana_client import BulkResponse, KibanaClient
 from dashboard_compiler.sample_data.config import SampleData
 from dashboard_compiler.sample_data.timestamps import transform_documents
-
-if TYPE_CHECKING:
-    from dashboard_compiler.kibana_client import BulkResponse, KibanaClient
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +84,7 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
     return documents
 
 
-def _extract_error_messages(bulk_response: 'BulkResponse') -> list[str]:
+def _extract_error_messages(bulk_response: BulkResponse) -> list[str]:
     """Extract error messages from a bulk response.
 
     Args:
@@ -106,7 +104,7 @@ def _extract_error_messages(bulk_response: 'BulkResponse') -> list[str]:
 
 
 async def load_sample_data(
-    kibana_client: 'KibanaClient',
+    kibana_client: KibanaClient,
     sample_data: SampleData,
     base_path: Path | None = None,
 ) -> SampleDataLoadResult:
@@ -144,7 +142,7 @@ async def load_sample_data(
 
 
 async def _create_index_template(
-    kibana_client: 'KibanaClient',
+    kibana_client: KibanaClient,
     index_name: str,
     template_config: dict[str, Any],
 ) -> None:

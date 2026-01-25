@@ -1,11 +1,11 @@
 """Tests for sample data loader."""
 
 from pathlib import Path
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, create_autospec
 
 import pytest
 
-from dashboard_compiler.kibana_client import BulkItemError, BulkItemResult, BulkResponse
+from dashboard_compiler.kibana_client import BulkItemError, BulkItemResult, BulkResponse, KibanaClient
 from dashboard_compiler.sample_data.config import SampleData, TimestampTransform
 from dashboard_compiler.sample_data.loader import (
     SampleDataLoadResult,
@@ -105,7 +105,7 @@ def test_read_documents_relative_path(tmp_path: Path) -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_success() -> None:
     """Test loading sample data successfully via Kibana proxy."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
     mock_bulk_response = BulkResponse(
         took=30,
         errors=False,
@@ -142,7 +142,7 @@ async def test_load_sample_data_success() -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_with_errors() -> None:
     """Test loading sample data with errors via Kibana proxy."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
     # Return bulk response with failed items
     mock_bulk_response = BulkResponse(
         took=30,
@@ -179,7 +179,7 @@ async def test_load_sample_data_with_errors() -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_with_timestamp_transform() -> None:
     """Test loading sample data with timestamp transformation."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
     mock_bulk_response = BulkResponse(
         took=15,
         errors=False,
@@ -207,7 +207,7 @@ async def test_load_sample_data_with_timestamp_transform() -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_with_index_template() -> None:
     """Test loading sample data with index template creation via Kibana proxy."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
     mock_bulk_response = BulkResponse(
         took=15,
         errors=False,
@@ -245,7 +245,7 @@ async def test_load_sample_data_with_index_template() -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_file_not_found() -> None:
     """Test loading sample data from non-existent file."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
 
     sample_data = SampleData(
         source='file',
@@ -275,7 +275,7 @@ def test_sample_data_load_result() -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_with_bulk_error_details() -> None:
     """Test loading sample data with detailed bulk operation errors via Kibana proxy."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
     # Return bulk response with failed items
     mock_bulk_response = BulkResponse(
         took=30,
@@ -320,7 +320,7 @@ async def test_load_sample_data_with_bulk_error_details() -> None:
 @pytest.mark.asyncio
 async def test_load_sample_data_with_error_without_details() -> None:
     """Test loading sample data when error item has no error details."""
-    mock_kibana_client = AsyncMock()
+    mock_kibana_client = create_autospec(KibanaClient, instance=True)
     # Return bulk response with failed items that have no error details
     mock_bulk_response = BulkResponse(
         took=30,
