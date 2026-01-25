@@ -218,6 +218,31 @@ class TestNarrowXYChartSideLegendRule:
         # Custom max_width=24 should flag width 20
         assert len(rule.check(dashboard, {'max_width': 24})) == 1
 
+    def test_boundary_exact_max_width(self) -> None:
+        """Should flag chart with width exactly at max_width threshold."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Boundary Chart',
+                    size=Size(w=20, h=10),
+                    lens=LensLinePanelConfig(
+                        type='line',
+                        data_view='metrics-*',
+                        dimension=LensDateHistogramDimension(type='date_histogram', field='@timestamp'),
+                        metrics=[XYLensCountAggregatedMetric(aggregation='count')],
+                    ),
+                ),
+            ],
+        )
+
+        rule = NarrowXYChartSideLegendRule()
+        # Width 20 == max_width 20: rule uses width > max_width, so 20 > 20 is false
+        # meaning width <= max_width triggers the check, and default legend should be flagged
+        violations = rule.check(dashboard, {'max_width': 20})
+        assert len(violations) == 1
+        assert 'width 20' in violations[0].message
+
     def test_detects_esql_line_chart(self) -> None:
         """Should detect narrow ESQL line chart with side legend."""
         dashboard = Dashboard(
