@@ -48,7 +48,7 @@ class LensMetricFormat(BaseCfgModel):
     - **duration**: Time duration formatting (ms, s, m, h, d)
     """
 
-    decimals: int | None = Field(default=None)
+    decimals: int | None = Field(default=None, ge=0)
     """The number of decimal places to display. If not specified, defaults to 2 for number/bytes/percent, 0 for bits/duration."""
 
     suffix: str | None = Field(default=None)
@@ -70,7 +70,7 @@ class LensCustomMetricFormat(BaseCfgModel):
     type: Literal['custom'] = 'custom'
     """Format type identifier. Must be 'custom' for custom formats."""
 
-    decimals: int | None = Field(default=None)
+    decimals: int | None = Field(default=None, ge=0)
     """The number of decimal places to display. If not specified, defaults to 0."""
 
     pattern: str = Field(...)
