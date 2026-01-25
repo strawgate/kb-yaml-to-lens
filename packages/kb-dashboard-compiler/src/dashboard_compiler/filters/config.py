@@ -87,82 +87,66 @@ type FilterTypes = Annotated[
 
 
 class BaseFilter(BaseCfgModel):
-    """Base class for all filter configurations in the Config schema."""
+    """Base class for filter configurations."""
 
     alias: str | None = Field(None)
-    """An optional alias for the filter, used for display purposes."""
+    """Display alias for the filter."""
 
     disabled: bool | None = Field(None)
-    """Indicates whether the filter is disabled. If `true`, the filter will not be applied."""
+    """If true, the filter will not be applied."""
 
 
 class ExistsFilter(BaseFilter):
-    """Represents an 'exists' filter configuration in the Config schema.
-
-    This filter checks for the existence or non-existence of a specific field.
-    """
+    """Filter that checks if a field exists."""
 
     exists: str = Field(...)
-    """The field name to check for existence. If the field exists in a document, it will match that document."""
+    """The field name to check for existence."""
 
 
 class CustomFilter(BaseFilter):
-    """Represents a custom filter configuration in the Config schema.
-
-    This filter allows for custom query definitions that do not fit into the standard filters.
-    """
+    """Filter using raw Elasticsearch Query DSL."""
 
     dsl: dict[str, Any] = Field(...)
-    """The custom query definition. This should be a valid Elasticsearch query object."""
+    """The Elasticsearch query DSL object."""
 
 
 class PhraseFilter(BaseFilter):
-    """Represents a 'phrase' filter configuration in the Config schema.
-
-    This filter matches documents where a specific field contains an exact phrase.
-    """
+    """Filter matching an exact phrase value."""
 
     field: str = Field(...)
-    """The field name to apply the filter to."""
+    """The field to filter on."""
 
     equals: str = Field(...)
-    """The exact phrase value that the field must match."""
+    """The exact value to match."""
 
 
 class PhrasesFilter(BaseFilter):
-    """Represents a 'phrases' filter configuration in the Config schema.
-
-    This filter matches documents where a specific field contains one or more
-    of the specified phrases.
-    """
+    """Filter matching any of multiple phrase values."""
 
     field: str = Field(...)
-    """The field name to apply the filter to."""
+    """The field to filter on."""
 
     in_list: list[str] = Field(..., alias='in')
-    """A list of phrases. Documents must match at least one of these phrases in the specified field."""
+    """Values to match (documents matching any value are included)."""
 
 
 class RangeFilter(BaseFilter):
-    """Represents a 'range' filter configuration in the Config schema.
-
-    This filter matches documents where a numeric or date field falls within a specified range.
-    """
+    """Filter matching a numeric or date range."""
 
     field: str = Field(...)
-    """The field name to apply the filter to."""
+    """The field to filter on."""
 
     gte: str | None = Field(default=None)
-    """Greater than or equal to value for the range filter."""
+    """Greater than or equal to."""
 
     lte: str | None = Field(default=None)
-    """Less than or equal to value for the range filter."""
+    """Less than or equal to."""
 
     lt: str | None = Field(default=None)
-    """Less than value for the range filter."""
+    """Less than."""
 
     gt: str | None = Field(default=None)
-    """Greater than value for the range filter."""
+    """Greater than."""
 
     @model_validator(mode='after')
     def at_least_one_value(self) -> Self:
@@ -174,35 +158,24 @@ class RangeFilter(BaseFilter):
 
 
 class NegateFilter(BaseCfgModel):
-    """Represents a negated filter configuration in the Config schema.
+    """Negates the wrapped filter (excludes matching documents).
 
-    This allows for excluding documents that match the nested filter.
-
-    Note: Unlike other filter types, NegateFilter extends BaseCfgModel directly
-    rather than BaseFilter, so it does not support 'alias' or 'disabled' fields.
-    This is intentional - negation is a logical modifier that wraps another filter,
-    and aliasing/disabling should be applied to the wrapped filter itself.
+    Note: Does not support 'alias' or 'disabled' - apply those to the wrapped filter.
     """
 
     not_filter: 'FilterTypes' = Field(..., validation_alias='not')
-    """The filter to negate. Can be a phrase, phrases, or range filter."""
+    """The filter to negate."""
 
 
 class AndFilter(BaseFilter):
-    """Represents an 'and' filter configuration in the Config schema.
-
-    This filter matches documents that satisfy all of the specified filters.
-    """
+    """Filter requiring all nested filters to match."""
 
     and_filters: list['FilterTypes'] = Field(..., alias='and')
-    """A list of filters. All filters must match for a document to be included."""
+    """All filters must match."""
 
 
 class OrFilter(BaseFilter):
-    """Represents an 'or' filter configuration in the Config schema.
-
-    This filter matches documents that satisfy at least one of the specified filters.
-    """
+    """Filter requiring at least one nested filter to match."""
 
     or_filters: list['FilterTypes'] = Field(..., alias='or')
-    """A list of filters. At least one filter must match for a document to be included."""
+    """At least one filter must match."""

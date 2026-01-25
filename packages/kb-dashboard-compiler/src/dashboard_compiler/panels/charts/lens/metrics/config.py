@@ -9,21 +9,17 @@ from dashboard_compiler.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 
 class BaseMetric(BaseIdentifiableModel):
-    """Base class for metric configurations in Lens charts."""
+    """Base class for metrics."""
 
 
 class LensStaticValue(BaseMetric):
-    """Represents a static numeric value metric in Lens charts.
-
-    Used to display a fixed numeric value rather than aggregating from data.
-    Commonly used for gauge min/max/goal values or reference lines.
-    """
+    """Static numeric value (for gauge min/max/goal or reference lines)."""
 
     value: int | float = Field(...)
-    """The static numeric value to display."""
+    """The static value."""
 
     label: str | None = Field(default=None)
-    """Optional label for the static value."""
+    """Display label."""
 
 
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes | LensStaticValue
@@ -32,62 +28,50 @@ type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat
 
 
 class LensMetricFormat(BaseCfgModel):
-    """Standard format configuration for displaying metric values.
+    """Metric format configuration.
 
-    Supports common numeric formats with optional suffix, compact notation, and custom patterns.
+    Format types: number, bytes, bits, percent, duration.
     """
 
     type: Literal['number', 'bytes', 'bits', 'percent', 'duration']
-    """The format type for the metric value.
-
-    Available formats:
-    - **number**: Plain numeric value with optional decimal places
-    - **bytes**: Byte size formatting (B, KB, MB, GB, TB)
-    - **bits**: Bit size formatting (b, Kb, Mb, Gb, Tb)
-    - **percent**: Percentage formatting with % symbol
-    - **duration**: Time duration formatting (ms, s, m, h, d)
-    """
+    """Format type."""
 
     decimals: int | None = Field(default=None, ge=0)
-    """The number of decimal places to display. If not specified, defaults to 2 for number/bytes/percent, 0 for bits/duration."""
+    """Decimal places. Defaults: 2 for number/bytes/percent, 0 for bits/duration."""
 
     suffix: str | None = Field(default=None)
-    """Optional suffix to display after the formatted number (e.g., " requests", " users")."""
+    """Text appended to formatted value (e.g., ' req/s')."""
 
     compact: bool | None = Field(default=None)
-    """Whether to use compact notation (e.g., 1.2K instead of 1200). Defaults to Kibana's behavior."""
+    """Compact notation (e.g., 1.2K instead of 1200)."""
 
     pattern: str | None = Field(default=None)
-    """Custom numeral.js format pattern (e.g., "0.00" for 2 decimal places, "0,0" for thousands separator)."""
+    """numeral.js format pattern (e.g., '0,0.00')."""
 
 
 class LensCustomMetricFormat(BaseCfgModel):
-    """Custom format configuration for metrics using numeral.js patterns.
-
-    Use this for complete control over numeric formatting with numeral.js syntax.
-    """
+    """Custom format using numeral.js pattern."""
 
     type: Literal['custom'] = 'custom'
-    """Format type identifier. Must be 'custom' for custom formats."""
 
     decimals: int | None = Field(default=None, ge=0)
-    """The number of decimal places to display. If not specified, defaults to 0."""
+    """Decimal places. Defaults to 0."""
 
     pattern: str = Field(...)
-    """numeral.js format pattern (e.g., "0,0.00" for comma-separated numbers with 2 decimals)."""
+    """numeral.js format pattern (e.g., '0,0.00')."""
 
 
 class BaseLensMetric(BaseMetric):
-    """Base class for metric configurations in Lens charts."""
+    """Base class for Lens metrics."""
 
     label: str | None = Field(None)
-    """The display label for the metric. If not provided, a label may be inferred from the type and field."""
+    """Display label (inferred from aggregation/field if not provided)."""
 
     format: LensMetricFormatTypes | None = Field(default=None)
-    """The format of the metric."""
+    """Value formatting."""
 
     filter: LegacyQueryTypes | None = Field(default=None)
-    """A KQL filter applied before determining the metric value."""
+    """KQL/Lucene filter applied before aggregation."""
 
 
 type LensAggregatedMetricTypes = (
@@ -101,98 +85,77 @@ type LensAggregatedMetricTypes = (
 
 
 class LensCountAggregatedMetric(BaseLensMetric):
-    """Represents a count metric configuration within a Lens chart.
-
-    Count metrics are used to count the number of documents in a data view.
-    """
+    """Count or unique count metric."""
 
     aggregation: Literal['count', 'unique_count'] = 'count'
 
     field: str | None = Field(default=None)
-    """The field to count. If not provided, the count will be of all documents in the data view."""
+    """Field to count. If not provided, counts all documents."""
 
     exclude_zeros: bool | None = Field(default=None)
-    """Whether to exclude zero values from the count. Kibana defaults to true if not specified."""
+    """Exclude zero values. Kibana defaults to true."""
 
 
 class LensSumAggregatedMetric(BaseLensMetric):
-    """Represents a sum metric configuration within a Lens chart.
-
-    Sum metrics are used to sum the values of a field.
-    """
+    """Sum metric."""
 
     aggregation: Literal['sum'] = 'sum'
 
     field: str = Field(...)
 
     exclude_zeros: bool | None = Field(default=None)
-    """Whether to exclude zero values from the sum. Kibana defaults to true if not specified."""
+    """Exclude zero values. Kibana defaults to true."""
 
 
 class LensOtherAggregatedMetric(BaseLensMetric):
-    """Represents various aggregated metric configurations within a Lens chart."""
+    """Min, max, median, or average metric."""
 
     aggregation: Literal['min', 'max', 'median', 'average'] = Field(...)
-    """The aggregation type for the metric (e.g., 'min', 'max', 'median', 'average')."""
 
     field: str = Field(...)
 
 
 class LensLastValueAggregatedMetric(BaseLensMetric):
-    """Represents a last value metric configuration within a Lens chart.
-
-    Last value metrics are used to retrieve the most recent value of a field based on a specified sort order.
-    """
+    """Last value metric (most recent by date)."""
 
     aggregation: Literal['last_value'] = 'last_value'
 
     field: str = Field(...)
 
     date_field: str | None = Field(default=None)
-    """The field used to determine the 'last' value."""
-
-    # filter: str | None = Field(default=None)
-    # """A KQL filter applied before determining the last value."""
+    """Date field for ordering. Defaults to @timestamp."""
 
 
 class LensPercentileRankAggregatedMetric(BaseLensMetric):
-    """Represents a percentile rank metric configuration within a Lens chart.
-
-    Percentile rank metrics are used to determine the rank of a value in a data set.
-    """
+    """Percentile rank metric (what % of values are below a given value)."""
 
     aggregation: Literal['percentile_rank'] = 'percentile_rank'
 
     field: str = Field(...)
 
     rank: int = Field(...)
+    """The value to find the rank of."""
 
 
 class LensPercentileAggregatedMetric(BaseLensMetric):
-    """Represents a percentile metric configuration within a Lens chart.
-
-    Percentile metrics are used to determine the value at a specific percentile in a data set.
-    """
+    """Percentile metric (value at a given percentile)."""
 
     aggregation: Literal['percentile'] = 'percentile'
 
     field: str = Field(...)
 
     percentile: int = Field(...)
+    """Percentile to calculate (e.g., 95 for p95)."""
 
 
 class LensFormulaMetric(BaseLensMetric):
-    """Represents a formula metric configuration within a Lens chart.
+    """Formula metric using Kibana formula syntax.
 
-    Formula metrics allow for custom calculations using Kibana's formula syntax.
-    The formula string is passed directly to Kibana, which handles parsing and
-    AST generation internally.
-
-    Example formulas:
-    - Simple arithmetic: "count() / 100"
-    - Field aggregations: "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
-    - With filters: "count(kql='status:error') / count() * 100"
+    Examples:
+    - count() / 100
+    - count(kql='status:error') / count() * 100
+    - max(response.time) - min(response.time)
     """
 
     formula: str = Field(...)
-    """The formula string to be evaluated for this metric."""
+    """The formula expression."""

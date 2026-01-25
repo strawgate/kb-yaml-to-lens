@@ -12,32 +12,20 @@ class BaseChart(BaseIdentifiableModel):
 
 
 class LegendWidthEnum(StrEnum):
-    """Represents the possible values for the width/size of the legend."""
+    """Legend width/size options."""
 
     SMALL = 'small'
-    """Small legend."""
-
     MEDIUM = 'medium'
-    """Medium legend."""
-
     LARGE = 'large'
-    """Large legend."""
-
     EXTRA_LARGE = 'extra_large'
-    """Extra large legend."""
 
 
 class LegendVisibleEnum(StrEnum):
-    """Represents the possible values for the visibility of the legend in a pie chart."""
+    """Legend visibility options."""
 
     SHOW = 'show'
-    """Show the legend."""
-
     HIDE = 'hide'
-    """Hide the legend."""
-
     AUTO = 'auto'
-    """Automatically determine the visibility of the legend based on the data."""
 
 
 class ColorAssignment(BaseCfgModel):

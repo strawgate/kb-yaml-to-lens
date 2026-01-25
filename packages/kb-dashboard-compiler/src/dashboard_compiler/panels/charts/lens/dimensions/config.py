@@ -14,13 +14,11 @@ type LensDimensionTypes = (
 
 
 class BaseDimension(BaseIdentifiableModel):
-    """Base model for defining dimensions."""
-
-    # color: ColorMapping | None = Field(default=None)
+    """Base model for dimensions."""
 
 
 class CollapseAggregationEnum(StrEnum):
-    """The aggregation to use for the dimension."""
+    """Collapse aggregation options."""
 
     SUM = 'sum'
     MIN = 'min'
@@ -29,148 +27,128 @@ class CollapseAggregationEnum(StrEnum):
 
 
 class BaseLensDimension(BaseDimension):
-    """Base model for defining dimensions within a Lens chart."""
+    """Base model for Lens dimensions."""
 
     label: str | None = Field(default=None)
-    """The display label for the dimension. If not provided, a label may be inferred from the field and type."""
+    """Display label (inferred from field if not provided)."""
 
 
 class LensFiltersDimensionFilter(BaseCfgModel):
-    """A filter for a filters dimension."""
+    """A filter bucket in a filters dimension."""
 
     query: LegacyQueryTypes = Field(default=...)
-    """The query to use for the dimension."""
+    """The KQL/Lucene query for this bucket."""
 
     label: str | None = Field(default=None)
-    """The display label for the filter. If not provided, the query will be used as the label."""
+    """Display label (query string used if not provided)."""
 
 
 class LensFiltersDimension(BaseLensDimension):
-    """Represents a filters dimension configuration within a Lens chart.
-
-    Filters dimensions are used for filtering data based on a field.
-    """
+    """Filters dimension - buckets defined by KQL/Lucene queries."""
 
     type: Literal['filters'] = 'filters'
 
     filters: list[LensFiltersDimensionFilter] = Field(default=...)
-    """The filters to use for the dimension."""
+    """Filter definitions for each bucket."""
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
+    """Collapse function for stacked charts (sum, avg, min, max)."""
 
 
 class LensIntervalsDimensionInterval(BaseCfgModel):
-    """A single interval for an intervals dimension."""
+    """A single range in an intervals dimension."""
 
     from_value: int | None = Field(default=None, alias='from')
-    """The start of the interval."""
+    """Interval start (inclusive)."""
 
     to_value: int | None = Field(default=None, alias='to')
-    """The end of the interval."""
+    """Interval end (exclusive)."""
 
     label: str | None = Field(default=None)
-    """The label for the interval."""
+    """Display label for this interval."""
 
 
 class LensIntervalsDimension(BaseLensDimension):
-    """Represents an intervals dimension configuration within a Lens chart.
-
-    Intervals dimensions are used for aggregating data based on numeric ranges.
-    """
+    """Intervals dimension - numeric range buckets."""
 
     type: Literal['intervals'] = 'intervals'
 
     field: str = Field(default=...)
-    """The name of the field in the data view that this dimension is based on."""
+    """Field to create intervals from."""
 
     intervals: list[LensIntervalsDimensionInterval] | None = Field(default=None)
-    """The intervals to use for the dimension. If not provided, intervals will be automatically picked."""
+    """Custom intervals. If not provided, auto-generated based on granularity."""
 
     granularity: int | None = Field(default=None, ge=1, le=7)
-    """Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field.
-    Kibana defaults to 4 if not specified."""
+    """Auto-interval granularity (1=coarse, 7=fine). Kibana defaults to 4."""
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
+    """Collapse function for stacked charts (sum, avg, min, max)."""
 
     empty_bucket: bool | None = Field(default=None)
-    """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+    """Show bucket for missing values. Defaults to false."""
 
 
 class BaseLensTermsDimension(BaseLensDimension):
-    """Base class for top values dimensions (single and multi-field).
-
-    Contains all common configuration fields for terms-based dimensions.
-    """
+    """Base class for top values dimensions."""
 
     type: Literal['values'] = 'values'
 
     size: int | None = Field(default=None)
-    """The number of top terms to display."""
+    """Number of top terms to display."""
 
     sort: Sort | None = Field(default=None)
-    """The sort configuration for the terms."""
+    """Sort configuration."""
 
     other_bucket: bool | None = Field(default=None)
-    """If `true`, show a bucket for terms not included in the top size. Defaults to `false`."""
+    """Show 'Other' bucket for remaining terms. Defaults to false."""
 
     missing_bucket: bool | None = Field(default=None)
-    """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+    """Show bucket for missing values. Defaults to false."""
 
     include: list[str] | None = Field(default=None)
-    """A list of terms to include. Can be used with or without `include_is_regex`."""
+    """Terms to include (exact or regex)."""
 
     exclude: list[str] | None = Field(default=None)
-    """A list of terms to exclude. Can be used with or without `exclude_is_regex`."""
+    """Terms to exclude (exact or regex)."""
 
     include_is_regex: bool | None = Field(default=None)
-    """If `true`, treat the values in the `include` list as regular expressions. Defaults to `false`."""
+    """Treat include values as regex. Defaults to false."""
 
     exclude_is_regex: bool | None = Field(default=None)
-    """If `true`, treat the values in the `exclude` list as regular expressions. Defaults to `false`."""
+    """Treat exclude values as regex. Defaults to false."""
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
+    """Collapse function for stacked charts (sum, avg, min, max)."""
 
 
 class LensTermsDimension(BaseLensTermsDimension):
-    """Represents a single-field top values dimension configuration within a Lens chart.
-
-    Terms dimensions are used for aggregating data based on unique values of a single field.
-    """
+    """Top values dimension - single field."""
 
     field: str = Field(default=...)
-    """The name of the field in the data view that this dimension is based on."""
+    """Field to get top values from."""
 
 
 class LensMultiTermsDimension(BaseLensTermsDimension):
-    """Represents a multi-field top values dimension configuration within a Lens chart.
-
-    Multi-terms dimensions are used for aggregating data based on unique combinations
-    of values across multiple fields.
-    """
+    """Top values dimension - multiple fields (multi-terms aggregation)."""
 
     fields: list[str] = Field(default=..., min_length=2)
-    """List of field names for multi-field aggregation. Requires at least 2 fields."""
+    """Fields for multi-term aggregation (minimum 2)."""
 
 
 class LensDateHistogramDimension(BaseLensDimension):
-    """Represents a histogram dimension configuration within a Lens chart.
-
-    Date histogram dimensions are used for aggregating data into buckets based on numeric ranges.
-    """
+    """Date histogram dimension - time-based buckets."""
 
     type: Literal['date_histogram'] = 'date_histogram'
 
     field: str = Field(default=...)
-    """The name of the field in the data view that this dimension is based on."""
+    """Date field to bucket."""
 
     minimum_interval: str | None = Field(default=None)
-    """The numeric interval for the histogram buckets. Defaults to `auto` if not specified."""
+    """Minimum bucket interval (e.g., '1h', '1d'). Defaults to 'auto'."""
 
     partial_intervals: bool | None = Field(default=None)
-    """If `true`, show partial intervals. Kibana defaults to `true` if not specified."""
+    """Include partial time buckets. Kibana defaults to true."""
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
+    """Collapse function for stacked charts (sum, avg, min, max)."""

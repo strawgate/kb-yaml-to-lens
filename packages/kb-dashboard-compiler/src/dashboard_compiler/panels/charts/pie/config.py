@@ -11,68 +11,58 @@ from dashboard_compiler.shared.config import BaseCfgModel
 
 
 class PieLegend(BaseCfgModel):
-    """Represents legend formatting options for pie charts."""
+    """Legend options for pie charts."""
 
     visible: LegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified."""
+    """Legend visibility. Kibana defaults to 'auto'."""
 
     width: LegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified."""
+    """Legend width. Kibana defaults to 'medium'."""
 
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
-    """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
+    """Lines before label truncation (0 disables). Kibana defaults to 1."""
 
     nested: bool | None = Field(default=None)
-    """Whether to show legend in nested format for multi-level pie charts. Kibana defaults to False if not specified."""
+    """Nested format for multi-level pies. Kibana defaults to false."""
 
     show_single_series: bool | None = Field(default=None)
-    """Whether to show legend when there is only one series. Kibana defaults to false if not specified."""
+    """Show legend with single series. Kibana defaults to false."""
 
 
 class PieSliceValuesEnum(StrEnum):
-    """Represents the possible values for slice values in a pie chart."""
+    """Slice value display options."""
 
     HIDE = 'hide'
-    """Hide the slice values."""
-
     INTEGER = 'integer'
-    """Show the slice values as integers."""
-
     PERCENT = 'percent'
-    """Show the slice values as percentages."""
 
 
 class PieSliceLabelsEnum(StrEnum):
-    """Represents the possible values for slice labels in a pie chart."""
+    """Slice label display options."""
 
     HIDE = 'hide'
-    """Hide the slice labels."""
-
     INSIDE = 'inside'
-    """Show the slice labels on the inside of the pie chart."""
-
     AUTO = 'auto'
-    """Automatically determine the slice labels based on the data."""
 
 
 class PieTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for pie charts."""
+    """Text formatting options for pie charts."""
 
     slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
+    """Slice label visibility. Kibana defaults to 'auto'."""
 
     slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the display of slice values in the pie chart. Kibana defaults to PERCENT if not specified."""
+    """Slice value display. Kibana defaults to 'percent'."""
 
     value_decimal_places: int | None = Field(default=None, ge=0, le=10)
-    """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
+    """Decimal places for slice values. Kibana defaults to 2."""
 
 
 class PieChartAppearance(BaseCfgModel):
-    """Represents chart appearance formatting options for Pie charts."""
+    """Appearance options for pie charts."""
 
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
-    """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
+    """Donut hole size. Kibana defaults to no hole (pie, not donut)."""
 
 
 class BasePieChart(BaseChart):
@@ -94,9 +84,7 @@ class BasePieChart(BaseChart):
 
 
 class LensPieChart(BasePieChart):
-    """Represents a Pie chart configuration within a Lens panel.
-
-    Pie charts are used to visualize the proportion of categories.
+    """Lens pie chart configuration.
 
     Examples:
         Simple pie chart showing traffic sources:
@@ -133,20 +121,19 @@ class LensPieChart(BasePieChart):
     """
 
     data_view: str = Field(default=...)
-    """The data view that determines the data for the pie chart."""
+    """Data view for the chart."""
 
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
-    """Metrics that determine the size of slices."""
+    """Metrics determining slice size."""
 
     dimensions: list[LensDimensionTypes] = Field(default=...)
-    """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
+    """Dimensions determining slices. First is primary, additional are nested."""
 
 
 class ESQLPieChart(BasePieChart):
-    """Represents a Pie chart configuration within an ES|QL panel.
+    """ES|QL pie chart configuration.
 
     Examples:
-        ES|QL pie chart with STATS query:
         ```yaml
         esql:
           type: pie
@@ -161,7 +148,7 @@ class ESQLPieChart(BasePieChart):
     """
 
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
-    """Metrics that determine the size of slices."""
+    """Metrics determining slice size."""
 
     dimensions: list[ESQLDimensionTypes] = Field(default=...)
-    """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
+    """Dimensions determining slices. First is primary, additional are nested."""

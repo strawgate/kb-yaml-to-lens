@@ -19,23 +19,17 @@ type QueryPart = str | list['QueryPart']
 
 
 class KqlQuery(BaseCfgModel):
-    """Represents a KQL (Kibana Query Language) query configuration.
-
-    KQL is the default query language in Kibana and provides a simplified syntax for filtering data.
-    """
+    """KQL (Kibana Query Language) query configuration."""
 
     kql: str = Field(...)
-    """The Kibana Query Language (KQL) query string to apply."""
+    """The KQL query string."""
 
 
 class LuceneQuery(BaseCfgModel):
-    """Represents a Lucene query configuration.
-
-    Lucene provides a more powerful and flexible, but less friendly, syntax for querying data compared to KQL.
-    """
+    """Lucene query configuration."""
 
     lucene: str = Field(...)
-    """The Lucene query string to apply."""
+    """The Lucene query string."""
 
 
 def _normalize_esql_query(value: QueryPart) -> str:
@@ -72,9 +66,7 @@ NormalizedQuery = Annotated[
 
 
 class ESQLQuery(BaseRootCfgModel):
-    """Represents an ESQL (Elasticsearch Query Language) query configuration.
-
-    ESQL is a powerful query language for Elasticsearch that provides a flexible syntax for filtering data.
+    """ES|QL query configuration.
 
     The query can be provided as either:
     - A string: The complete ESQL query

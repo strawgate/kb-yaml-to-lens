@@ -9,13 +9,9 @@ from dashboard_compiler.panels.charts.lens.metrics.config import LensMetricTypes
 
 
 class LensMetricChart(BaseChart):
-    """Represents a Metric chart configuration within a Lens panel.
-
-    Metric charts display a single value or a list of values, often representing
-    key performance indicators.
+    """Lens metric chart configuration.
 
     Examples:
-        Minimal count metric:
         ```yaml
         lens:
           type: metric
@@ -25,7 +21,6 @@ class LensMetricChart(BaseChart):
             label: "Total Requests"
         ```
 
-        Formula-based error rate metric:
         ```yaml
         lens:
           type: metric
@@ -39,36 +34,32 @@ class LensMetricChart(BaseChart):
     """
 
     type: Literal['metric'] = Field(default='metric')
-    """The type of chart, which is 'metric' for this visualization."""
 
     data_view: str = Field(default=...)
-    """The data view that determines the data for the metric chart."""
+    """Data view for the chart."""
 
     primary: LensMetricTypes = Field(default=...)
-    """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
+    """Primary metric (main displayed value)."""
 
     secondary: LensMetricTypes | None = Field(default=None)
-    """An optional secondary metric to display alongside the primary metric."""
+    """Secondary metric displayed alongside primary."""
 
     maximum: LensMetricTypes | None = Field(default=None)
-    """An optional maximum metric to display, often used for comparison or thresholds."""
+    """Maximum value for gauge-style display."""
 
     breakdown: LensDimensionTypes | None = Field(default=None)
-    """An optional breakdown metric to display, often used for comparison or thresholds."""
+    """Dimension to split the metric by."""
 
     color: ColorMapping | None = Field(default=None)
-    """Formatting options for the chart color palette."""
+    """Color palette configuration."""
 
 
 class ESQLMetricChart(BaseChart):
-    """Represents a Metric chart configuration within an ESQL panel.
+    """ES|QL metric chart configuration.
 
-    ESQL metric charts reference columns from your ESQL query result.
-    The query determines what metrics are available - each column in your
-    STATS clause becomes a metric you can reference.
+    Metrics reference columns from your query's STATS clause.
 
     Examples:
-        Multi-metric ESQL example:
         ```yaml
         esql:
           type: metric
@@ -76,31 +67,27 @@ class ESQLMetricChart(BaseChart):
             FROM logs-*
             | STATS
                 total_requests = COUNT(*),
-                avg_duration = AVG(event.duration),
-                error_rate = COUNT(kql='event.outcome:failure') / COUNT(*) * 100
+                avg_duration = AVG(event.duration)
           primary:
             field: "total_requests"
           secondary:
             field: "avg_duration"
-          maximum:
-            field: "error_rate"
         ```
     """
 
     type: Literal['metric'] = Field(default='metric')
-    """The type of chart, which is 'metric' for this visualization."""
 
     primary: ESQLMetricTypes = Field(default=...)
-    """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
+    """Primary metric (main displayed value)."""
 
     secondary: ESQLMetricTypes | None = Field(default=None)
-    """An optional secondary metric to display alongside the primary metric."""
+    """Secondary metric displayed alongside primary."""
 
     maximum: ESQLMetricTypes | None = Field(default=None)
-    """An optional maximum metric to display, often used for comparison or thresholds."""
+    """Maximum value for gauge-style display."""
 
     breakdown: ESQLDimensionTypes | None = Field(default=None)
-    """An optional breakdown metric to display, often used for comparison or thresholds."""
+    """Dimension to split the metric by."""
 
     color: ColorMapping | None = Field(default=None)
-    """Formatting options for the chart color palette."""
+    """Color palette configuration."""
