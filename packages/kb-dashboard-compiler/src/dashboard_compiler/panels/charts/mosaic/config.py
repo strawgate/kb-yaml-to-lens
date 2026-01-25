@@ -135,7 +135,6 @@ class LensMosaicChart(BaseMosaicChart):
           legend:
             visible: show
             position: bottom
-            width: medium
         ```
     """
 

@@ -10,12 +10,10 @@ dashboards:
     controls:
       - type: options
         label: Cloud Account ID
-        width: medium
         data_view: logs-*
         field: cloud.account.id
       - type: options
         label: Network Interface
-        width: medium
         data_view: logs-*
         field: network.interface.name
       - type: options
@@ -33,12 +31,8 @@ dashboards:
               dashboard: aws_vpcflow_otel-overview
             - label: Traffic Analysis
               dashboard: aws_vpcflow_otel-traffic
-              with_time: true
-              with_filters: true
             - label: Interface Analysis
               dashboard: aws_vpcflow_otel-interface
-              with_time: true
-              with_filters: true
       # KPI Metrics (no section header - first section)
       - title: Total Flow Records
         hide_title: true
@@ -235,12 +229,10 @@ dashboards:
       # Primary filters
       - type: options
         label: Cloud Account ID
-        width: medium
         data_view: logs-*
         field: cloud.account.id
       - type: options
         label: Network Interface
-        width: medium
         data_view: logs-*
         field: network.interface.name
       - type: options
@@ -272,14 +264,10 @@ dashboards:
           items:
             - label: Overview
               dashboard: aws_vpcflow_otel-overview
-              with_time: true
-              with_filters: true
             - label: Traffic Analysis
               dashboard: aws_vpcflow_otel-traffic
             - label: Interface Analysis
               dashboard: aws_vpcflow_otel-interface
-              with_time: true
-              with_filters: true
 
       # Traffic KPIs (no section header - first section)
       - title: Total Flow Records
@@ -605,12 +593,10 @@ dashboards:
       # Primary filters
       - type: options
         label: Cloud Account ID
-        width: medium
         data_view: logs-*
         field: cloud.account.id
       - type: options
         label: Network Interface
-        width: medium
         data_view: logs-*
         field: network.interface.name
       - type: options
@@ -637,12 +623,8 @@ dashboards:
           items:
             - label: Overview
               dashboard: aws_vpcflow_otel-overview
-              with_time: true
-              with_filters: true
             - label: Traffic Analysis
               dashboard: aws_vpcflow_otel-traffic
-              with_time: true
-              with_filters: true
             - label: Interface Analysis
               dashboard: aws_vpcflow_otel-interface
 

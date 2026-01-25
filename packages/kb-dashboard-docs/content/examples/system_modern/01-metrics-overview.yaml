@@ -25,7 +25,6 @@ dashboards:
         label: Host
         data_view: metrics-*
         field: host.name
-        width: medium
     panels:
       # Context Layer - Navigation
       - title: System Dashboards

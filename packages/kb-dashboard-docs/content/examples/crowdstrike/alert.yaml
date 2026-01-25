@@ -25,8 +25,6 @@ dashboards:
 
             ### Overview
             This dashboard shows statistics about the different alerts collected from the CrowdStrike Alert API.
-          font_size: 12
-          links_in_new_tab: false
       - title: Alert by Status [Logs CrowdStrike]
         size:
           w: 17
@@ -41,8 +39,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -60,8 +56,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -81,7 +75,6 @@ dashboards:
               by: Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -100,8 +93,6 @@ dashboards:
             sort:
               by: Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -119,8 +110,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -139,8 +128,6 @@ dashboards:
             sort:
               by: Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -159,8 +146,6 @@ dashboards:
             sort:
               by: Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -197,8 +182,6 @@ dashboards:
             sort:
               by: Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -216,8 +199,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -235,8 +216,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -254,8 +233,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -275,7 +252,6 @@ dashboards:
               by: Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -295,7 +271,6 @@ dashboards:
               by: Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -315,7 +290,6 @@ dashboards:
               by: Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count

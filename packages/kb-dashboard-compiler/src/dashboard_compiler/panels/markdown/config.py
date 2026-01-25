@@ -59,7 +59,6 @@ class MarkdownPanel(BasePanel):
                     2. **Configure** the `config.yaml` file.
                     3. **Run** the start script.
                   font_size: 14
-                  links_in_new_tab: false
         ```
     """
 

@@ -20,12 +20,10 @@ dashboards:
         label: Hostname
         data_view: logs-*
         field: host.hostname
-        width: medium
       - type: options
         label: Program
         data_view: logs-*
         field: system.syslog.program
-        width: medium
     panels:
       # Context Layer - Navigation
       - title: System Log Dashboards

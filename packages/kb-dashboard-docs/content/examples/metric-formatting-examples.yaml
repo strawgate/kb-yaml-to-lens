@@ -17,7 +17,6 @@ dashboards:
             \ 1.2K, 500M, etc.\n- **Decimals control** - Set explicit decimal places (simpler than patterns)\n- **Custom patterns** - Use numeral.js\
             \ patterns for precise formatting\n- **Built-in formats** - Bytes, duration, percent, etc.\n- **Combined options** - Mix multiple\
             \ formatting features\n"
-          font_size: 12
 
       # Suffix Formatting Examples
       - title: Request Rate
