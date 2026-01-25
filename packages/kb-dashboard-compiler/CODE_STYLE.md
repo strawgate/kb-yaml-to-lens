@@ -2,6 +2,45 @@
 
 This document describes Python code style conventions that are **atypical** but **mandatory** in this project.
 
+## No `from __future__ import annotations`
+
+Do **not** use `from __future__ import annotations`. This project requires explicit type annotations at runtime for Pydantic model validation.
+
+```python
+# Incorrect - do not use
+from __future__ import annotations
+
+# Correct - use explicit types or TYPE_CHECKING blocks
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from some_module import SomeType
+```
+
+**Rationale:** `from __future__ import annotations` makes all annotations strings at runtime (PEP 563), which breaks Pydantic's runtime type introspection.
+
+## No `hasattr`/`getattr` for Typed Models
+
+When working with strongly-typed Pydantic models, use `isinstance` checks for type narrowing instead of `hasattr`/`getattr`:
+
+```python
+# Incorrect - do not use
+if hasattr(config, 'secondary') and config.secondary is not None:
+    ...
+description = getattr(panel, 'description', None)
+
+# Correct - use isinstance for type narrowing
+from dashboard_compiler.panels.charts.metric import LensMetricChart
+
+if isinstance(config, LensMetricChart) and config.secondary is not None:
+    ...
+description = panel.description  # All panels have description field
+```
+
+**Rationale:** With discriminated unions and explicit type definitions, `hasattr`/`getattr` bypasses the type system. Use `isinstance` to properly narrow types and access known attributes.
+
+**Exception:** `hasattr` is acceptable when interfacing with external libraries (e.g., checking for `lc` attribute on ruamel.yaml objects).
+
 ## Explicit Boolean Comparisons
 
 Always use explicit comparisons. This project rejects implicit truthiness.

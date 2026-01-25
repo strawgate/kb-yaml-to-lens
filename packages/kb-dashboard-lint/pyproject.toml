@@ -1,0 +1,72 @@
+[project]
+name = "kb-dashboard-lint"
+version = "0.1.10"
+description = "Linting rules for dashboard YAML configurations"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "kb-dashboard-compiler",
+    "pydantic>=2.12",
+    "beartype>=0.22",
+    "click>=8.3",
+    "rich-click>=1.9.0",
+    "pyyaml>=6.0.3",
+    "ruamel.yaml>=0.18.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "pytest-cov>=6.0",
+    "ruff>=0.14",
+]
+
+[project.scripts]
+kb-dashboard-lint = "dashboard_lint.cli:cli"
+
+[tool.pytest.ini_options]
+addopts = "-vv"
+
+[build-system]
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "dashboard_lint"
+
+[tool.uv.sources]
+kb-dashboard-compiler = { workspace = true }
+
+[tool.coverage.run]
+source = ["src/dashboard_lint"]
+branch = true
+relative_files = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+skip_empty = true
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
