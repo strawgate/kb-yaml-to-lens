@@ -71,6 +71,7 @@ class LintRunner:
                                 dashboard_name=v.dashboard_name,
                                 panel_title=v.panel_title,
                                 location=v.location,
+                                source_range=v.source_range,
                             )
                         )
                     else:

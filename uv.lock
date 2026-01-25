@@ -1010,6 +1010,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
     { name = "rich-click" },
+    { name = "ruamel-yaml" },
 ]
 
 [package.dev-dependencies]
@@ -1027,6 +1028,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rich-click", specifier = ">=1.9.0" },
+    { name = "ruamel-yaml", specifier = ">=0.18.0" },
 ]
 
 [package.metadata.requires-dev]

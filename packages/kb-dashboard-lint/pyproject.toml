@@ -20,6 +20,7 @@ dependencies = [
     "click>=8.3",
     "rich-click>=1.9.0",
     "pyyaml>=6.0.3",
+    "ruamel.yaml>=0.18.0",
 ]
 
 [dependency-groups]

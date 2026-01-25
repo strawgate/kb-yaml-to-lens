@@ -36,6 +36,59 @@ SEVERITY_ORDER: dict[Severity, int] = {
 
 
 @dataclass(frozen=True)
+class SourcePosition:
+    """Represents a position in a YAML source file.
+
+    Line and character are 0-indexed to match LSP specification.
+    This allows direct use in Language Server Protocol diagnostics.
+    """
+
+    line: int
+    """0-indexed line number in the source file."""
+
+    character: int
+    """0-indexed character offset within the line."""
+
+    def to_lsp_position(self) -> dict[str, int]:
+        """Convert to LSP Position format.
+
+        Returns:
+            Dictionary with 'line' and 'character' keys (0-indexed).
+
+        """
+        return {'line': self.line, 'character': self.character}
+
+
+@dataclass(frozen=True)
+class SourceRange:
+    """Represents a range in a YAML source file for highlighting.
+
+    Uses LSP-compatible format where start is inclusive and end is exclusive.
+    """
+
+    start: SourcePosition
+    """Start position (inclusive)."""
+
+    end: SourcePosition
+    """End position (exclusive)."""
+
+    file_path: str | None = None
+    """Optional path to the source file."""
+
+    def to_lsp_range(self) -> dict[str, dict[str, int]]:
+        """Convert to LSP Range format.
+
+        Returns:
+            Dictionary with 'start' and 'end' positions (0-indexed).
+
+        """
+        return {
+            'start': self.start.to_lsp_position(),
+            'end': self.end.to_lsp_position(),
+        }
+
+
+@dataclass(frozen=True)
 class Violation:
     """A single lint violation found during checking.
 
@@ -61,6 +114,9 @@ class Violation:
     location: str | None = None
     """Additional location context, e.g., 'panels[2].lens.metrics[0]'."""
 
+    source_range: SourceRange | None = None
+    """Source file position for this violation, if available."""
+
     def __lt__(self, other: Violation) -> bool:
         """Compare violations by severity (descending) then dashboard name."""
         if not isinstance(other, Violation):
@@ -71,6 +127,26 @@ class Violation:
         if self_order != other_order:
             return self_order > other_order
         return self.dashboard_name < other.dashboard_name
+
+    def with_source_range(self, source_range: SourceRange) -> Violation:
+        """Create a copy of this violation with source position information.
+
+        Args:
+            source_range: The source range to add.
+
+        Returns:
+            A new Violation with the source range set.
+
+        """
+        return Violation(
+            rule_id=self.rule_id,
+            message=self.message,
+            severity=self.severity,
+            dashboard_name=self.dashboard_name,
+            panel_title=self.panel_title,
+            location=self.location,
+            source_range=source_range,
+        )
 
 
 @dataclass

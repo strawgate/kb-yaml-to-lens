@@ -21,7 +21,8 @@ from beartype.claw import beartype_this_package
 from dashboard_lint.config import LintConfig, RuleConfig, load_config
 from dashboard_lint.registry import RuleRegistry, default_registry, register_rule
 from dashboard_lint.runner import LintRunner, check_dashboards
-from dashboard_lint.types import Rule, RuleResult, Severity, Violation
+from dashboard_lint.types import Rule, RuleResult, Severity, SourcePosition, SourceRange, Violation
+from dashboard_lint.yaml_position_resolver import MultiFilePositionResolver, YamlPositionResolver
 
 # Enable strict BearType checking
 beartype_this_package(
@@ -34,12 +35,16 @@ beartype_this_package(
 __all__ = [
     'LintConfig',
     'LintRunner',
+    'MultiFilePositionResolver',
     'Rule',
     'RuleConfig',
     'RuleRegistry',
     'RuleResult',
     'Severity',
+    'SourcePosition',
+    'SourceRange',
     'Violation',
+    'YamlPositionResolver',
     'check_dashboards',
     'default_registry',
     'load_config',

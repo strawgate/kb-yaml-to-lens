@@ -85,8 +85,9 @@ def format_violations_json(violations: list[Violation]) -> str:
         JSON string representation.
 
     """
-    data = [
-        {
+    data = []
+    for v in violations:
+        violation_data: dict[str, object] = {
             'rule_id': v.rule_id,
             'message': v.message,
             'severity': v.severity.value,
@@ -94,8 +95,12 @@ def format_violations_json(violations: list[Violation]) -> str:
             'panel_title': v.panel_title,
             'location': v.location,
         }
-        for v in violations
-    ]
+        # Include source range if available (LSP-compatible format)
+        if v.source_range is not None:
+            violation_data['range'] = v.source_range.to_lsp_range()
+            if v.source_range.file_path is not None:
+                violation_data['file'] = v.source_range.file_path
+        data.append(violation_data)
     return json.dumps(data, indent=2)
 
 
