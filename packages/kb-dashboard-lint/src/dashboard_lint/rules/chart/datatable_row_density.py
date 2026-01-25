@@ -1,7 +1,8 @@
 """Rule: Large datatables should consider compact density."""
 
 from dataclasses import dataclass
-from typing import Any
+
+from pydantic import BaseModel, Field
 
 from dashboard_compiler.panels.charts.config import (
     ESQLDatatablePanelConfig,
@@ -16,9 +17,21 @@ from dashboard_lint.types import Severity, Violation
 type DatatableConfig = LensDatatablePanelConfig | ESQLDatatablePanelConfig
 
 
+class DatatableRowDensityOptions(BaseModel):
+    """Options for the datatable-row-density rule."""
+
+    model_config = {'extra': 'forbid', 'frozen': True}
+
+    min_columns: int = Field(
+        default=5,
+        ge=1,
+        description='Minimum columns before suggesting compact density',
+    )
+
+
 @chart_rule
 @dataclass(frozen=True)
-class DatatableRowDensityRule(ChartRule[DatatableConfig]):
+class DatatableRowDensityRule(ChartRule[DatatableConfig, DatatableRowDensityOptions]):
     """Rule: Large datatables should consider compact density.
 
     Datatables with many columns or rows benefit from compact density
@@ -31,13 +44,14 @@ class DatatableRowDensityRule(ChartRule[DatatableConfig]):
     id: str = 'datatable-row-density'
     description: str = 'Large datatables should consider compact density'
     default_severity: Severity = Severity.INFO
+    options_model: type[DatatableRowDensityOptions] = DatatableRowDensityOptions
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: DatatableConfig,
         context: ChartContext,
-        options: dict[str, Any],
+        options: DatatableRowDensityOptions,
     ) -> ViolationResult:
         """Check datatable for density settings.
 
@@ -45,14 +59,12 @@ class DatatableRowDensityRule(ChartRule[DatatableConfig]):
             panel: The datatable panel to check.
             config: The panel's datatable configuration.
             context: Chart context with location helpers.
-            options: Rule options with optional 'min_columns' key.
+            options: Validated rule options.
 
         Returns:
             Violation if many columns and not compact, None otherwise.
 
         """
-        min_cols = options.get('min_columns', 5)
-
         column_count = 0
         is_compact = False
 
@@ -61,7 +73,7 @@ class DatatableRowDensityRule(ChartRule[DatatableConfig]):
         if config.appearance is not None and config.appearance.density == DatatableDensityEnum.COMPACT:
             is_compact = True
 
-        if column_count >= min_cols and not is_compact:
+        if column_count >= options.min_columns and not is_compact:
             return Violation(
                 rule_id=self.id,
                 message=f'Datatable has {column_count} columns; consider using compact row_density',

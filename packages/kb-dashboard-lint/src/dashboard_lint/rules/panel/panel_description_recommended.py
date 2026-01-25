@@ -1,17 +1,16 @@
 """Rule: Panels should have descriptions for accessibility."""
 
 from dataclasses import dataclass
-from typing import Any
 
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.markdown import MarkdownPanel
-from dashboard_lint.rules.core import PanelContext, PanelRule, ViolationResult, panel_rule
+from dashboard_lint.rules.core import EmptyOptions, PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
 
 
 @panel_rule
 @dataclass(frozen=True)
-class PanelDescriptionRecommendedRule(PanelRule[BasePanel]):
+class PanelDescriptionRecommendedRule(PanelRule[BasePanel, EmptyOptions]):
     """Rule: Panels should have descriptions for accessibility.
 
     Panel descriptions provide context for dashboard viewers and improve
@@ -24,19 +23,20 @@ class PanelDescriptionRecommendedRule(PanelRule[BasePanel]):
     id: str = 'panel-description-recommended'
     description: str = 'Panels should have descriptions for accessibility'
     default_severity: Severity = Severity.INFO
+    options_model: type[EmptyOptions] = EmptyOptions
 
     def check_panel(
         self,
         panel: BasePanel,
         context: PanelContext,
-        options: dict[str, Any],  # noqa: ARG002
+        options: EmptyOptions,  # noqa: ARG002
     ) -> ViolationResult:
         """Check panel for missing description.
 
         Args:
             panel: The panel to check.
             context: Panel context with location helpers.
-            options: Rule options (currently unused).
+            options: Validated rule options (empty for this rule).
 
         Returns:
             Violation if description missing, None otherwise.

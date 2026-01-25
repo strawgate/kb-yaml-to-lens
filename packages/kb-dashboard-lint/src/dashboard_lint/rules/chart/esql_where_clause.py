@@ -2,7 +2,6 @@
 
 import re
 from dataclasses import dataclass
-from typing import Any
 
 from dashboard_compiler.panels.charts.config import (
     ESQLAreaPanelConfig,
@@ -19,7 +18,7 @@ from dashboard_compiler.panels.charts.config import (
     LensPanel,
 )
 from dashboard_compiler.queries.config import ESQLQuery
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 # Pattern to match WHERE clause (case insensitive)
@@ -57,7 +56,7 @@ def _get_query_string(query: ESQLQuery) -> str:
 
 @chart_rule
 @dataclass(frozen=True)
-class ESQLWhereClauseRule(ChartRule[ESQLConfig]):
+class ESQLWhereClauseRule(ChartRule[ESQLConfig, EmptyOptions]):
     """Rule: ES|QL queries should include a WHERE clause.
 
     Adding a WHERE clause to filter data improves query performance
@@ -68,13 +67,14 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig]):
     id: str = 'esql-where-clause'
     description: str = 'ES|QL queries should include a WHERE clause'
     default_severity: Severity = Severity.INFO
+    options_model: type[EmptyOptions] = EmptyOptions
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: ESQLConfig,
         context: ChartContext,
-        options: dict[str, Any],  # noqa: ARG002
+        options: EmptyOptions,  # noqa: ARG002
     ) -> ViolationResult:
         """Check ES|QL panel for missing WHERE clause.
 
@@ -82,7 +82,7 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig]):
             panel: The ESQL panel to check.
             config: The panel's ESQL configuration.
             context: Chart context with location helpers.
-            options: Rule options (currently unused).
+            options: Validated rule options (empty for this rule).
 
         Returns:
             Violation if no WHERE clause found, None otherwise.

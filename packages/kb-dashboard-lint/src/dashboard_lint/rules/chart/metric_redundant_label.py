@@ -1,7 +1,6 @@
 """Rule: Metric primary label should not duplicate panel title."""
 
 from dataclasses import dataclass
-from typing import Any
 
 from dashboard_compiler.panels.charts.config import (
     ESQLMetricPanelConfig,
@@ -9,7 +8,7 @@ from dashboard_compiler.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 type MetricConfig = LensMetricPanelConfig | ESQLMetricPanelConfig
@@ -17,7 +16,7 @@ type MetricConfig = LensMetricPanelConfig | ESQLMetricPanelConfig
 
 @chart_rule
 @dataclass(frozen=True)
-class MetricRedundantLabelRule(ChartRule[MetricConfig]):
+class MetricRedundantLabelRule(ChartRule[MetricConfig, EmptyOptions]):
     """Rule: Metric primary label should not duplicate panel title.
 
     When a metric's primary label is the same as the panel title, the title
@@ -28,13 +27,14 @@ class MetricRedundantLabelRule(ChartRule[MetricConfig]):
     id: str = 'metric-redundant-label'
     description: str = 'Metric primary label matching title should use hide_title: true'
     default_severity: Severity = Severity.WARNING
+    options_model: type[EmptyOptions] = EmptyOptions
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,
         config: MetricConfig,
         context: ChartContext,
-        options: dict[str, Any],  # noqa: ARG002
+        options: EmptyOptions,  # noqa: ARG002
     ) -> ViolationResult:
         """Check metric panel for redundant title/label combinations.
 
@@ -42,7 +42,7 @@ class MetricRedundantLabelRule(ChartRule[MetricConfig]):
             panel: The metric panel to check.
             config: The panel's metric configuration.
             context: Chart context with location helpers.
-            options: Rule options (currently unused).
+            options: Validated rule options (empty for this rule).
 
         Returns:
             Violation if label matches title and hide_title not set, None otherwise.

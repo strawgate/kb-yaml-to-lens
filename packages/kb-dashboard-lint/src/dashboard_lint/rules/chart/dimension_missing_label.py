@@ -1,7 +1,6 @@
 """Rule: Dimensions should have explicit labels."""
 
 from dataclasses import dataclass
-from typing import Any
 
 from dashboard_compiler.panels.charts.config import (
     ESQLPanel,
@@ -20,7 +19,7 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensMultiTermsDimension,
     LensTermsDimension,
 )
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 type BreakdownConfig = LensMetricPanelConfig | LensLinePanelConfig | LensBarPanelConfig | LensAreaPanelConfig | LensMosaicPanelConfig
@@ -64,7 +63,7 @@ def _dimension_has_empty_label(dimension: BaseLensDimension) -> bool:
 
 @chart_rule
 @dataclass(frozen=True)
-class DimensionMissingLabelRule(ChartRule[BreakdownConfig]):
+class DimensionMissingLabelRule(ChartRule[BreakdownConfig, EmptyOptions]):
     """Rule: Dimensions should have explicit labels.
 
     Setting explicit labels for dimensions improves the readability
@@ -75,13 +74,14 @@ class DimensionMissingLabelRule(ChartRule[BreakdownConfig]):
     id: str = 'dimension-missing-label'
     description: str = 'Dimensions should have explicit labels'
     default_severity: Severity = Severity.INFO
+    options_model: type[EmptyOptions] = EmptyOptions
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: BreakdownConfig,
         context: ChartContext,
-        options: dict[str, Any],  # noqa: ARG002
+        options: EmptyOptions,  # noqa: ARG002
     ) -> ViolationResult:
         """Check Lens panels for dimensions without labels.
 
@@ -89,7 +89,7 @@ class DimensionMissingLabelRule(ChartRule[BreakdownConfig]):
             panel: The chart panel to check.
             config: The panel's chart configuration.
             context: Chart context with location helpers.
-            options: Rule options (currently unused).
+            options: Validated rule options (empty for this rule).
 
         Returns:
             Violation if dimension missing label, None otherwise.

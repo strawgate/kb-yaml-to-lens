@@ -1,7 +1,8 @@
 """Rule: Dashboards should have a data_stream.dataset filter."""
 
 from dataclasses import dataclass
-from typing import Any
+
+from pydantic import BaseModel, Field
 
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.filters import PhraseFilter, PhrasesFilter
@@ -9,9 +10,20 @@ from dashboard_lint.rules.core import DashboardRule, ViolationResult, dashboard_
 from dashboard_lint.types import Severity, Violation
 
 
+class DashboardDatasetFilterOptions(BaseModel):
+    """Options for the dashboard-dataset-filter rule."""
+
+    model_config = {'extra': 'forbid', 'frozen': True}
+
+    field: str = Field(
+        default='data_stream.dataset',
+        description='Field name to check for a filter',
+    )
+
+
 @dashboard_rule
 @dataclass(frozen=True)
-class DashboardDatasetFilterRule(DashboardRule):
+class DashboardDatasetFilterRule(DashboardRule[DashboardDatasetFilterOptions]):
     """Rule: Dashboards should have a data_stream.dataset filter.
 
     Adding a dataset filter helps scope dashboards to specific data sources
@@ -32,32 +44,31 @@ class DashboardDatasetFilterRule(DashboardRule):
     id: str = 'dashboard-dataset-filter'
     description: str = 'Dashboard should have a data_stream.dataset filter'
     default_severity: Severity = Severity.WARNING
+    options_model: type[DashboardDatasetFilterOptions] = DashboardDatasetFilterOptions
 
     def check_dashboard(
         self,
         dashboard: Dashboard,
-        options: dict[str, Any],
+        options: DashboardDatasetFilterOptions,
     ) -> ViolationResult:
         """Check if dashboard has a dataset filter.
 
         Args:
             dashboard: The dashboard to check.
-            options: Rule options with optional 'field' key.
+            options: Validated rule options.
 
         Returns:
             Violation if no dataset filter found, None otherwise.
 
         """
-        field_name = options.get('field', 'data_stream.dataset')
-
         # Check if any filter targets the dataset field
         for filter_obj in dashboard.filters:
-            if isinstance(filter_obj, (PhraseFilter, PhrasesFilter)) and filter_obj.field == field_name:
+            if isinstance(filter_obj, (PhraseFilter, PhrasesFilter)) and filter_obj.field == options.field:
                 return None  # Found it, no violation
 
         return Violation(
             rule_id=self.id,
-            message=f"Consider adding a '{field_name}' filter to scope the dashboard",
+            message=f"Consider adding a '{options.field}' filter to scope the dashboard",
             severity=self.default_severity,
             dashboard_name=dashboard.name,
             panel_title=None,

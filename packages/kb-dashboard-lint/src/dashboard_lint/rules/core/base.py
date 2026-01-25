@@ -4,6 +4,7 @@ This module provides generic base classes that leverage Python's type system to:
 1. Automatically extract runtime types from the generic type parameter
 2. Filter panels/configs at runtime based on the extracted types
 3. Pass the correctly-typed object to the check method, eliminating redundant isinstance checks
+4. Validate rule options through Pydantic models for type safety
 
 Example:
     @chart_rule
@@ -23,6 +24,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, get_args, get_origin
 
+from pydantic import BaseModel
+
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.charts.config import (
@@ -32,6 +35,17 @@ from dashboard_compiler.panels.charts.config import (
     LensPanelConfig,
 )
 from dashboard_lint.types import Severity, Violation
+
+
+class EmptyOptions(BaseModel):
+    """Empty options model for rules that don't accept any options.
+
+    This model forbids extra fields, ensuring users don't accidentally
+    pass options to rules that don't support them.
+    """
+
+    model_config = {'extra': 'forbid', 'frozen': True}
+
 
 # Store Union for runtime comparison - needed for checking get_origin() results
 # pyright: reportDeprecated=false
@@ -214,31 +228,37 @@ class ChartContext(PanelContext):
         return base
 
 
-class DashboardRule(ABC):
+class DashboardRule[OptionsT: BaseModel](ABC):
     """Base class for dashboard-level rules.
 
     Dashboard rules check properties of the entire dashboard, such as
     filters, settings, or cross-panel consistency.
 
+    Type Parameter:
+        OptionsT: Pydantic model for rule options. Use EmptyOptions for rules
+                  without configurable options.
+
     Subclasses must implement check_dashboard() and define id, description,
-    and default_severity as class attributes.
+    default_severity, and options_model as class attributes.
     """
 
     id: str
     description: str
     default_severity: Severity
+    options_model: type[OptionsT]
+    """Pydantic model class for validating and parsing options."""
 
     @abstractmethod
     def check_dashboard(
         self,
         dashboard: Dashboard,
-        options: dict[str, Any],
+        options: OptionsT,
     ) -> ViolationResult:
         """Check the dashboard for violations.
 
         Args:
             dashboard: The dashboard to check.
-            options: Rule-specific options from configuration.
+            options: Validated rule-specific options.
 
         Returns:
             Single violation, list of violations, or None if no issues.
@@ -251,46 +271,53 @@ class DashboardRule(ABC):
 
         Args:
             dashboard: The dashboard to check.
-            options: Rule-specific options.
+            options: Raw options dict to validate through options_model.
 
         Returns:
             List of violations found.
 
         """
-        return normalize_result(self.check_dashboard(dashboard, options))
+        validated_options = self.options_model.model_validate(options)
+        return normalize_result(self.check_dashboard(dashboard, validated_options))
 
 
-class PanelRule[PanelT: BasePanel](ABC):
+class PanelRule[PanelT: BasePanel, OptionsT: BaseModel](ABC):
     """Base class for panel-level rules with automatic iteration and type filtering.
 
     Panel rules check individual panels. The base class handles iteration
     over all panels in the dashboard, filtering by panel type automatically
     extracted from the generic type parameter.
 
-    Type Parameter:
+    Type Parameters:
         PanelT: The panel type(s) this rule accepts. Used for both static type
-                checking AND automatic runtime filtering. No need to duplicate
-                with a panel_types attribute.
+                checking AND automatic runtime filtering.
+        OptionsT: Pydantic model for rule options. Use EmptyOptions for rules
+                  without configurable options.
 
     Example:
+        class MarkdownOptions(BaseModel):
+            min_height: int = 3
+
         @panel_rule
-        class MarkdownRule(PanelRule[MarkdownPanel]):
-            # No panel_types needed - automatically extracted from generic!
+        class MarkdownRule(PanelRule[MarkdownPanel, MarkdownOptions]):
+            options_model = MarkdownOptions
 
             def check_panel(self, panel: MarkdownPanel, context, options):
-                # panel is already MarkdownPanel - no isinstance needed
-                content = panel.markdown.content
-                ...
+                # options is typed as MarkdownOptions
+                if panel.size.h < options.min_height:
+                    ...
 
     Subclasses must:
     - Implement check_panel() with the correct panel type annotation
-    - Define id, description, and default_severity as class attributes
+    - Define id, description, default_severity, and options_model as class attributes
 
     """
 
     id: str
     description: str
     default_severity: Severity
+    options_model: type[OptionsT]
+    """Pydantic model class for validating and parsing options."""
 
     def get_panel_types(self) -> tuple[type, ...] | None:
         """Get panel types to filter, extracted from generic type parameter.
@@ -309,14 +336,14 @@ class PanelRule[PanelT: BasePanel](ABC):
         self,
         panel: PanelT,
         context: PanelContext,
-        options: dict[str, Any],
+        options: OptionsT,
     ) -> ViolationResult:
         """Check a single panel for violations.
 
         Args:
             panel: The panel to check (type matches panel_types filter).
             context: Context with dashboard name, panel index, and title.
-            options: Rule-specific options from configuration.
+            options: Validated rule-specific options.
 
         Returns:
             Single violation, list of violations, or None if no issues.
@@ -332,12 +359,13 @@ class PanelRule[PanelT: BasePanel](ABC):
 
         Args:
             dashboard: The dashboard to check.
-            options: Rule-specific options.
+            options: Raw options dict to validate through options_model.
 
         Returns:
             List of violations found across all panels.
 
         """
+        validated_options = self.options_model.model_validate(options)
         violations: list[Violation] = []
         panel_types = self.get_panel_types()
 
@@ -352,43 +380,49 @@ class PanelRule[PanelT: BasePanel](ABC):
                 panel_title=panel.title if len(panel.title) > 0 else None,
             )
 
-            result = self.check_panel(panel, context, options)  # type: ignore[arg-type]
+            result = self.check_panel(panel, context, validated_options)  # type: ignore[arg-type]
             violations.extend(normalize_result(result))
 
         return violations
 
 
-class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
+class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig), OptionsT: BaseModel](ABC):
     """Base class for chart-level rules with automatic iteration and type filtering.
 
     Chart rules check LensPanel and ESQLPanel configurations. The base
     class handles iteration and filtering by config types automatically
     extracted from the generic type parameter.
 
-    Type Parameter:
+    Type Parameters:
         ConfigT: The config type(s) this rule accepts. Used for both static type
-                 checking AND automatic runtime filtering. No need to duplicate
-                 with a config_types attribute.
+                 checking AND automatic runtime filtering.
+        OptionsT: Pydantic model for rule options. Use EmptyOptions for rules
+                  without configurable options.
 
     Example:
+        class GaugeOptions(BaseModel):
+            require_max: bool = True
+
         @chart_rule
-        class GaugeRule(ChartRule[LensGaugePanelConfig | ESQLGaugePanelConfig]):
-            # No config_types needed - automatically extracted from generic!
+        class GaugeRule(ChartRule[LensGaugePanelConfig, GaugeOptions]):
+            options_model = GaugeOptions
 
             def check_chart(self, panel, config, context, options):
-                # config is already the correct type - no isinstance needed
-                has_goal = config.goal is not None  # Type checker knows this is valid
-                ...
+                # options is typed as GaugeOptions
+                if options.require_max and config.maximum is None:
+                    ...
 
     Subclasses must:
     - Implement check_chart() with the correct config type annotation
-    - Define id, description, and default_severity as class attributes
+    - Define id, description, default_severity, and options_model as class attributes
 
     """
 
     id: str
     description: str
     default_severity: Severity
+    options_model: type[OptionsT]
+    """Pydantic model class for validating and parsing options."""
 
     def get_config_types(self) -> tuple[type, ...] | None:
         """Get config types to filter, extracted from generic type parameter.
@@ -408,7 +442,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
         panel: LensPanel | ESQLPanel,
         config: ConfigT,
         context: ChartContext,
-        options: dict[str, Any],
+        options: OptionsT,
     ) -> ViolationResult:
         """Check a single chart panel for violations.
 
@@ -416,7 +450,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
             panel: The LensPanel or ESQLPanel to check.
             config: The panel's chart configuration (type matches config_types filter).
             context: Context with dashboard name, panel info, and chart type.
-            options: Rule-specific options from configuration.
+            options: Validated rule-specific options.
 
         Returns:
             Single violation, list of violations, or None if no issues.
@@ -432,12 +466,13 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
 
         Args:
             dashboard: The dashboard to check.
-            options: Rule-specific options.
+            options: Raw options dict to validate through options_model.
 
         Returns:
             List of violations found across all chart panels.
 
         """
+        validated_options = self.options_model.model_validate(options)
         violations: list[Violation] = []
         config_types = self.get_config_types()
 
@@ -470,7 +505,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
                 panel_type=panel_type,
             )
 
-            result = self.check_chart(panel, config, context, options)  # type: ignore[arg-type]
+            result = self.check_chart(panel, config, context, validated_options)  # type: ignore[arg-type]
             violations.extend(normalize_result(result))
 
         return violations

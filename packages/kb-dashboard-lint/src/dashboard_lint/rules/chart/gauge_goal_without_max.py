@@ -1,7 +1,6 @@
 """Rule: Gauge charts with goals should define maximum values."""
 
 from dataclasses import dataclass
-from typing import Any
 
 from dashboard_compiler.panels.charts.config import (
     ESQLGaugePanelConfig,
@@ -9,7 +8,7 @@ from dashboard_compiler.panels.charts.config import (
     LensGaugePanelConfig,
     LensPanel,
 )
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 type GaugeConfig = LensGaugePanelConfig | ESQLGaugePanelConfig
@@ -17,7 +16,7 @@ type GaugeConfig = LensGaugePanelConfig | ESQLGaugePanelConfig
 
 @chart_rule
 @dataclass(frozen=True)
-class GaugeGoalWithoutMaxRule(ChartRule[GaugeConfig]):
+class GaugeGoalWithoutMaxRule(ChartRule[GaugeConfig, EmptyOptions]):
     """Rule: Gauge charts with goals should define maximum values.
 
     When a gauge has a goal threshold, it should also have a maximum
@@ -27,13 +26,14 @@ class GaugeGoalWithoutMaxRule(ChartRule[GaugeConfig]):
     id: str = 'gauge-goal-without-max'
     description: str = 'Gauge charts with goals should define maximum values'
     default_severity: Severity = Severity.WARNING
+    options_model: type[EmptyOptions] = EmptyOptions
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: GaugeConfig,
         context: ChartContext,
-        options: dict[str, Any],  # noqa: ARG002
+        options: EmptyOptions,  # noqa: ARG002
     ) -> ViolationResult:
         """Check gauge panel for goal without max.
 
@@ -41,7 +41,7 @@ class GaugeGoalWithoutMaxRule(ChartRule[GaugeConfig]):
             panel: The gauge panel to check.
             config: The panel's gauge configuration.
             context: Chart context with location helpers.
-            options: Rule options (currently unused).
+            options: Validated rule options (empty for this rule).
 
         Returns:
             Violation if goal present without max, None otherwise.

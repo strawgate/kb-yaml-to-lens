@@ -1,7 +1,8 @@
 """Rule: Pie charts with multiple dimensions may be hard to read."""
 
 from dataclasses import dataclass
-from typing import Any
+
+from pydantic import BaseModel, Field
 
 from dashboard_compiler.panels.charts.config import (
     ESQLPanel,
@@ -15,9 +16,21 @@ from dashboard_lint.types import Severity, Violation
 type PieConfig = LensPiePanelConfig | ESQLPiePanelConfig
 
 
+class PieChartDimensionCountOptions(BaseModel):
+    """Options for the pie-chart-dimension-count rule."""
+
+    model_config = {'extra': 'forbid', 'frozen': True}
+
+    max_dimensions: int = Field(
+        default=1,
+        ge=1,
+        description='Maximum dimensions before warning',
+    )
+
+
 @chart_rule
 @dataclass(frozen=True)
-class PieChartDimensionCountRule(ChartRule[PieConfig]):
+class PieChartDimensionCountRule(ChartRule[PieConfig, PieChartDimensionCountOptions]):
     """Rule: Pie charts with multiple dimensions may be hard to read.
 
     Multi-level (sunburst) pie charts with multiple dimensions can be
@@ -31,13 +44,14 @@ class PieChartDimensionCountRule(ChartRule[PieConfig]):
     id: str = 'pie-chart-dimension-count'
     description: str = 'Pie charts with multiple dimensions may be hard to read'
     default_severity: Severity = Severity.INFO
+    options_model: type[PieChartDimensionCountOptions] = PieChartDimensionCountOptions
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: PieConfig,
         context: ChartContext,
-        options: dict[str, Any],
+        options: PieChartDimensionCountOptions,
     ) -> ViolationResult:
         """Check pie chart for excessive dimensions.
 
@@ -45,17 +59,15 @@ class PieChartDimensionCountRule(ChartRule[PieConfig]):
             panel: The pie chart panel to check.
             config: The panel's pie chart configuration.
             context: Chart context with location helpers.
-            options: Rule options with optional 'max_dimensions' key.
+            options: Validated rule options.
 
         Returns:
             Violation if dimension count exceeds max, None otherwise.
 
         """
-        max_dims = options.get('max_dimensions', 1)
-
         dimension_count = len(config.dimensions)
 
-        if dimension_count > max_dims:
+        if dimension_count > options.max_dimensions:
             return Violation(
                 rule_id=self.id,
                 message=f'Pie chart has {dimension_count} dimensions; multi-level pies can be hard to read',
