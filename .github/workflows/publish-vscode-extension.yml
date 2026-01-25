@@ -25,8 +25,16 @@ jobs:
         id: find-vsix
         shell: bash
         run: |
-          VSIX_FILE=$(ls packages/vscode-extension/*.vsix | head -n 1)
-          echo "vsix_path=$VSIX_FILE" >> $GITHUB_OUTPUT
+          NAME=$(node -p "require('./packages/vscode-extension/package.json').name")
+          VERSION=$(node -p "require('./packages/vscode-extension/package.json').version")
+          VSIX_FILE="packages/vscode-extension/${NAME}-${VERSION}.vsix"
+          if [[ ! -f "$VSIX_FILE" ]]; then
+            echo "Error: Expected VSIX not found: $VSIX_FILE"
+            ls -la packages/vscode-extension/*.vsix 2>/dev/null || echo "No .vsix files found"
+            exit 1
+          fi
+          echo "Found VSIX: $VSIX_FILE"
+          echo "vsix_path=$VSIX_FILE" >> "$GITHUB_OUTPUT"
       - name: Publish to OpenVSX
         id: publish-openvsx
         continue-on-error: true
