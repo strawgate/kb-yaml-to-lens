@@ -1,0 +1,79 @@
+"""Rule: Metric panels with multiple metrics need adequate width."""
+
+from dataclasses import dataclass
+from typing import Any
+
+from dashboard_compiler.panels.charts.config import (
+    ESQLMetricPanelConfig,
+    ESQLPanel,
+    ESQLPanelConfig,
+    LensMetricPanelConfig,
+    LensPanel,
+    LensPanelConfig,
+)
+from dashboard_lint.rules._base import ChartContext, ChartRule, ViolationResult
+from dashboard_lint.rules._decorators import chart_rule
+from dashboard_lint.types import Severity, Violation
+
+
+@chart_rule(chart_types=('metric',))  # type: ignore[misc]
+@dataclass(frozen=True)
+class MetricMultipleMetricsWidthRule(ChartRule):
+    """Rule: Metric panels with multiple metrics need adequate width.
+
+    When a metric panel displays secondary or maximum values in addition
+    to the primary metric, it needs more horizontal space to avoid
+    crowding the display.
+
+    Options:
+        min_width_multiple (int): Minimum width for multi-metric panels. Default: 12.
+    """
+
+    id: str = 'metric-multiple-metrics-width'
+    description: str = 'Metric panels with multiple metrics should have adequate width'
+    default_severity: Severity = Severity.WARNING
+
+    def check_chart(
+        self,
+        panel: LensPanel | ESQLPanel,
+        config: LensPanelConfig | ESQLPanelConfig,
+        context: ChartContext,
+        options: dict[str, Any],
+    ) -> ViolationResult:
+        """Check metric panel for width vs content complexity.
+
+        Args:
+            panel: The metric panel to check.
+            config: The panel's chart configuration.
+            context: Chart context with location helpers.
+            options: Rule options with optional 'min_width_multiple' key.
+
+        Returns:
+            Violation if multi-metric and width too small, None otherwise.
+
+        """
+        min_width = options.get('min_width_multiple', 12)
+
+        # Use .width property which resolves semantic widths to integers
+        width = panel.size.width
+
+        # Count metrics
+        metric_count = 1  # Always have primary
+
+        if isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
+            if config.secondary is not None:
+                metric_count += 1
+            if config.maximum is not None:
+                metric_count += 1
+
+        if metric_count > 1 and width < min_width:
+            return Violation(
+                rule_id=self.id,
+                message=f'Panel has {metric_count} metrics but width {width} is below recommended {min_width}',
+                severity=self.default_severity,
+                dashboard_name=context.dashboard_name,
+                panel_title=context.panel_title,
+                location=context.location(),
+            )
+
+        return None

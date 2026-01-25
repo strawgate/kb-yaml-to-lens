@@ -1,11 +1,11 @@
 """Tests for lint rules."""
 
 from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_lint.rules.dashboard_rules import DashboardDatasetFilterRule
-from dashboard_lint.rules.dimension_rules import DimensionMissingLabelRule
-from dashboard_lint.rules.esql_rules import ESQLWhereClauseRule
-from dashboard_lint.rules.markdown_rules import MarkdownHeaderHeightRule
-from dashboard_lint.rules.metric_rules import MetricRedundantLabelRule
+from dashboard_lint.rules.dashboard_dataset_filter import DashboardDatasetFilterRule
+from dashboard_lint.rules.dimension_missing_label import DimensionMissingLabelRule
+from dashboard_lint.rules.esql_where_clause import ESQLWhereClauseRule
+from dashboard_lint.rules.markdown_header_height import MarkdownHeaderHeightRule
+from dashboard_lint.rules.metric_redundant_label import MetricRedundantLabelRule
 from dashboard_lint.types import Severity
 
 

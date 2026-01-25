@@ -10,11 +10,9 @@ from dashboard_compiler.panels.charts.config import (
 from dashboard_compiler.panels.charts.lens.dimensions.config import LensTermsDimension
 from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric, LensStaticValue
 from dashboard_compiler.panels.config import Size
-from dashboard_lint.rules.chart_rules import (
-    GaugeGoalWithoutMaxRule,
-    MetricMultipleMetricsWidthRule,
-    PieChartDimensionCountRule,
-)
+from dashboard_lint.rules.gauge_goal_without_max import GaugeGoalWithoutMaxRule
+from dashboard_lint.rules.metric_multiple_metrics_width import MetricMultipleMetricsWidthRule
+from dashboard_lint.rules.pie_chart_dimension_count import PieChartDimensionCountRule
 from dashboard_lint.types import Severity
 
 

@@ -189,6 +189,10 @@ reportUnnecessaryIsInstance = false
 reportAttributeAccessIssue = false
 reportArgumentType = false
 reportUnnecessaryTypeIgnoreComment = false
+# Rule decorators use PEP 695 type parameters which basedpyright doesn't fully support
+reportUntypedClassDecorator = false
+# Abstract methods are overridden in subclasses without explicit @override
+reportImplicitOverride = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-lint/tests"
@@ -197,6 +201,7 @@ reportMissingTypeStubs = false
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
+reportUnknownMemberType = false
 reportAny = false
 reportArgumentType = false
 reportCallIssue = false

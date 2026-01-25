@@ -6,11 +6,9 @@ from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggreg
 from dashboard_compiler.panels.config import Size
 from dashboard_compiler.panels.markdown import MarkdownPanel
 from dashboard_compiler.panels.markdown.config import MarkdownPanelConfig
-from dashboard_lint.rules.panel_rules import (
-    PanelDescriptionRecommendedRule,
-    PanelHeightForContentRule,
-    PanelMinWidthRule,
-)
+from dashboard_lint.rules.panel_description_recommended import PanelDescriptionRecommendedRule
+from dashboard_lint.rules.panel_height_for_content import PanelHeightForContentRule
+from dashboard_lint.rules.panel_min_width import PanelMinWidthRule
 from dashboard_lint.types import Severity
 
 
@@ -90,6 +88,52 @@ class TestPanelMinWidthRule:
         # With min_width=12, should fail
         violations = rule.check(dashboard, {'min_width': 12})
         assert len(violations) == 1
+
+    def test_semantic_width_half_passes(self) -> None:
+        """Should correctly handle semantic width 'half' (24 grid units)."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Half Width Panel',
+                    size=Size(w='half', h=5),  # 'half' resolves to 24
+                    lens=LensMetricPanelConfig(
+                        type='metric',
+                        data_view='logs-*',
+                        primary=LensCountAggregatedMetric(aggregation='count'),
+                    ),
+                ),
+            ],
+        )
+
+        rule = PanelMinWidthRule()
+        violations = rule.check(dashboard, {})
+
+        assert len(violations) == 0
+
+    def test_semantic_width_eighth_fails(self) -> None:
+        """Should correctly detect semantic width 'eighth' as too narrow."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Eighth Width Panel',
+                    size=Size(w='eighth', h=5),  # 'eighth' resolves to 6
+                    lens=LensMetricPanelConfig(
+                        type='metric',
+                        data_view='logs-*',
+                        primary=LensCountAggregatedMetric(aggregation='count'),
+                    ),
+                ),
+            ],
+        )
+
+        rule = PanelMinWidthRule()
+        # With min_width=8, 'eighth' (6) should fail
+        violations = rule.check(dashboard, {'min_width': 8})
+
+        assert len(violations) == 1
+        assert 'width 6' in violations[0].message
 
 
 class TestPanelHeightForContentRule:

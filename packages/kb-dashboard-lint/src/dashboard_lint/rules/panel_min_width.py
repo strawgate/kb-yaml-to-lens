@@ -1,0 +1,61 @@
+"""Rule: Panels should have minimum width for readability."""
+
+from dataclasses import dataclass
+from typing import Any
+
+from dashboard_compiler.panels.base import BasePanel
+from dashboard_lint.rules._base import PanelContext, PanelRule, ViolationResult
+from dashboard_lint.rules._decorators import panel_rule
+from dashboard_lint.types import Severity, Violation
+
+
+@panel_rule
+@dataclass(frozen=True)
+class PanelMinWidthRule(PanelRule):
+    """Rule: Panels should have minimum width for readability.
+
+    Very narrow panels (less than 6 grid units) are often too small to
+    display content effectively and may indicate a configuration error.
+
+    Options:
+        min_width (int): Minimum width in grid units. Default: 6.
+    """
+
+    id: str = 'panel-min-width'
+    description: str = 'Panels should have minimum width for readability'
+    default_severity: Severity = Severity.WARNING
+    panel_types: tuple[type[BasePanel], ...] | None = None
+
+    def check_panel(
+        self,
+        panel: BasePanel,
+        context: PanelContext,
+        options: dict[str, Any],
+    ) -> ViolationResult:
+        """Check panel for insufficient width.
+
+        Args:
+            panel: The panel to check.
+            context: Panel context with location helpers.
+            options: Rule options with optional 'min_width' key.
+
+        Returns:
+            Violation if width below minimum, None otherwise.
+
+        """
+        min_width = options.get('min_width', 6)
+
+        # Use .width property which resolves semantic widths to integers
+        width = panel.size.width
+
+        if width < min_width:
+            return Violation(
+                rule_id=self.id,
+                message=f'Panel width {width} is below minimum {min_width}; narrow panels may be hard to read',
+                severity=self.default_severity,
+                dashboard_name=context.dashboard_name,
+                panel_title=context.panel_title,
+                location=context.location('size'),
+            )
+
+        return None
