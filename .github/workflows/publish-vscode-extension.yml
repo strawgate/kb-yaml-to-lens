@@ -21,13 +21,27 @@ jobs:
       - name: Package extension
         shell: bash
         run: make vscode package
+      - name: Find VSIX file
+        id: find-vsix
+        shell: bash
+        run: |
+          NAME=$(node -p "require('./packages/vscode-extension/package.json').name")
+          VERSION=$(node -p "require('./packages/vscode-extension/package.json').version")
+          VSIX_FILE="packages/vscode-extension/${NAME}-${VERSION}.vsix"
+          if [[ ! -f "$VSIX_FILE" ]]; then
+            echo "Error: Expected VSIX not found: $VSIX_FILE"
+            ls -la packages/vscode-extension/*.vsix 2>/dev/null || echo "No .vsix files found"
+            exit 1
+          fi
+          echo "Found VSIX: $VSIX_FILE"
+          echo "vsix_path=$VSIX_FILE" >> "$GITHUB_OUTPUT"
       - name: Publish to OpenVSX
         id: publish-openvsx
         continue-on-error: true
         uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          packagePath: vscode-extension
+          extensionFile: ${{ steps.find-vsix.outputs.vsix_path }}
       - name: Publish to VS Code Marketplace
         id: publish-marketplace
         continue-on-error: true
@@ -35,13 +49,13 @@ jobs:
         with:
           pat: ${{ secrets.VS_MARKETPLACE_PAT }}
           registryUrl: https://marketplace.visualstudio.com
-          packagePath: vscode-extension
+          extensionFile: ${{ steps.find-vsix.outputs.vsix_path }}
       - name: Upload VSIX on failure
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
         uses: actions/upload-artifact@v6
         with:
           name: extension-vsix
-          path: vscode-extension/*.vsix
+          path: packages/vscode-extension/*.vsix
           retention-days: 7
       - name: Fail if publishing failed
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'

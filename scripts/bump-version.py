@@ -25,7 +25,7 @@ import click
 # Version file locations relative to project root
 VERSION_FILES = {
     'packages/kb-dashboard-compiler/pyproject.toml': 'toml',
-    'vscode-extension/package.json': 'json',
+    'packages/vscode-extension/package.json': 'json',
     'pyproject.toml': 'toml',
 }
 
@@ -103,7 +103,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
         status = '(dry-run)' if dry_run else 'OK'
         click.echo(f'  {file_path}: {old_ver} -> {new_version} {status}')
         
-        if file_path == 'vscode-extension/package.json':
+        if file_path == 'packages/vscode-extension/package.json':
             package_json_updated = True
         if file_path.endswith('pyproject.toml'):
             pyproject_updated = True
@@ -111,7 +111,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
     # Update package-lock.json by running npm install
     if package_json_updated and not dry_run:
         click.echo('\nUpdating package-lock.json...')
-        vscode_ext_dir = root / 'vscode-extension'
+        vscode_ext_dir = root / 'packages/vscode-extension'
         try:
             subprocess.run(
                 ['npm', 'install', '--package-lock-only'],
@@ -120,7 +120,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
                 capture_output=True,
                 text=True,
             )
-            click.echo('  vscode-extension/package-lock.json: updated')
+            click.echo('  packages/vscode-extension/package-lock.json: updated')
         except subprocess.CalledProcessError as e:
             click.echo(f'  Warning: Failed to update package-lock.json: {e.stderr}', err=True)
         except FileNotFoundError:
