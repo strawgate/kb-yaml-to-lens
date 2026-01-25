@@ -262,6 +262,10 @@ export const PanelGridInfo = BaseLSPModel.extend({
    * Grid position and size.
    */
   grid: Grid,
+  /**
+   * Whether the panel has an explicit position (not auto-positioned).
+   */
+  is_pinned: z.boolean(),
 }).strict();
 export type PanelGridInfoType = z.infer<typeof PanelGridInfo>;
 

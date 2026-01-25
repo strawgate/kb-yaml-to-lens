@@ -314,7 +314,24 @@ code {
     margin-bottom: 2px;
 }
 
-.panel-size,
+.panel-size {
+    position: absolute;
+    bottom: 4px;
+    left: 8px;
+    font-size: 9px;
+    color: var(--vscode-descriptionForeground);
+    font-family: monospace;
+}
+
+.panel-position {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: 9px;
+    color: var(--vscode-descriptionForeground);
+    font-family: monospace;
+}
+
 .panel-coords {
     font-size: 9px;
     color: var(--vscode-descriptionForeground);

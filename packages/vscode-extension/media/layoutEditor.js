@@ -165,9 +165,10 @@
             draggedPanel.style.width = (newW * CELL_SIZE) + 'px';
             draggedPanel.style.height = (newH * CELL_SIZE) + 'px';
 
-            const coordsElement = draggedPanel.querySelector('.panel-coords');
-            if (coordsElement) {
-                coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
+            // Update the size display element
+            const sizeElement = draggedPanel.querySelector('.panel-size');
+            if (sizeElement) {
+                sizeElement.textContent = 'w:' + panel.grid.w + ' h:' + panel.grid.h;
             }
             updateGridHeight();
         } else {
@@ -187,10 +188,21 @@
             draggedPanel.style.left = (newX * CELL_SIZE) + 'px';
             draggedPanel.style.top = (newY * CELL_SIZE) + 'px';
 
-            const coordsElement = draggedPanel.querySelector('.panel-coords');
-            if (coordsElement) {
-                coordsElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y + ' w:' + panel.grid.w + ' h:' + panel.grid.h;
+            // Update or create position display element (dragging pins the panel)
+            let positionElement = draggedPanel.querySelector('.panel-position');
+            if (!positionElement) {
+                // Create position element if it doesn't exist (panel was unpinned)
+                positionElement = document.createElement('div');
+                positionElement.className = 'panel-position';
+                // Insert before resize handle
+                const resizeHandle = draggedPanel.querySelector('.resize-handle');
+                if (resizeHandle) {
+                    draggedPanel.insertBefore(positionElement, resizeHandle);
+                } else {
+                    draggedPanel.appendChild(positionElement);
+                }
             }
+            positionElement.textContent = 'x:' + panel.grid.x + ' y:' + panel.grid.y;
             updateGridHeight();
         }
     }

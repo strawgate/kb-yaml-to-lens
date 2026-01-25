@@ -224,6 +224,8 @@ class PanelGridInfo(BaseLSPModel):
     """Panel type (e.g., 'esql', 'markdown')."""
     grid: Grid
     """Grid position and size."""
+    is_pinned: bool
+    """Whether the panel has an explicit position (not auto-positioned)."""
 
 
 class DashboardGridInfo(BaseLSPModel):

@@ -447,11 +447,17 @@ export class PreviewPanel {
             const width = panel.grid.w * PreviewPanel.scaleFactor;
             const height = panel.grid.h * PreviewPanel.scaleFactor;
 
+            // Position element is only shown for pinned panels (explicit position in YAML)
+            const positionHtml = panel.is_pinned
+                ? `<div class="panel-position">x:${panel.grid.x} y:${panel.grid.y}</div>`
+                : '';
+
             panelsHtml += `
-                <div class="layout-panel" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px;" onmousedown="handlePanelMouseDown(event)">
+                <div class="layout-panel" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" data-pinned="${panel.is_pinned}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px;" onmousedown="handlePanelMouseDown(event)">
                     <div class="panel-header">${escapeHtml(panel.title || 'Untitled')}</div>
                     <div class="panel-type">Type: ${escapeHtml(panel.type)}</div>
-                    <div class="panel-coords">x:${panel.grid.x} y:${panel.grid.y} w:${panel.grid.w} h:${panel.grid.h}</div>
+                    <div class="panel-size">w:${panel.grid.w} h:${panel.grid.h}</div>
+                    ${positionHtml}
                     <div class="resize-handle" onmousedown="handleResizeMouseDown(event)"></div>
                 </div>
             `;
