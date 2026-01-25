@@ -31,9 +31,7 @@ class ImagePanelConfig(BaseCfgModel):
 
 
 class ImagePanel(BasePanel):
-    """Represents an Image panel configuration.
-
-    Image panels are used to display images.
+    """Image panel configuration.
 
     Examples:
         Minimal image panel:

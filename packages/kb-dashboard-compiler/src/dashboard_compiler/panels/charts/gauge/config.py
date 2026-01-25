@@ -48,10 +48,7 @@ class BaseGaugeChart(BaseCfgModel):
 
 
 class LensGaugeChart(BaseChart, BaseGaugeChart):
-    """Represents a Gauge chart configuration within a Lens panel.
-
-    Gauge charts display a single metric value with optional min/max ranges and goal indicators,
-    typically used to show progress toward a target or threshold.
+    """Lens gauge chart configuration.
 
     Examples:
         Minimal gauge with static values:
@@ -85,19 +82,19 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
     """
 
     data_view: str = Field(default=...)
-    """The data view that determines the data for the gauge chart."""
+    """Data view for the chart."""
 
     metric: LensMetricTypes = Field(default=...)
-    """The primary metric to display in the gauge. This is the main value shown."""
+    """Primary metric value."""
 
     minimum: LensMetricTypes | int | float | None = Field(default=None)
-    """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
+    """Minimum value (metric or static number)."""
 
     maximum: LensMetricTypes | int | float | None = Field(default=None)
-    """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
+    """Maximum value (metric or static number)."""
 
     goal: LensMetricTypes | int | float | None = Field(default=None)
-    """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
+    """Goal/target reference line (metric or static number)."""
 
     @property
     def metrics(self) -> list[LensMetricTypes]:
@@ -106,13 +103,9 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
 
 
 class ESQLGaugeChart(BaseChart, BaseGaugeChart):
-    """Represents a Gauge chart configuration within an ESQL panel.
-
-    Gauge charts display a single metric value with optional min/max ranges and goal indicators,
-    typically used to show progress toward a target or threshold.
+    """ES|QL gauge chart configuration.
 
     Examples:
-        ES|QL gauge with STATS query:
         ```yaml
         esql:
           type: gauge
@@ -124,22 +117,20 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
           minimum: 0
           maximum: 100
           goal: 80
-          appearance:
-            shape: arc
         ```
     """
 
     metric: ESQLMetricTypes = Field(default=...)
-    """The primary metric to display in the gauge. This is the main value shown."""
+    """Primary metric value."""
 
     minimum: ESQLMetricTypes | int | float | None = Field(default=None)
-    """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
+    """Minimum value (metric or static number)."""
 
     maximum: ESQLMetricTypes | int | float | None = Field(default=None)
-    """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
+    """Maximum value (metric or static number)."""
 
     goal: ESQLMetricTypes | int | float | None = Field(default=None)
-    """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
+    """Goal/target reference line (metric or static number)."""
 
     @property
     def metrics(self) -> list[ESQLMetricTypes]:

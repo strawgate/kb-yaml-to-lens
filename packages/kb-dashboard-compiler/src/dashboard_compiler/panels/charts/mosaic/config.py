@@ -69,10 +69,8 @@ class BaseMosaicChart(BaseChart):
 
 
 class LensMosaicChart(BaseMosaicChart):
-    """Represents a Mosaic chart configuration within a Lens panel.
+    """Lens mosaic chart configuration.
 
-    Mosaic charts visualize categorical data as proportional rectangles,
-    where each rectangle's area represents its proportion of the whole.
     Mosaic charts support exactly one metric, one dimension, and an optional breakdown.
 
     Examples:
@@ -139,23 +137,21 @@ class LensMosaicChart(BaseMosaicChart):
     """
 
     data_view: str = Field(default=...)
-    """The data view that determines the data for the mosaic chart."""
+    """Data view for the chart."""
 
     metric: LensMetricTypes = Field(default=...)
-    """Metric that determines the size of rectangles. Mosaic charts support only one metric."""
+    """Metric determining rectangle size."""
 
     dimension: LensDimensionTypes = Field(default=...)
-    """Primary dimension for grouping data. Mosaic charts support only one dimension."""
+    """Primary dimension for grouping."""
 
     breakdown: LensDimensionTypes | None = Field(default=None)
-    """Optional secondary dimension for breaking down the mosaic into sub-groups."""
+    """Secondary dimension for sub-grouping."""
 
 
 class ESQLMosaicChart(BaseMosaicChart):
-    """Represents a Mosaic chart configuration within an ES|QL panel.
+    """ES|QL mosaic chart configuration.
 
-    Mosaic charts visualize categorical data as proportional rectangles,
-    using ES|QL queries to aggregate and group the data.
     Mosaic charts support exactly one metric, one dimension, and an optional breakdown.
 
     Examples:

@@ -57,9 +57,7 @@ class BaseTagcloudChart(BaseChart):
 
 
 class LensTagcloudChart(BaseTagcloudChart):
-    """Represents a Tagcloud chart configuration within a Lens panel.
-
-    Tagcloud charts are used to visualize term frequency as word/tag clouds.
+    """Lens tagcloud chart configuration.
 
     Examples:
         Minimal tagcloud:
@@ -105,17 +103,17 @@ class LensTagcloudChart(BaseTagcloudChart):
     """
 
     data_view: str = Field(default=...)
-    """The data view that determines the data for the tagcloud chart."""
+    """Data view for the chart."""
 
     dimension: LensDimensionTypes = Field(default=...)
-    """The dimension for grouping (terms). This determines the tags shown in the cloud."""
+    """Dimension determining tags shown."""
 
     metric: LensMetricTypes = Field(default=...)
-    """The metric for sizing. This determines the size of each tag."""
+    """Metric determining tag size."""
 
 
 class ESQLTagcloudChart(BaseTagcloudChart):
-    """Represents a Tagcloud chart configuration within an ES|QL panel.
+    """ES|QL tagcloud chart configuration.
 
     Examples:
         ES|QL tagcloud:

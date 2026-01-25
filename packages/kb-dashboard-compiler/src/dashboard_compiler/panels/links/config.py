@@ -53,32 +53,32 @@ type LinkTypes = Annotated[
 
 
 class DashboardLink(BaseLink):
-    """Represents a link to another dashboard within a Links panel."""
+    """Link to another dashboard."""
 
     dashboard: str = Field(...)
-    """The ID of the dashboard that the link points to."""
+    """Dashboard ID to link to."""
 
     new_tab: bool | None = Field(default=None)
-    """If `true`, links will open in a new browser tab. Kibana defaults to `false` if not set."""
+    """Open in new tab. Kibana defaults to false."""
 
     with_time: bool | None = Field(default=None)
-    """If `true`, the links will inherit the time range from the dashboard. Kibana defaults to `True` if not set."""
+    """Inherit dashboard time range. Kibana defaults to true."""
 
     with_filters: bool | None = Field(default=None)
-    """If `true`, the links will inherit the filters from the dashboard. Kibana defaults to `True` if not set."""
+    """Inherit dashboard filters. Kibana defaults to true."""
 
 
 class UrlLink(BaseLink):
-    """Represents a link to an external URL within a Links panel."""
+    """Link to an external URL."""
 
     url: str = Field(...)
-    """The Web URL that the link points to."""
+    """URL to link to."""
 
     encode: bool | None = Field(default=None)
-    """If `true`, the URL will be URL-encoded. Kibana defaults to `True` if not set."""
+    """URL-encode the link. Kibana defaults to true."""
 
     new_tab: bool | None = Field(default=None)
-    """If `true`, the link will open in a new browser tab. Kibana defaults to `false` if not set."""
+    """Open in new tab. Kibana defaults to false."""
 
 
 class LinksPanelConfig(BaseCfgModel):
@@ -92,10 +92,7 @@ class LinksPanelConfig(BaseCfgModel):
 
 
 class LinksPanel(BasePanel):
-    """Represents a Links panel configuration.
-
-    Links panels are used to display a collection of links to other dashboards,
-    saved objects, or external URLs.
+    """Links panel configuration.
 
     Examples:
         Linking to another Dashboard:

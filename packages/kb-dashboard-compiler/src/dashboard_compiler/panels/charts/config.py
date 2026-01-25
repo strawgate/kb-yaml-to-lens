@@ -183,22 +183,14 @@ type ESQLPanelConfig = Annotated[
 
 
 class LensPanel(BasePanel):
-    """Represents a Lens chart panel (single or multi-layer).
-
-    The lens field contains a discriminated union of chart panel configurations.
-    The chart type is determined by the 'type' field.
-    """
+    """Lens chart panel. Chart type determined by lens.type field."""
 
     lens: LensPanelConfig = Field(...)
     """Lens panel configuration."""
 
 
 class ESQLPanel(BasePanel):
-    """Represents an ES|QL chart panel.
-
-    The esql field contains a discriminated union of ES|QL chart panel configurations.
-    The chart type is determined by the 'type' field.
-    """
+    """ES|QL chart panel. Chart type determined by esql.type field."""
 
     esql: ESQLPanelConfig = Field(...)
     """ES|QL panel configuration."""

@@ -107,10 +107,10 @@ class BaseIdentifiableModel(BaseCfgModel):
 
 
 class Sort(BaseCfgModel):
-    """Represents a sort configuration in the Config schema."""
+    """Sort configuration."""
 
     by: str = Field(...)
-    """The field name to sort the data by."""
+    """Field to sort by."""
 
     direction: Literal['asc', 'desc'] = Field(...)
-    """The sort direction. Must be either 'asc' for ascending or 'desc' for descending."""
+    """Sort direction."""

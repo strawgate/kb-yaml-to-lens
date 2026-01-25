@@ -14,9 +14,7 @@ class SearchPanelConfig(BaseCfgModel):
 
 
 class SearchPanel(BasePanel):
-    """Represents a Search panel configuration.
-
-    Search panels are used to display the results of a saved Kibana search.
+    """Search panel configuration (embeds a saved Discover search).
 
     Examples:
         Minimal search panel:

@@ -96,37 +96,29 @@ class BaseHeatmapChart(BaseCfgModel):
 
 
 class LensHeatmapChart(BaseChart, BaseHeatmapChart):
-    """Represents a Heatmap chart configuration within a Lens panel.
-
-    Heatmap charts display data as a matrix where cell colors represent metric values,
-    typically used for visualizing patterns across two categorical dimensions.
-    """
+    """Lens heatmap chart configuration."""
 
     data_view: str = Field(default=...)
-    """The data view that determines the data for the heatmap chart."""
+    """Data view for the chart."""
 
     x_axis: LensDimensionTypes = Field(...)
-    """The dimension to display on the X-axis (horizontal)."""
+    """X-axis (horizontal) dimension."""
 
     y_axis: LensDimensionTypes | None = Field(default=None)
-    """The dimension to display on the Y-axis (vertical). Optional for 1D heatmaps."""
+    """Y-axis (vertical) dimension. Optional for 1D heatmaps."""
 
     value: LensMetricTypes = Field(...)
-    """The metric that determines cell color intensity."""
+    """Metric determining cell color intensity."""
 
 
 class ESQLHeatmapChart(BaseChart, BaseHeatmapChart):
-    """Represents a Heatmap chart configuration within an ESQL panel.
-
-    Heatmap charts display data as a matrix where cell colors represent metric values,
-    typically used for visualizing patterns across two categorical dimensions.
-    """
+    """ES|QL heatmap chart configuration."""
 
     x_axis: ESQLDimensionTypes = Field(...)
-    """The dimension to display on the X-axis (horizontal)."""
+    """X-axis (horizontal) dimension."""
 
     y_axis: ESQLDimensionTypes | None = Field(default=None)
-    """The dimension to display on the Y-axis (vertical). Optional for 1D heatmaps."""
+    """Y-axis (vertical) dimension. Optional for 1D heatmaps."""
 
     value: ESQLMetricTypes = Field(...)
-    """The metric that determines cell color intensity."""
+    """Metric determining cell color intensity."""

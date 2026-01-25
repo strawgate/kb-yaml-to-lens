@@ -93,28 +93,25 @@ class XYLegend(BaseCfgModel):
 
 
 class AxisExtent(BaseCfgModel):
-    """Represents axis extent (bounds) configuration for XY chart axes.
+    """Axis extent (bounds) configuration.
 
-    Controls the range of values displayed on an axis. Can be set to:
-    - 'full': Use the full extent of the data
-    - 'custom': Specify custom bounds with min/max values
-    - 'data_bounds': Fit to the actual data bounds
+    Modes: 'full' (full data range), 'data_bounds' (fit to data), 'custom' (manual min/max).
     """
 
     mode: Literal['full', 'custom', 'data_bounds'] = Field(default='full')
-    """The extent mode for the axis. Defaults to 'full'."""
+    """Extent mode. Defaults to 'full'."""
 
     min: float | None = Field(default=None)
-    """Minimum value for the axis (only used when mode is 'custom')."""
+    """Minimum (required for 'custom' mode)."""
 
     max: float | None = Field(default=None)
-    """Maximum value for the axis (only used when mode is 'custom')."""
+    """Maximum (required for 'custom' mode)."""
 
     enforce: bool | None = Field(default=None)
-    """Whether to enforce the bounds strictly. Defaults to false."""
+    """Enforce bounds strictly. Defaults to false."""
 
     nice_values: bool | None = Field(default=None)
-    """Whether to use nice rounded values for bounds. Defaults to true."""
+    """Round to nice values. Defaults to true."""
 
     @model_validator(mode='after')
     def validate_custom_bounds(self) -> Self:
@@ -195,9 +192,9 @@ class LineChartAppearance(BaseXYChartAppearance):
 
 
 class AreaChartAppearance(LineChartAppearance):
-    """Represents area chart appearance formatting options."""
+    """Area chart appearance options."""
 
-    fill_opacity: float | None = Field(default=None, ge=0.0, le=1.0, description='The fill opacity for area charts (0.0 to 1.0).')
+    fill_opacity: float | None = Field(default=None, ge=0.0, le=1.0, description='Fill opacity (0.0 to 1.0).')
 
 
 class XYTitlesAndText(BaseCfgModel):
@@ -342,10 +339,9 @@ class BaseXYAreaChart(BaseXYLineChart):
 
 
 class LensBarChart(BaseXYBarChart, LensXYChartMixin):
-    """Represents a Bar chart configuration within a Lens panel.
+    """Lens bar chart configuration.
 
     Examples:
-        Simple bar chart with time series:
         ```yaml
         lens:
           type: bar
@@ -376,10 +372,9 @@ class LensBarChart(BaseXYBarChart, LensXYChartMixin):
 
 
 class LensLineChart(BaseXYLineChart, LensXYChartMixin):
-    """Represents a Line chart configuration within a Lens panel.
+    """Lens line chart configuration.
 
     Examples:
-        Simple line chart with time series:
         ```yaml
         lens:
           type: line
@@ -413,10 +408,9 @@ class LensLineChart(BaseXYLineChart, LensXYChartMixin):
 
 
 class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
-    """Represents an Area chart configuration within a Lens panel.
+    """Lens area chart configuration.
 
     Examples:
-        Simple area chart with time series:
         ```yaml
         lens:
           type: area
@@ -447,17 +441,11 @@ class LensAreaChart(BaseXYAreaChart, LensXYChartMixin):
 
 
 class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
-    """Represents a Bar chart configuration within an ES|QL panel.
+    """ES|QL bar chart configuration.
 
-    Bar charts display categorical or time-series data using vertical or horizontal bars,
-    where bar height/length represents metric values. Ideal for comparing values across
-    categories or showing distributions over time.
-
-    The `field` names used in dimension, metrics, and breakdown must correspond to
-    columns returned by your ES|QL query.
+    Field names must match columns from your ES|QL query.
 
     Examples:
-        ES|QL bar chart with time series:
         ```yaml
         esql:
           type: bar
@@ -489,17 +477,11 @@ class ESQLBarChart(BaseXYBarChart, ESQLXYChartMixin):
 
 
 class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
-    """Represents a Line chart configuration within an ES|QL panel.
+    """ES|QL line chart configuration.
 
-    Line charts display data points connected by lines, ideal for visualizing trends
-    and changes over time. Supports multiple metrics and optional breakdown for
-    comparing series.
-
-    The `field` names used in dimension, metrics, and breakdown must correspond to
-    columns returned by your ES|QL query.
+    Field names must match columns from your ES|QL query.
 
     Examples:
-        ES|QL line chart for time series:
         ```yaml
         esql:
           type: line
@@ -530,17 +512,11 @@ class ESQLLineChart(BaseXYLineChart, ESQLXYChartMixin):
 
 
 class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
-    """Represents an Area chart configuration within an ES|QL panel.
+    """ES|QL area chart configuration.
 
-    Area charts display data with filled areas beneath the lines, useful for
-    visualizing cumulative values or showing the magnitude of trends over time.
-    Supports stacked and percentage modes for comparing proportions.
-
-    The `field` names used in dimension, metrics, and breakdown must correspond to
-    columns returned by your ES|QL query.
+    Field names must match columns from your ES|QL query.
 
     Examples:
-        ES|QL area chart for resource usage:
         ```yaml
         esql:
           type: area
@@ -572,21 +548,12 @@ class ESQLAreaChart(BaseXYAreaChart, ESQLXYChartMixin):
 
 
 class LensReferenceLineLayer(BaseChart):
-    """Represents a reference line layer configuration for multi-layer panels.
-
-    Reference lines display static threshold values, SLA targets, or baseline values
-    on XY charts. They appear as horizontal or vertical lines with optional styling,
-    labels, and icons.
-
-    Unlike data layers, reference lines don't query data - they display static values
-    for visual context and comparison.
-    """
+    """Reference line layer for XY charts (thresholds, SLA targets, etc.)."""
 
     type: Literal['reference_line'] = 'reference_line'
-    """The type of layer. Always 'reference_line'."""
 
     data_view: str = Field(default=...)
-    """The data view to use for the layer (required for Kibana compatibility)."""
+    """Data view (required for Kibana compatibility)."""
 
     reference_lines: list[XYReferenceLine] = Field(default_factory=list)
-    """List of reference lines to display in this layer."""
+    """Reference lines to display."""

@@ -128,10 +128,7 @@ class DatatableAppearance(BaseCfgModel):
 
 
 class LensDatatableChart(BaseChart):
-    """Represents a Datatable chart configuration within a Lens panel.
-
-    Datatable charts display tabular data with customizable columns, sorting,
-    pagination, and formatting options.
+    """Lens datatable chart configuration.
 
     Examples:
         Simple datatable with metrics and dimensions:
@@ -216,10 +213,9 @@ class LensDatatableChart(BaseChart):
 
 
 class ESQLDatatableChart(BaseChart):
-    """Represents a Datatable chart configuration within an ESQL panel.
+    """ES|QL datatable chart configuration.
 
-    Note: ESQL datatables can have empty metrics and rows lists if they rely on
-    the ESQL query to define columns (e.g., STATS or KEEP commands).
+    Metrics/dimensions can be empty if the ESQL query defines columns via STATS/KEEP.
 
     Examples:
         ES|QL datatable with STATS query:
