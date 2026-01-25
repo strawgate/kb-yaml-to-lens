@@ -426,13 +426,15 @@ Defines how metric values are displayed in visualizations.
 
 **Default Decimal Places (Kibana):**
 
-When no `pattern` is specified, Kibana applies these defaults:
+When no `decimals` or `pattern` is specified, Kibana applies these defaults:
 
 * `number`: 2 decimal places
 * `bytes`: 2 decimal places
 * `bits`: 0 decimal places
 * `percent`: 2 decimal places
 * `duration`: 0 decimal places (uses smart duration formatting like "1m 30s")
+
+Use the `decimals` field to override these defaults with a specific number of decimal places. This provides a simpler alternative to using `pattern` for controlling decimal precision.
 
 ### Custom Format
 

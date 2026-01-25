@@ -3,13 +3,14 @@
 """Kibana client for uploading dashboards via the Saved Objects API."""
 
 import asyncio
+import json
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, TypedDict
+from typing import Annotated, Any, ClassVar, Literal
 
 import aiohttp
 import prison
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, TypeAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -17,15 +18,108 @@ HTTP_OK = 200
 HTTP_SERVICE_UNAVAILABLE = 503
 
 
-class _JobParamsLayout(TypedDict):
-    id: str
-    dimensions: dict[str, int]
+# ============================================================================
+# Error Response Models
+# ============================================================================
 
 
-class _JobParams(TypedDict):
-    layout: _JobParamsLayout
-    browserTimezone: str
-    locatorParams: dict[str, Any]
+class KibanaErrorDetail(BaseModel):
+    """Structured error detail from Kibana API responses.
+
+    Captures the known error structure returned by Kibana's Saved Objects API.
+    Configured with extra='allow' to handle unexpected fields gracefully.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    message: str | None = None
+    """Error message from Kibana."""
+    type: str | None = None
+    """Error type identifier."""
+
+
+# ============================================================================
+# Screenshot Job Parameter Models
+# ============================================================================
+
+
+class LayoutDimensions(BaseModel):
+    """Screenshot layout dimensions."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    width: int
+    """Screenshot width in pixels."""
+    height: int
+    """Screenshot height in pixels."""
+
+
+class ScreenshotLayout(BaseModel):
+    """Screenshot layout configuration."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    id: Literal['preserve_layout'] = 'preserve_layout'
+    """Layout type identifier."""
+    dimensions: LayoutDimensions
+    """Layout dimensions."""
+
+
+class ScreenshotTimeRange(BaseModel):
+    """Time range for dashboard screenshot."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    from_time: str = Field(..., serialization_alias='from')
+    """Start time (ISO 8601 or relative)."""
+    to: str
+    """End time (ISO 8601 or relative)."""
+
+
+class DashboardLocatorParams(BaseModel):
+    """Parameters for locating a specific dashboard view."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    dashboard_id: str = Field(..., serialization_alias='dashboardId')
+    """Dashboard ID to screenshot."""
+    use_hash: bool = Field(default=False, serialization_alias='useHash')
+    """Whether to use hash routing."""
+    view_mode: Literal['view', 'edit'] = Field(default='view', serialization_alias='viewMode')
+    """Dashboard view mode."""
+    preserve_saved_filters: bool = Field(default=True, serialization_alias='preserveSavedFilters')
+    """Preserve saved filters."""
+    time_range: ScreenshotTimeRange | None = Field(default=None, serialization_alias='timeRange')
+    """Optional time range override."""
+
+
+class LocatorParams(BaseModel):
+    """Locator configuration for Kibana reporting."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    id: Literal['DASHBOARD_APP_LOCATOR'] = 'DASHBOARD_APP_LOCATOR'
+    """Locator type identifier."""
+    params: DashboardLocatorParams
+    """Dashboard locator parameters."""
+
+
+class JobParams(BaseModel):
+    """Complete job parameters for Kibana screenshot generation."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    layout: ScreenshotLayout
+    """Screenshot layout configuration."""
+    browser_timezone: str = Field(..., serialization_alias='browserTimezone')
+    """Browser timezone for rendering."""
+    locator_params: LocatorParams = Field(..., serialization_alias='locatorParams')
+    """Dashboard locator configuration."""
+
+
+# ============================================================================
+# Saved Object Response Models
+# ============================================================================
 
 
 class SavedObjectResult(BaseModel):
@@ -34,8 +128,11 @@ class SavedObjectResult(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
     id: str
+    """Saved object ID."""
     destination_id: str | None = Field(default=None, validation_alias='destinationId')
+    """Destination ID if object was relocated."""
     type: str
+    """Saved object type."""
 
 
 class SavedObjectError(BaseModel):
@@ -43,9 +140,25 @@ class SavedObjectError(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
-    error: dict[str, Any] | None = None
+    error: KibanaErrorDetail | None = None
+    """Structured error details from Kibana."""
     message: str | None = None
+    """Top-level error message."""
     status_code: int | None = Field(default=None, alias='statusCode')
+    """HTTP status code."""
+
+    def get_error_message(self) -> str:
+        """Extract the most descriptive error message available.
+
+        Returns:
+            Error message from nested error detail, top-level message, or 'Unknown error'.
+
+        """
+        if self.error is not None and self.error.message is not None:
+            return self.error.message
+        if self.message is not None:
+            return self.message
+        return 'Unknown error'
 
 
 class KibanaSavedObjectsResponse(BaseModel):
@@ -53,12 +166,14 @@ class KibanaSavedObjectsResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
-    success: bool = Field(default=False, description='Whether the import was successful')
-    success_count: int = Field(default=0, alias='successCount', description='Number of successfully imported objects')
-    success_results: list[SavedObjectResult] = Field(
-        default_factory=list, alias='successResults', description='List of successfully imported objects'
-    )
-    errors: list[SavedObjectError] = Field(default_factory=list, description='List of errors encountered during import')
+    success: bool = False
+    """Whether the import was successful."""
+    success_count: int = Field(default=0, alias='successCount')
+    """Number of successfully imported objects."""
+    success_results: list[SavedObjectResult] = Field(default_factory=list, alias='successResults')
+    """List of successfully imported objects."""
+    errors: list[SavedObjectError] = Field(default_factory=list)
+    """List of errors encountered during import."""
 
 
 class KibanaReportingJobResponse(BaseModel):
@@ -66,7 +181,8 @@ class KibanaReportingJobResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    path: str = Field(..., description='Path to poll for job completion')
+    path: str
+    """Path to poll for job completion."""
 
 
 class EsqlColumn(BaseModel):
@@ -78,9 +194,9 @@ class EsqlColumn(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    name: str = Field(..., description='Column name')
+    name: str
     """Column name."""
-    type: str = Field(..., description='Column data type (e.g., keyword, long, date)')
+    type: str
     """Column data type (e.g., keyword, long, date)."""
 
 
@@ -96,13 +212,13 @@ class EsqlResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    columns: list[EsqlColumn] = Field(default_factory=list, description='Column definitions with name and type')
+    columns: list[EsqlColumn] = Field(default_factory=list)
     """Column definitions with name and type."""
-    values: list[list[Any]] = Field(default_factory=list, description='Row values as nested arrays')
+    values: list[list[Any]] = Field(default_factory=list)
     """Row values as nested arrays."""
-    took: int | None = Field(default=None, description='Query execution time in milliseconds')
+    took: int | None = None
     """Query execution time in milliseconds."""
-    is_partial: bool = Field(default=False, description='Whether results are partial')
+    is_partial: bool = False
     """Whether results are partial."""
 
     @property
@@ -123,6 +239,196 @@ class EsqlResponse(BaseModel):
         """
         # Values are dynamic JSON types from Elasticsearch; col.name is typed, val is Any from ES
         return [{col.name: val for col, val in zip(self.columns, row, strict=False)} for row in self.values]  # pyright: ignore[reportAny]
+
+
+class EsqlRootCause(BaseModel):
+    """Root cause detail in ES|QL error responses."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str | None = None
+    """Error type identifier."""
+    reason: str | None = None
+    """Human-readable error reason."""
+
+
+class EsqlErrorDetail(BaseModel):
+    """Structured error detail from ES|QL query responses."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str | None = None
+    """Error type identifier (e.g., 'verification_exception', 'parsing_exception')."""
+    reason: str | None = None
+    """Human-readable error reason."""
+    root_cause: list[EsqlRootCause] = Field(default_factory=list)
+    """List of root causes for the error."""
+
+
+class EsqlErrorResponse(BaseModel):
+    """Error response from ES|QL query execution.
+
+    This model represents an error response from Elasticsearch when an ES|QL
+    query fails (e.g., syntax error, verification error, unknown field).
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    error: EsqlErrorDetail
+    """Structured error details."""
+    status: int | None = None
+    """HTTP status code."""
+
+    def get_error_message(self) -> str:
+        """Extract a user-friendly error message from the error response.
+
+        Returns:
+            The error reason, or a fallback message if not available.
+        """
+        if self.error.reason is not None:
+            return self.error.reason
+        if self.error.type is not None:
+            return self.error.type
+        return 'Unknown ES|QL error'
+
+
+def _esql_response_discriminator(value: Any) -> str:  # pyright: ignore[reportAny]
+    """Discriminator function for ES|QL API responses.
+
+    Determines whether the response is an error or success based on the presence
+    of the 'error' key in the response dict.
+
+    Args:
+        value: The raw response value (typically a dict).
+
+    Returns:
+        'error' if the response contains an error, 'success' otherwise.
+    """
+    if isinstance(value, dict):
+        return 'error' if 'error' in value else 'success'
+    return 'success'
+
+
+EsqlApiResponse = Annotated[
+    Annotated[EsqlErrorResponse, Tag('error')] | Annotated[EsqlResponse, Tag('success')],
+    Discriminator(_esql_response_discriminator),
+]
+"""Union type for ES|QL API responses, discriminated by the presence of 'error' key."""
+
+# TypeAdapter instance for parsing ES|QL API responses.
+# Note: Explicit type annotation omitted to avoid beartype compatibility issues with complex generics.
+_esql_response_adapter = TypeAdapter(  # pyright: ignore[reportUnknownVariableType]
+    EsqlApiResponse
+)
+
+
+# ============================================================================
+# Bulk API Response Models
+# ============================================================================
+
+
+class BulkItemError(BaseModel):
+    """Error details for a failed bulk operation item.
+
+    Represents the error structure returned by Elasticsearch for individual
+    bulk operation failures.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str | None = None
+    """Error type identifier (e.g., 'mapper_parsing_exception')."""
+    reason: str | None = None
+    """Human-readable error reason."""
+
+    def get_error_message(self) -> str:
+        """Extract a user-friendly error message.
+
+        Returns:
+            The error reason if available, otherwise type, or fallback message.
+        """
+        if self.reason is not None:
+            return f'{self.type}: {self.reason}' if self.type is not None else self.reason
+        if self.type is not None:
+            return self.type
+        return 'Unknown bulk error'
+
+
+class BulkItemResult(BaseModel):
+    """Result of a single bulk operation item.
+
+    Represents the result structure for an individual bulk action (index, create, etc.).
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
+
+    index: str = Field(alias='_index')
+    """Index name where the document was indexed."""
+    status: int
+    """HTTP status code for this operation."""
+    error: BulkItemError | None = None
+    """Error details if the operation failed."""
+
+    @property
+    def success(self) -> bool:
+        """Whether this operation was successful (2xx status code)."""
+        return 200 <= self.status < 300  # noqa: PLR2004
+
+
+class BulkResponse(BaseModel):
+    """Response from Elasticsearch bulk API.
+
+    Contains the overall result of a bulk operation including timing,
+    error flag, and individual item results.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    took: int = 0
+    """Time in milliseconds for the bulk operation."""
+    errors: bool = False
+    """Whether any operations in the bulk request failed."""
+    items: list[dict[str, BulkItemResult]] = Field(default_factory=list)
+    """List of item results, each keyed by action type (index, create, etc.)."""
+
+    def get_success_count(self) -> int:
+        """Count the number of successful operations.
+
+        Returns:
+            Number of items with successful (2xx) status codes.
+        """
+        count = 0
+        for item in self.items:
+            for result in item.values():
+                if result.success:
+                    count += 1
+        return count
+
+    def get_failed_items(self) -> list[BulkItemResult]:
+        """Get list of failed operation results.
+
+        Returns:
+            List of BulkItemResult objects for operations that failed.
+        """
+        return [result for item in self.items for result in item.values() if not result.success]
+
+
+# ============================================================================
+# Index Template Response Models
+# ============================================================================
+
+
+class IndexTemplateResponse(BaseModel):
+    """Response from Elasticsearch index template creation/update.
+
+    Represents the acknowledgment response from creating or updating
+    an index template.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    acknowledged: bool = False
+    """Whether the operation was acknowledged by the cluster."""
 
 
 class KibanaClient:
@@ -338,35 +644,28 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        locator_params: dict[str, Any] = {
-            'id': 'DASHBOARD_APP_LOCATOR',
-            'params': {
-                'dashboardId': dashboard_id,
-                'useHash': False,
-                'viewMode': 'view',
-                'preserveSavedFilters': True,
-            },
-        }
+        time_range: ScreenshotTimeRange | None = None
+        if time_from is not None or time_to is not None:
+            time_range = ScreenshotTimeRange(
+                from_time=time_from if time_from is not None else 'now-15m',
+                to=time_to if time_to is not None else 'now',
+            )
 
-        if time_from or time_to:
-            locator_params['params']['timeRange'] = {
-                'from': time_from or 'now-15m',
-                'to': time_to or 'now',
-            }
+        dashboard_params = DashboardLocatorParams(
+            dashboard_id=dashboard_id,
+            time_range=time_range,
+        )
 
-        job_params: _JobParams = {
-            'layout': {
-                'id': 'preserve_layout',
-                'dimensions': {
-                    'width': width,
-                    'height': height,
-                },
-            },
-            'browserTimezone': browser_timezone,
-            'locatorParams': locator_params,
-        }
+        job_params = JobParams(
+            layout=ScreenshotLayout(
+                dimensions=LayoutDimensions(width=width, height=height),
+            ),
+            browser_timezone=browser_timezone,
+            locator_params=LocatorParams(params=dashboard_params),
+        )
 
-        rison_result = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        job_params_dict = job_params.model_dump(by_alias=True, exclude_none=True)
+        rison_result = prison.dumps(job_params_dict)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if not isinstance(rison_result, str):
             msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
@@ -501,6 +800,142 @@ class KibanaClient:
             response.raise_for_status()
             return await response.text()
 
+    async def proxy_bulk(
+        self,
+        actions: list[dict[str, Any]],
+        timeout_seconds: int = 300,
+    ) -> BulkResponse:
+        """Proxy bulk indexing operations through Kibana's console proxy API.
+
+        Args:
+            actions: List of bulk actions. Each action should be a dict with
+                     '_index', '_source', and optionally 'pipeline' keys.
+            timeout_seconds: Request timeout in seconds (default: 300).
+
+        Returns:
+            BulkResponse containing operation results with success/failure counts
+            and individual item results.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response indicates an HTTP error
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_bulk', 'method': 'POST'}
+
+        # Build NDJSON body for bulk API
+        lines: list[str] = []
+        for action in actions:
+            index_name: str = str(action.get('_index', ''))  # pyright: ignore[reportAny]
+            pipeline = action.get('pipeline')
+            source: dict[str, Any] = action.get('_source', {})  # pyright: ignore[reportAny]
+
+            # Create action line
+            action_meta: dict[str, Any] = {'index': {'_index': index_name}}
+            if pipeline is not None:
+                action_meta['index']['pipeline'] = pipeline
+            lines.append(json.dumps(action_meta))
+
+            # Create document line
+            lines.append(json.dumps(source))
+
+        # NDJSON requires trailing newline
+        body = '\n'.join(lines) + '\n'
+
+        logger.info('Executing bulk indexing via Kibana console proxy (%d actions)', len(actions))
+
+        timeout = aiohttp.ClientTimeout(total=timeout_seconds)
+        async with await self._post(
+            endpoint,
+            params=params,
+            data=body,
+            headers={'Content-Type': 'application/x-ndjson', 'x-elastic-internal-origin': 'kibana'},
+            timeout=timeout,
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error('Bulk indexing failed with status %s: %s', response.status, error_text[:500])
+                msg = f'Bulk indexing failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+            bulk_response = BulkResponse.model_validate(result)
+
+            success_count = bulk_response.get_success_count()
+            failed_count = len(bulk_response.get_failed_items())
+            logger.info('Bulk indexing completed: %d succeeded, %d failed', success_count, failed_count)
+
+            return bulk_response
+
+    async def proxy_put_index_template(
+        self,
+        name: str,
+        index_patterns: list[str],
+        template: dict[str, Any],
+        timeout_seconds: int = 30,
+    ) -> IndexTemplateResponse:
+        """Create or update an index template via Kibana's console proxy API.
+
+        Args:
+            name: Name of the index template
+            index_patterns: List of index patterns the template applies to
+            template: Template configuration (mappings, settings, etc.)
+            timeout_seconds: Request timeout in seconds (default: 30)
+
+        Returns:
+            IndexTemplateResponse containing acknowledgment status.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response indicates an error
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': f'/_index_template/{name}', 'method': 'PUT'}
+
+        request_body = {
+            'index_patterns': index_patterns,
+            'template': template,
+        }
+
+        logger.info('Creating index template via Kibana console proxy: %s', name)
+
+        timeout = aiohttp.ClientTimeout(total=timeout_seconds)
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+            timeout=timeout,
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error('Index template creation failed with status %s: %s', response.status, error_text[:500])
+                msg = f'Index template creation failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+
+            # Check for error response (Elasticsearch returns error in response body)
+            if isinstance(result, dict) and 'error' in result:
+                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
+                if isinstance(error_info, dict):
+                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                elif isinstance(error_info, str):
+                    error_msg = error_info
+                else:
+                    msg = f'Unexpected index template error type: {type(error_info).__name__}'  # pyright: ignore[reportUnknownArgumentType]
+                    raise TypeError(msg)
+                msg = f'Index template creation error: {error_msg}'
+                raise ValueError(msg)
+
+            template_response = IndexTemplateResponse.model_validate(result)
+            logger.info('Index template created successfully: %s', name)
+            return template_response
+
     async def execute_esql(self, query: str) -> EsqlResponse:
         """Execute an ES|QL query via Kibana's console proxy API.
 
@@ -514,7 +949,6 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails due to network issues
             asyncio.TimeoutError: If the request times out
             ValueError: If the response contains an error message
-            TypeError: If the response shape is unexpected
             pydantic.ValidationError: If response validation fails
 
         """
@@ -543,26 +977,21 @@ class KibanaClient:
 
             result = await response.json()  # pyright: ignore[reportAny]
 
-            # Validate response type
-            if not isinstance(result, dict):
-                msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
-                raise TypeError(msg)
+            # Parse response using TypeAdapter for automatic error/success discrimination
+            parsed = _esql_response_adapter.validate_python(  # pyright: ignore[reportUnknownVariableType]
+                result
+            )
 
-            # Handle ES|QL error response
-            if 'error' in result:
-                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
-                if isinstance(error_info, dict):
-                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
-                elif isinstance(error_info, str):
-                    error_msg = error_info
-                else:
-                    msg = f'Unexpected ES|QL error type: {type(error_info).__name__}'  # pyright: ignore[reportUnknownArgumentType]
-                    raise TypeError(msg)
+            # Handle response based on type (exhaustive type checking per CODE_STYLE.md)
+            if isinstance(parsed, EsqlErrorResponse):
+                error_msg = parsed.get_error_message()
                 msg = f'ES|QL query error: {error_msg}'
-                raise ValueError(msg)
+                raise ValueError(msg)  # noqa: TRY004 - ValueError is correct for query errors, not TypeError
+            if isinstance(parsed, EsqlResponse):
+                return parsed
 
-            # Parse response into Pydantic model for type safety
-            return EsqlResponse.model_validate(result)
+            msg = f'Unexpected ES|QL response type: {type(parsed).__name__}'  # pyright: ignore[reportUnknownArgumentType]
+            raise TypeError(msg)
 
     async def esql_query_raw(
         self,

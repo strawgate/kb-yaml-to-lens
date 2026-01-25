@@ -1,10 +1,11 @@
 """Tests for sample data loader."""
 
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
+from dashboard_compiler.kibana_client import BulkItemError, BulkItemResult, BulkResponse
 from dashboard_compiler.sample_data.config import SampleData, TimestampTransform
 from dashboard_compiler.sample_data.loader import (
     SampleDataLoadResult,
@@ -103,120 +104,148 @@ def test_read_documents_relative_path(tmp_path: Path) -> None:
 
 @pytest.mark.asyncio
 async def test_load_sample_data_success() -> None:
-    """Test loading sample data successfully."""
-    mock_es_client = AsyncMock()
+    """Test loading sample data successfully via Kibana proxy."""
+    mock_kibana_client = AsyncMock()
+    mock_bulk_response = BulkResponse(
+        took=30,
+        errors=False,
+        items=[
+            {'index': BulkItemResult(index='logs-sample', status=201)},
+            {'index': BulkItemResult(index='logs-sample', status=201)},
+        ],
+    )
+    mock_kibana_client.proxy_bulk = AsyncMock(return_value=mock_bulk_response)
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        mock_bulk.return_value = (2, 0)
+    sample_data = SampleData(
+        source='inline',
+        index_pattern='logs-*',
+        documents=[
+            {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test1'},
+            {'@timestamp': '2024-01-01T01:00:00Z', 'message': 'test2'},
+        ],
+    )
 
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test1'},
-                {'@timestamp': '2024-01-01T01:00:00Z', 'message': 'test2'},
-            ],
-        )
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
-        result = await load_sample_data(mock_es_client, sample_data)
+    assert result.success is True
+    assert result.success_count == 2
+    assert len(result.errors) == 0
 
-        assert result.success is True
-        assert result.success_count == 2
-        assert len(result.errors) == 0
-
-        mock_bulk.assert_called_once()
-        call_args = mock_bulk.call_args
-        assert call_args[0][0] == mock_es_client
-        actions = call_args[0][1]
-        assert len(actions) == 2
-        assert actions[0]['_index'] == 'logs-sample'
-        assert actions[0]['pipeline'] == '_none'
+    mock_kibana_client.proxy_bulk.assert_called_once()
+    call_args = mock_kibana_client.proxy_bulk.call_args
+    actions = call_args[0][0]
+    assert len(actions) == 2
+    assert actions[0]['_index'] == 'logs-sample'
+    assert actions[0]['pipeline'] == '_none'
 
 
 @pytest.mark.asyncio
 async def test_load_sample_data_with_errors() -> None:
-    """Test loading sample data with errors."""
-    mock_es_client = AsyncMock()
+    """Test loading sample data with errors via Kibana proxy."""
+    mock_kibana_client = AsyncMock()
+    # Return bulk response with failed items
+    mock_bulk_response = BulkResponse(
+        took=30,
+        errors=True,
+        items=[
+            {'index': BulkItemResult(index='logs-sample', status=201)},
+            {
+                'index': BulkItemResult(
+                    index='logs-sample',
+                    status=400,
+                    error=BulkItemError(type='mapper_parsing_exception', reason='failed to parse'),
+                )
+            },
+        ],
+    )
+    mock_kibana_client.proxy_bulk = AsyncMock(return_value=mock_bulk_response)
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        mock_bulk.return_value = (1, 1)
+    sample_data = SampleData(
+        source='inline',
+        index_pattern='logs-*',
+        documents=[
+            {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+        ],
+    )
 
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
-            ],
-        )
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
-        result = await load_sample_data(mock_es_client, sample_data)
-
-        assert result.success is False
-        assert result.success_count == 1
-        assert len(result.errors) == 1
+    assert result.success is False
+    assert result.success_count == 1
+    assert len(result.errors) == 1
+    assert 'mapper_parsing_exception' in result.errors[0]
 
 
 @pytest.mark.asyncio
 async def test_load_sample_data_with_timestamp_transform() -> None:
     """Test loading sample data with timestamp transformation."""
-    mock_es_client = AsyncMock()
+    mock_kibana_client = AsyncMock()
+    mock_bulk_response = BulkResponse(
+        took=15,
+        errors=False,
+        items=[{'index': BulkItemResult(index='logs-sample', status=201)}],
+    )
+    mock_kibana_client.proxy_bulk = AsyncMock(return_value=mock_bulk_response)
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        mock_bulk.return_value = (1, 0)
+    sample_data = SampleData(
+        source='inline',
+        index_pattern='logs-*',
+        documents=[
+            {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+        ],
+        timestamp_transform=TimestampTransform(
+            enabled=False,
+        ),
+    )
 
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
-            ],
-            timestamp_transform=TimestampTransform(
-                enabled=False,
-            ),
-        )
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
-        result = await load_sample_data(mock_es_client, sample_data)
-
-        assert result.success is True
-        mock_bulk.assert_called_once()
+    assert result.success is True
+    mock_kibana_client.proxy_bulk.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_load_sample_data_with_index_template() -> None:
-    """Test loading sample data with index template creation."""
-    mock_es_client = AsyncMock()
-    mock_es_client.indices = AsyncMock()
-    mock_es_client.indices.put_index_template = AsyncMock()
+    """Test loading sample data with index template creation via Kibana proxy."""
+    mock_kibana_client = AsyncMock()
+    mock_bulk_response = BulkResponse(
+        took=15,
+        errors=False,
+        items=[{'index': BulkItemResult(index='logs-sample', status=201)}],
+    )
+    mock_kibana_client.proxy_bulk = AsyncMock(return_value=mock_bulk_response)
+    mock_kibana_client.proxy_put_index_template = AsyncMock()
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        mock_bulk.return_value = (1, 0)
-
-        template_config = {
-            'mappings': {
-                'properties': {
-                    '@timestamp': {'type': 'date'},
-                }
+    template_config = {
+        'mappings': {
+            'properties': {
+                '@timestamp': {'type': 'date'},
             }
         }
+    }
 
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[{'@timestamp': '2024-01-01T00:00:00Z'}],
-            create_index_template=True,
-            index_template=template_config,
-        )
+    sample_data = SampleData(
+        source='inline',
+        index_pattern='logs-*',
+        documents=[{'@timestamp': '2024-01-01T00:00:00Z'}],
+        create_index_template=True,
+        index_template=template_config,
+    )
 
-        result = await load_sample_data(mock_es_client, sample_data)
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
-        assert result.success is True
-        mock_es_client.indices.put_index_template.assert_called_once()
+    assert result.success is True
+    mock_kibana_client.proxy_put_index_template.assert_called_once_with(
+        name='logs-sample-template',
+        index_patterns=['logs-sample*'],
+        template=template_config,
+    )
 
 
 @pytest.mark.asyncio
 async def test_load_sample_data_file_not_found() -> None:
     """Test loading sample data from non-existent file."""
-    mock_es_client = AsyncMock()
+    mock_kibana_client = AsyncMock()
 
     sample_data = SampleData(
         source='file',
@@ -224,7 +253,7 @@ async def test_load_sample_data_file_not_found() -> None:
         file_path=Path('/nonexistent/sample.ndjson'),
     )
 
-    result = await load_sample_data(mock_es_client, sample_data)
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
     assert result.success is False
     assert len(result.errors) == 1
@@ -245,81 +274,78 @@ def test_sample_data_load_result() -> None:
 
 @pytest.mark.asyncio
 async def test_load_sample_data_with_bulk_error_details() -> None:
-    """Test loading sample data with detailed bulk operation errors."""
-    mock_es_client = AsyncMock()
+    """Test loading sample data with detailed bulk operation errors via Kibana proxy."""
+    mock_kibana_client = AsyncMock()
+    # Return bulk response with failed items
+    mock_bulk_response = BulkResponse(
+        took=30,
+        errors=True,
+        items=[
+            {'index': BulkItemResult(index='logs-sample', status=201)},
+            {
+                'index': BulkItemResult(
+                    index='logs-sample',
+                    status=400,
+                    error=BulkItemError(type='mapper_parsing_exception', reason='failed to parse field [@timestamp]'),
+                )
+            },
+            {
+                'index': BulkItemResult(
+                    index='logs-sample',
+                    status=409,
+                    error=BulkItemError(type='version_conflict_engine_exception', reason='version conflict'),
+                )
+            },
+        ],
+    )
+    mock_kibana_client.proxy_bulk = AsyncMock(return_value=mock_bulk_response)
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        # Return list of failed items with error details
-        failed_items = [
-            {'index': {'error': {'type': 'mapper_parsing_exception', 'reason': 'failed to parse field [@timestamp]'}}},
-            {'index': {'error': {'type': 'version_conflict_engine_exception', 'reason': 'version conflict'}}},
-        ]
-        mock_bulk.return_value = (1, failed_items)
+    sample_data = SampleData(
+        source='inline',
+        index_pattern='logs-*',
+        documents=[
+            {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+        ],
+    )
 
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
-            ],
-        )
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
-        result = await load_sample_data(mock_es_client, sample_data)
-
-        assert result.success is False
-        assert result.success_count == 1
-        assert len(result.errors) == 2
-        assert any('mapper_parsing_exception' in e for e in result.errors)
-        assert any('version_conflict_engine_exception' in e for e in result.errors)
-
-
-@pytest.mark.asyncio
-async def test_load_sample_data_with_bulk_error_count() -> None:
-    """Test loading sample data when bulk returns error count instead of list."""
-    mock_es_client = AsyncMock()
-
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        # Return error count as integer
-        mock_bulk.return_value = (5, 3)
-
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
-            ],
-        )
-
-        result = await load_sample_data(mock_es_client, sample_data)
-
-        assert result.success is False
-        assert result.success_count == 5
-        assert len(result.errors) == 1
-        assert '3 document(s) failed' in result.errors[0]
+    assert result.success is False
+    assert result.success_count == 1
+    assert len(result.errors) == 2
+    assert any('mapper_parsing_exception' in e for e in result.errors)
+    assert any('version_conflict_engine_exception' in e for e in result.errors)
 
 
 @pytest.mark.asyncio
-async def test_load_sample_data_with_non_dict_error() -> None:
-    """Test loading sample data when error item is not a dict."""
-    mock_es_client = AsyncMock()
+async def test_load_sample_data_with_error_without_details() -> None:
+    """Test loading sample data when error item has no error details."""
+    mock_kibana_client = AsyncMock()
+    # Return bulk response with failed items that have no error details
+    mock_bulk_response = BulkResponse(
+        took=30,
+        errors=True,
+        items=[
+            {'index': BulkItemResult(index='logs-sample', status=201)},
+            {'index': BulkItemResult(index='logs-sample', status=500)},  # No error details
+            {'index': BulkItemResult(index='logs-sample', status=503)},  # No error details
+        ],
+    )
+    mock_kibana_client.proxy_bulk = AsyncMock(return_value=mock_bulk_response)
 
-    with patch('dashboard_compiler.sample_data.loader.async_bulk') as mock_bulk:
-        # Return list with non-dict items
-        failed_items = ['error1', 'error2']
-        mock_bulk.return_value = (1, failed_items)
+    sample_data = SampleData(
+        source='inline',
+        index_pattern='logs-*',
+        documents=[
+            {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
+        ],
+    )
 
-        sample_data = SampleData(
-            source='inline',
-            index_pattern='logs-*',
-            documents=[
-                {'@timestamp': '2024-01-01T00:00:00Z', 'message': 'test'},
-            ],
-        )
+    result = await load_sample_data(mock_kibana_client, sample_data)
 
-        result = await load_sample_data(mock_es_client, sample_data)
-
-        assert result.success is False
-        assert len(result.errors) == 2
+    assert result.success is False
+    assert len(result.errors) == 2
+    assert all('Operation failed with status' in e for e in result.errors)
 
 
 def test_read_documents_ndjson_with_empty_lines(tmp_path: Path) -> None:

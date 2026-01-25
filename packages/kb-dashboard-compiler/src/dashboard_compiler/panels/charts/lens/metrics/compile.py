@@ -354,10 +354,11 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
 
     """
     if isinstance(metric_format, LensCustomMetricFormat):
+        decimals = metric_format.decimals if metric_format.decimals is not None else 0
         return KbnLensMetricFormat(
             id='custom',
             params=KbnLensMetricFormatParams(
-                decimals=0,
+                decimals=decimals,
                 pattern=metric_format.pattern,
             ),
         )
@@ -365,10 +366,11 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
     # This check is necessary even though it appears redundant to type checkers
     # because metric_format could be a more specific subclass at runtime
     if isinstance(metric_format, LensMetricFormat):  # pyright: ignore[reportUnnecessaryIsInstance]
+        decimals = metric_format.decimals if metric_format.decimals is not None else FORMAT_TO_DEFAULT_DECIMALS[metric_format.type]
         return KbnLensMetricFormat(
             id=metric_format.type,
             params=KbnLensMetricFormatParams(
-                decimals=FORMAT_TO_DEFAULT_DECIMALS[metric_format.type],
+                decimals=decimals,
                 suffix=metric_format.suffix,
                 compact=metric_format.compact,
             ),
