@@ -21,13 +21,19 @@ jobs:
       - name: Package extension
         shell: bash
         run: make vscode package
+      - name: Find VSIX file
+        id: find-vsix
+        shell: bash
+        run: |
+          VSIX_FILE=$(ls packages/vscode-extension/*.vsix | head -n 1)
+          echo "vsix_path=$VSIX_FILE" >> $GITHUB_OUTPUT
       - name: Publish to OpenVSX
         id: publish-openvsx
         continue-on-error: true
         uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          packagePath: packages/vscode-extension
+          extensionFile: ${{ steps.find-vsix.outputs.vsix_path }}
       - name: Publish to VS Code Marketplace
         id: publish-marketplace
         continue-on-error: true
@@ -35,7 +41,7 @@ jobs:
         with:
           pat: ${{ secrets.VS_MARKETPLACE_PAT }}
           registryUrl: https://marketplace.visualstudio.com
-          packagePath: packages/vscode-extension
+          extensionFile: ${{ steps.find-vsix.outputs.vsix_path }}
       - name: Upload VSIX on failure
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
         uses: actions/upload-artifact@v6

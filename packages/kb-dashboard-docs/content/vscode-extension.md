@@ -104,7 +104,7 @@ Only needed if you're developing the extension itself:
    make vscode package
    ```
 
-   Or manually within the vscode-extension directory:
+   Or manually within the packages/vscode-extension directory:
 
    ```bash
    cd packages/vscode-extension
