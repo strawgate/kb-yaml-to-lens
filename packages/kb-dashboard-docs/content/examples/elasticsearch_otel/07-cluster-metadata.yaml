@@ -54,8 +54,11 @@ dashboards:
             - RENAME nodes_int AS `Total Nodes`, data_nodes_int AS `Data Nodes`
           dimensions:
             - field: cluster
+              label: Cluster
             - field: Total Nodes
+              label: Total Nodes
             - field: Data Nodes
+              label: Data Nodes
       - title: Cluster Health Status
         size: {w: 24, h: 12}
         esql:
@@ -73,10 +76,15 @@ dashboards:
             - RENAME pending_tasks_int AS `Pending Tasks`, in_flight_int AS `In-Flight Fetches`, state_queue_int AS `State Queue`
           dimensions:
             - field: cluster
+              label: Cluster
             - field: health
+              label: Health
             - field: Pending Tasks
+              label: Pending Tasks
             - field: In-Flight Fetches
+              label: In-Flight Fetches
             - field: State Queue
+              label: State Queue
       - title: Node Configuration Section
         size: {w: 48, h: 3}
         markdown:
@@ -93,7 +101,9 @@ dashboards:
             - KEEP node, cluster
           dimensions:
             - field: node
+              label: Node
             - field: cluster
+              label: Cluster
       - title: Node Resource Usage Section
         size: {w: 48, h: 3}
         markdown:
@@ -113,8 +123,11 @@ dashboards:
             - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory Used (GB)`
           dimensions:
             - field: node
+              label: Node
             - field: CPU %
+              label: CPU %
             - field: Memory Used (GB)
+              label: Memory Used (GB)
       - title: Node Disk Usage
         size: {w: 24, h: 15}
         esql:
@@ -131,9 +144,13 @@ dashboards:
             - RENAME disk_avail_gb AS `Disk Available (GB)`, disk_total_gb AS `Disk Total (GB)`, disk_used_pct AS `Disk Used %`
           dimensions:
             - field: node
+              label: Node
             - field: Disk Available (GB)
+              label: Disk Available (GB)
             - field: Disk Total (GB)
+              label: Disk Total (GB)
             - field: Disk Used %
+              label: Disk Used %
       - title: Index Configuration Section
         size: {w: 48, h: 3}
         markdown:
@@ -157,9 +174,13 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: index_name
+              label: Index Name
             - field: Size (MB)
+              label: Size (MB)
             - field: Segment Count
+              label: Segment Count
             - field: Segment Size (MB)
+              label: Segment Size (MB)
       - title: Thread Pool Configuration Section
         size: {w: 48, h: 3}
         markdown:
@@ -181,9 +202,13 @@ dashboards:
             - WHERE Threads > 0 OR `Queue Size` > 0
           dimensions:
             - field: node
+              label: Node
             - field: pool
+              label: Thread Pool
             - field: Threads
+              label: Threads
             - field: Queue Size
+              label: Queue Size
       - title: Cache Configuration Section
         size: {w: 48, h: 3}
         markdown:
@@ -203,8 +228,11 @@ dashboards:
             - WHERE `Memory Usage (MB)` > 0
           dimensions:
             - field: node
+              label: Node
             - field: cache
+              label: Cache
             - field: Memory Usage (MB)
+              label: Memory Usage (MB)
       - title: JVM Configuration Section
         size: {w: 48, h: 3}
         markdown:
@@ -226,9 +254,13 @@ dashboards:
             - RENAME heap_max_gb AS `Heap Max (GB)`, heap_used_gb AS `Heap Used (GB)`, nonheap_used_mb AS `Non-Heap Used (MB)`
           dimensions:
             - field: node
+              label: Node
             - field: Heap Max (GB)
+              label: Heap Max (GB)
             - field: Heap Used (GB)
+              label: Heap Used (GB)
             - field: Non-Heap Used (MB)
+              label: Non-Heap Used (MB)
       - title: JVM Thread and Class Information
         size: {w: 24, h: 15}
         esql:
@@ -244,8 +276,11 @@ dashboards:
             - RENAME threads_int AS `Thread Count`, classes_int AS `Classes Loaded`
           dimensions:
             - field: node
+              label: Node
             - field: Thread Count
+              label: Thread Count
             - field: Classes Loaded
+              label: Classes Loaded
       - title: Circuit Breaker Configuration Section
         size: {w: 48, h: 3}
         markdown:
@@ -267,7 +302,12 @@ dashboards:
             - RENAME estimated_mb AS `Estimated (MB)`, limit_mb AS `Limit (MB)`, utilization_pct AS `Utilization %`
           dimensions:
             - field: node
+              label: Node
             - field: breaker
+              label: Breaker
             - field: Estimated (MB)
+              label: Estimated (MB)
             - field: Limit (MB)
+              label: Limit (MB)
             - field: Utilization %
+              label: Utilization %
