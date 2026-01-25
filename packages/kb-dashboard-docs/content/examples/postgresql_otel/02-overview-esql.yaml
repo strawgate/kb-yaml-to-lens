@@ -129,6 +129,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Active Connections
@@ -152,6 +154,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: commits_rate
               label: Commits/sec
@@ -176,6 +180,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: rollbacks_rate
               label: Rollbacks/sec
@@ -201,6 +207,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: blocks_rate
               label: Blocks Read/sec
@@ -225,6 +233,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: operations_rate
               label: Operations/sec
@@ -251,6 +261,7 @@ dashboards:
                 decimals: 2
           dimensions:
             - field: database
+              label: Database
           appearance:
             donut: medium
       - title: Connection States
@@ -273,6 +284,7 @@ dashboards:
                 decimals: 0
           dimensions:
             - field: state
+              label: State
           appearance:
             donut: medium
 

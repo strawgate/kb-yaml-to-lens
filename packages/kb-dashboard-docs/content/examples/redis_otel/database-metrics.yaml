@@ -142,6 +142,7 @@ dashboards:
               label: Keys
           dimensions:
             - field: db
+              label: Database
           appearance:
             donut: medium
 
@@ -162,6 +163,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: keys
               label: Keys
@@ -211,6 +214,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: expires
               label: Expires
@@ -260,6 +265,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: avg_ttl
               label: Avg TTL
@@ -288,7 +295,12 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: db
+              label: Database
             - field: keys
+              label: Keys
             - field: expires
+              label: Keys with TTL
             - field: expire_pct
+              label: Expiry %
             - field: avg_ttl
+              label: Avg TTL (ms)

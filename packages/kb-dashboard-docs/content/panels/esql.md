@@ -427,10 +427,11 @@ Used to specify a dimension/grouping column from your ESQL query result.
 | ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `id` | `string` | An optional unique identifier for this dimension column definition. | Generated ID | No |
 | `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
+| `label` | `string` | An optional display label for the dimension. If not provided, the field name is used. | `None` | No |
 | `data_type` | `Literal['date'] \| None` | The data type of the field. Set to `'date'` for time/date fields to enable proper sorting and formatting in Kibana. This is particularly useful when using `BUCKET()` to create time series. | `None` | No |
 | `collapse` | `Literal['sum', 'avg', 'min', 'max'] \| None` | Aggregation function to apply when collapsing dimension values (e.g., for multi-value fields or breakdowns). | `None` | No |
 
-**Example using data_type: date for time series:**
+**Example using label and data_type for time series:**
 
 ```yaml
 dashboards:
@@ -446,6 +447,7 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: "time_bucket"
+            label: "Time"  # Friendly display name instead of 'time_bucket'
             data_type: "date"  # Tells Kibana this is a date field for proper formatting
           metrics:
             - field: "event_count"

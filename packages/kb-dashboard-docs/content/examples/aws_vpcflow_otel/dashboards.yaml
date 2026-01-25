@@ -179,6 +179,8 @@ dashboards:
           mode: stacked
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: flow_count
               label: Flow Count
@@ -207,6 +209,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: total_bytes
               label: Bytes
@@ -344,6 +348,8 @@ dashboards:
           mode: stacked
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: flow_count
               label: Flow Count
@@ -378,6 +384,7 @@ dashboards:
               label: Flow Count
           dimensions:
             - field: network.protocol.name
+              label: Protocol
       - title: Top Destination Ports
         size: {w: 24, h: 12}
         esql:
@@ -418,6 +425,7 @@ dashboards:
             - LIMIT 20
           dimensions:
             - field: source.address
+              label: Source IP
           metrics:
             - field: total_flows
               label: Total Flows
@@ -501,11 +509,17 @@ dashboards:
             - LIMIT 1000
           dimensions:
             - field: '@timestamp'
+              label: Timestamp
             - field: source.address
+              label: Source IP
             - field: destination.address
+              label: Destination IP
             - field: destination.port
+              label: Dest Port
             - field: network.protocol.name
+              label: Protocol
             - field: network.interface.name
+              label: Interface
           metrics:
             - field: aws.vpc.flow.bytes
               label: Bytes
@@ -702,6 +716,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: flow_count
               label: Flow Count
@@ -838,6 +854,7 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: cloud.account.id
+              label: Cloud Account ID
           metrics:
             - field: total_flows
               label: Total Flows
