@@ -13,80 +13,23 @@ import {
 } from 'vscode-languageclient/node';
 import { ConfigService } from './configService';
 import { BinaryResolver } from './binaryResolver';
+import {
+    parseCompileResult,
+    parseDashboardListResult,
+    parseGridLayoutResult,
+    parseUploadResult,
+    parseEsqlExecuteResult,
+    SchemaResultSchema,
+    type DashboardInfo,
+    type DashboardGridInfo,
+    type EsqlQueryResult,
+} from './schemas';
+
+// Re-export types from schemas for backwards compatibility
+export type { DashboardInfo, DashboardGridInfo, PanelGridInfo, EsqlColumn, EsqlQueryResult } from './schemas';
 
 // Interface for the compiled dashboard result
 export type CompiledDashboard = unknown;
-
-export interface DashboardInfo {
-    index: number;
-    title: string;
-    description: string;
-}
-
-export interface PanelGridInfo {
-    id: string;
-    title: string;
-    type: string;
-    grid: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-    };
-}
-
-export interface DashboardGridInfo {
-    title: string;
-    description: string;
-    panels: PanelGridInfo[];
-}
-
-interface CompileResult {
-    success: boolean;
-    data?: CompiledDashboard;
-    error?: string;
-}
-
-export interface EsqlColumn {
-    name: string;
-    type: string;
-}
-
-export interface EsqlQueryResult {
-    columns: EsqlColumn[];
-    values: unknown[][];
-    took?: number;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    is_partial?: boolean;
-}
-
-interface EsqlExecuteResult {
-    success: boolean;
-    data?: EsqlQueryResult;
-    error?: string;
-}
-
-interface DashboardListResult {
-    success: boolean;
-    data?: DashboardInfo[];
-    error?: string;
-}
-
-interface GridLayoutResult {
-    success: boolean;
-    data?: DashboardGridInfo;
-    error?: string;
-}
-
-// Matches Python LSP server response format
-interface UploadResult {
-    success: boolean;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    dashboard_url?: string;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    dashboard_id?: string;
-    error?: string;
-}
 
 export class DashboardCompilerLSP {
     private client: LanguageClient | null = null;
@@ -160,21 +103,13 @@ export class DashboardCompilerLSP {
             throw new Error('LSP client not started');
         }
 
-        const result = await this.client.sendRequest<CompileResult>(
+        const result = await this.client.sendRequest(
             'dashboard/compile',
             // eslint-disable-next-line @typescript-eslint/naming-convention
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Compilation failed');
-        }
-
-        if (result.data === undefined) {
-            throw new Error('Compilation returned no data');
-        }
-
-        return result.data as CompiledDashboard;
+        return parseCompileResult(result);
     }
 
     /**
@@ -188,20 +123,12 @@ export class DashboardCompilerLSP {
             throw new Error('LSP client not started');
         }
 
-        const result = await this.client.sendRequest<DashboardListResult>(
+        const result = await this.client.sendRequest(
             'dashboard/getDashboards',
             { path: filePath }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to get dashboards');
-        }
-
-        if (result.data === undefined) {
-            throw new Error('getDashboards returned no data');
-        }
-
-        return result.data;
+        return parseDashboardListResult(result);
     }
 
     /**
@@ -216,21 +143,13 @@ export class DashboardCompilerLSP {
             throw new Error('LSP client not started');
         }
 
-        const result = await this.client.sendRequest<GridLayoutResult>(
+        const result = await this.client.sendRequest(
             'dashboard/getGridLayout',
             // eslint-disable-next-line @typescript-eslint/naming-convention
             { path: filePath, dashboard_index: dashboardIndex }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to get grid layout');
-        }
-
-        if (result.data === undefined) {
-            throw new Error('getGridLayout returned no data');
-        }
-
-        return result.data;
+        return parseGridLayoutResult(result);
     }
 
     /**
@@ -258,7 +177,7 @@ export class DashboardCompilerLSP {
             throw new Error('LSP client not started');
         }
 
-        const result = await this.client.sendRequest<UploadResult>(
+        const result = await this.client.sendRequest(
             'dashboard/uploadToKibana',
             {
                 path: filePath,
@@ -275,18 +194,7 @@ export class DashboardCompilerLSP {
             }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'Upload failed');
-        }
-
-        if (!result.dashboard_url || !result.dashboard_id) {
-            throw new Error('Upload succeeded but dashboard URL/ID not returned');
-        }
-
-        return {
-            dashboardUrl: result.dashboard_url,
-            dashboardId: result.dashboard_id
-        };
+        return parseUploadResult(result);
     }
 
     /**
@@ -301,7 +209,8 @@ export class DashboardCompilerLSP {
         }
 
         try {
-            return await this.client.sendRequest('dashboard/getSchema', {});
+            const result = await this.client.sendRequest('dashboard/getSchema', {});
+            return SchemaResultSchema.parse(result);
         } catch (error) {
             return { success: false, error: error instanceof Error ? error.message : String(error) };
         }
@@ -330,7 +239,7 @@ export class DashboardCompilerLSP {
             throw new Error('LSP client not started');
         }
 
-        const result = await this.client.sendRequest<EsqlExecuteResult>(
+        const result = await this.client.sendRequest(
             'esql/execute',
             {
                 query: query,
@@ -345,15 +254,7 @@ export class DashboardCompilerLSP {
             }
         );
 
-        if (!result.success) {
-            throw new Error(result.error || 'ES|QL query execution failed');
-        }
-
-        if (result.data === undefined) {
-            throw new Error('ES|QL query returned no data');
-        }
-
-        return result.data;
+        return parseEsqlExecuteResult(result);
     }
 
     async dispose(): Promise<void> {

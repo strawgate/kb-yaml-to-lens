@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { spawn } from 'child_process';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 import { ConfigService } from './configService';
-import { BinaryResolver } from './binaryResolver';
+import { runPythonScript } from './subprocess';
 
 interface PanelGridInfo {
     id: string;
@@ -106,87 +105,14 @@ export class GridEditorPanel {
         }
     }
 
-    private async runPythonScript<T = unknown>(
-        args: string[],
-        errorContext: string,
-        parseResult: (stdout: string) => T,
-        timeout: number = 30000
-    ): Promise<T> {
-        const resolver = new BinaryResolver(this.extensionPath, this.configService);
-        const resolved = resolver.resolveForScripts();
-
-        // Combine base args with script args
-        const fullArgs = [...resolved.args, ...args];
-
-        return new Promise((resolve, reject) => {
-            let settled = false;
-            const settleReject = (err: Error) => {
-                if (settled) {
-                    return;
-                }
-                settled = true;
-                reject(err);
-            };
-            const settleResolve = (val: T) => {
-                if (settled) {
-                    return;
-                }
-                settled = true;
-                resolve(val);
-            };
-
-            const child = spawn(resolved.executable, fullArgs, {
-                cwd: resolved.isBundled ? resolved.cwd : path.join(this.extensionPath, '..')
-            });
-
-            let stdout = '';
-            let stderr = '';
-
-            const timeoutHandle = setTimeout(() => {
-                try {
-                    child.kill();
-                } catch {
-                    // ignore
-                }
-                settleReject(new Error(`${errorContext} timed out after ${timeout / 1000} seconds. stderr: ${stderr || '(empty)'}`));
-            }, timeout);
-
-            child.on('error', (err) => {
-                clearTimeout(timeoutHandle);
-                settleReject(new Error(`Failed to start Python: ${err.message}`));
-            });
-
-            child.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-
-            child.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-
-            child.on('close', (code) => {
-                clearTimeout(timeoutHandle);
-                if (settled) {
-                    return;
-                }
-                if (code !== 0) {
-                    settleReject(new Error(`${errorContext} failed: ${stderr || stdout}`));
-                    return;
-                }
-
-                try {
-                    settleResolve(parseResult(stdout));
-                } catch (error) {
-                    settleReject(new Error(`Failed to parse result: ${error instanceof Error ? error.message : String(error)}`));
-                }
-            });
-        });
-    }
-
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        return this.runPythonScript(
-            ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()],
-            'Grid extraction',
+        return runPythonScript(
+            this.extensionPath,
+            this.configService,
+            {
+                args: ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()],
+                errorContext: 'Grid extraction',
+            },
             (stdout) => {
                 const result = JSON.parse(stdout.trim());
                 if (result.error) {
@@ -206,9 +132,13 @@ export class GridEditorPanel {
         }
 
         try {
-            return await this.runPythonScript(
-                ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
-                'Grid update',
+            return await runPythonScript(
+                this.extensionPath,
+                this.configService,
+                {
+                    args: ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
+                    errorContext: 'Grid update',
+                },
                 (stdout) => stdout
             );
         } catch (error) {
