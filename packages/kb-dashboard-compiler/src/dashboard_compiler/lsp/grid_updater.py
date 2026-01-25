@@ -13,6 +13,7 @@ from typing import Any
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
+from dashboard_compiler.lsp.models import UpdateGridLayoutResult
 from dashboard_compiler.yaml_roundtrip import dump_roundtrip, load_roundtrip
 
 
@@ -112,7 +113,7 @@ def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None
         panel['size'] = new_size
 
 
-def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], dashboard_index: int = 0) -> dict[str, Any]:
+def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], dashboard_index: int = 0) -> UpdateGridLayoutResult:
     """Update grid coordinates for a specific panel in a YAML file.
 
     Uses round-trip YAML loading to preserve comments and formatting.
@@ -124,38 +125,38 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
         dashboard_index: Index of the dashboard to update (default: 0)
 
     Returns:
-        Dictionary with success status and message
+        UpdateGridLayoutResult with success status and message
     """
     required_keys = {'x', 'y', 'w', 'h'}
     if not all(key in new_grid for key in required_keys):
-        return {'success': False, 'error': f'Invalid grid coordinates: missing required keys {required_keys}'}
+        return UpdateGridLayoutResult.fail(f'Invalid grid coordinates: missing required keys {required_keys}')
 
     if not all(isinstance(new_grid[key], int) and new_grid[key] >= 0 for key in required_keys):
-        return {'success': False, 'error': 'Invalid grid coordinates: all values must be non-negative integers'}
+        return UpdateGridLayoutResult.fail('Invalid grid coordinates: all values must be non-negative integers')
 
     try:
         document = load_roundtrip(yaml_path)
     except Exception as e:
-        return {'success': False, 'error': f'Failed to load dashboard: {e}'}
+        return UpdateGridLayoutResult.fail(f'Failed to load dashboard: {e}')
 
     panel, error = _find_panel_in_document(document, panel_id, dashboard_index)
     if error is not None:
-        return {'success': False, 'error': error}
+        return UpdateGridLayoutResult.fail(error)
 
     if panel is None:
-        return {'success': False, 'error': f'Panel with ID {panel_id} not found'}
+        return UpdateGridLayoutResult.fail(f'Panel with ID {panel_id} not found')
 
     try:
         _update_grid_in_panel(panel, new_grid)
     except Exception as e:
-        return {'success': False, 'error': f'Failed to update panel: {e}'}
+        return UpdateGridLayoutResult.fail(f'Failed to update panel: {e}')
 
     try:
         dump_roundtrip(document, yaml_path)
     except Exception as e:
-        return {'success': False, 'error': f'Failed to save dashboard: {e}'}
+        return UpdateGridLayoutResult.fail(f'Failed to save dashboard: {e}')
     else:
-        return {'success': True, 'message': f'Updated grid for {panel_id}'}
+        return UpdateGridLayoutResult.ok(f'Updated grid for {panel_id}')
 
 
 if __name__ == '__main__':
@@ -178,8 +179,8 @@ if __name__ == '__main__':
     try:
         new_grid = json.loads(grid_json)
         result = update_panel_grid(yaml_path, panel_id, new_grid, dashboard_index)
-        print(json.dumps(result))
-        if result.get('success') is not True:
+        print(result.model_dump_json())
+        if result.success is not True:
             sys.exit(1)
     except json.JSONDecodeError as e:
         print(json.dumps({'error': f'Invalid grid JSON: {e}'}))

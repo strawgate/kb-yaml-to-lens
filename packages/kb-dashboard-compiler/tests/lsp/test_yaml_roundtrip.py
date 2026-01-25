@@ -23,7 +23,7 @@ def test_roundtrip_preserves_end_of_line_comments(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 2, 'y': 3, 'w': 12, 'h': 6})
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert '# Dashboard name comment' in updated_content
@@ -52,7 +52,7 @@ def test_roundtrip_preserves_block_comments(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 5, 'y': 10, 'w': 20, 'h': 15})
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert '# This is the main dashboard' in updated_content
@@ -77,7 +77,7 @@ def test_roundtrip_preserves_inline_flow_style(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 1, 'y': 2, 'w': 8, 'h': 4})
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert 'size: {w: 8, h: 4}' in updated_content
@@ -111,7 +111,7 @@ def test_roundtrip_preserves_blank_lines(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 0, 'y': 0, 'w': 5, 'h': 3})
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert '\n\n' in updated_content
@@ -134,7 +134,7 @@ def test_roundtrip_preserves_key_ordering(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 3, 'y': 4, 'w': 15, 'h': 10})
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     id_pos = updated_content.find('id:')
@@ -206,7 +206,7 @@ def test_updating_aliased_panel_does_not_modify_anchor(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 5, 'y': 5, 'w': 20, 'h': 15})
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert '&default_size' in updated_content
@@ -244,7 +244,7 @@ def test_roundtrip_multi_dashboard_file(tmp_path: Path) -> None:
     yaml_path.write_text(content, encoding='utf-8')
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'd2-panel', {'x': 10, 'y': 10, 'w': 20, 'h': 12}, dashboard_index=1)
-    assert result['success'] is True
+    assert result.success is True
 
     updated_content = yaml_path.read_text(encoding='utf-8')
     assert '# First dashboard' in updated_content

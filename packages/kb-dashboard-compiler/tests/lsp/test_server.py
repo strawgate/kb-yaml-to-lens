@@ -71,24 +71,24 @@ class TestCompileDashboard(unittest.TestCase):
 
         result = _compile_dashboard(str(self.temp_file), 0)
 
-        self.assertTrue(result['success'])
-        self.assertIn('data', result)
-        self.assertIsInstance(result['data'], dict)
+        self.assertTrue(result.success)
+        self.assertIsNotNone(result.data)
+        self.assertIsInstance(result.data, dict)
 
     def test_compile_missing_path(self) -> None:
         """Test that missing path returns error."""
         result = _compile_dashboard('', 0)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Missing path', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Missing path', result.error)
 
     def test_compile_nonexistent_file(self) -> None:
         """Test that nonexistent file returns error."""
         result = _compile_dashboard('/nonexistent/file.yaml', 0)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
 
     def test_compile_empty_dashboards(self) -> None:
         """Test that file with no dashboards returns error."""
@@ -98,9 +98,9 @@ class TestCompileDashboard(unittest.TestCase):
 
         result = _compile_dashboard(str(self.temp_file), 0)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('No dashboards found', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('No dashboards found', result.error)
 
     def test_compile_dashboard_index_out_of_range(self) -> None:
         """Test that out-of-range dashboard index returns error."""
@@ -112,9 +112,9 @@ class TestCompileDashboard(unittest.TestCase):
 
         result = _compile_dashboard(str(self.temp_file), 5)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('out of range', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('out of range', result.error)
 
     def test_compile_negative_dashboard_index(self) -> None:
         """Test that negative dashboard index returns error."""
@@ -126,9 +126,9 @@ class TestCompileDashboard(unittest.TestCase):
 
         result = _compile_dashboard(str(self.temp_file), -1)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('out of range', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('out of range', result.error)
 
     def test_compile_second_dashboard(self) -> None:
         """Test compiling the second dashboard in a multi-dashboard file."""
@@ -148,10 +148,11 @@ class TestCompileDashboard(unittest.TestCase):
 
         result = _compile_dashboard(str(self.temp_file), 1)
 
-        self.assertTrue(result['success'])
-        self.assertIn('data', result)
+        self.assertTrue(result.success)
+        self.assertIsNotNone(result.data)
+        assert result.data is not None  # Type narrowing for mypy
         # Verify it's the second dashboard
-        self.assertEqual(result['data']['attributes']['title'], 'Second Dashboard')
+        self.assertEqual(result.data['attributes']['title'], 'Second Dashboard')
 
     def test_compile_invalid_yaml(self) -> None:
         """Test that invalid YAML returns error."""
@@ -163,8 +164,8 @@ class TestCompileDashboard(unittest.TestCase):
 
         result = _compile_dashboard(str(self.temp_file), 0)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
 
 
 class TestCompileCustom(unittest.TestCase):
@@ -194,8 +195,8 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertIn('data', result)
+        self.assertTrue(result.success)
+        self.assertIsNotNone(result.data)
 
     def test_compile_custom_with_string_index(self) -> None:
         """Test custom request with string dashboard index."""
@@ -203,8 +204,9 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['attributes']['title'], 'Second Dashboard')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data['attributes']['title'], 'Second Dashboard')
 
     def test_compile_custom_missing_path(self) -> None:
         """Test custom request with missing path parameter."""
@@ -212,8 +214,8 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
 
     def test_compile_custom_default_index(self) -> None:
         """Test custom request defaults to index 0 when not provided."""
@@ -221,8 +223,9 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['attributes']['title'], 'Test Dashboard')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data['attributes']['title'], 'Test Dashboard')
 
     def test_compile_custom_with_namedtuple(self) -> None:
         """Test custom request with namedtuple params (like pygls.protocol.Object)."""
@@ -233,7 +236,7 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertTrue(result['success'])
+        self.assertTrue(result.success)
 
     def test_compile_custom_invalid_string_index(self) -> None:
         """Invalid dashboard_index should return a structured error (not raise)."""
@@ -241,9 +244,9 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Invalid dashboard_index', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Invalid dashboard_index', result.error)
 
     def test_compile_custom_none_index(self) -> None:
         """None dashboard_index should return a structured error (not raise)."""
@@ -251,9 +254,9 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Invalid dashboard_index', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Invalid dashboard_index', result.error)
 
 
 class TestGetDashboardsCustom(unittest.TestCase):
@@ -282,12 +285,13 @@ class TestGetDashboardsCustom(unittest.TestCase):
         params = {'path': str(self.temp_file)}
         result = get_dashboards_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertIn('data', result)
-        self.assertEqual(len(result['data']), 1)
-        self.assertEqual(result['data'][0]['index'], 0)
-        self.assertEqual(result['data'][0]['title'], 'Test Dashboard')
-        self.assertEqual(result['data'][0]['description'], 'A test dashboard')
+        self.assertTrue(result.success)
+        self.assertIsNotNone(result.data)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(len(result.data), 1)
+        self.assertEqual(result.data[0].index, 0)
+        self.assertEqual(result.data[0].title, 'Test Dashboard')
+        self.assertEqual(result.data[0].description, 'A test dashboard')
 
     def test_get_dashboards_multiple(self) -> None:
         """Test getting list of multiple dashboards."""
@@ -306,11 +310,12 @@ class TestGetDashboardsCustom(unittest.TestCase):
         params = {'path': str(self.temp_file)}
         result = get_dashboards_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(len(result['data']), 3)
-        self.assertEqual(result['data'][0]['title'], 'First Dashboard')
-        self.assertEqual(result['data'][1]['title'], 'Second Dashboard')
-        self.assertEqual(result['data'][2]['title'], 'Third Dashboard')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(len(result.data), 3)
+        self.assertEqual(result.data[0].title, 'First Dashboard')
+        self.assertEqual(result.data[1].title, 'Second Dashboard')
+        self.assertEqual(result.data[2].title, 'Third Dashboard')
 
     def test_get_dashboards_no_description(self) -> None:
         """Test dashboard without description gets empty string."""
@@ -323,8 +328,9 @@ class TestGetDashboardsCustom(unittest.TestCase):
         params = {'path': str(self.temp_file)}
         result = get_dashboards_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data'][0]['description'], '')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data[0].description, '')
 
     def test_get_dashboards_no_name(self) -> None:
         """Test dashboard without name returns validation error."""
@@ -337,8 +343,8 @@ class TestGetDashboardsCustom(unittest.TestCase):
         result = get_dashboards_custom(params)
 
         # Dashboard requires name field, so this should fail validation
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
 
     def test_get_dashboards_missing_path(self) -> None:
         """Test that missing path returns error."""
@@ -346,9 +352,9 @@ class TestGetDashboardsCustom(unittest.TestCase):
 
         result = get_dashboards_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Missing path', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Missing path', result.error)
 
     def test_get_dashboards_nonexistent_file(self) -> None:
         """Test that nonexistent file returns error."""
@@ -356,8 +362,8 @@ class TestGetDashboardsCustom(unittest.TestCase):
 
         result = get_dashboards_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
 
     def test_get_dashboards_with_namedtuple(self) -> None:
         """Test with namedtuple params (like pygls.protocol.Object)."""
@@ -374,7 +380,7 @@ class TestGetDashboardsCustom(unittest.TestCase):
 
         result = get_dashboards_custom(params)
 
-        self.assertTrue(result['success'])
+        self.assertTrue(result.success)
 
 
 class TestGetGridLayoutCustom(unittest.TestCase):
@@ -412,16 +418,17 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': 0}
         result = get_grid_layout_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertIn('data', result)
-        self.assertEqual(result['data']['title'], 'Test Dashboard')
-        self.assertEqual(result['data']['description'], 'A test dashboard')
-        self.assertEqual(len(result['data']['panels']), 1)
-        self.assertEqual(result['data']['panels'][0]['title'], 'Test Panel')
-        self.assertEqual(result['data']['panels'][0]['grid']['x'], 0)
-        self.assertEqual(result['data']['panels'][0]['grid']['y'], 0)
-        self.assertEqual(result['data']['panels'][0]['grid']['w'], 24)
-        self.assertEqual(result['data']['panels'][0]['grid']['h'], 12)
+        self.assertTrue(result.success)
+        self.assertIsNotNone(result.data)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data.title, 'Test Dashboard')
+        self.assertEqual(result.data.description, 'A test dashboard')
+        self.assertEqual(len(result.data.panels), 1)
+        self.assertEqual(result.data.panels[0].title, 'Test Panel')
+        self.assertEqual(result.data.panels[0].grid.x, 0)
+        self.assertEqual(result.data.panels[0].grid.y, 0)
+        self.assertEqual(result.data.panels[0].grid.w, 24)
+        self.assertEqual(result.data.panels[0].grid.h, 12)
 
     def test_get_grid_layout_multiple_panels(self) -> None:
         """Test getting grid layout with multiple panels."""
@@ -444,10 +451,11 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file)}
         result = get_grid_layout_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(len(result['data']['panels']), 2)
-        self.assertEqual(result['data']['panels'][0]['title'], 'Panel 1')
-        self.assertEqual(result['data']['panels'][1]['title'], 'Panel 2')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(len(result.data.panels), 2)
+        self.assertEqual(result.data.panels[0].title, 'Panel 1')
+        self.assertEqual(result.data.panels[1].title, 'Panel 2')
 
     def test_get_grid_layout_missing_path(self) -> None:
         """Test that missing path returns error."""
@@ -455,9 +463,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Missing path', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Missing path', result.error)
 
     def test_get_grid_layout_empty_path(self) -> None:
         """Test that empty path returns error."""
@@ -465,9 +473,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Missing path', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Missing path', result.error)
 
     def test_get_grid_layout_nonexistent_file(self) -> None:
         """Test that nonexistent file returns error."""
@@ -475,8 +483,8 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
 
     def test_get_grid_layout_invalid_dashboard_index(self) -> None:
         """Test that out-of-range dashboard index returns error."""
@@ -494,9 +502,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': 5}
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('out of range', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('out of range', result.error)
 
     def test_get_grid_layout_negative_index(self) -> None:
         """Test that negative dashboard index returns error."""
@@ -514,9 +522,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': -1}
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('out of range', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('out of range', result.error)
 
     def test_get_grid_layout_second_dashboard(self) -> None:
         """Test getting grid layout from second dashboard in multi-dashboard file."""
@@ -542,10 +550,11 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': 1}
         result = get_grid_layout_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['title'], 'Second Dashboard')
-        self.assertEqual(result['data']['description'], 'The second one')
-        self.assertEqual(result['data']['panels'][0]['title'], 'Second Panel')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data.title, 'Second Dashboard')
+        self.assertEqual(result.data.description, 'The second one')
+        self.assertEqual(result.data.panels[0].title, 'Second Panel')
 
     def test_get_grid_layout_default_index(self) -> None:
         """Test that default index is 0 when not provided."""
@@ -563,8 +572,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file)}
         result = get_grid_layout_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['title'], 'Default Dashboard')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data.title, 'Default Dashboard')
 
     def test_get_grid_layout_with_namedtuple(self) -> None:
         """Test with namedtuple params (like pygls.protocol.Object)."""
@@ -586,7 +596,7 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         result = get_grid_layout_custom(params)
 
-        self.assertTrue(result['success'])
+        self.assertTrue(result.success)
 
     def test_get_grid_layout_string_index(self) -> None:
         """Test with string dashboard index (should be converted to int)."""
@@ -611,8 +621,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': '1'}
         result = get_grid_layout_custom(params)
 
-        self.assertTrue(result['success'])
-        self.assertEqual(result['data']['title'], 'Second')
+        self.assertTrue(result.success)
+        assert result.data is not None  # Type narrowing for mypy
+        self.assertEqual(result.data.title, 'Second')
 
     def test_get_grid_layout_no_dashboards(self) -> None:
         """Test that file with no dashboards returns error."""
@@ -623,9 +634,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file)}
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('No dashboards found', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('No dashboards found', result.error)
 
     def test_get_grid_layout_invalid_string_index(self) -> None:
         """Invalid dashboard_index should return a structured error (not raise)."""
@@ -643,9 +654,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': 'abc'}
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Invalid dashboard_index', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Invalid dashboard_index', result.error)
 
     def test_get_grid_layout_none_index(self) -> None:
         """None dashboard_index should return a structured error (not raise)."""
@@ -663,9 +674,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         params = {'path': str(self.temp_file), 'dashboard_index': None}
         result = get_grid_layout_custom(params)
 
-        self.assertFalse(result['success'])
-        self.assertIn('error', result)
-        self.assertIn('Invalid dashboard_index', result['error'])
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('Invalid dashboard_index', result.error)
 
 
 if __name__ == '__main__':

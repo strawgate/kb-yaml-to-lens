@@ -37,7 +37,7 @@ def test_update_panel_grid_by_id(tmp_path: Path) -> None:
     yaml_path = _write_dashboard(tmp_path)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 2, 'y': 3, 'w': 12, 'h': 6})
-    assert result['success'] is True
+    assert result.success is True
 
     dashboards = load(yaml_path.as_posix())
     panel = dashboards[0].panels[0]
@@ -52,7 +52,7 @@ def test_update_panel_grid_by_index(tmp_path: Path) -> None:
     yaml_path = _write_dashboard(tmp_path)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel_1', {'x': 4, 'y': 1, 'w': 8, 'h': 4})
-    assert result['success'] is True
+    assert result.success is True
 
     dashboards = load(yaml_path.as_posix())
     panel = dashboards[0].panels[1]
@@ -67,8 +67,9 @@ def test_update_panel_grid_missing_keys(tmp_path: Path) -> None:
     yaml_path = _write_dashboard(tmp_path)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 0, 'y': 0, 'w': 10})
-    assert result['success'] is False
-    assert 'missing required keys' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'missing required keys' in result.error
 
 
 def test_update_panel_grid_invalid_values(tmp_path: Path) -> None:
@@ -76,8 +77,9 @@ def test_update_panel_grid_invalid_values(tmp_path: Path) -> None:
     yaml_path = _write_dashboard(tmp_path)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': -1, 'y': 0, 'w': 10, 'h': 5})
-    assert result['success'] is False
-    assert 'non-negative integers' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'non-negative integers' in result.error
 
 
 def test_update_panel_grid_dashboard_index_out_of_range(tmp_path: Path) -> None:
@@ -90,8 +92,9 @@ def test_update_panel_grid_dashboard_index_out_of_range(tmp_path: Path) -> None:
         {'x': 0, 'y': 0, 'w': 10, 'h': 5},
         dashboard_index=2,
     )
-    assert result['success'] is False
-    assert 'out of range' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'out of range' in result.error
 
 
 def test_update_panel_grid_invalid_panel_index(tmp_path: Path) -> None:
@@ -100,8 +103,9 @@ def test_update_panel_grid_invalid_panel_index(tmp_path: Path) -> None:
 
     # 'panel_x' has non-digit suffix, so it falls back to ID lookup and is not found
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel_x', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
-    assert result['success'] is False
-    assert 'not found' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'not found' in result.error
 
 
 def test_update_panel_grid_panel_not_found(tmp_path: Path) -> None:
@@ -109,8 +113,9 @@ def test_update_panel_grid_panel_not_found(tmp_path: Path) -> None:
     yaml_path = _write_dashboard(tmp_path)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'missing-panel', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
-    assert result['success'] is False
-    assert 'not found' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'not found' in result.error
 
 
 def test_update_panel_grid_load_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -123,8 +128,9 @@ def test_update_panel_grid_load_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     monkeypatch.setattr(grid_updater, 'load_roundtrip', raise_load_error)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
-    assert result['success'] is False
-    assert 'Failed to load dashboard' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'Failed to load dashboard' in result.error
 
 
 def test_update_panel_grid_dump_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -137,5 +143,6 @@ def test_update_panel_grid_dump_failure(monkeypatch: pytest.MonkeyPatch, tmp_pat
     monkeypatch.setattr(grid_updater, 'dump_roundtrip', raise_dump_error)
 
     result = grid_updater.update_panel_grid(yaml_path.as_posix(), 'panel-a', {'x': 0, 'y': 0, 'w': 10, 'h': 5})
-    assert result['success'] is False
-    assert 'Failed to save dashboard' in result['error']
+    assert result.success is False
+    assert result.error is not None  # Type narrowing for mypy
+    assert 'Failed to save dashboard' in result.error

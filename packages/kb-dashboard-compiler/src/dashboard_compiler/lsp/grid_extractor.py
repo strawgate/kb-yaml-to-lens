@@ -4,19 +4,20 @@
 """Extract panel grid layout information from a YAML dashboard file.
 
 This script reads a YAML dashboard file and extracts the grid layout information
-for each panel, returning it as JSON for use by the VSCode extension.
+for each panel, returning it as a typed Pydantic model for use by the LSP server.
 """
 
 import json
 import sys
-from typing import Any
 
 from dashboard_compiler.dashboard_compiler import load
+from dashboard_compiler.lsp.models import DashboardGridInfo, Grid, PanelGridInfo
 from dashboard_compiler.lsp.utils import get_panel_type
 from dashboard_compiler.panels.compile import compute_panel_positions
+from dashboard_compiler.panels.config import resolve_semantic_width
 
 
-def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, Any]:
+def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGridInfo:
     """Extract grid layout information from a YAML dashboard file.
 
     Args:
@@ -24,7 +25,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
         dashboard_index: Index of the dashboard to extract (default: 0)
 
     Returns:
-        Dictionary containing dashboard metadata and panel grid information
+        DashboardGridInfo containing dashboard metadata and panel grid information
     """
     dashboards = load(yaml_path)
     if len(dashboards) == 0:
@@ -41,7 +42,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
     position_map = compute_panel_positions(dashboard_config.panels, algorithm=dashboard_config.settings.layout_algorithm)
 
     # Extract panel information
-    panels = []
+    panels: list[PanelGridInfo] = []
     for index, panel in enumerate(dashboard_config.panels):
         panel_type = get_panel_type(panel)
 
@@ -54,17 +55,12 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
             msg = f'Panel at index {index} has no position and auto-layout failed'
             raise ValueError(msg)
 
-        panel_info = {
-            'id': panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
-            'title': panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
-            'type': panel_type,
-            'grid': {
-                'x': x,
-                'y': y,
-                'w': panel.size.w,
-                'h': panel.size.h,
-            },
-        }
+        panel_info = PanelGridInfo(
+            id=panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
+            title=panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
+            type=panel_type,
+            grid=Grid(x=x, y=y, w=resolve_semantic_width(panel.size.w), h=panel.size.h),
+        )
         panels.append(panel_info)
 
     title = dashboard_config.name if (dashboard_config.name is not None and len(dashboard_config.name) > 0) else 'Untitled Dashboard'
@@ -72,11 +68,11 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> dict[str, A
         dashboard_config.description if (dashboard_config.description is not None and len(dashboard_config.description) > 0) else ''
     )
 
-    return {
-        'title': title,
-        'description': description,
-        'panels': panels,
-    }
+    return DashboardGridInfo(
+        title=title,
+        description=description,
+        panels=panels,
+    )
 
 
 if __name__ == '__main__':
@@ -96,7 +92,7 @@ if __name__ == '__main__':
 
     try:
         result = extract_grid_layout(yaml_path, dashboard_index)
-        print(json.dumps(result))
+        print(result.model_dump_json())
     except Exception as e:
         print(json.dumps({'error': str(e)}))
         sys.exit(1)
