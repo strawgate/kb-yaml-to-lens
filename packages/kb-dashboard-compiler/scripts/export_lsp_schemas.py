@@ -136,7 +136,7 @@ class SchemaResult(BaseModel):
 
 def main() -> None:
     """Generate Zod schemas using pydantic2zod."""
-    from pydantic2zod import Compiler
+    from pydantic2zod import Compiler  # pyright: ignore[reportMissingTypeStubs]
 
     # Generate Zod schemas from this module
     output = Compiler().parse('scripts.export_lsp_schemas').to_zod()
