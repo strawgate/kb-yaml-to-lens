@@ -1,4 +1,10 @@
-# Cursor Cloud Agents Development Environment
+# Development Environment Dockerfile
+#
+# NOTE: This Dockerfile is NOT used by Cursor Cloud Agents. Cloud Agents use
+# environment.json instead. This Dockerfile is provided for:
+# - Local devcontainer development (VS Code Remote Containers)
+# - CI/CD pipelines that need a consistent environment
+# - Manual Docker-based development
 #
 # This Dockerfile creates a development environment for the kb-yaml-to-lens project,
 # supporting both the Python compiler and TypeScript VS Code extension.
