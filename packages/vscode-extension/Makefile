@@ -129,10 +129,10 @@ define install_extension
 	echo "NOTE: Reload the extension host via Command Palette (Ctrl/Cmd+Shift+P): Developer: Restart Extension Host"
 endef
 
-install-vscode:
+install-vscode: package
 	$(call install_extension, "VS Code", code)
 
-install-cursor:
+install-cursor: package
 	$(call install_extension, "Cursor", cursor)
 
 # Helper function to prepare extension (download uv + bundle compiler)
