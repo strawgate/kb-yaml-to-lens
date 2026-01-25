@@ -17,7 +17,6 @@ dashboards:
         label: Instance
         data_view: metrics-*
         field: resource.attributes.service.instance.id
-        width: medium
     panels:
       # Navigation Links
       - size: {w: 48, h: 2}

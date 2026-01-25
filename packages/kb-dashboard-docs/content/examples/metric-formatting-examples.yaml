@@ -16,7 +16,6 @@ dashboards:
             \ formatting** - Add custom text after numbers (\" requests/sec\", \" users\")\n- **Compact notation** - Display large numbers as\
             \ 1.2K, 500M, etc.\n- **Custom patterns** - Use numeral.js patterns for precise formatting\n- **Built-in formats** - Bytes, duration,\
             \ percent, etc.\n- **Combined options** - Mix multiple formatting features\n"
-          font_size: 12
 
       # Suffix Formatting Examples
       - title: Request Rate

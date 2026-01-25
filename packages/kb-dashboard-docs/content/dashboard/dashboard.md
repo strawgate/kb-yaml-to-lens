@@ -44,7 +44,6 @@ dashboards:
         label: "Filter by Host"
         data_view: "metrics-*"
         field: "resource.attributes.host.name"
-        width: "medium"
     panels:
       - markdown:
           content: "### Key Performance Indicators"
@@ -78,7 +77,7 @@ dashboards:
 
 The main object defining the dashboard.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
+| YAML Key | Data Type | Description | Compiler Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `name` | `string` | The title of the dashboard displayed in Kibana. | N/A | Yes |
 | `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
@@ -94,7 +93,7 @@ The main object defining the dashboard.
 
 Configure a default time range that will be restored when opening the dashboard. When `time_range` is set, Kibana will automatically apply the specified time range instead of using the global time picker value.
 
-| YAML Key | Data Type | Description | Default | Required |
+| YAML Key | Data Type | Description | Compiler Default | Required |
 | -------- | --------- | ----------- | ------- | -------- |
 | `from` | `string` | The start of the time range. Supports relative time expressions like `now-30d/d`, `now-1h`, etc. | N/A | Yes |
 | `to` | `string` | The end of the time range. Supports relative time expressions. | `now` | No |
@@ -117,22 +116,25 @@ dashboards:
 
 Global settings for the dashboard, configured under the `dashboard.settings` path.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
-| ---------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| YAML Key | Data Type | Description | Compiler Default | Required |
+| ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `margins` | `boolean` | Whether to put space (margins) between panels in the dashboard. | `true` | No |
 | `sync` | `DashboardSyncSettings` object | Configures synchronization of cursor, tooltips, and colors across panels. See [Dashboard Sync Settings](#dashboard-sync-settings-settingssync). | See defaults below | No |
 | `controls` | `ControlSettings` object | Global settings for controls on the dashboard. See [Controls Documentation](../controls/config.md#control-settings-settingscontrols). | See defaults in Controls docs | No |
 | `titles` | `boolean` | Whether to display the titles in the panel headers. | `true` | No |
+| `layout_algorithm` | `string` | The auto-layout algorithm for positioning panels without explicit coordinates. Valid values: `up-left`, `left-right`, `blocked`, `first-available-gap`. | `up-left` | No |
 
 ### Dashboard Sync Settings (`settings.sync`)
 
 Configure whether cursor, tooltips, and colors should synchronize across panels.
 
-| YAML Key | Data Type | Description | Kibana Default | Required |
+> **Note:** The compiler applies different defaults than Kibana's native defaults. Kibana's native defaults are all `true`, but the compiler intentionally defaults `tooltips` and `colors` to `false` for a cleaner dashboard experience.
+
+| YAML Key | Data Type | Description | Compiler Default | Required |
 | ---------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `cursor` | `boolean` | Whether to synchronize the cursor across related panels. | `true` | No |
-| `tooltips` | `boolean` | Whether to synchronize tooltips across related panels. | `true` | No |
-| `colors` | `boolean` | Whether to apply the same color palette to all panels on the dashboard. | `true` | No |
+| `tooltips` | `boolean` | Whether to synchronize tooltips across related panels. | `false` | No |
+| `colors` | `boolean` | Whether to apply the same color palette to all panels on the dashboard. | `false` | No |
 
 ## Methods (for programmatic generation)
 

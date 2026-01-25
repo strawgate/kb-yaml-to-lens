@@ -22,8 +22,6 @@ dashboards:
 
             ### Overview
             High-level overview showing FDR alerts, Falcon incidents, and event trends across all CrowdStrike data streams.
-          font_size: 12
-          links_in_new_tab: false
       - title: FDR Alerts
         size:
           w: 7
@@ -72,8 +70,6 @@ dashboards:
             sort:
               by: Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -93,8 +89,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -119,8 +113,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count

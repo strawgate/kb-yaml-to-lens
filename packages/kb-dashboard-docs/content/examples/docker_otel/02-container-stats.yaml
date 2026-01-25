@@ -49,7 +49,6 @@ dashboards:
       - size: {w: 48, h: 2}
         markdown:
           content: This dashboard is only intended to be used when filtered to one container at a time.
-          font_size: 12
 
       # Container count metric
       - title: Containers count
@@ -201,7 +200,6 @@ dashboards:
       - size: {w: 48, h: 3}
         markdown:
           content: '## Detailed information'
-          font_size: 12
 
       # CPU Usage (area stacked chart) - y=47
       - title: CPU Usage

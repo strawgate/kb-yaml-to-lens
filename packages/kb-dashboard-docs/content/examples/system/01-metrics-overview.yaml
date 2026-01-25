@@ -25,7 +25,6 @@ dashboards:
           content: |
             # System overview
             View metrics for all monitored hosts. Use the Host name control to filter by specific hosts.
-          font_size: 12
       - title: Total Hosts
         size: {w: 12, h: 7}
         lens:

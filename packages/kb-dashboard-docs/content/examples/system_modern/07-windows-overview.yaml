@@ -22,12 +22,10 @@ dashboards:
         label: Hostname
         data_view: logs-*
         field: host.hostname
-        width: medium
       - type: options
         label: Event Code
         data_view: logs-*
         field: event.code
-        width: medium
     panels:
       # Context Layer - Navigation
       - title: Windows Security Dashboards

@@ -13,13 +13,11 @@ dashboards:
     controls:
       - type: options
         label: Threat Technique
-        width: medium
         data_view: logs-*
         field: threat.technique.name
         match_technique: contains
       - type: options
         label: Threat Tactic
-        width: medium
         data_view: logs-*
         field: threat.tactic.name
         match_technique: contains
@@ -68,7 +66,6 @@ dashboards:
               by: Detection Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Detection Count
@@ -91,8 +88,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -117,8 +112,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -144,7 +137,6 @@ dashboards:
                 by: Count
                 direction: desc
               other_bucket: false
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -170,8 +162,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -197,8 +187,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -224,8 +212,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -247,7 +233,6 @@ dashboards:
               by: Detection Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Detection Count
@@ -271,7 +256,6 @@ dashboards:
               by: Detection Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Detection Count
@@ -295,7 +279,6 @@ dashboards:
               by: Threat Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Threat Count
@@ -317,7 +300,6 @@ dashboards:
               by: Access Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Access Count
