@@ -65,7 +65,7 @@ export const EsqlColumnSchema = z.object({
 /**Column name*/
 "name": z.string().describe("Column name"), 
 /**Column data type (e.g., keyword, long, date)*/
-"type": z.string().describe("Column data type (e.g., keyword, long, date)") }).catchall(z.any()).describe("Column definition in ES|QL query results.")
+"type": z.string().describe("Column data type (e.g., keyword, long, date)") }).catchall(z.unknown()).describe("Column definition in ES|QL query results.")
 export type EsqlColumn = z.infer<typeof EsqlColumnSchema>
 
 
@@ -74,11 +74,11 @@ export const EsqlQueryResultSchema = z.object({
 /**Column definitions*/
 "columns": z.array(EsqlColumnSchema).describe("Column definitions"), 
 /**Row values as nested arrays*/
-"values": z.array(z.array(z.any())).describe("Row values as nested arrays"), 
+"values": z.array(z.array(z.unknown())).describe("Row values as nested arrays"), 
 /**Query execution time in milliseconds*/
 "took": z.union([z.number().int(), z.null()]).describe("Query execution time in milliseconds").default(null), 
 /**Whether results are partial*/
-"is_partial": z.boolean().describe("Whether results are partial").default(false) }).catchall(z.any()).describe("ES|QL query result data.")
+"is_partial": z.boolean().describe("Whether results are partial").default(false) }).catchall(z.unknown()).describe("ES|QL query result data.")
 export type EsqlQueryResult = z.infer<typeof EsqlQueryResultSchema>
 
 
@@ -87,7 +87,7 @@ export const CompileResultSchema = z.object({
 /**Whether the operation succeeded*/
 "success": z.boolean().describe("Whether the operation succeeded"), 
 /**Compiled dashboard data*/
-"data": z.union([z.any(), z.null()]).describe("Compiled dashboard data").default(null), 
+"data": z.union([z.unknown(), z.null()]).describe("Compiled dashboard data").default(null), 
 /**Error message if failed*/
 "error": z.union([z.string(), z.null()]).describe("Error message if failed").default(null) }).strict().describe("Response from dashboard/compile endpoint.")
 export type CompileResult = z.infer<typeof CompileResultSchema>
@@ -155,7 +155,7 @@ export const SchemaResultSchema = z.object({
 /**Whether the operation succeeded*/
 "success": z.boolean().describe("Whether the operation succeeded"), 
 /**JSON Schema data*/
-"data": z.union([z.any(), z.null()]).describe("JSON Schema data").default(null), 
+"data": z.union([z.unknown(), z.null()]).describe("JSON Schema data").default(null), 
 /**Error message if failed*/
 "error": z.union([z.string(), z.null()]).describe("Error message if failed").default(null) }).strict().describe("Response from dashboard/getSchema endpoint.")
 export type SchemaResult = z.infer<typeof SchemaResultSchema>

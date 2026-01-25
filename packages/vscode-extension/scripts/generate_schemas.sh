@@ -17,7 +17,7 @@ echo "Generating Zod schemas from Pydantic models..."
 
 # Create temporary directory for intermediate files
 TMP_DIR=$(mktemp -d)
-trap "rm -rf $TMP_DIR" EXIT
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Export JSON schemas from Python
 cd "$COMPILER_DIR"
@@ -112,10 +112,14 @@ let fixed = content
     .replace(
         /(EsqlExecuteResultSchema[\s\S]*?\"data\": )z\.union\(\[z\.any\(\), z\.null\(\)\]\)\.describe\(\"Query results\"\)/g,
         '\$1z.union([EsqlQueryResultSchema, z.null()]).describe(\"Query results\")'
-    );
+    )
+    // Replace remaining z.any() with z.unknown() for type safety
+    // z.unknown() forces callers to narrow the type before use
+    .replace(/z\.any\(\)/g, 'z.unknown()');
 
 fs.writeFileSync('$OUTPUT_FILE', fixed);
 console.log('  Fixed nested type references');
+console.log('  Replaced z.any() with z.unknown() for type safety');
 "
 
 # Add parse helper functions
