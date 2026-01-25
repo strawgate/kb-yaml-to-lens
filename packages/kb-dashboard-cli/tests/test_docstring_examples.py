@@ -1,5 +1,6 @@
 """Test that YAML examples in docstrings can be compiled successfully."""
 
+import importlib.util
 import re
 from pathlib import Path
 from typing import Any
@@ -13,10 +14,12 @@ from kb_dashboard_core.loader import DashboardConfig
 
 def find_docstring_yaml_examples() -> list[dict[str, str]]:
     """Find all YAML examples in Python docstrings in config files."""
-    # Config files are now in kb-dashboard-core
-    # Path: tests/test_docstring_examples.py -> parent is tests -> parent is kb-dashboard-cli
-    # -> parent is packages -> /kb-dashboard-core/src/kb_dashboard_core
-    config_dir = Path(__file__).parent.parent.parent / 'kb-dashboard-core' / 'src' / 'kb_dashboard_core'
+    # Use importlib to find the installed kb_dashboard_core package location
+    spec = importlib.util.find_spec('kb_dashboard_core')
+    if spec is None or spec.submodule_search_locations is None:
+        msg = 'kb_dashboard_core package not found for docstring example discovery'
+        raise RuntimeError(msg)
+    config_dir = Path(spec.submodule_search_locations[0])
 
     examples: list[dict[str, str]] = []
 

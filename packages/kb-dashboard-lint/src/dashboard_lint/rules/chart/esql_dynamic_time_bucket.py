@@ -2,7 +2,10 @@
 
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.esql_helpers import find_fixed_time_buckets, get_query_string
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLAreaPanelConfig,
     ESQLBarPanelConfig,
     ESQLDatatablePanelConfig,
@@ -16,9 +19,6 @@ from dashboard_compiler.panels.charts.config import (
     ESQLTagcloudPanelConfig,
     LensPanel,
 )
-from dashboard_lint.esql_helpers import find_fixed_time_buckets, get_query_string
-from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
 
 type ESQLConfig = (
     ESQLMetricPanelConfig

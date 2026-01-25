@@ -50,8 +50,8 @@ def redact_url(url: str) -> str:
         'http://localhost:5601/app/kibana'
     """
     parts = urlsplit(url)
-    # Reconstruct the netloc without userinfo
-    host = parts.hostname if parts.hostname is not None else ''
-    if parts.port is not None:
-        host = f'{host}:{parts.port}'
-    return urlunsplit((parts.scheme, host, parts.path, parts.query, parts.fragment))
+    # Strip userinfo from netloc while preserving host format (including IPv6 brackets)
+    netloc = parts.netloc
+    if '@' in netloc:
+        netloc = netloc.split('@', 1)[1]
+    return urlunsplit((parts.scheme, netloc, parts.path, parts.query, parts.fragment))

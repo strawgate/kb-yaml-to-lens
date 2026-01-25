@@ -10,6 +10,8 @@ kb-yaml-to-lens/
 │   └── src/dashboard_compiler/
 ├── packages/kb-dashboard-core/ # Core compilation engine
 │   └── src/kb_dashboard_core/
+├── packages/kb-dashboard-lint/ # Lint rules and CLI
+│   └── src/dashboard_lint/
 ├── packages/kb-dashboard-tools/ # Kibana client utilities
 │   └── src/kb_dashboard_tools/
 ├── packages/vscode-extension/ # VS Code extension
@@ -21,6 +23,7 @@ kb-yaml-to-lens/
 | --------- | ---------- | ------- |
 | `packages/kb-dashboard-cli/` | Python 3.12+, Click, pygls | CLI, LSP, and future MCP server |
 | `packages/kb-dashboard-core/` | Python 3.12+, Pydantic, uv | Dashboard compilation engine |
+| `packages/kb-dashboard-lint/` | Python 3.12+, Pydantic | Lint rules and CLI for dashboard validation |
 | `packages/kb-dashboard-tools/` | Python 3.12+, aiohttp | Kibana client and utilities |
 | `packages/vscode-extension/` | TypeScript, Node.js | VS Code extension with live preview |
 | `packages/kb-dashboard-docs/` | MkDocs | User-facing documentation site |
@@ -76,6 +79,7 @@ Run any component-specific target from the repository root:
 | `make compiler <target>` | Run target in `packages/kb-dashboard-cli/` (alias for cli) |
 | `make core <target>` | Run target in `packages/kb-dashboard-core/` |
 | `make lint <target>` | Run target in `packages/kb-dashboard-lint/` |
+| `make tools <target>` | Run target in `packages/kb-dashboard-tools/` |
 | `make vscode <target>` | Run target in `packages/vscode-extension/` |
 | `make docs <target>` | Run target in `packages/kb-dashboard-docs/` |
 | `make gh <target>` | Run target in `.github/scripts/` |

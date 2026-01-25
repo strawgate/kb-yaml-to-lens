@@ -22,11 +22,13 @@ pip install kb-dashboard-tools
 ```python
 from kb_dashboard_tools import KibanaClient
 
+# Note: ssl_verify=False is only for local development with self-signed certificates.
+# Always use ssl_verify=True (the default) in production environments.
 async with KibanaClient(
     url='https://localhost:5601',
     username='elastic',
     password='changeme',
-    ssl_verify=False,
+    ssl_verify=False,  # Only for local dev with self-signed certs
 ) as client:
     # Upload a dashboard
     result = await client.upload_ndjson('dashboard.ndjson')

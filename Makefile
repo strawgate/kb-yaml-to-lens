@@ -36,7 +36,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler lint vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler lint tools vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -44,13 +44,14 @@ help:
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run target in all components:"
-	@echo "  make all <target>       - Run in compiler + core + lint + vscode"
+	@echo "  make all <target>       - Run in cli + core + lint + tools + vscode"
 	@echo ""
 	@echo "Run target in single component:"
 	@echo "  make cli <target>       - Run in packages/kb-dashboard-cli/"
 	@echo "  make compiler <target>  - Run in packages/kb-dashboard-cli/ (alias for cli)"
 	@echo "  make core <target>      - Run in packages/kb-dashboard-core/"
 	@echo "  make lint <target>      - Run in packages/kb-dashboard-lint/"
+	@echo "  make tools <target>     - Run in packages/kb-dashboard-tools/"
 	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
 	@echo "  make gh <target>        - Run in .github/scripts/"
@@ -217,6 +218,16 @@ ifeq ($(_FIRST_GOAL),lint)
   $(eval $(_ARGS):;@:)
 endif
 
+ifeq ($(_FIRST_GOAL),core)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),tools)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 ifeq ($(_FIRST_GOAL),root)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
@@ -233,6 +244,9 @@ core:
 
 lint:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-lint $(_ARGS)
+
+tools:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-tools $(_ARGS)
 
 vscode:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/vscode-extension $(_ARGS)

@@ -5,7 +5,7 @@ This module provides utilities for analyzing ES|QL queries in lint rules.
 
 import re
 
-from dashboard_compiler.queries.config import ESQLQuery
+from kb_dashboard_core.queries.config import ESQLQuery
 
 
 def get_query_string(query: ESQLQuery) -> str:

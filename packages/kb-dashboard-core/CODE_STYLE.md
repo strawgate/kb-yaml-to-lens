@@ -1,4 +1,4 @@
-# Code Style: Python Compiler
+# Code Style: Dashboard Core (Python)
 
 This document describes Python code style conventions that are **atypical** but **mandatory** in this project.
 
@@ -84,7 +84,7 @@ The `# pyright: ignore[reportUnnecessaryIsInstance]` pragma documents that the c
 
 ### Base Classes
 
-All models should inherit from `BaseCfgModel` (defined in `kb_dashboard_core/shared/config.py`) or `BaseVwModel` (defined in `kb_dashboard_core/shared/model.py`).
+All models should inherit from `BaseCfgModel` (defined in `src/kb_dashboard_core/shared/config.py`) or `BaseVwModel` (defined in `src/kb_dashboard_core/shared/model.py`).
 
 Do **not** duplicate `model_config` settings—they're inherited from base classes:
 

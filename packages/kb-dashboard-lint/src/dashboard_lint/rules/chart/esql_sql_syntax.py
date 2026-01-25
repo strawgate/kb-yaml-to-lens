@@ -2,7 +2,16 @@
 
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.esql_helpers import (
+    find_single_equals,
+    find_sql_like_wildcards,
+    find_sql_order_by,
+    find_sql_select,
+    get_query_string,
+)
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLAreaPanelConfig,
     ESQLBarPanelConfig,
     ESQLDatatablePanelConfig,
@@ -16,15 +25,6 @@ from dashboard_compiler.panels.charts.config import (
     ESQLTagcloudPanelConfig,
     LensPanel,
 )
-from dashboard_lint.esql_helpers import (
-    find_single_equals,
-    find_sql_like_wildcards,
-    find_sql_order_by,
-    find_sql_select,
-    get_query_string,
-)
-from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
 
 type ESQLConfig = (
     ESQLMetricPanelConfig
