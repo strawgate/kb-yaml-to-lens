@@ -58,7 +58,7 @@ dashboards:
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE \`@timestamp\` >= ?_tstart AND \`@timestamp\` <= ?_tend
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
             - STATS active_containers = COUNT_DISTINCT(container.id)
           primary:
             field: active_containers
@@ -74,7 +74,7 @@ dashboards:
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE \`@timestamp\` >= ?_tstart AND \`@timestamp\` <= ?_tend
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
             - STATS total_containers = COUNT_DISTINCT(container.id)
           primary:
             field: total_containers
@@ -90,7 +90,7 @@ dashboards:
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS containers = COUNT_DISTINCT(container.id) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend)
+            - STATS containers = COUNT_DISTINCT(container.id) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -155,7 +155,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100 BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+            - STATS cpu_usage = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
               container_id = container.id
             - SORT time_bucket ASC
           legend:
@@ -181,7 +181,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.percent IS NOT NULL
-            - STATS memory_usage = AVG(AVG_OVER_TIME(container.memory.percent)) / 100 BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+            - STATS memory_usage = AVG(AVG_OVER_TIME(container.memory.percent)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
               container_id = container.id
             - SORT time_bucket ASC
           legend:
@@ -205,7 +205,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL
-            - STATS memory_bytes = AVG(AVG_OVER_TIME(container.memory.usage.total)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+            - STATS memory_bytes = AVG(AVG_OVER_TIME(container.memory.usage.total)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
               container_id = container.id
             - SORT time_bucket ASC
           legend:
@@ -231,7 +231,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
             - WHERE attributes.operation == "read"
-            - STATS read_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+            - STATS read_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
               container_id = container.id
             - SORT time_bucket ASC
           legend:
@@ -255,7 +255,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
             - WHERE attributes.operation == "write"
-            - STATS write_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+            - STATS write_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
               container_id = container.id
             - SORT time_bucket ASC
           legend:
@@ -280,7 +280,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.rx_bytes IS NOT NULL
-            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend), container_id
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container_id
               = container.id
             - SORT time_bucket ASC
           legend:
@@ -303,7 +303,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.tx_bytes IS NOT NULL
-            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend), container_id
+            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container_id
               = container.id
             - SORT time_bucket ASC
           legend:
