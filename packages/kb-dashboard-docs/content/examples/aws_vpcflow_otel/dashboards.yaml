@@ -318,6 +318,9 @@ dashboards:
           primary:
             field: unique_sources
             label: Unique Sources
+            format:
+              type: number
+              decimals: 0
       - title: Unique Destination IPs
         hide_title: true
         size: {w: 9, h: 4}
@@ -330,6 +333,9 @@ dashboards:
           primary:
             field: unique_destinations
             label: Unique Destinations
+            format:
+              type: number
+              decimals: 0
       - title: Unique Protocols
         hide_title: true
         size: {w: 10, h: 4}
@@ -342,6 +348,9 @@ dashboards:
           primary:
             field: unique_protocols
             label: Protocols
+            format:
+              type: number
+              decimals: 0
       - title: Unique Destination Ports
         hide_title: true
         size: {w: 9, h: 4}
