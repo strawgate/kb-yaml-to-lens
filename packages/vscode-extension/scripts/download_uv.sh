@@ -9,7 +9,7 @@ EXTENSION_ROOT="$(dirname "$SCRIPT_DIR")"
 BIN_DIR="$EXTENSION_ROOT/bin"
 
 # uv version to download (pin for reproducibility)
-UV_VERSION="${UV_VERSION:-0.9.18}"
+UV_VERSION="${UV_VERSION:-0.9.26}"
 
 # Map platform to uv release name (compatible with bash 3.x on macOS)
 get_uv_target() {
