@@ -26,10 +26,12 @@ MIN_HEIGHTS: dict[str, int] = {
     'mosaic': 5,
 }
 
+type AnyChartConfig = LensPanelConfig | ESQLPanelConfig
+
 
 @chart_rule
 @dataclass(frozen=True)
-class PanelHeightForContentRule(ChartRule):
+class PanelHeightForContentRule(ChartRule[AnyChartConfig]):
     """Rule: Panels should have minimum height for their chart type.
 
     Different chart types require different minimum heights to display
@@ -47,7 +49,7 @@ class PanelHeightForContentRule(ChartRule):
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,
-        config: LensPanelConfig | ESQLPanelConfig,  # noqa: ARG002
+        config: AnyChartConfig,  # noqa: ARG002
         context: ChartContext,
         options: dict[str, Any],
     ) -> ViolationResult:

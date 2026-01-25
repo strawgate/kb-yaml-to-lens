@@ -1,4 +1,20 @@
-"""Base classes for lint rules with automatic iteration."""
+"""Base classes for lint rules with automatic iteration and type-safe filtering.
+
+This module provides generic base classes that leverage Python's type system to:
+1. Filter panels/configs at runtime based on the declared type parameter
+2. Pass the correctly-typed object to the check method, eliminating redundant isinstance checks
+
+Example:
+    @chart_rule
+    class GaugeRule(ChartRule[LensGaugePanelConfig | ESQLGaugePanelConfig]):
+        config_types = (LensGaugePanelConfig, ESQLGaugePanelConfig)
+
+        def check_chart(self, panel, config, context, options):
+            # config is already LensGaugePanelConfig | ESQLGaugePanelConfig
+            # No isinstance check needed - can use config.goal directly
+            ...
+
+"""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -145,15 +161,31 @@ class DashboardRule(ABC):
         return normalize_result(self.check_dashboard(dashboard, options))
 
 
-class PanelRule(ABC):
-    """Base class for panel-level rules with automatic iteration.
+class PanelRule[PanelT: BasePanel](ABC):
+    """Base class for panel-level rules with automatic iteration and type filtering.
 
     Panel rules check individual panels. The base class handles iteration
-    over all panels in the dashboard, filtering by panel type if specified.
+    over all panels in the dashboard, filtering by panel_types if set.
 
-    Subclasses must implement check_panel() and define id, description,
-    and default_severity as class attributes. Optionally set panel_types
-    to filter which panel types to check.
+    Type Parameter:
+        PanelT: The panel type(s) this rule accepts. Used for static type checking.
+                The actual runtime filtering is done via the panel_types attribute.
+
+    Example:
+        @panel_rule
+        class MarkdownRule(PanelRule[MarkdownPanel]):
+            panel_types = (MarkdownPanel,)  # Runtime filtering
+
+            def check_panel(self, panel: MarkdownPanel, context, options):
+                # panel is already MarkdownPanel - no isinstance needed
+                content = panel.markdown.content
+                ...
+
+    Subclasses must:
+    - Implement check_panel() with the correct panel type annotation
+    - Define id, description, and default_severity as class attributes
+    - Set panel_types tuple if filtering to specific panel types
+
     """
 
     id: str
@@ -165,14 +197,14 @@ class PanelRule(ABC):
     @abstractmethod
     def check_panel(
         self,
-        panel: BasePanel,
+        panel: PanelT,
         context: PanelContext,
         options: dict[str, Any],
     ) -> ViolationResult:
         """Check a single panel for violations.
 
         Args:
-            panel: The panel to check.
+            panel: The panel to check (type matches panel_types filter).
             context: Context with dashboard name, panel index, and title.
             options: Rule-specific options from configuration.
 
@@ -209,27 +241,36 @@ class PanelRule(ABC):
                 panel_title=panel.title if len(panel.title) > 0 else None,
             )
 
-            result = self.check_panel(panel, context, options)
+            result = self.check_panel(panel, context, options)  # type: ignore[arg-type]
             violations.extend(normalize_result(result))
 
         return violations
 
 
-class ChartRule(ABC):
-    """Base class for chart-level rules with automatic iteration.
+class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
+    """Base class for chart-level rules with automatic iteration and type filtering.
 
     Chart rules check LensPanel and ESQLPanel configurations. The base
-    class handles iteration and filtering by config type.
+    class handles iteration and filtering by config_types if set.
 
-    Subclasses must implement check_chart() and define id, description,
-    and default_severity as class attributes. Optionally set config_types
-    to filter which chart configuration types to check.
+    Type Parameter:
+        ConfigT: The config type(s) this rule accepts. Used for static type checking.
+                 The actual runtime filtering is done via the config_types attribute.
 
     Example:
-        @chart_rule(config_types=(LensGaugePanelConfig, ESQLGaugePanelConfig))
-        @dataclass(frozen=True)
-        class GaugeRule(ChartRule):
-            ...
+        @chart_rule
+        class GaugeRule(ChartRule[LensGaugePanelConfig | ESQLGaugePanelConfig]):
+            config_types = (LensGaugePanelConfig, ESQLGaugePanelConfig)
+
+            def check_chart(self, panel, config, context, options):
+                # config is already the correct type - no isinstance needed
+                has_goal = config.goal is not None  # Type checker knows this is valid
+                ...
+
+    Subclasses must:
+    - Implement check_chart() with the correct config type annotation
+    - Define id, description, and default_severity as class attributes
+    - Set config_types tuple if filtering to specific chart configurations
 
     """
 
@@ -243,7 +284,7 @@ class ChartRule(ABC):
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,
-        config: LensPanelConfig | ESQLPanelConfig,
+        config: ConfigT,
         context: ChartContext,
         options: dict[str, Any],
     ) -> ViolationResult:
@@ -251,7 +292,7 @@ class ChartRule(ABC):
 
         Args:
             panel: The LensPanel or ESQLPanel to check.
-            config: The panel's chart configuration.
+            config: The panel's chart configuration (type matches config_types filter).
             context: Context with dashboard name, panel info, and chart type.
             options: Rule-specific options from configuration.
 
@@ -306,7 +347,7 @@ class ChartRule(ABC):
                 panel_type=panel_type,
             )
 
-            result = self.check_chart(panel, config, context, options)
+            result = self.check_chart(panel, config, context, options)  # type: ignore[arg-type]
             violations.extend(normalize_result(result))
 
         return violations

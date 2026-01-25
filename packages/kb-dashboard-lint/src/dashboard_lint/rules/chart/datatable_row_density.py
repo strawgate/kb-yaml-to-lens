@@ -6,19 +6,19 @@ from typing import Any
 from dashboard_compiler.panels.charts.config import (
     ESQLDatatablePanelConfig,
     ESQLPanel,
-    ESQLPanelConfig,
     LensDatatablePanelConfig,
     LensPanel,
-    LensPanelConfig,
 )
 from dashboard_compiler.panels.charts.datatable.config import DatatableDensityEnum
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
+type DatatableConfig = LensDatatablePanelConfig | ESQLDatatablePanelConfig
 
-@chart_rule(config_types=(LensDatatablePanelConfig, ESQLDatatablePanelConfig))
+
+@chart_rule
 @dataclass(frozen=True)
-class DatatableRowDensityRule(ChartRule):
+class DatatableRowDensityRule(ChartRule[DatatableConfig]):
     """Rule: Large datatables should consider compact density.
 
     Datatables with many columns or rows benefit from compact density
@@ -31,11 +31,12 @@ class DatatableRowDensityRule(ChartRule):
     id: str = 'datatable-row-density'
     description: str = 'Large datatables should consider compact density'
     default_severity: Severity = Severity.INFO
+    config_types: tuple[type, ...] = (LensDatatablePanelConfig, ESQLDatatablePanelConfig)
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
-        config: LensPanelConfig | ESQLPanelConfig,
+        config: DatatableConfig,
         context: ChartContext,
         options: dict[str, Any],
     ) -> ViolationResult:
@@ -43,7 +44,7 @@ class DatatableRowDensityRule(ChartRule):
 
         Args:
             panel: The datatable panel to check.
-            config: The panel's chart configuration.
+            config: The panel's datatable configuration.
             context: Chart context with location helpers.
             options: Rule options with optional 'min_columns' key.
 
@@ -52,10 +53,6 @@ class DatatableRowDensityRule(ChartRule):
 
         """
         min_cols = options.get('min_columns', 5)
-
-        # Type is guaranteed by config_types filter
-        if not isinstance(config, (LensDatatablePanelConfig, ESQLDatatablePanelConfig)):
-            return None
 
         column_count = 0
         is_compact = False

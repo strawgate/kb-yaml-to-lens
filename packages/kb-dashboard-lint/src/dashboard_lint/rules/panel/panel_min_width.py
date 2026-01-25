@@ -10,7 +10,7 @@ from dashboard_lint.types import Severity, Violation
 
 @panel_rule
 @dataclass(frozen=True)
-class PanelMinWidthRule(PanelRule):
+class PanelMinWidthRule(PanelRule[BasePanel]):
     """Rule: Panels should have minimum width for readability.
 
     Very narrow panels (less than 6 grid units) are often too small to
@@ -23,7 +23,6 @@ class PanelMinWidthRule(PanelRule):
     id: str = 'panel-min-width'
     description: str = 'Panels should have minimum width for readability'
     default_severity: Severity = Severity.WARNING
-    panel_types: tuple[type[BasePanel], ...] | None = None
 
     def check_panel(
         self,

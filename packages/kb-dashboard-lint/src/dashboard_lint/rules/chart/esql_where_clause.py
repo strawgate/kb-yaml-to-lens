@@ -5,10 +5,18 @@ from dataclasses import dataclass
 from typing import Any
 
 from dashboard_compiler.panels.charts.config import (
+    ESQLAreaPanelConfig,
+    ESQLBarPanelConfig,
+    ESQLDatatablePanelConfig,
+    ESQLGaugePanelConfig,
+    ESQLHeatmapPanelConfig,
+    ESQLLinePanelConfig,
+    ESQLMetricPanelConfig,
+    ESQLMosaicPanelConfig,
     ESQLPanel,
-    ESQLPanelConfig,
+    ESQLPiePanelConfig,
+    ESQLTagcloudPanelConfig,
     LensPanel,
-    LensPanelConfig,
 )
 from dashboard_compiler.queries.config import ESQLQuery
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
@@ -16,6 +24,33 @@ from dashboard_lint.types import Severity, Violation
 
 # Pattern to match WHERE clause (case insensitive)
 WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)
+
+# All ESQL config types that have a query field
+ESQL_CONFIG_TYPES = (
+    ESQLMetricPanelConfig,
+    ESQLGaugePanelConfig,
+    ESQLHeatmapPanelConfig,
+    ESQLPiePanelConfig,
+    ESQLLinePanelConfig,
+    ESQLBarPanelConfig,
+    ESQLAreaPanelConfig,
+    ESQLTagcloudPanelConfig,
+    ESQLDatatablePanelConfig,
+    ESQLMosaicPanelConfig,
+)
+
+type ESQLConfig = (
+    ESQLMetricPanelConfig
+    | ESQLGaugePanelConfig
+    | ESQLHeatmapPanelConfig
+    | ESQLPiePanelConfig
+    | ESQLLinePanelConfig
+    | ESQLBarPanelConfig
+    | ESQLAreaPanelConfig
+    | ESQLTagcloudPanelConfig
+    | ESQLDatatablePanelConfig
+    | ESQLMosaicPanelConfig
+)
 
 
 def _get_query_string(query: ESQLQuery) -> str:
@@ -36,7 +71,7 @@ def _get_query_string(query: ESQLQuery) -> str:
 
 @chart_rule
 @dataclass(frozen=True)
-class ESQLWhereClauseRule(ChartRule):
+class ESQLWhereClauseRule(ChartRule[ESQLConfig]):
     """Rule: ES|QL queries should include a WHERE clause.
 
     Adding a WHERE clause to filter data improves query performance
@@ -47,11 +82,12 @@ class ESQLWhereClauseRule(ChartRule):
     id: str = 'esql-where-clause'
     description: str = 'ES|QL queries should include a WHERE clause'
     default_severity: Severity = Severity.INFO
+    config_types: tuple[type, ...] = ESQL_CONFIG_TYPES
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
-        config: LensPanelConfig | ESQLPanelConfig,
+        config: ESQLConfig,
         context: ChartContext,
         options: dict[str, Any],  # noqa: ARG002
     ) -> ViolationResult:
@@ -59,7 +95,7 @@ class ESQLWhereClauseRule(ChartRule):
 
         Args:
             panel: The ESQL panel to check.
-            config: The panel's chart configuration.
+            config: The panel's ESQL configuration.
             context: Chart context with location helpers.
             options: Rule options (currently unused).
 
@@ -67,13 +103,7 @@ class ESQLWhereClauseRule(ChartRule):
             Violation if no WHERE clause found, None otherwise.
 
         """
-        # Only check ESQL panels
-        if context.panel_type != 'esql':
-            return None
-
-        # All ESQL configs have a query field from ESQLPanelFieldsMixin
-        # Access it directly since we've verified panel_type is 'esql'
-        query_str = _get_query_string(config.query)  # type: ignore[union-attr]
+        query_str = _get_query_string(config.query)
 
         # Check for WHERE clause
         if WHERE_PATTERN.search(query_str) is None:

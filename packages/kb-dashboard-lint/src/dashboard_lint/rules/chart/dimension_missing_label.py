@@ -5,14 +5,12 @@ from typing import Any
 
 from dashboard_compiler.panels.charts.config import (
     ESQLPanel,
-    ESQLPanelConfig,
     LensAreaPanelConfig,
     LensBarPanelConfig,
     LensLinePanelConfig,
     LensMetricPanelConfig,
     LensMosaicPanelConfig,
     LensPanel,
-    LensPanelConfig,
 )
 from dashboard_compiler.panels.charts.lens.dimensions.config import (
     BaseLensDimension,
@@ -33,6 +31,8 @@ CONFIGS_WITH_BREAKDOWN = (
     LensAreaPanelConfig,
     LensMosaicPanelConfig,
 )
+
+type BreakdownConfig = LensMetricPanelConfig | LensLinePanelConfig | LensBarPanelConfig | LensAreaPanelConfig | LensMosaicPanelConfig
 
 
 def _get_dimension_field(dimension: BaseLensDimension) -> str:
@@ -71,9 +71,9 @@ def _dimension_has_empty_label(dimension: BaseLensDimension) -> bool:
     return dimension.label is None or len(dimension.label) == 0
 
 
-@chart_rule(config_types=CONFIGS_WITH_BREAKDOWN)
+@chart_rule
 @dataclass(frozen=True)
-class DimensionMissingLabelRule(ChartRule):
+class DimensionMissingLabelRule(ChartRule[BreakdownConfig]):
     """Rule: Dimensions should have explicit labels.
 
     Setting explicit labels for dimensions improves the readability
@@ -84,11 +84,12 @@ class DimensionMissingLabelRule(ChartRule):
     id: str = 'dimension-missing-label'
     description: str = 'Dimensions should have explicit labels'
     default_severity: Severity = Severity.INFO
+    config_types: tuple[type, ...] = CONFIGS_WITH_BREAKDOWN
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
-        config: LensPanelConfig | ESQLPanelConfig,
+        config: BreakdownConfig,
         context: ChartContext,
         options: dict[str, Any],  # noqa: ARG002
     ) -> ViolationResult:
@@ -104,10 +105,6 @@ class DimensionMissingLabelRule(ChartRule):
             Violation if dimension missing label, None otherwise.
 
         """
-        # Type is guaranteed by config_types filter
-        if not isinstance(config, CONFIGS_WITH_BREAKDOWN):
-            return None
-
         # Check breakdown dimension
         if config.breakdown is not None and _dimension_has_empty_label(config.breakdown):
             field_name = _get_dimension_field(config.breakdown)

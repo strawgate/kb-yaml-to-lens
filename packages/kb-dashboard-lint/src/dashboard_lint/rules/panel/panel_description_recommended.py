@@ -11,7 +11,7 @@ from dashboard_lint.types import Severity, Violation
 
 @panel_rule
 @dataclass(frozen=True)
-class PanelDescriptionRecommendedRule(PanelRule):
+class PanelDescriptionRecommendedRule(PanelRule[BasePanel]):
     """Rule: Panels should have descriptions for accessibility.
 
     Panel descriptions provide context for dashboard viewers and improve
@@ -24,7 +24,6 @@ class PanelDescriptionRecommendedRule(PanelRule):
     id: str = 'panel-description-recommended'
     description: str = 'Panels should have descriptions for accessibility'
     default_severity: Severity = Severity.INFO
-    panel_types: tuple[type[BasePanel], ...] | None = None
 
     def check_panel(
         self,

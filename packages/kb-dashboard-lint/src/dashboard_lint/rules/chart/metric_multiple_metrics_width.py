@@ -6,18 +6,18 @@ from typing import Any
 from dashboard_compiler.panels.charts.config import (
     ESQLMetricPanelConfig,
     ESQLPanel,
-    ESQLPanelConfig,
     LensMetricPanelConfig,
     LensPanel,
-    LensPanelConfig,
 )
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
+type MetricConfig = LensMetricPanelConfig | ESQLMetricPanelConfig
 
-@chart_rule(config_types=(LensMetricPanelConfig, ESQLMetricPanelConfig))
+
+@chart_rule
 @dataclass(frozen=True)
-class MetricMultipleMetricsWidthRule(ChartRule):
+class MetricMultipleMetricsWidthRule(ChartRule[MetricConfig]):
     """Rule: Metric panels with multiple metrics need adequate width.
 
     When a metric panel displays secondary or maximum values in addition
@@ -31,11 +31,12 @@ class MetricMultipleMetricsWidthRule(ChartRule):
     id: str = 'metric-multiple-metrics-width'
     description: str = 'Metric panels with multiple metrics should have adequate width'
     default_severity: Severity = Severity.WARNING
+    config_types: tuple[type, ...] = (LensMetricPanelConfig, ESQLMetricPanelConfig)
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,
-        config: LensPanelConfig | ESQLPanelConfig,
+        config: MetricConfig,
         context: ChartContext,
         options: dict[str, Any],
     ) -> ViolationResult:
@@ -43,7 +44,7 @@ class MetricMultipleMetricsWidthRule(ChartRule):
 
         Args:
             panel: The metric panel to check.
-            config: The panel's chart configuration.
+            config: The panel's metric configuration.
             context: Chart context with location helpers.
             options: Rule options with optional 'min_width_multiple' key.
 
@@ -55,10 +56,6 @@ class MetricMultipleMetricsWidthRule(ChartRule):
 
         # Use .width property which resolves semantic widths to integers
         width = panel.size.width
-
-        # Type is guaranteed by config_types filter
-        if not isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
-            return None
 
         # Count metrics
         metric_count = 1  # Always have primary

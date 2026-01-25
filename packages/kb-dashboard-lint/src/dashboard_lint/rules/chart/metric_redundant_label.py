@@ -6,18 +6,18 @@ from typing import Any
 from dashboard_compiler.panels.charts.config import (
     ESQLMetricPanelConfig,
     ESQLPanel,
-    ESQLPanelConfig,
     LensMetricPanelConfig,
     LensPanel,
-    LensPanelConfig,
 )
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
+type MetricConfig = LensMetricPanelConfig | ESQLMetricPanelConfig
 
-@chart_rule(config_types=(LensMetricPanelConfig, ESQLMetricPanelConfig))
+
+@chart_rule
 @dataclass(frozen=True)
-class MetricRedundantLabelRule(ChartRule):
+class MetricRedundantLabelRule(ChartRule[MetricConfig]):
     """Rule: Metric primary label should not duplicate panel title.
 
     When a metric's primary label is the same as the panel title, the title
@@ -28,11 +28,12 @@ class MetricRedundantLabelRule(ChartRule):
     id: str = 'metric-redundant-label'
     description: str = 'Metric primary label matching title should use hide_title: true'
     default_severity: Severity = Severity.WARNING
+    config_types: tuple[type, ...] = (LensMetricPanelConfig, ESQLMetricPanelConfig)
 
     def check_chart(
         self,
         panel: LensPanel | ESQLPanel,
-        config: LensPanelConfig | ESQLPanelConfig,
+        config: MetricConfig,
         context: ChartContext,
         options: dict[str, Any],  # noqa: ARG002
     ) -> ViolationResult:
@@ -40,7 +41,7 @@ class MetricRedundantLabelRule(ChartRule):
 
         Args:
             panel: The metric panel to check.
-            config: The panel's chart configuration.
+            config: The panel's metric configuration.
             context: Chart context with location helpers.
             options: Rule options (currently unused).
 
@@ -54,10 +55,6 @@ class MetricRedundantLabelRule(ChartRule):
 
         # Skip if hide_title is already set
         if panel.hide_title is True:
-            return None
-
-        # Type is guaranteed by config_types filter
-        if not isinstance(config, (LensMetricPanelConfig, ESQLMetricPanelConfig)):
             return None
 
         primary_label = config.primary.label

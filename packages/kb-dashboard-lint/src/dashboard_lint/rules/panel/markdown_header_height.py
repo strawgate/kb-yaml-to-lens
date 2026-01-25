@@ -4,7 +4,6 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.panels.base import BasePanel
 from dashboard_compiler.panels.markdown import MarkdownPanel
 from dashboard_lint.rules.core import PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
@@ -13,9 +12,9 @@ from dashboard_lint.types import Severity, Violation
 HEADER_PATTERN = re.compile(r'^#{1,6}\s+', re.MULTILINE)
 
 
-@panel_rule(panel_types=(MarkdownPanel,))
+@panel_rule
 @dataclass(frozen=True)
-class MarkdownHeaderHeightRule(PanelRule):
+class MarkdownHeaderHeightRule(PanelRule[MarkdownPanel]):
     """Rule: Markdown panels with headers must have sufficient height.
 
     Markdown panels containing headers (lines starting with #) should have
@@ -29,11 +28,11 @@ class MarkdownHeaderHeightRule(PanelRule):
     id: str = 'markdown-header-height'
     description: str = 'Markdown panels with headers must have height >= 3'
     default_severity: Severity = Severity.WARNING
-    panel_types: tuple[type[BasePanel], ...] | None = (MarkdownPanel,)
+    panel_types: tuple[type, ...] = (MarkdownPanel,)
 
     def check_panel(
         self,
-        panel: BasePanel,
+        panel: MarkdownPanel,
         context: PanelContext,
         options: dict[str, Any],
     ) -> ViolationResult:
@@ -48,10 +47,6 @@ class MarkdownHeaderHeightRule(PanelRule):
             Violation if header present and height too small, None otherwise.
 
         """
-        # Type is guaranteed by panel_types filter
-        if not isinstance(panel, MarkdownPanel):
-            return None
-
         min_height = options.get('min_height', 3)
         content = panel.markdown.content
         height = panel.size.h
