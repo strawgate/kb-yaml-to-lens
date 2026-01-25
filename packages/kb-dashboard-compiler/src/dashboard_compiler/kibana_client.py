@@ -322,6 +322,115 @@ _esql_response_adapter = TypeAdapter(  # pyright: ignore[reportUnknownVariableTy
 )
 
 
+# ============================================================================
+# Bulk API Response Models
+# ============================================================================
+
+
+class BulkItemError(BaseModel):
+    """Error details for a failed bulk operation item.
+
+    Represents the error structure returned by Elasticsearch for individual
+    bulk operation failures.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str | None = None
+    """Error type identifier (e.g., 'mapper_parsing_exception')."""
+    reason: str | None = None
+    """Human-readable error reason."""
+
+    def get_error_message(self) -> str:
+        """Extract a user-friendly error message.
+
+        Returns:
+            The error reason if available, otherwise type, or fallback message.
+        """
+        if self.reason is not None:
+            return f'{self.type}: {self.reason}' if self.type is not None else self.reason
+        if self.type is not None:
+            return self.type
+        return 'Unknown bulk error'
+
+
+class BulkItemResult(BaseModel):
+    """Result of a single bulk operation item.
+
+    Represents the result structure for an individual bulk action (index, create, etc.).
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
+
+    index: str = Field(alias='_index')
+    """Index name where the document was indexed."""
+    status: int
+    """HTTP status code for this operation."""
+    error: BulkItemError | None = None
+    """Error details if the operation failed."""
+
+    @property
+    def success(self) -> bool:
+        """Whether this operation was successful (2xx status code)."""
+        return 200 <= self.status < 300  # noqa: PLR2004
+
+
+class BulkResponse(BaseModel):
+    """Response from Elasticsearch bulk API.
+
+    Contains the overall result of a bulk operation including timing,
+    error flag, and individual item results.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    took: int = 0
+    """Time in milliseconds for the bulk operation."""
+    errors: bool = False
+    """Whether any operations in the bulk request failed."""
+    items: list[dict[str, BulkItemResult]] = Field(default_factory=list)
+    """List of item results, each keyed by action type (index, create, etc.)."""
+
+    def get_success_count(self) -> int:
+        """Count the number of successful operations.
+
+        Returns:
+            Number of items with successful (2xx) status codes.
+        """
+        count = 0
+        for item in self.items:
+            for result in item.values():
+                if result.success:
+                    count += 1
+        return count
+
+    def get_failed_items(self) -> list[BulkItemResult]:
+        """Get list of failed operation results.
+
+        Returns:
+            List of BulkItemResult objects for operations that failed.
+        """
+        return [result for item in self.items for result in item.values() if not result.success]
+
+
+# ============================================================================
+# Index Template Response Models
+# ============================================================================
+
+
+class IndexTemplateResponse(BaseModel):
+    """Response from Elasticsearch index template creation/update.
+
+    Represents the acknowledgment response from creating or updating
+    an index template.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    acknowledged: bool = False
+    """Whether the operation was acknowledged by the cluster."""
+
+
 class KibanaClient:
     """Client for interacting with Kibana's Saved Objects API."""
 
@@ -695,7 +804,7 @@ class KibanaClient:
         self,
         actions: list[dict[str, Any]],
         timeout_seconds: int = 300,
-    ) -> tuple[int, list[dict[str, Any]]]:
+    ) -> BulkResponse:
         """Proxy bulk indexing operations through Kibana's console proxy API.
 
         Args:
@@ -704,13 +813,13 @@ class KibanaClient:
             timeout_seconds: Request timeout in seconds (default: 300).
 
         Returns:
-            Tuple of (success_count, failed_items) where failed_items is a list
-            of dicts containing error details for failed operations.
+            BulkResponse containing operation results with success/failure counts
+            and individual item results.
 
         Raises:
             aiohttp.ClientError: If the request fails due to network issues
             asyncio.TimeoutError: If the request times out
-            ValueError: If the response indicates an error
+            ValueError: If the response indicates an HTTP error
 
         """
         endpoint = '/api/console/proxy'
@@ -752,34 +861,13 @@ class KibanaClient:
                 raise ValueError(msg)
 
             result = await response.json()  # pyright: ignore[reportAny]
+            bulk_response = BulkResponse.model_validate(result)
 
-            if not isinstance(result, dict):
-                msg = f'Unexpected bulk response type: {type(result).__name__}'  # pyright: ignore[reportAny]
-                raise TypeError(msg)
+            success_count = bulk_response.get_success_count()
+            failed_count = len(bulk_response.get_failed_items())
+            logger.info('Bulk indexing completed: %d succeeded, %d failed', success_count, failed_count)
 
-            # Parse bulk response
-            items: list[dict[str, Any]] = result.get('items', [])  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-            has_errors: bool = result.get('errors', False)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-
-            success_count = 0
-            failed_items: list[dict[str, Any]] = []
-
-            for item in items:  # pyright: ignore[reportUnknownVariableType]
-                # Each item has one key (index, create, update, or delete)
-                for action_type, action_result in item.items():  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                    if isinstance(action_result, dict):
-                        status: int = action_result.get('status', 0)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        if 200 <= status < 300:  # noqa: PLR2004
-                            success_count += 1
-                        else:
-                            failed_items.append({action_type: action_result})
-
-            if has_errors and len(failed_items) == 0:
-                # Fallback if we couldn't parse errors
-                failed_items.append({'error': 'Bulk operation reported errors but details unavailable'})
-
-            logger.info('Bulk indexing completed: %d succeeded, %d failed', success_count, len(failed_items))
-            return success_count, failed_items
+            return bulk_response
 
     async def proxy_put_index_template(
         self,
@@ -787,7 +875,7 @@ class KibanaClient:
         index_patterns: list[str],
         template: dict[str, Any],
         timeout_seconds: int = 30,
-    ) -> None:
+    ) -> IndexTemplateResponse:
         """Create or update an index template via Kibana's console proxy API.
 
         Args:
@@ -795,6 +883,9 @@ class KibanaClient:
             index_patterns: List of index patterns the template applies to
             template: Template configuration (mappings, settings, etc.)
             timeout_seconds: Request timeout in seconds (default: 30)
+
+        Returns:
+            IndexTemplateResponse containing acknowledgment status.
 
         Raises:
             aiohttp.ClientError: If the request fails due to network issues
@@ -828,6 +919,7 @@ class KibanaClient:
 
             result = await response.json()  # pyright: ignore[reportAny]
 
+            # Check for error response (Elasticsearch returns error in response body)
             if isinstance(result, dict) and 'error' in result:
                 error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
                 if isinstance(error_info, dict):
@@ -835,11 +927,14 @@ class KibanaClient:
                 elif isinstance(error_info, str):
                     error_msg = error_info
                 else:
-                    error_msg = str(error_info)  # pyright: ignore[reportUnknownArgumentType]
+                    msg = f'Unexpected index template error type: {type(error_info).__name__}'  # pyright: ignore[reportUnknownArgumentType]
+                    raise TypeError(msg)
                 msg = f'Index template creation error: {error_msg}'
                 raise ValueError(msg)
 
+            template_response = IndexTemplateResponse.model_validate(result)
             logger.info('Index template created successfully: %s', name)
+            return template_response
 
     async def execute_esql(self, query: str) -> EsqlResponse:
         """Execute an ES|QL query via Kibana's console proxy API.

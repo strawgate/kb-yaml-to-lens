@@ -10,7 +10,7 @@ from dashboard_compiler.sample_data.config import SampleData
 from dashboard_compiler.sample_data.timestamps import transform_documents
 
 if TYPE_CHECKING:
-    from dashboard_compiler.kibana_client import KibanaClient
+    from dashboard_compiler.kibana_client import BulkResponse, KibanaClient
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +86,25 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
     return documents
 
 
+def _extract_error_messages(bulk_response: 'BulkResponse') -> list[str]:
+    """Extract error messages from a bulk response.
+
+    Args:
+        bulk_response: The bulk response containing item results
+
+    Returns:
+        List of formatted error messages for failed items
+
+    """
+    error_messages: list[str] = []
+    for failed_item in bulk_response.get_failed_items():
+        if failed_item.error is not None:
+            error_messages.append(failed_item.error.get_error_message())
+        else:
+            error_messages.append(f'Operation failed with status {failed_item.status}')
+    return error_messages
+
+
 async def load_sample_data(
     kibana_client: 'KibanaClient',
     sample_data: SampleData,
@@ -113,23 +132,10 @@ async def load_sample_data(
 
         actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
 
-        success_count, failed_items = await kibana_client.proxy_bulk(actions)
+        bulk_response = await kibana_client.proxy_bulk(actions)
 
-        error_messages: list[str] = []
-        if len(failed_items) > 0:
-            for item in failed_items:
-                # Extract error details from failed item
-                for action_result in item.values():  # pyright: ignore[reportAny]
-                    if isinstance(action_result, dict):
-                        error_info = action_result.get('error', {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        if isinstance(error_info, dict):
-                            error_type = error_info.get('type', 'unknown')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                            error_reason = error_info.get('reason', 'unknown reason')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                            error_messages.append(f'{error_type}: {error_reason}')
-                        else:
-                            error_messages.append(str(action_result))  # pyright: ignore[reportUnknownArgumentType]
-                    else:
-                        error_messages.append(str(item))
+        success_count = bulk_response.get_success_count()
+        error_messages = _extract_error_messages(bulk_response)
 
         return SampleDataLoadResult(success_count, error_messages)
 
@@ -151,7 +157,7 @@ async def _create_index_template(
 
     """
     template_name = f'{index_name}-template'
-    await kibana_client.proxy_put_index_template(
+    _ = await kibana_client.proxy_put_index_template(
         name=template_name,
         index_patterns=[f'{index_name}*'],
         template=template_config,
