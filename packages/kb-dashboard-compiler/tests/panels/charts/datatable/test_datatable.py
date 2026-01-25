@@ -486,7 +486,7 @@ def test_esql_datatable_validation_requires_at_least_one_metric() -> None:
         'dimensions': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match='at least 1 item'):
         ESQLDatatableChart.model_validate(config)
 
 
@@ -498,7 +498,7 @@ def test_esql_datatable_dimensions_only_fails_validation() -> None:
         'dimensions': [{'field': 'host.name', 'id': 'host-dim'}],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric'):
+    with pytest.raises(ValidationError, match='at least 1 item'):
         ESQLDatatableChart.model_validate(config)
 
 

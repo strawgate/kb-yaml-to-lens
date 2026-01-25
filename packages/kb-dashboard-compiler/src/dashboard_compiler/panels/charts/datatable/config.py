@@ -247,8 +247,8 @@ class ESQLDatatableChart(BaseChart):
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    metrics: list[ESQLMetricTypes] = Field(default_factory=list)
-    """List of ESQL metrics to display as columns."""
+    metrics: list[ESQLMetricTypes] = Field(min_length=1)
+    """List of ESQL metrics to display as columns (at least one required)."""
 
     dimensions: list[ESQLDimensionTypes] = Field(default_factory=list)
     """List of ESQL dimensions to use as row groupings."""
@@ -270,15 +270,3 @@ class ESQLDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
-
-    @model_validator(mode='after')
-    def validate_has_at_least_one_metric(self) -> Self:
-        """Validate that ES|QL datatable has at least one metric.
-
-        ES|QL datatables require at least one metric column. Metrics are for
-        numeric/aggregated values, while dimensions are for labels/identifiers.
-        """
-        if len(self.metrics) == 0:
-            msg = 'ES|QL datatable must have at least one metric'
-            raise ValueError(msg)
-        return self
