@@ -58,32 +58,59 @@ _upload_to_kibana_request_adapter = TypeAdapter(UploadToKibanaRequest)
 _esql_execute_request_adapter = TypeAdapter(EsqlExecuteRequest)
 
 
+def _convert_value(value: Any) -> Any:
+    """Recursively convert namedtuples to dicts within a value.
+
+    Handles nested namedtuples (pygls.protocol.Object) that appear in LSP request params.
+
+    Args:
+        value: Any value that may contain namedtuples
+
+    Returns:
+        The value with all namedtuples converted to dicts
+    """
+    # Handle namedtuples (they have _asdict method)
+    if hasattr(value, '_asdict') and callable(value._asdict):
+        as_dict: dict[str, Any] = value._asdict()  # pyright: ignore[reportAssignmentType]
+        return {k: _convert_value(v) for k, v in as_dict.items()}
+
+    # Handle lists - recursively convert elements
+    if isinstance(value, list):
+        return [_convert_value(item) for item in value]
+
+    # Handle dicts - recursively convert values
+    if isinstance(value, dict):
+        return {k: _convert_value(v) for k, v in value.items()}
+
+    # Primitive values pass through unchanged
+    return value
+
+
 def _params_to_dict(params: Any) -> dict[str, Any]:
-    """Convert pygls params object to dict.
+    """Convert pygls params object to dict, recursively handling nested objects.
 
     In pygls v2, custom LSP requests receive params as pygls.protocol.Object (a namedtuple).
-    Internal calls may pass plain dicts directly.
+    Nested objects (like the 'grid' field in UpdateGridLayoutRequest) also arrive as namedtuples.
+    This function recursively converts the entire structure to plain dicts for Pydantic validation.
 
     Args:
         params: The params object (dict, namedtuple, or None)
 
     Returns:
-        Dictionary representation of the params (empty dict for None)
+        Dictionary representation of the params with all nested namedtuples converted (empty dict for None)
     """
     # None is treated as empty dict so downstream validation returns structured errors
     if params is None:
         return {}
 
-    # Already a dict - return as-is
-    if isinstance(params, dict):
-        return params
+    # Use recursive conversion for all cases
+    converted = _convert_value(params)
 
-    # pygls.protocol.Object is a namedtuple with _asdict() method
-    if hasattr(params, '_asdict') and callable(params._asdict):
-        result: dict[str, Any] = params._asdict()  # pyright: ignore[reportAssignmentType]
-        return result
+    # Ensure we return a dict
+    if isinstance(converted, dict):
+        return converted
 
-    # If we get here, we received an unexpected type
+    # If we get here, we received an unexpected type at the top level
     msg = f'Unable to convert params of type {type(params).__name__} to dict'
     raise TypeError(msg)
 
