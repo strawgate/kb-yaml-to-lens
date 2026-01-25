@@ -132,11 +132,14 @@ def compile_esql_dimension(dimension: ESQLDimensionTypes) -> KbnESQLFieldDimensi
     if dimension.data_type == 'date':
         meta = KbnESQLColumnMeta(type='date', esType='date')
 
+    label = dimension.label if dimension.label is not None else dimension.field
+    custom_label = dimension.label is not None
+
     return KbnESQLFieldDimensionColumn(
         fieldName=dimension.field,
         columnId=dimension_id,
-        label=dimension.field,
-        customLabel=False,
+        label=label,
+        customLabel=custom_label,
         meta=meta,
     )
 

@@ -393,8 +393,14 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: server_name
+              label: Server Name
             - field: server_port
+              label: Port
             - field: connections
+              label: Connections
             - field: cpu_load_pct
+              label: CPU Load %
             - field: load_1m
+              label: 1-min Load
             - field: busy_workers
+              label: Busy Workers

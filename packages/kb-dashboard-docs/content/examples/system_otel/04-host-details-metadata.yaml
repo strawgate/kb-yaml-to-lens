@@ -69,7 +69,9 @@ dashboards:
             - STATS `Value` = MV_DEDUPE(TOP(value, 400, "asc")) BY `Resource Attribute`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
       - title: Operating System Metadata
         size: {w: 24, h: 12}
         esql:
@@ -88,7 +90,9 @@ dashboards:
             - KEEP `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
 
       # ═══════════════════════════════════════════════════════════════════════
       # CPU METADATA
@@ -118,7 +122,9 @@ dashboards:
             - KEEP `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
 
       # ═══════════════════════════════════════════════════════════════════════
       # CLOUD METADATA
@@ -147,7 +153,9 @@ dashboards:
             - KEEP `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
 
       # ═══════════════════════════════════════════════════════════════════════
       # KUBERNETES METADATA
@@ -170,4 +178,6 @@ dashboards:
             - KEEP `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
+              label: Resource Attribute
             - field: Value
+              label: Value
