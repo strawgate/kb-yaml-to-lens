@@ -112,15 +112,7 @@ service:
 
 ## Metrics Not Used in Dashboards
 
-The following optional metrics are available from the Redis receiver but are not currently visualized in the dashboards. These metrics are disabled by default and must be explicitly enabled in the OpenTelemetry Collector configuration.
-
-| Metric | Type | Unit | Description | Attributes |
-|--------|------|------|-------------|------------|
-| `redis.cmd.calls` | Sum | `{call}` | Command execution call count | `cmd` |
-| `redis.cmd.latency` | Gauge | `s` | Command execution latency | `cmd`, `percentile` |
-| `redis.cmd.usec` | Sum | `us` | Total command execution time | `cmd` |
-| `redis.maxmemory` | Gauge | `By` | Configured maximum memory limit | — |
-| `redis.role` | Sum | `{role}` | Node's operational role | `role` |
+All optional metrics listed in the [Optional Metrics](#optional-metrics-disabled-by-default) section above are not currently visualized in the dashboards. These metrics are disabled by default and must be explicitly enabled in the OpenTelemetry Collector configuration.
 
 ## Related Resources
 
