@@ -1,11 +1,9 @@
 """Lint rules for chart-specific configurations."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.dashboard.config import Dashboard  # noqa: TC001
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.registry import register_rule
 from dashboard_lint.types import Severity, Violation
 
@@ -35,7 +33,12 @@ class MetricMultipleMetricsWidthRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+        from dashboard_compiler.panels.charts.config import (
+            ESQLMetricPanelConfig,
+            ESQLPanel,
+            LensMetricPanelConfig,
+            LensPanel,
+        )
 
         violations: list[Violation] = []
         min_width = options.get('min_width_multiple', 12)
@@ -47,21 +50,21 @@ class MetricMultipleMetricsWidthRule:
 
             if isinstance(panel, LensPanel):
                 config = panel.lens
-                if config.type == 'metric':
+                if isinstance(config, LensMetricPanelConfig):
                     chart_type = 'lens.metric'
                     metric_count = 1  # primary
-                    if hasattr(config, 'secondary') and config.secondary is not None:
+                    if config.secondary is not None:
                         metric_count += 1
-                    if hasattr(config, 'maximum') and config.maximum is not None:
+                    if config.maximum is not None:
                         metric_count += 1
             elif isinstance(panel, ESQLPanel):
                 config = panel.esql
-                if config.type == 'metric':
+                if isinstance(config, ESQLMetricPanelConfig):
                     chart_type = 'esql.metric'
                     metric_count = 1
-                    if hasattr(config, 'secondary') and config.secondary is not None:
+                    if config.secondary is not None:
                         metric_count += 1
-                    if hasattr(config, 'maximum') and config.maximum is not None:
+                    if config.maximum is not None:
                         metric_count += 1
 
             if chart_type is not None and metric_count > 1 and width < min_width:
@@ -102,7 +105,12 @@ class GaugeGoalWithoutMaxRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+        from dashboard_compiler.panels.charts.config import (
+            ESQLGaugePanelConfig,
+            ESQLPanel,
+            LensGaugePanelConfig,
+            LensPanel,
+        )
 
         violations: list[Violation] = []
 
@@ -113,16 +121,16 @@ class GaugeGoalWithoutMaxRule:
 
             if isinstance(panel, LensPanel):
                 config = panel.lens
-                if config.type == 'gauge':
+                if isinstance(config, LensGaugePanelConfig):
                     chart_type = 'lens.gauge'
-                    has_goal = hasattr(config, 'goal') and config.goal is not None
-                    has_max = hasattr(config, 'maximum') and config.maximum is not None
+                    has_goal = config.goal is not None
+                    has_max = config.maximum is not None
             elif isinstance(panel, ESQLPanel):
                 config = panel.esql
-                if config.type == 'gauge':
+                if isinstance(config, ESQLGaugePanelConfig):
                     chart_type = 'esql.gauge'
-                    has_goal = hasattr(config, 'goal') and config.goal is not None
-                    has_max = hasattr(config, 'maximum') and config.maximum is not None
+                    has_goal = config.goal is not None
+                    has_max = config.maximum is not None
 
             if chart_type is not None and has_goal and not has_max:
                 violations.append(
@@ -164,7 +172,12 @@ class PieChartDimensionCountRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+        from dashboard_compiler.panels.charts.config import (
+            ESQLPanel,
+            ESQLPiePanelConfig,
+            LensPanel,
+            LensPiePanelConfig,
+        )
 
         violations: list[Violation] = []
         max_dims = options.get('max_dimensions', 1)
@@ -175,16 +188,14 @@ class PieChartDimensionCountRule:
 
             if isinstance(panel, LensPanel):
                 config = panel.lens
-                if config.type == 'pie':
+                if isinstance(config, LensPiePanelConfig):
                     chart_type = 'lens.pie'
-                    if hasattr(config, 'dimensions'):
-                        dimension_count = len(config.dimensions)
+                    dimension_count = len(config.dimensions)
             elif isinstance(panel, ESQLPanel):
                 config = panel.esql
-                if config.type == 'pie':
+                if isinstance(config, ESQLPiePanelConfig):
                     chart_type = 'esql.pie'
-                    if hasattr(config, 'dimensions'):
-                        dimension_count = len(config.dimensions)
+                    dimension_count = len(config.dimensions)
 
             if chart_type is not None and dimension_count > max_dims:
                 violations.append(
@@ -225,7 +236,13 @@ class DatatableRowDensityRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+        from dashboard_compiler.panels.charts.config import (
+            ESQLDatatablePanelConfig,
+            ESQLPanel,
+            LensDatatablePanelConfig,
+            LensPanel,
+        )
+        from dashboard_compiler.panels.charts.datatable.config import DatatableDensityEnum
 
         violations: list[Violation] = []
         min_cols = options.get('min_columns', 5)
@@ -237,19 +254,19 @@ class DatatableRowDensityRule:
 
             if isinstance(panel, LensPanel):
                 config = panel.lens
-                if config.type == 'datatable':
+                if isinstance(config, LensDatatablePanelConfig):
                     chart_type = 'lens.datatable'
-                    if hasattr(config, 'columns') and config.columns is not None:
+                    if config.columns is not None:
                         column_count = len(config.columns)
-                    if hasattr(config, 'row_density') and config.row_density == 'compact':
+                    if config.appearance is not None and config.appearance.density == DatatableDensityEnum.COMPACT:
                         is_compact = True
             elif isinstance(panel, ESQLPanel):
                 config = panel.esql
-                if config.type == 'datatable':
+                if isinstance(config, ESQLDatatablePanelConfig):
                     chart_type = 'esql.datatable'
-                    if hasattr(config, 'columns') and config.columns is not None:
+                    if config.columns is not None:
                         column_count = len(config.columns)
-                    if hasattr(config, 'row_density') and config.row_density == 'compact':
+                    if config.appearance is not None and config.appearance.density == DatatableDensityEnum.COMPACT:
                         is_compact = True
 
             if chart_type is not None and column_count >= min_cols and not is_compact:

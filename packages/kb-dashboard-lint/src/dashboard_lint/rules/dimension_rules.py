@@ -1,16 +1,14 @@
 """Lint rules for chart dimensions."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.dashboard.config import Dashboard  # noqa: TC001
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.registry import register_rule
 from dashboard_lint.types import Severity, Violation
 
 
-def _get_dimension_field(dimension: object) -> str | None:
+def _get_dimension_field(dimension: Any) -> str | None:
     """Extract the field name from a dimension object.
 
     Args:
@@ -20,15 +18,42 @@ def _get_dimension_field(dimension: object) -> str | None:
         The field name if available, None otherwise.
 
     """
-    if hasattr(dimension, 'field'):
-        return dimension.field  # pyright: ignore[reportAny]
-    if hasattr(dimension, 'type'):
-        dim_type = dimension.type  # pyright: ignore[reportAny]
-        if dim_type == 'filters':
-            return '(filters)'
-        if dim_type == 'date_histogram':
-            return '@timestamp'
+    from dashboard_compiler.panels.charts.lens.dimensions.config import (
+        LensDateHistogramDimension,
+        LensFiltersDimension,
+        LensIntervalsDimension,
+        LensMultiTermsDimension,
+        LensTermsDimension,
+    )
+
+    if isinstance(dimension, LensTermsDimension):
+        return dimension.field
+    if isinstance(dimension, LensMultiTermsDimension):
+        return ', '.join(dimension.fields)
+    if isinstance(dimension, LensDateHistogramDimension):
+        return dimension.field
+    if isinstance(dimension, LensIntervalsDimension):
+        return dimension.field
+    if isinstance(dimension, LensFiltersDimension):
+        return '(filters)'
     return None
+
+
+def _dimension_has_empty_label(dimension: Any) -> bool:
+    """Check if a dimension has an empty or missing label.
+
+    Args:
+        dimension: A dimension configuration object.
+
+    Returns:
+        True if the dimension lacks a label, False otherwise.
+
+    """
+    from dashboard_compiler.panels.charts.lens.dimensions.config import BaseLensDimension
+
+    if isinstance(dimension, BaseLensDimension):
+        return dimension.label is None or len(dimension.label) == 0
+    return False
 
 
 @dataclass(frozen=True)
@@ -55,7 +80,23 @@ class DimensionMissingLabelRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import LensPanel
+        from dashboard_compiler.panels.charts.config import (
+            LensAreaPanelConfig,
+            LensBarPanelConfig,
+            LensLinePanelConfig,
+            LensMetricPanelConfig,
+            LensMosaicPanelConfig,
+            LensPanel,
+        )
+
+        # All Lens config types that have a breakdown dimension
+        configs_with_breakdown = (
+            LensMetricPanelConfig,
+            LensLinePanelConfig,
+            LensBarPanelConfig,
+            LensAreaPanelConfig,
+            LensMosaicPanelConfig,
+        )
 
         violations: list[Violation] = []
 
@@ -65,53 +106,23 @@ class DimensionMissingLabelRule:
 
             config = panel.lens
 
-            # Check breakdown dimension if present
-            if hasattr(config, 'breakdown') and config.breakdown is not None:
-                dimension = config.breakdown
-                if hasattr(dimension, 'label') and (dimension.label is None or len(dimension.label) == 0):
-                    field_name = _get_dimension_field(dimension) or 'unknown'
-                    violations.append(
-                        Violation(
-                            rule_id=self.id,
-                            message=f"Dimension '{field_name}' should have an explicit label",
-                            severity=self.default_severity,
-                            dashboard_name=dashboard.name,
-                            panel_title=panel.title if len(panel.title) > 0 else None,
-                            location=f'panels[{panel_idx}].lens.breakdown',
-                        )
+            # Check breakdown dimension on supported chart types
+            if (
+                isinstance(config, configs_with_breakdown)  # pyright: ignore[reportUnnecessaryIsInstance]
+                and config.breakdown is not None
+                and _dimension_has_empty_label(config.breakdown)
+            ):
+                field_name = _get_dimension_field(config.breakdown) or 'unknown'
+                violations.append(
+                    Violation(
+                        rule_id=self.id,
+                        message=f"Dimension '{field_name}' should have an explicit label",
+                        severity=self.default_severity,
+                        dashboard_name=dashboard.name,
+                        panel_title=panel.title if len(panel.title) > 0 else None,
+                        location=f'panels[{panel_idx}].lens.breakdown',
                     )
-
-            # Check horizontal dimension if present (for XY charts)
-            if hasattr(config, 'horizontal') and config.horizontal is not None:
-                dimension = config.horizontal
-                if hasattr(dimension, 'label') and (dimension.label is None or len(dimension.label) == 0):
-                    field_name = _get_dimension_field(dimension) or 'unknown'
-                    violations.append(
-                        Violation(
-                            rule_id=self.id,
-                            message=f"Dimension '{field_name}' should have an explicit label",
-                            severity=self.default_severity,
-                            dashboard_name=dashboard.name,
-                            panel_title=panel.title if len(panel.title) > 0 else None,
-                            location=f'panels[{panel_idx}].lens.horizontal',
-                        )
-                    )
-
-            # Check vertical dimension if present (for horizontal bar charts)
-            if hasattr(config, 'vertical') and config.vertical is not None:
-                dimension = config.vertical
-                if hasattr(dimension, 'label') and (dimension.label is None or len(dimension.label) == 0):
-                    field_name = _get_dimension_field(dimension) or 'unknown'
-                    violations.append(
-                        Violation(
-                            rule_id=self.id,
-                            message=f"Dimension '{field_name}' should have an explicit label",
-                            severity=self.default_severity,
-                            dashboard_name=dashboard.name,
-                            panel_title=panel.title if len(panel.title) > 0 else None,
-                            location=f'panels[{panel_idx}].lens.vertical',
-                        )
-                    )
+                )
 
         return violations
 

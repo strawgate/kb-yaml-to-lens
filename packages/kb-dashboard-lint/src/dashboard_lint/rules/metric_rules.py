@@ -1,11 +1,9 @@
 """Lint rules for Metric panels."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.dashboard.config import Dashboard  # noqa: TC001
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.registry import register_rule
 from dashboard_lint.types import Severity, Violation
 
@@ -34,7 +32,12 @@ class MetricRedundantLabelRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
+        from dashboard_compiler.panels.charts.config import (
+            ESQLMetricPanelConfig,
+            ESQLPanel,
+            LensMetricPanelConfig,
+            LensPanel,
+        )
 
         violations: list[Violation] = []
 
@@ -52,16 +55,14 @@ class MetricRedundantLabelRule:
 
             if isinstance(panel, LensPanel):
                 config = panel.lens
-                if hasattr(config, 'type') and config.type == 'metric':
+                if isinstance(config, LensMetricPanelConfig):
                     chart_type = 'lens.metric'
-                    if hasattr(config, 'primary') and hasattr(config.primary, 'label'):
-                        primary_label = config.primary.label
+                    primary_label = config.primary.label
             elif isinstance(panel, ESQLPanel):
                 config = panel.esql
-                if hasattr(config, 'type') and config.type == 'metric':
+                if isinstance(config, ESQLMetricPanelConfig):
                     chart_type = 'esql.metric'
-                    if hasattr(config, 'primary') and hasattr(config.primary, 'label'):
-                        primary_label = config.primary.label
+                    primary_label = config.primary.label
 
             # Check if primary label matches title
             if chart_type is not None and primary_label is not None and primary_label.strip().lower() == panel.title.strip().lower():

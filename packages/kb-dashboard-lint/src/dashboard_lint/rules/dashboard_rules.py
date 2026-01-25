@@ -1,11 +1,9 @@
 """Lint rules for Dashboard-level configurations."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.dashboard.config import Dashboard  # noqa: TC001
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.registry import register_rule
 from dashboard_lint.types import Severity, Violation
 

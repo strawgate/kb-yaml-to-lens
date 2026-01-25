@@ -1,7 +1,5 @@
 """Tests for panel sizing and layout rules."""
 
-from __future__ import annotations
-
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.panels.charts.config import LensMetricPanelConfig, LensPanel
 from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric

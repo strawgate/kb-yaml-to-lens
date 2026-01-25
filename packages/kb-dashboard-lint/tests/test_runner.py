@@ -1,17 +1,11 @@
 """Tests for the lint runner."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 import dashboard_lint.rules as _rules  # noqa: F401  # pyright: ignore[reportUnusedImport]
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.config import LintConfig, RuleConfig
 from dashboard_lint.registry import default_registry
 from dashboard_lint.runner import LintRunner, check_dashboards
 from dashboard_lint.types import Severity
-
-if TYPE_CHECKING:
-    from dashboard_compiler.dashboard.config import Dashboard
 
 
 class TestLintRunner:

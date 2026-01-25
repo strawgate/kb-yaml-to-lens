@@ -1,7 +1,5 @@
 """Pytest fixtures for dashboard lint tests."""
 
-from __future__ import annotations
-
 import pytest
 
 from dashboard_compiler.dashboard.config import Dashboard

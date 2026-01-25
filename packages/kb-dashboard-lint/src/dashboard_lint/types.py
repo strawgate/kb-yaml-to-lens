@@ -1,13 +1,10 @@
 """Core types for the dashboard linting system."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
-if TYPE_CHECKING:
-    from dashboard_compiler.dashboard.config import Dashboard
+from dashboard_compiler.dashboard.config import Dashboard
 
 
 class Severity(StrEnum):
@@ -117,7 +114,7 @@ class Violation:
     source_range: SourceRange | None = None
     """Source file position for this violation, if available."""
 
-    def __lt__(self, other: Violation) -> bool:
+    def __lt__(self, other: 'Violation') -> bool:
         """Compare violations by severity (descending) then dashboard name."""
         if not isinstance(other, Violation):
             return NotImplemented
@@ -128,7 +125,7 @@ class Violation:
             return self_order > other_order
         return self.dashboard_name < other.dashboard_name
 
-    def with_source_range(self, source_range: SourceRange) -> Violation:
+    def with_source_range(self, source_range: SourceRange) -> 'Violation':
         """Create a copy of this violation with source position information.
 
         Args:

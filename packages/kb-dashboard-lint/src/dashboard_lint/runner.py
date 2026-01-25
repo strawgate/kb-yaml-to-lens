@@ -1,15 +1,9 @@
 """Lint runner for orchestrating rule execution."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.config import LintConfig, get_effective_config
 from dashboard_lint.registry import RuleRegistry, default_registry
 from dashboard_lint.types import Severity, Violation
-
-if TYPE_CHECKING:
-    from dashboard_compiler.dashboard.config import Dashboard
 
 
 class LintRunner:

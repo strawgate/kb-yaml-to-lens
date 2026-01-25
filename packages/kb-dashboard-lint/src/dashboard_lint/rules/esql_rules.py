@@ -1,12 +1,10 @@
 """Lint rules for ES|QL queries."""
 
-from __future__ import annotations
-
 import re
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.dashboard.config import Dashboard  # noqa: TC001
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.registry import register_rule
 from dashboard_lint.types import Severity, Violation
 
@@ -15,7 +13,7 @@ from dashboard_lint.types import Severity, Violation
 WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)
 
 
-def _get_query_string(query: object) -> str:
+def _get_query_string(query: Any) -> str:
     """Extract query string from an ESQLQuery or query-like object.
 
     Args:
@@ -25,8 +23,10 @@ def _get_query_string(query: object) -> str:
         Single string with the full query.
 
     """
+    from dashboard_compiler.queries.config import ESQLQuery
+
     # Handle ESQLQuery root model (has 'root' attribute with the actual query)
-    if hasattr(query, 'root'):
+    if isinstance(query, ESQLQuery):
         return str(query.root)
     if isinstance(query, list):
         return '\n'.join(str(part) for part in query)
@@ -57,7 +57,33 @@ class ESQLWhereClauseRule:
             List of violations found.
 
         """
-        from dashboard_compiler.panels.charts.config import ESQLPanel
+        from dashboard_compiler.panels.charts.config import (
+            ESQLAreaPanelConfig,
+            ESQLBarPanelConfig,
+            ESQLDatatablePanelConfig,
+            ESQLGaugePanelConfig,
+            ESQLHeatmapPanelConfig,
+            ESQLLinePanelConfig,
+            ESQLMetricPanelConfig,
+            ESQLMosaicPanelConfig,
+            ESQLPanel,
+            ESQLPiePanelConfig,
+            ESQLTagcloudPanelConfig,
+        )
+
+        # All ESQL panel config types that have a query field
+        esql_config_types = (
+            ESQLMetricPanelConfig,
+            ESQLGaugePanelConfig,
+            ESQLHeatmapPanelConfig,
+            ESQLPiePanelConfig,
+            ESQLLinePanelConfig,
+            ESQLBarPanelConfig,
+            ESQLAreaPanelConfig,
+            ESQLTagcloudPanelConfig,
+            ESQLDatatablePanelConfig,
+            ESQLMosaicPanelConfig,
+        )
 
         violations: list[Violation] = []
 
@@ -65,9 +91,9 @@ class ESQLWhereClauseRule:
             if not isinstance(panel, ESQLPanel):
                 continue
 
-            # Get the query from the esql config
+            # Get the query from the esql config - all ESQL panels have query field
             config = panel.esql
-            if not hasattr(config, 'query'):
+            if not isinstance(config, esql_config_types):  # pyright: ignore[reportUnnecessaryIsInstance]
                 continue
 
             query = _get_query_string(config.query)

@@ -1,11 +1,9 @@
 """Lint rules for panel sizing and layout."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
 
-from dashboard_compiler.dashboard.config import Dashboard  # noqa: TC001
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.registry import register_rule
 from dashboard_lint.types import Severity, Violation
 
@@ -164,8 +162,7 @@ class PanelDescriptionRecommendedRule:
             if len(panel.title) == 0:
                 continue
 
-            description = getattr(panel, 'description', None)
-            if description is None or len(str(description).strip()) == 0:
+            if panel.description is None or len(panel.description.strip()) == 0:
                 violations.append(
                     Violation(
                         rule_id=self.id,

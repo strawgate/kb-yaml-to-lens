@@ -1,11 +1,6 @@
 """Rule registry for managing and discovering lint rules."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from dashboard_lint.types import Rule
+from dashboard_lint.types import Rule
 
 
 class RuleRegistry:

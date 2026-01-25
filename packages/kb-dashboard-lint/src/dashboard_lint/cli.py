@@ -1,13 +1,10 @@
 """Command-line interface for dashboard linting."""
 
-from __future__ import annotations
-
 import json
 import os
 import sys
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import rich_click as click
 from rich.console import Console
@@ -15,10 +12,7 @@ from rich.table import Table
 
 from dashboard_lint.config import load_config
 from dashboard_lint.runner import LintRunner
-from dashboard_lint.types import Severity
-
-if TYPE_CHECKING:
-    from dashboard_lint.types import Violation
+from dashboard_lint.types import Severity, Violation
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 if 'NO_COLOR' in os.environ or not sys.stdout.isatty():

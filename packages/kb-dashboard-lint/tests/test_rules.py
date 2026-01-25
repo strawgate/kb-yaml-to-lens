@@ -1,18 +1,12 @@
 """Tests for lint rules."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
+from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.rules.dashboard_rules import DashboardDatasetFilterRule
 from dashboard_lint.rules.dimension_rules import DimensionMissingLabelRule
 from dashboard_lint.rules.esql_rules import ESQLWhereClauseRule
 from dashboard_lint.rules.markdown_rules import MarkdownHeaderHeightRule
 from dashboard_lint.rules.metric_rules import MetricRedundantLabelRule
 from dashboard_lint.types import Severity
-
-if TYPE_CHECKING:
-    from dashboard_compiler.dashboard.config import Dashboard
 
 
 class TestMarkdownHeaderHeightRule:

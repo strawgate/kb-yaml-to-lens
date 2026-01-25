@@ -5,8 +5,6 @@ This module provides utilities for resolving Dashboard object paths (like
 YAML source file. This enables IDE-style diagnostics with precise highlighting.
 """
 
-from __future__ import annotations
-
 import re
 from pathlib import Path
 from typing import Any
@@ -47,7 +45,7 @@ class YamlPositionResolver:
         self._file_path = file_path
 
     @classmethod
-    def from_file(cls, file_path: str | Path) -> YamlPositionResolver:
+    def from_file(cls, file_path: str | Path) -> 'YamlPositionResolver':
         """Create a resolver from a YAML file.
 
         Args:
@@ -76,7 +74,7 @@ class YamlPositionResolver:
         return cls(document, str(path))
 
     @classmethod
-    def from_string(cls, yaml_content: str, file_path: str | None = None) -> YamlPositionResolver:
+    def from_string(cls, yaml_content: str, file_path: str | None = None) -> 'YamlPositionResolver':
         """Create a resolver from a YAML string.
 
         Args:
