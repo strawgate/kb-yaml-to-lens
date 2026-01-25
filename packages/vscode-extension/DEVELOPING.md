@@ -11,7 +11,7 @@ This guide covers development workflows for the VS Code extension.
 ## Setup
 
 ```bash
-cd vscode-extension
+cd packages/vscode-extension
 npm install
 npm run compile
 ```
@@ -32,7 +32,7 @@ Run from the repository root using the passthrough pattern:
 
 For all commands, see `make vscode help`.
 
-**From within component directory:** You can also run `make <target>` directly from `vscode-extension/`.
+**From within component directory:** You can also run `make <target>` directly from `packages/vscode-extension/`.
 
 ## Development Workflow
 
@@ -89,7 +89,7 @@ make vscode test-unit
 make vscode test-e2e
 
 # Or run directly from within vscode-extension directory
-# cd vscode-extension && npm test
+# cd packages/vscode-extension && npm test
 ```
 
 ### Python Tests

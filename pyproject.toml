@@ -30,7 +30,7 @@ dev = [
 kb-dashboard-compiler = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = ["packages/kb-dashboard-compiler", "packages/kb-dashboard-docs"]
 
 
 [tool.ruff]
@@ -129,6 +129,7 @@ exclude = [
     "**/output/**",
     "**/*.old.py",
     "**/kb-dashboard-docs/**",  # Docs hooks use mkdocs which isn't in root deps
+    "**/vscode-extension/**",  # TypeScript extension, not Python
 ]
 
 [[tool.basedpyright.executionEnvironments]]

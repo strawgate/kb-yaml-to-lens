@@ -4,7 +4,7 @@
 .PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all
 
 # Include shared helpers
-include ../Makefile.shared
+include ../../Makefile.shared
 
 help:
 	@echo "VSCode Extension Commands:"
