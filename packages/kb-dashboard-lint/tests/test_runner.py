@@ -103,15 +103,25 @@ class TestRegistry:
     def test_rules_registered(self) -> None:
         """All built-in rules should be registered."""
         expected_rules = {
-            'markdown-header-height',
-            'metric-redundant-label',
+            # Dashboard rules
             'dashboard-dataset-filter',
-            'esql-where-clause',
+            # Panel rules
+            'markdown-header-height',
+            'panel-description-recommended',
+            'panel-min-width',
+            # Chart rules
+            'datatable-row-density',
             'dimension-missing-label',
+            'esql-where-clause',
+            'gauge-goal-without-max',
+            'metric-multiple-metrics-width',
+            'metric-redundant-label',
+            'panel-height-for-content',
+            'pie-chart-dimension-count',
         }
         actual_rules = set(default_registry.get_rule_ids())
 
-        assert expected_rules.issubset(actual_rules)
+        assert expected_rules == actual_rules
 
     def test_get_rule(self) -> None:
         """Should retrieve rules by ID."""
