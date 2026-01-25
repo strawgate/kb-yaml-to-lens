@@ -2,34 +2,6 @@
 
 The `search` panel type is used to embed the results of a pre-existing, saved Kibana search directly onto your dashboard. This allows you to display dynamic log views, event lists, or any other data set defined by a saved search in Discover.
 
-## A Poem for the Log Detectives
-
-_For those who hunt through haystacks for needles:_
-
-```text
-The case runs hot. The logs are cold.
-But Discover's got the clues on hold.
-Embedded here upon your board—
-No need to leave; it's all aboard.
-
-Security breaches? Last night's crime?
-System errors frozen in time?
-Columns lined up, suspects neat,
-Each row of evidence, complete.
-
-saved_search_id—that's your lead,
-The only clue you'll ever need.
-Filters applied, the query's set,
-The perp's in there. I'd place a bet.
-
-From error logs to audit trails,
-This search panel never fails.
-Dynamic views that auto-scroll—
-The log detective's on patrol.
-```
-
----
-
 ## Search Panel
 
 ::: dashboard_compiler.panels.search.config.SearchPanel

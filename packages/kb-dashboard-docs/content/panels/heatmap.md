@@ -2,34 +2,6 @@
 
 The Heatmap chart panel displays data as a matrix where cell colors represent metric values, typically used for visualizing patterns across two categorical dimensions or time-based intensity analysis.
 
-## A Poem for the Pattern Seekers
-
-_For those who see the world in shades of meaning:_
-
-```text
-When numbers need a visual cue,
-And gradients tell the story true,
-The heatmap paints intensity—
-From cold to hot, for all to see.
-
-Two dimensions cross and meet,
-Where X and Y each take a seat.
-Time and category, side by side,
-Color coding serves as guide.
-
-Dark where values run down low,
-Bright where metrics brightly glow.
-Each cell a window, each shade a clue,
-The heatmap shows what's hiding in your view.
-
-From server loads to user trends,
-On color scale the truth depends.
-So here's to heatmaps, bold and bright,
-That turn cold data into light!
-```
-
----
-
 ## Minimal Configuration Example
 
 ```yaml

@@ -4,34 +4,6 @@ Lens panels in Kibana provide a flexible and user-friendly way to create various
 
 The `LensPanel` is the primary container. Its `chart` field will define the specific type of visualization (e.g., `metric`, `pie`).
 
-## A Poem for the Lens Pioneers
-
-_For those who craft visualizations with elegant flexibility:_
-
-```text
-Through this Lens we magnify
-Patterns hiding oh so sly.
-From metrics bold to pies that slice,
-Lens makes your data look quite nice!
-
-Dimensions group and metrics measure,
-Aggregations are your treasure.
-count(), sum(), and unique_count() too,
-Percentiles show p95 to you.
-
-Date histograms go back in time,
-Top values sorted, so sublime.
-Formulas for custom math—
-Lens blazes the perfect path!
-
-With data views and layers deep,
-Finally, a dashboard you'll keep.
-So here's to Lens, a beauty so true:
-That nobody can take away from you.
-```
-
----
-
 ## Minimal Configuration Examples
 
 **Minimal Lens Metric Chart:**
