@@ -231,23 +231,8 @@ def compile_control(order: int, *, control: ControlTypes) -> tuple[KbnControlTyp
     if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
 
-    # All ES|QL controls use a single consolidated compile function
-    if isinstance(
-        control,
-        (
-            ESQLFieldControl,
-            ESQLFunctionControl,
-            ESQLStaticSingleSelectControl,
-            ESQLStaticMultiSelectControl,
-            ESQLQuerySingleSelectControl,
-            ESQLQueryMultiSelectControl,
-        ),
-    ):
-        return compile_esql_control(order, control=control), None
-
-    # Explicit check to satisfy exhaustive checking pattern
-    msg = f'Unknown control type: {type(control).__name__}'
-    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+    # All remaining types are ES|QL controls, which use a single consolidated compile function
+    return compile_esql_control(order, control=control), None
 
 
 @log_compile
