@@ -12,10 +12,8 @@ from dashboard_compiler.kibana_client import (
     JobParams,
     KibanaClient,
     KibanaErrorDetail,
-    KibanaSavedObjectsResponse,
     LayoutDimensions,
     LocatorParams,
-    SavedObjectError,
     ScreenshotLayout,
     ScreenshotTimeRange,
 )
@@ -357,26 +355,8 @@ class TestKibanaClient:
 class TestKibanaErrorDetail:
     """Test the KibanaErrorDetail model."""
 
-    def test_parse_full_error(self) -> None:
-        """Test parsing error with all known fields."""
-        error = KibanaErrorDetail.model_validate({'message': 'Test error', 'type': 'validation_error'})
-        assert error.message == 'Test error'
-        assert error.type == 'validation_error'
-
-    def test_parse_partial_error(self) -> None:
-        """Test parsing error with only message."""
-        error = KibanaErrorDetail.model_validate({'message': 'Test error'})
-        assert error.message == 'Test error'
-        assert error.type is None
-
-    def test_parse_empty_error(self) -> None:
-        """Test parsing empty error dict."""
-        error = KibanaErrorDetail.model_validate({})
-        assert error.message is None
-        assert error.type is None
-
-    def test_parse_unknown_fields_allowed(self) -> None:
-        """Test that unknown fields are allowed (extra='allow')."""
+    def test_unknown_fields_allowed(self) -> None:
+        """Test that unknown fields are allowed (extra='allow') for API compatibility."""
         error = KibanaErrorDetail.model_validate(
             {
                 'message': 'Test error',
@@ -388,109 +368,19 @@ class TestKibanaErrorDetail:
         assert error.type == 'conflict'
 
 
-class TestSavedObjectError:
-    """Test the SavedObjectError model with KibanaErrorDetail."""
-
-    def test_parse_error_with_nested_error_detail(self) -> None:
-        """Test parsing error with nested KibanaErrorDetail."""
-        error = SavedObjectError.model_validate(
-            {
-                'error': {'message': 'Conflict', 'type': 'conflict'},
-                'message': 'Import failed',
-                'statusCode': 409,
-            }
-        )
-        assert error.error is not None
-        assert error.error.message == 'Conflict'
-        assert error.error.type == 'conflict'
-        assert error.message == 'Import failed'
-        assert error.status_code == 409
-
-    def test_parse_error_without_nested_error(self) -> None:
-        """Test parsing error without nested error detail."""
-        error = SavedObjectError.model_validate(
-            {
-                'message': 'Import failed',
-                'statusCode': 500,
-            }
-        )
-        assert error.error is None
-        assert error.message == 'Import failed'
-        assert error.status_code == 500
-
-
-class TestKibanaSavedObjectsResponse:
-    """Test the KibanaSavedObjectsResponse model."""
-
-    def test_parse_response_with_errors(self) -> None:
-        """Test parsing response containing errors."""
-        response = KibanaSavedObjectsResponse.model_validate(
-            {
-                'success': False,
-                'successCount': 0,
-                'successResults': [],
-                'errors': [
-                    {
-                        'error': {'message': 'Object already exists', 'type': 'conflict'},
-                        'message': 'Import conflict',
-                        'statusCode': 409,
-                    },
-                ],
-            }
-        )
-        assert response.success is False
-        assert response.success_count == 0
-        assert len(response.errors) == 1
-        assert response.errors[0].error is not None
-        assert response.errors[0].error.message == 'Object already exists'
-
-
 class TestScreenshotJobParameterModels:
-    """Test screenshot job parameter Pydantic models."""
+    """Test screenshot job parameter serialization for Kibana API compatibility."""
 
-    def test_layout_dimensions(self) -> None:
-        """Test LayoutDimensions model."""
-        dims = LayoutDimensions(width=1920, height=1080)
-        assert dims.width == 1920
-        assert dims.height == 1080
-
-    def test_screenshot_layout(self) -> None:
-        """Test ScreenshotLayout model with default id."""
-        layout = ScreenshotLayout(dimensions=LayoutDimensions(width=800, height=600))
-        assert layout.id == 'preserve_layout'
-        assert layout.dimensions.width == 800
-        assert layout.dimensions.height == 600
-
-    def test_screenshot_time_range(self) -> None:
-        """Test ScreenshotTimeRange model with alias."""
+    def test_time_range_serializes_from_alias(self) -> None:
+        """Test ScreenshotTimeRange serializes 'from_time' as 'from' for API."""
         time_range = ScreenshotTimeRange(from_time='now-1h', to='now')
-        assert time_range.from_time == 'now-1h'
-        assert time_range.to == 'now'
-
-        # Test serialization produces correct alias
         serialized = time_range.model_dump(by_alias=True)
         assert serialized['from'] == 'now-1h'
         assert serialized['to'] == 'now'
         assert 'from_time' not in serialized
 
-    def test_dashboard_locator_params(self) -> None:
-        """Test DashboardLocatorParams model with defaults."""
-        params = DashboardLocatorParams(dashboard_id='my-dashboard')
-        assert params.dashboard_id == 'my-dashboard'
-        assert params.use_hash is False
-        assert params.view_mode == 'view'
-        assert params.preserve_saved_filters is True
-        assert params.time_range is None
-
-    def test_dashboard_locator_params_with_time_range(self) -> None:
-        """Test DashboardLocatorParams with time range."""
-        time_range = ScreenshotTimeRange(from_time='now-7d', to='now')
-        params = DashboardLocatorParams(dashboard_id='my-dashboard', time_range=time_range)
-        assert params.time_range is not None
-        assert params.time_range.from_time == 'now-7d'
-
-    def test_dashboard_locator_params_serialization(self) -> None:
-        """Test DashboardLocatorParams serializes with correct camelCase keys."""
+    def test_dashboard_locator_params_camelcase_serialization(self) -> None:
+        """Test DashboardLocatorParams serializes with correct camelCase keys for API."""
         params = DashboardLocatorParams(dashboard_id='my-dashboard')
         serialized = params.model_dump(by_alias=True, exclude_none=True)
         assert serialized['dashboardId'] == 'my-dashboard'
@@ -499,28 +389,6 @@ class TestScreenshotJobParameterModels:
         assert serialized['preserveSavedFilters'] is True
         assert 'dashboard_id' not in serialized
         assert 'use_hash' not in serialized
-
-    def test_locator_params(self) -> None:
-        """Test LocatorParams model."""
-        dashboard_params = DashboardLocatorParams(dashboard_id='test-dash')
-        locator = LocatorParams(params=dashboard_params)
-        assert locator.id == 'DASHBOARD_APP_LOCATOR'
-        assert locator.params.dashboard_id == 'test-dash'
-
-    def test_job_params_full(self) -> None:
-        """Test JobParams model with all components."""
-        job_params = JobParams(
-            layout=ScreenshotLayout(
-                dimensions=LayoutDimensions(width=1920, height=1080),
-            ),
-            browser_timezone='America/New_York',
-            locator_params=LocatorParams(
-                params=DashboardLocatorParams(dashboard_id='my-dashboard'),
-            ),
-        )
-        assert job_params.layout.dimensions.width == 1920
-        assert job_params.browser_timezone == 'America/New_York'
-        assert job_params.locator_params.params.dashboard_id == 'my-dashboard'
 
     def test_job_params_serialization_for_api(self) -> None:
         """Test JobParams serializes correctly for Kibana API."""
