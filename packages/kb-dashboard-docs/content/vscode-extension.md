@@ -107,7 +107,7 @@ Only needed if you're developing the extension itself:
    Or manually within the vscode-extension directory:
 
    ```bash
-   cd vscode-extension
+   cd packages/vscode-extension
    npm install
    npm run compile
    npm run package

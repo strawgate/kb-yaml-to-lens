@@ -27,7 +27,7 @@ jobs:
         uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          packagePath: vscode-extension
+          packagePath: packages/vscode-extension
       - name: Publish to VS Code Marketplace
         id: publish-marketplace
         continue-on-error: true
@@ -35,13 +35,13 @@ jobs:
         with:
           pat: ${{ secrets.VS_MARKETPLACE_PAT }}
           registryUrl: https://marketplace.visualstudio.com
-          packagePath: vscode-extension
+          packagePath: packages/vscode-extension
       - name: Upload VSIX on failure
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
         uses: actions/upload-artifact@v6
         with:
           name: extension-vsix
-          path: vscode-extension/*.vsix
+          path: packages/vscode-extension/*.vsix
           retention-days: 7
       - name: Fail if publishing failed
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'

@@ -11,8 +11,8 @@ function findPythonPath(): string {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
     const candidates = [
-        workspaceRoot && path.join(workspaceRoot, 'compiler/.venv/bin/python'),
-        path.join(process.cwd(), 'compiler/.venv/bin/python'),
+        workspaceRoot && path.join(workspaceRoot, 'packages/kb-dashboard-compiler/.venv/bin/python'),
+        path.join(process.cwd(), 'packages/kb-dashboard-compiler/.venv/bin/python'),
         'python3'
     ].filter((p): p is string => !!p);
 
