@@ -54,14 +54,14 @@ check: ci
 
 fix: lint
 
-# Python linting
+# Python linting (uses root's dev group which includes ruff)
 lint:
-	$(call run_cmd, "Running ruff format", uv run ruff format ., "ruff format complete")
-	$(call run_cmd, "Running ruff check --fix", uv run ruff check . --fix, "ruff check complete")
+	$(call run_cmd, "Running ruff format", cd ../.. && uv run --group dev ruff format packages/kb-dashboard-mcp, "ruff format complete")
+	$(call run_cmd, "Running ruff check --fix", cd ../.. && uv run --group dev ruff check packages/kb-dashboard-mcp --fix, "ruff check complete")
 
 lint-check:
-	$(call run_cmd, "Running ruff format --check", uv run ruff format . --check --quiet, "ruff format check passed")
-	$(call run_cmd, "Running ruff check", uv run ruff check . --quiet, "ruff check passed")
+	$(call run_cmd, "Running ruff format --check", cd ../.. && uv run --group dev ruff format packages/kb-dashboard-mcp --check --quiet, "ruff format check passed")
+	$(call run_cmd, "Running ruff check", cd ../.. && uv run --group dev ruff check packages/kb-dashboard-mcp --quiet, "ruff check passed")
 	$(call print_end, "Python linting checks passed")
 
 # Type checking

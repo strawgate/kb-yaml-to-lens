@@ -24,7 +24,7 @@ include Makefile.shared
 # Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
-COMPONENTS := packages/kb-dashboard-compiler packages/kb-dashboard-mcp vscode-extension
+COMPONENTS := packages/kb-dashboard-compiler packages/kb-dashboard-mcp packages/vscode-extension
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := \
@@ -32,8 +32,8 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/kb-dashboard-compiler/.venv/**/*.yaml" --exclude "packages/kb-dashboard-compiler/.venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-mcp/.venv/**/*.yaml" --exclude "packages/kb-dashboard-mcp/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
-	--exclude "vscode-extension/node_modules/**/*.yaml" --exclude "vscode-extension/node_modules/**/*.yml" \
-	--exclude "vscode-extension/.vscode-test/**/*.yaml" --exclude "vscode-extension/.vscode-test/**/*.yml"
+	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
+	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
 .PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler mcp vscode docs gh
 
@@ -48,7 +48,7 @@ help:
 	@echo "Run target in single component:"
 	@echo "  make compiler <target>  - Run in packages/kb-dashboard-compiler/"
 	@echo "  make mcp <target>       - Run in packages/kb-dashboard-mcp/"
-	@echo "  make vscode <target>    - Run in vscode-extension/"
+	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
 	@echo "  make gh <target>        - Run in .github/scripts/"
 	@echo ""
@@ -221,7 +221,7 @@ mcp:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-mcp $(_ARGS)
 
 vscode:
-	@$(MAKE) SHELL=$(MAKE_SHELL) -C vscode-extension $(_ARGS)
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/vscode-extension $(_ARGS)
 
 docs:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-docs $(_ARGS)
