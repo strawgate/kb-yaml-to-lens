@@ -223,7 +223,6 @@
     "package:windows": "npm run package-bundle && vsce package --target win32-x64"
   },
   "dependencies": {
-    "execa": "^9.6.1",
     "vscode-languageclient": "^9.0.1",
     "yaml": "^2.8.2",
     "zod": "^4.3.6"

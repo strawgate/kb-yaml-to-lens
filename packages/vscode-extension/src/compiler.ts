@@ -19,14 +19,16 @@ import {
     parseGridLayoutResult,
     parseUploadResult,
     parseEsqlExecuteResult,
+    parseUpdateGridLayoutResult,
     SchemaResultSchema,
     type DashboardInfo,
     type DashboardGridInfo,
     type EsqlQueryResult,
+    type Grid,
 } from './schemas';
 
 // Re-export types from schemas for backwards compatibility
-export type { DashboardInfo, DashboardGridInfo, PanelGridInfo, EsqlColumn, EsqlQueryResult } from './schemas';
+export type { DashboardInfo, DashboardGridInfo, PanelGridInfo, EsqlColumn, EsqlQueryResult, Grid } from './schemas';
 
 // Interface for the compiled dashboard result
 export type CompiledDashboard = unknown;
@@ -195,6 +197,34 @@ export class DashboardCompilerLSP {
         );
 
         return parseUploadResult(result);
+    }
+
+    /**
+     * Update grid coordinates for a specific panel in a YAML dashboard file.
+     *
+     * @param filePath Path to the YAML file
+     * @param panelId ID of the panel to update
+     * @param grid New grid coordinates
+     * @param dashboardIndex Index of the dashboard (default: 0)
+     */
+    async updateGridLayout(filePath: string, panelId: string, grid: Grid, dashboardIndex: number = 0): Promise<void> {
+        if (!this.client) {
+            throw new Error('LSP client not started');
+        }
+
+        const result = await this.client.sendRequest(
+            'dashboard/updateGridLayout',
+            {
+                path: filePath,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                panel_id: panelId,
+                grid: grid,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                dashboard_index: dashboardIndex
+            }
+        );
+
+        parseUpdateGridLayoutResult(result);
     }
 
     /**

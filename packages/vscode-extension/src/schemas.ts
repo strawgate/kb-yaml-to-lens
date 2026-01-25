@@ -129,26 +129,14 @@ export const SchemaResultSchema = z.object({
 
 export type SchemaResult = z.infer<typeof SchemaResultSchema>;
 
-// Grid extractor result schema (used by subprocess calls)
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const GridExtractorResultSchema = z.union([
-    DashboardGridInfoSchema,
-    z.object({ error: z.string() }),
-]);
+export const UpdateGridLayoutResultSchema = z.object({
+    success: z.boolean(),
+    message: z.string().optional(),
+    error: z.string().optional(),
+});
 
-export type GridExtractorResult = z.infer<typeof GridExtractorResultSchema>;
-
-/**
- * Parse a grid extractor result with validation.
- * @throws ZodError if the result doesn't match the expected schema
- */
-export function parseGridExtractorResult(data: unknown): DashboardGridInfo {
-    const result = GridExtractorResultSchema.parse(data);
-    if ('error' in result) {
-        throw new Error(result.error);
-    }
-    return result;
-}
+export type UpdateGridLayoutResult = z.infer<typeof UpdateGridLayoutResultSchema>;
 
 /**
  * Parse an LSP compile result with validation.
@@ -226,4 +214,15 @@ export function parseEsqlExecuteResult(result: unknown): EsqlQueryResult {
         throw new Error('ES|QL query returned no data');
     }
     return parsed.data;
+}
+
+/**
+ * Parse an LSP update grid layout result with validation.
+ * @throws Error if the result indicates failure
+ */
+export function parseUpdateGridLayoutResult(result: unknown): void {
+    const parsed = UpdateGridLayoutResultSchema.parse(result);
+    if (!parsed.success) {
+        throw new Error(parsed.error || 'Failed to update grid layout');
+    }
 }

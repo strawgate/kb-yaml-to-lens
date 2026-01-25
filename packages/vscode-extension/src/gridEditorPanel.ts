@@ -1,26 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
-import { ConfigService } from './configService';
-import { runPythonScript } from './subprocess';
-
-interface PanelGridInfo {
-    id: string;
-    title: string;
-    type: string;
-    grid: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-    };
-}
-
-interface DashboardGridInfo {
-    title: string;
-    description: string;
-    panels: PanelGridInfo[];
-}
+import { DashboardCompilerLSP, DashboardGridInfo, Grid } from './compiler';
 
 /**
  * @deprecated Grid editing is now integrated into PreviewPanel.
@@ -31,13 +12,11 @@ export class GridEditorPanel {
     private panel: vscode.WebviewPanel | undefined;
     private currentDashboardPath: string | undefined;
     private currentDashboardIndex: number = 0;
-    private extensionPath: string;
 
     constructor(
         private context: vscode.ExtensionContext,
-        private configService: ConfigService
+        private compiler: DashboardCompilerLSP
     ) {
-        this.extensionPath = context.extensionPath;
     }
 
     dispose(): void {
@@ -106,44 +85,23 @@ export class GridEditorPanel {
     }
 
     private async extractGridInfo(dashboardPath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
-        return runPythonScript(
-            this.extensionPath,
-            this.configService,
-            {
-                args: ['-m', 'dashboard_compiler.lsp.grid_extractor', dashboardPath, dashboardIndex.toString()],
-                errorContext: 'Grid extraction',
-            },
-            (stdout) => {
-                const result = JSON.parse(stdout.trim());
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-                if (!result || typeof result !== 'object' || !Array.isArray(result.panels)) {
-                    throw new Error('Invalid grid extractor output (expected { title, description, panels[] })');
-                }
-                return result;
-            }
-        );
+        return this.compiler.getGridLayout(dashboardPath, dashboardIndex);
     }
 
-    private async updatePanelGrid(panelId: string, grid: { x: number; y: number; w: number; h: number }): Promise<string | undefined> {
+    private async updatePanelGrid(panelId: string, grid: Grid): Promise<void> {
         if (!this.currentDashboardPath) {
             return;
         }
 
         try {
-            return await runPythonScript(
-                this.extensionPath,
-                this.configService,
-                {
-                    args: ['-m', 'dashboard_compiler.lsp.grid_updater', this.currentDashboardPath, panelId, JSON.stringify(grid), this.currentDashboardIndex.toString()],
-                    errorContext: 'Grid update',
-                },
-                (stdout) => stdout
+            await this.compiler.updateGridLayout(
+                this.currentDashboardPath,
+                panelId,
+                grid,
+                this.currentDashboardIndex
             );
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to update grid: ${error instanceof Error ? error.message : String(error)}`);
-            return;
         }
     }
 

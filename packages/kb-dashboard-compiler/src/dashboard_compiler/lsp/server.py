@@ -21,6 +21,7 @@ from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.dashboard_compiler import load, render
 from dashboard_compiler.kibana_client import KibanaClient
 from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
+from dashboard_compiler.lsp.grid_updater import update_panel_grid
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +297,46 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:
         return {'success': False, 'error': str(e)}
     else:
         return {'success': True, 'data': result}
+
+
+@server.feature('dashboard/updateGridLayout')
+def update_grid_layout_custom(params: Any) -> dict[str, Any]:
+    """Update grid coordinates for a specific panel in a YAML dashboard file.
+
+    Args:
+        params: Object containing:
+            - path: YAML file path
+            - panel_id: ID of the panel to update
+            - grid: New grid coordinates with keys x, y, w, h
+            - dashboard_index: Optional dashboard index (default: 0)
+
+    Returns:
+        Dictionary with success status and message or error
+    """
+    params_dict = _params_to_dict(params)
+
+    try:
+        path = _get_required_str(params_dict, 'path')
+        panel_id = _get_required_str(params_dict, 'panel_id')
+    except TypeError as e:
+        return {'success': False, 'error': str(e)}
+
+    # Validate required parameters
+    if path is None or panel_id is None:
+        missing = 'path' if path is None else 'panel_id'
+        return {'success': False, 'error': f'Missing {missing} parameter'}
+
+    grid = params_dict.get('grid')
+    if grid is None or not isinstance(grid, dict):
+        return {'success': False, 'error': 'Missing or invalid grid parameter'}
+
+    try:
+        dashboard_index = int(params_dict.get('dashboard_index', 0))
+        return update_panel_grid(path, panel_id, grid, dashboard_index)
+    except (TypeError, ValueError) as e:
+        return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
 
 
 @server.feature('dashboard/getSchema')

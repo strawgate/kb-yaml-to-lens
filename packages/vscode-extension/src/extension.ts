@@ -427,8 +427,8 @@ export async function activate(context: vscode.ExtensionContext) {
     // Register JSON schema with YAML extension for auto-complete
     await registerYamlSchema();
 
-    previewPanel = new PreviewPanel(compiler, context, configService);
-    gridEditorPanel = new GridEditorPanel(context, configService);
+    previewPanel = new PreviewPanel(compiler, context);
+    gridEditorPanel = new GridEditorPanel(context, compiler);
     esqlResultsPanel = new EsqlResultsPanel();
 
     // Setup file watching for auto-compile
