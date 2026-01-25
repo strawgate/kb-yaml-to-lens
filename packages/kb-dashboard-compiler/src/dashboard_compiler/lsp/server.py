@@ -336,9 +336,11 @@ def update_grid_layout_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911
 
     try:
         dashboard_index = int(params_dict.get('dashboard_index', 0))
-        return update_panel_grid(path, panel_id, grid, dashboard_index)
     except (TypeError, ValueError) as e:
         return {'success': False, 'error': f'Invalid dashboard_index: {e}'}
+
+    try:
+        return update_panel_grid(path, panel_id, grid, dashboard_index)
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
