@@ -2,11 +2,12 @@
 
 import os
 import sys
-from typing import Any
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from dashboard_compiler.kibana_client import SavedObjectError
 
 # Initialize shared console
 console = Console()
@@ -170,11 +171,11 @@ def create_progress() -> Progress:
     )
 
 
-def create_error_table(errors: list[Any]) -> Table:
+def create_error_table(errors: list[SavedObjectError]) -> Table:
     """Create a Rich table to display errors.
 
     Args:
-        errors: List of error objects with .error.get('message'), .message, or str() fallback.
+        errors: List of SavedObjectError instances from Kibana API.
 
     Returns:
         A formatted Rich table with error messages.
@@ -183,29 +184,7 @@ def create_error_table(errors: list[Any]) -> Table:
     error_table = Table(show_header=True, header_style='bold red')
     error_table.add_column('Error', style='red')
 
-    for error in errors:  # pyright: ignore[reportAny]
-        error_msg = _extract_error_message(error)
-        error_table.add_row(error_msg)
+    for error in errors:
+        error_table.add_row(error.get_error_message())
 
     return error_table
-
-
-def _extract_error_message(error: Any) -> str:  # pyright: ignore[reportAny]
-    """Extract error message from various error object formats.
-
-    Args:
-        error: An error object (SavedObjectError or similar).
-
-    Returns:
-        The extracted error message string.
-
-    """
-    # Try error.error['message']
-    if hasattr(error, 'error') and error.error is not None:  # pyright: ignore[reportAny]
-        message: str | None = error.error.get('message')  # pyright: ignore[reportAny]
-        if message is not None:
-            return message
-    # Try error.message
-    if hasattr(error, 'message') and error.message is not None:  # pyright: ignore[reportAny]
-        return str(error.message)  # pyright: ignore[reportAny]
-    return str(error)  # pyright: ignore[reportAny]

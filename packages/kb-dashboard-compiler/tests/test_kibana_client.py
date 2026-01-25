@@ -6,7 +6,21 @@ from typing import Any
 
 import pytest
 
-from dashboard_compiler.kibana_client import HTTP_SERVICE_UNAVAILABLE, KibanaClient
+from dashboard_compiler.kibana_client import (
+    HTTP_SERVICE_UNAVAILABLE,
+    DashboardLocatorParams,
+    EsqlErrorDetail,
+    EsqlErrorResponse,
+    EsqlResponse,
+    JobParams,
+    KibanaClient,
+    KibanaErrorDetail,
+    LayoutDimensions,
+    LocatorParams,
+    ScreenshotLayout,
+    ScreenshotTimeRange,
+    _esql_response_adapter,
+)
 
 
 @dataclass
@@ -340,3 +354,220 @@ class TestKibanaClient:
 
         result = await client.export_dashboard('dashboard-1')
         assert result == '{"type":"dashboard"}'
+
+
+class TestKibanaErrorDetail:
+    """Test the KibanaErrorDetail model for Saved Objects API errors."""
+
+    def test_parses_typical_conflict_error(self) -> None:
+        """Test parsing a typical conflict error from Kibana."""
+        error = KibanaErrorDetail.model_validate(
+            {
+                'message': 'Saved object [dashboard/abc-123] conflict',
+                'type': 'conflict',
+            }
+        )
+        assert error.message == 'Saved object [dashboard/abc-123] conflict'
+        assert error.type == 'conflict'
+
+    def test_allows_extra_fields_for_api_compatibility(self) -> None:
+        """Test that unknown fields from the API are preserved, not rejected."""
+        error = KibanaErrorDetail.model_validate(
+            {
+                'message': 'Error',
+                'type': 'validation',
+                'meta': {'index': 0},
+                'statusCode': 409,
+            }
+        )
+        assert error.message == 'Error'
+        assert error.type == 'validation'
+        # Verify extra fields are preserved in model_dump() output
+        dumped = error.model_dump()
+        assert dumped.get('meta') == {'index': 0}
+        assert dumped.get('statusCode') == 409
+
+
+class TestEsqlResponseModels:
+    """Test ES|QL response models and TypeAdapter discrimination."""
+
+    def test_parses_success_response_with_results(self) -> None:
+        """Test parsing a successful ES|QL query response with data."""
+        response_data = {
+            'columns': [
+                {'name': 'host.name', 'type': 'keyword'},
+                {'name': 'cpu.usage', 'type': 'double'},
+            ],
+            'values': [
+                ['server-1', 0.75],
+                ['server-2', 0.42],
+            ],
+            'took': 15,
+        }
+        result = _esql_response_adapter.validate_python(response_data)
+        assert isinstance(result, EsqlResponse)
+        assert result.row_count == 2
+        assert result.column_count == 2
+        assert result.took == 15
+
+    def test_parses_empty_success_response(self) -> None:
+        """Test parsing a successful ES|QL response with no results."""
+        response_data = {'columns': [], 'values': []}
+        result = _esql_response_adapter.validate_python(response_data)
+        assert isinstance(result, EsqlResponse)
+        assert result.row_count == 0
+
+    def test_parses_error_response_with_reason(self) -> None:
+        """Test parsing an ES|QL error response (e.g., syntax error)."""
+        response_data = {
+            'error': {
+                'type': 'verification_exception',
+                'reason': 'Unknown column [nonexistent_field]',
+                'root_cause': [
+                    {'type': 'verification_exception', 'reason': 'Unknown column [nonexistent_field]'},
+                ],
+            },
+            'status': 400,
+        }
+        result = _esql_response_adapter.validate_python(response_data)
+        assert isinstance(result, EsqlErrorResponse)
+        assert result.error.type == 'verification_exception'
+        assert result.error.reason == 'Unknown column [nonexistent_field]'
+        assert result.status == 400
+
+    def test_error_response_get_error_message_returns_reason(self) -> None:
+        """Test that get_error_message extracts the reason field."""
+        error = EsqlErrorResponse(
+            error=EsqlErrorDetail(type='parsing_exception', reason='Invalid query syntax'),
+            status=400,
+        )
+        assert error.get_error_message() == 'Invalid query syntax'
+
+    def test_error_response_get_error_message_falls_back_to_type(self) -> None:
+        """Test that get_error_message falls back to type if reason is missing."""
+        error = EsqlErrorResponse(
+            error=EsqlErrorDetail(type='internal_error'),
+            status=500,
+        )
+        assert error.get_error_message() == 'internal_error'
+
+    def test_error_response_get_error_message_unknown_fallback(self) -> None:
+        """Test that get_error_message returns fallback when no details available."""
+        error = EsqlErrorResponse(error=EsqlErrorDetail())
+        assert error.get_error_message() == 'Unknown ES|QL error'
+
+    def test_esql_response_to_dicts(self) -> None:
+        """Test converting ES|QL results to list of dicts."""
+        from dashboard_compiler.kibana_client import EsqlColumn
+
+        response = EsqlResponse(
+            columns=[
+                EsqlColumn(name='host', type='keyword'),
+                EsqlColumn(name='count', type='long'),
+            ],
+            values=[
+                ['server-1', 100],
+                ['server-2', 200],
+            ],
+        )
+        dicts = response.to_dicts()
+        assert dicts == [
+            {'host': 'server-1', 'count': 100},
+            {'host': 'server-2', 'count': 200},
+        ]
+
+    @pytest.mark.asyncio
+    async def test_execute_esql_returns_success_response(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test execute_esql returns EsqlResponse on success."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'columns': [{'name': 'count', 'type': 'long'}],
+                        'values': [[42]],
+                        'took': 5,
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        result = await client.execute_esql('FROM logs | STATS count()')
+        assert isinstance(result, EsqlResponse)
+        assert result.row_count == 1
+        assert result.values[0][0] == 42
+
+    @pytest.mark.asyncio
+    async def test_execute_esql_raises_on_error_response(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test execute_esql raises ValueError with error message from ES|QL error response."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'error': {
+                            'type': 'verification_exception',
+                            'reason': 'Unknown column [bad_field]',
+                        },
+                        'status': 400,
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        with pytest.raises(ValueError, match='Unknown column \\[bad_field\\]'):
+            await client.execute_esql('FROM logs | KEEP bad_field')
+
+
+class TestScreenshotJobParameterModels:
+    """Test screenshot job parameter serialization for Kibana API compatibility.
+
+    These tests verify the serialization aliases are correct for the Kibana Reporting API.
+    The API expects specific camelCase keys, not snake_case Python attributes.
+    """
+
+    def test_time_range_serializes_from_as_api_expects(self) -> None:
+        """Test ScreenshotTimeRange serializes 'from_time' as 'from' for Kibana API."""
+        time_range = ScreenshotTimeRange(from_time='now-1h', to='now')
+        serialized = time_range.model_dump(by_alias=True)
+        assert serialized == {'from': 'now-1h', 'to': 'now'}
+
+    def test_job_params_full_structure_matches_api_spec(self) -> None:
+        """Test JobParams serializes to the exact structure Kibana expects."""
+        job_params = JobParams(
+            layout=ScreenshotLayout(
+                dimensions=LayoutDimensions(width=1920, height=1080),
+            ),
+            browser_timezone='America/New_York',
+            locator_params=LocatorParams(
+                params=DashboardLocatorParams(
+                    dashboard_id='abc-123',
+                    time_range=ScreenshotTimeRange(from_time='2024-01-01', to='2024-01-02'),
+                ),
+            ),
+        )
+
+        serialized = job_params.model_dump(by_alias=True, exclude_none=True)
+
+        # Verify the exact structure Kibana expects
+        assert serialized == {
+            'layout': {
+                'id': 'preserve_layout',
+                'dimensions': {'width': 1920, 'height': 1080},
+            },
+            'browserTimezone': 'America/New_York',
+            'locatorParams': {
+                'id': 'DASHBOARD_APP_LOCATOR',
+                'params': {
+                    'dashboardId': 'abc-123',
+                    'useHash': False,
+                    'viewMode': 'view',
+                    'preserveSavedFilters': True,
+                    'timeRange': {'from': '2024-01-01', 'to': '2024-01-02'},
+                },
+            },
+        }
