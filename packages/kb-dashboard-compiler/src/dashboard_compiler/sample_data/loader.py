@@ -1,17 +1,16 @@
-"""Sample data loader for Elasticsearch."""
+"""Sample data loader for Elasticsearch via Kibana proxy."""
 
 import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-
-from elastic_transport import TransportError
-from elasticsearch import AsyncElasticsearch
-from elasticsearch.helpers import async_bulk
+from typing import TYPE_CHECKING, Any
 
 from dashboard_compiler.sample_data.config import SampleData
 from dashboard_compiler.sample_data.timestamps import transform_documents
+
+if TYPE_CHECKING:
+    from dashboard_compiler.kibana_client import KibanaClient
 
 logger = logging.getLogger(__name__)
 
@@ -88,14 +87,14 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
 
 
 async def load_sample_data(
-    es_client: AsyncElasticsearch,
+    kibana_client: 'KibanaClient',
     sample_data: SampleData,
     base_path: Path | None = None,
 ) -> SampleDataLoadResult:
-    """Load sample data into Elasticsearch.
+    """Load sample data into Elasticsearch via Kibana proxy.
 
     Args:
-        es_client: Async Elasticsearch client
+        kibana_client: Kibana client for proxying requests to Elasticsearch
         sample_data: Sample data configuration
         base_path: Base path for resolving relative file paths
 
@@ -110,55 +109,49 @@ async def load_sample_data(
         index_name = sample_data.index_pattern.replace('*', 'sample')
 
         if sample_data.create_index_template is True and sample_data.index_template is not None:
-            await _create_index_template(es_client, index_name, sample_data.index_template)
+            await _create_index_template(kibana_client, index_name, sample_data.index_template)
 
         actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
 
-        success_count, failed_items = await async_bulk(
-            es_client,
-            actions,
-            raise_on_error=False,
-        )
+        success_count, failed_items = await kibana_client.proxy_bulk(actions)
 
-        error_messages = []
-        if isinstance(failed_items, list) and len(failed_items) > 0:
-            for item in failed_items:  # pyright: ignore[reportAny]
-                if isinstance(item, dict):
-                    # Extract error details from failed item
-                    error_info = item.get('index', {}).get('error', {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                    if isinstance(error_info, dict):
-                        error_type = error_info.get('type', 'unknown')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        error_reason = error_info.get('reason', 'unknown reason')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        error_messages.append(f'{error_type}: {error_reason}')  # pyright: ignore[reportUnknownMemberType]
+        error_messages: list[str] = []
+        if len(failed_items) > 0:
+            for item in failed_items:
+                # Extract error details from failed item
+                for action_result in item.values():  # pyright: ignore[reportAny]
+                    if isinstance(action_result, dict):
+                        error_info = action_result.get('error', {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                        if isinstance(error_info, dict):
+                            error_type = error_info.get('type', 'unknown')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                            error_reason = error_info.get('reason', 'unknown reason')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                            error_messages.append(f'{error_type}: {error_reason}')
+                        else:
+                            error_messages.append(str(action_result))  # pyright: ignore[reportUnknownArgumentType]
                     else:
-                        error_messages.append(str(item))  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
-                else:
-                    error_messages.append(str(item))  # pyright: ignore[reportAny, reportUnknownMemberType]
-        elif isinstance(failed_items, int) and failed_items > 0:
-            # Fallback for when we get a count instead of items
-            error_messages.append(f'{failed_items} document(s) failed to index')  # pyright: ignore[reportUnknownMemberType]
+                        error_messages.append(str(item))
 
-        return SampleDataLoadResult(success_count, error_messages)  # pyright: ignore[reportUnknownArgumentType]
+        return SampleDataLoadResult(success_count, error_messages)
 
-    except (ValueError, OSError, json.JSONDecodeError, TransportError) as e:
+    except (ValueError, OSError, json.JSONDecodeError) as e:
         return SampleDataLoadResult(0, [str(e)])
 
 
 async def _create_index_template(
-    es_client: AsyncElasticsearch,
+    kibana_client: 'KibanaClient',
     index_name: str,
     template_config: dict[str, Any],
 ) -> None:
-    """Create index template for sample data.
+    """Create index template for sample data via Kibana proxy.
 
     Args:
-        es_client: Async Elasticsearch client
+        kibana_client: Kibana client for proxying requests to Elasticsearch
         index_name: Name of the index
         template_config: Template configuration (mappings, settings)
 
     """
     template_name = f'{index_name}-template'
-    _ = await es_client.indices.put_index_template(
+    await kibana_client.proxy_put_index_template(
         name=template_name,
         index_patterns=[f'{index_name}*'],
         template=template_config,

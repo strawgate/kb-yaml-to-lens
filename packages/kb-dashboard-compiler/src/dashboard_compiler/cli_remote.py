@@ -12,8 +12,6 @@ from elastic_transport import TransportError
 from elasticsearch import AsyncElasticsearch
 
 from dashboard_compiler.cli_context import CliContext
-
-# Import helper from cli_local for shared functionality
 from dashboard_compiler.cli_local import PROJECT_ROOT, get_yaml_files
 from dashboard_compiler.cli_options import elasticsearch_options, kibana_options
 from dashboard_compiler.cli_output import (
@@ -462,17 +460,18 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
     default=None,
     help='Directory containing YAML dashboard files with sample data.',
 )
-@elasticsearch_options
+@kibana_options
 def load_sample_data_command(
     ctx: click.Context,
     input_dir: Path | None,
 ) -> None:
-    r"""Load sample data bundled with dashboards into Elasticsearch.
+    r"""Load sample data bundled with dashboards into Elasticsearch via Kibana.
 
     This command scans the input directory for YAML dashboard configurations
-    that include sample data, and loads that data into Elasticsearch. The
-    sample data will be automatically transformed so the maximum timestamp
-    becomes "now", making the data appear as if it just happened.
+    that include sample data, and loads that data into Elasticsearch through
+    Kibana's console proxy API. The sample data will be automatically
+    transformed so the maximum timestamp becomes "now", making the data
+    appear as if it just happened.
 
     \b
     Examples:
@@ -482,22 +481,26 @@ def load_sample_data_command(
         # Load with custom input directory
         kb-dashboard load-sample-data --input-dir ./dashboards
 
-        # Load with Elasticsearch authentication
-        kb-dashboard load-sample-data --es-url https://es.example.com \
-            --es-username admin --es-password secret
+        # Load with Kibana authentication
+        kb-dashboard load-sample-data --kibana-url https://kibana.example.com \
+            --kibana-username admin --kibana-password secret
 
         # Use API key (recommended)
-        kb-dashboard load-sample-data --es-url https://es.example.com \
-            --es-api-key "your-api-key-here"
+        kb-dashboard load-sample-data --kibana-url https://kibana.example.com \
+            --kibana-api-key "your-api-key-here"
+
+        # Load to a specific Kibana space
+        kb-dashboard load-sample-data --kibana-url https://kibana.example.com \
+            --kibana-api-key "your-api-key" --kibana-space-id "my-space"
     """
-    # Context is already populated by @elasticsearch_options decorator
+    # Context is already populated by @kibana_options decorator
     if not isinstance(ctx.obj, CliContext):  # pyright: ignore[reportAny]
         msg = 'Context object must be CliContext'
         raise TypeError(msg)
     cli_context = ctx.obj
 
-    if cli_context.es_client is None:
-        msg = 'Elasticsearch client not configured'
+    if cli_context.kibana_client is None:
+        msg = 'Kibana client not configured'
         raise click.ClickException(msg)
 
     # Use default input directory if not specified
@@ -522,62 +525,61 @@ def load_sample_data_command(
         return
 
     print_plain(f'Found {len(dashboards_with_sample_data)} dashboard(s) with sample data')
-    print_download('Loading sample data to Elasticsearch...\n')
+    print_download('Loading sample data to Elasticsearch via Kibana...\n')
 
-    asyncio.run(_load_all_sample_data(cli_context.es_client, dashboards_with_sample_data))
+    asyncio.run(_load_all_sample_data(cli_context.kibana_client, dashboards_with_sample_data))
 
 
 async def _load_all_sample_data(
-    es_client: AsyncElasticsearch,
+    kibana_client: KibanaClient,
     dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]],
 ) -> None:
-    """Load sample data from all dashboards into Elasticsearch.
+    """Load sample data from all dashboards into Elasticsearch via Kibana.
 
     Args:
-        es_client: Pre-configured Elasticsearch client
+        kibana_client: Pre-configured Kibana client
         dashboards_with_sample_data: List of (yaml_file_path, dashboards) tuples
 
     Raises:
         click.ClickException: If sample data loading fails.
 
     """
-    try:
-        total_loaded = 0
-        total_errors: list[str] = []
+    async with kibana_client:
+        try:
+            total_loaded = 0
+            total_errors: list[str] = []
 
-        for yaml_file, dashboards in dashboards_with_sample_data:
-            for dashboard in dashboards:
-                if dashboard.sample_data is None:
-                    continue
+            for yaml_file, dashboards in dashboards_with_sample_data:
+                for dashboard in dashboards:
+                    if dashboard.sample_data is None:
+                        continue
 
-                print_plain(f'Loading sample data for dashboard: {dashboard.name}')
+                    print_plain(f'Loading sample data for dashboard: {dashboard.name}')
 
-                result = await load_sample_data(
-                    es_client,
-                    dashboard.sample_data,
-                    base_path=yaml_file.parent,
-                )
+                    result = await load_sample_data(
+                        kibana_client,
+                        dashboard.sample_data,
+                        base_path=yaml_file.parent,
+                    )
 
-                if result.success is True:
-                    print_success(f'Loaded {result.success_count} document(s) for {dashboard.name}')
-                    total_loaded += result.success_count
-                else:
-                    print_error(f'Failed to load sample data for {dashboard.name}')
-                    total_errors.extend(result.errors)
+                    if result.success is True:
+                        print_success(f'Loaded {result.success_count} document(s) for {dashboard.name}')
+                        total_loaded += result.success_count
+                    else:
+                        print_error(f'Failed to load sample data for {dashboard.name}')
+                        total_errors.extend(result.errors)
 
-        if total_loaded > 0:
-            print_success(f'Successfully loaded {total_loaded} total document(s)')
+            if total_loaded > 0:
+                print_success(f'Successfully loaded {total_loaded} total document(s)')
 
-        if len(total_errors) > 0:
-            print_warning(f'Encountered {len(total_errors)} error(s):')
-            for error in total_errors:
-                print_bullet(error)
+            if len(total_errors) > 0:
+                print_warning(f'Encountered {len(total_errors)} error(s):')
+                for error in total_errors:
+                    print_bullet(error)
 
-    except (OSError, ValueError, TransportError) as e:
-        msg = f'Error loading sample data: {e}'
-        raise click.ClickException(msg) from e
-    finally:
-        await es_client.close()
+        except (OSError, ValueError, aiohttp.ClientError) as e:
+            msg = f'Error loading sample data: {e}'
+            raise click.ClickException(msg) from e
 
 
 @click.command('extract-sample-data')

@@ -355,6 +355,151 @@ class TestKibanaClient:
         result = await client.export_dashboard('dashboard-1')
         assert result == '{"type":"dashboard"}'
 
+    @pytest.mark.asyncio
+    async def test_proxy_bulk_success(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test bulk indexing through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/console/proxy'
+            assert kwargs['params'] == {'path': '/_bulk', 'method': 'POST'}
+            assert kwargs['headers']['Content-Type'] == 'application/x-ndjson'
+            assert kwargs['headers']['x-elastic-internal-origin'] == 'kibana'
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'took': 30,
+                        'errors': False,
+                        'items': [
+                            {'index': {'_index': 'logs-sample', 'status': 201}},
+                            {'index': {'_index': 'logs-sample', 'status': 201}},
+                        ],
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        actions = [
+            {'_index': 'logs-sample', '_source': {'message': 'test1'}, 'pipeline': '_none'},
+            {'_index': 'logs-sample', '_source': {'message': 'test2'}, 'pipeline': '_none'},
+        ]
+        success_count, failed_items = await client.proxy_bulk(actions)
+
+        assert success_count == 2
+        assert len(failed_items) == 0
+
+    @pytest.mark.asyncio
+    async def test_proxy_bulk_with_errors(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test bulk indexing with some failures through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'took': 30,
+                        'errors': True,
+                        'items': [
+                            {'index': {'_index': 'logs-sample', 'status': 201}},
+                            {
+                                'index': {
+                                    '_index': 'logs-sample',
+                                    'status': 400,
+                                    'error': {'type': 'mapper_parsing_exception', 'reason': 'failed to parse'},
+                                }
+                            },
+                        ],
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        actions = [
+            {'_index': 'logs-sample', '_source': {'message': 'test1'}},
+            {'_index': 'logs-sample', '_source': {'bad': 'data'}},
+        ]
+        success_count, failed_items = await client.proxy_bulk(actions)
+
+        assert success_count == 1
+        assert len(failed_items) == 1
+
+    @pytest.mark.asyncio
+    async def test_proxy_bulk_http_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test bulk indexing with HTTP error through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(_FakeResponse(status=500, text_data='Internal Server Error'))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        actions = [{'_index': 'logs-sample', '_source': {'message': 'test'}}]
+
+        with pytest.raises(ValueError, match='Bulk indexing failed'):
+            await client.proxy_bulk(actions)
+
+    @pytest.mark.asyncio
+    async def test_proxy_put_index_template_success(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test creating index template through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/console/proxy'
+            assert kwargs['params'] == {'path': '/_index_template/my-template', 'method': 'PUT'}
+            assert kwargs['headers']['Content-Type'] == 'application/json'
+            assert kwargs['headers']['x-elastic-internal-origin'] == 'kibana'
+            return _FakeResponseContext(_FakeResponse(json_data={'acknowledged': True}))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        await client.proxy_put_index_template(
+            name='my-template',
+            index_patterns=['logs-*'],
+            template={'mappings': {'properties': {'@timestamp': {'type': 'date'}}}},
+        )
+
+    @pytest.mark.asyncio
+    async def test_proxy_put_index_template_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test creating index template with error through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'error': {'type': 'resource_already_exists_exception', 'reason': 'template already exists'},
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        with pytest.raises(ValueError, match='Index template creation error'):
+            await client.proxy_put_index_template(
+                name='my-template',
+                index_patterns=['logs-*'],
+                template={},
+            )
+
+    @pytest.mark.asyncio
+    async def test_proxy_put_index_template_http_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test creating index template with HTTP error through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(_FakeResponse(status=403, text_data='Forbidden'))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        with pytest.raises(ValueError, match='Index template creation failed'):
+            await client.proxy_put_index_template(
+                name='my-template',
+                index_patterns=['logs-*'],
+                template={},
+            )
+
 
 class TestKibanaErrorDetail:
     """Test the KibanaErrorDetail model for Saved Objects API errors."""

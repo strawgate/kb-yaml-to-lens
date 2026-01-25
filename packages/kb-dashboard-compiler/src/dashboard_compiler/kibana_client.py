@@ -3,6 +3,7 @@
 """Kibana client for uploading dashboards via the Saved Objects API."""
 
 import asyncio
+import json
 import logging
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal
@@ -689,6 +690,156 @@ class KibanaClient:
         async with await self._post(endpoint, json=request_body, headers={'Content-Type': 'application/json'}) as response:
             response.raise_for_status()
             return await response.text()
+
+    async def proxy_bulk(
+        self,
+        actions: list[dict[str, Any]],
+        timeout_seconds: int = 300,
+    ) -> tuple[int, list[dict[str, Any]]]:
+        """Proxy bulk indexing operations through Kibana's console proxy API.
+
+        Args:
+            actions: List of bulk actions. Each action should be a dict with
+                     '_index', '_source', and optionally 'pipeline' keys.
+            timeout_seconds: Request timeout in seconds (default: 300).
+
+        Returns:
+            Tuple of (success_count, failed_items) where failed_items is a list
+            of dicts containing error details for failed operations.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response indicates an error
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_bulk', 'method': 'POST'}
+
+        # Build NDJSON body for bulk API
+        lines: list[str] = []
+        for action in actions:
+            index_name: str = str(action.get('_index', ''))  # pyright: ignore[reportAny]
+            pipeline = action.get('pipeline')
+            source: dict[str, Any] = action.get('_source', {})  # pyright: ignore[reportAny]
+
+            # Create action line
+            action_meta: dict[str, Any] = {'index': {'_index': index_name}}
+            if pipeline is not None:
+                action_meta['index']['pipeline'] = pipeline
+            lines.append(json.dumps(action_meta))
+
+            # Create document line
+            lines.append(json.dumps(source))
+
+        # NDJSON requires trailing newline
+        body = '\n'.join(lines) + '\n'
+
+        logger.info('Executing bulk indexing via Kibana console proxy (%d actions)', len(actions))
+
+        timeout = aiohttp.ClientTimeout(total=timeout_seconds)
+        async with await self._post(
+            endpoint,
+            params=params,
+            data=body,
+            headers={'Content-Type': 'application/x-ndjson', 'x-elastic-internal-origin': 'kibana'},
+            timeout=timeout,
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error('Bulk indexing failed with status %s: %s', response.status, error_text[:500])
+                msg = f'Bulk indexing failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+
+            if not isinstance(result, dict):
+                msg = f'Unexpected bulk response type: {type(result).__name__}'  # pyright: ignore[reportAny]
+                raise TypeError(msg)
+
+            # Parse bulk response
+            items: list[dict[str, Any]] = result.get('items', [])  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            has_errors: bool = result.get('errors', False)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+
+            success_count = 0
+            failed_items: list[dict[str, Any]] = []
+
+            for item in items:  # pyright: ignore[reportUnknownVariableType]
+                # Each item has one key (index, create, update, or delete)
+                for action_type, action_result in item.items():  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                    if isinstance(action_result, dict):
+                        status: int = action_result.get('status', 0)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+                        if 200 <= status < 300:  # noqa: PLR2004
+                            success_count += 1
+                        else:
+                            failed_items.append({action_type: action_result})
+
+            if has_errors and len(failed_items) == 0:
+                # Fallback if we couldn't parse errors
+                failed_items.append({'error': 'Bulk operation reported errors but details unavailable'})
+
+            logger.info('Bulk indexing completed: %d succeeded, %d failed', success_count, len(failed_items))
+            return success_count, failed_items
+
+    async def proxy_put_index_template(
+        self,
+        name: str,
+        index_patterns: list[str],
+        template: dict[str, Any],
+        timeout_seconds: int = 30,
+    ) -> None:
+        """Create or update an index template via Kibana's console proxy API.
+
+        Args:
+            name: Name of the index template
+            index_patterns: List of index patterns the template applies to
+            template: Template configuration (mappings, settings, etc.)
+            timeout_seconds: Request timeout in seconds (default: 30)
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            asyncio.TimeoutError: If the request times out
+            ValueError: If the response indicates an error
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': f'/_index_template/{name}', 'method': 'PUT'}
+
+        request_body = {
+            'index_patterns': index_patterns,
+            'template': template,
+        }
+
+        logger.info('Creating index template via Kibana console proxy: %s', name)
+
+        timeout = aiohttp.ClientTimeout(total=timeout_seconds)
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+            timeout=timeout,
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error('Index template creation failed with status %s: %s', response.status, error_text[:500])
+                msg = f'Index template creation failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            result = await response.json()  # pyright: ignore[reportAny]
+
+            if isinstance(result, dict) and 'error' in result:
+                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
+                if isinstance(error_info, dict):
+                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                elif isinstance(error_info, str):
+                    error_msg = error_info
+                else:
+                    error_msg = str(error_info)  # pyright: ignore[reportUnknownArgumentType]
+                msg = f'Index template creation error: {error_msg}'
+                raise ValueError(msg)
+
+            logger.info('Index template created successfully: %s', name)
 
     async def execute_esql(self, query: str) -> EsqlResponse:
         """Execute an ES|QL query via Kibana's console proxy API.
