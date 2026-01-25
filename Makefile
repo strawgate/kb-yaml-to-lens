@@ -139,7 +139,7 @@ all:
 	fi; \
 	for component in $(COMPONENTS); do \
 		printf "Component: %s\n" "$$component"; \
-		$(MAKE) -C $$component $$target || exit 1; \
+		$(MAKE) SHELL=$(MAKE_SHELL) -C $$component $$target || exit 1; \
 	done; \
 	printf "✓ All components: %s complete\n" "$$target"
 
