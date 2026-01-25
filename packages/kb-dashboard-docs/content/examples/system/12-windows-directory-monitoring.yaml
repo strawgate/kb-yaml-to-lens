@@ -58,7 +58,7 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: Computer Account Changes (4742)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -69,7 +69,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4742'
       - title: Kerberos TGT Requests (4768)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -80,7 +80,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4768'
       - title: Kerberos Service Tickets (4769)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -91,7 +91,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4769'
       - title: Credential Validation (4776)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

@@ -44,7 +44,7 @@ dashboards:
 
       # Summary Layer - Key Metrics (2 metrics for logs)
       - title: Total Events
-        size: {w: 16, h: 6}
+        size: {w: 16, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -52,7 +52,7 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Hosts
-        size: {w: 16, h: 6}
+        size: {w: 16, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -61,7 +61,7 @@ dashboards:
             field: host.hostname
             label: Hosts
       - title: Unique Programs
-        size: {w: 16, h: 6}
+        size: {w: 16, h: 4}
         lens:
           type: metric
           data_view: logs-*

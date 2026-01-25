@@ -30,7 +30,7 @@ dashboards:
       # KPI Metrics Row (y=0, h=6)
       - title: Total Databases
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -43,7 +43,7 @@ dashboards:
             label: Databases
       - title: Active Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -56,7 +56,7 @@ dashboards:
             label: Active Backends
       - title: Max Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         description: Requires postgresql.connection.max metric (enable in OTel collector)
         esql:
           type: metric
@@ -70,7 +70,7 @@ dashboards:
             label: Max Connections
       - title: Database Count
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         description: Requires postgresql.database.count metric (enable in OTel collector)
         esql:
           type: metric

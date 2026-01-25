@@ -216,6 +216,51 @@ service:
 | `elasticsearch.node.version` | Node version |
 | `elasticsearch.index.name` | Index name |
 
+## Metrics Not Used in Dashboards
+
+The following metrics are available from the Elasticsearch receiver but are not currently visualized in the dashboards:
+
+### Cluster Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.cluster.published_states.full` | Sum | `1` | Published cluster states | — |
+| `elasticsearch.cluster.published_states.differences` | Sum | `1` | Differences between states | `state` |
+| `elasticsearch.cluster.state_update.count` | Sum | `1` | State update attempts | `state` |
+| `elasticsearch.cluster.state_update.time` | Sum | `ms` | Time updating cluster state | `state`, `type` |
+
+### Node Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.node.fs.disk.free` | Sum | `By` | Unallocated disk space | — |
+| `elasticsearch.node.cache.count` | Sum | `{count}` | Query cache hits/misses | `type` |
+| `elasticsearch.node.disk.io.read` | Sum | `KiBy` | Disk bytes read (Linux) | — |
+| `elasticsearch.node.disk.io.write` | Sum | `KiBy` | Disk bytes written (Linux) | — |
+| `elasticsearch.node.ingest.documents` | Sum | `{documents}` | Documents ingested lifetime | — |
+| `elasticsearch.node.ingest.documents.current` | Sum | `{documents}` | Documents currently ingesting | — |
+| `elasticsearch.node.ingest.operations.failed` | Sum | `{operation}` | Failed ingest operations | — |
+| `elasticsearch.node.pipeline.ingest.documents.current` | Sum | `{documents}` | Documents in pipeline | `name` |
+| `elasticsearch.node.pipeline.ingest.documents.preprocessed` | Sum | `{documents}` | Documents preprocessed | `name` |
+| `elasticsearch.node.pipeline.ingest.operations.failed` | Sum | `{operation}` | Failed pipeline ops | `name` |
+| `elasticsearch.node.script.compilations` | Sum | `{compilations}` | Script compilations | — |
+| `elasticsearch.node.script.cache_evictions` | Sum | `1` | Script cache evictions | — |
+| `elasticsearch.node.script.compilation_limit_triggered` | Sum | `1` | Circuit breaker triggers | — |
+| `elasticsearch.node.shards.data_set.size` | Sum | `By` | Dataset size of shards | — |
+| `elasticsearch.node.shards.reserved.size` | Sum | `By` | Reserved shard size | — |
+| `elasticsearch.node.translog.operations` | Sum | `{operations}` | Transaction log ops | — |
+| `elasticsearch.node.translog.size` | Sum | `By` | Transaction log size | — |
+| `elasticsearch.node.translog.uncommitted.size` | Sum | `By` | Uncommitted translog size | — |
+
+### Indexing Pressure Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `elasticsearch.indexing_pressure.memory.limit` | Gauge | `By` | Indexing memory limit | — |
+| `elasticsearch.indexing_pressure.memory.total.primary_rejections` | Sum | `1` | Primary rejections | — |
+| `elasticsearch.indexing_pressure.memory.total.replica_rejections` | Sum | `1` | Replica rejections | — |
+| `elasticsearch.memory.indexing_pressure` | Sum | `By` | Indexing memory | `stage` |
+
 ## Related Resources
 
 - [OpenTelemetry Elasticsearch Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/elasticsearchreceiver)
