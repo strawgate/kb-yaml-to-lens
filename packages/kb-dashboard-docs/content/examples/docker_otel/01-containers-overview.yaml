@@ -45,8 +45,7 @@ dashboards:
               dashboard: docker-otel-container-stats
       - title: Active Containers
         description: >-
-          Containers reporting metrics in the last hour. Excludes stopped or
-          paused containers.
+          Containers reporting metrics in the last hour.
         size: {w: 6, h: 4}
         lens:
           type: metric
