@@ -286,56 +286,39 @@ class ESQLXYChartMixin(BaseCfgModel):
 
 
 class BaseXYBarChart(BaseXYChart):
-    """Represents a Bar chart configuration within a Lens panel."""
+    """Base bar chart configuration."""
 
-    type: Literal['bar'] = Field('bar', description="The type of XY chart to display. Defaults to 'bar'.")
+    type: Literal['bar'] = Field('bar')
 
-    appearance: BarChartAppearance | None = Field(
-        None,
-        description='Formatting options for the chart appearance.',
-    )
+    appearance: BarChartAppearance | None = Field(None)
 
-    mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
-        'stacked',
-        description="The stacking mode for bar and area charts. Defaults to 'stacked'.",
-    )
+    mode: Literal['stacked', 'unstacked', 'percentage'] = Field('stacked')
+    """Stacking mode. Defaults to 'stacked'."""
 
 
 class BaseXYLineChart(BaseXYChart):
-    """Represents a Line chart configuration within a Lens panel."""
+    """Base line chart configuration."""
 
-    type: Literal['line'] = Field('line', description="The type of XY chart to display. Defaults to 'line'.")
+    type: Literal['line'] = Field('line')
 
-    appearance: LineChartAppearance | None = Field(
-        None,
-        description='Formatting options for the chart appearance.',
-    )
+    appearance: LineChartAppearance | None = Field(None)
 
-    show_current_time_marker: bool | None = Field(
-        default=None,
-        description='Whether to show a vertical line at the current time in time series charts.',
-    )
+    show_current_time_marker: bool | None = Field(default=None)
+    """Show vertical line at current time."""
 
-    hide_endzones: bool | None = Field(
-        default=None,
-        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
-    )
+    hide_endzones: bool | None = Field(default=None)
+    """Hide end zones where data is incomplete."""
 
 
 class BaseXYAreaChart(BaseXYLineChart):
-    """Represents an Area chart configuration within a Lens panel."""
+    """Base area chart configuration."""
 
-    type: Literal['area'] = Field('area', description="The type of XY chart to display. Defaults to 'area'.")
+    type: Literal['area'] = Field('area')
 
-    appearance: AreaChartAppearance | None = Field(
-        None,
-        description='Formatting options for the chart appearance. AreaChartAppearance includes all line chart options plus fill_opacity.',
-    )
+    appearance: AreaChartAppearance | None = Field(None)
 
-    mode: Literal['stacked', 'unstacked', 'percentage'] = Field(
-        'stacked',
-        description="The stacking mode for bar and area charts. Defaults to 'stacked'.",
-    )
+    mode: Literal['stacked', 'unstacked', 'percentage'] = Field('stacked')
+    """Stacking mode. Defaults to 'stacked'."""
 
 
 class LensBarChart(BaseXYBarChart, LensXYChartMixin):
