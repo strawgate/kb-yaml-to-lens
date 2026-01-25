@@ -382,6 +382,10 @@ class TestKibanaErrorDetail:
         )
         assert error.message == 'Error'
         assert error.type == 'validation'
+        # Verify extra fields are preserved in model_dump() output
+        dumped = error.model_dump()
+        assert dumped.get('meta') == {'index': 0}
+        assert dumped.get('statusCode') == 409
 
 
 class TestEsqlResponseModels:
@@ -477,7 +481,7 @@ class TestEsqlResponseModels:
         """Test execute_esql returns EsqlResponse on success."""
         client = KibanaClient(url='http://localhost:5601')
 
-        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:  # noqa: ARG001
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
             return _FakeResponseContext(
                 _FakeResponse(
                     json_data={
@@ -500,7 +504,7 @@ class TestEsqlResponseModels:
         """Test execute_esql raises ValueError with error message from ES|QL error response."""
         client = KibanaClient(url='http://localhost:5601')
 
-        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:  # noqa: ARG001
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
             return _FakeResponseContext(
                 _FakeResponse(
                     json_data={

@@ -278,7 +278,9 @@ EsqlApiResponse = Annotated[
 
 # TypeAdapter instance for parsing ES|QL API responses.
 # Note: Explicit type annotation omitted to avoid beartype compatibility issues with complex generics.
-_esql_response_adapter = TypeAdapter(EsqlApiResponse)
+_esql_response_adapter = TypeAdapter(  # pyright: ignore[reportUnknownVariableType]
+    EsqlApiResponse
+)
 
 
 class KibanaClient:
@@ -692,15 +694,17 @@ class KibanaClient:
             result = await response.json()  # pyright: ignore[reportAny]
 
             # Parse response using TypeAdapter for automatic error/success discrimination
-            parsed = _esql_response_adapter.validate_python(result)
+            parsed = _esql_response_adapter.validate_python(  # pyright: ignore[reportUnknownVariableType]
+                result
+            )
 
             # Handle response based on type (exhaustive type checking per CODE_STYLE.md)
             if isinstance(parsed, EsqlErrorResponse):
                 error_msg = parsed.get_error_message()
                 msg = f'ES|QL query error: {error_msg}'
                 raise ValueError(msg)  # noqa: TRY004 - ValueError is correct for query errors, not TypeError
-            if isinstance(parsed, EsqlResponse):  # pyright: ignore[reportUnnecessaryIsInstance]
+            if isinstance(parsed, EsqlResponse):
                 return parsed
 
-            msg = f'Unexpected ES|QL response type: {type(parsed).__name__}'
+            msg = f'Unexpected ES|QL response type: {type(parsed).__name__}'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
