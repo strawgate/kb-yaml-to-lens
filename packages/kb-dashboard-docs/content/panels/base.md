@@ -4,6 +4,34 @@ All panel types used within a dashboard (e.g., Markdown, Lens charts, Search pan
 
 When defining a panel in your YAML, you must specify the configuration block for that specific panel type (e.g., `markdown`, `lens`) which serves as the key to identify the panel type.
 
+## A Poem for the Dashboard Builders
+
+_For those who lay the foundation for every panel:_
+
+```text
+Every panel needs a base:
+A title, grid, and proper place.
+From x and y, the starting spot,
+To width and height—you plot the plot.
+
+The id is yours, or auto-made,
+Descriptions help when things must be weighed.
+hide_title when you'd rather not—
+The base provides what others forgot.
+
+Whether metric, pie, or chart XY,
+Markdown prose or links nearby,
+They all inherit from this floor:
+The BasePanel, forevermore.
+
+So here's to grids that organize,
+To coordinates that plot the prize.
+The humble base, unsexy but true—
+No panel works without you.
+```
+
+---
+
 ## Minimal Example (Illustrating Base Fields within a Specific Panel Type)
 
 This example shows how base panel fields are used within a `markdown` panel:
