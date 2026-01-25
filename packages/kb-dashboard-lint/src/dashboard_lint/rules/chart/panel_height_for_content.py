@@ -36,7 +36,7 @@ type AnyChartConfig = LensPanelConfig | ESQLPanelConfig
 class PanelHeightForContentOptions(BaseModel):
     """Options for the panel-height-for-content rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True}
+    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_heights: dict[str, int] = Field(
         default_factory=dict,

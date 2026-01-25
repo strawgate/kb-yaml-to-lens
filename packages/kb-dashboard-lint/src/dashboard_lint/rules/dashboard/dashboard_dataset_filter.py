@@ -13,7 +13,7 @@ from dashboard_lint.types import Severity, Violation
 class DashboardDatasetFilterOptions(BaseModel):
     """Options for the dashboard-dataset-filter rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True}
+    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     field: str = Field(
         default='data_stream.dataset',

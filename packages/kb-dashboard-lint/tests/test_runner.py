@@ -78,12 +78,15 @@ class TestLintRunner:
         runner = LintRunner(config=config)
         violations = runner.run([dashboard_with_markdown_header, dashboard_without_dataset_filter])
 
+        # Ensure we actually have violations to test ordering
+        assert len(violations) > 0, 'Expected at least one violation'
+
         # Errors should come before warnings
-        if len(violations) >= 2:
-            error_indices = [i for i, v in enumerate(violations) if v.severity == Severity.ERROR]
-            warning_indices = [i for i, v in enumerate(violations) if v.severity == Severity.WARNING]
-            if len(error_indices) > 0 and len(warning_indices) > 0:
-                assert max(error_indices) < min(warning_indices)
+        error_indices = [i for i, v in enumerate(violations) if v.severity == Severity.ERROR]
+        warning_indices = [i for i, v in enumerate(violations) if v.severity == Severity.WARNING]
+        assert len(error_indices) > 0, 'Expected at least one ERROR violation'
+        assert len(warning_indices) > 0, 'Expected at least one WARNING violation'
+        assert max(error_indices) < min(warning_indices)
 
 
 class TestCheckDashboards:
@@ -101,7 +104,12 @@ class TestRegistry:
     """Tests for the rule registry."""
 
     def test_rules_registered(self) -> None:
-        """All built-in rules should be registered."""
+        """All built-in rules should be registered.
+
+        Note: This test uses exact equality intentionally to ensure tests
+        are updated when new rules are added. If adding a new rule, add its
+        ID to the expected_rules set below.
+        """
         expected_rules = {
             # Dashboard rules
             'dashboard-dataset-filter',

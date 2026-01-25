@@ -5,6 +5,7 @@ This module provides utilities for resolving Dashboard object paths (like
 YAML source file. This enables IDE-style diagnostics with precise highlighting.
 """
 
+import io
 import re
 from pathlib import Path
 from typing import Any
@@ -91,8 +92,6 @@ class YamlPositionResolver:
             ruamel.yaml.YAMLError: If the content is invalid YAML.
 
         """
-        import io
-
         yaml = YAML(typ='rt')
         yaml.preserve_quotes = True
 
@@ -365,10 +364,11 @@ class MultiFilePositionResolver:
             A YamlPositionResolver for the file.
 
         """
-        path_str = str(file_path)
-        if path_str not in self._resolvers:
-            self._resolvers[path_str] = YamlPositionResolver.from_file(path_str)
-        return self._resolvers[path_str]
+        # Normalize path to ensure consistent cache keys for the same file
+        canonical_path = str(Path(file_path).resolve())
+        if canonical_path not in self._resolvers:
+            self._resolvers[canonical_path] = YamlPositionResolver.from_file(canonical_path)
+        return self._resolvers[canonical_path]
 
     def resolve(self, file_path: str | Path, path: str) -> SourceRange | None:
         """Resolve a path in a specific file.

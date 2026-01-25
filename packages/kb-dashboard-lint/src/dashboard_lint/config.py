@@ -20,6 +20,7 @@ class RuleConfig(BaseModel):
         strict=True,
         extra='forbid',
         frozen=True,
+        validate_default=True,
     )
 
     enabled: bool = Field(default=True)
@@ -39,6 +40,7 @@ class LintConfig(BaseModel):
         strict=True,
         extra='forbid',
         frozen=True,
+        validate_default=True,
     )
 
     extends: str | None = Field(default=None)
@@ -94,15 +96,18 @@ def get_effective_config(
     options: dict[str, Any] = {}
 
     # Apply preset if specified
-    if config.extends is not None and config.extends in PRESETS:
-        preset = PRESETS[config.extends]
-        if rule_id in preset:
-            preset_config = preset[rule_id]
-            if preset_config.severity is not None:
-                severity = preset_config.severity
-            if severity == Severity.OFF:
-                enabled = False
-            options = dict(preset_config.options)
+    if config.extends is not None:
+        if config.extends not in PRESETS:
+            logger.warning('Unknown preset: %s, using defaults', config.extends)
+        else:
+            preset = PRESETS[config.extends]
+            if rule_id in preset:
+                preset_config = preset[rule_id]
+                if preset_config.severity is not None:
+                    severity = preset_config.severity
+                if severity == Severity.OFF:
+                    enabled = False
+                options = dict(preset_config.options)
 
     # Apply user overrides
     if rule_id in config.rules:

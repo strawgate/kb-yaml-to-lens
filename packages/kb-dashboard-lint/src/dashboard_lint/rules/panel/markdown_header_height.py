@@ -16,7 +16,7 @@ HEADER_PATTERN = re.compile(r'^#{1,6}\s+', re.MULTILINE)
 class MarkdownHeaderHeightOptions(BaseModel):
     """Options for the markdown-header-height rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True}
+    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_height: int = Field(default=3, ge=1, description='Minimum height for panels with headers')
 

@@ -20,7 +20,7 @@ type DatatableConfig = LensDatatablePanelConfig | ESQLDatatablePanelConfig
 class DatatableRowDensityOptions(BaseModel):
     """Options for the datatable-row-density rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True}
+    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_columns: int = Field(
         default=5,
@@ -34,7 +34,7 @@ class DatatableRowDensityOptions(BaseModel):
 class DatatableRowDensityRule(ChartRule[DatatableConfig, DatatableRowDensityOptions]):
     """Rule: Large datatables should consider compact density.
 
-    Datatables with many columns or rows benefit from compact density
+    Datatables with many columns benefit from compact density
     to show more information without scrolling.
 
     Options:

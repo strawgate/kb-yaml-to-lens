@@ -44,7 +44,7 @@ class EmptyOptions(BaseModel):
     pass options to rules that don't support them.
     """
 
-    model_config = {'extra': 'forbid', 'frozen': True}
+    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
 
 # Store Union for runtime comparison - needed for checking get_origin() results

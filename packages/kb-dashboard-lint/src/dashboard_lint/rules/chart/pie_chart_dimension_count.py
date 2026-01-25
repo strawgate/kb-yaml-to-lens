@@ -19,7 +19,7 @@ type PieConfig = LensPiePanelConfig | ESQLPiePanelConfig
 class PieChartDimensionCountOptions(BaseModel):
     """Options for the pie-chart-dimension-count rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True}
+    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     max_dimensions: int = Field(
         default=1,

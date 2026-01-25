@@ -3,16 +3,19 @@
 import json
 import os
 import sys
+from collections import defaultdict
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import rich_click as click
+import yaml
+from pydantic import ValidationError
 from rich.console import Console
 from rich.table import Table
 
 from dashboard_lint.config import load_config
 from dashboard_lint.runner import LintRunner
-from dashboard_lint.types import Severity, Violation
+from dashboard_lint.types import SEVERITY_ORDER, Severity, Violation
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 if 'NO_COLOR' in os.environ or not sys.stdout.isatty():
@@ -40,10 +43,8 @@ def format_violations_text(violations: list[Violation]) -> None:
 
     """
     # Group by dashboard
-    by_dashboard: dict[str, list[Violation]] = {}
+    by_dashboard: defaultdict[str, list[Violation]] = defaultdict(list)
     for v in violations:
-        if v.dashboard_name not in by_dashboard:
-            by_dashboard[v.dashboard_name] = []
         by_dashboard[v.dashboard_name].append(v)
 
     for dashboard_name, dashboard_violations in by_dashboard.items():
@@ -205,7 +206,7 @@ def check(
         else:
             console.print('[red]Error: No input specified[/red]')
             sys.exit(1)
-    except (FileNotFoundError, PermissionError, OSError) as e:
+    except (FileNotFoundError, PermissionError, OSError, yaml.YAMLError, ValidationError) as e:
         console.print(f'[red]Error loading dashboards: {e}[/red]')
         sys.exit(1)
 
@@ -228,10 +229,9 @@ def check(
 
     # Determine exit code based on threshold
     threshold_severity = Severity(severity_threshold.lower())
-    threshold_order = {'error': 3, 'warning': 2, 'info': 1}
-    threshold_level = threshold_order.get(threshold_severity.value, 2)
+    threshold_level = SEVERITY_ORDER.get(threshold_severity, 2)
 
-    has_violations_above_threshold = any(threshold_order.get(v.severity.value, 0) >= threshold_level for v in violations)
+    has_violations_above_threshold = any(SEVERITY_ORDER.get(v.severity, 0) >= threshold_level for v in violations)
 
     if has_violations_above_threshold:
         sys.exit(1)
