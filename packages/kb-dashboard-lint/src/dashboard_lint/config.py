@@ -77,19 +77,7 @@ def get_effective_config(
     config: LintConfig,
     default_severity: Severity,
 ) -> tuple[bool, Severity, dict[str, Any]]:
-    """Get the effective configuration for a rule.
-
-    Merges preset defaults with user overrides.
-
-    Args:
-        rule_id: The rule ID to get configuration for.
-        config: The user's lint configuration.
-        default_severity: The rule's built-in default severity.
-
-    Returns:
-        Tuple of (enabled, severity, options).
-
-    """
+    """Get the effective configuration for a rule, merging preset defaults with user overrides."""
     # Start with defaults
     enabled = True
     severity = default_severity
@@ -123,19 +111,8 @@ def get_effective_config(
     return enabled, severity, options
 
 
-def find_config_file(start_path: Path | None = None) -> Path | None:
-    """Search for a lint configuration file.
-
-    Searches for `.dashboard-lint.yaml` in the start path and parent
-    directories up to the filesystem root.
-
-    Args:
-        start_path: Directory to start searching from. Defaults to cwd.
-
-    Returns:
-        Path to config file if found, None otherwise.
-
-    """
+def _find_config_file(start_path: Path | None = None) -> Path | None:
+    """Search for `.dashboard-lint.yaml` in the start path and parent directories."""
     if start_path is None:
         start_path = Path.cwd()
 
@@ -169,7 +146,7 @@ def load_config(path: Path | None = None) -> LintConfig:
 
     """
     if path is None:
-        path = find_config_file()
+        path = _find_config_file()
 
     if path is None:
         # No config file found, return defaults

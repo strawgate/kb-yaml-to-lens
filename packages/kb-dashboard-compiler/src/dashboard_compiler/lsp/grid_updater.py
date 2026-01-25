@@ -63,17 +63,7 @@ def _find_panel_in_document(document: CommentedMap, panel_id: str, dashboard_ind
 
 
 def _is_alias(value: CommentedMap) -> bool:
-    """Check if a CommentedMap is an alias reference.
-
-    A value is considered an alias if it has an anchor attribute with a value,
-    indicating it was defined elsewhere and referenced via alias.
-
-    Args:
-        value: The CommentedMap to check.
-
-    Returns:
-        True if the value appears to be an alias reference.
-    """
+    """Check if a CommentedMap is an alias reference."""
     anchor = getattr(value, 'anchor', None)
     return anchor is not None and anchor.value is not None
 

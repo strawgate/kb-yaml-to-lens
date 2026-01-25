@@ -39,17 +39,8 @@ DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 MAX_EXIT_CODE = 125
 
 
-def sanitize_filename(name: str, max_length: int = 200) -> str:
-    """Convert a string to a filesystem-safe filename.
-
-    Args:
-        name: The name to sanitize.
-        max_length: Maximum length for the filename (default: 200).
-
-    Returns:
-        A sanitized filename safe for all filesystems.
-
-    """
+def _sanitize_filename(name: str, max_length: int = 200) -> str:
+    """Convert a string to a filesystem-safe filename."""
     # Replace filesystem-unsafe characters with underscores
     unsafe_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
     result = name
@@ -73,17 +64,8 @@ def sanitize_filename(name: str, max_length: int = 200) -> str:
     return result
 
 
-def file_content_changed(file_path: Path, new_content: str) -> bool:
-    """Check if writing new content would change the filesystem.
-
-    Args:
-        file_path: Path to the existing file.
-        new_content: New content to compare against.
-
-    Returns:
-        True if the file doesn't exist or has different content, False otherwise.
-
-    """
+def _file_content_changed(file_path: Path, new_content: str) -> bool:
+    """Check if writing new content would change the filesystem."""
     if not file_path.exists():
         return True
 
@@ -91,15 +73,8 @@ def file_content_changed(file_path: Path, new_content: str) -> bool:
     return existing_content != new_content
 
 
-def write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -> None:
-    """Write a list of JSON strings to an NDJSON file.
-
-    Args:
-        output_path: Path to the output NDJSON file.
-        lines: List of JSON strings to write.
-        overwrite: Whether to overwrite the output file if it exists.
-
-    """
+def _write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -> None:
+    """Write a list of JSON strings to an NDJSON file."""
     if overwrite is False and output_path.exists():
         return
 
@@ -370,7 +345,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
                         if not kbn_dashboard.id:
                             msg = f'Dashboard ID is required for JSON output: {yaml_file}'
                             raise click.ClickException(msg)
-                        safe_name = sanitize_filename(kbn_dashboard.id)
+                        safe_name = _sanitize_filename(kbn_dashboard.id)
                         if safe_name in json_filenames_seen:
                             msg = f'Duplicate dashboard ID after sanitization: {kbn_dashboard.id}'
                             raise click.ClickException(msg)
@@ -392,16 +367,16 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     if output_format_lower == 'json':
         for json_file, json_content in json_files_to_write:
-            if file_content_changed(json_file, json_content):
+            if _file_content_changed(json_file, json_content):
                 changed_files_count += 1
             with json_file.open('w', encoding='utf-8') as f:
                 _ = f.write(json_content)
     else:
         for individual_file, jsons in files_to_write.items():
             content = '\n'.join(jsons) + '\n'
-            if file_content_changed(individual_file, content):
+            if _file_content_changed(individual_file, content):
                 changed_files_count += 1
-            write_ndjson(individual_file, jsons, overwrite=True)
+            _write_ndjson(individual_file, jsons, overwrite=True)
 
     if len(ndjson_lines) > 0:
         print_success(f'Successfully compiled {len(ndjson_lines)} dashboard(s)')
@@ -420,9 +395,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     else:
         combined_file = output_dir / output_file
         combined_content = '\n'.join(ndjson_lines) + '\n'
-        if file_content_changed(combined_file, combined_content):
+        if _file_content_changed(combined_file, combined_content):
             changed_files_count += 1
-        write_ndjson(combined_file, ndjson_lines, overwrite=True)
+        _write_ndjson(combined_file, ndjson_lines, overwrite=True)
         try:
             display_path = combined_file.relative_to(PROJECT_ROOT)
         except ValueError:

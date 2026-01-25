@@ -14,11 +14,7 @@ from ruamel.yaml.comments import CommentedMap
 
 
 def _create_yaml() -> YAML:
-    """Create a configured YAML instance for round-trip operations.
-
-    Returns:
-        YAML: A configured ruamel.yaml instance with round-trip mode enabled.
-    """
+    """Create a configured YAML instance for round-trip operations."""
     yaml = YAML(typ='rt')
     yaml.preserve_quotes = True
     yaml.default_flow_style = False

@@ -193,16 +193,7 @@ class YamlPositionResolver:
         return current, last_key
 
     def _get_key_position(self, parent: CommentedMap, key: str) -> SourcePosition | None:
-        """Get the position of a key in a CommentedMap.
-
-        Args:
-            parent: The parent mapping.
-            key: The key to find.
-
-        Returns:
-            SourcePosition if found, None otherwise.
-
-        """
+        """Get the line/column position of a key in a mapping, or None if unavailable."""
         if not hasattr(parent, 'lc') or parent.lc is None:
             return None
 
@@ -213,16 +204,7 @@ class YamlPositionResolver:
             return None
 
     def _get_item_position(self, parent: CommentedSeq, index: int) -> SourcePosition | None:
-        """Get the position of an item in a CommentedSeq.
-
-        Args:
-            parent: The parent sequence.
-            index: The index to find.
-
-        Returns:
-            SourcePosition if found, None otherwise.
-
-        """
+        """Get the line/column position of an item in a sequence, or None if unavailable."""
         if not hasattr(parent, 'lc') or parent.lc is None:
             return None
 

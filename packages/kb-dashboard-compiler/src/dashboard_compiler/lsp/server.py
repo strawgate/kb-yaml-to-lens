@@ -116,36 +116,14 @@ def _params_to_dict(params: Any) -> dict[str, Any]:
 
 
 def _normalize_optional_str(value: str | None) -> str | None:
-    """Normalize an optional string, converting empty strings to None.
-
-    Args:
-        value: The string value or None
-
-    Returns:
-        The string if non-empty, None otherwise
-
-    Note:
-        Type safety is enforced at compile time via the type annotation.
-        Unlike _get_required_str which extracts from dict[str, Any], this function
-        has a typed parameter so runtime isinstance checks are unnecessary.
-    """
+    """Normalize an optional string, converting empty strings to None."""
     if value is None:
         return None
     return value if len(value) > 0 else None
 
 
 def _redact_url(url: str) -> str:
-    """Redact credentials from a URL for safe logging.
-
-    Removes any username:password@ portion from the URL to prevent
-    credential leakage in log files.
-
-    Args:
-        url: The URL to redact
-
-    Returns:
-        URL with credentials removed
-    """
+    """Redact credentials from a URL for safe logging."""
     parts = urlsplit(url)
     # Reconstruct the netloc without userinfo
     host = parts.hostname if parts.hostname is not None else ''

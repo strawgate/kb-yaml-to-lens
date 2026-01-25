@@ -26,15 +26,7 @@ type BreakdownConfig = LensMetricPanelConfig | LensLinePanelConfig | LensBarPane
 
 
 def _get_dimension_field(dimension: BaseLensDimension) -> str:
-    """Extract the field name from a dimension object.
-
-    Args:
-        dimension: A dimension configuration object.
-
-    Returns:
-        The field name or a descriptive string.
-
-    """
+    """Extract the field name from a dimension object."""
     if isinstance(dimension, LensTermsDimension):
         return dimension.field
     if isinstance(dimension, LensMultiTermsDimension):
@@ -49,15 +41,7 @@ def _get_dimension_field(dimension: BaseLensDimension) -> str:
 
 
 def _dimension_has_empty_label(dimension: BaseLensDimension) -> bool:
-    """Check if a dimension has an empty or missing label.
-
-    Args:
-        dimension: A dimension configuration object.
-
-    Returns:
-        True if the dimension lacks a label, False otherwise.
-
-    """
+    """Check if a dimension has an empty or missing label."""
     return dimension.label is None or len(dimension.label) == 0
 
 

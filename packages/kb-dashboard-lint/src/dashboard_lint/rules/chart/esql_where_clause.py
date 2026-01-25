@@ -39,15 +39,7 @@ type ESQLConfig = (
 
 
 def _get_query_string(query: ESQLQuery) -> str:
-    """Extract query string from an ESQLQuery.
-
-    Args:
-        query: Query object with 'root' attribute containing the query.
-
-    Returns:
-        Single string with the full query.
-
-    """
+    """Extract query string from an ESQLQuery, joining list parts with newlines."""
     root = query.root
     if isinstance(root, list):
         return '\n'.join(str(part) for part in root)

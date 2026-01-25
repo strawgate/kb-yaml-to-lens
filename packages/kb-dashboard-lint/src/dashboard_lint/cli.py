@@ -35,13 +35,8 @@ except PackageNotFoundError:
     __version__ = '0.0.0-dev'
 
 
-def format_violations_text(violations: list[Violation]) -> None:
-    """Format and print violations as text output.
-
-    Args:
-        violations: List of violations to format.
-
-    """
+def _format_violations_text(violations: list[Violation]) -> None:
+    """Format and print violations as text output."""
     # Group by dashboard
     by_dashboard: defaultdict[str, list[Violation]] = defaultdict(list)
     for v in violations:
@@ -70,16 +65,8 @@ def format_violations_text(violations: list[Violation]) -> None:
             console.print(f'          {v.message}')
 
 
-def format_violations_json(violations: list[Violation]) -> str:
-    """Format violations as JSON.
-
-    Args:
-        violations: List of violations to format.
-
-    Returns:
-        JSON string representation.
-
-    """
+def _format_violations_json(violations: list[Violation]) -> str:
+    """Format violations as JSON."""
     data: list[dict[str, object]] = []
     for v in violations:
         violation_data: dict[str, object] = {
@@ -99,13 +86,8 @@ def format_violations_json(violations: list[Violation]) -> str:
     return json.dumps(data, indent=2)
 
 
-def print_summary(violations: list[Violation]) -> None:
-    """Print a summary of violations by severity.
-
-    Args:
-        violations: List of violations to summarize.
-
-    """
+def _print_summary(violations: list[Violation]) -> None:
+    """Print a summary of violations by severity."""
     errors = sum(1 for v in violations if v.severity == Severity.ERROR)
     warnings = sum(1 for v in violations if v.severity == Severity.WARNING)
     infos = sum(1 for v in violations if v.severity == Severity.INFO)
@@ -220,10 +202,10 @@ def check(
 
     # Output results
     if output_format == 'json':
-        print(format_violations_json(violations))
+        print(_format_violations_json(violations))
     elif len(violations) > 0:
-        format_violations_text(violations)
-        print_summary(violations)
+        _format_violations_text(violations)
+        _print_summary(violations)
     else:
         console.print('[green]✓ No issues found![/green]')
 

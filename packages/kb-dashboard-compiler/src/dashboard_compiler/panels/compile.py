@@ -24,22 +24,8 @@ from dashboard_compiler.shared.view import KbnReference
 
 
 @log_compile
-def convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
-    """Convert a KbnReference object to a panel reference.
-
-    Kibana requires panel references to be namespaced with the panel ID to avoid
-    conflicts when multiple panels reference the same resource (e.g., data views).
-    This transforms a reference like {type: 'index-pattern', id: 'abc', name: 'dataView'}
-    into {type: 'index-pattern', id: 'abc', name: 'panel-123:dataView'}
-
-    Args:
-        kbn_reference (KbnReference): The KbnReference object to convert.
-        panel_index (str): The index (id) of the panel to which the reference belongs.
-
-    Returns:
-        KbnReference: The converted panel reference.
-
-    """
+def _convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
+    """Convert a KbnReference object to a panel reference by namespacing with the panel ID."""
     return KbnReference(
         type=kbn_reference.type,
         id=kbn_reference.id,
@@ -76,19 +62,8 @@ def get_panel_type_name(panel: PanelTypes) -> str:
 
 
 @log_compile
-def compute_panel_grid(panel: PanelTypes) -> Grid:
-    """Compute the grid position for a panel based on its size and position.
-
-    Args:
-        panel (PanelTypes): The panel object.
-
-    Returns:
-        Grid: The computed grid with x, y, w, h.
-
-    Raises:
-        ValueError: If position is not set (should be set by auto-layout first).
-
-    """
+def _compute_panel_grid(panel: PanelTypes) -> Grid:
+    """Compute the grid position for a panel based on its size and position."""
     if panel.position.x is None or panel.position.y is None:
         msg = f'Panel "{panel.title}" position is not set'
         raise ValueError(msg)
@@ -97,18 +72,8 @@ def compute_panel_grid(panel: PanelTypes) -> Grid:
 
 
 @log_compile
-def compile_panel_shared(panel: PanelTypes, grid: Grid, panel_type: str) -> tuple[str, KbnGridData]:
-    """Compile shared properties of a panel into its Kibana view model representation.
-
-    Args:
-        panel (PanelTypes): The panel object to compile.
-        grid (Grid): The computed grid position for the panel.
-        panel_type (str): The type name of the panel (e.g., 'markdown', 'links').
-
-    Returns:
-        tuple[str, KbnGridData]: A tuple containing the panel index and the grid data.
-
-    """
+def _compile_panel_shared(panel: PanelTypes, grid: Grid, panel_type: str) -> tuple[str, KbnGridData]:
+    """Compile shared properties of a panel into its Kibana view model representation."""
     panel_index = panel.id or stable_id_generator(values=[panel_type, panel.title, str(grid)])
 
     grid_data = KbnGridData(x=grid.x, y=grid.y, w=grid.w, h=grid.h, i=panel_index)
@@ -129,7 +94,7 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
 
     """
     panel_type = get_panel_type_name(panel)
-    panel_index, grid_data = compile_panel_shared(panel, grid, panel_type)
+    panel_index, grid_data = _compile_panel_shared(panel, grid, panel_type)
 
     match panel:
         case MarkdownPanel():
@@ -192,16 +157,8 @@ def compute_panel_positions(
 
 
 @log_compile
-def validate_no_overlapping_grids(grids: list[tuple[str, Grid]]) -> None:
-    """Validate that no panels overlap on the grid.
-
-    Args:
-        grids (list[tuple[str, Grid]]): List of (panel_title, grid) tuples.
-
-    Raises:
-        ValueError: If any panels overlap.
-
-    """
+def _validate_no_overlapping_grids(grids: list[tuple[str, Grid]]) -> None:
+    """Validate that no panels overlap on the grid."""
     for i, (title1, grid1) in enumerate(grids):
         for title2, grid2 in grids[i + 1 :]:
             if grid1.overlaps_with(grid2):
@@ -242,14 +199,14 @@ def compile_dashboard_panels(
             x, y = position_map[idx]
             grid = Grid(x=x, y=y, w=panel.size.width, h=panel.size.h)
         else:
-            grid = compute_panel_grid(panel)
+            grid = _compute_panel_grid(panel)
 
         grids.append(grid)
         panel_title = panel.title if len(panel.title) > 0 else 'Untitled Panel'
         grid_titles.append((panel_title, grid))
 
     # Validate no overlaps
-    validate_no_overlapping_grids(grid_titles)
+    _validate_no_overlapping_grids(grid_titles)
 
     # Compile panels
     kbn_panels: list[KbnBasePanel] = []
@@ -260,6 +217,6 @@ def compile_dashboard_panels(
 
         kbn_panels.append(new_panel)
 
-        kbn_references.extend([convert_to_panel_reference(kbn_reference=ref, panel_index=new_panel.panelIndex) for ref in new_references])
+        kbn_references.extend([_convert_to_panel_reference(kbn_reference=ref, panel_index=new_panel.panelIndex) for ref in new_references])
 
     return kbn_references, kbn_panels
