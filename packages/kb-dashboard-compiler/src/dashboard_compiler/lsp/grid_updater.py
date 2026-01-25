@@ -103,6 +103,46 @@ def _update_grid_in_panel(panel: CommentedMap, new_grid: dict[str, Any]) -> None
         panel['size'] = new_size
 
 
+def unpin_panel(yaml_path: str, panel_id: str, dashboard_index: int = 0) -> UpdateGridLayoutResult:
+    """Remove explicit position from a panel, allowing it to be auto-positioned.
+
+    Uses round-trip YAML loading to preserve comments and formatting.
+
+    Args:
+        yaml_path: Path to the YAML dashboard file
+        panel_id: ID of the panel to unpin (or 'panel_N' for index-based)
+        dashboard_index: Index of the dashboard (default: 0)
+
+    Returns:
+        UpdateGridLayoutResult with success status and message
+    """
+    try:
+        document = load_roundtrip(yaml_path)
+    except Exception as e:
+        return UpdateGridLayoutResult(success=False, error=f'Failed to load dashboard: {e}')
+
+    panel, error = _find_panel_in_document(document, panel_id, dashboard_index)
+    if error is not None:
+        return UpdateGridLayoutResult(success=False, error=error)
+
+    if panel is None:
+        return UpdateGridLayoutResult(success=False, error=f'Panel with ID {panel_id} not found')
+
+    try:
+        # Remove the position field entirely to allow auto-positioning
+        if 'position' in panel:
+            del panel['position']
+    except Exception as e:
+        return UpdateGridLayoutResult(success=False, error=f'Failed to unpin panel: {e}')
+
+    try:
+        dump_roundtrip(document, yaml_path)
+    except Exception as e:
+        return UpdateGridLayoutResult(success=False, error=f'Failed to save dashboard: {e}')
+    else:
+        return UpdateGridLayoutResult(success=True, message=f'Unpinned {panel_id}')
+
+
 def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], dashboard_index: int = 0) -> UpdateGridLayoutResult:
     """Update grid coordinates for a specific panel in a YAML file.
 

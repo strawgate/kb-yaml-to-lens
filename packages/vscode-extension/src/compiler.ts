@@ -236,6 +236,32 @@ export class DashboardCompilerLSP {
     }
 
     /**
+     * Unpin a panel, removing its explicit position to allow auto-positioning.
+     *
+     * @param filePath Path to the YAML file
+     * @param panelId ID of the panel to unpin
+     * @param dashboardIndex Index of the dashboard (default: 0)
+     */
+    async unpinPanel(filePath: string, panelId: string, dashboardIndex: number = 0): Promise<void> {
+        if (!this.client) {
+            throw new Error('LSP client not started');
+        }
+
+        const result = await this.client.sendRequest(
+            'dashboard/unpinPanel',
+            {
+                path: filePath,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                panel_id: panelId,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                dashboard_index: dashboardIndex
+            }
+        );
+
+        parseUpdateGridLayoutResult(result);
+    }
+
+    /**
      * Get the JSON schema for dashboard YAML files.
      * This schema is used for auto-complete and validation in the YAML editor.
      *

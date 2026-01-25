@@ -355,6 +355,34 @@ code {
     background: linear-gradient(135deg, transparent 50%, var(--vscode-panel-border) 50%);
 }
 
+.unpin-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    line-height: 20px;
+    text-align: center;
+    opacity: 0.7;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.unpin-btn:hover {
+    opacity: 1;
+    background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.layout-panel[data-pinned="false"] .unpin-btn {
+    display: none;
+}
+
 /* ==========================================================================
    Collapsible Sections (Full Preview)
    ========================================================================== */

@@ -33,6 +33,7 @@ __all__ = [
     'GridLayoutResult',
     'PanelGridInfo',
     'SchemaResult',
+    'UnpinPanelRequest',
     'UpdateGridLayoutRequest',
     'UpdateGridLayoutResult',
     'UploadResult',
@@ -168,6 +169,17 @@ class UpdateGridLayoutRequest(BaseLSPModel):
     """ID of the panel to update."""
     grid: Grid
     """New grid coordinates with x, y, w, h."""
+    dashboard_index: int = 0
+    """Index of the dashboard (default: 0)."""
+
+
+class UnpinPanelRequest(BaseLSPModel):
+    """Request parameters for dashboard/unpinPanel endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    panel_id: str
+    """ID of the panel to unpin."""
     dashboard_index: int = 0
     """Index of the dashboard (default: 0)."""
 
