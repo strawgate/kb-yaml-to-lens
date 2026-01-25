@@ -383,7 +383,7 @@ sync_tooltips: false
 
 **Minimum Heights:**
 
-- Metric cards: 8 grid units
+- Metric cards: 4 grid units
 - Charts: 12-15 grid units
 - Tables: 15-20 grid units (allow for pagination)
 - Markdown headers (at default font_size 12):

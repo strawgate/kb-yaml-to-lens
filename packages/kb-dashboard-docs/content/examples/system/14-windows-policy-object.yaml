@@ -70,7 +70,7 @@ dashboards:
             field: winlog.event_id
             size: 25
       - title: Audit Policy Changes (4719)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -81,7 +81,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4719'
       - title: Registry Value Modified (4657)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -92,7 +92,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4657'
       - title: Object Access (4663)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -103,7 +103,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4663'
       - title: Task Scheduled (4698)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

@@ -29,7 +29,7 @@ dashboards:
           content: |
             ### [System overview](system-metrics-overview)
       - title: CPU Usage
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -40,7 +40,7 @@ dashboards:
             format:
               type: percent
       - title: Memory Usage
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -51,7 +51,7 @@ dashboards:
             format:
               type: percent
       - title: Disk I/O
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -62,7 +62,7 @@ dashboards:
             format:
               type: bytes
       - title: Inbound Traffic
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -73,7 +73,7 @@ dashboards:
             format:
               type: bytes
       - title: Outbound Traffic
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -84,7 +84,7 @@ dashboards:
             format:
               type: bytes
       - title: Load Average
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -93,7 +93,7 @@ dashboards:
             field: system.load.1
             label: Load 1m
       - title: Disk Write I/O
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -104,7 +104,7 @@ dashboards:
             format:
               type: bytes
       - title: Max Disk Usage
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: metrics-*

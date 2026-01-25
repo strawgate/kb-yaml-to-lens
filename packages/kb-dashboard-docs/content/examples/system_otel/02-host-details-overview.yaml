@@ -51,7 +51,7 @@ dashboards:
           content: '## Key Metrics'
       - title: CPU Utilization
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -64,7 +64,7 @@ dashboards:
               type: percent
       - title: Normalized Load
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -75,7 +75,7 @@ dashboards:
               type: percent
       - title: Memory Utilization
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -86,7 +86,7 @@ dashboards:
               type: percent
       - title: Disk Usage
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
