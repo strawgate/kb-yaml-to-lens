@@ -2,10 +2,10 @@
 
 import pytest
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.charts.config import ESQLDatatablePanelConfig, ESQLPanel
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLDimension, ESQLMetric
 from dashboard_lint.rules.chart import ESQLDimensionMissingLabelRule
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.panels.charts.config import ESQLDatatablePanelConfig, ESQLPanel
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimension, ESQLMetric
 
 
 @pytest.fixture
