@@ -42,6 +42,7 @@ dashboards:
           content: '## 🏥 Cluster Health'
           font_size: 14
       - title: Running Pods
+        description: Pods in Running phase (phase=2).
         hide_title: true
         size: {w: 12, h: 4}
         lens:
@@ -54,6 +55,9 @@ dashboards:
             - field: k8s.pod.phase
               equals: '2'
       - title: Pending Pods
+        description: >-
+          Pods in Pending phase (phase=1), waiting for scheduling or container
+          image pull.
         hide_title: true
         size: {w: 12, h: 4}
         lens:
@@ -66,6 +70,7 @@ dashboards:
             - field: k8s.pod.phase
               equals: '1'
       - title: Failed Pods
+        description: Pods in Failed phase (phase=4). Check pod logs for root cause.
         hide_title: true
         size: {w: 12, h: 4}
         lens:
@@ -159,6 +164,9 @@ dashboards:
           content: '## 🚀 Workload Health Preview'
           font_size: 14
       - title: Deployments - Desired vs Available
+        description: >-
+          Gap between lines indicates deployments that can't reach desired
+          replica count.
         size: {w: 24, h: 12}
         lens:
           type: line
@@ -200,6 +208,9 @@ dashboards:
           content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
           font_size: 14
       - title: Deployments Missing Replicas
+        description: >-
+          Missing = Desired - Available. Positive values indicate failed
+          provisioning or insufficient resources.
         size: {w: 48, h: 12}
         lens:
           type: datatable

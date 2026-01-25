@@ -43,14 +43,18 @@ dashboards:
               dashboard: docker-otel-overview
             - label: Container Stats
               dashboard: docker-otel-container-stats
-      - size: {w: 6, h: 4}
+      - title: Active Containers
+        description: Uses reducedTimeRange='1h' to count only recent containers.
+        size: {w: 6, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(container.id, reducedTimeRange='1h')
             label: Active Containers
-      - size: {w: 6, h: 4}
+      - title: Total Containers
+        description: All unique containers seen in the selected time range.
+        size: {w: 6, h: 4}
         lens:
           type: metric
           data_view: metrics-*

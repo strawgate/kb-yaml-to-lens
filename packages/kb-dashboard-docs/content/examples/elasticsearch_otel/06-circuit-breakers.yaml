@@ -40,6 +40,9 @@ dashboards:
         markdown:
           content: '### Circuit Breaker Overview'
       - title: Circuit Breaker Utilization %
+        description: >-
+          Approaching 100% triggers the breaker and rejects operations. Monitor
+          for trends approaching threshold.
         size: {w: 48, h: 12}
         lens:
           type: datatable
@@ -223,6 +226,9 @@ dashboards:
         markdown:
           content: '### Circuit Breaker Trips'
       - title: Trip Events by Breaker
+        description: >-
+          Each trip rejects operations to prevent memory exhaustion. Sustained
+          trips indicate memory-constrained cluster.
         size: {w: 48, h: 10}
         lens:
           type: line

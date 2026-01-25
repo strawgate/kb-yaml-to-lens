@@ -69,6 +69,9 @@ dashboards:
             field: resource.attributes.host.name
             label: Hosts
       - title: CPU Utilization Fleet
+        description: >-
+          100% minus idle and wait time. Wait time is CPU waiting for I/O, not
+          active work.
         hide_title: true
         size: {w: 12, h: 4}
         lens:
@@ -175,6 +178,7 @@ dashboards:
                 type: percent
             - id: norm-load
               formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              # Normalized Load: 1-min load average / CPU count. >1 = overloaded.
               label: Normalized Load
               format:
                 type: percent

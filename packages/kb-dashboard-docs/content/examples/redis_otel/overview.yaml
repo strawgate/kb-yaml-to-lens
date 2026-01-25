@@ -83,6 +83,9 @@ dashboards:
             field: commands_per_sec
             label: Commands/sec
       - title: Cache Hit Rate
+        description: >-
+          Hits / (hits + misses). Values <80% indicate cache misses increasing
+          backend load.
         hide_title: true
         size: {w: 8, h: 5}
         esql:

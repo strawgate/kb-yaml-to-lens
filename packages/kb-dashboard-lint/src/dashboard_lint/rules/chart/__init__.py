@@ -15,6 +15,7 @@ from dashboard_lint.rules.chart.esql_where_clause import ESQLWhereClauseRule
 from dashboard_lint.rules.chart.gauge_goal_without_max import GaugeGoalWithoutMaxRule
 from dashboard_lint.rules.chart.metric_multiple_metrics_width import MetricMultipleMetricsWidthRule
 from dashboard_lint.rules.chart.metric_redundant_label import MetricRedundantLabelRule
+from dashboard_lint.rules.chart.narrow_xy_chart_side_legend import NarrowXYChartSideLegendRule
 from dashboard_lint.rules.chart.panel_height_for_content import PanelHeightForContentRule
 from dashboard_lint.rules.chart.pie_chart_dimension_count import PieChartDimensionCountRule
 
@@ -30,6 +31,7 @@ __all__ = [
     'GaugeGoalWithoutMaxRule',
     'MetricMultipleMetricsWidthRule',
     'MetricRedundantLabelRule',
+    'NarrowXYChartSideLegendRule',
     'PanelHeightForContentRule',
     'PieChartDimensionCountRule',
 ]

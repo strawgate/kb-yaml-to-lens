@@ -129,6 +129,7 @@ class TestRegistry:
             'gauge-goal-without-max',
             'metric-multiple-metrics-width',
             'metric-redundant-label',
+            'narrow-xy-chart-side-legend',
             'panel-height-for-content',
             'pie-chart-dimension-count',
         }
