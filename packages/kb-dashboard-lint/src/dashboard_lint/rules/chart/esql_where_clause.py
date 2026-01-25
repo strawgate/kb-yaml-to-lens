@@ -25,20 +25,6 @@ from dashboard_lint.types import Severity, Violation
 # Pattern to match WHERE clause (case insensitive)
 WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)
 
-# All ESQL config types that have a query field
-ESQL_CONFIG_TYPES = (
-    ESQLMetricPanelConfig,
-    ESQLGaugePanelConfig,
-    ESQLHeatmapPanelConfig,
-    ESQLPiePanelConfig,
-    ESQLLinePanelConfig,
-    ESQLBarPanelConfig,
-    ESQLAreaPanelConfig,
-    ESQLTagcloudPanelConfig,
-    ESQLDatatablePanelConfig,
-    ESQLMosaicPanelConfig,
-)
-
 type ESQLConfig = (
     ESQLMetricPanelConfig
     | ESQLGaugePanelConfig
@@ -82,7 +68,6 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig]):
     id: str = 'esql-where-clause'
     description: str = 'ES|QL queries should include a WHERE clause'
     default_severity: Severity = Severity.INFO
-    config_types: tuple[type, ...] = ESQL_CONFIG_TYPES
 
     def check_chart(
         self,

@@ -31,7 +31,6 @@ class DatatableRowDensityRule(ChartRule[DatatableConfig]):
     id: str = 'datatable-row-density'
     description: str = 'Large datatables should consider compact density'
     default_severity: Severity = Severity.INFO
-    config_types: tuple[type, ...] = (LensDatatablePanelConfig, ESQLDatatablePanelConfig)
 
     def check_chart(
         self,

@@ -28,7 +28,6 @@ class MetricRedundantLabelRule(ChartRule[MetricConfig]):
     id: str = 'metric-redundant-label'
     description: str = 'Metric primary label matching title should use hide_title: true'
     default_severity: Severity = Severity.WARNING
-    config_types: tuple[type, ...] = (LensMetricPanelConfig, ESQLMetricPanelConfig)
 
     def check_chart(
         self,

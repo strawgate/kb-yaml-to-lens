@@ -23,15 +23,6 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
-# Lens config types that have a breakdown dimension
-CONFIGS_WITH_BREAKDOWN = (
-    LensMetricPanelConfig,
-    LensLinePanelConfig,
-    LensBarPanelConfig,
-    LensAreaPanelConfig,
-    LensMosaicPanelConfig,
-)
-
 type BreakdownConfig = LensMetricPanelConfig | LensLinePanelConfig | LensBarPanelConfig | LensAreaPanelConfig | LensMosaicPanelConfig
 
 
@@ -84,7 +75,6 @@ class DimensionMissingLabelRule(ChartRule[BreakdownConfig]):
     id: str = 'dimension-missing-label'
     description: str = 'Dimensions should have explicit labels'
     default_severity: Severity = Severity.INFO
-    config_types: tuple[type, ...] = CONFIGS_WITH_BREAKDOWN
 
     def check_chart(
         self,

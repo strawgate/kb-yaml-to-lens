@@ -1,13 +1,14 @@
 """Base classes for lint rules with automatic iteration and type-safe filtering.
 
 This module provides generic base classes that leverage Python's type system to:
-1. Filter panels/configs at runtime based on the declared type parameter
-2. Pass the correctly-typed object to the check method, eliminating redundant isinstance checks
+1. Automatically extract runtime types from the generic type parameter
+2. Filter panels/configs at runtime based on the extracted types
+3. Pass the correctly-typed object to the check method, eliminating redundant isinstance checks
 
 Example:
     @chart_rule
     class GaugeRule(ChartRule[LensGaugePanelConfig | ESQLGaugePanelConfig]):
-        config_types = (LensGaugePanelConfig, ESQLGaugePanelConfig)
+        # No config_types needed - automatically extracted from generic parameter!
 
         def check_chart(self, panel, config, context, options):
             # config is already LensGaugePanelConfig | ESQLGaugePanelConfig
@@ -16,9 +17,11 @@ Example:
 
 """
 
+import types
+import typing
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, get_args, get_origin
 
 from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_compiler.panels.base import BasePanel
@@ -29,6 +32,10 @@ from dashboard_compiler.panels.charts.config import (
     LensPanelConfig,
 )
 from dashboard_lint.types import Severity, Violation
+
+# Store Union for runtime comparison - needed for checking get_origin() results
+# pyright: reportDeprecated=false
+_UNION_TYPE: Any = typing.Union
 
 # Type alias for flexible return types from check methods
 type ViolationResult = Violation | list[Violation] | None
@@ -49,6 +56,93 @@ def normalize_result(result: ViolationResult) -> list[Violation]:
     if isinstance(result, Violation):
         return [result]
     return result
+
+
+def _unwrap_type_alias(type_arg: Any) -> tuple[type, ...]:
+    """Unwrap a type alias to get the underlying concrete types.
+
+    Handles:
+    - TypeAliasType (from `type X = A | B` syntax)
+    - Union types (both runtime `A | B` and typing.Union[A, B])
+    - Annotated types (extracts the underlying type for isinstance checks)
+    - Plain types (A)
+
+    Args:
+        type_arg: A type, union, or type alias.
+
+    Returns:
+        Tuple of concrete types suitable for isinstance() checks.
+
+    """
+    # Handle Python 3.12+ type aliases: `type X = A | B`
+    if hasattr(type_arg, '__value__'):
+        # This is a TypeAliasType - get its value
+        inner = type_arg.__value__
+        return _unwrap_type_alias(inner)
+
+    origin = get_origin(type_arg)
+
+    # Handle Union types: both runtime UnionType (A | B) and typing.Union
+    if origin is types.UnionType or origin is _UNION_TYPE:
+        result: list[type] = []
+        for arg in get_args(type_arg):
+            result.extend(_unwrap_type_alias(arg))
+        return tuple(result)
+
+    # Handle Annotated types: Annotated[X, ...] -> extract X
+    # This is crucial for Pydantic models which use Annotated extensively
+    if origin is Annotated:
+        args = get_args(type_arg)
+        if args:
+            # For Annotated[X, metadata...], args[0] is the actual type
+            return _unwrap_type_alias(args[0])
+
+    # Plain type - verify it's actually a type
+    if isinstance(type_arg, type):
+        return (type_arg,)
+
+    # Fallback - shouldn't happen but return empty to avoid isinstance errors
+    return ()
+
+
+def _extract_types_from_generic(cls: type, base_class: type) -> tuple[type, ...] | None:
+    """Extract concrete types from a generic type parameter.
+
+    Inspects the class's __orig_bases__ to find the parameterized base class
+    and extracts the type arguments. Handles Union types (X | Y), type
+    aliases, and Annotated types, flattening them into a tuple of concrete
+    types suitable for isinstance() checks.
+
+    Args:
+        cls: The class to inspect (e.g., GaugeRule).
+        base_class: The generic base class to look for (e.g., ChartRule).
+
+    Returns:
+        Tuple of concrete types, or None if no type parameter found.
+
+    Example:
+        class GaugeRule(ChartRule[LensGaugePanelConfig | ESQLGaugePanelConfig]):
+            pass
+
+        _extract_types_from_generic(GaugeRule, ChartRule)
+        # Returns: (LensGaugePanelConfig, ESQLGaugePanelConfig)
+
+    """
+    for orig_base in getattr(cls, '__orig_bases__', ()):
+        origin = get_origin(orig_base)
+        if origin is None:
+            continue
+
+        # Check if this is the base class we're looking for
+        # For Python 3.12+ generic syntax, origin is the base class
+        if origin is base_class or (hasattr(origin, '__mro__') and base_class in origin.__mro__):
+            args = get_args(orig_base)
+            if not args:
+                return None
+
+            return _unwrap_type_alias(args[0])
+
+    return None
 
 
 @dataclass(frozen=True)
@@ -165,16 +259,18 @@ class PanelRule[PanelT: BasePanel](ABC):
     """Base class for panel-level rules with automatic iteration and type filtering.
 
     Panel rules check individual panels. The base class handles iteration
-    over all panels in the dashboard, filtering by panel_types if set.
+    over all panels in the dashboard, filtering by panel type automatically
+    extracted from the generic type parameter.
 
     Type Parameter:
-        PanelT: The panel type(s) this rule accepts. Used for static type checking.
-                The actual runtime filtering is done via the panel_types attribute.
+        PanelT: The panel type(s) this rule accepts. Used for both static type
+                checking AND automatic runtime filtering. No need to duplicate
+                with a panel_types attribute.
 
     Example:
         @panel_rule
         class MarkdownRule(PanelRule[MarkdownPanel]):
-            panel_types = (MarkdownPanel,)  # Runtime filtering
+            # No panel_types needed - automatically extracted from generic!
 
             def check_panel(self, panel: MarkdownPanel, context, options):
                 # panel is already MarkdownPanel - no isinstance needed
@@ -184,15 +280,29 @@ class PanelRule[PanelT: BasePanel](ABC):
     Subclasses must:
     - Implement check_panel() with the correct panel type annotation
     - Define id, description, and default_severity as class attributes
-    - Set panel_types tuple if filtering to specific panel types
 
     """
 
     id: str
     description: str
     default_severity: Severity
-    panel_types: tuple[type[BasePanel], ...] | None = None
-    """Panel types to check. None means check all panels."""
+    _panel_types: tuple[type, ...] | None = None
+    """Cached panel types extracted from generic. Use get_panel_types()."""
+
+    def get_panel_types(self) -> tuple[type, ...] | None:
+        """Get panel types to filter, extracted from generic type parameter.
+
+        Returns:
+            Tuple of panel types to check, or None to check all panels.
+
+        """
+        if self._panel_types is None:
+            extracted = _extract_types_from_generic(type(self), PanelRule)
+            # Cache the result (even if None) to avoid repeated extraction
+            # We use a sentinel to distinguish "not extracted" from "extracted as None"
+            if extracted is not None:
+                object.__setattr__(self, '_panel_types', extracted)
+        return self._panel_types
 
     @abstractmethod
     def check_panel(
@@ -217,8 +327,8 @@ class PanelRule[PanelT: BasePanel](ABC):
     def check(self, dashboard: Dashboard, options: dict[str, Any]) -> list[Violation]:
         """Implement Rule protocol with automatic panel iteration.
 
-        Iterates over all panels in the dashboard, filtering by panel_types
-        if specified, and calls check_panel for each.
+        Iterates over all panels in the dashboard, filtering by panel types
+        extracted from the generic parameter, and calls check_panel for each.
 
         Args:
             dashboard: The dashboard to check.
@@ -229,10 +339,11 @@ class PanelRule[PanelT: BasePanel](ABC):
 
         """
         violations: list[Violation] = []
+        panel_types = self.get_panel_types()
 
         for idx, panel in enumerate(dashboard.panels):
             # Filter by panel type if specified
-            if self.panel_types is not None and not isinstance(panel, self.panel_types):
+            if panel_types is not None and not isinstance(panel, panel_types):
                 continue
 
             context = PanelContext(
@@ -251,16 +362,18 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
     """Base class for chart-level rules with automatic iteration and type filtering.
 
     Chart rules check LensPanel and ESQLPanel configurations. The base
-    class handles iteration and filtering by config_types if set.
+    class handles iteration and filtering by config types automatically
+    extracted from the generic type parameter.
 
     Type Parameter:
-        ConfigT: The config type(s) this rule accepts. Used for static type checking.
-                 The actual runtime filtering is done via the config_types attribute.
+        ConfigT: The config type(s) this rule accepts. Used for both static type
+                 checking AND automatic runtime filtering. No need to duplicate
+                 with a config_types attribute.
 
     Example:
         @chart_rule
         class GaugeRule(ChartRule[LensGaugePanelConfig | ESQLGaugePanelConfig]):
-            config_types = (LensGaugePanelConfig, ESQLGaugePanelConfig)
+            # No config_types needed - automatically extracted from generic!
 
             def check_chart(self, panel, config, context, options):
                 # config is already the correct type - no isinstance needed
@@ -270,15 +383,27 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
     Subclasses must:
     - Implement check_chart() with the correct config type annotation
     - Define id, description, and default_severity as class attributes
-    - Set config_types tuple if filtering to specific chart configurations
 
     """
 
     id: str
     description: str
     default_severity: Severity
-    config_types: tuple[type, ...] | None = None
-    """Config types to check (e.g., (LensGaugePanelConfig,)). None means all."""
+    _config_types: tuple[type, ...] | None = None
+    """Cached config types extracted from generic. Use get_config_types()."""
+
+    def get_config_types(self) -> tuple[type, ...] | None:
+        """Get config types to filter, extracted from generic type parameter.
+
+        Returns:
+            Tuple of config types to check, or None to check all configs.
+
+        """
+        if self._config_types is None:
+            extracted = _extract_types_from_generic(type(self), ChartRule)
+            if extracted is not None:
+                object.__setattr__(self, '_config_types', extracted)
+        return self._config_types
 
     @abstractmethod
     def check_chart(
@@ -306,7 +431,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
         """Implement Rule protocol with automatic chart iteration.
 
         Iterates over all LensPanel and ESQLPanel instances, filtering by
-        config_types if specified, and calls check_chart for each.
+        config types extracted from the generic parameter, and calls check_chart.
 
         Args:
             dashboard: The dashboard to check.
@@ -317,6 +442,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
 
         """
         violations: list[Violation] = []
+        config_types = self.get_config_types()
 
         for idx, panel in enumerate(dashboard.panels):
             panel_type: Literal['lens', 'esql'] | None = None
@@ -336,7 +462,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig)](ABC):
                 continue
 
             # Filter by config type if specified
-            if self.config_types is not None and not isinstance(config, self.config_types):
+            if config_types is not None and not isinstance(config, config_types):
                 continue
 
             context = ChartContext(

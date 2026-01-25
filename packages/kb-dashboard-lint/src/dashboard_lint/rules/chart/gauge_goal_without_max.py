@@ -27,7 +27,6 @@ class GaugeGoalWithoutMaxRule(ChartRule[GaugeConfig]):
     id: str = 'gauge-goal-without-max'
     description: str = 'Gauge charts with goals should define maximum values'
     default_severity: Severity = Severity.WARNING
-    config_types: tuple[type, ...] = (LensGaugePanelConfig, ESQLGaugePanelConfig)
 
     def check_chart(
         self,

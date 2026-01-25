@@ -28,7 +28,6 @@ class MarkdownHeaderHeightRule(PanelRule[MarkdownPanel]):
     id: str = 'markdown-header-height'
     description: str = 'Markdown panels with headers must have height >= 3'
     default_severity: Severity = Severity.WARNING
-    panel_types: tuple[type, ...] = (MarkdownPanel,)
 
     def check_panel(
         self,

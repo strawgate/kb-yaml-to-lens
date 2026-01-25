@@ -31,7 +31,6 @@ class PieChartDimensionCountRule(ChartRule[PieConfig]):
     id: str = 'pie-chart-dimension-count'
     description: str = 'Pie charts with multiple dimensions may be hard to read'
     default_severity: Severity = Severity.INFO
-    config_types: tuple[type, ...] = (LensPiePanelConfig, ESQLPiePanelConfig)
 
     def check_chart(
         self,

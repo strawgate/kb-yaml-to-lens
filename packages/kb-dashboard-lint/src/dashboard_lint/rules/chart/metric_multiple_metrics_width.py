@@ -31,7 +31,6 @@ class MetricMultipleMetricsWidthRule(ChartRule[MetricConfig]):
     id: str = 'metric-multiple-metrics-width'
     description: str = 'Metric panels with multiple metrics should have adequate width'
     default_severity: Severity = Severity.WARNING
-    config_types: tuple[type, ...] = (LensMetricPanelConfig, ESQLMetricPanelConfig)
 
     def check_chart(
         self,
