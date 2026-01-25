@@ -13,16 +13,20 @@ Example usage:
     for v in violations:
         print(f"{v.severity}: {v.rule_id} - {v.message}")
 
+For advanced usage (custom rules, configuration), import from submodules:
+    - dashboard_lint.config: LintConfig, RuleConfig, load_config
+    - dashboard_lint.registry: RuleRegistry, default_registry, register_rule
+    - dashboard_lint.runner: LintRunner
+    - dashboard_lint.types: Rule, RuleResult, SourcePosition, SourceRange, Violation
+    - dashboard_lint.rules: Base classes and decorators for custom rules
+
 """
 
 from beartype import BeartypeConf
 from beartype.claw import beartype_this_package
 
-from dashboard_lint.config import LintConfig, RuleConfig, load_config
-from dashboard_lint.registry import RuleRegistry, default_registry, register_rule
-from dashboard_lint.runner import LintRunner, check_dashboards
-from dashboard_lint.types import Rule, RuleResult, Severity, SourcePosition, SourceRange, Violation
-from dashboard_lint.yaml_position_resolver import MultiFilePositionResolver, YamlPositionResolver
+from dashboard_lint.runner import check_dashboards
+from dashboard_lint.types import Severity, Violation
 
 # Enable strict BearType checking
 beartype_this_package(
@@ -33,20 +37,7 @@ beartype_this_package(
 )
 
 __all__ = [
-    'LintConfig',
-    'LintRunner',
-    'MultiFilePositionResolver',
-    'Rule',
-    'RuleConfig',
-    'RuleRegistry',
-    'RuleResult',
     'Severity',
-    'SourcePosition',
-    'SourceRange',
     'Violation',
-    'YamlPositionResolver',
     'check_dashboards',
-    'default_registry',
-    'load_config',
-    'register_rule',
 ]
