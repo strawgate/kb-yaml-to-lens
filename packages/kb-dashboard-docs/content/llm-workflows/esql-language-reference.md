@@ -521,15 +521,22 @@ FROM logs-*
 
 ## Common Mistakes to Avoid
 
+!!! tip "Automatic Detection"
+    Many of these mistakes are automatically detected by the dashboard linter.
+    Run `kb-dashboard-lint` on your YAML files to catch issues early.
+
 1. **Using SQL syntax**: ES|QL is not SQL. No SELECT, FROM comes first, use `|` pipes.
+   *Lint rule: `esql-sql-syntax`*
 
 2. **Wrong equality operator**: Use `==` for comparison, not `=`.
+   *Lint rule: `esql-sql-syntax`*
 
 3. **Missing pipes**: Commands must be separated by `|`.
 
 4. **GROUP BY in wrong place**: Use `BY` within `STATS`, not as separate clause.
 
 5. **Wrong wildcard character**: Use `*` in LIKE patterns, not `%`.
+   *Lint rule: `esql-sql-syntax`*
 
 6. **Forgetting SORT for time series**: Add `SORT time_bucket ASC` for charts.
 
@@ -538,12 +545,14 @@ FROM logs-*
 8. **Case sensitivity**: Field names are case-sensitive.
 
 9. **Missing time filter**: Add `WHERE @timestamp >= NOW() - 1 day` for performance.
+   *Lint rule: `esql-where-clause`*
 
 10. **Assuming default order**: Always explicit SORT for predictable results.
 
 11. **Using window functions**: ES|QL has no `ROW_NUMBER() OVER (PARTITION BY ...)`. Use `VALUES()` + `MV_SORT()` + `MV_FIRST()`/`MV_LAST()` for latest-per-group patterns.
 
-12. **Hardcoded time buckets**: Always use dynamic sizing `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like `BUCKET(@timestamp, 1 minute)` or `TBUCKET(5 minutes)` as they create too many data points for long time ranges.
+12. **Hardcoded time buckets**: Always use dynamic sizing ``BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)`` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like ``BUCKET(`@timestamp`, 1 minute)`` or ``TBUCKET(5 minutes)`` as they create too many data points for long time ranges.
+    *Lint rule: `esql-dynamic-time-bucket`*
 
 ---
 
@@ -606,7 +615,8 @@ TS metrics-*
 
 ### Escaping Special Field Names
 
-Field names with numeric suffixes require backticks:
+Field names with numeric suffixes require backticks.
+*Lint rule: `esql-field-escaping`*
 
 ```esql
 # WRONG - Parser error
