@@ -44,7 +44,6 @@ dashboards:
         label: "Filter by Host"
         data_view: "metrics-*"
         field: "resource.attributes.host.name"
-        width: "medium"
     panels:
       - markdown:
           content: "### Key Performance Indicators"
@@ -78,7 +77,7 @@ dashboards:
 
 The main object defining the dashboard.
 
-| YAML Key | Data Type | Description | Default | Required |
+| YAML Key | Data Type | Description | Compiler Default | Required |
 | ------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `name` | `string` | The title of the dashboard displayed in Kibana. | N/A | Yes |
 | `id` | `string` | An optional unique identifier for the dashboard. If not provided, one will be generated based on the name. | Generated ID | No |
@@ -94,7 +93,7 @@ The main object defining the dashboard.
 
 Configure a default time range that will be restored when opening the dashboard. When `time_range` is set, Kibana will automatically apply the specified time range instead of using the global time picker value.
 
-| YAML Key | Data Type | Description | Default | Required |
+| YAML Key | Data Type | Description | Compiler Default | Required |
 | -------- | --------- | ----------- | ------- | -------- |
 | `from` | `string` | The start of the time range. Supports relative time expressions like `now-30d/d`, `now-1h`, etc. | N/A | Yes |
 | `to` | `string` | The end of the time range. Supports relative time expressions. | `now` | No |

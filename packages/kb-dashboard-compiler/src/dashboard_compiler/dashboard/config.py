@@ -28,9 +28,9 @@ class DashboardSyncSettings(BaseCfgModel):
     cursor: bool | None = Field(default=None)
     """Whether to synchronize the cursor across related panels. Defaults to true if not set."""
     tooltips: bool | None = Field(default=None)
-    """Whether to synchronize tooltips across related panels. Defaults to true if not set."""
+    """Whether to synchronize tooltips across related panels. Defaults to false if not set."""
     colors: bool | None = Field(default=None)
-    """Whether to apply the same color palette to all panels on the dashboard. Defaults to true if not set."""
+    """Whether to apply the same color palette to all panels on the dashboard. Defaults to false if not set."""
 
 
 class DashboardSettings(BaseCfgModel):

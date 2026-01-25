@@ -137,8 +137,6 @@ class LinksPanel(BasePanel):
                   items:
                   - label: "Service Health Dashboard"
                     dashboard: "service-health-monitor-v2"
-                    with_time: true
-                    with_filters: true
                   - label: "Runbook Wiki"
                     url: "https://internal.wiki/ops/runbooks"
                     new_tab: true
