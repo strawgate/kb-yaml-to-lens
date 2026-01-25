@@ -43,14 +43,14 @@ dashboards:
               dashboard: docker-otel-overview
             - label: Container Stats
               dashboard: docker-otel-container-stats
-      - size: {w: 6, h: 6}
+      - size: {w: 6, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(container.id, reducedTimeRange='1h')
             label: Active Containers
-      - size: {w: 6, h: 6}
+      - size: {w: 6, h: 4}
         lens:
           type: metric
           data_view: metrics-*

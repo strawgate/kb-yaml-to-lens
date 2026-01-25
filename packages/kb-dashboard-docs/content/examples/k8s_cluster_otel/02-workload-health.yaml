@@ -47,7 +47,7 @@ dashboards:
           font_size: 14
       - title: Ready Containers
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -59,7 +59,7 @@ dashboards:
               equals: '1'
       - title: Not Ready Containers
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +71,7 @@ dashboards:
               equals: '0'
       - title: Total Restarts
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -82,7 +82,7 @@ dashboards:
             - exists: k8s.container.restarts
       - title: Containers Restarting
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*

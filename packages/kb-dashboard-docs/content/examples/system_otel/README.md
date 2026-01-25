@@ -134,6 +134,35 @@ service:
 | `host.name` | Host identifier |
 | `os.type` | Operating system type |
 
+## Metrics Not Used in Dashboards
+
+The following metrics are available from the Host Metrics receiver but are not currently visualized in the dashboards:
+
+### Default Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `system.cpu.time` | Sum | `s` | Seconds each logical CPU spent on each mode | `cpu`, `state` |
+| `system.memory.usage` | Sum | `By` | Bytes of memory in use | `state` |
+| `system.disk.operation_time` | Sum | `s` | Time spent in disk operations | `device`, `direction` |
+| `system.disk.pending_operations` | Sum | `{operations}` | Queue size of pending I/O operations | `device` |
+| `system.disk.merged` | Sum | `{operations}` | Merged disk operations | `device`, `direction` |
+| `system.disk.weighted_io_time` | Sum | `s` | Weighted I/O time | `device` |
+| `system.filesystem.usage` | Sum | `By` | Filesystem bytes used | `device`, `mode`, `mountpoint`, `type`, `state` |
+| `system.filesystem.inodes.usage` | Sum | `{inodes}` | Filesystem inodes used | `device`, `mode`, `mountpoint`, `type`, `state` |
+| `system.network.connections` | Sum | `{connections}` | Number of connections | `protocol`, `state` |
+
+### Optional Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `system.cpu.physical.count` | Sum | `{cpu}` | Number of available physical CPUs | — |
+| `system.cpu.frequency` | Gauge | `Hz` | Current CPU frequency | `cpu` |
+| `system.memory.limit` | Sum | `By` | Total bytes of memory | — |
+| `system.linux.memory.available` | Sum | `By` | Available memory estimate (Linux) | — |
+| `system.network.conntrack.count` | Sum | `{entries}` | Conntrack table entries | — |
+| `system.network.conntrack.max` | Sum | `{entries}` | Conntrack table limit | — |
+
 ## Related Resources
 
 - [OpenTelemetry Host Metrics Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/hostmetricsreceiver)

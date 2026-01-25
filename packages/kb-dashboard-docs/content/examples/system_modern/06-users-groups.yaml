@@ -50,7 +50,7 @@ dashboards:
 
       # Summary Layer - Key IAM Metrics
       - title: Total Events
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -58,7 +58,7 @@ dashboards:
             aggregation: count
             label: Events
       - title: Unique Actions
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -67,7 +67,7 @@ dashboards:
             field: event.action
             label: Actions
       - title: Unique Users
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -76,7 +76,7 @@ dashboards:
             field: user.name
             label: Users
       - title: Unique Hosts
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

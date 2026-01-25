@@ -52,7 +52,7 @@ dashboards:
             field: winlog.event_id
             size: 10
       - title: Total Logon Attempts
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -65,7 +65,7 @@ dashboards:
                 - '4624'
                 - '4625'
       - title: Successful Logons
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -78,7 +78,7 @@ dashboards:
             - field: event.outcome
               equals: success
       - title: Failed Logons
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -89,7 +89,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Logoffs
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
