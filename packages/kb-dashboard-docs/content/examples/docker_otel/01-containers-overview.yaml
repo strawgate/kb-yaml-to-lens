@@ -44,8 +44,7 @@ dashboards:
             - label: Container Stats
               dashboard: docker-otel-container-stats
       - title: Active Containers
-        description: >-
-          Containers reporting metrics in the last hour.
+        description: Uses reducedTimeRange='1h' to count only recent containers.
         size: {w: 6, h: 4}
         lens:
           type: metric

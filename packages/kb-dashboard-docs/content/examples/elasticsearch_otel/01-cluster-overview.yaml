@@ -70,7 +70,7 @@ dashboards:
             aggregation: max
             field: elasticsearch.cluster.data_nodes
             label: Data Nodes
-      - title: Cluster Health Over Time
+      - title: Cluster Nodes Over Time
         size: {w: 48, h: 8}
         lens:
           type: line
