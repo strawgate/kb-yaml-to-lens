@@ -68,7 +68,7 @@ dashboards:
 
       # Summary Layer - Key Metrics
       - title: Total Events
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -76,7 +76,7 @@ dashboards:
             aggregation: count
             label: Events
       - title: Process Created (4688)
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -87,7 +87,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4688'
       - title: Services Installed (7045)
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -98,7 +98,7 @@ dashboards:
             - field: winlog.event_id
               equals: '7045'
       - title: Scheduled Tasks
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

@@ -47,7 +47,7 @@ dashboards:
           font_size: 14
       - title: Successful Jobs
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,7 +58,7 @@ dashboards:
             - exists: k8s.job.name
       - title: Failed Jobs
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -69,7 +69,7 @@ dashboards:
             - exists: k8s.job.name
       - title: Active Jobs
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -80,7 +80,7 @@ dashboards:
             - exists: k8s.job.name
       - title: Active CronJobs
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*

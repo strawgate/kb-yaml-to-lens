@@ -28,7 +28,7 @@ dashboards:
               dashboard: elasticsearch-otel-cluster-metadata
       - title: Cluster Health Status
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -42,7 +42,7 @@ dashboards:
             label: Clusters
       - title: Active Clusters
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -52,7 +52,7 @@ dashboards:
             label: Clusters
       - title: Total Nodes
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -62,7 +62,7 @@ dashboards:
             label: Nodes
       - title: Data Nodes
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
