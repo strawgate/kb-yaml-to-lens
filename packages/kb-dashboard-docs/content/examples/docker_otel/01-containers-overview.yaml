@@ -9,10 +9,14 @@
 #
 # Modified by kb-yaml-to-lens contributors to convert from Kibana JSON format
 # to YAML format for use as documentation examples.
+#
+# ES|QL Version - Uses TS command for time-series optimization
 dashboards:
   - id: docker-otel-overview
     name: '[Metrics Docker] Overview'
-    description: ''
+    description: >-
+      Docker container metrics overview using OpenTelemetry Docker Stats
+      receiver (ES|QL version)
     controls:
       - type: options
         label: Container image
@@ -34,6 +38,7 @@ dashboards:
       - field: data_stream.dataset
         equals: dockerstatsreceiver.otel
     panels:
+      # Navigation Links
       - title: Navigation Links
         size: {w: 48, h: 2}
         links:
@@ -43,247 +48,272 @@ dashboards:
               dashboard: docker-otel-overview
             - label: Container Stats
               dashboard: docker-otel-container-stats
+
+      # KPI Metrics Row
       - title: Active Containers
-        description: Uses reducedTimeRange='1h' to count only recent containers.
+        hide_title: true
         size: {w: 6, h: 4}
-        lens:
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE \`@timestamp\` >= ?_tstart AND \`@timestamp\` <= ?_tend
+            - STATS active_containers = COUNT_DISTINCT(container.id)
           primary:
-            formula: unique_count(container.id, reducedTimeRange='1h')
+            field: active_containers
             label: Active Containers
             format:
               type: number
               decimals: 0
       - title: Total Containers
-        description: All unique containers seen in the selected time range.
+        hide_title: true
         size: {w: 6, h: 4}
-        lens:
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE \`@timestamp\` >= ?_tstart AND \`@timestamp\` <= ?_tend
+            - STATS total_containers = COUNT_DISTINCT(container.id)
           primary:
-            formula: unique_count(container.id)
+            field: total_containers
             label: Total Containers
             format:
               type: number
               decimals: 0
-      - size: {w: 36, h: 6}
-        lens:
+      - title: Containers Over Time
+        hide_title: true
+        size: {w: 36, h: 6}
+        esql:
           type: bar
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS containers = COUNT_DISTINCT(container.id) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
           dimension:
-            field: '@timestamp'
-            type: date_histogram
+            field: time_bucket
           metrics:
-            - field: container.id
-              aggregation: unique_count
+            - field: containers
               label: Containers
               format:
                 type: number
                 decimals: 0
+
+      # Summary Tables
       - title: Containers by Runtime
         size: {w: 16, h: 11}
-        lens:
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Runtime = container.runtime
+            - SORT Containers DESC
+            - LIMIT 10
           dimensions:
-            - id: runtime
-              type: values
-              field: container.runtime
-              label: Runtime
-              size: 5
+            - field: Runtime
           metrics:
-            - id: containers
-              field: container.id
-              aggregation: unique_count
-              label: Containers
-              format:
-                type: number
-                decimals: 0
+            - field: Containers
       - title: Containers by Image
         size: {w: 16, h: 11}
-        lens:
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Image = container.image.name
+            - SORT Containers DESC
+            - LIMIT 50
           dimensions:
-            - id: images
-              type: values
-              field: container.image.name
-              label: Images
-              size: 50
+            - field: Image
           metrics:
-            - id: containers
-              field: container.id
-              aggregation: unique_count
-              label: Containers
-              format:
-                type: number
-                decimals: 0
+            - field: Containers
       - title: Containers by Name
         size: {w: 16, h: 11}
-        lens:
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
+            - SORT Containers DESC
+            - LIMIT 50
           dimensions:
-            - id: names
-              type: values
-              field: container.name
-              label: Names
-              size: 50
+            - field: Name
           metrics:
-            - id: containers
-              field: container.id
-              aggregation: unique_count
-              label: Containers
-              format:
-                type: number
-                decimals: 0
+            - field: Containers
+
+      # CPU Usage Time Series
       - title: CPU Usage
         size: {w: 48, h: 8}
         hide_title: true
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS cpu_usage = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100 BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+              container_id = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 20
+            field: time_bucket
           metrics:
-            - formula: median(container.cpu.utilization)/100
+            - field: cpu_usage
               label: CPU Usage
               format:
                 type: percent
+          breakdown:
+            field: container_id
+
+      # Memory Usage Time Series
       - title: Memory Usage
         size: {w: 24, h: 8}
         hide_title: true
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS memory_usage = AVG(AVG_OVER_TIME(container.memory.percent)) / 100 BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+              container_id = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 20
+            field: time_bucket
           metrics:
-            - formula: median(container.memory.percent)/100
+            - field: memory_usage
               label: Memory Usage
               format:
                 type: percent
+          breakdown:
+            field: container_id
       - title: Memory Usage (Bytes)
         size: {w: 24, h: 8}
         hide_title: true
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS memory_bytes = AVG(AVG_OVER_TIME(container.memory.usage.total)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+              container_id = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 20
+            field: time_bucket
           metrics:
-            - field: container.memory.usage.total
-              aggregation: median
+            - field: memory_bytes
               label: Memory Usage
               format:
                 type: bytes
+          breakdown:
+            field: container_id
+
+      # Disk I/O Time Series
       - title: Disk I/O - Read
         size: {w: 24, h: 8}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
+            - WHERE attributes.operation == "read"
+            - STATS read_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+              container_id = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
-          filters:
-            - field: attributes.operation
-              equals: read
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 30
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+            - field: read_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: container_id
       - title: Disk I/O - Write
         size: {w: 24, h: 8}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
+            - WHERE attributes.operation == "write"
+            - STATS write_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend),
+              container_id = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
-          filters:
-            - field: attributes.operation
-              equals: write
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 30
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+            - field: write_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: container_id
+
+      # Network I/O Time Series
       - title: Network I/O - Received
         size: {w: 24, h: 8}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.network.io.usage.rx_bytes IS NOT NULL
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend), container_id
+              = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 30
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.network.io.usage.rx_bytes))
+            - field: rx_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: container_id
       - title: Network I/O - Transmitted
         size: {w: 24, h: 8}
-        lens:
+        esql:
           type: area
           mode: stacked
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.network.io.usage.tx_bytes IS NOT NULL
+            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(\`@timestamp\`, 20, ?_tstart, ?_tend), container_id
+              = container.id
+            - SORT time_bucket ASC
           legend:
             visible: hide
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: container.id
-            type: values
-            size: 30
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.network.io.usage.tx_bytes))
+            - field: tx_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: container_id
