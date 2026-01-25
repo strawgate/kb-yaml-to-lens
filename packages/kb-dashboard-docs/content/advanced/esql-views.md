@@ -32,7 +32,7 @@ dashboards:
   - name: "Application Logs"
     panels:
       - title: "Total Requests"
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         esql:
           type: metric
           query:
@@ -42,7 +42,7 @@ dashboards:
             field: total
 
       - title: "Requests by Status"
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         position: {x: 16, y: 0}
         esql:
           type: pie
@@ -55,7 +55,7 @@ dashboards:
             - field: http.response.status_code
 
       - title: "Average Response Time"
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         position: {x: 32, y: 0}
         esql:
           type: metric
@@ -86,7 +86,7 @@ dashboards:
   - name: "Production Metrics"
     panels:
       - title: "Successful Requests"
-        size: {w: 24, h: 8}
+        size: {w: 24, h: 4}
         esql:
           type: metric
           query:
@@ -98,7 +98,7 @@ dashboards:
             field: count
 
       - title: "Error Rate"
-        size: {w: 24, h: 8}
+        size: {w: 24, h: 4}
         position: {x: 24, y: 0}
         esql:
           type: metric
@@ -128,7 +128,7 @@ dashboards:
   - name: "API Dashboard"
     panels:
       - title: "Request Volume"
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         esql:
           type: metric
           query:
@@ -138,7 +138,7 @@ dashboards:
             field: requests
 
       - title: "P95 Response Time"
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         position: {x: 16, y: 0}
         esql:
           type: metric
@@ -149,7 +149,7 @@ dashboards:
             field: p95
 
       - title: "Requests by Endpoint"
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         position: {x: 32, y: 0}
         esql:
           type: pie

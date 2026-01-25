@@ -44,7 +44,7 @@ dashboards:
             field: winlog.event_id
             size: 10
       - title: Failed Logons (4625)
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -55,7 +55,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Account Lockouts (4740)
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -66,7 +66,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4740'
       - title: Account Unlocks (4767)
-        size: {w: 16, h: 8}
+        size: {w: 16, h: 4}
         lens:
           type: metric
           data_view: logs-*

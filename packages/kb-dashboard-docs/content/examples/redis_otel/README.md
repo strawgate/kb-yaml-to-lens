@@ -110,6 +110,10 @@ service:
 | `server.address` | Server address (optional) |
 | `server.port` | Server port (optional) |
 
+## Metrics Not Used in Dashboards
+
+All optional metrics listed in the [Optional Metrics](#optional-metrics-disabled-by-default) section above are not currently visualized in the dashboards. These metrics are disabled by default and must be explicitly enabled in the OpenTelemetry Collector configuration.
+
 ## Related Resources
 
 - [OpenTelemetry Redis Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/redisreceiver)

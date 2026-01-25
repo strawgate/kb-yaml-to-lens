@@ -60,7 +60,7 @@ dashboards:
 
       # Summary Layer - Key Security Metrics
       - title: Total Failed Events
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -68,7 +68,7 @@ dashboards:
             aggregation: count
             label: Events
       - title: Failed Logons (4625)
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -79,7 +79,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4625'
       - title: Account Lockouts (4740)
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -90,7 +90,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4740'
       - title: Unique Affected Users
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

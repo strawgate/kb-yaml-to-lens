@@ -48,7 +48,7 @@ dashboards:
       # Overview Metrics Row
       - title: Request Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -63,7 +63,7 @@ dashboards:
               type: number
       - title: Traffic Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -78,7 +78,7 @@ dashboards:
               type: bytes
       - title: Active Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -94,7 +94,7 @@ dashboards:
               pattern: 0,0
       - title: CPU Load
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:

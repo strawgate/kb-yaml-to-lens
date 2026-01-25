@@ -41,7 +41,7 @@ dashboards:
           content: '### Node Health'
       - title: Document Count
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -51,7 +51,7 @@ dashboards:
             label: Documents
       - title: Open Files
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -61,7 +61,7 @@ dashboards:
             label: Open Files
       - title: HTTP Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +71,7 @@ dashboards:
             label: Connections
       - title: Active Nodes
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
