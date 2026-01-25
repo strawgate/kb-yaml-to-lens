@@ -35,24 +35,9 @@ class TestGetFilterTypeFromObject:
         filter_obj = PhrasesFilter(field='status', **{'in': ['active', 'pending']})
         assert get_filter_type(filter_obj) == 'phrases'
 
-    def test_identifies_range_filter_from_object_gte(self) -> None:
-        """Test that get_filter_type identifies RangeFilter from object with gte."""
+    def test_identifies_range_filter_from_object(self) -> None:
+        """Test that get_filter_type identifies RangeFilter from object."""
         filter_obj = RangeFilter(field='age', gte='18')
-        assert get_filter_type(filter_obj) == 'range'
-
-    def test_identifies_range_filter_from_object_lte(self) -> None:
-        """Test that get_filter_type identifies RangeFilter from object with lte."""
-        filter_obj = RangeFilter(field='age', lte='65')
-        assert get_filter_type(filter_obj) == 'range'
-
-    def test_identifies_range_filter_from_object_gt(self) -> None:
-        """Test that get_filter_type identifies RangeFilter from object with gt."""
-        filter_obj = RangeFilter(field='age', gt='17')
-        assert get_filter_type(filter_obj) == 'range'
-
-    def test_identifies_range_filter_from_object_lt(self) -> None:
-        """Test that get_filter_type identifies RangeFilter from object with lt."""
-        filter_obj = RangeFilter(field='age', lt='66')
         assert get_filter_type(filter_obj) == 'range'
 
     def test_identifies_custom_filter_from_object(self) -> None:

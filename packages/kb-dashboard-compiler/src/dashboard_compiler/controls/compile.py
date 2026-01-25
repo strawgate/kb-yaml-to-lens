@@ -155,16 +155,7 @@ def compile_time_slider_control(order: int, *, control: TimeSliderControl) -> Kb
 
 @log_compile
 def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnESQLControl:
-    """Compile an ESQLFieldControl into its Kibana view model representation.
-
-    Args:
-        order (int): The order of the control in the dashboard.
-        control (ESQLFieldControl): The ESQLFieldControl object to compile.
-
-    Returns:
-        KbnESQLControl: The compiled Kibana ES|QL control view model.
-
-    """
+    """Compile an ESQLFieldControl into its Kibana view model representation."""
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -187,16 +178,7 @@ def compile_esql_field_control(order: int, *, control: ESQLFieldControl) -> KbnE
 
 @log_compile
 def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -> KbnESQLControl:
-    """Compile an ESQLFunctionControl into its Kibana view model representation.
-
-    Args:
-        order (int): The order of the control in the dashboard.
-        control (ESQLFunctionControl): The ESQLFunctionControl object to compile.
-
-    Returns:
-        KbnESQLControl: The compiled Kibana ES|QL control view model.
-
-    """
+    """Compile an ESQLFunctionControl into its Kibana view model representation."""
     selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
@@ -219,17 +201,8 @@ def compile_esql_function_control(order: int, *, control: ESQLFunctionControl) -
 
 @log_compile
 def compile_esql_static_single_select_control(order: int, *, control: ESQLStaticSingleSelectControl) -> KbnESQLControl:
-    """Compile an ESQLStaticSingleSelectControl into its Kibana view model representation.
-
-    Args:
-        order (int): The order of the control in the dashboard.
-        control (ESQLStaticSingleSelectControl): The ESQLStaticSingleSelectControl object to compile.
-
-    Returns:
-        KbnESQLControl: The compiled Kibana ES|QL control view model.
-
-    """
-    selected_options: list[str] = [control.default] if control.default is not None else []
+    """Compile an ESQLStaticSingleSelectControl into its Kibana view model representation."""
+    selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
         grow=False,
@@ -251,17 +224,8 @@ def compile_esql_static_single_select_control(order: int, *, control: ESQLStatic
 
 @log_compile
 def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticMultiSelectControl) -> KbnESQLControl:
-    """Compile an ESQLStaticMultiSelectControl into its Kibana view model representation.
-
-    Args:
-        order (int): The order of the control in the dashboard.
-        control (ESQLStaticMultiSelectControl): The ESQLStaticMultiSelectControl object to compile.
-
-    Returns:
-        KbnESQLControl: The compiled Kibana ES|QL control view model.
-
-    """
-    selected_options: list[str] = control.default if control.default is not None else []
+    """Compile an ESQLStaticMultiSelectControl into its Kibana view model representation."""
+    selected_options = control.default if control.default is not None else []
 
     return KbnESQLControl(
         grow=False,
@@ -283,17 +247,8 @@ def compile_esql_static_multi_select_control(order: int, *, control: ESQLStaticM
 
 @log_compile
 def compile_esql_query_single_select_control(order: int, *, control: ESQLQuerySingleSelectControl) -> KbnESQLControl:
-    """Compile an ESQLQuerySingleSelectControl into its Kibana view model representation.
-
-    Args:
-        order (int): The order of the control in the dashboard.
-        control (ESQLQuerySingleSelectControl): The ESQLQuerySingleSelectControl object to compile.
-
-    Returns:
-        KbnESQLControl: The compiled Kibana ES|QL control view model.
-
-    """
-    selected_options: list[str] = [control.default] if control.default is not None else []
+    """Compile an ESQLQuerySingleSelectControl into its Kibana view model representation."""
+    selected_options = [control.default] if control.default is not None else []
 
     return KbnESQLControl(
         grow=False,
@@ -315,17 +270,8 @@ def compile_esql_query_single_select_control(order: int, *, control: ESQLQuerySi
 
 @log_compile
 def compile_esql_query_multi_select_control(order: int, *, control: ESQLQueryMultiSelectControl) -> KbnESQLControl:
-    """Compile an ESQLQueryMultiSelectControl into its Kibana view model representation.
-
-    Args:
-        order (int): The order of the control in the dashboard.
-        control (ESQLQueryMultiSelectControl): The ESQLQueryMultiSelectControl object to compile.
-
-    Returns:
-        KbnESQLControl: The compiled Kibana ES|QL control view model.
-
-    """
-    selected_options: list[str] = control.default if control.default is not None else []
+    """Compile an ESQLQueryMultiSelectControl into its Kibana view model representation."""
+    selected_options = control.default if control.default is not None else []
 
     return KbnESQLControl(
         grow=False,
@@ -350,8 +296,8 @@ def compile_control(order: int, *, control: ControlTypes) -> tuple[KbnControlTyp
     """Compile a single control into its Kibana view model representation.
 
     Args:
-        order (int): The order of the control in the dashboard.
-        control (ControlTypes): The control object to compile.
+        order: The order of the control in the dashboard.
+        control: The control object to compile.
 
     Returns:
         tuple: A tuple containing the compiled control and an optional data view reference.
@@ -366,14 +312,12 @@ def compile_control(order: int, *, control: ControlTypes) -> tuple[KbnControlTyp
     if isinstance(control, RangeSliderControl):
         return compile_range_slider_control(order, control=control)
 
-    # NEW CONTROLS (before deprecated ones for proper precedence)
     if isinstance(control, ESQLFieldControl):
         return compile_esql_field_control(order, control=control), None
 
     if isinstance(control, ESQLFunctionControl):
         return compile_esql_function_control(order, control=control), None
 
-    # DEPRECATED (backward compatibility)
     if isinstance(control, ESQLStaticSingleSelectControl):
         return compile_esql_static_single_select_control(order, control=control), None
 
@@ -386,9 +330,8 @@ def compile_control(order: int, *, control: ControlTypes) -> tuple[KbnControlTyp
     if isinstance(control, ESQLQueryMultiSelectControl):  # pyright: ignore[reportUnnecessaryIsInstance]
         return compile_esql_query_multi_select_control(order, control=control), None
 
-    # Explicit check to satisfy exhaustive checking pattern
-    msg = f'Unknown control type: {type(control).__name__}'
-    raise TypeError(msg)  # pyright: ignore[reportUnreachable]
+    msg = f'Unknown control type: {type(control).__name__}'  # pyright: ignore[reportUnreachable]
+    raise TypeError(msg)
 
 
 @log_compile

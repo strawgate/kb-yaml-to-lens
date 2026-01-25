@@ -129,34 +129,34 @@ def update_panel_grid(yaml_path: str, panel_id: str, new_grid: dict[str, Any], d
     """
     required_keys = {'x', 'y', 'w', 'h'}
     if not all(key in new_grid for key in required_keys):
-        return UpdateGridLayoutResult.fail(f'Invalid grid coordinates: missing required keys {required_keys}')
+        return UpdateGridLayoutResult(success=False, error=f'Invalid grid coordinates: missing required keys {required_keys}')
 
     if not all(isinstance(new_grid[key], int) and new_grid[key] >= 0 for key in required_keys):
-        return UpdateGridLayoutResult.fail('Invalid grid coordinates: all values must be non-negative integers')
+        return UpdateGridLayoutResult(success=False, error='Invalid grid coordinates: all values must be non-negative integers')
 
     try:
         document = load_roundtrip(yaml_path)
     except Exception as e:
-        return UpdateGridLayoutResult.fail(f'Failed to load dashboard: {e}')
+        return UpdateGridLayoutResult(success=False, error=f'Failed to load dashboard: {e}')
 
     panel, error = _find_panel_in_document(document, panel_id, dashboard_index)
     if error is not None:
-        return UpdateGridLayoutResult.fail(error)
+        return UpdateGridLayoutResult(success=False, error=error)
 
     if panel is None:
-        return UpdateGridLayoutResult.fail(f'Panel with ID {panel_id} not found')
+        return UpdateGridLayoutResult(success=False, error=f'Panel with ID {panel_id} not found')
 
     try:
         _update_grid_in_panel(panel, new_grid)
     except Exception as e:
-        return UpdateGridLayoutResult.fail(f'Failed to update panel: {e}')
+        return UpdateGridLayoutResult(success=False, error=f'Failed to update panel: {e}')
 
     try:
         dump_roundtrip(document, yaml_path)
     except Exception as e:
-        return UpdateGridLayoutResult.fail(f'Failed to save dashboard: {e}')
+        return UpdateGridLayoutResult(success=False, error=f'Failed to save dashboard: {e}')
     else:
-        return UpdateGridLayoutResult.ok(f'Updated grid for {panel_id}')
+        return UpdateGridLayoutResult(success=True, message=f'Updated grid for {panel_id}')
 
 
 if __name__ == '__main__':

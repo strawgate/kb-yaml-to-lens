@@ -263,16 +263,6 @@ class CompileResult(BaseLSPModel):
     error: str | None = None
     """Error message on failure."""
 
-    @classmethod
-    def ok(cls, data: Any) -> 'CompileResult':
-        """Create a successful compile result."""
-        return cls(success=True, data=data)
-
-    @classmethod
-    def fail(cls, error: str) -> 'CompileResult':
-        """Create a failed compile result."""
-        return cls(success=False, error=error)
-
 
 class DashboardListResult(BaseLSPModel):
     """Response from dashboard/getDashboards endpoint."""
@@ -283,16 +273,6 @@ class DashboardListResult(BaseLSPModel):
     """List of dashboards on success."""
     error: str | None = None
     """Error message on failure."""
-
-    @classmethod
-    def ok(cls, data: list[DashboardInfo]) -> 'DashboardListResult':
-        """Create a successful dashboard list result."""
-        return cls(success=True, data=data)
-
-    @classmethod
-    def fail(cls, error: str) -> 'DashboardListResult':
-        """Create a failed dashboard list result."""
-        return cls(success=False, error=error)
 
 
 class GridLayoutResult(BaseLSPModel):
@@ -305,16 +285,6 @@ class GridLayoutResult(BaseLSPModel):
     error: str | None = None
     """Error message on failure."""
 
-    @classmethod
-    def ok(cls, data: DashboardGridInfo) -> 'GridLayoutResult':
-        """Create a successful grid layout result."""
-        return cls(success=True, data=data)
-
-    @classmethod
-    def fail(cls, error: str) -> 'GridLayoutResult':
-        """Create a failed grid layout result."""
-        return cls(success=False, error=error)
-
 
 class UpdateGridLayoutResult(BaseLSPModel):
     """Response from dashboard/updateGridLayout endpoint."""
@@ -325,16 +295,6 @@ class UpdateGridLayoutResult(BaseLSPModel):
     """Success message."""
     error: str | None = None
     """Error message on failure."""
-
-    @classmethod
-    def ok(cls, message: str) -> 'UpdateGridLayoutResult':
-        """Create a successful update result."""
-        return cls(success=True, message=message)
-
-    @classmethod
-    def fail(cls, error: str) -> 'UpdateGridLayoutResult':
-        """Create a failed update result."""
-        return cls(success=False, error=error)
 
 
 class UploadResult(BaseLSPModel):
@@ -349,16 +309,6 @@ class UploadResult(BaseLSPModel):
     error: str | None = None
     """Error message on failure."""
 
-    @classmethod
-    def ok(cls, dashboard_url: str, dashboard_id: str) -> 'UploadResult':
-        """Create a successful upload result."""
-        return cls(success=True, dashboard_url=dashboard_url, dashboard_id=dashboard_id)
-
-    @classmethod
-    def fail(cls, error: str) -> 'UploadResult':
-        """Create a failed upload result."""
-        return cls(success=False, error=error)
-
 
 class EsqlExecuteResult(BaseLSPModel):
     """Response from esql/execute endpoint."""
@@ -370,16 +320,6 @@ class EsqlExecuteResult(BaseLSPModel):
     error: str | None = None
     """Error message on failure."""
 
-    @classmethod
-    def ok(cls, data: EsqlResponse) -> 'EsqlExecuteResult':
-        """Create a successful ES|QL result."""
-        return cls(success=True, data=data)
-
-    @classmethod
-    def fail(cls, error: str) -> 'EsqlExecuteResult':
-        """Create a failed ES|QL result."""
-        return cls(success=False, error=error)
-
 
 class SchemaResult(BaseLSPModel):
     """Response from dashboard/getSchema endpoint."""
@@ -390,13 +330,3 @@ class SchemaResult(BaseLSPModel):
     """JSON Schema on success."""
     error: str | None = None
     """Error message on failure."""
-
-    @classmethod
-    def ok(cls, data: Any) -> 'SchemaResult':
-        """Create a successful schema result."""
-        return cls(success=True, data=data)
-
-    @classmethod
-    def fail(cls, error: str) -> 'SchemaResult':
-        """Create a failed schema result."""
-        return cls(success=False, error=error)

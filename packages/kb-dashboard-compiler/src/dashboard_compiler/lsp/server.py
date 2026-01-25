@@ -165,21 +165,21 @@ def _compile_dashboard(path: str, dashboard_index: int = 0) -> CompileResult:
         CompileResult with success status and either data or error message
     """
     if path is None or len(path) == 0:
-        return CompileResult.fail('Missing path parameter')
+        return CompileResult(success=False, error='Missing path parameter')
 
     try:
         dashboards = load(path)
         if len(dashboards) == 0:
-            return CompileResult.fail('No dashboards found in YAML file')
+            return CompileResult(success=False, error='No dashboards found in YAML file')
 
         if dashboard_index < 0 or dashboard_index >= len(dashboards):
-            return CompileResult.fail(f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})')
+            return CompileResult(success=False, error=f'Dashboard index {dashboard_index} out of range (0-{len(dashboards) - 1})')
 
         dashboard = dashboards[dashboard_index]
         kbn_dashboard = render(dashboard)
-        return CompileResult.ok(kbn_dashboard.model_dump(by_alias=True, mode='json'))
+        return CompileResult(success=True, data=kbn_dashboard.model_dump(by_alias=True, mode='json'))
     except Exception as e:
-        return CompileResult.fail(str(e))
+        return CompileResult(success=False, error=str(e))
 
 
 @server.command('dashboard.compile')
@@ -193,15 +193,15 @@ def compile_command(_ls: LanguageServer, args: list[Any]) -> CompileResult:
         CompileResult with compilation result
     """
     if args is None or len(args) < 1:
-        return CompileResult.fail('Missing path argument')
+        return CompileResult(success=False, error='Missing path argument')
 
     path = args[0]
     if not isinstance(path, str) or len(path) == 0:
-        return CompileResult.fail('Invalid path argument: expected non-empty string')
+        return CompileResult(success=False, error='Invalid path argument: expected non-empty string')
     try:
         dashboard_index: int = int(args[1]) if len(args) > 1 else 0
     except (TypeError, ValueError) as e:
-        return CompileResult.fail(f'Invalid dashboard_index: {e}')
+        return CompileResult(success=False, error=f'Invalid dashboard_index: {e}')
 
     return _compile_dashboard(path, dashboard_index)
 
@@ -221,7 +221,7 @@ def compile_custom(params: Any) -> CompileResult:
     try:
         request = _compile_request_adapter.validate_python(params_dict)
     except ValidationError as e:
-        return CompileResult.fail(f'Invalid request parameters: {e}')
+        return CompileResult(success=False, error=f'Invalid request parameters: {e}')
 
     return _compile_dashboard(request.path, request.dashboard_index)
 
@@ -241,7 +241,7 @@ def get_dashboards_custom(params: Any) -> DashboardListResult:
     try:
         request = _get_dashboards_request_adapter.validate_python(params_dict)
     except ValidationError as e:
-        return DashboardListResult.fail(f'Invalid request parameters: {e}')
+        return DashboardListResult(success=False, error=f'Invalid request parameters: {e}')
 
     try:
         dashboards = load(request.path)
@@ -254,9 +254,9 @@ def get_dashboards_custom(params: Any) -> DashboardListResult:
             for i, dashboard in enumerate(dashboards)
         ]
     except Exception as e:
-        return DashboardListResult.fail(str(e))
+        return DashboardListResult(success=False, error=str(e))
     else:
-        return DashboardListResult.ok(dashboard_list)
+        return DashboardListResult(success=True, data=dashboard_list)
 
 
 @server.feature('dashboard/getGridLayout')
@@ -274,14 +274,14 @@ def get_grid_layout_custom(params: Any) -> GridLayoutResult:
     try:
         request = _get_grid_layout_request_adapter.validate_python(params_dict)
     except ValidationError as e:
-        return GridLayoutResult.fail(f'Invalid request parameters: {e}')
+        return GridLayoutResult(success=False, error=f'Invalid request parameters: {e}')
 
     try:
         result = extract_grid_layout(request.path, request.dashboard_index)
     except Exception as e:
-        return GridLayoutResult.fail(str(e))
+        return GridLayoutResult(success=False, error=str(e))
     else:
-        return GridLayoutResult.ok(result)
+        return GridLayoutResult(success=True, data=result)
 
 
 @server.feature('dashboard/updateGridLayout')
@@ -300,7 +300,7 @@ def update_grid_layout_custom(params: Any) -> UpdateGridLayoutResult:
     try:
         request = _update_grid_layout_request_adapter.validate_python(params_dict)
     except ValidationError as e:
-        return UpdateGridLayoutResult.fail(f'Invalid request parameters: {e}')
+        return UpdateGridLayoutResult(success=False, error=f'Invalid request parameters: {e}')
 
     # Convert Grid model to dict for grid_updater (which expects dict)
     grid_dict = {'x': request.grid.x, 'y': request.grid.y, 'w': request.grid.w, 'h': request.grid.h}
@@ -308,7 +308,7 @@ def update_grid_layout_custom(params: Any) -> UpdateGridLayoutResult:
     try:
         return update_panel_grid(request.path, request.panel_id, grid_dict, request.dashboard_index)
     except Exception as e:
-        return UpdateGridLayoutResult.fail(str(e))
+        return UpdateGridLayoutResult(success=False, error=str(e))
 
 
 @server.feature('dashboard/getSchema')
@@ -335,9 +335,9 @@ def get_schema_custom(_params: Any) -> SchemaResult:
 
         schema = DashboardsRoot.model_json_schema()
     except Exception as e:
-        return SchemaResult.fail(str(e))
+        return SchemaResult(success=False, error=str(e))
     else:
-        return SchemaResult.ok(schema)
+        return SchemaResult(success=True, data=schema)
 
 
 @server.feature(types.TEXT_DOCUMENT_DID_SAVE)
@@ -368,7 +368,7 @@ async def execute_esql_query(params: Any) -> EsqlExecuteResult:
     try:
         request = _esql_execute_request_adapter.validate_python(params_dict)
     except ValidationError as e:
-        return EsqlExecuteResult.fail(f'Invalid request parameters: {e}')
+        return EsqlExecuteResult(success=False, error=f'Invalid request parameters: {e}')
 
     # Normalize empty strings to None for credentials
     username = _normalize_optional_str(request.username)
@@ -388,9 +388,9 @@ async def execute_esql_query(params: Any) -> EsqlExecuteResult:
         logger.debug('ES|QL query returned %d rows', result.row_count)
     except Exception as e:
         logger.exception('ES|QL execution error occurred')
-        return EsqlExecuteResult.fail(f'ES|QL execution error: {e!s}')
+        return EsqlExecuteResult(success=False, error=f'ES|QL execution error: {e!s}')
     else:
-        return EsqlExecuteResult.ok(result)
+        return EsqlExecuteResult(success=True, data=result)
 
 
 @server.feature('dashboard/uploadToKibana')
@@ -409,7 +409,7 @@ async def upload_to_kibana_custom(params: Any) -> UploadResult:
     try:
         request = _upload_to_kibana_request_adapter.validate_python(params_dict)
     except ValidationError as e:
-        return UploadResult.fail(f'Invalid request parameters: {e}')
+        return UploadResult(success=False, error=f'Invalid request parameters: {e}')
 
     # Normalize empty strings to None for credentials
     username = _normalize_optional_str(request.username)
@@ -422,7 +422,7 @@ async def upload_to_kibana_custom(params: Any) -> UploadResult:
         compile_result = _compile_dashboard(request.path, request.dashboard_index)
         if compile_result.success is not True:
             logger.error('Compilation failed: %s', compile_result.error)
-            return UploadResult.fail(compile_result.error or 'Unknown compilation error')
+            return UploadResult(success=False, error=compile_result.error or 'Unknown compilation error')
 
         # Create NDJSON content
         ndjson_content = json.dumps(compile_result.data)
@@ -457,18 +457,18 @@ async def upload_to_kibana_custom(params: Any) -> UploadResult:
                 if len(dashboard_ids) > 0:
                     dashboard_url = client.get_dashboard_url(dashboard_ids[0])
                     logger.info('Dashboard uploaded successfully: %s', dashboard_ids[0])
-                    return UploadResult.ok(dashboard_url, dashboard_ids[0])
+                    return UploadResult(success=True, dashboard_url=dashboard_url, dashboard_id=dashboard_ids[0])
 
                 logger.error('No dashboard found in upload results')
-                return UploadResult.fail('No dashboard found in upload results')
+                return UploadResult(success=False, error='No dashboard found in upload results')
 
             error_messages = [str(err) for err in result.errors]
             logger.error('Upload failed with errors: %s', '; '.join(error_messages))
-            return UploadResult.fail(f'Upload failed: {"; ".join(error_messages)}')
+            return UploadResult(success=False, error=f'Upload failed: {"; ".join(error_messages)}')
 
     except Exception as e:
         logger.exception('Upload error occurred')
-        return UploadResult.fail(f'Upload error: {e!s}')
+        return UploadResult(success=False, error=f'Upload error: {e!s}')
 
 
 def start_server() -> None:
