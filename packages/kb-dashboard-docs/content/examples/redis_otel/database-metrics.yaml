@@ -17,7 +17,6 @@ dashboards:
         label: Instance
         data_view: metrics-*
         field: resource.attributes.service.instance.id
-        width: medium
       - type: options
         id: db-filter
         label: Database

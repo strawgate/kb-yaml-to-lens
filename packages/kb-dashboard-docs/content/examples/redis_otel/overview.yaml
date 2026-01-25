@@ -15,7 +15,6 @@ dashboards:
       - type: options
         id: instance-filter
         label: Instance
-        width: medium
         data_view: metrics-*
         field: resource.attributes.service.instance.id
     panels:

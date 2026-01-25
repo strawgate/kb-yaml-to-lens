@@ -5,7 +5,6 @@ dashboards:
     controls:
       - type: options
         label: Select Host
-        width: medium
         data_view: logs-*
         field: host.name
         match_technique: contains
@@ -28,7 +27,6 @@ dashboards:
             \ appear at the top of the dashboard and allow users to filter data dynamically.\n**Available Controls:**\n- **Host Selector** - Filter\
             \ by specific host(s)\n- **Log Level** - Filter by log severity level\nSelect values from the controls above to filter all panels\
             \ on this dashboard.\n"
-          font_size: 12
       - title: Selected Events Count
         description: Total events matching control filters
         size:

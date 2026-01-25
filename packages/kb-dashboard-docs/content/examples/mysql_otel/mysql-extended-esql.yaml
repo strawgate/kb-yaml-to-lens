@@ -43,7 +43,6 @@ dashboards:
             This dashboard displays **optional metrics** that are disabled by default in the MySQL receiver.
             To enable these metrics, update your MySQL receiver configuration in the OpenTelemetry Collector.
             If panels show no data, the corresponding metric has not been enabled.
-          font_size: 12
 
       # Connection Metrics Section (y=7)
       - title: Connection Count

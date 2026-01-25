@@ -15,13 +15,11 @@ dashboards:
     controls:
       - type: options
         label: Event Action
-        width: medium
         data_view: logs-*
         field: event.action
         match_technique: contains
       - type: options
         label: Event Category
-        width: medium
         data_view: logs-*
         field: event.category
         match_technique: exact
@@ -69,8 +67,6 @@ dashboards:
             sort:
               by: Event Count
               direction: desc
-            other_bucket: true
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -93,8 +89,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -117,8 +111,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -141,8 +133,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -168,8 +158,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -195,8 +183,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -222,8 +208,6 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: true
-              missing_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -245,7 +229,6 @@ dashboards:
               by: Action Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Action Count
@@ -267,7 +250,6 @@ dashboards:
               by: Event Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -289,7 +271,6 @@ dashboards:
               by: Event Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -311,7 +292,6 @@ dashboards:
               by: Event Count
               direction: desc
             other_bucket: false
-            missing_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
