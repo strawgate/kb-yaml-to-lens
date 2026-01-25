@@ -9,22 +9,22 @@ from fastmcp import FastMCP
 from kb_dashboard_mcp.tools import register_data_stream_tools, register_esql_tools, register_pattern_tools
 
 if TYPE_CHECKING:
-    from elasticsearch import AsyncElasticsearch
+    from kb_dashboard_mcp.client import KibanaClient
 
 
-async def build_mcp_server(es: AsyncElasticsearch) -> FastMCP:
+async def build_mcp_server(client: KibanaClient) -> FastMCP:
     """Build and configure the MCP server with all tools.
 
     Args:
-        es: AsyncElasticsearch client for cluster operations.
+        client: KibanaClient for cluster operations.
 
     Returns:
         Configured FastMCP server ready to run.
     """
     mcp = FastMCP(name='kb-dashboard-mcp')
 
-    register_data_stream_tools(mcp, es)
-    register_esql_tools(mcp, es)
-    register_pattern_tools(mcp, es)
+    register_data_stream_tools(mcp, client)
+    register_esql_tools(mcp, client)
+    register_pattern_tools(mcp, client)
 
     return mcp

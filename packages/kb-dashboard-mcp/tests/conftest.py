@@ -3,30 +3,33 @@
 from __future__ import annotations
 
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
-from elasticsearch import AsyncElasticsearch
+
+from kb_dashboard_mcp.client import KibanaClient, KibanaClientConfig
 
 
 @pytest.fixture
-def mock_es_client() -> AsyncMock:
-    """Create a mock AsyncElasticsearch client."""
-    client = AsyncMock(spec=AsyncElasticsearch)
+def kibana_config() -> KibanaClientConfig:
+    """Create a test KibanaClientConfig."""
+    return KibanaClientConfig(
+        kibana_url='https://kibana.example.com:5601',
+        api_key='test-api-key',
+        verify_ssl=False,
+    )
 
-    client.esql = MagicMock()
-    client.esql.query = AsyncMock()
 
-    client.indices = MagicMock()
-    client.indices.get_data_stream = AsyncMock()
+@pytest.fixture
+def mock_kibana_client() -> AsyncMock:
+    """Create a mock KibanaClient."""
+    client = AsyncMock(spec=KibanaClient)
 
-    client.text_structure = MagicMock()
-    client.text_structure.test_grok_pattern = AsyncMock()
-
-    client.ingest = MagicMock()
-    client.ingest.simulate = AsyncMock()
-
-    client.ping = AsyncMock()
+    client.esql_query = AsyncMock()
+    client.get_data_streams = AsyncMock()
+    client.test_grok_pattern = AsyncMock()
+    client.simulate_ingest = AsyncMock()
+    client.ping = AsyncMock(return_value=True)
     client.close = AsyncMock()
 
     return client
@@ -69,4 +72,61 @@ def sample_data_stream_response() -> dict[str, Any]:
                 ],
             },
         ],
+    }
+
+
+@pytest.fixture
+def sample_grok_match_response() -> dict[str, Any]:
+    """Sample grok pattern match response."""
+    return {
+        'matches': [
+            {
+                'match': {
+                    'timestamp': '2024-01-01 00:00:00',
+                    'level': 'INFO',
+                    'message': 'Test log message',
+                }
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def sample_dissect_response() -> dict[str, Any]:
+    """Sample dissect simulation response."""
+    return {
+        'docs': [
+            {
+                'doc': {
+                    '_source': {
+                        'message': 'user=john action=login',
+                        'user': 'john',
+                        'action': 'login',
+                    }
+                }
+            },
+            {
+                'doc': {
+                    '_source': {
+                        'message': 'user=jane action=logout',
+                        'user': 'jane',
+                        'action': 'logout',
+                    }
+                }
+            },
+        ]
+    }
+
+
+@pytest.fixture
+def sample_dissect_error_response() -> dict[str, Any]:
+    """Sample dissect simulation response with error."""
+    return {
+        'docs': [
+            {
+                'error': {
+                    'reason': 'Unable to find match for dissect pattern',
+                }
+            }
+        ]
     }

@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import Literal
 
 import rich_click as click
-from elasticsearch import AsyncElasticsearch
 
 from kb_dashboard_mcp import __version__
+from kb_dashboard_mcp.client import KibanaClient, KibanaClientConfig
 from kb_dashboard_mcp.server import build_mcp_server
 
 
@@ -17,7 +17,7 @@ from kb_dashboard_mcp.server import build_mcp_server
 class ServerConfig:
     """Configuration for the MCP server."""
 
-    es_url: str
+    kibana_url: str
     api_key: str | None
     username: str | None
     password: str | None
@@ -25,77 +25,68 @@ class ServerConfig:
     transport: Literal['stdio', 'sse']
 
 
-def build_es_client(config: ServerConfig) -> AsyncElasticsearch:
-    """Build an AsyncElasticsearch client with the given configuration."""
-    if config.api_key is not None:
-        return AsyncElasticsearch(
-            hosts=[config.es_url],
-            verify_certs=config.verify_ssl,
-            http_compress=True,
-            api_key=config.api_key,
-        )
-
-    if config.username is not None and config.password is not None:
-        return AsyncElasticsearch(
-            hosts=[config.es_url],
-            verify_certs=config.verify_ssl,
-            http_compress=True,
-            basic_auth=(config.username, config.password),
-        )
-
-    return AsyncElasticsearch(
-        hosts=[config.es_url],
-        verify_certs=config.verify_ssl,
-        http_compress=True,
+def build_kibana_client(config: ServerConfig) -> KibanaClient:
+    """Build a KibanaClient with the given configuration."""
+    client_config = KibanaClientConfig(
+        kibana_url=config.kibana_url,
+        api_key=config.api_key,
+        username=config.username,
+        password=config.password,
+        verify_ssl=config.verify_ssl,
     )
+    return KibanaClient(client_config)
 
 
 async def run_server(config: ServerConfig) -> None:
     """Run the MCP server."""
-    es = build_es_client(config)
+    client = build_kibana_client(config)
 
     try:
-        await es.ping()
+        connected = await client.ping()
     except Exception as e:
-        msg = f'Failed to connect to Elasticsearch: {e}'
+        msg = f'Failed to connect to Kibana: {e}'
         raise click.ClickException(msg) from e
 
-    mcp = await build_mcp_server(es)
+    if not connected:
+        msg = 'Failed to connect to Kibana'
+        raise click.ClickException(msg)
+
+    mcp = await build_mcp_server(client)
 
     try:
         await mcp.run_async(transport=config.transport)
     finally:
-        await es.close()
+        await client.close()
 
 
 @click.command()
 @click.version_option(version=__version__)
 @click.option(
-    '--es-url',
-    envvar='ES_URL',
+    '--kibana-url',
+    envvar='KIBANA_URL',
     required=True,
-    help='Elasticsearch cluster URL',
+    help='Kibana server URL (e.g., https://kibana.example.com:5601)',
 )
 @click.option(
-    '--es-api-key',
-    envvar='ES_API_KEY',
+    '--api-key',
+    envvar='KIBANA_API_KEY',
     default=None,
-    help='API key for Elasticsearch authentication',
+    help='API key for Kibana authentication',
 )
 @click.option(
-    '--es-username',
-    envvar='ES_USERNAME',
+    '--username',
+    envvar='KIBANA_USERNAME',
     default=None,
     help='Username for basic authentication',
 )
 @click.option(
-    '--es-password',
-    envvar='ES_PASSWORD',
+    '--password',
+    envvar='KIBANA_PASSWORD',
     default=None,
     help='Password for basic authentication',
 )
 @click.option(
-    '--es-no-ssl-verify',
+    '--no-ssl-verify',
     is_flag=True,
     default=False,
     help='Disable SSL certificate verification',
@@ -107,24 +98,28 @@ async def run_server(config: ServerConfig) -> None:
     help='Transport protocol for MCP communication',
 )
 def cli(
-    es_url: str,
-    es_api_key: str | None,
-    es_username: str | None,
-    es_password: str | None,
-    es_no_ssl_verify: bool,
+    kibana_url: str,
+    api_key: str | None,
+    username: str | None,
+    password: str | None,
+    no_ssl_verify: bool,
     transport: str,
 ) -> None:
-    """MCP server for Kibana dashboard building with Elasticsearch data exploration."""
-    if es_api_key is None and (es_username is None or es_password is None):
-        msg = 'Either --es-api-key or both --es-username and --es-password must be provided'
+    """MCP server for Kibana dashboard building with Elasticsearch data exploration.
+
+    Connects to Kibana and proxies Elasticsearch requests through Kibana's
+    /api/console/proxy endpoint.
+    """
+    if api_key is None and (username is None or password is None):
+        msg = 'Either --api-key or both --username and --password must be provided'
         raise click.ClickException(msg)
 
     config = ServerConfig(
-        es_url=es_url,
-        api_key=es_api_key,
-        username=es_username,
-        password=es_password,
-        verify_ssl=not es_no_ssl_verify,
+        kibana_url=kibana_url,
+        api_key=api_key,
+        username=username,
+        password=password,
+        verify_ssl=not no_ssl_verify,
         transport=transport,  # pyright: ignore[reportArgumentType]
     )
 

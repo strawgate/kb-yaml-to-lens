@@ -4,7 +4,9 @@ MCP (Model Context Protocol) server for Kibana dashboard building with Elasticse
 
 ## Overview
 
-This package provides an MCP server that enables LLMs to explore Elasticsearch cluster data, making it easier to build dashboards. The server includes tools for:
+This package provides an MCP server that enables LLMs to explore Elasticsearch cluster data through Kibana's proxy API, making it easier to build dashboards. By routing requests through Kibana, the server can leverage Kibana's authentication and potentially access additional Kibana-specific features.
+
+The server includes tools for:
 
 - **Data Stream Exploration**: Summarize data streams with field information and sample values
 - **ES|QL Query Execution**: Execute ES|QL queries against the cluster
@@ -28,23 +30,26 @@ uv add kb-dashboard-mcp
 
 ```bash
 # Using API key authentication
-kb-mcp --es-url https://your-cluster.es.io:9243 --es-api-key your-api-key
+kb-mcp --kibana-url https://your-kibana.example.com:5601 --api-key your-api-key
 
 # Using username/password authentication
-kb-mcp --es-url https://your-cluster.es.io:9243 --es-username elastic --es-password your-password
+kb-mcp --kibana-url https://your-kibana.example.com:5601 --username elastic --password your-password
 
 # Using SSE transport (for web clients)
-kb-mcp --es-url https://your-cluster.es.io:9243 --es-api-key your-api-key --transport sse
+kb-mcp --kibana-url https://your-kibana.example.com:5601 --api-key your-api-key --transport sse
+
+# Disable SSL verification (for development)
+kb-mcp --kibana-url https://localhost:5601 --api-key your-api-key --no-ssl-verify
 ```
 
 ### Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `ES_URL` | Elasticsearch cluster URL |
-| `ES_API_KEY` | API key for authentication |
-| `ES_USERNAME` | Username for basic authentication |
-| `ES_PASSWORD` | Password for basic authentication |
+| `KIBANA_URL` | Kibana server URL |
+| `KIBANA_API_KEY` | API key for authentication |
+| `KIBANA_USERNAME` | Username for basic authentication |
+| `KIBANA_PASSWORD` | Password for basic authentication |
 
 ### MCP Client Configuration
 
@@ -55,9 +60,9 @@ Add the server to your MCP client configuration:
   "mcpServers": {
     "kb-dashboard-mcp": {
       "command": "kb-mcp",
-      "args": ["--es-url", "https://your-cluster.es.io:9243"],
+      "args": ["--kibana-url", "https://your-kibana.example.com:5601"],
       "env": {
-        "ES_API_KEY": "your-api-key"
+        "KIBANA_API_KEY": "your-api-key"
       }
     }
   }

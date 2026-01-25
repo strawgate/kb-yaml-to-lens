@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 class TestBuildMcpServer:
     """Tests for build_mcp_server function."""
 
-    async def test_build_server(self, mock_es_client: AsyncMock) -> None:
+    async def test_build_server(self, mock_kibana_client: AsyncMock) -> None:
         """Test building the MCP server."""
-        mcp = await build_mcp_server(mock_es_client)
+        mcp = await build_mcp_server(mock_kibana_client)
 
         assert mcp.name == 'kb-dashboard-mcp'
 
@@ -26,9 +26,9 @@ class TestBuildMcpServer:
         assert 'test_grok_pattern' in tool_names
         assert 'test_dissect_pattern' in tool_names
 
-    async def test_all_tools_have_descriptions(self, mock_es_client: AsyncMock) -> None:
+    async def test_all_tools_have_descriptions(self, mock_kibana_client: AsyncMock) -> None:
         """Test that all tools have descriptions."""
-        mcp = await build_mcp_server(mock_es_client)
+        mcp = await build_mcp_server(mock_kibana_client)
 
         for tool in mcp._tool_manager._tools.values():
             assert tool.description is not None

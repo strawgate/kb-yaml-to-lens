@@ -17,7 +17,7 @@ dependencies = [
     "pydantic>=2.12",
     "click>=8.3",
     "rich-click>=1.9.0",
-    "elasticsearch>=8.16.2",
+    "httpx>=0.28",
     "fastmcp>=2.0",
 ]
 
@@ -26,6 +26,7 @@ dev = [
     "pytest>=9.0",
     "pytest-cov>=6.0",
     "pytest-asyncio>=1.3",
+    "pytest-httpx>=0.35",
     "ruff>=0.14.14",
     "basedpyright>=1.37.2",
 ]
@@ -91,6 +92,8 @@ ignore = [
 ]
 "tests/**/*.py" = [
     "S101",
+    "S105",  # Hardcoded passwords OK in tests
+    "S106",  # Hardcoded passwords OK in tests
     "PLR2004",
     "INP001",
 ]
@@ -173,7 +176,7 @@ reportAttributeAccessIssue = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "src/kb_dashboard_mcp"
-# elasticsearch-py returns untyped responses; FastMCP tool registration returns unused Tool objects
+# FastMCP tool registration returns unused Tool objects; httpx has untyped responses
 reportMissingTypeStubs = false
 reportAny = false
 reportUnusedCallResult = false
