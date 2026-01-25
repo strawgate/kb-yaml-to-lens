@@ -16,6 +16,7 @@ classifiers = [
 
 dependencies = [
     "kb-dashboard-compiler",
+    "kb-dashboard-lint",
     "click>=8.0",
 ]
 
@@ -28,9 +29,10 @@ dev = [
 
 [tool.uv.sources]
 kb-dashboard-compiler = { workspace = true }
+kb-dashboard-lint = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/kb-dashboard-compiler", "packages/kb-dashboard-docs"]
+members = ["packages/kb-dashboard-compiler", "packages/kb-dashboard-lint", "packages/kb-dashboard-docs"]
 
 
 [tool.ruff]
@@ -82,10 +84,20 @@ ignore = [
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "packages/kb-dashboard-compiler/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-lint/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-compiler/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
+]
+"packages/kb-dashboard-lint/tests/**/*.py" = [
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "INP001", # Tests are not meant to be imported as packages
+    "F401", # Allow side-effect imports for rule registration
+]
+"packages/kb-dashboard-lint/src/dashboard_lint/cli.py" = [
+    "F401", # Allow side-effect imports for rule registration
 ]
 "packages/kb-dashboard-compiler/src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
@@ -100,6 +112,12 @@ ignore = [
     "PLR0912", # Allow many branches in grid_updater
     "PLR0915", # Allow many statements in grid_updater
 ]
+"packages/kb-dashboard-lint/src/dashboard_lint/config.py" = [
+    "PLR0911", # Allow many return statements for config loading
+]
+"packages/kb-dashboard-lint/src/dashboard_lint/yaml_position_resolver.py" = [
+    "PLR0911", # Allow many return statements in navigation logic
+]
 
 [tool.ruff.format]
 quote-style = "single"
@@ -108,7 +126,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["dashboard_compiler"]
+known-first-party = ["dashboard_compiler", "dashboard_lint"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -162,3 +180,27 @@ root = "packages/kb-dashboard-compiler/src/dashboard_compiler/yaml_roundtrip.py"
 # ruamel.yaml lacks type stubs and returns dynamic types from load/dump operations.
 reportAny = false
 reportUnknownMemberType = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-lint/src"
+extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-compiler/src"]
+reportIncompatibleVariableOverride = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-lint/tests"
+extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-compiler/src"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false

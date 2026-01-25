@@ -24,7 +24,7 @@ include Makefile.shared
 # Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
-COMPONENTS := packages/kb-dashboard-compiler packages/vscode-extension
+COMPONENTS := packages/kb-dashboard-compiler packages/kb-dashboard-lint packages/vscode-extension
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := \
@@ -34,7 +34,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler lint vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -46,6 +46,7 @@ help:
 	@echo ""
 	@echo "Run target in single component:"
 	@echo "  make compiler <target>  - Run in packages/kb-dashboard-compiler/"
+	@echo "  make lint <target>      - Run in packages/kb-dashboard-lint/"
 	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
 	@echo "  make gh <target>        - Run in .github/scripts/"
@@ -202,6 +203,11 @@ ifeq ($(_FIRST_GOAL),gh)
   $(eval $(_ARGS):;@:)
 endif
 
+ifeq ($(_FIRST_GOAL),lint)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 ifeq ($(_FIRST_GOAL),root)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
@@ -209,6 +215,9 @@ endif
 
 compiler:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-compiler $(_ARGS)
+
+lint:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-lint $(_ARGS)
 
 vscode:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/vscode-extension $(_ARGS)
