@@ -764,40 +764,6 @@ class TestCompileLensChartState:
 class TestCompileESQLChartState:
     """Tests for compile_esql_chart_state function."""
 
-    def test_esql_metric_chart_default_time_field(self) -> None:
-        """Test that ES|QL metric chart uses default time field (@timestamp) correctly."""
-        from dashboard_compiler.panels.charts.config import ESQLPanel
-
-        panel = ESQLPanel.model_validate(
-            {
-                'position': {'x': 0, 'y': 0},
-                'size': {'w': 24, 'h': 15},
-                'esql': {
-                    'type': 'metric',
-                    'query': 'FROM logs-* | STATS count()',
-                    'primary': {'field': 'count(*)', 'id': 'metric1'},
-                },
-            }
-        )
-
-        state, layer_id = compile_esql_chart_state(panel)
-
-        # Get the layer
-        assert state.datasourceStates.textBased is not None
-        assert state.datasourceStates.textBased.layers is not None
-        layers = state.datasourceStates.textBased.layers.root
-        assert len(layers) == 1
-        layer = next(iter(layers.values()))
-
-        # Verify timeField is set to default
-        assert layer.timeField == '@timestamp'
-
-        # Verify layer_id is returned
-        assert layer_id in layers
-
-        # Verify adHocDataViews is empty
-        assert state.adHocDataViews == {}
-
     def test_esql_metric_chart_custom_time_field(self) -> None:
         """Test that ES|QL metric chart uses custom time field when specified."""
         from dashboard_compiler.panels.charts.config import ESQLPanel

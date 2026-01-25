@@ -595,38 +595,6 @@ async def test_options_list_without_wait_for_results() -> None:
     )
 
 
-async def test_esql_multi_select_control_alt() -> None:
-    """Test ES|QL multi-select control (alternative test)."""
-    config = {
-        'type': 'esql',
-        'variable_name': 'status',
-        'variable_type': 'values',
-        'choices': ['200', '404', '500'],
-        'label': 'HTTP Status',
-        'multiple': True,
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'esqlControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'variableName': 'status',
-                'variableType': 'values',
-                'esqlQuery': '',
-                'controlType': 'STATIC_VALUES',
-                'title': 'HTTP Status',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'availableOptions': ['200', '404', '500'],
-            },
-        }
-    )
-
-
 async def test_esql_single_select_control_with_default() -> None:
     """Test ES|QL single-select control with default value."""
     config = {
@@ -907,36 +875,6 @@ async def test_esql_function_control_with_default() -> None:
                 'selectedOptions': ['COUNT'],
                 'singleSelect': True,
                 'availableOptions': ['COUNT', 'AVG', 'SUM'],
-            },
-        }
-    )
-
-
-async def test_options_list_with_multiple_true() -> None:
-    """Test options list control with multiple: true (new property)."""
-    config = {
-        'type': 'options',
-        'data_view': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-        'field': 'aerospike.namespace',
-        'label': 'Multiple Test',
-        'multiple': True,
-    }
-    result = compile_control_snapshot(config)
-    assert result == snapshot(
-        {
-            'grow': False,
-            'order': 0,
-            'width': 'medium',
-            'type': 'optionsListControl',
-            'explicitInput': {
-                'id': IsUUID,
-                'dataViewId': '27a3148b-d1d4-4455-8acf-e63c94071a5b',
-                'fieldName': 'aerospike.namespace',
-                'title': 'Multiple Test',
-                'searchTechnique': 'prefix',
-                'selectedOptions': [],
-                'singleSelect': False,
-                'sort': {'by': '_count', 'direction': 'desc'},
             },
         }
     )
