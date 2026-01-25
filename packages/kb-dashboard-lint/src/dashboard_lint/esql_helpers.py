@@ -24,6 +24,59 @@ def get_query_string(query: ESQLQuery) -> str:
     return str(root)
 
 
+def split_into_commands(query: str) -> list[str]:
+    """Split ES|QL query on pipes, respecting quoted strings and escapes.
+
+    Args:
+        query: The ES|QL query string.
+
+    Returns:
+        List of command segments (trimmed), split on unquoted pipe characters.
+
+    """
+    commands: list[str] = []
+    current: list[str] = []
+    in_single_quote = False
+    in_double_quote = False
+    in_backtick = False
+    i = 0
+
+    while i < len(query):
+        char = query[i]
+
+        # Handle escape sequences
+        if char == '\\' and i + 1 < len(query):
+            current.append(char)
+            current.append(query[i + 1])
+            i += 2
+            continue
+
+        # Track quote state
+        if char == "'" and not in_double_quote and not in_backtick:
+            in_single_quote = not in_single_quote
+        elif char == '"' and not in_single_quote and not in_backtick:
+            in_double_quote = not in_double_quote
+        elif char == '`' and not in_single_quote and not in_double_quote:
+            in_backtick = not in_backtick
+        elif char == '|' and not in_single_quote and not in_double_quote and not in_backtick:
+            segment = ''.join(current).strip()
+            if segment:
+                commands.append(segment)
+            current = []
+            i += 1
+            continue
+
+        current.append(char)
+        i += 1
+
+    # Don't forget the last segment
+    segment = ''.join(current).strip()
+    if segment:
+        commands.append(segment)
+
+    return commands
+
+
 # Regex patterns for detecting various ES|QL issues
 
 # SQL syntax patterns
@@ -36,8 +89,9 @@ SELECT_START_PATTERN = re.compile(r'^\s*SELECT\b', re.IGNORECASE | re.MULTILINE)
 # Pattern for single = in WHERE comparison context (not ==, !=, <=, >=)
 # This is a more targeted pattern that looks for WHERE followed by a comparison with single =
 # Avoids matching assignment operators in STATS, EVAL, etc.
+# Supports dotted fields (host.name), backticked fields (`field.name`), and @-prefixed fields (@timestamp)
 SINGLE_EQUALS_IN_WHERE_PATTERN = re.compile(
-    r'\bWHERE\b[^|]*?\b(\w+)\s*=\s*(?=[\'"\d])',
+    r'\bWHERE\b[^|]*?(`[^`]+`|@?[a-zA-Z_][\w.]*)\s*(?<![!<>])=(?!=)',
     re.IGNORECASE,
 )
 """Detects single = for equality in WHERE clauses (should be == in ES|QL)."""
@@ -47,12 +101,13 @@ SQL_LIKE_WILDCARD_PATTERN = re.compile(r"LIKE\s+['\"][^'\"]*%[^'\"]*['\"]", re.I
 """Detects LIKE with % wildcard (should use * in ES|QL)."""
 
 # Fixed time bucket patterns
-# Matches: BUCKET(@timestamp, 1 minute), BUCKET(`@timestamp`, 5 minutes), etc.
+# Matches: BUCKET(@timestamp, 1 minute), BUCKET(`@timestamp`, 5 minutes), BUCKET(event.ingested, 1 hour), etc.
+# Accepts any field name (dotted, backticked, or @-prefixed) to catch fixed buckets on custom time fields
 FIXED_BUCKET_PATTERN = re.compile(
-    r'BUCKET\s*\(\s*[`"]?@timestamp[`"]?\s*,\s*\d+\s+(?:second|minute|hour|day|week|month|year)s?\s*\)',
+    r'BUCKET\s*\(\s*[`"]?@?[a-zA-Z_][\w.]*[`"]?\s*,\s*\d+\s+(?:second|minute|hour|day|week|month|year)s?\s*\)',
     re.IGNORECASE,
 )
-"""Detects fixed interval BUCKET(@timestamp, N units) patterns."""
+"""Detects fixed interval BUCKET(field, N units) patterns on any field."""
 
 # Matches: TBUCKET(5 minutes), TBUCKET(1 hour), etc.
 TBUCKET_FIXED_PATTERN = re.compile(

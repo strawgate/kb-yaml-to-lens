@@ -7,7 +7,67 @@ from dashboard_lint.esql_helpers import (
     find_sql_order_by,
     find_sql_select,
     find_unescaped_numeric_fields,
+    split_into_commands,
 )
+
+
+class TestSplitIntoCommands:
+    """Tests for split_into_commands."""
+
+    def test_splits_simple_query(self) -> None:
+        """Should split query on pipes."""
+        query = 'FROM logs-* | WHERE status == 200 | SORT @timestamp'
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', 'WHERE status == 200', 'SORT @timestamp']
+
+    def test_respects_single_quoted_pipes(self) -> None:
+        """Should not split on pipes inside single quotes."""
+        query = "FROM logs-* | WHERE message LIKE '*|*' | LIMIT 10"
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', "WHERE message LIKE '*|*'", 'LIMIT 10']
+
+    def test_respects_double_quoted_pipes(self) -> None:
+        """Should not split on pipes inside double quotes."""
+        query = 'FROM logs-* | WHERE message LIKE "*|*" | LIMIT 10'
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', 'WHERE message LIKE "*|*"', 'LIMIT 10']
+
+    def test_respects_backtick_quoted_pipes(self) -> None:
+        """Should not split on pipes inside backticks."""
+        query = 'FROM logs-* | WHERE `field|name` IS NOT NULL'
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', 'WHERE `field|name` IS NOT NULL']
+
+    def test_handles_escaped_quotes(self) -> None:
+        """Should handle escaped quotes correctly."""
+        query = "FROM logs-* | WHERE message LIKE 'it\\'s | working' | LIMIT 10"
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', "WHERE message LIKE 'it\\'s | working'", 'LIMIT 10']
+
+    def test_handles_empty_query(self) -> None:
+        """Should return empty list for empty query."""
+        commands = split_into_commands('')
+        assert commands == []
+
+    def test_handles_single_command(self) -> None:
+        """Should return single command if no pipes."""
+        query = 'FROM logs-*'
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*']
+
+    def test_trims_whitespace(self) -> None:
+        """Should trim whitespace from commands."""
+        query = '  FROM logs-*  |  WHERE status == 200  '
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', 'WHERE status == 200']
+
+    def test_handles_multiline_query(self) -> None:
+        """Should handle multiline queries."""
+        query = """FROM logs-*
+| WHERE status == 200
+| STATS count = COUNT(*)"""
+        commands = split_into_commands(query)
+        assert commands == ['FROM logs-*', 'WHERE status == 200', 'STATS count = COUNT(*)']
 
 
 class TestFindSqlOrderBy:
@@ -99,6 +159,30 @@ class TestFindSingleEquals:
         matches = find_single_equals(query)
         assert len(matches) == 0
 
+    def test_detects_single_equals_with_dotted_field(self) -> None:
+        """Should detect single = with dotted field name."""
+        query = "FROM logs-* | WHERE host.name = 'server1'"
+        matches = find_single_equals(query)
+        assert len(matches) == 1
+
+    def test_detects_single_equals_with_backtick_field(self) -> None:
+        """Should detect single = with backtick-escaped field."""
+        query = "FROM logs-* | WHERE `field.name` = 'value'"
+        matches = find_single_equals(query)
+        assert len(matches) == 1
+
+    def test_detects_single_equals_with_at_field(self) -> None:
+        """Should detect single = with @-prefixed field."""
+        query = 'FROM logs-* | WHERE @timestamp = NOW()'
+        matches = find_single_equals(query)
+        assert len(matches) == 1
+
+    def test_detects_single_equals_with_function_rhs(self) -> None:
+        """Should detect single = with function on right side."""
+        query = 'FROM logs-* | WHERE created = NOW()'
+        matches = find_single_equals(query)
+        assert len(matches) == 1
+
 
 class TestFindSqlLikeWildcards:
     """Tests for find_sql_like_wildcards."""
@@ -154,6 +238,18 @@ class TestFindFixedTimeBuckets:
         query = 'FROM logs-* | STATS count = COUNT(*) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)'
         matches = find_fixed_time_buckets(query)
         assert len(matches) == 0
+
+    def test_detects_fixed_bucket_on_custom_field(self) -> None:
+        """Should detect fixed bucket on custom time field."""
+        query = 'FROM logs-* | STATS count = COUNT(*) BY time_bucket = BUCKET(event.ingested, 1 hour)'
+        matches = find_fixed_time_buckets(query)
+        assert len(matches) == 1
+
+    def test_detects_fixed_bucket_on_timestamp_field(self) -> None:
+        """Should detect fixed bucket on timestamp field without @ prefix."""
+        query = 'FROM logs-* | STATS count = COUNT(*) BY time_bucket = BUCKET(timestamp, 5 minutes)'
+        matches = find_fixed_time_buckets(query)
+        assert len(matches) == 1
 
 
 class TestFindUnescapedNumericFields:

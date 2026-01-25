@@ -551,7 +551,7 @@ FROM logs-*
 
 11. **Using window functions**: ES|QL has no `ROW_NUMBER() OVER (PARTITION BY ...)`. Use `VALUES()` + `MV_SORT()` + `MV_FIRST()`/`MV_LAST()` for latest-per-group patterns.
 
-12. **Hardcoded time buckets**: Always use dynamic sizing `BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like `BUCKET(`@timestamp`, 1 minute)` or `TBUCKET(5 minutes)` as they create too many data points for long time ranges.
+12. **Hardcoded time buckets**: Always use dynamic sizing ``BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)`` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like ``BUCKET(`@timestamp`, 1 minute)`` or ``TBUCKET(5 minutes)`` as they create too many data points for long time ranges.
     *Lint rule: `esql-dynamic-time-bucket`*
 
 ---

@@ -120,6 +120,7 @@ class TestESQLDynamicTimeBucketRule:
 
         assert len(violations) == 1
         assert violations[0].rule_id == 'esql-dynamic-time-bucket'
+        assert violations[0].severity == Severity.INFO
 
     def test_detects_tbucket_fixed(self, dashboard_with_tbucket_fixed: Dashboard) -> None:
         """Should detect fixed TBUCKET interval."""
@@ -128,6 +129,7 @@ class TestESQLDynamicTimeBucketRule:
 
         assert len(violations) == 1
         assert violations[0].rule_id == 'esql-dynamic-time-bucket'
+        assert violations[0].severity == Severity.INFO
 
     def test_passes_dynamic_bucket(self, dashboard_with_dynamic_bucket: Dashboard) -> None:
         """Should not flag dynamic bucket sizing."""
