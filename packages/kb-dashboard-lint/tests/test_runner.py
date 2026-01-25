@@ -120,6 +120,9 @@ class TestRegistry:
             # Chart rules
             'datatable-row-density',
             'dimension-missing-label',
+            'esql-dynamic-time-bucket',
+            'esql-field-escaping',
+            'esql-sql-syntax',
             'esql-where-clause',
             'gauge-goal-without-max',
             'metric-multiple-metrics-width',
