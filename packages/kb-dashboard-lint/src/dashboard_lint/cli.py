@@ -80,7 +80,7 @@ def format_violations_json(violations: list[Violation]) -> str:
         JSON string representation.
 
     """
-    data = []
+    data: list[dict[str, object]] = []
     for v in violations:
         violation_data: dict[str, object] = {
             'rule_id': v.rule_id,
@@ -111,7 +111,7 @@ def print_summary(violations: list[Violation]) -> None:
     infos = sum(1 for v in violations if v.severity == Severity.INFO)
 
     console.print('\n' + '─' * 60)
-    parts = []
+    parts: list[str] = []
     if errors > 0:
         parts.append(f'[red]{errors} error{"s" if errors != 1 else ""}[/red]')
     if warnings > 0:

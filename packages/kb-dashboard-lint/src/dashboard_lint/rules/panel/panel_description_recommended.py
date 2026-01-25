@@ -25,7 +25,7 @@ class PanelDescriptionRecommendedRule(PanelRule[BasePanel, EmptyOptions]):
     default_severity: Severity = Severity.INFO
     options_model: type[EmptyOptions] = EmptyOptions
 
-    def check_panel(
+    def check_panel(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: BasePanel,
         context: PanelContext,

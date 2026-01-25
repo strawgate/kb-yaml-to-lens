@@ -19,7 +19,7 @@ type PieConfig = LensPiePanelConfig | ESQLPiePanelConfig
 class PieChartDimensionCountOptions(BaseModel):
     """Options for the pie-chart-dimension-count rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     max_dimensions: int = Field(
         default=1,
@@ -46,7 +46,7 @@ class PieChartDimensionCountRule(ChartRule[PieConfig, PieChartDimensionCountOpti
     default_severity: Severity = Severity.INFO
     options_model: type[PieChartDimensionCountOptions] = PieChartDimensionCountOptions
 
-    def check_chart(
+    def check_chart(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: PieConfig,

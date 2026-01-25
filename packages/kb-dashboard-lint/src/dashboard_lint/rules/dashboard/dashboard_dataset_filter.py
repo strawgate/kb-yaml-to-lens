@@ -13,7 +13,7 @@ from dashboard_lint.types import Severity, Violation
 class DashboardDatasetFilterOptions(BaseModel):
     """Options for the dashboard-dataset-filter rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     field: str = Field(
         default='data_stream.dataset',
@@ -46,7 +46,7 @@ class DashboardDatasetFilterRule(DashboardRule[DashboardDatasetFilterOptions]):
     default_severity: Severity = Severity.WARNING
     options_model: type[DashboardDatasetFilterOptions] = DashboardDatasetFilterOptions
 
-    def check_dashboard(
+    def check_dashboard(  # pyright: ignore[reportImplicitOverride]
         self,
         dashboard: Dashboard,
         options: DashboardDatasetFilterOptions,

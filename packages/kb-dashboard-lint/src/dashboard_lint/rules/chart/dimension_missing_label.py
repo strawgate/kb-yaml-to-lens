@@ -76,7 +76,7 @@ class DimensionMissingLabelRule(ChartRule[BreakdownConfig, EmptyOptions]):
     default_severity: Severity = Severity.INFO
     options_model: type[EmptyOptions] = EmptyOptions
 
-    def check_chart(
+    def check_chart(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: BreakdownConfig,

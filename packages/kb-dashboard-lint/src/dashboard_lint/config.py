@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class RuleConfig(BaseModel):
     """Configuration for a single rule."""
 
-    model_config = ConfigDict(
+    model_config: ConfigDict = ConfigDict(
         strict=True,
         extra='forbid',
         frozen=True,
@@ -36,7 +36,7 @@ class RuleConfig(BaseModel):
 class LintConfig(BaseModel):
     """Configuration for the linting system."""
 
-    model_config = ConfigDict(
+    model_config: ConfigDict = ConfigDict(
         strict=True,
         extra='forbid',
         frozen=True,
@@ -181,16 +181,16 @@ def load_config(path: Path | None = None) -> LintConfig:
 
     try:
         with path.open(encoding='utf-8') as f:
-            data = yaml.safe_load(f)
+            data = yaml.safe_load(f)  # pyright: ignore[reportAny]
 
         if data is None:
             return LintConfig()
 
         # Validate rule IDs against registry
         if isinstance(data, dict) and 'rules' in data:
-            for rule_id in data['rules']:
+            for rule_id in data['rules']:  # pyright: ignore[reportUnknownVariableType]
                 if rule_id not in default_registry:
-                    logger.warning('Unknown rule ID in config: %s', rule_id)
+                    logger.warning('Unknown rule ID in config: %s', rule_id)  # pyright: ignore[reportUnknownArgumentType]
 
         return LintConfig.model_validate(data)
 

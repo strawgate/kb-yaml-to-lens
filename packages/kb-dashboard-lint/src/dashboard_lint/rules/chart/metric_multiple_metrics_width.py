@@ -19,7 +19,7 @@ type MetricConfig = LensMetricPanelConfig | ESQLMetricPanelConfig
 class MetricMultipleMetricsWidthOptions(BaseModel):
     """Options for the metric-multiple-metrics-width rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_width_multiple: int = Field(
         default=12,
@@ -46,7 +46,7 @@ class MetricMultipleMetricsWidthRule(ChartRule[MetricConfig, MetricMultipleMetri
     default_severity: Severity = Severity.WARNING
     options_model: type[MetricMultipleMetricsWidthOptions] = MetricMultipleMetricsWidthOptions
 
-    def check_chart(
+    def check_chart(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: LensPanel | ESQLPanel,
         config: MetricConfig,

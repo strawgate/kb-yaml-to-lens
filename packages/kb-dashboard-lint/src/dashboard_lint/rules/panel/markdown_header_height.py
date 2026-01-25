@@ -16,7 +16,7 @@ HEADER_PATTERN = re.compile(r'^#{1,6}\s+', re.MULTILINE)
 class MarkdownHeaderHeightOptions(BaseModel):
     """Options for the markdown-header-height rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_height: int = Field(default=3, ge=1, description='Minimum height for panels with headers')
 
@@ -39,7 +39,7 @@ class MarkdownHeaderHeightRule(PanelRule[MarkdownPanel, MarkdownHeaderHeightOpti
     default_severity: Severity = Severity.WARNING
     options_model: type[MarkdownHeaderHeightOptions] = MarkdownHeaderHeightOptions
 
-    def check_panel(
+    def check_panel(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: MarkdownPanel,
         context: PanelContext,

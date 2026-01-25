@@ -36,7 +36,7 @@ type AnyChartConfig = LensPanelConfig | ESQLPanelConfig
 class PanelHeightForContentOptions(BaseModel):
     """Options for the panel-height-for-content rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_heights: dict[str, int] = Field(
         default_factory=dict,
@@ -62,7 +62,7 @@ class PanelHeightForContentRule(ChartRule[AnyChartConfig, PanelHeightForContentO
     default_severity: Severity = Severity.WARNING
     options_model: type[PanelHeightForContentOptions] = PanelHeightForContentOptions
 
-    def check_chart(
+    def check_chart(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: LensPanel | ESQLPanel,
         config: AnyChartConfig,  # noqa: ARG002

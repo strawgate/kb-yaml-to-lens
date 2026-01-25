@@ -25,8 +25,8 @@ class LintRunner:
             config: Lint configuration. Defaults to empty configuration.
 
         """
-        self._registry = registry if registry is not None else default_registry
-        self._config = config if config is not None else LintConfig()
+        self._registry: RuleRegistry = registry if registry is not None else default_registry
+        self._config: LintConfig = config if config is not None else LintConfig()
 
     def run(self, dashboards: list[Dashboard]) -> list[Violation]:
         """Run all enabled rules against the provided dashboards.

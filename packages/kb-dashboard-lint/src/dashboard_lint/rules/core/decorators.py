@@ -26,7 +26,7 @@ def panel_rule[T](cls: type[T]) -> type[T]:
 
     """
     instance = cls()
-    register_rule(instance)  # type: ignore[arg-type]
+    _ = register_rule(instance)  # pyright: ignore[reportArgumentType]
     return cls
 
 
@@ -48,7 +48,7 @@ def chart_rule[T](cls: type[T]) -> type[T]:
 
     """
     instance = cls()
-    register_rule(instance)  # type: ignore[arg-type]
+    _ = register_rule(instance)  # pyright: ignore[reportArgumentType]
     return cls
 
 
@@ -69,5 +69,5 @@ def dashboard_rule[T](cls: type[T]) -> type[T]:
 
     """
     instance = cls()
-    register_rule(instance)  # type: ignore[arg-type]
+    _ = register_rule(instance)  # pyright: ignore[reportArgumentType]
     return cls

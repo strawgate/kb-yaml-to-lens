@@ -3,7 +3,15 @@
 This module provides utilities for resolving Dashboard object paths (like
 'panels[2].lens.metrics[0]') back to line/column positions in the original
 YAML source file. This enables IDE-style diagnostics with precise highlighting.
+
+ruamel.yaml lacks type stubs and returns dynamic types from load operations.
+The `lc` (line/column) attribute on CommentedMap/CommentedSeq is also dynamic.
 """
+
+# pyright: reportAny=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownArgumentType=false
 
 import io
 import re
@@ -45,8 +53,8 @@ class YamlPositionResolver:
             file_path: Optional path to the source file for context.
 
         """
-        self._document = document
-        self._file_path = file_path
+        self._document: CommentedMap = document
+        self._file_path: str | None = file_path
 
     @classmethod
     def from_file(cls, file_path: str | Path) -> 'YamlPositionResolver':

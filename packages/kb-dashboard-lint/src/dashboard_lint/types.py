@@ -114,7 +114,7 @@ class Violation:
     source_range: SourceRange | None = None
     """Source file position for this violation, if available."""
 
-    def __lt__(self, other: 'Violation') -> bool:
+    def __lt__(self, other: object) -> bool:
         """Compare violations by severity (descending) then dashboard name."""
         if not isinstance(other, Violation):
             return NotImplemented

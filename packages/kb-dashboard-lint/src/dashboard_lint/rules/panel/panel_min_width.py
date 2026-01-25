@@ -12,7 +12,7 @@ from dashboard_lint.types import Severity, Violation
 class PanelMinWidthOptions(BaseModel):
     """Options for the panel-min-width rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_width: int = Field(default=6, ge=1, description='Minimum width in grid units')
 
@@ -34,7 +34,7 @@ class PanelMinWidthRule(PanelRule[BasePanel, PanelMinWidthOptions]):
     default_severity: Severity = Severity.WARNING
     options_model: type[PanelMinWidthOptions] = PanelMinWidthOptions
 
-    def check_panel(
+    def check_panel(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: BasePanel,
         context: PanelContext,

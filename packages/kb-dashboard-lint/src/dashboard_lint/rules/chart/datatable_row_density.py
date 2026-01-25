@@ -20,7 +20,7 @@ type DatatableConfig = LensDatatablePanelConfig | ESQLDatatablePanelConfig
 class DatatableRowDensityOptions(BaseModel):
     """Options for the datatable-row-density rule."""
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
     min_columns: int = Field(
         default=5,
@@ -46,7 +46,7 @@ class DatatableRowDensityRule(ChartRule[DatatableConfig, DatatableRowDensityOpti
     default_severity: Severity = Severity.INFO
     options_model: type[DatatableRowDensityOptions] = DatatableRowDensityOptions
 
-    def check_chart(
+    def check_chart(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: DatatableConfig,

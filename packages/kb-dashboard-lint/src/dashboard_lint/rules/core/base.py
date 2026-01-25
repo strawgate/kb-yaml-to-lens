@@ -44,7 +44,7 @@ class EmptyOptions(BaseModel):
     pass options to rules that don't support them.
     """
 
-    model_config = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
+    model_config: dict[str, object] = {'extra': 'forbid', 'frozen': True, 'validate_default': True}
 
 
 # Store Union for runtime comparison - needed for checking get_origin() results
@@ -77,7 +77,7 @@ def normalize_result(result: ViolationResult) -> list[Violation]:
     return result
 
 
-def _unwrap_type_alias(type_arg: Any) -> tuple[type, ...]:
+def _unwrap_type_alias(type_arg: Any) -> tuple[type, ...]:  # pyright: ignore[reportAny]
     """Unwrap a type alias to get the underlying concrete types.
 
     Handles:
@@ -94,17 +94,17 @@ def _unwrap_type_alias(type_arg: Any) -> tuple[type, ...]:
 
     """
     # Handle Python 3.12+ type aliases: `type X = A | B`
-    if hasattr(type_arg, '__value__'):
+    if hasattr(type_arg, '__value__'):  # pyright: ignore[reportAny]
         # This is a TypeAliasType - get its value
-        inner = type_arg.__value__
+        inner = type_arg.__value__  # pyright: ignore[reportAny]
         return _unwrap_type_alias(inner)
 
-    origin = get_origin(type_arg)
+    origin = get_origin(type_arg)  # pyright: ignore[reportAny]
 
     # Handle Union types: both runtime UnionType (A | B) and typing.Union
     if origin is types.UnionType or origin is _UNION_TYPE:
         result: list[type] = []
-        for arg in get_args(type_arg):
+        for arg in get_args(type_arg):  # pyright: ignore[reportAny]
             result.extend(_unwrap_type_alias(arg))
         return tuple(result)
 
@@ -147,14 +147,14 @@ def _extract_types_from_generic(cls: type, base_class: type) -> tuple[type, ...]
         # Returns: (LensGaugePanelConfig, ESQLGaugePanelConfig)
 
     """
-    for orig_base in getattr(cls, '__orig_bases__', ()):
-        origin = get_origin(orig_base)
+    for orig_base in getattr(cls, '__orig_bases__', ()):  # pyright: ignore[reportAny]
+        origin = get_origin(orig_base)  # pyright: ignore[reportAny]
         if origin is None:
             continue
 
         # Check if this is the base class we're looking for
         # For Python 3.12+ generic syntax, origin is the base class
-        if origin is base_class or (hasattr(origin, '__mro__') and base_class in origin.__mro__):
+        if origin is base_class or (hasattr(origin, '__mro__') and base_class in origin.__mro__):  # pyright: ignore[reportAny]
             args = get_args(orig_base)
             if not args:
                 return None
@@ -212,7 +212,7 @@ class ChartContext(PanelContext):
     panel_type: Literal['lens', 'esql']
     """Whether this is a 'lens' or 'esql' panel."""
 
-    def location(self, suffix: str = '') -> str:
+    def location(self, suffix: str = '') -> str:  # pyright: ignore[reportImplicitOverride]
         """Generate a location string including panel type.
 
         Args:
@@ -380,7 +380,7 @@ class PanelRule[PanelT: BasePanel, OptionsT: BaseModel](ABC):
                 panel_title=panel.title if len(panel.title) > 0 else None,
             )
 
-            result = self.check_panel(panel, context, validated_options)  # type: ignore[arg-type]
+            result = self.check_panel(panel, context, validated_options)  # pyright: ignore[reportArgumentType]
             violations.extend(normalize_result(result))
 
         return violations
@@ -505,7 +505,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig), OptionsT: BaseMode
                 panel_type=panel_type,
             )
 
-            result = self.check_chart(panel, config, context, validated_options)  # type: ignore[arg-type]
+            result = self.check_chart(panel, config, context, validated_options)  # pyright: ignore[reportArgumentType]
             violations.extend(normalize_result(result))
 
         return violations

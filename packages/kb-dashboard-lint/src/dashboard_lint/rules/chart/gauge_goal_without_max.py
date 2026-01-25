@@ -28,7 +28,7 @@ class GaugeGoalWithoutMaxRule(ChartRule[GaugeConfig, EmptyOptions]):
     default_severity: Severity = Severity.WARNING
     options_model: type[EmptyOptions] = EmptyOptions
 
-    def check_chart(
+    def check_chart(  # pyright: ignore[reportImplicitOverride]
         self,
         panel: LensPanel | ESQLPanel,  # noqa: ARG002
         config: GaugeConfig,
