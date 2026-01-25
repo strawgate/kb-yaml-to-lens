@@ -266,9 +266,9 @@
             "references": [],
             "state": {
               "visualization": {
-                "layerId": "5d11139d-b05b-9664-fb31-47a48cf5aa9a",
+                "layerId": "fa841edc-5e08-860f-16e4-dda6c36cd622",
                 "layerType": "data",
-                "metricAccessor": "885e4cfc-d7d8-6e22-bed8-1b9859d98f08",
+                "metricAccessor": "6514d47b-f40f-724a-1470-c36e46303f99",
                 "showBar": false
               },
               "query": {
@@ -278,14 +278,14 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "5d11139d-b05b-9664-fb31-47a48cf5aa9a": {
+                    "fa841edc-5e08-860f-16e4-dda6c36cd622": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS avg_connections = AVG(aerospike.node.connection.open)\n"
                       },
                       "columns": [
                         {
                           "fieldName": "avg_connections",
-                          "columnId": "885e4cfc-d7d8-6e22-bed8-1b9859d98f08",
+                          "columnId": "6514d47b-f40f-724a-1470-c36e46303f99",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
@@ -297,7 +297,7 @@
                             "format": {
                               "id": "number",
                               "params": {
-                                "decimals": 0
+                                "decimals": 2
                               }
                             }
                           }
@@ -306,7 +306,7 @@
                       "allColumns": [
                         {
                           "fieldName": "avg_connections",
-                          "columnId": "885e4cfc-d7d8-6e22-bed8-1b9859d98f08",
+                          "columnId": "6514d47b-f40f-724a-1470-c36e46303f99",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
@@ -318,7 +318,7 @@
                             "format": {
                               "id": "number",
                               "params": {
-                                "decimals": 0
+                                "decimals": 2
                               }
                             }
                           }
@@ -760,9 +760,9 @@
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "9569fa02-2974-295b-436c-7ab472bd8dad",
+                    "layerId": "c46b6430-68c5-d1d5-2b3d-a9d891737d64",
                     "accessors": [
-                      "2c847f5e-af54-7a3c-2365-fdd2e926eaae"
+                      "d86fe7b3-6b96-d2dc-601e-b58e250f279e"
                     ],
                     "layerType": "data",
                     "seriesType": "line",
@@ -804,14 +804,14 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "9569fa02-2974-295b-436c-7ab472bd8dad": {
+                    "c46b6430-68c5-d1d5-2b3d-a9d891737d64": {
                       "query": {
                         "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                       },
                       "columns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "2c847f5e-af54-7a3c-2365-fdd2e926eaae",
+                          "columnId": "d86fe7b3-6b96-d2dc-601e-b58e250f279e",
                           "label": "Open Connections",
                           "customLabel": true,
                           "meta": {
@@ -823,7 +823,7 @@
                             "format": {
                               "id": "number",
                               "params": {
-                                "decimals": 0
+                                "decimals": 2
                               }
                             }
                           }
@@ -844,7 +844,7 @@
                       "allColumns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "2c847f5e-af54-7a3c-2365-fdd2e926eaae",
+                          "columnId": "d86fe7b3-6b96-d2dc-601e-b58e250f279e",
                           "label": "Open Connections",
                           "customLabel": true,
                           "meta": {
@@ -856,7 +856,7 @@
                             "format": {
                               "id": "number",
                               "params": {
-                                "decimals": 0
+                                "decimals": 2
                               }
                             }
                           }
@@ -1063,7 +1063,7 @@
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "dc08b9a2-ecc7-0caf-bb22-798faecfebad",
+                    "layerId": "3a8f801c-34a3-6788-dcb0-992dab76f617",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -1087,7 +1087,7 @@
                       "85a09301-92c0-1507-818c-365b710b7555"
                     ],
                     "metrics": [
-                      "41864d4b-a8f2-da99-0d19-66c1020b6070"
+                      "3cd83b8e-8896-4363-867e-d5f948beb031"
                     ],
                     "numberDisplay": "percent",
                     "categoryDisplay": "default",
@@ -1104,14 +1104,14 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "dc08b9a2-ecc7-0caf-bb22-798faecfebad": {
+                    "3a8f801c-34a3-6788-dcb0-992dab76f617": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
                       },
                       "columns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "41864d4b-a8f2-da99-0d19-66c1020b6070",
+                          "columnId": "3cd83b8e-8896-4363-867e-d5f948beb031",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
@@ -1123,7 +1123,7 @@
                             "format": {
                               "id": "number",
                               "params": {
-                                "decimals": 0
+                                "decimals": 2
                               }
                             }
                           }
@@ -1138,7 +1138,7 @@
                       "allColumns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "41864d4b-a8f2-da99-0d19-66c1020b6070",
+                          "columnId": "3cd83b8e-8896-4363-867e-d5f948beb031",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
@@ -1150,7 +1150,7 @@
                             "format": {
                               "id": "number",
                               "params": {
-                                "decimals": 0
+                                "decimals": 2
                               }
                             }
                           }

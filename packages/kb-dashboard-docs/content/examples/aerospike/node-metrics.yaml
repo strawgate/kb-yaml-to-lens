@@ -99,7 +99,6 @@ dashboards:
             label: Connections
             format:
               type: number
-              decimals: 0
 
       # Memory Section Header
       - size: {w: 48, h: 2}
@@ -161,7 +160,6 @@ dashboards:
               label: Open Connections
               format:
                 type: number
-                decimals: 0
           breakdown:
             field: node
 
@@ -188,7 +186,6 @@ dashboards:
               label: Connections
               format:
                 type: number
-                decimals: 0
           breakdown:
             field: connection_type
 

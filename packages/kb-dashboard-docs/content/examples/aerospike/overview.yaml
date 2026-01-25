@@ -160,7 +160,6 @@ dashboards:
               label: Open Connections
               format:
                 type: number
-                decimals: 0
           breakdown:
             field: node
 

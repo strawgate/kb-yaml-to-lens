@@ -198,7 +198,6 @@ dashboards:
               label: Current Items
               format:
                 type: number
-                decimals: 0
       - title: Storage Over Time
         size: {w: 24, h: 10}
         esql:
@@ -250,7 +249,6 @@ dashboards:
               label: Current Connections
               format:
                 type: number
-                decimals: 0
       - title: New Connections Rate
         size: {w: 12, h: 10}
         esql:

@@ -135,7 +135,6 @@ dashboards:
               label: Keys
               format:
                 type: number
-                decimals: 0
 
       # Keys Distribution (Pie Chart)
       - title: Keys Distribution (Pie)
@@ -154,7 +153,6 @@ dashboards:
               label: Keys
               format:
                 type: number
-                decimals: 0
           dimensions:
             - field: db
           appearance:
@@ -213,7 +211,6 @@ dashboards:
               label: Expires
               format:
                 type: number
-                decimals: 0
 
       # Keys with TTL Trend (Gauge - use LAST_OVER_TIME for current state)
       - title: Keys with TTL Trend
