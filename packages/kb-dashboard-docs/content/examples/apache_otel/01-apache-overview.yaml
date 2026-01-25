@@ -216,7 +216,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
           metrics:
@@ -246,7 +246,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
           metrics:
@@ -270,7 +270,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
           metrics:

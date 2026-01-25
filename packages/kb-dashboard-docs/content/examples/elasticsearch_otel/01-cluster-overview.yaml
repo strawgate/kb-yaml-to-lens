@@ -76,7 +76,7 @@ dashboards:
             format:
               type: number
               decimals: 0
-      - title: Cluster Health Over Time
+      - title: Cluster Nodes Over Time
         size: {w: 48, h: 8}
         lens:
           type: line
@@ -96,6 +96,10 @@ dashboards:
               field: elasticsearch.cluster.data_nodes
               label: Data Nodes
       - title: Shard Distribution
+        description: >-
+          Active Primary: primary shards serving requests. Initializing:
+          recovering from copy. Unassigned: no node assigned (red status if
+          primary).
         size: {w: 16, h: 8}
         lens:
           type: datatable
@@ -138,6 +142,9 @@ dashboards:
                 type: number
                 decimals: 0
       - title: Pending Tasks
+        description: >-
+          Cluster state updates waiting to be applied. High or increasing values
+          indicate cluster manager contention.
         size: {w: 16, h: 8}
         lens:
           type: line
@@ -157,6 +164,9 @@ dashboards:
                 type: number
                 decimals: 0
       - title: In-Flight Fetches
+        description: >-
+          Snapshot recovery operations in progress. Values >0 indicate the
+          cluster is recovering data from snapshots.
         size: {w: 16, h: 8}
         lens:
           type: line
