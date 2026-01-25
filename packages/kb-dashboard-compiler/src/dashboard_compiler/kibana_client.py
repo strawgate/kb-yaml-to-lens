@@ -418,8 +418,8 @@ class KibanaClient:
         time_range: ScreenshotTimeRange | None = None
         if time_from is not None or time_to is not None:
             time_range = ScreenshotTimeRange(
-                from_time=time_from or 'now-15m',
-                to=time_to or 'now',
+                from_time=time_from if time_from is not None else 'now-15m',
+                to=time_to if time_to is not None else 'now',
             )
 
         dashboard_params = DashboardLocatorParams(
