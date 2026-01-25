@@ -24,12 +24,14 @@ include Makefile.shared
 # Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
-COMPONENTS := packages/kb-dashboard-compiler packages/kb-dashboard-lint packages/vscode-extension
+COMPONENTS := packages/kb-dashboard-cli packages/kb-dashboard-core packages/kb-dashboard-lint packages/kb-dashboard-tools packages/vscode-extension
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := \
 	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
-	--exclude "packages/kb-dashboard-compiler/.venv/**/*.yaml" --exclude "packages/kb-dashboard-compiler/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-cli/.venv/**/*.yaml" --exclude "packages/kb-dashboard-cli/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-core/.venv/**/*.yaml" --exclude "packages/kb-dashboard-core/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-tools/.venv/**/*.yaml" --exclude "packages/kb-dashboard-tools/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
@@ -42,10 +44,12 @@ help:
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run target in all components:"
-	@echo "  make all <target>       - Run in compiler + vscode"
+	@echo "  make all <target>       - Run in compiler + core + lint + vscode"
 	@echo ""
 	@echo "Run target in single component:"
-	@echo "  make compiler <target>  - Run in packages/kb-dashboard-compiler/"
+	@echo "  make cli <target>       - Run in packages/kb-dashboard-cli/"
+	@echo "  make compiler <target>  - Run in packages/kb-dashboard-cli/ (alias for cli)"
+	@echo "  make core <target>      - Run in packages/kb-dashboard-core/"
 	@echo "  make lint <target>      - Run in packages/kb-dashboard-lint/"
 	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
@@ -183,6 +187,11 @@ bump-version-show:
 # To suppress them, pipe the make command: make compiler help 2>/dev/null
 _FIRST_GOAL := $(firstword $(MAKECMDGOALS))
 
+ifeq ($(_FIRST_GOAL),cli)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 ifeq ($(_FIRST_GOAL),compiler)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
@@ -213,8 +222,14 @@ ifeq ($(_FIRST_GOAL),root)
   $(eval $(_ARGS):;@:)
 endif
 
+cli:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-cli $(_ARGS)
+
 compiler:
-	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-compiler $(_ARGS)
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-cli $(_ARGS)
+
+core:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-core $(_ARGS)
 
 lint:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-lint $(_ARGS)

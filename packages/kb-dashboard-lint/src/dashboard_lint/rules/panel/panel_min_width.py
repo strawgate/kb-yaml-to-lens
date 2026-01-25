@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from dashboard_compiler.panels.base import BasePanel
 from dashboard_lint.rules.core import PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.base import BasePanel
 
 
 class PanelMinWidthOptions(BaseModel):

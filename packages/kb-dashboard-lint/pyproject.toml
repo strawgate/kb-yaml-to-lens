@@ -14,7 +14,7 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
 ]
 dependencies = [
-    "kb-dashboard-compiler",
+    "kb-dashboard-core",
     "pydantic>=2.12",
     "beartype>=0.22",
     "click>=8.3",
@@ -44,7 +44,7 @@ build-backend = "uv_build"
 module-name = "dashboard_lint"
 
 [tool.uv.sources]
-kb-dashboard-compiler = { workspace = true }
+kb-dashboard-core = { workspace = true }
 
 [tool.coverage.run]
 source = ["src/dashboard_lint"]

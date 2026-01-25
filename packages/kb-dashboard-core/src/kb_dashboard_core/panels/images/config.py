@@ -1,0 +1,65 @@
+"""Configuration for an Image Panel in a dashboard."""
+
+from typing import Literal
+
+from pydantic import Field
+
+from kb_dashboard_core.panels.base import BasePanel
+from kb_dashboard_core.shared.config import BaseCfgModel
+
+
+class ImagePanelConfig(BaseCfgModel):
+    """Configuration specific to Image panels."""
+
+    from_url: str = Field(default=...)
+    """The URL of the image to be displayed in the panel. This is a required field."""
+
+    fit: Literal['contain', 'cover', 'fill', 'none'] | None = Field(default=None)
+    """Controls how the image is sized within the panel. Defaults to "contain".
+
+    - **contain**: Scales to fit within the panel while maintaining aspect ratio. Entire image visible.
+    - **cover**: Scales to fill the panel while maintaining aspect ratio. May be cropped.
+    - **fill**: Stretches or compresses to fill the panel, potentially altering aspect ratio.
+    - **none**: Displays at original size. Cropped if larger, unchanged if smaller than panel.
+    """
+
+    description: str | None = Field(default=None)
+    """Alternative text for the image, used for accessibility. Defaults to an empty string if not set."""
+
+    background_color: str | None = Field(default=None)
+    """Background color for the image panel. Defaults to an empty string if not set."""
+
+
+class ImagePanel(BasePanel):
+    """Represents an Image panel configuration.
+
+    Image panels are used to display images.
+
+    Examples:
+        Minimal image panel:
+        ```yaml
+        dashboards:
+          - name: "Branded Dashboard"
+            panels:
+              - title: "Company Logo"
+                size: { w: 16, h: 3 }
+                image:
+                  from_url: "https://example.com/path/to/your/logo.png"
+        ```
+
+        Image panel with custom fit and background:
+        ```yaml
+        dashboards:
+          - name: "Dashboard with Diagram"
+            panels:
+              - title: "System Architecture Diagram"
+                size: { w: 48, h: 6 }
+                image:
+                  from_url: "https://example.com/path/to/architecture.svg"
+                  fit: "contain"
+                  background_color: "#f0f0f0"
+        ```
+    """
+
+    image: ImagePanelConfig = Field(...)
+    """Image panel configuration."""

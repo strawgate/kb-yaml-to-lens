@@ -10,7 +10,8 @@ See [DEVELOPING.md](DEVELOPING.md) for development setup and workflows.
 
 See [CODE_STYLE.md](CODE_STYLE.md) for project-wide conventions, and component-specific guides:
 
-- **Python:** [packages/kb-dashboard-compiler/CODE_STYLE.md](packages/kb-dashboard-compiler/CODE_STYLE.md)
+- **Python (CLI):** [packages/kb-dashboard-cli/CODE_STYLE.md](packages/kb-dashboard-cli/CODE_STYLE.md)
+- **Python (Core):** [packages/kb-dashboard-core/CODE_STYLE.md](packages/kb-dashboard-core/CODE_STYLE.md)
 - **TypeScript:** [packages/vscode-extension/CODE_STYLE.md](packages/vscode-extension/CODE_STYLE.md)
 
 ## Pull Request Process

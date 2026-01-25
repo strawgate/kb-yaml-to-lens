@@ -15,10 +15,10 @@ While YAML is great for simple, static dashboards, creating dashboards programma
 ## Quick Example
 
 ```python
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.dashboard_compiler import render
-from dashboard_compiler.panels.config import Size
-from dashboard_compiler.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard_compiler import render
+from kb_dashboard_core.panels.config import Size
+from kb_dashboard_core.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
 
 # Create a dashboard
 dashboard = Dashboard(
@@ -48,7 +48,7 @@ print(output)
 The `Dashboard` class is the main entry point for creating dashboards:
 
 ```python
-from dashboard_compiler.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard.config import Dashboard
 
 dashboard = Dashboard(
     name='Dashboard Name',  # Required: Display name
@@ -61,7 +61,7 @@ dashboard = Dashboard(
 Kibana uses a 48-column grid system for output. Panels are sized using the `Size` class, with optional `Position` for explicit positioning:
 
 ```python
-from dashboard_compiler.panels.config import Position, Size
+from kb_dashboard_core.panels.config import Position, Size
 
 # Full-width panel (auto-positioned)
 size = Size(w=48, h=15)
@@ -107,15 +107,15 @@ One of the key benefits of programmatic dashboards is the ability to generate th
 ### Generating Panels from Configuration
 
 ```python
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.charts.config import (
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.lens.metrics.config import (
+from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.config import Size
+from kb_dashboard_core.panels.config import Size
 
 dashboard = Dashboard(name='Metrics Dashboard')
 
@@ -171,8 +171,8 @@ dashboard.add_panel(create_metric_panel('Avg Bytes', 'bytes'))
 Add filters that apply to all panels in the dashboard:
 
 ```python
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.filters.config import ExistsFilter, PhraseFilter, RangeFilter
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.filters.config import ExistsFilter, PhraseFilter, RangeFilter
 
 dashboard = Dashboard(name='Filtered Dashboard')
 
@@ -202,11 +202,11 @@ dashboard.add_filter(ExistsFilter(exists='error.message'))
 Add interactive controls for filtering data:
 
 ```python
-from dashboard_compiler.controls.config import (
+from kb_dashboard_core.controls.config import (
     OptionsListControl,
     RangeSliderControl,
 )
-from dashboard_compiler.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard.config import Dashboard
 
 dashboard = Dashboard(name='Dashboard with Controls')
 
@@ -241,8 +241,8 @@ Convert your dashboard to Kibana's NDJSON format:
 ```python
 from pathlib import Path
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.dashboard_compiler import render
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard_compiler import render
 
 dashboard = Dashboard(name='My Dashboard')
 kbn_dashboard = render(dashboard)
@@ -255,8 +255,8 @@ Path('dashboard.ndjson').write_text(output)
 ### Saving Multiple Dashboards
 
 ```python
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.dashboard_compiler import dump
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard_compiler import dump
 
 dashboard1 = Dashboard(name='Dashboard 1')
 dashboard2 = Dashboard(name='Dashboard 2')

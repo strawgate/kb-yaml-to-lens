@@ -6,11 +6,11 @@ requires-python = ">=3.12"
 license = {text = "MIT"}
 
 dependencies = [
-    "kb-dashboard-compiler",
+    "kb-dashboard-cli",
 ]
 
 [tool.uv.sources]
-kb-dashboard-compiler = { workspace = true }
+kb-dashboard-cli = { workspace = true }
 
 [dependency-groups]
 dev = [

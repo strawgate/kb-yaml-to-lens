@@ -1,8 +1,8 @@
 """Tests for ESQLWhereClauseRule."""
 
-from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.rules.chart import ESQLWhereClauseRule
 from dashboard_lint.types import Severity
+from kb_dashboard_core.dashboard.config import Dashboard
 
 
 class TestESQLWhereClauseRule:

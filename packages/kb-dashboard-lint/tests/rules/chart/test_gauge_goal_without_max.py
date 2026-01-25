@@ -1,10 +1,10 @@
 """Tests for GaugeGoalWithoutMaxRule."""
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.charts.config import LensGaugePanelConfig, LensPanel
-from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric, LensStaticValue
-from dashboard_compiler.panels.config import Size
 from dashboard_lint.rules.chart import GaugeGoalWithoutMaxRule
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.panels.charts.config import LensGaugePanelConfig, LensPanel
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric, LensStaticValue
+from kb_dashboard_core.panels.config import Size
 
 
 class TestGaugeGoalWithoutMaxRule:

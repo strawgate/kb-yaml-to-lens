@@ -3,7 +3,9 @@
 import re
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLAreaPanelConfig,
     ESQLBarPanelConfig,
     ESQLDatatablePanelConfig,
@@ -17,9 +19,7 @@ from dashboard_compiler.panels.charts.config import (
     ESQLTagcloudPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.queries.config import ESQLQuery
-from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.queries.config import ESQLQuery
 
 # Pattern to match WHERE clause (case insensitive)
 WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)

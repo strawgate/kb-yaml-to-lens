@@ -2,10 +2,10 @@
 
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.base import BasePanel
-from dashboard_compiler.panels.markdown import MarkdownPanel
 from dashboard_lint.rules.core import EmptyOptions, PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.base import BasePanel
+from kb_dashboard_core.panels.markdown import MarkdownPanel
 
 
 @panel_rule

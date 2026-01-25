@@ -2,7 +2,8 @@
 
 Each component has its own CODE_STYLE.md with language-specific conventions:
 
-- **Python (compiler):** [packages/kb-dashboard-compiler/CODE_STYLE.md](packages/kb-dashboard-compiler/CODE_STYLE.md)
+- **Python (CLI):** [packages/kb-dashboard-cli/CODE_STYLE.md](packages/kb-dashboard-cli/CODE_STYLE.md)
+- **Python (Core):** [packages/kb-dashboard-core/CODE_STYLE.md](packages/kb-dashboard-core/CODE_STYLE.md)
 - **TypeScript (vscode-extension):** [packages/vscode-extension/CODE_STYLE.md](packages/vscode-extension/CODE_STYLE.md)
 
 See the component-specific CODE_STYLE.md files for the full list of rules!

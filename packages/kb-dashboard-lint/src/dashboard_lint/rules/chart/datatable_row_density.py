@@ -4,15 +4,15 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLDatatablePanelConfig,
     ESQLPanel,
     LensDatatablePanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.datatable.config import DatatableDensityEnum
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.datatable.config import DatatableDensityEnum
 
 type DatatableConfig = LensDatatablePanelConfig | ESQLDatatablePanelConfig
 

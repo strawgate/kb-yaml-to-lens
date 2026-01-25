@@ -184,14 +184,14 @@ You can create Metric chart panels programmatically using Python:
 ### Count Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import (
+from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.lens.metrics.config import (
+from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
 )
-from dashboard_compiler.panels.config import Position, Size
+from kb_dashboard_core.panels.config import Position, Size
 
 panel = LensPanel(
     title='Total Documents',
@@ -208,14 +208,14 @@ panel = LensPanel(
 ### Average Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import (
+from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.lens.metrics.config import (
+from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
 )
-from dashboard_compiler.panels.config import Position, Size
+from kb_dashboard_core.panels.config import Position, Size
 
 panel = LensPanel(
     title='Avg Response Time',
@@ -232,15 +232,15 @@ panel = LensPanel(
 ### Formula Metric Example
 
 ```python
-from dashboard_compiler.panels.charts.config import (
+from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.lens.metrics.config import (
+from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensFormulaMetric,
     LensMetricFormat,
 )
-from dashboard_compiler.panels.config import Position, Size
+from kb_dashboard_core.panels.config import Position, Size
 
 panel = LensPanel(
     title='Error Rate',

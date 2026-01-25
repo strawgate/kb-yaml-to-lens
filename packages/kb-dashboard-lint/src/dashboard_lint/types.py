@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol
 
-from dashboard_compiler.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard.config import Dashboard
 
 
 class Severity(StrEnum):
