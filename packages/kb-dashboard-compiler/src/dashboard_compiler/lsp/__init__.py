@@ -2,8 +2,9 @@
 
 This module provides LSP server functionality and grid editing utilities
 for the VS Code extension.
+
+Note: start_server is not eagerly imported to avoid circular imports.
+Import directly from dashboard_compiler.lsp.server when needed.
 """
 
-from dashboard_compiler.lsp.server import start_server
-
-__all__ = ['start_server']
+__all__: list[str] = []
