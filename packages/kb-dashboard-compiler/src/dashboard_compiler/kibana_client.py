@@ -5,11 +5,11 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, Literal
+from typing import Annotated, Any, ClassVar, Literal
 
 import aiohttp
 import prison
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, TypeAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -200,6 +200,85 @@ class EsqlResponse(BaseModel):
         """
         # Values are dynamic JSON types from Elasticsearch; col.name is typed, val is Any from ES
         return [{col.name: val for col, val in zip(self.columns, row, strict=False)} for row in self.values]  # pyright: ignore[reportAny]
+
+
+class EsqlRootCause(BaseModel):
+    """Root cause detail in ES|QL error responses."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str | None = None
+    """Error type identifier."""
+    reason: str | None = None
+    """Human-readable error reason."""
+
+
+class EsqlErrorDetail(BaseModel):
+    """Structured error detail from ES|QL query responses."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str | None = None
+    """Error type identifier (e.g., 'verification_exception', 'parsing_exception')."""
+    reason: str | None = None
+    """Human-readable error reason."""
+    root_cause: list[EsqlRootCause] = Field(default_factory=list)
+    """List of root causes for the error."""
+
+
+class EsqlErrorResponse(BaseModel):
+    """Error response from ES|QL query execution.
+
+    This model represents an error response from Elasticsearch when an ES|QL
+    query fails (e.g., syntax error, verification error, unknown field).
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    error: EsqlErrorDetail
+    """Structured error details."""
+    status: int | None = None
+    """HTTP status code."""
+
+    def get_error_message(self) -> str:
+        """Extract a user-friendly error message from the error response.
+
+        Returns:
+            The error reason, or a fallback message if not available.
+        """
+        if self.error.reason is not None:
+            return self.error.reason
+        if self.error.type is not None:
+            return self.error.type
+        return 'Unknown ES|QL error'
+
+
+def _esql_response_discriminator(value: Any) -> str:  # pyright: ignore[reportAny]
+    """Discriminator function for ES|QL API responses.
+
+    Determines whether the response is an error or success based on the presence
+    of the 'error' key in the response dict.
+
+    Args:
+        value: The raw response value (typically a dict).
+
+    Returns:
+        'error' if the response contains an error, 'success' otherwise.
+    """
+    if isinstance(value, dict):
+        return 'error' if 'error' in value else 'success'
+    return 'success'
+
+
+EsqlApiResponse = Annotated[
+    Annotated[EsqlErrorResponse, Tag('error')] | Annotated[EsqlResponse, Tag('success')],
+    Discriminator(_esql_response_discriminator),
+]
+"""Union type for ES|QL API responses, discriminated by the presence of 'error' key."""
+
+# TypeAdapter instance for parsing ES|QL API responses.
+# Note: Explicit type annotation omitted to avoid beartype compatibility issues with complex generics.
+_esql_response_adapter = TypeAdapter(EsqlApiResponse)
 
 
 class KibanaClient:
@@ -584,7 +663,6 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails due to network issues
             asyncio.TimeoutError: If the request times out
             ValueError: If the response contains an error message
-            TypeError: If the response shape is unexpected
             pydantic.ValidationError: If response validation fails
 
         """
@@ -613,23 +691,16 @@ class KibanaClient:
 
             result = await response.json()  # pyright: ignore[reportAny]
 
-            # Validate response type
-            if not isinstance(result, dict):
-                msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
-                raise TypeError(msg)
+            # Parse response using TypeAdapter for automatic error/success discrimination
+            parsed = _esql_response_adapter.validate_python(result)
 
-            # Handle ES|QL error response
-            if 'error' in result:
-                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
-                if isinstance(error_info, dict):
-                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
-                elif isinstance(error_info, str):
-                    error_msg = error_info
-                else:
-                    msg = f'Unexpected ES|QL error type: {type(error_info).__name__}'  # pyright: ignore[reportUnknownArgumentType]
-                    raise TypeError(msg)
+            # Handle response based on type (exhaustive type checking per CODE_STYLE.md)
+            if isinstance(parsed, EsqlErrorResponse):
+                error_msg = parsed.get_error_message()
                 msg = f'ES|QL query error: {error_msg}'
-                raise ValueError(msg)
+                raise ValueError(msg)  # noqa: TRY004 - ValueError is correct for query errors, not TypeError
+            if isinstance(parsed, EsqlResponse):  # pyright: ignore[reportUnnecessaryIsInstance]
+                return parsed
 
-            # Parse response into Pydantic model for type safety
-            return EsqlResponse.model_validate(result)
+            msg = f'Unexpected ES|QL response type: {type(parsed).__name__}'
+            raise TypeError(msg)
