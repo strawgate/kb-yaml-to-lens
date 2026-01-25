@@ -2,42 +2,42 @@
  * Zod schemas for runtime validation of LSP responses.
  *
  * This file re-exports all schemas from the auto-generated file.
- * The schemas are generated from Pydantic models in the Python compiler
+ * The schemas are generated from Pydantic models using pydantic2zod
  * to ensure type safety across the TypeScript/Python boundary.
  *
  * To regenerate: `make generate-schemas` in packages/vscode-extension/
  */
 
 export {
-    // Core data models
-    GridSchema,
-    PanelGridInfoSchema,
-    DashboardGridInfoSchema,
-    DashboardInfoSchema,
-    EsqlColumnSchema,
-    EsqlQueryResultSchema,
-    // LSP response wrappers
-    CompileResultSchema,
-    DashboardListResultSchema,
-    GridLayoutResultSchema,
-    UpdateGridLayoutResultSchema,
-    UploadResultSchema,
-    EsqlExecuteResultSchema,
-    SchemaResultSchema,
+    // Core data models (schemas)
+    Grid,
+    PanelGridInfo,
+    DashboardGridInfo,
+    DashboardInfo,
+    EsqlColumn,
+    EsqlQueryResult,
+    // LSP response wrappers (schemas)
+    CompileResult,
+    DashboardListResult,
+    GridLayoutResult,
+    UpdateGridLayoutResult,
+    UploadResult,
+    EsqlExecuteResult,
+    SchemaResult,
     // Inferred types
-    type Grid,
-    type PanelGridInfo,
-    type DashboardGridInfo,
-    type DashboardInfo,
-    type EsqlColumn,
-    type EsqlQueryResult,
-    type CompileResult,
-    type DashboardListResult,
-    type GridLayoutResult,
-    type UpdateGridLayoutResult,
-    type UploadResult,
-    type EsqlExecuteResult,
-    type SchemaResult,
+    type GridType,
+    type PanelGridInfoType,
+    type DashboardGridInfoType,
+    type DashboardInfoType,
+    type EsqlColumnType,
+    type EsqlQueryResultType,
+    type CompileResultType,
+    type DashboardListResultType,
+    type GridLayoutResultType,
+    type UpdateGridLayoutResultType,
+    type UploadResultType,
+    type EsqlExecuteResultType,
+    type SchemaResultType,
     // Parse helper functions
     parseCompileResult,
     parseDashboardListResult,

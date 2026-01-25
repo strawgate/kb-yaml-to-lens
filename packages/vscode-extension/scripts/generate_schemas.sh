@@ -1,10 +1,8 @@
 #!/bin/bash
-# Generate Zod schemas from Pydantic models
+# Generate Zod schemas from Pydantic models using pydantic2zod
 #
-# This script:
-# 1. Runs the Python export_lsp_schemas.py script to generate JSON schemas
-# 2. Converts each schema to Zod using json-schema-to-zod
-# 3. Combines them into a single TypeScript file
+# This script uses pydantic2zod for direct Pydantic → Zod conversion,
+# avoiding the JSON Schema intermediate step and its $ref issues.
 
 set -euo pipefail
 
@@ -15,20 +13,24 @@ OUTPUT_FILE="$VSCODE_DIR/src/schemas.generated.ts"
 
 echo "Generating Zod schemas from Pydantic models..."
 
-# Create temporary directory for intermediate files
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
-
-# Export JSON schemas from Python
+# Generate schemas using pydantic2zod
 cd "$COMPILER_DIR"
-uv run python scripts/export_lsp_schemas.py > "$TMP_DIR/schemas.json"
+PYTHONPATH="scripts:${PYTHONPATH:-}" uv run python -c "
+from pydantic2zod import Compiler
+output = Compiler().parse('export_lsp_schemas').to_zod()
+print(output)
+" > "$OUTPUT_FILE.tmp" 2>/dev/null
 
-# Generate the TypeScript header
+# Post-process: replace Any with z.unknown() for type safety
+# This is the only post-processing needed - pydantic2zod handles nested types correctly
+sed -i 's/\bAny\b/z.unknown()/g' "$OUTPUT_FILE.tmp"
+
+# Add file header
 cat > "$OUTPUT_FILE" << 'EOF'
 /**
  * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
  *
- * This file is generated from Pydantic models in the Python compiler.
+ * This file is generated from Pydantic models using pydantic2zod.
  * Run `make generate-schemas` to regenerate.
  *
  * Source: packages/kb-dashboard-compiler/scripts/export_lsp_schemas.py
@@ -36,91 +38,10 @@ cat > "$OUTPUT_FILE" << 'EOF'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { z } from 'zod';
-
 EOF
 
-cd "$VSCODE_DIR"
-
-# Extract schema names and generate Zod code for each
-SCHEMA_NAMES=$(node -e "const s=require('$TMP_DIR/schemas.json'); console.log(Object.keys(s).join(' '))")
-
-for SCHEMA_NAME in $SCHEMA_NAMES; do
-    echo "  Processing $SCHEMA_NAME..."
-
-    # Extract individual schema to temp file
-    node -e "
-const schemas = require('$TMP_DIR/schemas.json');
-console.log(JSON.stringify(schemas['$SCHEMA_NAME']));
-" > "$TMP_DIR/${SCHEMA_NAME}.json"
-
-    # Convert to Zod (ESM module for type export support)
-    ZOD_OUTPUT=$(npx json-schema-to-zod \
-        --input "$TMP_DIR/${SCHEMA_NAME}.json" \
-        --name "${SCHEMA_NAME}Schema" \
-        --type "$SCHEMA_NAME" \
-        --module esm \
-        --withJsdocs)
-
-    # Strip the import statement and keep everything else
-    echo "$ZOD_OUTPUT" | grep -v '^import { z }' >> "$OUTPUT_FILE"
-
-    echo "" >> "$OUTPUT_FILE"
-done
-
-# Post-process to fix nested type references
-echo "  Post-processing nested type references..."
-node -e "
-const fs = require('fs');
-const content = fs.readFileSync('$OUTPUT_FILE', 'utf-8');
-
-// Fix known nested type references
-// PanelGridInfo.grid should reference GridSchema
-// DashboardGridInfo.panels should be array of PanelGridInfoSchema
-// DashboardListResult.data should be array of DashboardInfoSchema
-// GridLayoutResult.data should be DashboardGridInfoSchema
-// EsqlQueryResult.columns should be array of EsqlColumnSchema
-// EsqlExecuteResult.data should be EsqlQueryResultSchema
-
-let fixed = content
-    // Fix PanelGridInfo.grid: z.any() -> GridSchema
-    .replace(
-        /(\"grid\": )z\.any\(\)\.describe\(\"Grid position and size\"\)/g,
-        '\$1GridSchema'
-    )
-    // Fix DashboardGridInfo.panels: z.array(z.any()) -> z.array(PanelGridInfoSchema)
-    .replace(
-        /(\"panels\": )z\.array\(z\.any\(\)\)\.describe\(\"List of panels with grid info\"\)/g,
-        '\$1z.array(PanelGridInfoSchema).describe(\"List of panels with grid info\")'
-    )
-    // Fix DashboardListResult.data: z.array(z.any()) -> z.array(DashboardInfoSchema)
-    .replace(
-        /(DashboardListResultSchema[\s\S]*?\"data\": )z\.union\(\[z\.array\(z\.any\(\)\), z\.null\(\)\]\)\.describe\(\"List of dashboards\"\)/g,
-        '\$1z.union([z.array(DashboardInfoSchema), z.null()]).describe(\"List of dashboards\")'
-    )
-    // Fix GridLayoutResult.data: z.any() -> DashboardGridInfoSchema
-    .replace(
-        /(GridLayoutResultSchema[\s\S]*?\"data\": )z\.union\(\[z\.any\(\), z\.null\(\)\]\)\.describe\(\"Grid layout information\"\)/g,
-        '\$1z.union([DashboardGridInfoSchema, z.null()]).describe(\"Grid layout information\")'
-    )
-    // Fix EsqlQueryResult.columns: z.array(z.any()) -> z.array(EsqlColumnSchema)
-    .replace(
-        /(EsqlQueryResultSchema[\s\S]*?\"columns\": )z\.array\(z\.any\(\)\)\.describe\(\"Column definitions\"\)/g,
-        '\$1z.array(EsqlColumnSchema).describe(\"Column definitions\")'
-    )
-    // Fix EsqlExecuteResult.data: z.any() -> EsqlQueryResultSchema
-    .replace(
-        /(EsqlExecuteResultSchema[\s\S]*?\"data\": )z\.union\(\[z\.any\(\), z\.null\(\)\]\)\.describe\(\"Query results\"\)/g,
-        '\$1z.union([EsqlQueryResultSchema, z.null()]).describe(\"Query results\")'
-    )
-    // Replace remaining z.any() with z.unknown() for type safety
-    // z.unknown() forces callers to narrow the type before use
-    .replace(/z\.any\(\)/g, 'z.unknown()');
-
-fs.writeFileSync('$OUTPUT_FILE', fixed);
-console.log('  Fixed nested type references');
-console.log('  Replaced z.any() with z.unknown() for type safety');
-"
+# Append the generated schemas (skip pydantic2zod header)
+tail -n +6 "$OUTPUT_FILE.tmp" >> "$OUTPUT_FILE"
 
 # Add parse helper functions
 cat >> "$OUTPUT_FILE" << 'EOF'
@@ -134,7 +55,7 @@ cat >> "$OUTPUT_FILE" << 'EOF'
  * @throws Error if the result indicates failure or has invalid structure
  */
 export function parseCompileResult(result: unknown): unknown {
-    const parsed = CompileResultSchema.parse(result);
+    const parsed = CompileResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'Compilation failed');
     }
@@ -148,8 +69,8 @@ export function parseCompileResult(result: unknown): unknown {
  * Parse an LSP dashboard list result with validation.
  * @throws Error if the result indicates failure or has invalid structure
  */
-export function parseDashboardListResult(result: unknown): DashboardInfo[] {
-    const parsed = DashboardListResultSchema.parse(result);
+export function parseDashboardListResult(result: unknown): DashboardInfoType[] {
+    const parsed = DashboardListResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'Failed to get dashboards');
     }
@@ -163,8 +84,8 @@ export function parseDashboardListResult(result: unknown): DashboardInfo[] {
  * Parse an LSP grid layout result with validation.
  * @throws Error if the result indicates failure or has invalid structure
  */
-export function parseGridLayoutResult(result: unknown): DashboardGridInfo {
-    const parsed = GridLayoutResultSchema.parse(result);
+export function parseGridLayoutResult(result: unknown): DashboardGridInfoType {
+    const parsed = GridLayoutResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'Failed to get grid layout');
     }
@@ -179,7 +100,7 @@ export function parseGridLayoutResult(result: unknown): DashboardGridInfo {
  * @throws Error if the result indicates failure or has invalid structure
  */
 export function parseUploadResult(result: unknown): { dashboardUrl: string; dashboardId: string } {
-    const parsed = UploadResultSchema.parse(result);
+    const parsed = UploadResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'Upload failed');
     }
@@ -196,8 +117,8 @@ export function parseUploadResult(result: unknown): { dashboardUrl: string; dash
  * Parse an ES|QL execute result with validation.
  * @throws Error if the result indicates failure or has invalid structure
  */
-export function parseEsqlExecuteResult(result: unknown): EsqlQueryResult {
-    const parsed = EsqlExecuteResultSchema.parse(result);
+export function parseEsqlExecuteResult(result: unknown): EsqlQueryResultType {
+    const parsed = EsqlExecuteResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'ES|QL query execution failed');
     }
@@ -212,12 +133,15 @@ export function parseEsqlExecuteResult(result: unknown): EsqlQueryResult {
  * @throws Error if the result indicates failure
  */
 export function parseUpdateGridLayoutResult(result: unknown): void {
-    const parsed = UpdateGridLayoutResultSchema.parse(result);
+    const parsed = UpdateGridLayoutResult.parse(result);
     if (!parsed.success) {
         throw new Error(parsed.error ?? 'Failed to update grid layout');
     }
 }
 EOF
+
+# Clean up
+rm -f "$OUTPUT_FILE.tmp"
 
 echo "Generated $OUTPUT_FILE"
 echo "Done!"

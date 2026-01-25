@@ -20,16 +20,23 @@ import {
     parseUploadResult,
     parseEsqlExecuteResult,
     parseUpdateGridLayoutResult,
-    SchemaResultSchema,
-    type DashboardInfo,
-    type DashboardGridInfo,
-    type EsqlQueryResult,
-    type Grid,
-    type SchemaResult,
+    SchemaResult as SchemaResultSchema,
+    type DashboardInfoType,
+    type DashboardGridInfoType,
+    type EsqlQueryResultType,
+    type GridType,
+    type SchemaResultType,
 } from './schemas';
 
 // Re-export types from schemas for backwards compatibility
-export type { DashboardInfo, DashboardGridInfo, PanelGridInfo, EsqlColumn, EsqlQueryResult, Grid } from './schemas';
+export type {
+    DashboardInfoType as DashboardInfo,
+    DashboardGridInfoType as DashboardGridInfo,
+    PanelGridInfoType as PanelGridInfo,
+    EsqlColumnType as EsqlColumn,
+    EsqlQueryResultType as EsqlQueryResult,
+    GridType as Grid,
+} from './schemas';
 
 // Interface for the compiled dashboard result
 export type CompiledDashboard = unknown;
@@ -121,7 +128,7 @@ export class DashboardCompilerLSP {
      * @param filePath Path to the YAML file
      * @returns Array of dashboard information objects
      */
-    async getDashboards(filePath: string): Promise<DashboardInfo[]> {
+    async getDashboards(filePath: string): Promise<DashboardInfoType[]> {
         if (!this.client) {
             throw new Error('LSP client not started');
         }
@@ -141,7 +148,7 @@ export class DashboardCompilerLSP {
      * @param dashboardIndex Index of the dashboard to extract (default: 0)
      * @returns Grid layout information
      */
-    async getGridLayout(filePath: string, dashboardIndex: number = 0): Promise<DashboardGridInfo> {
+    async getGridLayout(filePath: string, dashboardIndex: number = 0): Promise<DashboardGridInfoType> {
         if (!this.client) {
             throw new Error('LSP client not started');
         }
@@ -208,7 +215,7 @@ export class DashboardCompilerLSP {
      * @param grid New grid coordinates
      * @param dashboardIndex Index of the dashboard (default: 0)
      */
-    async updateGridLayout(filePath: string, panelId: string, grid: Grid, dashboardIndex: number = 0): Promise<void> {
+    async updateGridLayout(filePath: string, panelId: string, grid: GridType, dashboardIndex: number = 0): Promise<void> {
         if (!this.client) {
             throw new Error('LSP client not started');
         }
@@ -234,7 +241,7 @@ export class DashboardCompilerLSP {
      *
      * @returns Schema result with success status and schema data
      */
-    async getSchema(): Promise<SchemaResult> {
+    async getSchema(): Promise<SchemaResultType> {
         if (!this.client) {
             return { success: false, data: null, error: 'LSP client not started' };
         }
@@ -265,7 +272,7 @@ export class DashboardCompilerLSP {
         password: string,
         apiKey: string,
         sslVerify: boolean
-    ): Promise<EsqlQueryResult> {
+    ): Promise<EsqlQueryResultType> {
         if (!this.client) {
             throw new Error('LSP client not started');
         }
