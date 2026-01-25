@@ -46,58 +46,6 @@ module-name = "dashboard_lint"
 [tool.uv.sources]
 kb-dashboard-compiler = { workspace = true }
 
-[tool.ruff]
-line-length = 140
-target-version = "py312"
-extend-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".pytest_cache",
-    ".ruff_cache",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "build",
-    "dist",
-]
-
-[tool.ruff.lint]
-extend-select = [
-    "A", "ARG", "B", "C4", "COM", "DTZ", "E", "EM", "F", "FURB", "I",
-    "LOG", "N", "PERF", "PIE", "PLR", "PLW", "PT", "PTH", "Q", "RET",
-    "RSE", "RUF", "S", "SIM", "TC", "TID", "TRY", "UP", "W",
-    "D",
-    "ANN", "PLE", "T10", "ISC", "FA", "PGH", "INP",
-]
-ignore = [
-    "COM812",
-    "D203",
-    "D213",
-    "D413",
-    "D100",
-    "A002",
-    "ANN401",
-]
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/**/*.py" = [
-    "S101",
-    "PLR2004",
-    "INP001",
-]
-
-[tool.ruff.format]
-quote-style = "single"
-
-[tool.ruff.lint.isort]
-known-first-party = ["dashboard_lint", "dashboard_compiler"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-
-[tool.ruff.lint.flake8-quotes]
-docstring-quotes = "double"
-inline-quotes = "single"
-
 [tool.coverage.run]
 source = ["src/dashboard_lint"]
 branch = true
@@ -122,44 +70,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-
-[tool.basedpyright]
-pythonVersion = "3.12"
-typeCheckingMode = "recommended"
-reportImportCycles = "error"
-reportExplicitAny = false
-reportIncompatibleVariableOverride = false
-reportUnusedCallResult = false
-reportAny = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
-reportUnknownArgumentType = false
-reportUnannotatedClassAttribute = false
-reportUnusedParameter = false
-reportUnreachable = false
-reportUnnecessaryIsInstance = false
-include = ["src/dashboard_lint", "tests"]
-exclude = [
-    "**/.venv/**",
-    "**/output/**",
-]
-
-[[tool.basedpyright.executionEnvironments]]
-root = "tests"
-reportMissingTypeStubs = false
-reportUnknownParameterType = false
-reportUnknownArgumentType = false
-reportUnknownVariableType = false
-reportAny = false
-reportArgumentType = false
-reportCallIssue = false
-reportMissingImports = false
-reportUninitializedInstanceVariable = false
-reportUnusedCallResult = false
-reportImplicitOverride = false
-reportPrivateUsage = false
-reportUnannotatedClassAttribute = false
-reportUntypedNamedTuple = false
-
-[[tool.basedpyright.executionEnvironments]]
-root = "src/dashboard_lint"
