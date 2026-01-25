@@ -4,30 +4,31 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 from fastmcp.tools import Tool
 
 from kb_dashboard_mcp.models import DataStreamFieldSummary, DataStreamInfo, DataStreamRowExample, DataStreamSummary
 
 if TYPE_CHECKING:
-    from dashboard_compiler.kibana_client import KibanaClient
     from fastmcp import FastMCP
+
+    from dashboard_compiler.kibana_client import KibanaClient
 
 
 # Pattern to validate data stream names (alphanumeric, -, _, ., and *)
 DATA_STREAM_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9\-_\.\*]+$')
 
 
-def _extract_unique_values(values: list[list[Any]], col_index: int) -> set[Any]:
+def _extract_unique_values(values: list[list[Any]], col_index: int) -> set[str | bool | int | float]:
     """Extract unique non-null values from a column."""
-    unique_values: set[Any] = set()
+    unique_values: set[str | bool | int | float] = set()
     for row in values:
         if col_index < len(row):
-            value = row[col_index]
-            if value is not None:
+            raw_value: Any = row[col_index]  # pyright: ignore[reportAny]
+            if raw_value is not None and isinstance(raw_value, (str, bool, int, float)):
                 with contextlib.suppress(TypeError):
-                    unique_values.add(value)
+                    unique_values.add(raw_value)
     return unique_values
 
 
@@ -43,7 +44,10 @@ def _build_field_summaries(columns: list[dict[str, Any]], values: list[list[Any]
             continue
 
         unique_values = _extract_unique_values(values, col_index)
-        sample_values = list(unique_values)[:10] if len(unique_values) > 0 else None
+        # Cast to the expected type - list cannot contain None since we filter in _extract_unique_values
+        sample_values: list[str | bool | int | float | None] | None = (
+            cast('list[str | bool | int | float | None]', list(unique_values)[:10]) if len(unique_values) > 0 else None
+        )
 
         field_summaries.append(
             DataStreamFieldSummary(
@@ -66,7 +70,7 @@ def _build_row_examples(columns: list[dict[str, Any]], values: list[list[Any]]) 
 
         for col_index, column in enumerate(columns):
             if col_index < len(row):
-                value = row[col_index]
+                value: Any = row[col_index]  # pyright: ignore[reportAny]
                 if value is not None:
                     col_name = column.get('name')
                     if col_name is not None:
@@ -146,13 +150,15 @@ async def list_data_streams(client: KibanaClient, pattern: str | None = None) ->
         Data stream names with backing indices and timestamp field.
     """
     response = await client.get_data_streams(name=pattern)
-    data_streams_list: list[dict[str, Any]] = response.get('data_streams', [])
+    # ES API returns dynamic JSON - cast to expected structure
+    data_streams_list = cast('list[dict[str, Any]]', response.get('data_streams', []))
 
     result: list[DataStreamInfo] = []
     for ds in data_streams_list:
-        name = ds.get('name', '')
-        timestamp_field = ds.get('timestamp_field', {}).get('name', '@timestamp')
-        indices = ds.get('indices', [])
+        name = cast('str', ds.get('name', ''))
+        ts_field = cast('dict[str, str]', ds.get('timestamp_field', {}))
+        timestamp_field = ts_field.get('name', '@timestamp')
+        indices = cast('list[dict[str, str]]', ds.get('indices', []))
         backing_indices = [idx.get('index_name', '') for idx in indices]
 
         result.append(
@@ -193,5 +199,5 @@ def register_data_stream_tools(mcp: FastMCP, client: KibanaClient) -> None:
         """
         return await list_data_streams(client, pattern)
 
-    mcp.add_tool(Tool.from_function(_summarize_data_streams, name='summarize_data_streams', tags={'data_streams', 'summarize'}))
-    mcp.add_tool(Tool.from_function(_list_data_streams, name='list_data_streams', tags={'data_streams', 'list'}))
+    _ = mcp.add_tool(Tool.from_function(_summarize_data_streams, name='summarize_data_streams', tags={'data_streams', 'summarize'}))
+    _ = mcp.add_tool(Tool.from_function(_list_data_streams, name='list_data_streams', tags={'data_streams', 'list'}))

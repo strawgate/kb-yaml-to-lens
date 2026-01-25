@@ -174,12 +174,8 @@ reportUnknownMemberType = false
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-mcp/src"
 extraPaths = ["packages/kb-dashboard-mcp/src", "packages/kb-dashboard-compiler/src"]
-# FastMCP tool registration returns unused Tool objects
+# First-party packages don't have external type stubs
 reportMissingTypeStubs = false
-reportAny = false
-reportUnusedCallResult = false
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
 reportIncompatibleVariableOverride = false
 
 [[tool.basedpyright.executionEnvironments]]

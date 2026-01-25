@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 from fastmcp.tools import Tool
 
 from kb_dashboard_mcp.models import DissectMatchResult, GrokMatchResult
 
 if TYPE_CHECKING:
-    from dashboard_compiler.kibana_client import KibanaClient
     from fastmcp import FastMCP
+
+    from dashboard_compiler.kibana_client import KibanaClient
 
 
 async def run_grok_pattern_test(
@@ -43,15 +44,17 @@ async def run_grok_pattern_test(
         pattern_definitions=custom_patterns,
     )
 
-    matches: list[dict[str, Any]] = result.get('matches', [])
+    # Grok API returns dynamic JSON - cast to expected structure
+    matches = cast('list[dict[str, Any]]', result.get('matches', []))
 
     if len(matches) == 0:
         return GrokMatchResult(matched=False, fields={})
 
     first_match = matches[0]
+    matched_fields = cast('dict[str, Any]', first_match.get('match', {}))
     return GrokMatchResult(
         matched=True,
-        fields=first_match.get('match', {}),
+        fields=matched_fields,
     )
 
 
@@ -97,16 +100,17 @@ async def run_dissect_pattern_test(
 
     result = await client.simulate_ingest(pipeline=pipeline, docs=docs)
 
+    # Ingest simulate API returns dynamic JSON - cast to expected structure
     results: list[DissectMatchResult] = []
-    response_docs: list[dict[str, Any]] = result.get('docs', [])
+    response_docs = cast('list[dict[str, Any]]', result.get('docs', []))
 
     for i, doc_result in enumerate(response_docs):
-        doc: dict[str, Any] = doc_result.get('doc', {})
-        source: dict[str, Any] = doc.get('_source', {})
+        doc = cast('dict[str, Any]', doc_result.get('doc', {}))
+        source = cast('dict[str, Any]', doc.get('_source', {}))
         error: dict[str, Any] | None = doc_result.get('error')
 
         if error is not None:
-            error_reason = error.get('reason', 'Unknown error')
+            error_reason = cast('str', error.get('reason', 'Unknown error'))
             results.append(
                 DissectMatchResult(
                     document_index=i,
@@ -116,7 +120,12 @@ async def run_dissect_pattern_test(
                 )
             )
         else:
-            extracted_fields = {k: v for k, v in source.items() if k != field}
+            # source.items() returns Any values from JSON - keep as dict[str, Any]
+            extracted_fields: dict[str, Any] = {
+                k: v
+                for k, v in source.items()  # pyright: ignore[reportAny]
+                if k != field
+            }
             results.append(
                 DissectMatchResult(
                     document_index=i,
@@ -159,5 +168,5 @@ def register_pattern_tools(mcp: FastMCP, client: KibanaClient) -> None:
         """
         return await run_dissect_pattern_test(client, pattern, documents, field)
 
-    mcp.add_tool(Tool.from_function(_test_grok_pattern, name='test_grok_pattern', tags={'patterns', 'grok'}))
-    mcp.add_tool(Tool.from_function(_test_dissect_pattern, name='test_dissect_pattern', tags={'patterns', 'dissect'}))
+    _ = mcp.add_tool(Tool.from_function(_test_grok_pattern, name='test_grok_pattern', tags={'patterns', 'grok'}))
+    _ = mcp.add_tool(Tool.from_function(_test_dissect_pattern, name='test_dissect_pattern', tags={'patterns', 'dissect'}))

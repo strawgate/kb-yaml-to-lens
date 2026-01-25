@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 from fastmcp.tools import Tool
 
 from kb_dashboard_mcp.models import EsqlQueryResult
 
 if TYPE_CHECKING:
-    from dashboard_compiler.kibana_client import KibanaClient
     from fastmcp import FastMCP
+
+    from dashboard_compiler.kibana_client import KibanaClient
 
 
 async def execute_esql(
@@ -37,8 +38,9 @@ async def execute_esql(
 
     result = await client.esql_query_raw(query=query, columnar=columnar)
 
-    columns: list[dict[str, str]] = result.get('columns', [])
-    values: list[list[Any]] = result.get('values', [])
+    # ES|QL API returns dynamic JSON - cast to expected structure
+    columns = cast('list[dict[str, str]]', result.get('columns', []))
+    values = cast('list[list[Any]]', result.get('values', []))
 
     return EsqlQueryResult(
         columns=columns,
@@ -65,4 +67,4 @@ def register_esql_tools(mcp: FastMCP, client: KibanaClient) -> None:
         """
         return await execute_esql(client, query, columnar)
 
-    mcp.add_tool(Tool.from_function(_execute_esql, name='execute_esql', tags={'esql', 'query'}))
+    _ = mcp.add_tool(Tool.from_function(_execute_esql, name='execute_esql', tags={'esql', 'query'}))
