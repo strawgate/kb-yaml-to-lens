@@ -1,17 +1,16 @@
-"""Sample data loader for Elasticsearch."""
+"""Sample data loader for Elasticsearch via Kibana proxy."""
 
 import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-
-from elastic_transport import TransportError
-from elasticsearch import AsyncElasticsearch
-from elasticsearch.helpers import async_bulk
+from typing import TYPE_CHECKING, Any
 
 from dashboard_compiler.sample_data.config import SampleData
 from dashboard_compiler.sample_data.timestamps import transform_documents
+
+if TYPE_CHECKING:
+    from dashboard_compiler.kibana_client import BulkResponse, KibanaClient
 
 logger = logging.getLogger(__name__)
 
@@ -87,15 +86,34 @@ def _read_ndjson(file_path: Path) -> list[dict[str, Any]]:
     return documents
 
 
+def _extract_error_messages(bulk_response: 'BulkResponse') -> list[str]:
+    """Extract error messages from a bulk response.
+
+    Args:
+        bulk_response: The bulk response containing item results
+
+    Returns:
+        List of formatted error messages for failed items
+
+    """
+    error_messages: list[str] = []
+    for failed_item in bulk_response.get_failed_items():
+        if failed_item.error is not None:
+            error_messages.append(failed_item.error.get_error_message())
+        else:
+            error_messages.append(f'Operation failed with status {failed_item.status}')
+    return error_messages
+
+
 async def load_sample_data(
-    es_client: AsyncElasticsearch,
+    kibana_client: 'KibanaClient',
     sample_data: SampleData,
     base_path: Path | None = None,
 ) -> SampleDataLoadResult:
-    """Load sample data into Elasticsearch.
+    """Load sample data into Elasticsearch via Kibana proxy.
 
     Args:
-        es_client: Async Elasticsearch client
+        kibana_client: Kibana client for proxying requests to Elasticsearch
         sample_data: Sample data configuration
         base_path: Base path for resolving relative file paths
 
@@ -110,55 +128,36 @@ async def load_sample_data(
         index_name = sample_data.index_pattern.replace('*', 'sample')
 
         if sample_data.create_index_template is True and sample_data.index_template is not None:
-            await _create_index_template(es_client, index_name, sample_data.index_template)
+            await _create_index_template(kibana_client, index_name, sample_data.index_template)
 
         actions = [{'_index': index_name, '_source': doc, 'pipeline': '_none'} for doc in transformed_docs]
 
-        success_count, failed_items = await async_bulk(
-            es_client,
-            actions,
-            raise_on_error=False,
-        )
+        bulk_response = await kibana_client.proxy_bulk(actions)
 
-        error_messages = []
-        if isinstance(failed_items, list) and len(failed_items) > 0:
-            for item in failed_items:  # pyright: ignore[reportAny]
-                if isinstance(item, dict):
-                    # Extract error details from failed item
-                    error_info = item.get('index', {}).get('error', {})  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                    if isinstance(error_info, dict):
-                        error_type = error_info.get('type', 'unknown')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        error_reason = error_info.get('reason', 'unknown reason')  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-                        error_messages.append(f'{error_type}: {error_reason}')  # pyright: ignore[reportUnknownMemberType]
-                    else:
-                        error_messages.append(str(item))  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
-                else:
-                    error_messages.append(str(item))  # pyright: ignore[reportAny, reportUnknownMemberType]
-        elif isinstance(failed_items, int) and failed_items > 0:
-            # Fallback for when we get a count instead of items
-            error_messages.append(f'{failed_items} document(s) failed to index')  # pyright: ignore[reportUnknownMemberType]
+        success_count = bulk_response.get_success_count()
+        error_messages = _extract_error_messages(bulk_response)
 
-        return SampleDataLoadResult(success_count, error_messages)  # pyright: ignore[reportUnknownArgumentType]
+        return SampleDataLoadResult(success_count, error_messages)
 
-    except (ValueError, OSError, json.JSONDecodeError, TransportError) as e:
+    except (ValueError, OSError, json.JSONDecodeError) as e:
         return SampleDataLoadResult(0, [str(e)])
 
 
 async def _create_index_template(
-    es_client: AsyncElasticsearch,
+    kibana_client: 'KibanaClient',
     index_name: str,
     template_config: dict[str, Any],
 ) -> None:
-    """Create index template for sample data.
+    """Create index template for sample data via Kibana proxy.
 
     Args:
-        es_client: Async Elasticsearch client
+        kibana_client: Kibana client for proxying requests to Elasticsearch
         index_name: Name of the index
         template_config: Template configuration (mappings, settings)
 
     """
     template_name = f'{index_name}-template'
-    _ = await es_client.indices.put_index_template(
+    _ = await kibana_client.proxy_put_index_template(
         name=template_name,
         index_patterns=[f'{index_name}*'],
         template=template_config,

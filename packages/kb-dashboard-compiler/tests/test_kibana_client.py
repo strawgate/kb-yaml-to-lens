@@ -8,10 +8,14 @@ import pytest
 
 from dashboard_compiler.kibana_client import (
     HTTP_SERVICE_UNAVAILABLE,
+    BulkItemError,
+    BulkItemResult,
+    BulkResponse,
     DashboardLocatorParams,
     EsqlErrorDetail,
     EsqlErrorResponse,
     EsqlResponse,
+    IndexTemplateResponse,
     JobParams,
     KibanaClient,
     KibanaErrorDetail,
@@ -355,6 +359,163 @@ class TestKibanaClient:
         result = await client.export_dashboard('dashboard-1')
         assert result == '{"type":"dashboard"}'
 
+    @pytest.mark.asyncio
+    async def test_proxy_bulk_success(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test bulk indexing through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/console/proxy'
+            assert kwargs['params'] == {'path': '/_bulk', 'method': 'POST'}
+            assert kwargs['headers']['Content-Type'] == 'application/x-ndjson'
+            assert kwargs['headers']['x-elastic-internal-origin'] == 'kibana'
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'took': 30,
+                        'errors': False,
+                        'items': [
+                            {'index': {'_index': 'logs-sample', 'status': 201}},
+                            {'index': {'_index': 'logs-sample', 'status': 201}},
+                        ],
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        actions = [
+            {'_index': 'logs-sample', '_source': {'message': 'test1'}, 'pipeline': '_none'},
+            {'_index': 'logs-sample', '_source': {'message': 'test2'}, 'pipeline': '_none'},
+        ]
+        result = await client.proxy_bulk(actions)
+
+        assert isinstance(result, BulkResponse)
+        assert result.took == 30
+        assert result.errors is False
+        assert result.get_success_count() == 2
+        assert len(result.get_failed_items()) == 0
+
+    @pytest.mark.asyncio
+    async def test_proxy_bulk_with_errors(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test bulk indexing with some failures through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'took': 30,
+                        'errors': True,
+                        'items': [
+                            {'index': {'_index': 'logs-sample', 'status': 201}},
+                            {
+                                'index': {
+                                    '_index': 'logs-sample',
+                                    'status': 400,
+                                    'error': {'type': 'mapper_parsing_exception', 'reason': 'failed to parse'},
+                                }
+                            },
+                        ],
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        actions = [
+            {'_index': 'logs-sample', '_source': {'message': 'test1'}},
+            {'_index': 'logs-sample', '_source': {'bad': 'data'}},
+        ]
+        result = await client.proxy_bulk(actions)
+
+        assert isinstance(result, BulkResponse)
+        assert result.errors is True
+        assert result.get_success_count() == 1
+        failed_items = result.get_failed_items()
+        assert len(failed_items) == 1
+        assert failed_items[0].error is not None
+        assert failed_items[0].error.type == 'mapper_parsing_exception'
+        assert failed_items[0].error.reason == 'failed to parse'
+
+    @pytest.mark.asyncio
+    async def test_proxy_bulk_http_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test bulk indexing with HTTP error through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(_FakeResponse(status=500, text_data='Internal Server Error'))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        actions = [{'_index': 'logs-sample', '_source': {'message': 'test'}}]
+
+        with pytest.raises(ValueError, match='Bulk indexing failed'):
+            await client.proxy_bulk(actions)
+
+    @pytest.mark.asyncio
+    async def test_proxy_put_index_template_success(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test creating index template through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(endpoint: str, **kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/console/proxy'
+            assert kwargs['params'] == {'path': '/_index_template/my-template', 'method': 'PUT'}
+            assert kwargs['headers']['Content-Type'] == 'application/json'
+            assert kwargs['headers']['x-elastic-internal-origin'] == 'kibana'
+            return _FakeResponseContext(_FakeResponse(json_data={'acknowledged': True}))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        result = await client.proxy_put_index_template(
+            name='my-template',
+            index_patterns=['logs-*'],
+            template={'mappings': {'properties': {'@timestamp': {'type': 'date'}}}},
+        )
+
+        assert isinstance(result, IndexTemplateResponse)
+        assert result.acknowledged is True
+
+    @pytest.mark.asyncio
+    async def test_proxy_put_index_template_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test creating index template with error through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(
+                _FakeResponse(
+                    json_data={
+                        'error': {'type': 'resource_already_exists_exception', 'reason': 'template already exists'},
+                    }
+                )
+            )
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        with pytest.raises(ValueError, match='Index template creation error'):
+            await client.proxy_put_index_template(
+                name='my-template',
+                index_patterns=['logs-*'],
+                template={},
+            )
+
+    @pytest.mark.asyncio
+    async def test_proxy_put_index_template_http_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test creating index template with HTTP error through Kibana console proxy."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_post(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(_FakeResponse(status=403, text_data='Forbidden'))
+
+        monkeypatch.setattr(client, '_post', fake_post)
+
+        with pytest.raises(ValueError, match='Index template creation failed'):
+            await client.proxy_put_index_template(
+                name='my-template',
+                index_patterns=['logs-*'],
+                template={},
+            )
+
 
 class TestKibanaErrorDetail:
     """Test the KibanaErrorDetail model for Saved Objects API errors."""
@@ -571,3 +732,110 @@ class TestScreenshotJobParameterModels:
                 },
             },
         }
+
+
+class TestBulkResponseModels:
+    """Test Bulk API response models."""
+
+    def test_bulk_item_error_get_error_message_with_both_fields(self) -> None:
+        """Test BulkItemError.get_error_message with type and reason."""
+        error = BulkItemError(type='mapper_parsing_exception', reason='failed to parse')
+        assert error.get_error_message() == 'mapper_parsing_exception: failed to parse'
+
+    def test_bulk_item_error_get_error_message_reason_only(self) -> None:
+        """Test BulkItemError.get_error_message with reason only."""
+        error = BulkItemError(reason='some error')
+        assert error.get_error_message() == 'some error'
+
+    def test_bulk_item_error_get_error_message_type_only(self) -> None:
+        """Test BulkItemError.get_error_message with type only."""
+        error = BulkItemError(type='unknown_exception')
+        assert error.get_error_message() == 'unknown_exception'
+
+    def test_bulk_item_error_get_error_message_fallback(self) -> None:
+        """Test BulkItemError.get_error_message with no fields."""
+        error = BulkItemError()
+        assert error.get_error_message() == 'Unknown bulk error'
+
+    def test_bulk_item_result_success_property(self) -> None:
+        """Test BulkItemResult.success property for various status codes."""
+        assert BulkItemResult(index='test', status=200).success is True
+        assert BulkItemResult(index='test', status=201).success is True
+        assert BulkItemResult(index='test', status=299).success is True
+        assert BulkItemResult(index='test', status=400).success is False
+        assert BulkItemResult(index='test', status=500).success is False
+
+    def test_bulk_response_parses_from_json(self) -> None:
+        """Test BulkResponse parses typical Elasticsearch bulk response."""
+        response_data = {
+            'took': 30,
+            'errors': True,
+            'items': [
+                {'index': {'_index': 'logs-sample', 'status': 201}},
+                {
+                    'index': {
+                        '_index': 'logs-sample',
+                        'status': 400,
+                        'error': {'type': 'mapper_parsing_exception', 'reason': 'failed to parse'},
+                    }
+                },
+            ],
+        }
+        response = BulkResponse.model_validate(response_data)
+
+        assert response.took == 30
+        assert response.errors is True
+        assert len(response.items) == 2
+        assert response.get_success_count() == 1
+        assert len(response.get_failed_items()) == 1
+
+    def test_bulk_response_get_failed_items_returns_failed_only(self) -> None:
+        """Test get_failed_items returns only items with non-2xx status."""
+        response = BulkResponse(
+            took=10,
+            errors=True,
+            items=[
+                {'index': BulkItemResult(index='test', status=201)},
+                {'index': BulkItemResult(index='test', status=400, error=BulkItemError(type='error1'))},
+                {'index': BulkItemResult(index='test', status=200)},
+                {'index': BulkItemResult(index='test', status=500, error=BulkItemError(type='error2'))},
+            ],
+        )
+
+        failed = response.get_failed_items()
+        assert len(failed) == 2
+        assert failed[0].status == 400
+        assert failed[1].status == 500
+
+    def test_bulk_response_empty_items(self) -> None:
+        """Test BulkResponse with empty items list."""
+        response = BulkResponse(took=5, errors=False, items=[])
+        assert response.get_success_count() == 0
+        assert len(response.get_failed_items()) == 0
+
+
+class TestIndexTemplateResponseModel:
+    """Test Index Template response model."""
+
+    def test_parses_acknowledged_response(self) -> None:
+        """Test IndexTemplateResponse parses acknowledged response."""
+        response = IndexTemplateResponse.model_validate({'acknowledged': True})
+        assert response.acknowledged is True
+
+    def test_parses_not_acknowledged_response(self) -> None:
+        """Test IndexTemplateResponse handles non-acknowledged response."""
+        response = IndexTemplateResponse.model_validate({'acknowledged': False})
+        assert response.acknowledged is False
+
+    def test_allows_extra_fields(self) -> None:
+        """Test IndexTemplateResponse allows extra fields for API compatibility."""
+        response = IndexTemplateResponse.model_validate(
+            {
+                'acknowledged': True,
+                'shards_acknowledged': True,
+                'index': 'test-index',
+            }
+        )
+        assert response.acknowledged is True
+        dumped = response.model_dump()
+        assert dumped.get('shards_acknowledged') is True
