@@ -95,11 +95,14 @@ dashboards:
           query:
             - FROM logs-*
             - WHERE resource.attributes.host.name IS NOT NULL
-            - SORT @timestamp DESC
+            - STATS log_count = COUNT() BY `@timestamp`, log.level, log.logger, message
+            - SORT `@timestamp` DESC
             - LIMIT 1000
-            - KEEP @timestamp, log.level, log.logger, message
           dimensions:
             - field: '@timestamp'
             - field: log.level
             - field: log.logger
             - field: message
+          metrics:
+            - field: log_count
+              label: Count

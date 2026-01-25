@@ -478,18 +478,28 @@ def test_lens_datatable_validation_with_only_dimensions_succeeds() -> None:
     assert len(chart.dimensions) == 1
 
 
-def test_esql_datatable_allows_empty_metrics_and_dimensions() -> None:
-    """Test that ESQL datatable allows empty metrics and dimensions (columns inferred from query)."""
+def test_esql_datatable_validation_requires_at_least_one_metric() -> None:
+    """Test that ESQL datatable validation fails when no metrics are provided."""
     config = {
         'type': 'datatable',
         'metrics': [],
         'dimensions': [],
     }
 
-    chart = ESQLDatatableChart.model_validate(config)
-    assert chart is not None
-    assert len(chart.metrics) == 0
-    assert len(chart.dimensions) == 0
+    with pytest.raises(ValidationError, match='at least one metric'):
+        ESQLDatatableChart.model_validate(config)
+
+
+def test_esql_datatable_dimensions_only_fails_validation() -> None:
+    """Test that ESQL datatable with only dimensions fails validation."""
+    config = {
+        'type': 'datatable',
+        'metrics': [],
+        'dimensions': [{'field': 'host.name', 'id': 'host-dim'}],
+    }
+
+    with pytest.raises(ValidationError, match='at least one metric'):
+        ESQLDatatableChart.model_validate(config)
 
 
 def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
@@ -506,17 +516,17 @@ def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
     assert len(chart.dimensions) == 0
 
 
-def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
-    """Test that ESQL datatable with only dimensions passes validation."""
+def test_esql_datatable_validation_with_metrics_and_dimensions_succeeds() -> None:
+    """Test that ESQL datatable with both metrics and dimensions passes validation."""
     config = {
         'type': 'datatable',
-        'metrics': [],
+        'metrics': [{'field': 'count(*)', 'id': 'count-metric'}],
         'dimensions': [{'field': 'test', 'id': 'test-id'}],
     }
 
     chart = ESQLDatatableChart.model_validate(config)
     assert chart is not None
-    assert len(chart.metrics) == 0
+    assert len(chart.metrics) == 1
     assert len(chart.dimensions) == 1
 
 

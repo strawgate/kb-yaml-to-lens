@@ -102,6 +102,7 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: node
+          metrics:
             - field: namespaces
             - field: memory_free
             - field: connections

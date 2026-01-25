@@ -394,6 +394,7 @@ dashboards:
           dimensions:
             - field: server_name
             - field: server_port
+          metrics:
             - field: connections
             - field: cpu_load_pct
             - field: load_1m

@@ -115,6 +115,9 @@ dashboards:
           type: datatable
           query: |
             FROM logs*
+            | STATS event_count = COUNT() BY `@timestamp`, aws.access_key.id, rpc.service, rpc.system, rpc.method, aws.error.code, source.address
+            | SORT `@timestamp` DESC
+            | LIMIT 100
           dimensions:
             - id: timestamp
               field: '@timestamp'
@@ -130,6 +133,9 @@ dashboards:
               field: aws.error.code
             - id: source
               field: source.address
+          metrics:
+            - id: count
+              field: event_count
           paging:
             enabled: true
             page_size: 10

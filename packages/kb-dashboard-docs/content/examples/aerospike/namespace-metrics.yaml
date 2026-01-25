@@ -314,6 +314,7 @@ dashboards:
           dimensions:
             - field: namespace
             - field: node
+          metrics:
             - field: memory_usage
             - field: memory_free
             - field: disk_available

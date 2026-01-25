@@ -288,6 +288,7 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: db
+          metrics:
             - field: keys
             - field: expires
             - field: expire_pct

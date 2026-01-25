@@ -190,6 +190,10 @@ dashboards:
             - *host
             - STATS avg_cpu = AVG(system.cpu.total.pct) BY host.name
             - SORT avg_cpu DESC
+          dimensions:
+            - field: host.name
+          metrics:
+            - field: avg_cpu
 
       - title: "Memory by Host"
         size: {w: 24, h: 12}
@@ -202,6 +206,10 @@ dashboards:
             - *host
             - STATS avg_mem = AVG(system.memory.used.pct) BY host.name
             - SORT avg_mem DESC
+          dimensions:
+            - field: host.name
+          metrics:
+            - field: avg_mem
 ```
 
 ## Best Practices

@@ -218,8 +218,9 @@ class LensDatatableChart(BaseChart):
 class ESQLDatatableChart(BaseChart):
     """Represents a Datatable chart configuration within an ESQL panel.
 
-    Note: ESQL datatables can have empty metrics and rows lists if they rely on
-    the ESQL query to define columns (e.g., STATS or KEEP commands).
+    ES|QL datatables require at least one metric. Metrics are for numeric/aggregated
+    values (e.g., counts, averages), while dimensions are for labels/identifiers
+    (e.g., host.name, service.name).
 
     Examples:
         ES|QL datatable with STATS query:
@@ -269,3 +270,15 @@ class ESQLDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
+
+    @model_validator(mode='after')
+    def validate_has_at_least_one_metric(self) -> Self:
+        """Validate that ES|QL datatable has at least one metric.
+
+        ES|QL datatables require at least one metric column. Metrics are for
+        numeric/aggregated values, while dimensions are for labels/identifiers.
+        """
+        if len(self.metrics) == 0:
+            msg = 'ES|QL datatable must have at least one metric'
+            raise ValueError(msg)
+        return self

@@ -54,6 +54,7 @@ dashboards:
             - RENAME nodes_int AS `Total Nodes`, data_nodes_int AS `Data Nodes`
           dimensions:
             - field: cluster
+          metrics:
             - field: Total Nodes
             - field: Data Nodes
       - title: Cluster Health Status
@@ -74,6 +75,7 @@ dashboards:
           dimensions:
             - field: cluster
             - field: health
+          metrics:
             - field: Pending Tasks
             - field: In-Flight Fetches
             - field: State Queue
@@ -90,10 +92,13 @@ dashboards:
             - WHERE data_stream.dataset == "elasticsearchreceiver.otel"
             - WHERE elasticsearch.node.name IS NOT NULL
             - STATS count = COUNT(*) BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
-            - KEEP node, cluster
+            - KEEP node, cluster, count
           dimensions:
             - field: node
             - field: cluster
+          metrics:
+            - field: count
+              label: Sample Count
       - title: Node Resource Usage Section
         size: {w: 48, h: 3}
         markdown:
@@ -113,6 +118,7 @@ dashboards:
             - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory Used (GB)`
           dimensions:
             - field: node
+          metrics:
             - field: CPU %
             - field: Memory Used (GB)
       - title: Node Disk Usage
@@ -131,6 +137,7 @@ dashboards:
             - RENAME disk_avail_gb AS `Disk Available (GB)`, disk_total_gb AS `Disk Total (GB)`, disk_used_pct AS `Disk Used %`
           dimensions:
             - field: node
+          metrics:
             - field: Disk Available (GB)
             - field: Disk Total (GB)
             - field: Disk Used %
@@ -157,6 +164,7 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: index_name
+          metrics:
             - field: Size (MB)
             - field: Segment Count
             - field: Segment Size (MB)
@@ -182,6 +190,7 @@ dashboards:
           dimensions:
             - field: node
             - field: pool
+          metrics:
             - field: Threads
             - field: Queue Size
       - title: Cache Configuration Section
@@ -204,6 +213,7 @@ dashboards:
           dimensions:
             - field: node
             - field: cache
+          metrics:
             - field: Memory Usage (MB)
       - title: JVM Configuration Section
         size: {w: 48, h: 3}
@@ -226,6 +236,7 @@ dashboards:
             - RENAME heap_max_gb AS `Heap Max (GB)`, heap_used_gb AS `Heap Used (GB)`, nonheap_used_mb AS `Non-Heap Used (MB)`
           dimensions:
             - field: node
+          metrics:
             - field: Heap Max (GB)
             - field: Heap Used (GB)
             - field: Non-Heap Used (MB)
@@ -244,6 +255,7 @@ dashboards:
             - RENAME threads_int AS `Thread Count`, classes_int AS `Classes Loaded`
           dimensions:
             - field: node
+          metrics:
             - field: Thread Count
             - field: Classes Loaded
       - title: Circuit Breaker Configuration Section
@@ -268,6 +280,7 @@ dashboards:
           dimensions:
             - field: node
             - field: breaker
+          metrics:
             - field: Estimated (MB)
             - field: Limit (MB)
             - field: Utilization %

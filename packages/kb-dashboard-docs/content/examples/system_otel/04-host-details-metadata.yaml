@@ -66,10 +66,13 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), value = MV_LAST(pairs)
             - KEEP `Resource Attribute`, value
-            - STATS `Value` = MV_DEDUPE(TOP(value, 400, "asc")) BY `Resource Attribute`
+            - STATS `Value` = MV_DEDUPE(TOP(value, 400, "asc")), value_count = COUNT() BY `Resource Attribute`
           dimensions:
             - field: Resource Attribute
             - field: Value
+          metrics:
+            - field: value_count
+              label: Count
       - title: Operating System Metadata
         size: {w: 24, h: 12}
         esql:
@@ -86,9 +89,13 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
+            - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
             - field: Value
+          metrics:
+            - field: value_count
+              label: Count
 
       # ═══════════════════════════════════════════════════════════════════════
       # CPU METADATA
@@ -116,9 +123,13 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
+            - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
             - field: Value
+          metrics:
+            - field: value_count
+              label: Count
 
       # ═══════════════════════════════════════════════════════════════════════
       # CLOUD METADATA
@@ -145,9 +156,13 @@ dashboards:
             - EVAL pairs = SPLIT(arr, "$")
             - EVAL `Resource Attribute` = MV_FIRST(pairs), `Value` = MV_LAST(pairs)
             - KEEP `Resource Attribute`, `Value`
+            - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
             - field: Value
+          metrics:
+            - field: value_count
+              label: Count
 
       # ═══════════════════════════════════════════════════════════════════════
       # KUBERNETES METADATA
@@ -168,6 +183,10 @@ dashboards:
             - STATS BY resource.attributes.k8s.cluster.name
             - EVAL `Resource Attribute` = "k8s.cluster.name", `Value` = resource.attributes.k8s.cluster.name
             - KEEP `Resource Attribute`, `Value`
+            - STATS value_count = COUNT() BY `Resource Attribute`, `Value`
           dimensions:
             - field: Resource Attribute
             - field: Value
+          metrics:
+            - field: value_count
+              label: Count

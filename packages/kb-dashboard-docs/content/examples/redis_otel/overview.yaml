@@ -360,6 +360,7 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: instance
+          metrics:
             - field: memory
             - field: clients
             - field: commands

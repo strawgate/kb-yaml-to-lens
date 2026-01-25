@@ -100,6 +100,7 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+          metrics:
             - field: backends_count
             - field: size_bytes
             - field: commit_total
@@ -280,10 +281,13 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "postgresqlreceiver.otel"
             - WHERE resource.attributes.postgresql.database.name IS NOT NULL
-            - STATS BY database = resource.attributes.postgresql.database.name, instance = resource.attributes.service.instance.id
-            - KEEP database, instance
+            - STATS sample_count = COUNT() BY database = resource.attributes.postgresql.database.name, instance = resource.attributes.service.instance.id
+            - KEEP database, instance, sample_count
             - SORT database ASC
             - LIMIT 100
           dimensions:
             - field: database
             - field: instance
+          metrics:
+            - field: sample_count
+              label: Samples
