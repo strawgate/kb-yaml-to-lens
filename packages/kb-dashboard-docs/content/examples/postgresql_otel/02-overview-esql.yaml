@@ -112,21 +112,27 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+              label: Database
           metrics:
             - field: backends_count
+              label: Active Backends
               format:
                 type: number
                 decimals: 0
             - field: size_bytes
+              label: Size (Bytes)
             - field: commit_total
+              label: Total Commits
               format:
                 type: number
                 decimals: 0
             - field: rollback_total
+              label: Total Rollbacks
               format:
                 type: number
                 decimals: 0
             - field: blocks_read_total
+              label: Blocks Read
               format:
                 type: number
                 decimals: 0
@@ -314,4 +320,6 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+              label: Database
             - field: instance
+              label: Instance
