@@ -25,6 +25,7 @@ import {
     type DashboardGridInfo,
     type EsqlQueryResult,
     type Grid,
+    type SchemaResult,
 } from './schemas';
 
 // Re-export types from schemas for backwards compatibility
@@ -233,16 +234,16 @@ export class DashboardCompilerLSP {
      *
      * @returns Schema result with success status and schema data
      */
-    async getSchema(): Promise<{ success: boolean; data?: unknown; error?: string }> {
+    async getSchema(): Promise<SchemaResult> {
         if (!this.client) {
-            return { success: false, error: 'LSP client not started' };
+            return { success: false, data: null, error: 'LSP client not started' };
         }
 
         try {
             const result = await this.client.sendRequest('dashboard/getSchema', {});
             return SchemaResultSchema.parse(result);
         } catch (error) {
-            return { success: false, error: error instanceof Error ? error.message : String(error) };
+            return { success: false, data: null, error: error instanceof Error ? error.message : String(error) };
         }
     }
 

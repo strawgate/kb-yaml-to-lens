@@ -4,7 +4,7 @@
 # Include shared helpers
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean build publish publish-test
+.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean build publish publish-test export-schemas
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -38,6 +38,9 @@ help:
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
 	@echo "  test-smoke        - Run smoke tests"
+	@echo ""
+	@echo "Schema Export:"
+	@echo "  export-schemas    - Export LSP response schemas as JSON"
 	@echo ""
 	@echo "Dashboard Compilation:"
 	@echo "  compile       - Compile YAML dashboards to NDJSON"
@@ -111,6 +114,10 @@ setup:
 
 update-deps:
 	$(call run_cmd, "Updating dependencies", uv lock --upgrade, "Dependencies updated")
+
+# Schema Export
+export-schemas:
+	$(call run_cmd, "Exporting LSP schemas", uv run python scripts/export_lsp_schemas.py, "Schemas exported")
 
 # Compilation
 compile:

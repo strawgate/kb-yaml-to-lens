@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the kb-dashboard-compiler extension
 
-.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all
+.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all generate-schemas check-schemas
 
 # Include shared helpers
 include ../../Makefile.shared
@@ -43,6 +43,10 @@ help:
 	@echo "Preparation:"
 	@echo "  prepare          - Download uv + bundle compiler (current platform, for dev)"
 	@echo "  prepare-all      - Download uv for all platforms + bundle compiler (for release)"
+	@echo ""
+	@echo "Schema Generation:"
+	@echo "  generate-schemas - Generate Zod schemas from Pydantic models"
+	@echo "  check-schemas    - Check if generated schemas are up to date"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean            - Clean build artifacts, dependencies, and binaries"
@@ -148,6 +152,22 @@ prepare:
 
 prepare-all:
 	$(call prepare_extension, "all platforms", all, "Extension prepared for all platforms")
+
+# Schema Generation
+generate-schemas:
+	$(call run_cmd, "Generating Zod schemas from Pydantic models", bash scripts/generate_schemas.sh, "Schemas generated")
+
+check-schemas:
+	$(call print_start, "Checking if schemas are up to date")
+	@cp src/schemas.generated.ts src/schemas.generated.ts.bak 2>/dev/null || true
+	@bash scripts/generate_schemas.sh > /dev/null 2>&1
+	@if ! diff -q src/schemas.generated.ts src/schemas.generated.ts.bak > /dev/null 2>&1; then \
+		mv src/schemas.generated.ts.bak src/schemas.generated.ts 2>/dev/null || true; \
+		echo "Error: Generated schemas are out of date. Run 'make generate-schemas' to update."; \
+		exit 1; \
+	fi
+	@mv src/schemas.generated.ts.bak src/schemas.generated.ts 2>/dev/null || true
+	$(call print_end, "Schemas are up to date")
 
 clean:
 	$(call print_start, "Cleaning build artifacts")
