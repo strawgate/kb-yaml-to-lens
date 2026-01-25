@@ -300,7 +300,7 @@ def get_grid_layout_custom(params: Any) -> dict[str, Any]:
 
 
 @server.feature('dashboard/updateGridLayout')
-def update_grid_layout_custom(params: Any) -> dict[str, Any]:
+def update_grid_layout_custom(params: Any) -> dict[str, Any]:  # noqa: PLR0911
     """Update grid coordinates for a specific panel in a YAML dashboard file.
 
     Args:
@@ -327,8 +327,12 @@ def update_grid_layout_custom(params: Any) -> dict[str, Any]:
         return {'success': False, 'error': f'Missing {missing} parameter'}
 
     grid = params_dict.get('grid')
+    required_keys = {'x', 'y', 'w', 'h'}
     if grid is None or not isinstance(grid, dict):
         return {'success': False, 'error': 'Missing or invalid grid parameter'}
+    missing_keys = required_keys - grid.keys()
+    if len(missing_keys) > 0:
+        return {'success': False, 'error': f'Grid missing required keys: {", ".join(sorted(missing_keys))}'}
 
     try:
         dashboard_index = int(params_dict.get('dashboard_index', 0))

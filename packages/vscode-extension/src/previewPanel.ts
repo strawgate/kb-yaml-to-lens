@@ -36,8 +36,8 @@ export class PreviewPanel {
     private mediaPath: vscode.Uri;
 
     constructor(
-        private compiler: DashboardCompilerLSP,
-        private context: vscode.ExtensionContext
+        private context: vscode.ExtensionContext,
+        private compiler: DashboardCompilerLSP
     ) {
         this.mediaPath = vscode.Uri.joinPath(context.extensionUri, 'media');
     }
