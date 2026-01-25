@@ -1,5 +1,5 @@
 /**
- * Zod schemas for runtime validation of LSP responses.
+ * Zod schemas for runtime validation of LSP requests and responses.
  *
  * This file re-exports all schemas from the auto-generated file.
  * The schemas are generated from Pydantic models using pydantic2zod
@@ -16,6 +16,13 @@ export {
     DashboardInfo,
     EsqlColumn,
     EsqlQueryResult,
+    // LSP request schemas
+    CompileRequest,
+    GetDashboardsRequest,
+    GetGridLayoutRequest,
+    UpdateGridLayoutRequest,
+    UploadToKibanaRequest,
+    EsqlExecuteRequest,
     // LSP response wrappers (schemas)
     CompileResult,
     DashboardListResult,
@@ -24,13 +31,21 @@ export {
     UploadResult,
     EsqlExecuteResult,
     SchemaResult,
-    // Inferred types
+    // Inferred types - core data
     type GridType,
     type PanelGridInfoType,
     type DashboardGridInfoType,
     type DashboardInfoType,
     type EsqlColumnType,
     type EsqlQueryResultType,
+    // Inferred types - requests
+    type CompileRequestType,
+    type GetDashboardsRequestType,
+    type GetGridLayoutRequestType,
+    type UpdateGridLayoutRequestType,
+    type UploadToKibanaRequestType,
+    type EsqlExecuteRequestType,
+    // Inferred types - responses
     type CompileResultType,
     type DashboardListResultType,
     type GridLayoutResultType,

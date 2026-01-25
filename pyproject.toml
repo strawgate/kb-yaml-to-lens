@@ -204,3 +204,9 @@ reportImplicitOverride = false
 reportPrivateUsage = false
 reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
+
+[[tool.basedpyright.executionEnvironments]]
+# export_lsp_schemas.py uses model_config without ClassVar because pydantic2zod
+# parses source code directly and doesn't support ClassVar annotations
+root = "packages/kb-dashboard-compiler/scripts/export_lsp_schemas.py"
+reportUnannotatedClassAttribute = false

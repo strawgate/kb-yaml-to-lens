@@ -21,9 +21,19 @@ output = Compiler().parse('export_lsp_schemas').to_zod()
 print(output)
 " > "$OUTPUT_FILE.tmp" 2>/dev/null
 
-# Post-process: replace Any with z.unknown() for type safety
-# This is the only post-processing needed - pydantic2zod handles nested types correctly
+# Post-process the generated schemas:
+# 1. Replace standalone 'object' with 'z.unknown()' for dynamic types
+#    - In arrays: z.array(object) -> z.array(z.unknown())
+#    - In unions: object, -> z.unknown(),
+#    - Standalone on line: object, -> z.unknown(),
+# 2. Replace '.default(null)' for booleans (ssl_verify) with '.default(true)'
+#    since pydantic2zod doesn't correctly handle True as a default value
+# 3. Replace 'Any' with 'z.unknown()' for type safety
+sed -i 's/z\.array(object)/z.array(z.unknown())/g' "$OUTPUT_FILE.tmp"
+sed -i 's/^\(\s*\)object,$/\1z.unknown(),/g' "$OUTPUT_FILE.tmp"
 sed -i 's/\bAny\b/z.unknown()/g' "$OUTPUT_FILE.tmp"
+# Fix the ssl_verify boolean default (pydantic2zod outputs .default(null) for True)
+sed -i 's/ssl_verify: z\.boolean()\.default(null)/ssl_verify: z.boolean().default(true)/g' "$OUTPUT_FILE.tmp"
 
 # Add file header
 cat > "$OUTPUT_FILE" << 'EOF'

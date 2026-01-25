@@ -7,7 +7,8 @@ These models define the shapes of LSP request/response objects. They serve as:
 2. Single source of truth for TypeScript schema generation via pydantic2zod
 
 Note: These are mutable view models for API responses, not frozen config models.
-They use pydantic.BaseModel directly with extra='forbid' for strict validation.
+The BaseLSPModel class provides shared configuration (extra='forbid') without
+using ClassVar which is not supported by pydantic2zod.
 """
 
 from typing import Any, ClassVar
@@ -20,30 +21,131 @@ from dashboard_compiler.kibana_client import EsqlColumn, EsqlResponse
 
 # Re-export for schema generation
 __all__ = [
+    'BaseLSPModel',
+    'CompileRequest',
     'CompileResult',
     'DashboardGridInfo',
     'DashboardInfo',
     'DashboardListResult',
     'EsqlColumn',
+    'EsqlExecuteRequest',
     'EsqlExecuteResult',
     'EsqlResponse',
+    'GetDashboardsRequest',
+    'GetGridLayoutRequest',
     'Grid',
     'GridLayoutResult',
     'PanelGridInfo',
     'SchemaResult',
+    'UpdateGridLayoutRequest',
     'UpdateGridLayoutResult',
     'UploadResult',
+    'UploadToKibanaRequest',
 ]
+
+
+# ============================================================================
+# Base Model for LSP Types
+# ============================================================================
+
+
+class BaseLSPModel(BaseModel):
+    """Base class for all LSP request and response models.
+
+    Provides shared configuration:
+    - extra='forbid': Reject unknown fields for strict validation
+    - No frozen=True: These are mutable API objects, not config models
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+
+# ============================================================================
+# LSP Request Models
+# ============================================================================
+
+
+class CompileRequest(BaseLSPModel):
+    """Request parameters for dashboard/compile endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    dashboard_index: int = 0
+    """Index of the dashboard to compile (default: 0)."""
+
+
+class GetDashboardsRequest(BaseLSPModel):
+    """Request parameters for dashboard/getDashboards endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+
+
+class GetGridLayoutRequest(BaseLSPModel):
+    """Request parameters for dashboard/getGridLayout endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    dashboard_index: int = 0
+    """Index of the dashboard to extract (default: 0)."""
+
+
+class UpdateGridLayoutRequest(BaseLSPModel):
+    """Request parameters for dashboard/updateGridLayout endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    panel_id: str
+    """ID of the panel to update."""
+    grid: 'Grid'
+    """New grid coordinates with x, y, w, h."""
+    dashboard_index: int = 0
+    """Index of the dashboard (default: 0)."""
+
+
+class UploadToKibanaRequest(BaseLSPModel):
+    """Request parameters for dashboard/uploadToKibana endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    dashboard_index: int = 0
+    """Index of the dashboard to upload."""
+    kibana_url: str
+    """Kibana base URL."""
+    username: str | None = None
+    """Optional username for basic auth."""
+    password: str | None = None
+    """Optional password for basic auth."""
+    api_key: str | None = None
+    """Optional API key for auth."""
+    ssl_verify: bool = True
+    """Whether to verify SSL certificates."""
+
+
+class EsqlExecuteRequest(BaseLSPModel):
+    """Request parameters for esql/execute endpoint."""
+
+    query: str
+    """ES|QL query string to execute."""
+    kibana_url: str
+    """Kibana base URL."""
+    username: str | None = None
+    """Optional username for basic auth."""
+    password: str | None = None
+    """Optional password for basic auth."""
+    api_key: str | None = None
+    """Optional API key for auth."""
+    ssl_verify: bool = True
+    """Whether to verify SSL certificates."""
+
 
 # ============================================================================
 # Grid Layout Models
 # ============================================================================
 
 
-class Grid(BaseModel):
+class Grid(BaseLSPModel):
     """Grid position and size for a panel."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     x: int
     """X position in the grid (column)."""
@@ -55,10 +157,8 @@ class Grid(BaseModel):
     """Height in grid units."""
 
 
-class PanelGridInfo(BaseModel):
+class PanelGridInfo(BaseLSPModel):
     """Panel information including grid position."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     id: str
     """Panel identifier."""
@@ -70,10 +170,8 @@ class PanelGridInfo(BaseModel):
     """Grid position and size."""
 
 
-class DashboardGridInfo(BaseModel):
+class DashboardGridInfo(BaseLSPModel):
     """Dashboard grid layout information returned by getGridLayout."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     title: str
     """Dashboard title."""
@@ -83,10 +181,8 @@ class DashboardGridInfo(BaseModel):
     """List of panels with grid information."""
 
 
-class DashboardInfo(BaseModel):
+class DashboardInfo(BaseLSPModel):
     """Basic dashboard information for getDashboards response."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     index: int
     """Dashboard index in the YAML file."""
@@ -101,10 +197,8 @@ class DashboardInfo(BaseModel):
 # ============================================================================
 
 
-class CompileResult(BaseModel):
+class CompileResult(BaseLSPModel):
     """Response from dashboard/compile endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether compilation succeeded."""
@@ -124,10 +218,8 @@ class CompileResult(BaseModel):
         return cls(success=False, error=error)
 
 
-class DashboardListResult(BaseModel):
+class DashboardListResult(BaseLSPModel):
     """Response from dashboard/getDashboards endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether the request succeeded."""
@@ -147,10 +239,8 @@ class DashboardListResult(BaseModel):
         return cls(success=False, error=error)
 
 
-class GridLayoutResult(BaseModel):
+class GridLayoutResult(BaseLSPModel):
     """Response from dashboard/getGridLayout endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether the request succeeded."""
@@ -170,10 +260,8 @@ class GridLayoutResult(BaseModel):
         return cls(success=False, error=error)
 
 
-class UpdateGridLayoutResult(BaseModel):
+class UpdateGridLayoutResult(BaseLSPModel):
     """Response from dashboard/updateGridLayout endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether the update succeeded."""
@@ -193,10 +281,8 @@ class UpdateGridLayoutResult(BaseModel):
         return cls(success=False, error=error)
 
 
-class UploadResult(BaseModel):
+class UploadResult(BaseLSPModel):
     """Response from dashboard/uploadToKibana endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether the upload succeeded."""
@@ -218,10 +304,8 @@ class UploadResult(BaseModel):
         return cls(success=False, error=error)
 
 
-class EsqlExecuteResult(BaseModel):
+class EsqlExecuteResult(BaseLSPModel):
     """Response from esql/execute endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether the query succeeded."""
@@ -241,10 +325,8 @@ class EsqlExecuteResult(BaseModel):
         return cls(success=False, error=error)
 
 
-class SchemaResult(BaseModel):
+class SchemaResult(BaseLSPModel):
     """Response from dashboard/getSchema endpoint."""
-
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
 
     success: bool
     """Whether the request succeeded."""

@@ -7,9 +7,10 @@
 This implementation uses the Language Server Protocol with pygls v2 to provide
 dashboard compilation services to the VS Code extension.
 
-All LSP handler methods return typed Pydantic models from lsp.models, which are
-automatically serialized to JSON by pygls. This provides type safety on the
-Python side and enables automatic TypeScript schema generation via pydantic2zod.
+All LSP handler methods use typed Pydantic request models (validated via TypeAdapter)
+and return typed Pydantic response models, which are automatically serialized to JSON
+by pygls. This provides type safety on both the request and response sides, and
+enables automatic TypeScript schema generation via pydantic2zod.
 """
 
 import json
@@ -18,7 +19,7 @@ from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 from lsprotocol import types
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter, ValidationError
 from pygls.lsp.server import LanguageServer
 
 from dashboard_compiler.dashboard.config import Dashboard
@@ -27,20 +28,34 @@ from dashboard_compiler.kibana_client import KibanaClient
 from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
 from dashboard_compiler.lsp.grid_updater import update_panel_grid
 from dashboard_compiler.lsp.models import (
+    CompileRequest,
     CompileResult,
     DashboardInfo,
     DashboardListResult,
+    EsqlExecuteRequest,
     EsqlExecuteResult,
+    GetDashboardsRequest,
+    GetGridLayoutRequest,
     GridLayoutResult,
     SchemaResult,
+    UpdateGridLayoutRequest,
     UpdateGridLayoutResult,
     UploadResult,
+    UploadToKibanaRequest,
 )
 
 logger = logging.getLogger(__name__)
 
 # Initialize the language server
 server = LanguageServer('dashboard-compiler', 'v0.1')
+
+# TypeAdapters for request validation - created once at module level for performance
+_compile_request_adapter = TypeAdapter(CompileRequest)
+_get_dashboards_request_adapter = TypeAdapter(GetDashboardsRequest)
+_get_grid_layout_request_adapter = TypeAdapter(GetGridLayoutRequest)
+_update_grid_layout_request_adapter = TypeAdapter(UpdateGridLayoutRequest)
+_upload_to_kibana_request_adapter = TypeAdapter(UploadToKibanaRequest)
+_esql_execute_request_adapter = TypeAdapter(EsqlExecuteRequest)
 
 
 def _params_to_dict(params: Any) -> dict[str, Any]:
@@ -73,28 +88,6 @@ def _params_to_dict(params: Any) -> dict[str, Any]:
     raise TypeError(msg)
 
 
-def _get_required_str(params_dict: dict[str, Any], key: str) -> str | None:
-    """Extract a required string parameter from params dict.
-
-    Args:
-        params_dict: Dictionary of parameters
-        key: The key to extract
-
-    Returns:
-        The string value if valid, None if missing or empty
-
-    Raises:
-        TypeError: If value is present but not a string
-    """
-    value = params_dict.get(key)
-    if value is None:
-        return None
-    if isinstance(value, str):
-        return value if len(value) > 0 else None
-    msg = f'Expected {key} to be str | None, got {type(value).__name__}'
-    raise TypeError(msg)
-
-
 def _normalize_optional_str(value: str | None) -> str | None:
     """Normalize an optional string, converting empty strings to None.
 
@@ -112,36 +105,6 @@ def _normalize_optional_str(value: str | None) -> str | None:
     if value is None:
         return None
     return value if len(value) > 0 else None
-
-
-def _validate_credentials(
-    username: Any, password: Any, api_key: Any, ssl_verify: Any
-) -> tuple[str | None, str | None, str | None, bool] | str:
-    """Validate and normalize credential parameters.
-
-    Args:
-        username: Optional username value
-        password: Optional password value
-        api_key: Optional API key value
-        ssl_verify: SSL verification flag
-
-    Returns:
-        Tuple of (username, password, api_key, ssl_verify) if valid,
-        or error message string if invalid.
-    """
-    if (
-        (username is not None and not isinstance(username, str))
-        or (password is not None and not isinstance(password, str))
-        or (api_key is not None and not isinstance(api_key, str))
-        or not isinstance(ssl_verify, bool)
-    ):
-        return 'Invalid credential or ssl_verify parameter type'
-    return (
-        _normalize_optional_str(username),
-        _normalize_optional_str(password),
-        _normalize_optional_str(api_key),
-        ssl_verify,
-    )
 
 
 def _redact_url(url: str) -> str:
@@ -221,7 +184,7 @@ def compile_custom(params: Any) -> CompileResult:
     """Handle custom compilation request for a dashboard.
 
     Args:
-        params: Object containing path and dashboard_index
+        params: Object containing path and dashboard_index (validated as CompileRequest)
 
     Returns:
         CompileResult with compilation result
@@ -229,19 +192,11 @@ def compile_custom(params: Any) -> CompileResult:
     params_dict = _params_to_dict(params)
 
     try:
-        path = _get_required_str(params_dict, 'path')
-    except TypeError as e:
-        return CompileResult.fail(str(e))
+        request = _compile_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return CompileResult.fail(f'Invalid request parameters: {e}')
 
-    if path is None:
-        return CompileResult.fail('Missing path parameter')
-
-    try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))
-    except (TypeError, ValueError) as e:
-        return CompileResult.fail(f'Invalid dashboard_index: {e}')
-
-    return _compile_dashboard(path, dashboard_index)
+    return _compile_dashboard(request.path, request.dashboard_index)
 
 
 @server.feature('dashboard/getDashboards')
@@ -249,7 +204,7 @@ def get_dashboards_custom(params: Any) -> DashboardListResult:
     """Get list of dashboards from a YAML file.
 
     Args:
-        params: Object containing path to YAML file
+        params: Object containing path to YAML file (validated as GetDashboardsRequest)
 
     Returns:
         DashboardListResult with list of dashboards or error
@@ -257,15 +212,12 @@ def get_dashboards_custom(params: Any) -> DashboardListResult:
     params_dict = _params_to_dict(params)
 
     try:
-        path = _get_required_str(params_dict, 'path')
-    except TypeError as e:
-        return DashboardListResult.fail(str(e))
-
-    if path is None:
-        return DashboardListResult.fail('Missing path parameter')
+        request = _get_dashboards_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return DashboardListResult.fail(f'Invalid request parameters: {e}')
 
     try:
-        dashboards = load(path)
+        dashboards = load(request.path)
         dashboard_list = [
             DashboardInfo(
                 index=i,
@@ -285,7 +237,7 @@ def get_grid_layout_custom(params: Any) -> GridLayoutResult:
     """Get grid layout information from a YAML dashboard file.
 
     Args:
-        params: Object containing path and dashboard_index
+        params: Object containing path and dashboard_index (validated as GetGridLayoutRequest)
 
     Returns:
         GridLayoutResult with grid layout information or error
@@ -293,20 +245,12 @@ def get_grid_layout_custom(params: Any) -> GridLayoutResult:
     params_dict = _params_to_dict(params)
 
     try:
-        path = _get_required_str(params_dict, 'path')
-    except TypeError as e:
-        return GridLayoutResult.fail(str(e))
-
-    if path is None:
-        return GridLayoutResult.fail('Missing path parameter')
+        request = _get_grid_layout_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return GridLayoutResult.fail(f'Invalid request parameters: {e}')
 
     try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))
-    except (TypeError, ValueError) as e:
-        return GridLayoutResult.fail(f'Invalid dashboard_index: {e}')
-
-    try:
-        result = extract_grid_layout(path, dashboard_index)
+        result = extract_grid_layout(request.path, request.dashboard_index)
     except Exception as e:
         return GridLayoutResult.fail(str(e))
     else:
@@ -314,15 +258,12 @@ def get_grid_layout_custom(params: Any) -> GridLayoutResult:
 
 
 @server.feature('dashboard/updateGridLayout')
-def update_grid_layout_custom(params: Any) -> UpdateGridLayoutResult:  # noqa: PLR0911
+def update_grid_layout_custom(params: Any) -> UpdateGridLayoutResult:
     """Update grid coordinates for a specific panel in a YAML dashboard file.
 
     Args:
-        params: Object containing:
-            - path: YAML file path
-            - panel_id: ID of the panel to update
-            - grid: New grid coordinates with keys x, y, w, h
-            - dashboard_index: Optional dashboard index (default: 0)
+        params: Object containing path, panel_id, grid, dashboard_index
+            (validated as UpdateGridLayoutRequest)
 
     Returns:
         UpdateGridLayoutResult with success status and message or error
@@ -330,31 +271,15 @@ def update_grid_layout_custom(params: Any) -> UpdateGridLayoutResult:  # noqa: P
     params_dict = _params_to_dict(params)
 
     try:
-        path = _get_required_str(params_dict, 'path')
-        panel_id = _get_required_str(params_dict, 'panel_id')
-    except TypeError as e:
-        return UpdateGridLayoutResult.fail(str(e))
+        request = _update_grid_layout_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return UpdateGridLayoutResult.fail(f'Invalid request parameters: {e}')
 
-    # Validate required parameters
-    if path is None or panel_id is None:
-        missing = 'path' if path is None else 'panel_id'
-        return UpdateGridLayoutResult.fail(f'Missing {missing} parameter')
-
-    grid = params_dict.get('grid')
-    required_keys = {'x', 'y', 'w', 'h'}
-    if grid is None or not isinstance(grid, dict):
-        return UpdateGridLayoutResult.fail('Missing or invalid grid parameter')
-    missing_keys = required_keys - grid.keys()
-    if len(missing_keys) > 0:
-        return UpdateGridLayoutResult.fail(f'Grid missing required keys: {", ".join(sorted(missing_keys))}')
+    # Convert Grid model to dict for grid_updater (which expects dict)
+    grid_dict = {'x': request.grid.x, 'y': request.grid.y, 'w': request.grid.w, 'h': request.grid.h}
 
     try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))
-    except (TypeError, ValueError) as e:
-        return UpdateGridLayoutResult.fail(f'Invalid dashboard_index: {e}')
-
-    try:
-        return update_panel_grid(path, panel_id, grid, dashboard_index)
+        return update_panel_grid(request.path, request.panel_id, grid_dict, request.dashboard_index)
     except Exception as e:
         return UpdateGridLayoutResult.fail(str(e))
 
@@ -405,13 +330,8 @@ async def execute_esql_query(params: Any) -> EsqlExecuteResult:
     """Execute an ES|QL query via Kibana's console proxy API.
 
     Args:
-        params: Object containing:
-            - query: ES|QL query string
-            - kibana_url: Kibana base URL
-            - username: Optional username
-            - password: Optional password
-            - api_key: Optional API key
-            - ssl_verify: Whether to verify SSL
+        params: Object containing query, kibana_url, and optional credentials
+            (validated as EsqlExecuteRequest)
 
     Returns:
         EsqlExecuteResult with success status and query results or error
@@ -419,37 +339,25 @@ async def execute_esql_query(params: Any) -> EsqlExecuteResult:
     params_dict = _params_to_dict(params)
 
     try:
-        query = _get_required_str(params_dict, 'query')
-        kibana_url = _get_required_str(params_dict, 'kibana_url')
-    except TypeError as e:
-        return EsqlExecuteResult.fail(str(e))
+        request = _esql_execute_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return EsqlExecuteResult.fail(f'Invalid request parameters: {e}')
 
-    if query is None:
-        return EsqlExecuteResult.fail('Missing or invalid query parameter')
-
-    if kibana_url is None:
-        return EsqlExecuteResult.fail('Missing or invalid kibana_url parameter')
-
-    credentials = _validate_credentials(
-        params_dict.get('username'),
-        params_dict.get('password'),
-        params_dict.get('api_key'),
-        params_dict.get('ssl_verify', True),
-    )
-    if isinstance(credentials, str):
-        return EsqlExecuteResult.fail(credentials)
-    validated_username, validated_password, validated_api_key, ssl_verify = credentials
+    # Normalize empty strings to None for credentials
+    username = _normalize_optional_str(request.username)
+    password = _normalize_optional_str(request.password)
+    api_key = _normalize_optional_str(request.api_key)
 
     try:
-        logger.info('Executing ES|QL query via Kibana at %s', _redact_url(kibana_url))
+        logger.info('Executing ES|QL query via Kibana at %s', _redact_url(request.kibana_url))
         async with KibanaClient(
-            url=kibana_url,
-            username=validated_username,
-            password=validated_password,
-            api_key=validated_api_key,
-            ssl_verify=ssl_verify,
+            url=request.kibana_url,
+            username=username,
+            password=password,
+            api_key=api_key,
+            ssl_verify=request.ssl_verify,
         ) as client:
-            result = await client.execute_esql(query)
+            result = await client.execute_esql(request.query)
         logger.debug('ES|QL query returned %d rows', result.row_count)
     except Exception as e:
         logger.exception('ES|QL execution error occurred')
@@ -459,18 +367,12 @@ async def execute_esql_query(params: Any) -> EsqlExecuteResult:
 
 
 @server.feature('dashboard/uploadToKibana')
-async def upload_to_kibana_custom(params: Any) -> UploadResult:  # noqa: PLR0911
+async def upload_to_kibana_custom(params: Any) -> UploadResult:
     """Upload a compiled dashboard to Kibana.
 
     Args:
-        params: Object containing:
-            - path: YAML file path
-            - dashboard_index: Dashboard index to upload
-            - kibana_url: Kibana base URL
-            - username: Optional username
-            - password: Optional password
-            - api_key: Optional API key
-            - ssl_verify: Whether to verify SSL
+        params: Object containing path, dashboard_index, kibana_url, and optional credentials
+            (validated as UploadToKibanaRequest)
 
     Returns:
         UploadResult with success status and dashboard URL or error
@@ -478,33 +380,19 @@ async def upload_to_kibana_custom(params: Any) -> UploadResult:  # noqa: PLR0911
     params_dict = _params_to_dict(params)
 
     try:
-        path = _get_required_str(params_dict, 'path')
-        kibana_url = _get_required_str(params_dict, 'kibana_url')
-    except TypeError as e:
-        return UploadResult.fail(str(e))
+        request = _upload_to_kibana_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return UploadResult.fail(f'Invalid request parameters: {e}')
 
-    try:
-        dashboard_index = int(params_dict.get('dashboard_index', 0))
-    except (TypeError, ValueError) as e:
-        return UploadResult.fail(f'Invalid dashboard_index: {e}')
-
-    if path is None or kibana_url is None:
-        return UploadResult.fail('Missing required parameters (path and kibana_url)')
-
-    credentials = _validate_credentials(
-        params_dict.get('username'),
-        params_dict.get('password'),
-        params_dict.get('api_key'),
-        params_dict.get('ssl_verify', True),
-    )
-    if isinstance(credentials, str):
-        return UploadResult.fail(credentials)
-    validated_username, validated_password, validated_api_key, ssl_verify = credentials
+    # Normalize empty strings to None for credentials
+    username = _normalize_optional_str(request.username)
+    password = _normalize_optional_str(request.password)
+    api_key = _normalize_optional_str(request.api_key)
 
     try:
         # Compile the dashboard first
-        logger.info('Compiling dashboard from %s (index %d)', path, dashboard_index)
-        compile_result = _compile_dashboard(path, dashboard_index)
+        logger.info('Compiling dashboard from %s (index %d)', request.path, request.dashboard_index)
+        compile_result = _compile_dashboard(request.path, request.dashboard_index)
         if compile_result.success is not True:
             logger.error('Compilation failed: %s', compile_result.error)
             return UploadResult.fail(compile_result.error or 'Unknown compilation error')
@@ -514,13 +402,13 @@ async def upload_to_kibana_custom(params: Any) -> UploadResult:  # noqa: PLR0911
         logger.debug('Generated NDJSON content: %d bytes', len(ndjson_content))
 
         # Create Kibana client and upload
-        logger.info('Uploading dashboard to Kibana at %s', _redact_url(kibana_url))
+        logger.info('Uploading dashboard to Kibana at %s', _redact_url(request.kibana_url))
         async with KibanaClient(
-            url=kibana_url,
-            username=validated_username,
-            password=validated_password,
-            api_key=validated_api_key,
-            ssl_verify=ssl_verify,
+            url=request.kibana_url,
+            username=username,
+            password=password,
+            api_key=api_key,
+            ssl_verify=request.ssl_verify,
         ) as client:
             # Upload to Kibana
             result = await client.upload_ndjson(ndjson_content, overwrite=True)
