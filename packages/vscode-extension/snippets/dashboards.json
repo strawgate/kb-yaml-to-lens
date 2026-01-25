@@ -236,7 +236,8 @@
       "        label: ${17:Column 2}}",
       "    metrics:",
       "      - aggregation: ${18|count,sum,avg,min,max|}",
-      "        ${19:label: ${20:Metric}}"
+      "        ${19:field: ${20:numeric_field}}",
+      "        ${21:label: ${22:Metric}}"
     ],
     "description": "Add a Lens datatable with multiple columns"
   },
