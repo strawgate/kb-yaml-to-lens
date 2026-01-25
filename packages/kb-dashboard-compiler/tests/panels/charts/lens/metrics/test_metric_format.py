@@ -160,3 +160,96 @@ def test_compile_lens_custom_metric_format_with_different_pattern() -> None:
             },
         }
     )
+
+
+def test_compile_lens_metric_format_with_explicit_decimals() -> None:
+    """Test compilation of number format with explicit decimals override."""
+    fmt = LensMetricFormat(type='number', decimals=4)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'number',
+            'params': {
+                'decimals': 4,
+            },
+        }
+    )
+
+
+def test_compile_lens_metric_format_bytes_with_explicit_decimals() -> None:
+    """Test compilation of bytes format with explicit decimals override."""
+    fmt = LensMetricFormat(type='bytes', decimals=3)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'bytes',
+            'params': {
+                'decimals': 3,
+            },
+        }
+    )
+
+
+def test_compile_lens_metric_format_bits_with_explicit_decimals() -> None:
+    """Test compilation of bits format with explicit decimals override (normally defaults to 0)."""
+    fmt = LensMetricFormat(type='bits', decimals=2)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'bits',
+            'params': {
+                'decimals': 2,
+            },
+        }
+    )
+
+
+def test_compile_lens_metric_format_with_decimals_and_suffix() -> None:
+    """Test compilation of format with both decimals and suffix."""
+    fmt = LensMetricFormat(type='number', decimals=1, suffix=' req/s')
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'number',
+            'params': {
+                'decimals': 1,
+                'suffix': ' req/s',
+            },
+        }
+    )
+
+
+def test_compile_lens_metric_format_with_decimals_and_compact() -> None:
+    """Test compilation of format with both decimals and compact."""
+    fmt = LensMetricFormat(type='bytes', decimals=0, compact=True)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'bytes',
+            'params': {
+                'decimals': 0,
+                'compact': True,
+            },
+        }
+    )
+
+
+def test_compile_lens_custom_metric_format_with_explicit_decimals() -> None:
+    """Test compilation of custom format with explicit decimals."""
+    fmt = LensCustomMetricFormat(pattern='0,0.00', decimals=2)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'custom',
+            'params': {
+                'decimals': 2,
+                'pattern': '0,0.00',
+            },
+        }
+    )
