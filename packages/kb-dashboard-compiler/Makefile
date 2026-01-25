@@ -83,7 +83,7 @@ lint-check:
 
 # Type checking
 typecheck:
-	$(call run_cmd, "Running type checking", cd ../.. && uv run --group dev basedpyright packages, "Type checking passed")
+	$(call run_cmd, "Running type checking", cd ../.. && uv run --group dev basedpyright packages/kb-dashboard-compiler, "Type checking passed")
 
 # Testing
 test:
