@@ -1,10 +1,15 @@
 """Centralized CLI output helpers for consistent messaging and formatting."""
 
+from __future__ import annotations
+
 import os
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from rich.console import Console
+
+if TYPE_CHECKING:
+    from dashboard_compiler.kibana_client import KibanaErrorDetail
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
@@ -201,15 +206,15 @@ def _extract_error_message(error: Any) -> str:  # pyright: ignore[reportAny]
 
     """
     # Try error.error (dict or KibanaErrorDetail model)
-    error_detail = getattr(error, 'error', None)  # pyright: ignore[reportAny]
+    error_detail: dict[str, Any] | KibanaErrorDetail | None = getattr(error, 'error', None)  # pyright: ignore[reportAny]
     if isinstance(error_detail, dict):
         # Handle dict-based error details
-        message = error_detail.get('message')  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
+        message = error_detail.get('message')
         if message is not None:
-            return str(message)  # pyright: ignore[reportUnknownArgumentType]
+            return str(message)  # pyright: ignore[reportAny]
     elif error_detail is not None:
-        # Handle KibanaErrorDetail model
-        message = getattr(error_detail, 'message', None)  # pyright: ignore[reportAny]
+        # Handle KibanaErrorDetail model (or similar object with .message attribute)
+        message = getattr(error_detail, 'message', None)
         if message is not None:
             return str(message)  # pyright: ignore[reportAny]
     # Try error.message

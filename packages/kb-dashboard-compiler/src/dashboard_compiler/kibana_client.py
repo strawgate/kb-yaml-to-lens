@@ -155,9 +155,9 @@ class EsqlColumn(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    name: str = Field(..., description='Column name')
+    name: str
     """Column name."""
-    type: str = Field(..., description='Column data type (e.g., keyword, long, date)')
+    type: str
     """Column data type (e.g., keyword, long, date)."""
 
 
@@ -173,13 +173,13 @@ class EsqlResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
 
-    columns: list[EsqlColumn] = Field(default_factory=list, description='Column definitions with name and type')
+    columns: list[EsqlColumn] = Field(default_factory=list)
     """Column definitions with name and type."""
-    values: list[list[Any]] = Field(default_factory=list, description='Row values as nested arrays')
+    values: list[list[Any]] = Field(default_factory=list)
     """Row values as nested arrays."""
-    took: int | None = Field(default=None, description='Query execution time in milliseconds')
+    took: int | None = None
     """Query execution time in milliseconds."""
-    is_partial: bool = Field(default=False, description='Whether results are partial')
+    is_partial: bool = False
     """Whether results are partial."""
 
     @property
