@@ -16,7 +16,6 @@ dashboards:
             1. **Equals Filter** - Exact field value match\n2. **Exists Filter** - Field existence check\n3. **Comparison Filters** - Greater\
             \ than/less than (gte, gt, lte, lt)\n4. **Not Filter** - Negation of other filters\n5. **Combined Filters** - Multiple filters on\
             \ same panel\nEach panel below demonstrates a different filtering pattern.\n"
-          font_size: 12
       - title: Error Logs Only
         description: "Using equals filter: log.level = 'error'"
         size:

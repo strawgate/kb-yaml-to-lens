@@ -19,12 +19,10 @@ dashboards:
         label: Hostname
         data_view: logs-*
         field: host.hostname
-        width: medium
       - type: options
         label: Sudo User
         data_view: logs-*
         field: system.auth.sudo.user
-        width: medium
     panels:
       # Context Layer - Navigation
       - title: System Log Dashboards
