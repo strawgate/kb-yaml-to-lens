@@ -332,7 +332,6 @@ class KbnLensTermsParentFormat(BaseVwModel):
     """The parent format for terms dimension columns."""
 
     id: Literal['terms', 'multi_terms'] = Field(default='terms')
-    # params: KbnLensTermsParentFormatParams | None = Field(default
 
 
 class KbnLensTermsDimensionColumnParams(KbnLensDimensionColumnParams):

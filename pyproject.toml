@@ -76,41 +76,52 @@ ignore = [
     "D203",    # incorrect-blank-line-before-class
     "D213",    # multi-line-summary-second-line
     "D413",    # multi-line-summary-second-line
-    "D100",    # Ignore missing docstrings for modules
-    "A002",    # Allow shadowing builtin names (e.g., 'filter')
-    "ANN401",  # We use Pyright for Any checking
+    # D100: Module docstrings are optional in this codebase.
+    # Many modules (types, compile, config) are self-documenting via their contents.
+    "D100",
+    # A002: Kibana API compatibility requires fields like `type`, `id`, `filter`, `format`
+    # that shadow builtins. This affects 50+ files throughout the codebase.
+    "A002",
+    # ANN401: Delegate Any checking to Pyright for more granular analysis.
+    # ~30 files at system boundaries use Any appropriately.
+    "ANN401",
 ]
 
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "packages/kb-dashboard-compiler/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-lint/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+# Test files have relaxed linting for common test patterns.
 "packages/kb-dashboard-compiler/tests/**/*.py" = [
-    "S101", # Allow assert usage in tests
+    "S101",    # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
-    "INP001", # Tests are not meant to be imported as packages
+    "INP001",  # Tests are not meant to be imported as packages
 ]
+# Test files have relaxed linting for common test patterns.
 "packages/kb-dashboard-lint/tests/**/*.py" = [
-    "S101", # Allow assert usage in tests
+    "S101",    # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
-    "INP001", # Tests are not meant to be imported as packages
-    "F401", # Allow side-effect imports for rule registration
+    "INP001",  # Tests are not meant to be imported as packages
+    "F401",    # Allow side-effect imports for rule registration
 ]
 "packages/kb-dashboard-lint/src/dashboard_lint/cli.py" = [
     "F401", # Allow side-effect imports for rule registration
 ]
+# View models use camelCase field names to match Kibana's JSON API schema.
+# N815/N803: camelCase field names required for Kibana API compatibility.
+# D101: Utility view model classes where docstrings add noise without value.
 "packages/kb-dashboard-compiler/src/dashboard_compiler/**/view.py" = [
-    "N815", # Ignore casing requirements for view models
-    "N803",  # Ignore lowercase arguments in view models
-    "D101", # Ignore missing docstrings in view models
-    "ANN202", # Ignore missing return type for private serializer methods
-    "ERA001", # Allow commented JSON structure documentation
+    "N815",
+    "N803",
+    "D101",
 ]
+# Grid files are validation-heavy CLI/LSP entry points with inherent complexity.
+# PLR rules: Allow complexity metrics (statements, branches, returns) for these files.
 "packages/kb-dashboard-compiler/src/dashboard_compiler/lsp/grid_*.py" = [
-    "PLR2004", # Allow magic numbers (CLI arg counts)
-    "PLR0911", # Allow many return statements in grid_updater
-    "PLR0912", # Allow many branches in grid_updater
-    "PLR0915", # Allow many statements in grid_updater
+    "PLR2004",
+    "PLR0911",
+    "PLR0912",
+    "PLR0915",
 ]
 "packages/kb-dashboard-lint/src/dashboard_lint/config.py" = [
     "PLR0911", # Allow many return statements for config loading
