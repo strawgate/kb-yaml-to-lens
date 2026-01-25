@@ -210,7 +210,6 @@ dashboards:
               label: State Queue
               format:
                 type: number
-                decimals: 0
       - title: Shards Over Time
         size: {w: 24, h: 8}
         lens:

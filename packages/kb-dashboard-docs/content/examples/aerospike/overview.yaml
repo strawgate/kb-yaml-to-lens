@@ -77,7 +77,6 @@ dashboards:
             label: Connections
             format:
               type: number
-              decimals: 0
       - title: Avg Memory Free
         size: {w: 12, h: 5}
         esql:
@@ -203,7 +202,6 @@ dashboards:
               label: Connections
               format:
                 type: number
-                decimals: 0
           dimensions:
             - field: node
           appearance:

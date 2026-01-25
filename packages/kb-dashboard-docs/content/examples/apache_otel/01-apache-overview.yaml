@@ -324,7 +324,6 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
-                decimals: 0
           dimensions:
             - field: state
           appearance:
