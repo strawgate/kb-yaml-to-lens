@@ -200,11 +200,12 @@ def _extract_error_message(error: Any) -> str:  # pyright: ignore[reportAny]
         The extracted error message string.
 
     """
-    # Try error.error['message']
-    if hasattr(error, 'error') and error.error is not None:  # pyright: ignore[reportAny]
-        message: str | None = error.error.get('message')  # pyright: ignore[reportAny]
+    # Try error.error.message (KibanaErrorDetail model)
+    error_detail = getattr(error, 'error', None)  # pyright: ignore[reportAny]
+    if error_detail is not None:
+        message = getattr(error_detail, 'message', None)  # pyright: ignore[reportAny]
         if message is not None:
-            return message
+            return str(message)  # pyright: ignore[reportAny]
     # Try error.message
     if hasattr(error, 'message') and error.message is not None:  # pyright: ignore[reportAny]
         return str(error.message)  # pyright: ignore[reportAny]

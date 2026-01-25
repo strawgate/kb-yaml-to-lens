@@ -5,7 +5,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, TypedDict
+from typing import Any, ClassVar, Literal
 
 import aiohttp
 import prison
@@ -17,15 +17,92 @@ HTTP_OK = 200
 HTTP_SERVICE_UNAVAILABLE = 503
 
 
-class _JobParamsLayout(TypedDict):
-    id: str
-    dimensions: dict[str, int]
+# ============================================================================
+# Error Response Models
+# ============================================================================
 
 
-class _JobParams(TypedDict):
-    layout: _JobParamsLayout
-    browserTimezone: str
-    locatorParams: dict[str, Any]
+class KibanaErrorDetail(BaseModel):
+    """Structured error detail from Kibana API responses.
+
+    Captures the known error structure returned by Kibana's Saved Objects API.
+    Configured with extra='allow' to handle unexpected fields gracefully.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    message: str | None = Field(default=None, description='Error message from Kibana')
+    type: str | None = Field(default=None, description='Error type identifier')
+
+
+# ============================================================================
+# Screenshot Job Parameter Models
+# ============================================================================
+
+
+class LayoutDimensions(BaseModel):
+    """Screenshot layout dimensions."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    width: int = Field(..., description='Screenshot width in pixels')
+    height: int = Field(..., description='Screenshot height in pixels')
+
+
+class ScreenshotLayout(BaseModel):
+    """Screenshot layout configuration."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    id: Literal['preserve_layout'] = Field(default='preserve_layout', description='Layout type identifier')
+    dimensions: LayoutDimensions = Field(..., description='Layout dimensions')
+
+
+class ScreenshotTimeRange(BaseModel):
+    """Time range for dashboard screenshot."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    from_time: str = Field(..., serialization_alias='from', description='Start time (ISO 8601 or relative)')
+    to: str = Field(..., description='End time (ISO 8601 or relative)')
+
+
+class DashboardLocatorParams(BaseModel):
+    """Parameters for locating a specific dashboard view."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    dashboard_id: str = Field(..., serialization_alias='dashboardId', description='Dashboard ID to screenshot')
+    use_hash: bool = Field(default=False, serialization_alias='useHash', description='Whether to use hash routing')
+    view_mode: Literal['view', 'edit'] = Field(default='view', serialization_alias='viewMode', description='Dashboard view mode')
+    preserve_saved_filters: bool = Field(default=True, serialization_alias='preserveSavedFilters', description='Preserve saved filters')
+    time_range: ScreenshotTimeRange | None = Field(
+        default=None, serialization_alias='timeRange', description='Optional time range override'
+    )
+
+
+class LocatorParams(BaseModel):
+    """Locator configuration for Kibana reporting."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    id: Literal['DASHBOARD_APP_LOCATOR'] = Field(default='DASHBOARD_APP_LOCATOR', description='Locator type identifier')
+    params: DashboardLocatorParams = Field(..., description='Dashboard locator parameters')
+
+
+class JobParams(BaseModel):
+    """Complete job parameters for Kibana screenshot generation."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+    layout: ScreenshotLayout = Field(..., description='Screenshot layout configuration')
+    browser_timezone: str = Field(..., serialization_alias='browserTimezone', description='Browser timezone for rendering')
+    locator_params: LocatorParams = Field(..., serialization_alias='locatorParams', description='Dashboard locator configuration')
+
+
+# ============================================================================
+# Saved Object Response Models
+# ============================================================================
 
 
 class SavedObjectResult(BaseModel):
@@ -43,9 +120,9 @@ class SavedObjectError(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
-    error: dict[str, Any] | None = None
-    message: str | None = None
-    status_code: int | None = Field(default=None, alias='statusCode')
+    error: KibanaErrorDetail | None = Field(default=None, description='Structured error details from Kibana')
+    message: str | None = Field(default=None, description='Top-level error message')
+    status_code: int | None = Field(default=None, alias='statusCode', description='HTTP status code')
 
 
 class KibanaSavedObjectsResponse(BaseModel):
@@ -338,35 +415,28 @@ class KibanaClient:
             aiohttp.ClientError: If the request fails
 
         """
-        locator_params: dict[str, Any] = {
-            'id': 'DASHBOARD_APP_LOCATOR',
-            'params': {
-                'dashboardId': dashboard_id,
-                'useHash': False,
-                'viewMode': 'view',
-                'preserveSavedFilters': True,
-            },
-        }
+        time_range: ScreenshotTimeRange | None = None
+        if time_from is not None or time_to is not None:
+            time_range = ScreenshotTimeRange(
+                from_time=time_from or 'now-15m',
+                to=time_to or 'now',
+            )
 
-        if time_from or time_to:
-            locator_params['params']['timeRange'] = {
-                'from': time_from or 'now-15m',
-                'to': time_to or 'now',
-            }
+        dashboard_params = DashboardLocatorParams(
+            dashboard_id=dashboard_id,
+            time_range=time_range,
+        )
 
-        job_params: _JobParams = {
-            'layout': {
-                'id': 'preserve_layout',
-                'dimensions': {
-                    'width': width,
-                    'height': height,
-                },
-            },
-            'browserTimezone': browser_timezone,
-            'locatorParams': locator_params,
-        }
+        job_params = JobParams(
+            layout=ScreenshotLayout(
+                dimensions=LayoutDimensions(width=width, height=height),
+            ),
+            browser_timezone=browser_timezone,
+            locator_params=LocatorParams(params=dashboard_params),
+        )
 
-        rison_result = prison.dumps(job_params)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        job_params_dict = job_params.model_dump(by_alias=True, exclude_none=True)
+        rison_result = prison.dumps(job_params_dict)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         if not isinstance(rison_result, str):
             msg = f'prison.dumps() returned {type(rison_result).__name__}, expected str'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
