@@ -46,7 +46,7 @@ dashboards:
           items:
             - label: Overview
               dashboard: docker-otel-overview
-            - label: Container Stats
+            - label: Detailed Stats
               dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
@@ -82,10 +82,71 @@ dashboards:
             format:
               type: number
               decimals: 0
+      - title: Unique Images
+        hide_title: true
+        size: {w: 6, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS unique_images = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unique_images
+            label: Unique Images
+            format:
+              type: number
+              decimals: 0
+      - title: Avg CPU Usage
+        hide_title: true
+        size: {w: 7, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS avg_cpu = AVG(container.cpu.utilization) / 100
+          primary:
+            field: avg_cpu
+            label: Avg CPU Usage
+            format:
+              type: percent
+      - title: Avg Memory Usage
+        hide_title: true
+        size: {w: 7, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.percent) / 100
+          primary:
+            field: avg_memory
+            label: Avg Memory Usage
+            format:
+              type: percent
+      - title: Total Memory Used
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS total_memory = SUM(container.memory.usage.total)
+          primary:
+            field: total_memory
+            label: Total Memory Used
+            format:
+              type: bytes
       - title: Containers Over Time
         description: Container count trends over time. Helps identify scaling patterns, deployment frequency, and container lifecycle changes.
         hide_title: true
-        size: {w: 36, h: 6}
+        size: {w: 48, h: 6}
         esql:
           type: bar
           query:
@@ -101,6 +162,65 @@ dashboards:
               format:
                 type: number
                 decimals: 0
+
+      # Top Containers by Resource Usage
+      - title: Top Containers by CPU Usage
+        description: Top 100 containers by average CPU utilization. Helps identify containers consuming the most CPU resources.
+        size: {w: 16, h: 11}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100 BY `Container Name` = container.name, `Container ID` = container.id
+            - SORT `CPU Usage` DESC
+            - LIMIT 100
+          dimensions:
+            - field: Container Name
+            - field: Container ID
+          metrics:
+            - field: CPU Usage
+              format:
+                type: percent
+      - title: Top Containers by Memory Usage
+        description: Top 100 containers by average memory usage. Helps identify containers consuming the most memory resources.
+        size: {w: 16, h: 11}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS `Memory Usage` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, `Container ID` = container.id
+            - SORT `Memory Usage` DESC
+            - LIMIT 100
+          dimensions:
+            - field: Container Name
+            - field: Container ID
+          metrics:
+            - field: Memory Usage
+              format:
+                type: percent
+      - title: Top Containers by Memory (Bytes)
+        description: Top 100 containers by total memory consumption in bytes. Shows absolute memory usage regardless of limits.
+        size: {w: 16, h: 11}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS `Memory (Bytes)` = AVG(container.memory.usage.total) BY `Container Name` = container.name, `Container ID` = container.id
+            - SORT `Memory (Bytes)` DESC
+            - LIMIT 100
+          dimensions:
+            - field: Container Name
+            - field: Container ID
+          metrics:
+            - field: Memory (Bytes)
+              format:
+                type: bytes
 
       # Summary Tables
       - title: Containers by Runtime
@@ -128,7 +248,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - STATS Containers = COUNT_DISTINCT(container.id) BY Image = container.image.name
             - SORT Containers DESC
-            - LIMIT 50
+            - LIMIT 100
           dimensions:
             - field: Image
           metrics:
@@ -143,7 +263,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
             - SORT Containers DESC
-            - LIMIT 50
+            - LIMIT 100
           dimensions:
             - field: Name
           metrics:

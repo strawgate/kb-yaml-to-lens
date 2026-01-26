@@ -13,10 +13,10 @@
 # ES|QL Version - Uses TS command for time-series optimization
 dashboards:
   - id: docker-otel-container-stats
-    name: '[Metrics Docker] Container Stats'
+    name: '[Metrics Docker] Detailed Stats'
     description: >-
       Detailed Docker container statistics using OpenTelemetry Docker Stats
-      receiver (ES|QL version)
+      receiver (ES|QL version). Shows resource usage broken down by container with detailed breakdowns by CPU mode, device, and network interface.
     controls:
       - type: options
         label: Container image
@@ -46,7 +46,7 @@ dashboards:
           items:
             - label: Overview
               dashboard: docker-otel-overview
-            - label: Container Stats
+            - label: Detailed Stats
               dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
