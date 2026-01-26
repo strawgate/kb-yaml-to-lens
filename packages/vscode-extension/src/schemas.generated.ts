@@ -4,7 +4,7 @@
  * This file is generated from Pydantic models using pydantic2zod.
  * Run `make generate-schemas` to regenerate.
  *
- * Source: packages/kb-dashboard-compiler/scripts/export_lsp_schemas.py
+ * Source: packages/kb-dashboard-cli/scripts/export_lsp_schemas.py
  */
 
 /* eslint-disable @typescript-eslint/naming-convention */

@@ -32,14 +32,15 @@ jobs:
       - name: Build Docker image for testing
         uses: docker/build-push-action@v6
         with:
-          context: packages/kb-dashboard-compiler
+          context: .
+          file: packages/kb-dashboard-cli/Dockerfile
           platforms: linux/amd64
           load: true
           tags: kb-dashboard-compiler:test
           cache-from: type=gha
       - name: Run smoke tests
         shell: bash
-        run: IMAGE_NAME="kb-dashboard-compiler:test" make compiler test-docker-smoke
+        run: IMAGE_NAME="kb-dashboard-compiler:test" make cli test-docker-smoke
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -49,7 +50,8 @@ jobs:
       - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v6
         with:
-          context: packages/kb-dashboard-compiler
+          context: .
+          file: packages/kb-dashboard-cli/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

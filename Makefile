@@ -37,7 +37,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts compiler lint tools vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts cli lint tools vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -49,7 +49,6 @@ help:
 	@echo ""
 	@echo "Run target in single component:"
 	@echo "  make cli <target>       - Run in packages/kb-dashboard-cli/"
-	@echo "  make compiler <target>  - Run in packages/kb-dashboard-cli/ (alias for cli)"
 	@echo "  make core <target>      - Run in packages/kb-dashboard-core/"
 	@echo "  make lint <target>      - Run in packages/kb-dashboard-lint/"
 	@echo "  make tools <target>     - Run in packages/kb-dashboard-tools/"
@@ -65,7 +64,7 @@ help:
 	@echo "  make root ci              - Run root-level CI checks (markdown + YAML lint)"
 	@echo "  make root fix             - Auto-fix root-level linting"
 	@echo "  make root install         - Install root-level dependencies"
-	@echo "  make compiler test-smoke  - Run compiler smoke tests"
+	@echo "  make cli test-smoke     - Run CLI smoke tests"
 	@echo "  make vscode test-e2e      - Run VS Code E2E tests"
 	@echo "  make docs ci              - Check docs (markdown lint + links)"
 	@echo "  make docs serve           - Start docs server"
@@ -194,7 +193,7 @@ check-merge-conflicts:
 #
 # Note: If arguments match existing root targets (e.g., "help"), Make will print
 # "overriding commands for target" warnings. These warnings are expected and harmless.
-# To suppress them, pipe the make command: make compiler help 2>/dev/null
+# To suppress them, pipe the make command: make cli help 2>/dev/null
 _FIRST_GOAL := $(firstword $(MAKECMDGOALS))
 
 ifeq ($(_FIRST_GOAL),cli)
@@ -202,10 +201,6 @@ ifeq ($(_FIRST_GOAL),cli)
   $(eval $(_ARGS):;@:)
 endif
 
-ifeq ($(_FIRST_GOAL),compiler)
-  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(_ARGS):;@:)
-endif
 
 ifeq ($(_FIRST_GOAL),vscode)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -243,9 +238,6 @@ ifeq ($(_FIRST_GOAL),root)
 endif
 
 cli:
-	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-cli $(_ARGS)
-
-compiler:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-cli $(_ARGS)
 
 core:

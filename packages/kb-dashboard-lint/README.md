@@ -6,7 +6,7 @@ Linting rules for Kibana dashboard YAML configurations.
 
 This package provides a configurable linting system that flags potentially problematic
 dashboard configurations based on best practices and style guidelines. It works with
-validated Pydantic models from `kb-dashboard-compiler`.
+validated Pydantic models from `kb-dashboard-core`.
 
 ## Installation
 

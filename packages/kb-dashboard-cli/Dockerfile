@@ -26,8 +26,10 @@ WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 
 # Copy project files
-COPY pyproject.toml uv.lock README.md /app/
-COPY src/ /app/src/
+# Note: Build context should be repository root for workspace uv.lock access
+COPY packages/kb-dashboard-cli/pyproject.toml packages/kb-dashboard-cli/README.md /app/
+COPY uv.lock /app/uv.lock
+COPY packages/kb-dashboard-cli/src/ /app/src/
 
 # Sync dependencies using uv (uses lockfile for reproducible builds)
 RUN uv sync --frozen --no-dev && \

@@ -11,7 +11,7 @@ This guide covers development workflows for the Python dashboard CLI (CLI, LSP, 
 
 ```bash
 # From repository root
-make cli install  # or: make compiler install (alias)
+make cli install
 ```
 
 ## Commands
@@ -26,7 +26,7 @@ Run from the repository root using the passthrough pattern:
 | `make cli typecheck` | Run type checking with basedpyright |
 | `make cli compile` | Compile YAML dashboards to NDJSON |
 
-For all commands, see `make cli help` (or `make compiler help` - same target).
+For all commands, see `make cli help`.
 
 **From within component directory:** You can also run `make <target>` directly from `packages/kb-dashboard-cli/`.
 
@@ -70,8 +70,8 @@ Each fixture has ES|QL and Data View versions:
 
 After making changes:
 
-1. Run `make compiler typecheck` — catches type errors
-2. Run `make compiler ci` — runs all quality checks
+1. Run `make cli typecheck` — catches type errors
+2. Run `make cli ci` — runs all quality checks
 3. Test compiled output validity
 
 **CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring, code coverage <80%

@@ -206,24 +206,24 @@ The project includes convenient Makefile targets (run from repository root):
 
 ```bash
 # Compile only
-make compiler compile
+make cli compile
 
 # Compile and upload (uses environment variables for Kibana config)
-make compiler upload
+make cli upload
 ```
 
 Or use the CLI directly from anywhere with uv:
 
 ```bash
-cd packages/kb-dashboard-compiler && uv run kb-dashboard compile
-cd packages/kb-dashboard-compiler && uv run kb-dashboard compile --upload
+cd packages/kb-dashboard-cli && uv run kb-dashboard compile
+cd packages/kb-dashboard-cli && uv run kb-dashboard compile --upload
 ```
 
 Or using the passthrough pattern from repository root:
 
 ```bash
-make compiler compile
-make compiler upload
+make cli compile
+make cli upload
 ```
 
 ## Authentication

@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Run Python linting checks
         shell: bash
-        run: make compiler lint-check
+        run: make cli lint-check
   lint-markdown:
     name: Lint Markdown
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Run basedpyright
         shell: bash
-        run: make compiler typecheck
+        run: make cli typecheck
   test-python:
     name: Test Python (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -92,23 +92,23 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Run tests with coverage
         shell: bash
-        run: make compiler test-coverage
+        run: make cli test-coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
           path: |
-            packages/kb-dashboard-compiler/.coverage
-            packages/kb-dashboard-compiler/htmlcov/
-            packages/kb-dashboard-compiler/coverage.json
+            packages/kb-dashboard-cli/.coverage
+            packages/kb-dashboard-cli/htmlcov/
+            packages/kb-dashboard-cli/coverage.json
           retention-days: 30
       - name: Comment coverage on PR
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: packages/kb-dashboard-compiler
+          COVERAGE_PATH: packages/kb-dashboard-cli
       - name: Print coverage comment outputs
         shell: bash
         run: |
@@ -140,7 +140,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Run smoke tests
         shell: bash
-        run: make compiler test-smoke
+        run: make cli test-smoke
   test-markdown-links:
     name: Validate Documentation Links
     runs-on: ubuntu-latest

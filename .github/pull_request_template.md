@@ -30,7 +30,7 @@
 ```bash
 # Example verification commands (run from repository root)
 make all install
-make compiler compile  # or other relevant commands
+make cli compile  # or other relevant commands
 ```
 
 ## Related Issues

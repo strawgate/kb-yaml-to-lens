@@ -426,7 +426,7 @@ sync_tooltips: false
 
 ## Examples and Templates
 
-Reference the `packages/kb-dashboard-compiler/inputs/` directory for complete dashboard examples demonstrating these patterns. Templates show navigation panels, metric cards, time series charts, categorical breakdowns, and detail tables in standard configurations.
+Reference the `packages/kb-dashboard-cli/inputs/` directory for complete dashboard examples demonstrating these patterns. Templates show navigation panels, metric cards, time series charts, categorical breakdowns, and detail tables in standard configurations.
 
 ---
 

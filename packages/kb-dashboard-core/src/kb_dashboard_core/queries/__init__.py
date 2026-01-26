@@ -1,1 +1,1 @@
-"""Query models for dashboard_compiler."""
+"""Query models for kb-dashboard-core."""

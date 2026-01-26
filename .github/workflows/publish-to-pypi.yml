@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/kb-dashboard-compiler
+      url: https://pypi.org/p/kb-dashboard-cli
     permissions:
       id-token: write
       contents: read
@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Build package
         shell: bash
-        run: make compiler build
+        run: make cli build
       - name: Publish to PyPI
         shell: bash
-        run: make compiler publish
+        run: make cli publish

@@ -24,7 +24,7 @@ import click
 
 # Version file locations relative to project root
 VERSION_FILES = {
-    'packages/kb-dashboard-compiler/pyproject.toml': 'toml',
+    'packages/kb-dashboard-cli/pyproject.toml': 'toml',
     'packages/vscode-extension/package.json': 'json',
     'pyproject.toml': 'toml',
 }
@@ -84,7 +84,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
     root = get_project_root()
 
     # Determine current version from canonical source
-    canonical_path = root / 'packages/kb-dashboard-compiler/pyproject.toml'
+    canonical_path = root / 'packages/kb-dashboard-cli/pyproject.toml'
     current_version = read_version(canonical_path, 'toml')
 
     action = 'Would update' if dry_run else 'Updating'
@@ -145,21 +145,18 @@ def update_versions(new_version: str, dry_run: bool) -> None:
         except FileNotFoundError:
             click.echo('  Warning: uv not found. Skipping uv.lock update.', err=True)
         
-        # Update compiler uv.lock
-        compiler_dir = root / 'packages/kb-dashboard-compiler'
+        # Update CLI uv.lock (workspace uses root lock, but keep for compatibility)
+        # Note: In a workspace, uv.lock is managed at root, but we check CLI directory
+        cli_dir = root / 'packages/kb-dashboard-cli'
         try:
-            subprocess.run(
-                ['uv', 'lock'],
-                cwd=compiler_dir,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            click.echo('  packages/kb-dashboard-compiler/uv.lock: updated')
-        except subprocess.CalledProcessError as e:
-            click.echo(f'  Warning: Failed to update packages/kb-dashboard-compiler/uv.lock: {e.stderr}', err=True)
-        except FileNotFoundError:
-            click.echo('  Warning: uv not found. Skipping packages/kb-dashboard-compiler/uv.lock update.', err=True)
+            # In workspace mode, uv lock should be run from root
+            # But we verify the CLI directory exists
+            if cli_dir.exists():
+                click.echo('  Note: Using root workspace uv.lock (packages/kb-dashboard-cli is a workspace member)')
+            else:
+                click.echo('  Warning: packages/kb-dashboard-cli directory not found', err=True)
+        except Exception as e:
+            click.echo(f'  Warning: Failed to verify CLI directory: {e}', err=True)
 
     if dry_run:
         click.echo('\nDry run complete. No files were modified.')
@@ -193,7 +190,7 @@ def show() -> None:
 def patch(dry_run: bool) -> None:
     """Bump patch version (0.1.1 -> 0.1.2)."""
     root = get_project_root()
-    current = read_version(root / 'packages/kb-dashboard-compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard-cli/pyproject.toml', 'toml')
     new_version = bump_version(current, 'patch')
     update_versions(new_version, dry_run)
 
@@ -203,7 +200,7 @@ def patch(dry_run: bool) -> None:
 def minor(dry_run: bool) -> None:
     """Bump minor version (0.1.1 -> 0.2.0)."""
     root = get_project_root()
-    current = read_version(root / 'packages/kb-dashboard-compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard-cli/pyproject.toml', 'toml')
     new_version = bump_version(current, 'minor')
     update_versions(new_version, dry_run)
 
@@ -213,7 +210,7 @@ def minor(dry_run: bool) -> None:
 def major(dry_run: bool) -> None:
     """Bump major version (0.1.1 -> 1.0.0)."""
     root = get_project_root()
-    current = read_version(root / 'packages/kb-dashboard-compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard-cli/pyproject.toml', 'toml')
     new_version = bump_version(current, 'major')
     update_versions(new_version, dry_run)
 

@@ -65,7 +65,7 @@ hand-crafting complex JSON.
 
 ```bash
 # From repository root
-make compiler install
+make cli install
 ```
 
 **Your First Dashboard:**
@@ -88,7 +88,7 @@ make compiler install
 
    ```bash
    # From repository root
-   make compiler compile
+   make cli compile
    ```
 
 3. Upload to Kibana:

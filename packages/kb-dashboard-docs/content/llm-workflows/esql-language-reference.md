@@ -283,6 +283,7 @@ TS metrics-*
 ```
 
 **Key points:**
+
 - Each branch processes independently
 - Branches must produce compatible schemas (same columns)
 - Use `STATS` within branches when using `RATE()` (RATE can only be used in STATS)
@@ -343,6 +344,7 @@ TS metrics-*
 TS metrics-*
 | EVAL rate = RATE(requests)  # Error: RATE can only be used in STATS
 ```
+
 | `DELTA(field)` | Absolute change of gauge | `STATS SUM(DELTA(temperature))` |
 | `IDELTA(field)` | Instant delta (last two points) | `STATS SUM(IDELTA(gauge))` |
 | `INCREASE(field)` | Absolute increase of counter | `STATS SUM(INCREASE(total_bytes))` |

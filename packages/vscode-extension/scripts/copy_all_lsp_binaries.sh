@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXTENSION_ROOT="$(dirname "$SCRIPT_DIR")"
 PACKAGES_ROOT="$(dirname "$EXTENSION_ROOT")"
-COMPILER_DIST="$PACKAGES_ROOT/kb-dashboard-compiler/dist"
+COMPILER_DIST="$PACKAGES_ROOT/kb-dashboard-cli/dist"
 
 echo "Copying all LSP binaries from compiler dist/ to extension bin/"
 

@@ -1,5 +1,5 @@
 # VSCode Extension Makefile
-# Component-specific commands for the kb-dashboard-compiler extension
+# Component-specific commands for the VS Code extension
 
 .PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all generate-schemas check-schemas
 

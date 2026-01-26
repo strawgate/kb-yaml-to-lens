@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - packages/kb-dashboard-docs/**
-      - packages/kb-dashboard-compiler/src/**
+      - packages/kb-dashboard-cli/src/**
       - .github/workflows/deploy-gh-pages.yml
   workflow_dispatch: null
 permissions:

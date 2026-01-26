@@ -76,7 +76,7 @@ Run any component-specific target from the repository root:
 | ------- | ------- |
 | `make all <target>` | Run target in all components (cli + core + lint + tools + vscode) |
 | `make cli <target>` | Run target in `packages/kb-dashboard-cli/` |
-| `make compiler <target>` | Run target in `packages/kb-dashboard-cli/` (alias for cli) |
+| `make cli <target>` | Run target in `packages/kb-dashboard-cli/` |
 | `make core <target>` | Run target in `packages/kb-dashboard-core/` |
 | `make lint <target>` | Run target in `packages/kb-dashboard-lint/` |
 | `make tools <target>` | Run target in `packages/kb-dashboard-tools/` |
