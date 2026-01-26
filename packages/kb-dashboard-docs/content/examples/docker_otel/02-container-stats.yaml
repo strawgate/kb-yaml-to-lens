@@ -49,10 +49,10 @@ dashboards:
             - label: Container Stats
               dashboard: docker-otel-container-stats
 
-      # Container count metric
-      - title: Containers count
-        size: {w: 7, h: 8}
+      # KPI Metrics Row
+      - title: Selected Containers
         hide_title: true
+        size: {w: 8, h: 8}
         esql:
           type: metric
           query:
@@ -66,10 +66,71 @@ dashboards:
             format:
               type: number
               decimals: 0
+      - title: Unique Images
+        hide_title: true
+        size: {w: 8, h: 8}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS unique_images = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unique_images
+            label: Unique Images
+            format:
+              type: number
+              decimals: 0
+      - title: Avg Memory Used
+        hide_title: true
+        size: {w: 10, h: 8}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.usage.total)
+          primary:
+            field: avg_memory
+            label: Avg Memory Used
+            format:
+              type: bytes
+      - title: Avg CPU Usage
+        hide_title: true
+        size: {w: 10, h: 8}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS avg_cpu = AVG(container.cpu.utilization) / 100
+          primary:
+            field: avg_cpu
+            label: Avg CPU Usage
+            format:
+              type: percent
+      - title: Total Memory Used
+        hide_title: true
+        size: {w: 12, h: 8}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS total_memory = SUM(container.memory.usage.total)
+          primary:
+            field: total_memory
+            label: Total Memory Used
+            format:
+              type: bytes
 
       # Container info table
       - title: Container info
-        size: {w: 41, h: 14}
+        size: {w: 48, h: 14}
         esql:
           type: datatable
           query:
