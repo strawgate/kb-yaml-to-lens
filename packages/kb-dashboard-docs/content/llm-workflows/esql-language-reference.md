@@ -261,6 +261,33 @@ FROM logs-*
 
 **Limitations:** Single shard only (max ~2B docs), no wildcards in index name, can reorder rows (always SORT after join).
 
+### FORK
+
+Splits processing into multiple branches and combines results. Useful for combining metrics from different conditions or fields:
+
+```esql
+TS metrics-*
+| FORK (
+    WHERE container.cpu.usage.kernelmode IS NOT NULL
+    | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
+      BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), container.id
+    | EVAL cpu_mode = "kernelmode"
+  )
+  (
+    WHERE container.cpu.usage.usermode IS NOT NULL
+    | STATS cpu_rate = AVG(RATE(container.cpu.usage.usermode))
+      BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), container.id
+    | EVAL cpu_mode = "usermode"
+  )
+| STATS combined_rate = AVG(cpu_rate) BY time_bucket, cpu_mode
+```
+
+**Key points:**
+- Each branch processes independently
+- Branches must produce compatible schemas (same columns)
+- Use `STATS` within branches when using `RATE()` (RATE can only be used in STATS)
+- Combine results after FORK with additional processing commands
+
 ---
 
 ## Aggregation Functions
@@ -293,6 +320,29 @@ For use with the TS source command (Elasticsearch 9.2+):
 | -------- | ----------- | ------- |
 | `RATE(field)` | Per-second rate of counter increase | `STATS SUM(RATE(requests))` |
 | `IRATE(field)` | Instant rate (last two points) | `STATS SUM(IRATE(requests))` |
+
+**Important:** `RATE()` and `IRATE()` can **only** be used within `STATS` commands (or other aggregate functions). They cannot be used directly in `EVAL` or `WHERE` clauses:
+
+```esql
+# CORRECT - RATE() inside STATS
+TS metrics-*
+| STATS request_rate = SUM(RATE(requests))
+
+# CORRECT - RATE() inside STATS within FORK branch
+TS metrics-*
+| FORK (
+    WHERE field1 IS NOT NULL
+    | STATS rate1 = AVG(RATE(field1))
+  )
+  (
+    WHERE field2 IS NOT NULL
+    | STATS rate2 = AVG(RATE(field2))
+  )
+
+# WRONG - RATE() cannot be used in EVAL
+TS metrics-*
+| EVAL rate = RATE(requests)  # Error: RATE can only be used in STATS
+```
 | `DELTA(field)` | Absolute change of gauge | `STATS SUM(DELTA(temperature))` |
 | `IDELTA(field)` | Instant delta (last two points) | `STATS SUM(IDELTA(gauge))` |
 | `INCREASE(field)` | Absolute increase of counter | `STATS SUM(INCREASE(total_bytes))` |
@@ -303,6 +353,22 @@ For use with the TS source command (Elasticsearch 9.2+):
 | `COUNT_OVER_TIME(field)` | Count over time window | `STATS SUM(COUNT_OVER_TIME(events))` |
 | `FIRST_OVER_TIME(field)` | Earliest value by timestamp | `STATS MAX(FIRST_OVER_TIME(value))` |
 | `LAST_OVER_TIME(field)` | Latest value by timestamp | `STATS MAX(LAST_OVER_TIME(value))` |
+
+**Important:** All `*_OVER_TIME()` functions **must** be wrapped in another aggregate function like `AVG()`, `MAX()`, `MIN()`, or `SUM()`. They cannot be used directly:
+
+```esql
+# CORRECT - AVG_OVER_TIME wrapped in MAX()
+TS metrics-*
+| STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
+
+# CORRECT - LAST_OVER_TIME wrapped in MAX()
+TS metrics-*
+| STATS connections = MAX(LAST_OVER_TIME(postgresql.backends))
+
+# WRONG - *_OVER_TIME() must be wrapped in aggregate
+TS metrics-*
+| STATS cpu = AVG_OVER_TIME(system.cpu.utilization)  # Error: must be wrapped
+```
 
 ### Choosing the Right Gauge Aggregation
 
@@ -384,6 +450,18 @@ This ensures visualizations remain readable whether the user views 5 minutes or 
 | `TRIM(s)` | Remove whitespace | `EVAL clean = TRIM(input)` |
 | `REPLACE(s, old, new)` | Replace substring | `EVAL fixed = REPLACE(msg, "err", "error")` |
 | `SPLIT(s, delim)` | Split into array | `EVAL parts = SPLIT(path, "/")` |
+| `MV_FIRST(array)` | First element of array | `EVAL first = MV_FIRST(parts)` |
+| `MV_LAST(array)` | Last element of array | `EVAL last = MV_LAST(parts)` |
+
+**Array access:** ES|QL doesn't support bracket indexing like `array[0]`. Use `MV_FIRST()` and `MV_LAST()` to access array elements:
+
+```esql
+# Split image name and extract name/version
+FROM metrics-*
+| EVAL image_parts = SPLIT(container.image.name, ":")
+| EVAL image_name = MV_FIRST(image_parts)
+| EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+```
 
 ### Date/Time Functions
 

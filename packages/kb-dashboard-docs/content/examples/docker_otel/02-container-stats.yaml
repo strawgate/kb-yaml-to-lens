@@ -9,10 +9,14 @@
 #
 # Modified by kb-yaml-to-lens contributors to convert from Kibana JSON format
 # to YAML format for use as documentation examples.
+#
+# ES|QL Version - Uses TS command for time-series optimization
 dashboards:
   - id: docker-otel-container-stats
     name: '[Metrics Docker] Container Stats'
-    description: ''
+    description: >-
+      Docker container statistics using OpenTelemetry Docker Stats
+      receiver (ES|QL version). Shows resource usage broken down by container with detailed breakdowns by CPU mode, device, and network interface.
     controls:
       - type: options
         label: Container image
@@ -36,6 +40,7 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
+        description: Navigate between dashboard views.
         size: {w: 48, h: 2}
         links:
           layout: horizontal
@@ -45,287 +50,429 @@ dashboards:
             - label: Container Stats
               dashboard: docker-otel-container-stats
 
-      # Warning markdown panel
-      - size: {w: 48, h: 2}
-        markdown:
-          content: This dashboard is only intended to be used when filtered to one container at a time.
-
-      # Container count metric
-      - title: Containers count
-        size: {w: 7, h: 4}
+      # KPI Metrics Row
+      - title: Containers
+        description: Number of distinct containers matching the current filters. Use filters at the top to focus on specific containers.
         hide_title: true
-        lens:
+        size: {w: 8, h: 4}
+        esql:
           type: metric
-          data_view: metrics-*
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS containers = COUNT_DISTINCT(container.id)
           primary:
-            field: container.id
-            aggregation: unique_count
-            label: Selected Containers
+            field: containers
+            label: Containers
             format:
               type: number
               decimals: 0
+      - title: Unique Images
+        description: Number of distinct container images including version tags. Helps identify image diversity and potential consolidation opportunities.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS unique_images = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unique_images
+            label: Unique Images
+            format:
+              type: number
+              decimals: 0
+      - title: Avg CPU Usage
+        description: Average CPU utilization across all selected containers. CPU can exceed 100% on multi-core systems.
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS avg_cpu = AVG(container.cpu.utilization) / 100
+          primary:
+            field: avg_cpu
+            label: Avg CPU Usage
+            format:
+              type: percent
+      - title: Avg Memory Used
+        description: Average memory consumption per container. Useful for understanding typical memory footprint of containers.
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.usage.total)
+          primary:
+            field: avg_memory
+            label: Avg Memory Used
+            format:
+              type: bytes
+      - title: Total Memory Used
+        description: Aggregate memory consumption across all selected containers. Useful for capacity planning and resource allocation.
+        hide_title: true
+        size: {w: 12, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS total_memory = SUM(container.memory.usage.total)
+          primary:
+            field: total_memory
+            label: Total Memory Used
+            format:
+              type: bytes
 
       # Container info table
       - title: Container info
-        size: {w: 41, h: 4}
-        lens:
+        description: Current resource usage snapshot per container. Shows CPU utilization, memory consumption, and container metadata. Use filters at the top to focus on specific containers.
+        size: {w: 48, h: 14}
+        esql:
           type: datatable
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100, `Memory (Bytes)` = AVG(container.memory.usage.total),
+              `Memory %` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, Image = container.image.name,
+              Runtime = container.runtime, `Container ID` = container.id, Hostname = container.hostname
+            - KEEP `Container Name`, Image, Runtime, `Container ID`, Hostname, `CPU Usage`, `Memory (Bytes)`, `Memory %`
+            - LIMIT 10
           dimensions:
-            - id: container-name
-              type: values
-              field: container.name
+            - field: Container Name
               label: Container Name
-              size: 3
-            - id: container-image
-              type: values
-              field: container.image.name
-              label: Container Image
-              size: 3
-            - id: container-runtime
-              type: values
-              field: container.runtime
+            - field: Image
+              label: Image
+            - field: Runtime
               label: Runtime
-              size: 3
-            - id: container-id
-              type: values
-              field: container.id
+            - field: Container ID
               label: Container ID
-              size: 3
-            - id: container-hostname
-              type: values
-              field: container.hostname
+            - field: Hostname
               label: Hostname
-              size: 5
           metrics:
-            - id: cpu-usage
-              formula: median(container.cpu.utilization)/100
+            - field: CPU Usage
               label: CPU Usage
               format:
                 type: percent
-            - id: memory-usage
-              formula: median(container.memory.percent)/100
-              label: Memory Usage
-              format:
-                type: percent
-            - id: memory-bytes
-              field: container.memory.usage.total
-              aggregation: median
+            - field: Memory (Bytes)
               label: Memory (Bytes)
               format:
                 type: bytes
-
-      # CPU Usage (line chart) - y=8
-      - title: CPU Usage
-        size: {w: 48, h: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          legend:
-            visible: show
-            position: right
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          metrics:
-            - formula: median(container.cpu.utilization)/100
-              label: CPU Usage
-              format:
-                type: percent
-
-      # Memory Usage (line chart) - y=17
-      - title: Memory Usage
-        size: {w: 48, h: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          legend:
-            visible: hide
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          metrics:
-            - field: container.memory.usage.total
-              aggregation: median
-              label: Memory Usage
-              format:
-                type: bytes
-
-      # Disk I/O (line chart by device) - y=26
-      - title: Disk I/O
-        size: {w: 48, h: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          legend:
-            visible: show
-            position: right
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.device_major
-            type: values
-            size: 1000
-          metrics:
-            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
-              label: Bytes
-              format:
-                type: bytes
-
-      # Network I/O (line chart with rx and tx) - y=35
-      - title: Network I/O
-        size: {w: 48, h: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          legend:
-            visible: show
-            position: right
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.interface
-            type: values
-            size: 30
-          metrics:
-            - formula: counter_rate(max(container.network.io.usage.rx_bytes))
-              label: Received Bytes
-              format:
-                type: bytes
-            - formula: counter_rate(max(container.network.io.usage.tx_bytes))
-              label: Transmitted Bytes
-              format:
-                type: bytes
-
-      # "Detailed information" markdown panel - y=44
-      - size: {w: 48, h: 3}
-        markdown:
-          content: '## Detailed information'
-
-      # CPU Usage (area stacked chart) - y=47
-      - title: CPU Usage
-        size: {w: 48, h: 9}
-        lens:
-          type: area
-          mode: stacked
-          data_view: metrics-*
-          legend:
-            visible: show
-            position: right
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          metrics:
-            - formula: median(container.cpu.utilization)/100
-              label: CPU %
-              format:
-                type: percent
-
-      # Memory Usage with limit (line chart) - y=56 left
-      - title: Memory Usage with limit
-        size: {w: 24, h: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          legend:
-            visible: hide
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          metrics:
-            - field: container.memory.usage.total
-              aggregation: median
-              label: Memory Usage
-              format:
-                type: bytes
-            - field: container.memory.usage.limit
-              aggregation: median
-              label: Memory Limit
-              format:
-                type: bytes
-
-      # Memory Usage (line chart percentage) - y=56 right
-      - title: Memory Usage
-        size: {w: 24, h: 9}
-        lens:
-          type: line
-          data_view: metrics-*
-          legend:
-            visible: hide
-          dimension:
-            field: '@timestamp'
-            type: date_histogram
-          metrics:
-            - formula: median(container.memory.percent)/100
+            - field: Memory %
               label: Memory %
               format:
                 type: percent
 
-      # Disk I/O (line chart by device) - y=65
-      # Note: This is NOT a duplicate - it's a second visualization of disk I/O
-      - title: Disk I/O
+      # CPU Usage (line chart)
+      - title: CPU Usage
+        description: CPU utilization over time broken down by container. Shows overall CPU usage trends for each container.
         size: {w: 48, h: 9}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.device_major
-            type: values
-            size: 1000
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.blockio.io_service_bytes_recursive))
+            - field: cpu_usage
+              label: CPU Usage
+              format:
+                type: percent
+          breakdown:
+            field: breakdown_label
+
+      # Memory Usage (line chart)
+      - title: Memory Usage
+        description: Memory consumption in bytes over time broken down by container. Shows absolute memory usage trends for each container.
+        size: {w: 48, h: 9}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: memory_bytes
+              label: Memory Usage
+              format:
+                type: bytes
+          breakdown:
+            field: breakdown_label
+
+      # Disk I/O (line chart by device)
+      - title: Disk I/O
+        description: Aggregate disk I/O rates (read and write combined) over time broken down by container. Shows total disk activity per container.
+        size: {w: 48, h: 9}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
+            - STATS io_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: io_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: breakdown_label
 
-      # Network - Received Bytes (line chart) - y=74 left
+      # Network I/O (line chart with rx and tx)
+      - title: Network I/O
+        description: Network traffic rates (received and transmitted) over time broken down by container. Shows aggregate network activity per container across all interfaces.
+        size: {w: 48, h: 9}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.network.io.usage.rx_bytes IS NOT NULL OR container.network.io.usage.tx_bytes IS NOT NULL
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)), tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket
+              = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: rx_rate
+              label: Received Bytes
+              format:
+                type: bytes
+            - field: tx_rate
+              label: Transmitted Bytes
+              format:
+                type: bytes
+          breakdown:
+            field: breakdown_label
+
+      # "Detailed information" markdown panel
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Detailed information'
+
+      # CPU Usage (area stacked chart)
+      - title: CPU Usage
+        description: CPU usage broken down by execution mode (kernelmode/usermode) and container. Kernel mode represents time spent in system calls and kernel operations, while user mode represents time spent executing application code. Labels show mode, container name, and first 6 characters of container ID (e.g., "kernelmode - mycontainer - abc123").
+        size: {w: 48, h: 9}
+        esql:
+          type: area
+          mode: stacked
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - FORK (
+                WHERE container.cpu.usage.kernelmode IS NOT NULL
+                | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
+                  BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
+                | EVAL cpu_mode = "kernelmode"
+              )
+              (
+                WHERE container.cpu.usage.usermode IS NOT NULL
+                | STATS cpu_rate = AVG(RATE(container.cpu.usage.usermode))
+                  BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
+                | EVAL cpu_mode = "usermode"
+              )
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(cpu_mode, " - ", container.name, " - ", container_id_short)
+            - STATS cpu_usage = AVG(cpu_rate) / 1000000000 BY time_bucket, breakdown_label
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: cpu_usage
+              label: CPU %
+              format:
+                type: percent
+          breakdown:
+            field: breakdown_label
+
+      # Memory Usage with limit (line chart)
+      - title: Memory Usage with limit
+        description: Shows actual memory usage alongside the configured memory limit per container. Helps identify containers approaching or exceeding their limits.
+        size: {w: 24, h: 9}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL OR container.memory.usage.limit IS NOT NULL
+            - STATS memory_usage = AVG(container.memory.usage.total), memory_limit = MAX(container.memory.usage.limit)
+              BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: memory_usage
+              label: Memory Usage
+              format:
+                type: bytes
+            - field: memory_limit
+              label: Memory Limit
+              format:
+                type: bytes
+          breakdown:
+            field: breakdown_label
+
+      # Memory Usage (line chart percentage)
+      - title: Memory Usage
+        description: Memory utilization as a percentage of the configured limit over time. Values approaching 100% indicate containers near their memory limits.
+        size: {w: 24, h: 9}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS memory_pct = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: memory_pct
+              label: Memory %
+              format:
+                type: percent
+          breakdown:
+            field: breakdown_label
+
+      # Disk I/O (line chart by device) - second visualization
+      - title: Disk I/O
+        description: Disk I/O broken down by device major number and container. Device major numbers identify the type of block device (e.g., 8 for SCSI disks, 259 for NVMe). Labels show device major number, container name, and first 6 characters of container ID (e.g., "8 - mycontainer - abc123"). Use this to identify which physical devices each container is accessing.
+        size: {w: 48, h: 9}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
+            - STATS io_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              device = attributes.device_major, container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(TO_STRING(device), " - ", container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: io_rate
+              label: Bytes
+              format:
+                type: bytes
+          breakdown:
+            field: breakdown_label
+
+      # Network - Received Bytes (line chart)
       - title: Network - Received Bytes
+        description: Network received bytes broken down by network interface and container. Interface names identify the network interface (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name, container name, and first 6 characters of container ID (e.g., "eth0 - mycontainer - abc123"). Use this to see which network interfaces each container is receiving traffic on.
         size: {w: 24, h: 9}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.network.io.usage.rx_bytes IS NOT NULL
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              interface = attributes.interface, container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(interface, " - ", container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.interface
-            type: values
-            size: 30
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.network.io.usage.rx_bytes))
+            - field: rx_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: breakdown_label
 
-      # Network - Transmitted Bytes (line chart) - y=74 right
+      # Network - Transmitted Bytes (line chart)
       - title: Network - Transmitted Bytes
+        description: Network transmitted bytes broken down by network interface and container. Interface names identify the network interface (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name, container name, and first 6 characters of container ID (e.g., "eth0 - mycontainer - abc123"). Use this to see which network interfaces each container is sending traffic through.
         size: {w: 24, h: 9}
-        lens:
+        esql:
           type: line
-          data_view: metrics-*
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.network.io.usage.tx_bytes IS NOT NULL
+            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              interface = attributes.interface, container.id, container.name
+            - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+            - EVAL breakdown_label = CONCAT(interface, " - ", container.name, " - ", container_id_short)
+            - SORT time_bucket ASC
           legend:
             visible: show
             position: right
           dimension:
-            field: '@timestamp'
-            type: date_histogram
-          breakdown:
-            field: attributes.interface
-            type: values
-            size: 30
+            field: time_bucket
           metrics:
-            - formula: counter_rate(max(container.network.io.usage.tx_bytes))
+            - field: tx_rate
               label: Bytes
               format:
                 type: bytes
+          breakdown:
+            field: breakdown_label

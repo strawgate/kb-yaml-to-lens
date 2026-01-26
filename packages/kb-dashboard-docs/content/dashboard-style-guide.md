@@ -159,6 +159,21 @@ Complete configuration details are available in [Lens Panel Configuration](panel
 - Stack when showing categorical breakdowns
 - Use 30-day moving averages for smoothing trends (performance dashboards)
 
+**ES|QL Breakdown Labels:** ES|QL charts support only one breakdown field, but you can concatenate multiple dimensions into a single breakdown label:
+
+```esql
+# Concatenate multiple dimensions for richer breakdown labels
+TS metrics-*
+|| STATS cpu_usage = AVG(container.cpu.utilization) / 100
+  BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend),
+     container.id, container.name, cpu_mode
+|| EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
+|| EVAL breakdown_label = CONCAT(cpu_mode, " - ", container.name, " - ", container_id_short)
+|| STATS cpu_usage = AVG(cpu_usage) BY time_bucket, breakdown_label
+```
+
+This pattern is especially useful for detailed charts showing multiple dimensions (e.g., "kernelmode - mycontainer - abc123").
+
 ### Data Tables
 
 **When to Use:** Detail drill-down, "Top N" lists, searchable log/event details.
