@@ -48,7 +48,7 @@ dashboards:
       # Overview Metrics Row
       - title: Request Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -63,7 +63,7 @@ dashboards:
               type: number
       - title: Traffic Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -78,7 +78,7 @@ dashboards:
               type: bytes
       - title: Active Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -94,7 +94,7 @@ dashboards:
               pattern: 0,0
       - title: CPU Load
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -215,7 +215,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
           metrics:
@@ -245,7 +245,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
           metrics:
@@ -268,7 +268,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
           metrics:
@@ -393,8 +393,14 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: server_name
+              label: Server Name
             - field: server_port
+              label: Port
             - field: connections
+              label: Connections
             - field: cpu_load_pct
+              label: CPU Load %
             - field: load_1m
+              label: 1-min Load
             - field: busy_workers
+              label: Busy Workers

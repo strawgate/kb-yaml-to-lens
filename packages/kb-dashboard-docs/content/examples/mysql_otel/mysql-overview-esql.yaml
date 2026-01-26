@@ -34,8 +34,9 @@ dashboards:
 
       # Overview Metrics Row (y=2, h=6)
       - title: Active Connections
+        description: Connected client threads. Excludes aborted and disconnected threads.
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -47,9 +48,11 @@ dashboards:
             field: active_connections
             label: Active Connections
       - title: Buffer Pool Efficiency
+        description: >-
+          Clean pages / total pages. Higher = efficient memory use. Lower =
+          more dirty pages requiring flush.
         hide_title: true
-        size: {w: 12, h: 6}
-        description: Ratio of clean to total buffer pool pages
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -66,7 +69,7 @@ dashboards:
               type: percent
       - title: InnoDB Operations Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -79,7 +82,7 @@ dashboards:
             label: InnoDB Ops/sec
       - title: Handler Operations Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:

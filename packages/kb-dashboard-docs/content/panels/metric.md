@@ -283,7 +283,7 @@ dashboards:
   - name: "Metrics with Suffixes"
     panels:
       - title: "Request Rate"
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: "logs-*"
@@ -295,7 +295,7 @@ dashboards:
               suffix: " req/sec"
 
       - title: "Active Users"
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         position: {x: 12, y: 0}
         lens:
           type: metric
@@ -318,7 +318,7 @@ dashboards:
   - name: "Compact Metrics"
     panels:
       - title: "Total Events (Compact)"
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: "logs-*"
@@ -339,7 +339,7 @@ dashboards:
   - name: "Formatted Metrics"
     panels:
       - title: "Revenue (Currency)"
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: "sales-*"
@@ -352,7 +352,7 @@ dashboards:
               pattern: "0,0.00"  # Comma separators, 2 decimals
 
       - title: "Success Rate"
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         position: {x: 12, y: 0}
         lens:
           type: metric
@@ -375,7 +375,7 @@ dashboards:
   - name: "Combined Formatting"
     panels:
       - title: "Bandwidth Usage"
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: "network-*"

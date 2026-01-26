@@ -46,8 +46,9 @@ dashboards:
           content: '## 🐳 Container Health'
           font_size: 14
       - title: Ready Containers
+        description: Containers with all startup and liveness probes passing. Can receive traffic.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -58,8 +59,11 @@ dashboards:
             - field: k8s.container.ready
               equals: '1'
       - title: Not Ready Containers
+        description: >-
+          Containers failing probes. Check pod logs and events for startup or
+          health issues.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -71,7 +75,7 @@ dashboards:
               equals: '0'
       - title: Total Restarts
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -81,8 +85,11 @@ dashboards:
           filters:
             - exists: k8s.container.restarts
       - title: Containers Restarting
+        description: >-
+          Containers that have restarted at least once since pod creation.
+          Frequent restarts indicate instability.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -171,6 +178,9 @@ dashboards:
           content: '## 📊 Container Analysis'
           font_size: 14
       - title: Container Readiness Over Time
+        description: >-
+          Green (1) = ready, red (0) = not ready. Correlate dips with
+          deployments or incidents.
         size: {w: 24, h: 12}
         lens:
           type: area

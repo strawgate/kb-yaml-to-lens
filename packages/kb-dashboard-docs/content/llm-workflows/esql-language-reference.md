@@ -24,6 +24,36 @@ Key differences:
 - **Wildcards**: Use `*` in patterns, not `%`
 - **Index patterns**: FROM uses Elasticsearch index patterns (e.g., `logs-*`)
 
+### Syntax Rules
+
+**Case sensitivity:**
+
+- Keywords and function names are **case-insensitive**: `FROM`, `from`, `WHERE`, `where` all work
+- Field names are **case-sensitive**: `host.name` ≠ `Host.Name`
+- String comparisons are **case-sensitive**: `"Germany"` ≠ `"germany"`
+
+**String literals use double quotes**, not single quotes:
+
+```esql
+# Correct
+WHERE country == "Germany"
+
+# Wrong - single quotes not supported
+WHERE country == 'Germany'
+```
+
+**Always name computed columns** to avoid awkward backtick references later:
+
+```esql
+# Bad - creates column named "height * 3.281"
+| EVAL height * 3.281
+| STATS MEDIAN(`height * 3.281`)  # Must quote expression
+
+# Good - explicit name
+| EVAL height_feet = height * 3.281
+| STATS MEDIAN(height_feet)
+```
+
 ---
 
 ## Source Commands
@@ -103,6 +133,14 @@ FROM logs-*
     total = COUNT(*),
     avg_time = AVG(response_time),
     max_time = MAX(response_time)
+  BY service.name
+
+# Conditional aggregation (inline WHERE - powerful feature)
+FROM logs-*
+| STATS
+    total = COUNT(*),
+    errors = COUNT(*) WHERE status >= 500,
+    slow_requests = COUNT(*) WHERE response_time > 1000
   BY service.name
 
 # Time bucketing (dynamic - recommended)
@@ -214,12 +252,14 @@ FROM logs-*
 
 ### LOOKUP JOIN
 
-Joins with a lookup index:
+Joins with a lookup index (requires `index.mode: lookup` on the lookup index):
 
 ```esql
 FROM logs-*
 | LOOKUP JOIN user_lookup ON user.id
 ```
+
+**Limitations:** Single shard only (max ~2B docs), no wildcards in index name, can reorder rows (always SORT after join).
 
 ---
 
@@ -554,6 +594,47 @@ FROM logs-*
 12. **Hardcoded time buckets**: Always use dynamic sizing ``BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)`` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like ``BUCKET(`@timestamp`, 1 minute)`` or ``TBUCKET(5 minutes)`` as they create too many data points for long time ranges.
     *Lint rule: `esql-dynamic-time-bucket`*
 
+13. **Multivalue fields return NULL**: Most functions silently return NULL on multivalue fields. Use `MV_EXPAND` first:
+
+    ```esql
+    # Wrong - returns no hits on array fields
+    WHERE tags LIKE "*error*"
+
+    # Correct - expand first
+    | MV_EXPAND tags
+    | WHERE tags LIKE "*error*"
+    ```
+
+14. **Type mismatch across indices**: Same field with different types causes errors. Fix with explicit conversion:
+
+    ```esql
+    # Error: client_ip mapped as [ip] in one index, [keyword] in another
+    # Fix: Convert to consistent type
+    FROM events_*
+    | EVAL client_ip = TO_IP(client_ip)
+    ```
+
+15. **Late filtering wastes resources**: Filter on indexed fields immediately after FROM for Lucene pushdown:
+
+    ```esql
+    # Bad - processes all documents first
+    FROM logs-*
+    | DISSECT message "%{action}"
+    | WHERE @timestamp > NOW() - 1h
+
+    # Good - filter first for Lucene pushdown
+    FROM logs-*
+    | WHERE @timestamp > NOW() - 1h
+    | DISSECT message "%{action}"
+    ```
+
+16. **Type conversions fail silently**: Failed conversions return NULL with warnings, not errors. Check results:
+
+    ```esql
+    ROW str = "not_a_number" | EVAL num = TO_DOUBLE(str)
+    # Returns null, emits warning in response headers
+    ```
+
 ---
 
 ## OpenTelemetry Data Patterns
@@ -643,6 +724,40 @@ TS metrics-*
 ```
 
 For comprehensive OTel dashboard guidance, see [Creating Dashboards from OTel Receivers](otel-dashboard-guide.md).
+
+---
+
+## Key Limitations
+
+| Limitation | Detail |
+| ---------- | ------ |
+| Row limit | Default 1,000 rows, max 10,000 (output only, not docs processed) |
+| Timeout | 30-second default regardless of Kibana settings |
+| Timezone | ES\|QL only supports UTC |
+| Nested fields | Not returned at all |
+| Subqueries | Not supported—use ENRICH or LOOKUP JOIN |
+| BUCKET gaps | Does not create empty buckets for missing time intervals |
+| date_nanos | Partial support—cast to datetime for BUCKET, DATE_FORMAT, DATE_PARSE |
+
+---
+
+## Quick Reference: Pipeline Order
+
+Optimal command ordering for performance:
+
+```esql
+FROM logs-*                              -- 1. Source command
+| WHERE @timestamp > NOW() - 1h          -- 2. Filter indexed fields (Lucene pushdown)
+| KEEP @timestamp, status, message       -- 3. Drop unused columns early
+| EVAL status_group = status / 100       -- 4. Compute new columns
+| DISSECT message "%{method} %{path}"    -- 5. Parse unstructured data
+| ENRICH geo_policy ON client.ip         -- 6. Add reference data
+| LOOKUP JOIN users ON user.id           -- 7. Join with lookup data
+| WHERE status_group == 5                -- 8. Filter on computed values
+| STATS count = COUNT(*) BY path         -- 9. Aggregate
+| SORT count DESC                        -- 10. Sort (after aggregation)
+| LIMIT 100                              -- 11. Cap output rows
+```
 
 ---
 

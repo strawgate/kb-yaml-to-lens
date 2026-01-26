@@ -118,6 +118,41 @@ receivers:
 | `postgresql.table.name` | Table name |
 | `service.instance.id` | Service instance identifier |
 
+## Metrics Not Used in Dashboards
+
+The following metrics are available from the PostgreSQL receiver but are not currently visualized in the dashboards:
+
+### Default Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `postgresql.bgwriter.buffers.allocated` | Sum | `{buffers}` | Number of buffers allocated | — |
+| `postgresql.bgwriter.buffers.writes` | Sum | `{buffers}` | Number of buffers written | `source` |
+| `postgresql.bgwriter.checkpoint.count` | Sum | `{checkpoints}` | Number of checkpoints performed | `type` |
+| `postgresql.bgwriter.duration` | Sum | `ms` | Time spent writing/syncing during checkpoints | `type` |
+| `postgresql.bgwriter.maxwritten` | Sum | `1` | Times background writer stopped | — |
+| `postgresql.index.scans` | Sum | `{scans}` | Number of index scans on a table | — |
+| `postgresql.index.size` | Gauge | `By` | Size of the index on disk | — |
+| `postgresql.replication.data_delay` | Gauge | `By` | Amount of data delayed in replication | `replication_client` |
+| `postgresql.rows` | Sum | `1` | Number of rows in the database | `state` |
+| `postgresql.table.count` | Sum | `{table}` | Number of user tables in a database | — |
+| `postgresql.table.size` | Sum | `By` | Disk space used by a table | — |
+| `postgresql.table.vacuum.count` | Sum | `{vacuum}` | Number of times a table has been vacuumed | — |
+| `postgresql.wal.age` | Gauge | `s` | Age of oldest WAL file | — |
+| `postgresql.wal.lag` | Gauge | `s` | WAL replication lag time | `operation`, `replication_client` |
+
+### Optional Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+| ------ | ---- | ---- | ----------- | ---------- |
+| `postgresql.blks_hit` | Sum | `{blks_hit}` | Cache buffer hits | — |
+| `postgresql.blks_read` | Sum | `{blks_read}` | Disk blocks read | — |
+| `postgresql.database.locks` | Gauge | `{lock}` | Number of database locks | `relation`, `mode`, `lock_type` |
+| `postgresql.deadlocks` | Sum | `{deadlock}` | Number of deadlocks | — |
+| `postgresql.sequential_scans` | Sum | `{sequential_scan}` | Sequential scan count | — |
+| `postgresql.temp.io` | Sum | `By` | Data written to temporary files | — |
+| `postgresql.temp_files` | Sum | `{temp_file}` | Number of temp files | — |
+
 ## Related Resources
 
 - [OpenTelemetry PostgreSQL Receiver Documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/postgresqlreceiver)

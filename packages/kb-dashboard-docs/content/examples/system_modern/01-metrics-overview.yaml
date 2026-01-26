@@ -47,7 +47,7 @@ dashboards:
 
       # Summary Layer - Key Metrics (limited to 4)
       - title: Total Hosts
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -56,7 +56,7 @@ dashboards:
             field: host.name
             label: Hosts
       - title: Average CPU Utilization
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -70,7 +70,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.cpu
       - title: Average Memory Usage
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -84,7 +84,7 @@ dashboards:
             - field: data_stream.dataset
               equals: system.memory
       - title: Average Disk Usage
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
