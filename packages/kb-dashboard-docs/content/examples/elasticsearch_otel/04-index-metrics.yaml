@@ -69,6 +69,9 @@ dashboards:
             aggregation: sum
             field: elasticsearch.index.segments.count
             label: Segments
+            format:
+              type: number
+              decimals: 0
       - title: Index Size Distribution
         size: {w: 24, h: 12}
         lens:
@@ -91,6 +94,9 @@ dashboards:
               aggregation: average
               field: elasticsearch.index.segments.count
               label: Segments
+              format:
+                type: number
+                decimals: 0
             - id: segment_size
               aggregation: average
               field: elasticsearch.index.segments.size
@@ -253,6 +259,9 @@ dashboards:
             - aggregation: average
               field: elasticsearch.index.segments.count
               label: Segment Count
+              format:
+                type: number
+                decimals: 0
       - title: Segment Memory Usage
         size: {w: 24, h: 10}
         lens:

@@ -42,7 +42,7 @@ kb-dashboard-lint check --severity-threshold error
 
 ```python
 from dashboard_lint import check_dashboards
-from dashboard_compiler import load
+from kb_dashboard_core import load
 
 # Load dashboards
 dashboards = load('inputs/')

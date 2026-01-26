@@ -34,6 +34,7 @@ __all__ = [
     'GridLayoutResult',
     'PanelGridInfo',
     'SchemaResult',
+    'UnpinPanelRequest',
     'UpdateGridLayoutRequest',
     'UpdateGridLayoutResult',
     'UploadResult',
@@ -118,6 +119,17 @@ class UpdateGridLayoutRequest(BaseLSPModel):
     """Index of the dashboard (default: 0)."""
 
 
+class UnpinPanelRequest(BaseLSPModel):
+    """Request parameters for dashboard/unpinPanel endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    panel_id: str
+    """ID of the panel to unpin."""
+    dashboard_index: int = 0
+    """Index of the dashboard (default: 0)."""
+
+
 class UploadToKibanaRequest(BaseLSPModel):
     """Request parameters for dashboard/uploadToKibana endpoint."""
 
@@ -170,6 +182,8 @@ class PanelGridInfo(BaseLSPModel):
     """Panel type (e.g., 'esql', 'markdown')."""
     grid: Grid
     """Grid position and size."""
+    is_pinned: bool
+    """Whether the panel has an explicit position (not auto-positioned)."""
 
 
 class DashboardGridInfo(BaseLSPModel):

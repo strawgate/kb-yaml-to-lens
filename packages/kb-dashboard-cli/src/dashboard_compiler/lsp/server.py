@@ -25,7 +25,7 @@ from pydantic import BaseModel, TypeAdapter, ValidationError
 from pygls.lsp.server import LanguageServer
 
 from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
-from dashboard_compiler.lsp.grid_updater import update_panel_grid
+from dashboard_compiler.lsp.grid_updater import unpin_panel, update_panel_grid
 from dashboard_compiler.lsp.models import (
     CompileRequest,
     CompileResult,
@@ -37,6 +37,7 @@ from dashboard_compiler.lsp.models import (
     GetGridLayoutRequest,
     GridLayoutResult,
     SchemaResult,
+    UnpinPanelRequest,
     UpdateGridLayoutRequest,
     UpdateGridLayoutResult,
     UploadResult,
@@ -53,6 +54,7 @@ _compile_request_adapter = TypeAdapter(CompileRequest)
 _get_dashboards_request_adapter = TypeAdapter(GetDashboardsRequest)
 _get_grid_layout_request_adapter = TypeAdapter(GetGridLayoutRequest)
 _update_grid_layout_request_adapter = TypeAdapter(UpdateGridLayoutRequest)
+_unpin_panel_request_adapter = TypeAdapter(UnpinPanelRequest)
 _upload_to_kibana_request_adapter = TypeAdapter(UploadToKibanaRequest)
 _esql_execute_request_adapter = TypeAdapter(EsqlExecuteRequest)
 
@@ -267,6 +269,30 @@ def update_grid_layout_custom(params: Any) -> UpdateGridLayoutResult:
 
     try:
         return update_panel_grid(request.path, request.panel_id, grid_dict, request.dashboard_index)
+    except Exception as e:
+        return UpdateGridLayoutResult(success=False, error=str(e))
+
+
+@server.feature('dashboard/unpinPanel')
+def unpin_panel_custom(params: Any) -> UpdateGridLayoutResult:
+    """Unpin a panel, removing its explicit position to allow auto-positioning.
+
+    Args:
+        params: Object containing path, panel_id, dashboard_index
+            (validated as UnpinPanelRequest)
+
+    Returns:
+        UpdateGridLayoutResult with success status and message or error
+    """
+    params_dict = _params_to_dict(params)
+
+    try:
+        request = _unpin_panel_request_adapter.validate_python(params_dict)
+    except ValidationError as e:
+        return UpdateGridLayoutResult(success=False, error=f'Invalid request parameters: {e}')
+
+    try:
+        return unpin_panel(request.path, request.panel_id, request.dashboard_index)
     except Exception as e:
         return UpdateGridLayoutResult(success=False, error=str(e))
 

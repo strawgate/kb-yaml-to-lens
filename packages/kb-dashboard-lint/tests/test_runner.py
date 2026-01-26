@@ -113,24 +113,34 @@ class TestRegistry:
         expected_rules = {
             # Dashboard rules
             'dashboard-dataset-filter',
+            'dashboard-missing-description',
+            'datatable-at-bottom',
+            'markdown-at-top',
+            'metric-excessive-count',
             # Panel rules
             'markdown-header-height',
             'panel-description-recommended',
             'panel-min-width',
+            'panel-title-redundant-prefix',
             # Chart rules
             'datatable-row-density',
             'dimension-missing-label',
             'esql-dimension-missing-label',
             'esql-dynamic-time-bucket',
             'esql-field-escaping',
+            'esql-group-by-syntax',
+            'esql-missing-limit',
+            'esql-missing-sort-after-bucket',
             'esql-metric-missing-label',
             'esql-sql-syntax',
             'esql-where-clause',
             'gauge-goal-without-max',
             'metric-multiple-metrics-width',
             'metric-redundant-label',
+            'narrow-xy-chart-side-legend',
             'panel-height-for-content',
             'pie-chart-dimension-count',
+            'pie-missing-limit',
         }
         actual_rules = set(default_registry.get_rule_ids())
 

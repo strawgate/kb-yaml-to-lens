@@ -30,6 +30,9 @@ dashboards:
           primary:
             field: items
             label: Items in Cache
+            format:
+              type: number
+              decimals: 0
       - title: Storage Used
         size: {w: 8, h: 5}
         esql:
@@ -56,6 +59,9 @@ dashboards:
           primary:
             field: connections
             label: Active Connections
+            format:
+              type: number
+              decimals: 0
       - title: Threads
         size: {w: 8, h: 5}
         esql:
@@ -68,6 +74,9 @@ dashboards:
           primary:
             field: threads
             label: Threads
+            format:
+              type: number
+              decimals: 0
       - title: Average Hit Ratio
         size: {w: 16, h: 5}
         esql:
@@ -187,6 +196,8 @@ dashboards:
           metrics:
             - field: items
               label: Current Items
+              format:
+                type: number
       - title: Storage Over Time
         size: {w: 24, h: 10}
         esql:
@@ -236,6 +247,8 @@ dashboards:
           metrics:
             - field: connections
               label: Current Connections
+              format:
+                type: number
       - title: New Connections Rate
         size: {w: 12, h: 10}
         esql:

@@ -31,6 +31,9 @@ dashboards:
             field: time_bucket
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: outcome
           appearance:
@@ -48,6 +51,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: rpc.service
             - field: rpc.method
@@ -68,6 +74,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: agent
           appearance:
@@ -85,6 +94,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: rpc.system
           appearance:
@@ -103,6 +115,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: aws.error.code
           appearance:
@@ -148,6 +163,9 @@ dashboards:
           metrics:
             - id: events
               field: total
+              format:
+                type: number
+                decimals: 0
           sorting:
             column_id: events
             direction: desc

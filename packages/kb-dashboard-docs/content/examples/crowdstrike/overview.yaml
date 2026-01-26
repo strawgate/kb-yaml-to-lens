@@ -32,6 +32,9 @@ dashboards:
           primary:
             aggregation: count
             label: FDR Alerts
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.fdr
@@ -47,6 +50,9 @@ dashboards:
           primary:
             aggregation: count
             label: Falcon Incidents
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.falcon
@@ -73,6 +79,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: FDR Alert Types
         size:
           w: 7
@@ -92,6 +101,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.fdr
@@ -116,6 +128,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.falcon

@@ -163,6 +163,9 @@ dashboards:
             aggregation: max
             field: system.cpu.cores
             label: CPUs
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: data_stream.dataset
               equals: system.cpu

@@ -41,6 +41,9 @@ dashboards:
           primary:
             field: total_databases
             label: Databases
+            format:
+              type: number
+              decimals: 0
       - title: Active Connections
         hide_title: true
         size: {w: 12, h: 4}
@@ -54,6 +57,9 @@ dashboards:
           primary:
             field: active_backends
             label: Active Backends
+            format:
+              type: number
+              decimals: 0
       - title: Max Connections
         hide_title: true
         size: {w: 12, h: 4}
@@ -68,6 +74,9 @@ dashboards:
           primary:
             field: max_connections
             label: Max Connections
+            format:
+              type: number
+              decimals: 0
       - title: Database Count
         hide_title: true
         size: {w: 12, h: 4}
@@ -82,6 +91,9 @@ dashboards:
           primary:
             field: db_count
             label: Total DB Count
+            format:
+              type: number
+              decimals: 0
 
       # Performance Summary DataTable (y=6)
       - title: Database Performance Summary
@@ -101,16 +113,29 @@ dashboards:
           dimensions:
             - field: database
               label: Database
+          metrics:
             - field: backends_count
               label: Active Backends
+              format:
+                type: number
+                decimals: 0
             - field: size_bytes
               label: Size (Bytes)
             - field: commit_total
               label: Total Commits
+              format:
+                type: number
+                decimals: 0
             - field: rollback_total
               label: Total Rollbacks
+              format:
+                type: number
+                decimals: 0
             - field: blocks_read_total
               label: Blocks Read
+              format:
+                type: number
+                decimals: 0
 
       # Connections Over Time (y=24)
       - title: Active Connections Over Time
@@ -132,6 +157,8 @@ dashboards:
           metrics:
             - field: connections
               label: Active Connections
+              format:
+                type: number
           breakdown:
             field: database
 
