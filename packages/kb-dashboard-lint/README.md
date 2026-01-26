@@ -41,7 +41,7 @@ kb-dashboard-lint check --severity-threshold error
 ### Programmatic API
 
 ```python
-from dashboard_lint import check_dashboards
+from kb_dashboard_lint import check_dashboards
 from kb_dashboard_core import load
 
 # Load dashboards

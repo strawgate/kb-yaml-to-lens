@@ -22,27 +22,33 @@ FROM python:3.12-slim
 # Set working directory
 WORKDIR /app
 
+# Install git (required for git-based dependencies)
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
 # Install uv for fast dependency management
 COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 
 # Copy project files
 # Note: Build context should be repository root for workspace uv.lock access
-COPY packages/kb-dashboard-cli/pyproject.toml packages/kb-dashboard-cli/README.md /app/
+COPY pyproject.toml /app/pyproject.toml
 COPY uv.lock /app/uv.lock
-COPY pyproject.toml /app/workspace-pyproject.toml
-COPY packages/kb-dashboard-cli/src/ /app/src/
 # Copy workspace dependencies (required for uv to resolve workspace deps)
-COPY packages/kb-dashboard-core/pyproject.toml /app/packages/kb-dashboard-core/
+COPY packages/kb-dashboard-cli/pyproject.toml packages/kb-dashboard-cli/README.md /app/packages/kb-dashboard-cli/
+COPY packages/kb-dashboard-cli/src/ /app/packages/kb-dashboard-cli/src/
+COPY packages/kb-dashboard-core/pyproject.toml packages/kb-dashboard-core/README.md /app/packages/kb-dashboard-core/
 COPY packages/kb-dashboard-core/src/ /app/packages/kb-dashboard-core/src/
-COPY packages/kb-dashboard-tools/pyproject.toml /app/packages/kb-dashboard-tools/
+COPY packages/kb-dashboard-lint/pyproject.toml packages/kb-dashboard-lint/README.md /app/packages/kb-dashboard-lint/
+COPY packages/kb-dashboard-lint/src/ /app/packages/kb-dashboard-lint/src/
+COPY packages/kb-dashboard-tools/pyproject.toml packages/kb-dashboard-tools/README.md /app/packages/kb-dashboard-tools/
 COPY packages/kb-dashboard-tools/src/ /app/packages/kb-dashboard-tools/src/
 
 # Sync dependencies using uv (uses lockfile for reproducible builds)
 RUN uv sync --frozen --no-dev && \
     mkdir -p /inputs /output && \
     addgroup --system --gid 1001 appuser && \
-    adduser --system --uid 1001 --gid 1001 appuser && \
-    chown -R appuser:appuser /inputs /output /app
+    adduser --system --uid 1001 --gid 1001 --home /home/appuser appuser && \
+    mkdir -p /home/appuser/.cache/uv && \
+    chown -R appuser:appuser /inputs /output /app /home/appuser
 
 # Switch to non-root user
 USER appuser

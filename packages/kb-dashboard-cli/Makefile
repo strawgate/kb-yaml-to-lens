@@ -71,7 +71,7 @@ all: ci
 install:
 	$(call run_cmd, "Installing Python dependencies", uv sync --group dev, "Python dependencies installed")
 
-ci: lint-check typecheck test-unit
+ci: lint-check typecheck test-unit test-e2e
 	$(call print_end, "Compiler CI checks passed")
 
 check: ci
@@ -168,10 +168,10 @@ clean:
 
 # PyPI Publishing
 build:
-	$(call run_cmd, "Building package", uv build, "Package built successfully")
+	$(call run_cmd, "Building package", uv build --out-dir ../../dist, "Package built successfully")
 
 publish: build
-	$(call run_cmd, "Publishing to PyPI", uv publish, "Package published to PyPI")
+	$(call run_cmd, "Publishing to PyPI", uv publish ../../dist/kb_dashboard_cli-*.tar.gz ../../dist/kb_dashboard_cli-*.whl, "Package published to PyPI")
 
 publish-test: build
-	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/, "Package published to TestPyPI")
+	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/ ../../dist/kb_dashboard_cli-*.tar.gz ../../dist/kb_dashboard_cli-*.whl, "Package published to TestPyPI")

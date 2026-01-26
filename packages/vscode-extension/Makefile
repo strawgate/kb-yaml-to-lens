@@ -56,7 +56,7 @@ install:
 
 all: ci
 
-ci: install compile
+ci: install compile test-e2e
 	$(call print_start, "Running linting and tests")
 	$(MAKE) lint-only test-unit-only
 	$(call print_end, "VSCode extension CI checks passed")

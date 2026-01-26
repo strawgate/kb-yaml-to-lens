@@ -6,6 +6,7 @@ set -e
 IMAGE_NAME="${IMAGE_NAME:-kb-dashboard-compiler:latest}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPILER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$COMPILER_ROOT/../.." && pwd)"
 
 echo "Testing Docker image: $IMAGE_NAME"
 
@@ -25,13 +26,13 @@ TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
 docker run --rm \
-  -v "$COMPILER_ROOT/inputs:/inputs:ro" \
+  -v "$PROJECT_ROOT/packages/kb-dashboard-docs/content/examples:/inputs:ro" \
   -v "$TEMP_OUTPUT:/output" \
   "$IMAGE_NAME" \
   compile --input-dir /inputs --output-dir /output
 
 # Verify output files exist
-if [ ! -f "$TEMP_OUTPUT/esql-controls-example.ndjson" ]; then
+if [ ! -f "$TEMP_OUTPUT/inputs.ndjson" ]; then
   echo "✗ Expected output file not found"
   exit 1
 fi
@@ -39,7 +40,7 @@ echo "✓ Compilation works and generates output"
 
 # Test 4: Verify NDJSON format
 echo "Test 4: Verify NDJSON output format"
-if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/esql-controls-example.ndjson"; then
+if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/inputs.ndjson"; then
   echo "✗ Output doesn't contain expected dashboard JSON"
   exit 1
 fi

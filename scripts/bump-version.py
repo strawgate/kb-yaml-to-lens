@@ -24,9 +24,13 @@ import click
 
 # Version file locations relative to project root
 VERSION_FILES = {
-    'packages/kb-dashboard-cli/pyproject.toml': 'toml',
-    'packages/vscode-extension/package.json': 'json',
     'pyproject.toml': 'toml',
+    'packages/kb-dashboard-core/pyproject.toml': 'toml',
+    'packages/kb-dashboard-cli/pyproject.toml': 'toml',
+    'packages/kb-dashboard-tools/pyproject.toml': 'toml',
+    'packages/kb-dashboard-lint/pyproject.toml': 'toml',
+    'packages/kb-dashboard-docs/pyproject.toml': 'toml',
+    'packages/vscode-extension/package.json': 'json',
 }
 
 
@@ -79,6 +83,53 @@ def write_version(path: Path, file_format: str, old_version: str, new_version: s
     path.write_text(new_content, encoding='utf-8')
 
 
+def update_internal_dependencies(root: Path, old_version: str, new_version: str, dry_run: bool) -> None:
+    """Update internal package dependencies to exact versions."""
+    internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli']
+    
+    # Files that might have internal dependencies
+    files_with_deps = [
+        'packages/kb-dashboard-tools/pyproject.toml',
+        'packages/kb-dashboard-lint/pyproject.toml',
+        'packages/kb-dashboard-cli/pyproject.toml',
+        'packages/kb-dashboard-docs/pyproject.toml',
+        'pyproject.toml',
+    ]
+    
+    click.echo('\nUpdating internal package dependencies...')
+    
+    for file_path in files_with_deps:
+        full_path = root / file_path
+        if not full_path.exists():
+            continue
+            
+        content = full_path.read_text(encoding='utf-8')
+        updated = False
+        new_content = content
+        
+        for pkg in internal_packages:
+            # Match patterns like:
+            # "kb-dashboard-core",
+            # "kb-dashboard-core==0.1.10",
+            # "kb-dashboard-core>=0.1.10",
+            patterns = [
+                (f'"{pkg}"', f'"{pkg}=={new_version}"'),  # Unpinned
+                (f'"{pkg}=={old_version}"', f'"{pkg}=={new_version}"'),  # Pinned to old version
+                (f'"{pkg}>={old_version}"', f'"{pkg}=={new_version}"'),  # Min version
+            ]
+            
+            for old_pattern, new_pattern in patterns:
+                if old_pattern in new_content:
+                    new_content = new_content.replace(old_pattern, new_pattern)
+                    updated = True
+        
+        if updated:
+            if not dry_run:
+                full_path.write_text(new_content, encoding='utf-8')
+            status = '(dry-run)' if dry_run else 'OK'
+            click.echo(f'  {file_path}: internal deps -> {new_version} {status}')
+
+
 def update_versions(new_version: str, dry_run: bool) -> None:
     """Update version in all version files."""
     root = get_project_root()
@@ -107,6 +158,13 @@ def update_versions(new_version: str, dry_run: bool) -> None:
             package_json_updated = True
         if file_path.endswith('pyproject.toml'):
             pyproject_updated = True
+
+    # Update internal package dependencies
+    if not dry_run:
+        update_internal_dependencies(root, current_version, new_version, dry_run)
+    else:
+        click.echo('\nWould update internal package dependencies...')
+        update_internal_dependencies(root, current_version, new_version, dry_run)
 
     # Update package-lock.json by running npm install
     if package_json_updated and not dry_run:

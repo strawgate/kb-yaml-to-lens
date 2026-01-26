@@ -37,7 +37,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts cli lint tools vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts release-tag cli lint tools vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -83,6 +83,10 @@ help:
 	@echo "  bump-minor         - Bump minor version (x.Y.0)"
 	@echo "  bump-major         - Bump major version (X.0.0)"
 	@echo "  bump-version-show  - Show current version"
+	@echo ""
+	@echo "=== Release ==="
+	@echo ""
+	@echo "  release-tag        - Create and push git tag from pyproject.toml version"
 	@echo ""
 	@echo "=== Git Helpers ==="
 	@echo ""
@@ -180,6 +184,22 @@ bump-major:
 
 bump-version-show:
 	@$(BUMP_VERSION_SCRIPT) show
+
+# Release
+release-tag:
+	@VERSION=$$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"); \
+	TAG="v$$VERSION"; \
+	echo "Current version: $$VERSION"; \
+	echo "Creating tag: $$TAG"; \
+	if git rev-parse "$$TAG" >/dev/null 2>&1; then \
+		echo "Error: Tag $$TAG already exists"; \
+		exit 1; \
+	fi; \
+	git tag -a "$$TAG" -m "Release $$VERSION"; \
+	echo "Tag $$TAG created"; \
+	echo "Pushing tag to origin..."; \
+	git push origin "$$TAG"; \
+	echo "✓ Tag $$TAG pushed successfully"
 
 # Git helpers
 check-merge-conflicts:
