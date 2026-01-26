@@ -159,7 +159,6 @@ dashboards:
               label: Active Connections
               format:
                 type: number
-                decimals: 0
           breakdown:
             field: database
 
