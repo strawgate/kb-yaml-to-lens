@@ -79,14 +79,16 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 
 ```bash
 # PyPI (uses Makefile targets - publish in dependency order)
-make core build && make core publish    # Core first (no dependencies)
-make tools build && make tools publish  # Tools depends on core
-make lint build && make lint publish    # Lint depends on core
-make cli build && make cli publish      # CLI depends on core + tools
+# The publish target depends on build, so build is automatic
+make core publish    # Core first (no dependencies)
+make tools publish   # Tools depends on core
+make lint publish    # Lint depends on core
+make cli publish     # CLI depends on core + tools
 
 # Docker (multi-arch - prefer re-running workflow)
 # Manual single-arch build for testing only:
-cd packages/kb-dashboard-cli && docker build -t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 .
+# Build from repo root with -f flag to specify Dockerfile
+docker build -f packages/kb-dashboard-cli/Dockerfile -t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 .
 
 # VS Code (publishes to both VS Code Marketplace and Open VSX)
 make vscode package && cd packages/vscode-extension && npx vsce publish && npx ovsx publish *.vsix

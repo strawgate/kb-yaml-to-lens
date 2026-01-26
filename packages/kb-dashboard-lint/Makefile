@@ -1,18 +1,7 @@
 # Dashboard Lint Makefile
 # Component-specific commands for the Python linting package
 
-# Set SHELL before including Makefile.shared to ensure bash is used
-ifdef RUNNER_OS
-  ifeq ($(RUNNER_OS),Windows)
-    SHELL := bash
-  else
-    SHELL := /bin/bash
-  endif
-else
-  SHELL := /bin/bash
-endif
-
-# Include shared helpers
+# Include shared helpers (SHELL is set automatically by Makefile.shared based on RUNNER_OS)
 include ../../Makefile.shared
 
 .PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
@@ -110,6 +99,7 @@ clean:
 
 # PyPI Publishing
 build:
+	@rm -rf ../../dist/kb_dashboard_lint-*.tar.gz ../../dist/kb_dashboard_lint-*.whl 2>/dev/null || true
 	$(call run_cmd, "Building package", uv build --out-dir ../../dist, "Package built successfully")
 
 publish: build

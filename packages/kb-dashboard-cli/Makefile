@@ -1,10 +1,7 @@
 # Dashboard Compiler Makefile
 # Component-specific commands for the Python compiler
 
-# Set SHELL before including Makefile.shared to ensure bash is used
-SHELL := /bin/bash
-
-# Include shared helpers
+# Include shared helpers (SHELL is set automatically by Makefile.shared based on RUNNER_OS)
 include ../../Makefile.shared
 
 .PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish setup update-deps clean build publish publish-test export-schemas
@@ -90,7 +87,7 @@ lint-check:
 # Type checking
 typecheck:
 	$(call print_start, "Running type checking")
-	@cd ../.. && output=$$(uv run --group dev basedpyright packages --level error 2>&1); \
+	@cd ../.. && output=$$(uv run --group dev basedpyright packages/kb-dashboard-cli --level error 2>&1); \
 		echo "$$output" | sed 's/^/    /'; \
 		if echo "$$output" | grep -q "0 errors"; then exit 0; else exit 1; fi
 	$(call print_end, "Type checking passed")
