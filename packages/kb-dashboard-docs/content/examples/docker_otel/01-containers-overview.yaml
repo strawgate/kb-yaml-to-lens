@@ -46,7 +46,7 @@ dashboards:
           items:
             - label: Overview
               dashboard: docker-otel-overview
-            - label: Detailed Stats
+            - label: Container Stats
               dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
@@ -163,6 +163,53 @@ dashboards:
                 type: number
                 decimals: 0
 
+      # Inventory Tables
+      - title: Containers by Runtime
+        description: Distribution of containers by runtime type (e.g., containerd, docker). Helps understand infrastructure diversity.
+        size: {w: 16, h: 11}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Runtime = container.runtime
+            - SORT Containers DESC
+            - LIMIT 10
+          dimensions:
+            - field: Runtime
+          metrics:
+            - field: Containers
+      - title: Containers by Image
+        description: Top container images by instance count. Identifies most commonly deployed images and potential standardization opportunities.
+        size: {w: 16, h: 11}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Image = container.image.name
+            - SORT Containers DESC
+            - LIMIT 100
+          dimensions:
+            - field: Image
+          metrics:
+            - field: Containers
+      - title: Containers by Name
+        description: Top container names by instance count. Useful for identifying frequently deployed services and naming patterns.
+        size: {w: 16, h: 11}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
+            - SORT Containers DESC
+            - LIMIT 100
+          dimensions:
+            - field: Name
+          metrics:
+            - field: Containers
+
       # Top Containers by Resource Usage
       - title: Top Containers by CPU Usage
         description: Top 100 containers by average CPU utilization. Helps identify containers consuming the most CPU resources.
@@ -221,209 +268,3 @@ dashboards:
             - field: Memory (Bytes)
               format:
                 type: bytes
-
-      # Summary Tables
-      - title: Containers by Runtime
-        description: Distribution of containers by runtime type (e.g., containerd, docker). Helps understand infrastructure diversity.
-        size: {w: 16, h: 11}
-        esql:
-          type: datatable
-          query:
-            - FROM metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS Containers = COUNT_DISTINCT(container.id) BY Runtime = container.runtime
-            - SORT Containers DESC
-            - LIMIT 10
-          dimensions:
-            - field: Runtime
-          metrics:
-            - field: Containers
-      - title: Containers by Image
-        description: Top container images by instance count. Identifies most commonly deployed images and potential standardization opportunities.
-        size: {w: 16, h: 11}
-        esql:
-          type: datatable
-          query:
-            - FROM metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS Containers = COUNT_DISTINCT(container.id) BY Image = container.image.name
-            - SORT Containers DESC
-            - LIMIT 100
-          dimensions:
-            - field: Image
-          metrics:
-            - field: Containers
-      - title: Containers by Name
-        description: Top container names by instance count. Useful for identifying frequently deployed services and naming patterns.
-        size: {w: 16, h: 11}
-        esql:
-          type: datatable
-          query:
-            - FROM metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
-            - SORT Containers DESC
-            - LIMIT 100
-          dimensions:
-            - field: Name
-          metrics:
-            - field: Containers
-
-      # CPU Usage Time Series
-      - title: CPU Usage
-        size: {w: 48, h: 8}
-        hide_title: true
-        esql:
-          type: line
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: cpu_usage
-              label: CPU Usage
-              format:
-                type: percent
-          breakdown:
-            field: container_name
-
-      # Memory Usage Time Series
-      - title: Memory Usage
-        size: {w: 24, h: 8}
-        hide_title: true
-        esql:
-          type: area
-          mode: stacked
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.memory.percent IS NOT NULL
-            - STATS memory_usage = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: memory_usage
-              label: Memory Usage
-              format:
-                type: percent
-          breakdown:
-            field: container_name
-      - title: Memory Usage (Bytes)
-        size: {w: 24, h: 8}
-        hide_title: true
-        esql:
-          type: area
-          mode: stacked
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.memory.usage.total IS NOT NULL
-            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: memory_bytes
-              label: Memory Usage
-              format:
-                type: bytes
-          breakdown:
-            field: container_name
-
-      # Disk I/O Time Series
-      - title: Disk I/O - Read
-        size: {w: 24, h: 8}
-        esql:
-          type: area
-          mode: stacked
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
-            - WHERE attributes.operation == "read"
-            - STATS read_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: read_rate
-              label: Bytes
-              format:
-                type: bytes
-          breakdown:
-            field: container_name
-      - title: Disk I/O - Write
-        size: {w: 24, h: 8}
-        esql:
-          type: area
-          mode: stacked
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
-            - WHERE attributes.operation == "write"
-            - STATS write_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: write_rate
-              label: Bytes
-              format:
-                type: bytes
-          breakdown:
-            field: container_name
-
-      # Network I/O Time Series
-      - title: Network I/O - Received
-        size: {w: 24, h: 8}
-        esql:
-          type: area
-          mode: stacked
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.network.io.usage.rx_bytes IS NOT NULL
-            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: rx_rate
-              label: Bytes
-              format:
-                type: bytes
-          breakdown:
-            field: container_name
-      - title: Network I/O - Transmitted
-        size: {w: 24, h: 8}
-        esql:
-          type: area
-          mode: stacked
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.network.io.usage.tx_bytes IS NOT NULL
-            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_name = container.name
-            - SORT time_bucket ASC
-          dimension:
-            field: time_bucket
-          metrics:
-            - field: tx_rate
-              label: Bytes
-              format:
-                type: bytes
-          breakdown:
-            field: container_name
