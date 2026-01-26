@@ -1,3 +1,4 @@
+---
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License 2.0;
 # you may not use this file except in compliance with the Elastic License 2.0.
@@ -7,290 +8,288 @@
 # https://github.com/elastic/integrations/tree/main/packages/docker_otel
 #
 dashboards:
-- id: docker-otel-overview
-  name: '[Metrics Docker] Overview'
-  description: >-
-    Docker container metrics overview using OpenTelemetry Docker Stats
-    receiver (ES|QL version)
-  controls:
-  - type: options
-    label: Container image
-    data_view: metrics-*
-    field: container.image.name
-  - type: options
-    label: Container name
-    data_view: metrics-*
-    field: container.name
-  - type: options
-    label: Container hostname
-    data_view: metrics-*
-    field: container.hostname
-  - type: options
-    label: Container ID
-    data_view: metrics-*
-    field: container.id
-  filters:
-  - field: data_stream.dataset
-    equals: dockerstatsreceiver.otel
-  panels:
+  - id: docker-otel-overview
+    name: '[Metrics Docker] Overview'
+    description: >-
+      Docker container metrics overview using OpenTelemetry Docker Stats
+      receiver (ES|QL version)
+    controls:
+      - type: options
+        label: Container image
+        data_view: metrics-*
+        field: container.image.name
+      - type: options
+        label: Container name
+        data_view: metrics-*
+        field: container.name
+      - type: options
+        label: Container hostname
+        data_view: metrics-*
+        field: container.hostname
+      - type: options
+        label: Container ID
+        data_view: metrics-*
+        field: container.id
+    filters:
+      - field: data_stream.dataset
+        equals: dockerstatsreceiver.otel
+    panels:
       # Navigation Links
-  - title: Navigation Links
-    size: {w: 48, h: 2}
-    links:
-      layout: horizontal
-      items:
-      - label: Overview
-        dashboard: docker-otel-overview
-      - label: Container Stats
-        dashboard: docker-otel-container-stats
+      - title: Navigation Links
+        size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: docker-otel-overview
+            - label: Container Stats
+              dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
-  - title: Containers
-    hide_title: true
-    size: {w: 8, h: 4}
-    esql:
-      type: metric
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-      - STATS containers = COUNT_DISTINCT(container.id)
-      primary:
-        field: containers
-        label: Containers
-        format:
-          type: number
-          decimals: 0
-  - title: Unique Images
-    description: Count of distinct container image names (excluding version tags). Helps identify image diversity and potential 
-      standardization opportunities.
-    hide_title: true
-    size: {w: 8, h: 4}
-    esql:
-      type: metric
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-      - EVAL image_parts = SPLIT(container.image.name, ":")
-      - EVAL image_name = MV_FIRST(image_parts)
-      - STATS unique_images = COUNT_DISTINCT(image_name)
-      primary:
-        field: unique_images
-        label: Unique Images
-        format:
-          type: number
-          decimals: 0
-  - title: Unpinned Images
-    description: Count of distinct images using the 'latest' tag (unpinned). Unpinned images can lead to unpredictable deployments as they 
-      may pull different versions over time.
-    hide_title: true
-    size: {w: 8, h: 4}
-    esql:
-      type: metric
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-      - EVAL image_parts = SPLIT(container.image.name, ":")
-      - EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
-      - WHERE image_version == "latest"
-      - STATS unpinned_images = COUNT_DISTINCT(container.image.name)
-      primary:
-        field: unpinned_images
-        label: Unpinned Images
-        format:
-          type: number
-          decimals: 0
-  - title: Unique Image Versions
-    description: Count of distinct container images including version tags. Higher than Unique Images when multiple versions of the same 
-      image are deployed.
-    hide_title: true
-    size: {w: 8, h: 4}
-    esql:
-      type: metric
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-      - STATS unique_image_versions = COUNT_DISTINCT(container.image.name)
-      primary:
-        field: unique_image_versions
-        label: Unique Image Versions
-        format:
-          type: number
-          decimals: 0
-  - title: Total Memory Used
-    description: Aggregate memory consumption across all containers. Useful for capacity planning and identifying overall resource 
-      utilization.
-    hide_title: true
-    size: {w: 8, h: 4}
-    esql:
-      type: metric
-      query:
-      - TS metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE container.memory.usage.total IS NOT NULL
-      - STATS total_memory = SUM(container.memory.usage.total)
-      primary:
-        field: total_memory
-        label: Total Memory Used
-        format:
-          type: bytes
-  - title: Containers >90% Memory
-    description: Count of containers with average memory utilization above 90%. High memory usage may indicate memory leaks, insufficient 
-      limits, or need for optimization.
-    hide_title: true
-    size: {w: 8, h: 4}
-    esql:
-      type: metric
-      query:
-      - TS metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE container.memory.percent IS NOT NULL
-      - STATS avg_memory = AVG(container.memory.percent) BY container_id = container.id
-      - WHERE avg_memory > 90
-      - STATS high_memory_containers = COUNT_DISTINCT(container_id)
-      primary:
-        field: high_memory_containers
-        label: Containers >90% Memory
-        format:
-          type: number
-          decimals: 0
-  - title: Containers Over Time
-    description: Container count trends over time. Helps identify scaling patterns, deployment frequency, and container lifecycle changes.
-    hide_title: true
-    size: {w: 48, h: 8}
-    esql:
-      type: line
-      query:
-      - TS metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - STATS containers = COUNT_DISTINCT(container.id) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
-      - SORT time_bucket ASC
-      dimension:
-        field: time_bucket
-      metrics:
-      - field: containers
-        label: Containers
-        format:
-          type: number
-          decimals: 0
+      - title: Containers
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS containers = COUNT_DISTINCT(container.id)
+          primary:
+            field: containers
+            label: Containers
+            format:
+              type: number
+              decimals: 0
+      - title: Unique Images
+        description: Count of distinct container image names (excluding version tags). Helps identify image diversity and potential standardization
+          opportunities.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL image_name = MV_FIRST(image_parts)
+            - STATS unique_images = COUNT_DISTINCT(image_name)
+          primary:
+            field: unique_images
+            label: Unique Images
+            format:
+              type: number
+              decimals: 0
+      - title: Unpinned Images
+        description: Count of distinct images using the 'latest' tag (unpinned). Unpinned images can lead to unpredictable deployments as they
+          may pull different versions over time.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+            - WHERE image_version == "latest"
+            - STATS unpinned_images = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unpinned_images
+            label: Unpinned Images
+            format:
+              type: number
+              decimals: 0
+      - title: Unique Image Versions
+        description: Count of distinct container images including version tags. Higher than Unique Images when multiple versions of the same image
+          are deployed.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS unique_image_versions = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unique_image_versions
+            label: Unique Image Versions
+            format:
+              type: number
+              decimals: 0
+      - title: Total Memory Used
+        description: Aggregate memory consumption across all containers. Useful for capacity planning and identifying overall resource utilization.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS total_memory = SUM(container.memory.usage.total)
+          primary:
+            field: total_memory
+            label: Total Memory Used
+            format:
+              type: bytes
+      - title: Containers >90% Memory
+        description: Count of containers with average memory utilization above 90%. High memory usage may indicate memory leaks, insufficient
+          limits, or need for optimization.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.percent) BY container_id = container.id
+            - WHERE avg_memory > 90
+            - STATS high_memory_containers = COUNT_DISTINCT(container_id)
+          primary:
+            field: high_memory_containers
+            label: Containers >90% Memory
+            format:
+              type: number
+              decimals: 0
+      - title: Containers Over Time
+        description: Container count trends over time. Helps identify scaling patterns, deployment frequency, and container lifecycle changes.
+        hide_title: true
+        size: {w: 48, h: 8}
+        esql:
+          type: line
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS containers = COUNT_DISTINCT(container.id) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+          metrics:
+            - field: containers
+              label: Containers
+              format:
+                type: number
+                decimals: 0
 
       # Inventory Tables
-  - title: Containers by Runtime
-    description: Distribution of containers by runtime type (e.g., containerd, docker). Helps understand infrastructure diversity.
-    size: {w: 16, h: 14}
-    esql:
-      type: datatable
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - STATS Containers = COUNT_DISTINCT(container.id) BY Runtime = container.runtime
-      - SORT Containers DESC
-      - LIMIT 10
-      dimensions:
-      - field: Runtime
-      metrics:
-      - field: Containers
-  - title: Containers by Image
-    description: Top container images by instance count. Identifies most commonly deployed images and potential standardization 
-      opportunities.
-    size: {w: 16, h: 14}
-    esql:
-      type: datatable
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - EVAL image_parts = SPLIT(container.image.name, ":")
-      - EVAL `Image Name` = MV_FIRST(image_parts)
-      - EVAL `Image Version` = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
-      - STATS Containers = COUNT_DISTINCT(container.id) BY `Image Name`, `Image Version`
-      - SORT Containers DESC
-      - LIMIT 100
-      dimensions:
-      - field: Image Name
-      - field: Image Version
-      metrics:
-      - field: Containers
-  - title: Containers by Name
-    description: Top container names by instance count. Useful for identifying frequently deployed services and naming patterns.
-    size: {w: 16, h: 14}
-    esql:
-      type: datatable
-      query:
-      - FROM metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
-      - SORT Containers DESC
-      - LIMIT 100
-      dimensions:
-      - field: Name
-      metrics:
-      - field: Containers
+      - title: Containers by Runtime
+        description: Distribution of containers by runtime type (e.g., containerd, docker). Helps understand infrastructure diversity.
+        size: {w: 16, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Runtime = container.runtime
+            - SORT Containers DESC
+            - LIMIT 10
+          dimensions:
+            - field: Runtime
+          metrics:
+            - field: Containers
+      - title: Containers by Image
+        description: Top container images by instance count. Identifies most commonly deployed images and potential standardization opportunities.
+        size: {w: 16, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL `Image Name` = MV_FIRST(image_parts)
+            - EVAL `Image Version` = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+            - STATS Containers = COUNT_DISTINCT(container.id) BY `Image Name`, `Image Version`
+            - SORT Containers DESC
+            - LIMIT 100
+          dimensions:
+            - field: Image Name
+            - field: Image Version
+          metrics:
+            - field: Containers
+      - title: Containers by Name
+        description: Top container names by instance count. Useful for identifying frequently deployed services and naming patterns.
+        size: {w: 16, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
+            - SORT Containers DESC
+            - LIMIT 100
+          dimensions:
+            - field: Name
+          metrics:
+            - field: Containers
 
       # Markdown separator
-  - title: Top Containers
-    hide_title: true
-    size: {w: 48, h: 5}
-    markdown:
-      content: '## Top Containers by Resource Usage'
+      - title: Top Containers
+        hide_title: true
+        size: {w: 48, h: 5}
+        markdown:
+          content: '## Top Containers by Resource Usage'
 
       # Top Containers by Resource Usage
-  - title: Top Containers by CPU Usage
-    description: Top 100 containers by average CPU utilization. Helps identify containers consuming the most CPU resources.
-    size: {w: 16, h: 20}
-    esql:
-      type: datatable
-      query:
-      - TS metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE container.cpu.utilization IS NOT NULL
-      - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100 BY `Container Name` = container.name, `Container ID` = container.id
-      - SORT `CPU Usage` DESC
-      - LIMIT 100
-      dimensions:
-      - field: Container Name
-      - field: Container ID
-      metrics:
-      - field: CPU Usage
-        format:
-          type: percent
-  - title: Top Containers by Memory Usage
-    description: Top 100 containers by average memory usage. Helps identify containers consuming the most memory resources.
-    size: {w: 16, h: 20}
-    esql:
-      type: datatable
-      query:
-      - TS metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE container.memory.percent IS NOT NULL
-      - STATS `Memory Usage` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, `Container ID` = container.id
-      - SORT `Memory Usage` DESC
-      - LIMIT 100
-      dimensions:
-      - field: Container Name
-      - field: Container ID
-      metrics:
-      - field: Memory Usage
-        format:
-          type: percent
-  - title: Top Containers by Memory (Bytes)
-    description: Top 100 containers by total memory consumption in bytes. Shows absolute memory usage regardless of limits.
-    size: {w: 16, h: 20}
-    esql:
-      type: datatable
-      query:
-      - TS metrics-*
-      - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-      - WHERE container.memory.usage.total IS NOT NULL
-      - STATS `Memory (Bytes)` = AVG(container.memory.usage.total) BY `Container Name` = container.name, `Container ID` = container.id
-      - SORT `Memory (Bytes)` DESC
-      - LIMIT 100
-      dimensions:
-      - field: Container Name
-      - field: Container ID
-      metrics:
-      - field: Memory (Bytes)
-        format:
-          type: bytes
+      - title: Top Containers by CPU Usage
+        description: Top 100 containers by average CPU utilization. Helps identify containers consuming the most CPU resources.
+        size: {w: 16, h: 20}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100 BY `Container Name` = container.name, `Container ID` = container.id
+            - SORT `CPU Usage` DESC
+            - LIMIT 100
+          dimensions:
+            - field: Container Name
+            - field: Container ID
+          metrics:
+            - field: CPU Usage
+              format:
+                type: percent
+      - title: Top Containers by Memory Usage
+        description: Top 100 containers by average memory usage. Helps identify containers consuming the most memory resources.
+        size: {w: 16, h: 20}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS `Memory Usage` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, `Container ID` = container.id
+            - SORT `Memory Usage` DESC
+            - LIMIT 100
+          dimensions:
+            - field: Container Name
+            - field: Container ID
+          metrics:
+            - field: Memory Usage
+              format:
+                type: percent
+      - title: Top Containers by Memory (Bytes)
+        description: Top 100 containers by total memory consumption in bytes. Shows absolute memory usage regardless of limits.
+        size: {w: 16, h: 20}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS `Memory (Bytes)` = AVG(container.memory.usage.total) BY `Container Name` = container.name, `Container ID` = container.id
+            - SORT `Memory (Bytes)` DESC
+            - LIMIT 100
+          dimensions:
+            - field: Container Name
+            - field: Container ID
+          metrics:
+            - field: Memory (Bytes)
+              format:
+                type: bytes

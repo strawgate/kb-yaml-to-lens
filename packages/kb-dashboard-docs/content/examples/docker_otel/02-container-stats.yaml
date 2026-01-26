@@ -136,16 +136,17 @@ dashboards:
 
       # Container info table
       - title: Container info
-        description: Current resource usage snapshot per container. Shows CPU utilization, memory consumption, and container metadata. Use filters at the top to focus on specific containers.
+        description: Current resource usage snapshot per container. Shows CPU utilization, memory consumption, and container metadata. Use filters
+          at the top to focus on specific containers.
         size: {w: 48, h: 14}
         esql:
           type: datatable
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100, `Memory (Bytes)` = AVG(container.memory.usage.total),
-              `Memory %` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, Image = container.image.name,
-              Runtime = container.runtime, `Container ID` = container.id, Hostname = container.hostname
+            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100, `Memory (Bytes)` = AVG(container.memory.usage.total), `Memory %` = AVG(container.memory.percent)
+              / 100 BY `Container Name` = container.name, Image = container.image.name, Runtime = container.runtime, `Container ID` = container.id,
+              Hostname = container.hostname
             - KEEP `Container Name`, Image, Runtime, `Container ID`, Hostname, `CPU Usage`, `Memory (Bytes)`, `Memory %`
             - LIMIT 10
           dimensions:
@@ -183,8 +184,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container.id, container.name
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id,
+              container.name
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
             - SORT time_bucket ASC
@@ -211,8 +212,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL
-            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container.id, container.name
+            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id,
+              container.name
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
             - SORT time_bucket ASC
@@ -259,7 +260,8 @@ dashboards:
 
       # Network I/O (line chart with rx and tx)
       - title: Network I/O
-        description: Network traffic rates (received and transmitted) over time broken down by container. Shows aggregate network activity per container across all interfaces.
+        description: Network traffic rates (received and transmitted) over time broken down by container. Shows aggregate network activity per
+          container across all interfaces.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -296,7 +298,9 @@ dashboards:
 
       # CPU Usage (area stacked chart)
       - title: CPU Usage
-        description: CPU usage broken down by execution mode (kernelmode/usermode) and container. Kernel mode represents time spent in system calls and kernel operations, while user mode represents time spent executing application code. Labels show mode, container name, and first 6 characters of container ID (e.g., "kernelmode - mycontainer - abc123").
+        description: CPU usage broken down by execution mode (kernelmode/usermode) and container. Kernel mode represents time spent in system
+          calls and kernel operations, while user mode represents time spent executing application code. Labels show mode, container name, and
+          first 6 characters of container ID (e.g., "kernelmode - mycontainer - abc123").
         size: {w: 48, h: 9}
         esql:
           type: area
@@ -304,18 +308,10 @@ dashboards:
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - FORK (
-                WHERE container.cpu.usage.kernelmode IS NOT NULL
-                | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
-                  BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
-                | EVAL cpu_mode = "kernelmode"
-              )
-              (
-                WHERE container.cpu.usage.usermode IS NOT NULL
-                | STATS cpu_rate = AVG(RATE(container.cpu.usage.usermode))
-                  BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
-                | EVAL cpu_mode = "usermode"
-              )
+            - FORK ( WHERE container.cpu.usage.kernelmode IS NOT NULL | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode)) BY time_bucket
+              = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name | EVAL cpu_mode = "kernelmode" ) ( WHERE container.cpu.usage.usermode
+              IS NOT NULL | STATS cpu_rate = AVG(RATE(container.cpu.usage.usermode)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container.id, container.name | EVAL cpu_mode = "usermode" )
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(cpu_mode, " - ", container.name, " - ", container_id_short)
             - STATS cpu_usage = AVG(cpu_rate) / 1000000000 BY time_bucket, breakdown_label
@@ -335,7 +331,8 @@ dashboards:
 
       # Memory Usage with limit (line chart)
       - title: Memory Usage with limit
-        description: Shows actual memory usage alongside the configured memory limit per container. Helps identify containers approaching or exceeding their limits.
+        description: Shows actual memory usage alongside the configured memory limit per container. Helps identify containers approaching or exceeding
+          their limits.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -343,8 +340,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL OR container.memory.usage.limit IS NOT NULL
-            - STATS memory_usage = AVG(container.memory.usage.total), memory_limit = MAX(container.memory.usage.limit)
-              BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id, container.name
+            - STATS memory_usage = AVG(container.memory.usage.total), memory_limit = MAX(container.memory.usage.limit) BY time_bucket = BUCKET(`@timestamp`,
+              20, ?_tstart, ?_tend), container.id, container.name
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
             - SORT time_bucket ASC
@@ -367,7 +364,8 @@ dashboards:
 
       # Memory Usage (line chart percentage)
       - title: Memory Usage
-        description: Memory utilization as a percentage of the configured limit over time. Values approaching 100% indicate containers near their memory limits.
+        description: Memory utilization as a percentage of the configured limit over time. Values approaching 100% indicate containers near their
+          memory limits.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -375,8 +373,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.percent IS NOT NULL
-            - STATS memory_pct = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container.id, container.name
+            - STATS memory_pct = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id,
+              container.name
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(container.name, " - ", container_id_short)
             - SORT time_bucket ASC
@@ -395,7 +393,9 @@ dashboards:
 
       # Disk I/O (line chart by device) - second visualization
       - title: Disk I/O
-        description: Disk I/O broken down by device major number and container. Device major numbers identify the type of block device (e.g., 8 for SCSI disks, 259 for NVMe). Labels show device major number, container name, and first 6 characters of container ID (e.g., "8 - mycontainer - abc123"). Use this to identify which physical devices each container is accessing.
+        description: Disk I/O broken down by device major number and container. Device major numbers identify the type of block device (e.g.,
+          8 for SCSI disks, 259 for NVMe). Labels show device major number, container name, and first 6 characters of container ID (e.g., "8 -
+          mycontainer - abc123"). Use this to identify which physical devices each container is accessing.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -423,7 +423,10 @@ dashboards:
 
       # Network - Received Bytes (line chart)
       - title: Network - Received Bytes
-        description: Network received bytes broken down by network interface and container. Interface names identify the network interface (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name, container name, and first 6 characters of container ID (e.g., "eth0 - mycontainer - abc123"). Use this to see which network interfaces each container is receiving traffic on.
+        description: Network received bytes broken down by network interface and container. Interface names identify the network interface (e.g.,
+          "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name, container name, and first 6 characters
+          of container ID (e.g., "eth0 - mycontainer - abc123"). Use this to see which network interfaces each container is receiving traffic
+          on.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -431,8 +434,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.rx_bytes IS NOT NULL
-            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              interface = attributes.interface, container.id, container.name
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), interface
+              = attributes.interface, container.id, container.name
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(interface, " - ", container.name, " - ", container_id_short)
             - SORT time_bucket ASC
@@ -451,7 +454,10 @@ dashboards:
 
       # Network - Transmitted Bytes (line chart)
       - title: Network - Transmitted Bytes
-        description: Network transmitted bytes broken down by network interface and container. Interface names identify the network interface (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name, container name, and first 6 characters of container ID (e.g., "eth0 - mycontainer - abc123"). Use this to see which network interfaces each container is sending traffic through.
+        description: Network transmitted bytes broken down by network interface and container. Interface names identify the network interface
+          (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name, container name, and first
+          6 characters of container ID (e.g., "eth0 - mycontainer - abc123"). Use this to see which network interfaces each container is sending
+          traffic through.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -459,8 +465,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.tx_bytes IS NOT NULL
-            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              interface = attributes.interface, container.id, container.name
+            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), interface
+              = attributes.interface, container.id, container.name
             - EVAL container_id_short = SUBSTRING(TO_STRING(container.id), 0, 6)
             - EVAL breakdown_label = CONCAT(interface, " - ", container.name, " - ", container_id_short)
             - SORT time_bucket ASC
