@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 # Constants
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
+DEFAULT_OUTPUT_DIR = Path('output')  # Relative to current working directory
 MAX_EXIT_CODE = 125
 
 
@@ -356,7 +356,9 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
                         json_file = output_dir / f'{safe_name}.json'
                         pretty_json = kbn_dashboard.model_dump_json(by_alias=True, indent=2)
                         json_files_to_write.append((json_file, pretty_json))
-                else:
+                elif input_file is None:
+                    # Only write individual directory-based files when compiling from a directory
+                    # When using --input-file, skip individual files (only write combined file)
                     filename = yaml_file.parent.stem
                     individual_file = output_dir / f'{filename}.ndjson'
                     if individual_file not in files_to_write:
