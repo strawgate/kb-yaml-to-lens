@@ -52,7 +52,7 @@ dashboards:
       # KPI Metrics Row
       - title: Total Containers
         hide_title: true
-        size: {w: 8, h: 4}
+        size: {w: 7, h: 4}
         esql:
           type: metric
           query:
@@ -66,27 +66,9 @@ dashboards:
             format:
               type: number
               decimals: 0
-      - title: Containers Above 90% Memory
-        hide_title: true
-        size: {w: 8, h: 4}
-        esql:
-          type: metric
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.memory.percent IS NOT NULL
-            - STATS avg_memory = AVG(container.memory.percent) BY container_id = container.id
-            - WHERE avg_memory > 90
-            - STATS high_memory_containers = COUNT_DISTINCT(container_id)
-          primary:
-            field: high_memory_containers
-            label: Containers Above 90% Memory
-            format:
-              type: number
-              decimals: 0
       - title: Unique Images
         hide_title: true
-        size: {w: 8, h: 4}
+        size: {w: 7, h: 4}
         esql:
           type: metric
           query:
@@ -102,7 +84,7 @@ dashboards:
               decimals: 0
       - title: Avg CPU Usage
         hide_title: true
-        size: {w: 8, h: 4}
+        size: {w: 7, h: 4}
         esql:
           type: metric
           query:
@@ -117,7 +99,7 @@ dashboards:
               type: percent
       - title: Avg Memory Usage
         hide_title: true
-        size: {w: 8, h: 4}
+        size: {w: 7, h: 4}
         esql:
           type: metric
           query:
@@ -132,7 +114,7 @@ dashboards:
               type: percent
       - title: Total Memory Used
         hide_title: true
-        size: {w: 8, h: 4}
+        size: {w: 7, h: 4}
         esql:
           type: metric
           query:
@@ -145,12 +127,49 @@ dashboards:
             label: Total Memory Used
             format:
               type: bytes
+      - title: Containers Above 90% Memory
+        hide_title: true
+        size: {w: 7, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.percent) BY container_id = container.id
+            - WHERE avg_memory > 90
+            - STATS high_memory_containers = COUNT_DISTINCT(container_id)
+          primary:
+            field: high_memory_containers
+            label: Containers Above 90% Memory
+            format:
+              type: number
+              decimals: 0
+      - title: Unpinned Images
+        hide_title: true
+        size: {w: 7, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+            - WHERE image_version == "latest"
+            - STATS unpinned_images = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unpinned_images
+            label: Unpinned Images
+            format:
+              type: number
+              decimals: 0
       - title: Containers Over Time
         description: Container count trends over time. Helps identify scaling patterns, deployment frequency, and container lifecycle changes.
         hide_title: true
-        size: {w: 48, h: 6}
+        size: {w: 48, h: 8}
         esql:
-          type: bar
+          type: line
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
@@ -226,7 +245,7 @@ dashboards:
       # Top Containers by Resource Usage
       - title: Top Containers by CPU Usage
         description: Top 100 containers by average CPU utilization. Helps identify containers consuming the most CPU resources.
-        size: {w: 16, h: 11}
+        size: {w: 16, h: 14}
         esql:
           type: datatable
           query:
@@ -245,7 +264,7 @@ dashboards:
                 type: percent
       - title: Top Containers by Memory Usage
         description: Top 100 containers by average memory usage. Helps identify containers consuming the most memory resources.
-        size: {w: 16, h: 11}
+        size: {w: 16, h: 14}
         esql:
           type: datatable
           query:
@@ -264,7 +283,7 @@ dashboards:
                 type: percent
       - title: Top Containers by Memory (Bytes)
         description: Top 100 containers by total memory consumption in bytes. Shows absolute memory usage regardless of limits.
-        size: {w: 16, h: 11}
+        size: {w: 16, h: 14}
         esql:
           type: datatable
           query:
