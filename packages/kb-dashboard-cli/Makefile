@@ -100,7 +100,7 @@ test-e2e:
 	$(call run_cmd, "Running CLI E2E tests", bash scripts/test_cli_smoke.sh, "CLI E2E tests passed")
 	$(call print_start, "Running Docker E2E tests")
 	@if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then \
-		$(MAKE) docker-build > /dev/null 2>&1; \
+		$(MAKE) docker-build; \
 		bash scripts/test_docker_smoke.sh $(INDENT); \
 	else \
 		echo "⚠ Docker not available, skipping Docker E2E tests"; \
@@ -142,7 +142,7 @@ upload:
 
 # Docker commands
 docker-build:
-	$(call run_cmd, "Building Docker image", docker build -t $(DOCKER_IMAGE) -f Dockerfile ., "Docker image built")
+	$(call run_cmd, "Building Docker image", cd ../.. && docker build -t $(DOCKER_IMAGE) -f packages/kb-dashboard-cli/Dockerfile ., "Docker image built")
 
 docker-run:
 	@mkdir -p $(PWD)/inputs $(PWD)/../output
@@ -152,10 +152,23 @@ docker-run:
 docker-test:
 	$(call run_cmd, "Testing Docker image", docker run --rm $(DOCKER_IMAGE) --help, "Docker image test passed")
 
-docker-publish:
+docker-publish: docker-build
 	$(call require_var, CONFIRM_PUBLISH, "Set CONFIRM_PUBLISH=yes to confirm publishing to GHCR. Usage: make docker-publish CONFIRM_PUBLISH=yes")
 	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. See https://docs.docker.com/build/buildx/install/" && exit 1)
-	$(call run_cmd, "Publishing Docker image to GHCR", docker buildx build --platform linux/amd64,linux/arm64 -t $(GHCR_REGISTRY) -f Dockerfile --push ., "Docker image published to GHCR")
+	$(call print_start, "Building and publishing multi-arch Docker image to GHCR")
+	@if [ -n "$(DOCKER_TAGS)" ]; then \
+		FIRST_TAG=$$(echo "$(DOCKER_TAGS)" | head -n1 | tr -d ' '); \
+		cd ../.. && docker buildx build --platform linux/amd64,linux/arm64 -t $$FIRST_TAG -f packages/kb-dashboard-cli/Dockerfile --push . $(INDENT); \
+		for tag in $(DOCKER_TAGS); do \
+			if [ "$$tag" != "$$FIRST_TAG" ]; then \
+				printf "  Tagging and pushing %s\n" "$$tag"; \
+				docker buildx imagetools create -t $$tag $$FIRST_TAG || exit 1; \
+			fi; \
+		done; \
+	else \
+		cd ../.. && docker buildx build --platform linux/amd64,linux/arm64 -t $(GHCR_REGISTRY) -f packages/kb-dashboard-cli/Dockerfile --push . $(INDENT); \
+	fi
+	$(call print_end, "Docker image published to GHCR")
 
 # Cleaning
 clean:
