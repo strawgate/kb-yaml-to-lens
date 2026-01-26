@@ -65,7 +65,7 @@ lint-check:
 
 # Type checking
 typecheck:
-	$(call run_cmd, "Running type checking", cd ../.. && uv run --group dev basedpyright packages/kb-dashboard-core, "Type checking passed")
+	$(call run_cmd, "Running type checking", cd $(ROOT) && uv run --group dev basedpyright packages/kb-dashboard-core, "Type checking passed")
 
 # Testing
 test-unit:
@@ -99,10 +99,10 @@ clean:
 
 # PyPI Publishing
 build:
-	$(call run_cmd, "Building package", uv build --out-dir ../../dist, "Package built successfully")
+	$(call run_cmd, "Building package", uv build --out-dir $(ROOT)/dist, "Package built successfully")
 
 publish: build
-	$(call run_cmd, "Publishing to PyPI", uv publish ../../dist/kb_dashboard_core-*.tar.gz ../../dist/kb_dashboard_core-*.whl, "Package published to PyPI")
+	$(call run_cmd, "Publishing to PyPI", uv publish $(ROOT)/dist/kb_dashboard_core-*.tar.gz $(ROOT)/dist/kb_dashboard_core-*.whl, "Package published to PyPI")
 
 publish-test: build
-	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/ ../../dist/kb_dashboard_core-*.tar.gz ../../dist/kb_dashboard_core-*.whl, "Package published to TestPyPI")
+	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/ $(ROOT)/dist/kb_dashboard_core-*.tar.gz $(ROOT)/dist/kb_dashboard_core-*.whl, "Package published to TestPyPI")

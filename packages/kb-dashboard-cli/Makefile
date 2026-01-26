@@ -87,7 +87,7 @@ lint-check:
 # Type checking
 typecheck:
 	$(call print_start, "Running type checking")
-	@cd ../.. && output=$$(uv run --group dev basedpyright packages/kb-dashboard-cli --level error 2>&1); \
+	@cd $(ROOT) && output=$$(uv run --group dev basedpyright packages/kb-dashboard-cli --level error 2>&1); \
 		echo "$$output" | sed 's/^/    /'; \
 		if echo "$$output" | grep -q "0 errors"; then exit 0; else exit 1; fi
 	$(call print_end, "Type checking passed")
@@ -142,7 +142,7 @@ upload:
 
 # Docker commands
 docker-build:
-	$(call run_cmd, "Building Docker image", cd ../.. && docker build -t $(DOCKER_IMAGE) -f packages/kb-dashboard-cli/Dockerfile ., "Docker image built")
+	$(call run_cmd, "Building Docker image", cd $(ROOT) && docker build -t $(DOCKER_IMAGE) -f packages/kb-dashboard-cli/Dockerfile ., "Docker image built")
 
 docker-run:
 	@mkdir -p $(PWD)/inputs $(PWD)/../output
@@ -158,7 +158,7 @@ docker-publish: docker-build
 	$(call print_start, "Building and publishing multi-arch Docker image to GHCR")
 	@if [ -n "$(DOCKER_TAGS)" ]; then \
 		FIRST_TAG=$$(echo "$(DOCKER_TAGS)" | head -n1 | tr -d ' '); \
-		cd ../.. && docker buildx build --platform linux/amd64,linux/arm64 -t $$FIRST_TAG -f packages/kb-dashboard-cli/Dockerfile --push . $(INDENT); \
+		cd $(ROOT) && docker buildx build --platform linux/amd64,linux/arm64 -t $$FIRST_TAG -f packages/kb-dashboard-cli/Dockerfile --push . $(INDENT); \
 		for tag in $(DOCKER_TAGS); do \
 			if [ "$$tag" != "$$FIRST_TAG" ]; then \
 				printf "  Tagging and pushing %s\n" "$$tag"; \
@@ -166,7 +166,7 @@ docker-publish: docker-build
 			fi; \
 		done; \
 	else \
-		cd ../.. && docker buildx build --platform linux/amd64,linux/arm64 -t $(GHCR_REGISTRY) -f packages/kb-dashboard-cli/Dockerfile --push . $(INDENT); \
+		cd $(ROOT) && docker buildx build --platform linux/amd64,linux/arm64 -t $(GHCR_REGISTRY) -f packages/kb-dashboard-cli/Dockerfile --push . $(INDENT); \
 	fi
 	$(call print_end, "Docker image published to GHCR")
 
@@ -182,10 +182,10 @@ clean:
 
 # PyPI Publishing
 build:
-	$(call run_cmd, "Building package", uv build --out-dir ../../dist, "Package built successfully")
+	$(call run_cmd, "Building package", uv build --out-dir $(ROOT)/dist, "Package built successfully")
 
 publish: build
-	$(call run_cmd, "Publishing to PyPI", uv publish ../../dist/kb_dashboard_cli-*.tar.gz ../../dist/kb_dashboard_cli-*.whl, "Package published to PyPI")
+	$(call run_cmd, "Publishing to PyPI", uv publish $(ROOT)/dist/kb_dashboard_cli-*.tar.gz $(ROOT)/dist/kb_dashboard_cli-*.whl, "Package published to PyPI")
 
 publish-test: build
-	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/ ../../dist/kb_dashboard_cli-*.tar.gz ../../dist/kb_dashboard_cli-*.whl, "Package published to TestPyPI")
+	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/ $(ROOT)/dist/kb_dashboard_cli-*.tar.gz $(ROOT)/dist/kb_dashboard_cli-*.whl, "Package published to TestPyPI")

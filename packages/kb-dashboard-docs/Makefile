@@ -39,7 +39,7 @@ install:
 ci:
 	$(call print_start, "Checking documentation (lint + links)")
 	@echo ""
-	@$(MAKE) -C ../.. lint-markdown-check
+	@$(MAKE) -C $(ROOT) lint-markdown-check
 	@echo ""
 	@$(MAKE) test-links
 	@echo ""

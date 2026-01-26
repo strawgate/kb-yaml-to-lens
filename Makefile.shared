@@ -2,6 +2,10 @@
 # Common helper functions and variables used across all component Makefiles
 # Include this file with: include ../Makefile.shared (or ../Makefile.shared from subdirectories)
 
+# Automatically detect repository root directory
+# This works by finding the directory containing Makefile.shared (which is at the root)
+ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 # Force use of bash for PIPESTATUS support
 # SHELL can be set by the including Makefile before including this file to override
 # If not set, detect RUNNER_OS (set by GitHub Actions) and set SHELL accordingly
