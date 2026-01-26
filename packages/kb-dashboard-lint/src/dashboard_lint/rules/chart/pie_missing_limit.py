@@ -21,6 +21,8 @@ from dashboard_lint.types import Severity, Violation
 type PieConfig = LensPiePanelConfig | ESQLPiePanelConfig
 
 # Pattern to detect LIMIT clause in ES|QL
+# Note: This pattern may match LIMIT in string literals or comments.
+# This is a known limitation of regex-based linting and is acceptable for this use case.
 LIMIT_PATTERN = re.compile(r'\bLIMIT\s+(\d+)', re.IGNORECASE)
 
 

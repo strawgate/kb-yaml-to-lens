@@ -1,21 +1,17 @@
 """Rule: ES|QL time series queries with BUCKET should end with SORT."""
 
-import re
 from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, get_query_string, split_into_commands
+from dashboard_lint.esql_helpers import (
+    BUCKET_PATTERN,
+    ESQLConfig,
+    get_query_string,
+    has_command_containing,
+    last_command_starts_with,
+)
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
-
-# Pattern to detect BUCKET function with time field
-BUCKET_PATTERN = re.compile(
-    r'\bBUCKET\s*\(\s*[`"]?@?[a-zA-Z_][\w.]*[`"]?\s*,',
-    re.IGNORECASE,
-)
-
-# Pattern to detect SORT command (case insensitive)
-SORT_PATTERN = re.compile(r'^\s*SORT\b', re.IGNORECASE)
 
 
 @chart_rule
@@ -59,17 +55,11 @@ class ESQLMissingSortAfterBucketRule(ChartRule[ESQLConfig, EmptyOptions]):
         query_str = get_query_string(config.query)
 
         # Only check if query uses BUCKET
-        if not BUCKET_PATTERN.search(query_str):
-            return None
-
-        # Split query into commands and check the last one
-        commands = split_into_commands(query_str)
-        if len(commands) == 0:
+        if not has_command_containing(query_str, BUCKET_PATTERN):
             return None
 
         # Check if the last command is SORT
-        last_command = commands[-1]
-        if SORT_PATTERN.match(last_command):
+        if last_command_starts_with(query_str, 'SORT'):
             return None
 
         return Violation(

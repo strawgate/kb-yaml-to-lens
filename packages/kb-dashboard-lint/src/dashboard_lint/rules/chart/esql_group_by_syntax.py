@@ -1,15 +1,11 @@
 """Rule: ES|QL uses BY within STATS, not GROUP BY."""
 
-import re
 from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, get_query_string
+from dashboard_lint.esql_helpers import ESQLConfig, get_query_string, has_group_by
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
-
-# Pattern to detect GROUP BY (SQL syntax)
-GROUP_BY_PATTERN = re.compile(r'\bGROUP\s+BY\b', re.IGNORECASE)
 
 
 @chart_rule
@@ -51,7 +47,7 @@ class ESQLGroupBySyntaxRule(ChartRule[ESQLConfig, EmptyOptions]):
         """
         query_str = get_query_string(config.query)
 
-        if GROUP_BY_PATTERN.search(query_str):
+        if has_group_by(query_str):
             return Violation(
                 rule_id=self.id,
                 message='ES|QL uses BY within STATS, not GROUP BY; use STATS ... BY field instead',

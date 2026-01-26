@@ -60,6 +60,10 @@ class DatatableAtBottomRule(DashboardRule[EmptyOptions]):
                     # Track the maximum Y position of non-datatable visualizations
                     other_viz_max_y = max(other_viz_max_y, panel_y)
 
+        # If no other visualizations exist, there's nothing to compare against
+        if other_viz_max_y < 0:
+            return violations
+
         # Check if any datatable is above other visualizations
         for idx, datatable_y, title in datatable_info:
             if datatable_y < other_viz_max_y:

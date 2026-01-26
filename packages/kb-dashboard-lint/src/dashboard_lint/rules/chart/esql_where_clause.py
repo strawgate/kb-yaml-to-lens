@@ -1,15 +1,11 @@
 """Rule: ES|QL queries should include a WHERE clause."""
 
-import re
 from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, get_query_string
+from dashboard_lint.esql_helpers import ESQLConfig, get_query_string, has_command_starting_with
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
-
-# Pattern to match WHERE clause (case insensitive)
-WHERE_PATTERN = re.compile(r'\bWHERE\b', re.IGNORECASE)
 
 
 @chart_rule
@@ -49,7 +45,7 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig, EmptyOptions]):
         query_str = get_query_string(config.query)
 
         # Check for WHERE clause
-        if WHERE_PATTERN.search(query_str) is None:
+        if not has_command_starting_with(query_str, 'WHERE'):
             return Violation(
                 rule_id=self.id,
                 message='ES|QL query should include a WHERE clause to filter data',

@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, find_unescaped_numeric_fields, get_query_string
+from dashboard_lint.esql_helpers import ESQLConfig, UNESCAPED_NUMERIC_FIELD_PATTERN, get_query_string
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
@@ -45,9 +45,7 @@ class ESQLFieldEscapingRule(ChartRule[ESQLConfig, EmptyOptions]):
         violations: list[Violation] = []
 
         # Find unescaped numeric fields
-        unescaped_fields = find_unescaped_numeric_fields(query_str)
-
-        for match in unescaped_fields:
+        for match in UNESCAPED_NUMERIC_FIELD_PATTERN.finditer(query_str):
             field_name = match.group(1)
             violations.append(
                 Violation(

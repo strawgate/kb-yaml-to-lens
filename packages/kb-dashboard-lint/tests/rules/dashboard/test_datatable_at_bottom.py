@@ -195,3 +195,36 @@ class TestDatatableAtBottomRule:
         violations = rule.check(dashboard, {})
 
         assert len(violations) == 0
+
+    def test_passes_multiple_datatables_only(self) -> None:
+        """Should not flag when dashboard has only datatables (no other visualizations)."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                LensPanel(
+                    title='Data Table 1',
+                    lens=LensDatatablePanelConfig(
+                        type='datatable',
+                        data_view='logs-*',
+                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        dimensions=[LensTermsDimension(field='host.name')],
+                    ),
+                    position=Position(x=0, y=0),
+                ),
+                LensPanel(
+                    title='Data Table 2',
+                    lens=LensDatatablePanelConfig(
+                        type='datatable',
+                        data_view='logs-*',
+                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        dimensions=[LensTermsDimension(field='host.name')],
+                    ),
+                    position=Position(x=0, y=10),
+                ),
+            ],
+        )
+
+        rule = DatatableAtBottomRule()
+        violations = rule.check(dashboard, {})
+
+        assert len(violations) == 0

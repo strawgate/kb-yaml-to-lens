@@ -10,9 +10,9 @@ from dashboard_lint.rules.chart.esql_dimension_missing_label import ESQLDimensio
 from dashboard_lint.rules.chart.esql_dynamic_time_bucket import ESQLDynamicTimeBucketRule
 from dashboard_lint.rules.chart.esql_field_escaping import ESQLFieldEscapingRule
 from dashboard_lint.rules.chart.esql_group_by_syntax import ESQLGroupBySyntaxRule
+from dashboard_lint.rules.chart.esql_metric_missing_label import ESQLMetricMissingLabelRule
 from dashboard_lint.rules.chart.esql_missing_limit import ESQLMissingLimitRule
 from dashboard_lint.rules.chart.esql_missing_sort_after_bucket import ESQLMissingSortAfterBucketRule
-from dashboard_lint.rules.chart.esql_metric_missing_label import ESQLMetricMissingLabelRule
 from dashboard_lint.rules.chart.esql_sql_syntax import ESQLSqlSyntaxRule
 from dashboard_lint.rules.chart.esql_where_clause import ESQLWhereClauseRule
 from dashboard_lint.rules.chart.gauge_goal_without_max import GaugeGoalWithoutMaxRule
@@ -30,9 +30,9 @@ __all__ = [
     'ESQLDynamicTimeBucketRule',
     'ESQLFieldEscapingRule',
     'ESQLGroupBySyntaxRule',
+    'ESQLMetricMissingLabelRule',
     'ESQLMissingLimitRule',
     'ESQLMissingSortAfterBucketRule',
-    'ESQLMetricMissingLabelRule',
     'ESQLSqlSyntaxRule',
     'ESQLWhereClauseRule',
     'GaugeGoalWithoutMaxRule',

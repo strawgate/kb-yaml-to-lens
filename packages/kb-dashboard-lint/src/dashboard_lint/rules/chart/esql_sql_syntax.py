@@ -4,12 +4,12 @@ from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_lint.esql_helpers import (
+    SINGLE_EQUALS_IN_WHERE_PATTERN,
+    SQL_LIKE_WILDCARD_PATTERN,
     ESQLConfig,
-    find_single_equals,
-    find_sql_like_wildcards,
-    find_sql_order_by,
-    find_sql_select,
+    first_command_starts_with,
     get_query_string,
+    has_order_by,
 )
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
@@ -55,7 +55,7 @@ class ESQLSqlSyntaxRule(ChartRule[ESQLConfig, EmptyOptions]):
         violations: list[Violation] = []
 
         # Check for ORDER BY (should be SORT)
-        if len(find_sql_order_by(query_str)) > 0:
+        if has_order_by(query_str):
             violations.append(
                 Violation(
                     rule_id=self.id,
@@ -68,7 +68,7 @@ class ESQLSqlSyntaxRule(ChartRule[ESQLConfig, EmptyOptions]):
             )
 
         # Check for SELECT at start (ES|QL uses FROM first)
-        if len(find_sql_select(query_str)) > 0:
+        if first_command_starts_with(query_str, 'SELECT'):
             violations.append(
                 Violation(
                     rule_id=self.id,
@@ -81,8 +81,7 @@ class ESQLSqlSyntaxRule(ChartRule[ESQLConfig, EmptyOptions]):
             )
 
         # Check for single = in comparisons (should be ==)
-        single_equals = find_single_equals(query_str)
-        if len(single_equals) > 0:
+        if SINGLE_EQUALS_IN_WHERE_PATTERN.search(query_str):
             violations.append(
                 Violation(
                     rule_id=self.id,
@@ -95,7 +94,7 @@ class ESQLSqlSyntaxRule(ChartRule[ESQLConfig, EmptyOptions]):
             )
 
         # Check for % wildcards in LIKE (should be *)
-        if len(find_sql_like_wildcards(query_str)) > 0:
+        if SQL_LIKE_WILDCARD_PATTERN.search(query_str):
             violations.append(
                 Violation(
                     rule_id=self.id,

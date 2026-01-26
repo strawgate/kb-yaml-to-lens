@@ -3,7 +3,12 @@
 from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, find_fixed_time_buckets, get_query_string
+from dashboard_lint.esql_helpers import (
+    ESQLConfig,
+    FIXED_BUCKET_PATTERN,
+    TBUCKET_FIXED_PATTERN,
+    get_query_string,
+)
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
@@ -46,9 +51,12 @@ class ESQLDynamicTimeBucketRule(ChartRule[ESQLConfig, EmptyOptions]):
         query_str = get_query_string(config.query)
 
         # Check for fixed time bucket patterns
-        fixed_buckets = find_fixed_time_buckets(query_str)
+        # Note: BUCKET patterns are function calls with specific syntax, so we check
+        # the original query. The patterns already handle quoted field names correctly.
+        has_fixed_bucket = FIXED_BUCKET_PATTERN.search(query_str) is not None
+        has_fixed_tbucket = TBUCKET_FIXED_PATTERN.search(query_str) is not None
 
-        if len(fixed_buckets) > 0:
+        if has_fixed_bucket or has_fixed_tbucket:
             return Violation(
                 rule_id=self.id,
                 message=(

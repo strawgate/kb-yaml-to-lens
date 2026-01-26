@@ -1,20 +1,18 @@
 """Rule: ES|QL queries with SORT DESC should have explicit LIMIT."""
 
-import re
 from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, get_query_string
+from dashboard_lint.esql_helpers import (
+    ESQLConfig,
+    get_query_string,
+    has_command_starting_with,
+    has_sort_desc_command,
+)
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
-
-# Pattern to detect SORT with DESC
-SORT_DESC_PATTERN = re.compile(r'\bSORT\b[^|]*\bDESC\b', re.IGNORECASE)
-
-# Pattern to detect LIMIT as a command (at start of statement or after pipe)
-LIMIT_PATTERN = re.compile(r'(?:^|\|)\s*LIMIT\b', re.IGNORECASE)
 
 
 class ESQLMissingLimitOptions(BaseModel):
@@ -73,11 +71,11 @@ class ESQLMissingLimitRule(ChartRule[ESQLConfig, ESQLMissingLimitOptions]):
         query_str = get_query_string(config.query)
 
         # Only check if query has SORT DESC
-        if not SORT_DESC_PATTERN.search(query_str):
+        if not has_sort_desc_command(query_str):
             return None
 
         # Check if LIMIT is present
-        if LIMIT_PATTERN.search(query_str):
+        if has_command_starting_with(query_str, 'LIMIT'):
             return None
 
         return Violation(
