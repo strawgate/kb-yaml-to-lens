@@ -66,7 +66,7 @@ dashboards:
             format:
               type: number
               decimals: 0
-      - title: Containers Above 90% CPU
+      - title: Containers Above 90% Memory
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -74,13 +74,13 @@ dashboards:
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.cpu.utilization IS NOT NULL
-            - STATS avg_cpu = AVG(container.cpu.utilization) BY container_id = container.id
-            - WHERE avg_cpu > 90
-            - STATS high_cpu_containers = COUNT_DISTINCT(container_id)
+            - WHERE container.memory.percent IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.percent) BY container_id = container.id
+            - WHERE avg_memory > 90
+            - STATS high_memory_containers = COUNT_DISTINCT(container_id)
           primary:
-            field: high_cpu_containers
-            label: Containers Above 90% CPU
+            field: high_memory_containers
+            label: Containers Above 90% Memory
             format:
               type: number
               decimals: 0
@@ -190,8 +190,8 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - EVAL image_parts = SPLIT(container.image.name, ":")
-            - EVAL `Image Name` = CASE(IS_NULL(image_parts[0]), container.image.name, image_parts[0])
-            - EVAL `Image Version` = CASE(LENGTH(image_parts) > 1, image_parts[1], "latest")
+            - EVAL `Image Name` = MV_FIRST(image_parts)
+            - EVAL `Image Version` = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
             - STATS Containers = COUNT_DISTINCT(container.id) BY `Image Name`, `Image Version`
             - SORT Containers DESC
             - LIMIT 100
