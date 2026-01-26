@@ -142,6 +142,7 @@ dashboards:
             - LIMIT 5
           dimension:
             field: network.interface.name
+            label: Interface
           metrics:
             - field: rejected_count
               label: Rejected Flows
@@ -167,6 +168,7 @@ dashboards:
             - LIMIT 5
           dimension:
             field: destination.port
+            label: Dest Port
           metrics:
             - field: rejected_count
               label: Rejected Flows
@@ -439,6 +441,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: destination.port
+            label: Dest Port
           metrics:
             - field: flow_count
               label: Flow Count
@@ -521,6 +524,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: network.protocol.name
+            label: Protocol
           metrics:
             - field: rejected_count
               label: Rejected Count
@@ -546,6 +550,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: destination.port
+            label: Dest Port
           metrics:
             - field: rejected_count
               label: Rejected Count
@@ -613,6 +618,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: destination.port
+            label: Dest Port
           metrics:
             - field: flow_count
               label: Flow Count
@@ -636,6 +642,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: destination.address
+            label: Destination IP
           metrics:
             - field: flow_count
               label: Flow Count
@@ -659,6 +666,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: source.address
+            label: Source IP
           metrics:
             - field: flow_count
               label: Flow Count
@@ -833,6 +841,7 @@ dashboards:
           mode: stacked
           dimension:
             field: network.interface.name
+            label: Interface
           metrics:
             - field: flow_count
               label: Flow Count
@@ -865,6 +874,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: network.interface.name
+            label: Interface
           metrics:
             - field: total_bytes
               label: Bytes
@@ -892,6 +902,7 @@ dashboards:
           mode: stacked
           dimension:
             field: network.protocol.name
+            label: Protocol
           metrics:
             - field: flow_count
               label: Flow Count
@@ -922,6 +933,7 @@ dashboards:
             - LIMIT 10
           dimension:
             field: network.protocol.name
+            label: Protocol
           metrics:
             - field: total_bytes
               label: Bytes
