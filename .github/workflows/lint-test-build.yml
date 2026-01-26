@@ -105,19 +105,8 @@ jobs:
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
         shell: bash
         run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
-  test-markdown-links:
-    name: Validate Documentation Links
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Check documentation links
-        shell: bash
-        run: make docs test-links
-  build-docs:
-    name: Build Documentation
+  docs-check-and-build:
+    name: Check Documentation Links and Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -127,6 +116,9 @@ jobs:
       - name: Install documentation dependencies
         shell: bash
         run: make docs install
+      - name: Check documentation links
+        shell: bash
+        run: make docs test-links
       - name: Build documentation
         shell: bash
         run: make docs build
@@ -156,8 +148,7 @@ jobs:
       - typecheck-all-packages
       - test-all-packages
       - test-python-coverage
-      - test-markdown-links
-      - build-docs
+      - docs-check-and-build
       - test-all-e2e
     steps:
       - name: All Checks Passed
