@@ -83,6 +83,7 @@ dashboards:
               type: number
               decimals: 0
       - title: Containers Over Time
+        description: Container count trends over time. Helps identify scaling patterns, deployment frequency, and container lifecycle changes.
         hide_title: true
         size: {w: 36, h: 6}
         esql:
@@ -103,6 +104,7 @@ dashboards:
 
       # Summary Tables
       - title: Containers by Runtime
+        description: Distribution of containers by runtime type (e.g., containerd, docker). Helps understand infrastructure diversity.
         size: {w: 16, h: 11}
         esql:
           type: datatable
@@ -117,6 +119,7 @@ dashboards:
           metrics:
             - field: Containers
       - title: Containers by Image
+        description: Top container images by instance count. Identifies most commonly deployed images and potential standardization opportunities.
         size: {w: 16, h: 11}
         esql:
           type: datatable
@@ -131,6 +134,7 @@ dashboards:
           metrics:
             - field: Containers
       - title: Containers by Name
+        description: Top container names by instance count. Useful for identifying frequently deployed services and naming patterns.
         size: {w: 16, h: 11}
         esql:
           type: datatable

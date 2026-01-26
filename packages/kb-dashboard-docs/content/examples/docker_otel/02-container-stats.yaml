@@ -67,6 +67,7 @@ dashboards:
               type: number
               decimals: 0
       - title: Unique Images
+        description: Number of distinct container images running. Helps identify image diversity and potential consolidation opportunities.
         hide_title: true
         size: {w: 8, h: 8}
         esql:
@@ -113,6 +114,7 @@ dashboards:
             format:
               type: percent
       - title: Total Memory Used
+        description: Aggregate memory consumption across all selected containers. Useful for capacity planning and resource allocation.
         hide_title: true
         size: {w: 12, h: 8}
         esql:
@@ -130,6 +132,7 @@ dashboards:
 
       # Container info table
       - title: Container info
+        description: Current resource usage snapshot per container. Shows CPU utilization, memory consumption, and container metadata. Use filters at the top to focus on specific containers.
         size: {w: 48, h: 14}
         esql:
           type: datatable
@@ -143,18 +146,26 @@ dashboards:
             - LIMIT 10
           dimensions:
             - field: Container Name
+              label: Container Name
             - field: Image
+              label: Image
             - field: Runtime
+              label: Runtime
             - field: Container ID
+              label: Container ID
             - field: Hostname
+              label: Hostname
           metrics:
             - field: CPU Usage
+              label: CPU Usage
               format:
                 type: percent
             - field: Memory %
+              label: Memory %
               format:
                 type: percent
             - field: Memory (Bytes)
+              label: Memory (Bytes)
               format:
                 type: bytes
 
@@ -296,6 +307,7 @@ dashboards:
 
       # Memory Usage with limit (line chart)
       - title: Memory Usage with limit
+        description: Shows actual memory usage alongside the configured memory limit per container. Helps identify containers approaching or exceeding their limits.
         size: {w: 24, h: 9}
         esql:
           type: line
