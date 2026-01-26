@@ -49,13 +49,6 @@ dashboards:
             - label: Container Stats
               dashboard: docker-otel-container-stats
 
-      # Warning markdown panel
-      - size: {w: 48, h: 2}
-        markdown:
-          content: >-
-            This dashboard is only intended to be used when filtered to one
-            container at a time.
-
       # Container count metric
       - title: Containers count
         size: {w: 7, h: 4}
@@ -82,8 +75,8 @@ dashboards:
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS `CPU Usage` = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100, `Memory %` = AVG(AVG_OVER_TIME(container.memory.percent))
-              / 100, `Memory (Bytes)` = AVG(AVG_OVER_TIME(container.memory.usage.total)) BY `Container Name` = container.name, Image = container.image.name,
+            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100, `Memory %` = AVG(container.memory.percent)
+              / 100, `Memory (Bytes)` = AVG(container.memory.usage.total) BY `Container Name` = container.name, Image = container.image.name,
               Runtime = container.runtime, `Container ID` = container.id, Hostname = container.hostname
             - KEEP `Container Name`, Image, Runtime, `Container ID`, Hostname, `CPU Usage`, `Memory %`, `Memory (Bytes)`
             - LIMIT 10
@@ -113,7 +106,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -135,7 +128,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL
-            - STATS memory_bytes = AVG(AVG_OVER_TIME(container.memory.usage.total)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           legend:
             visible: hide
@@ -216,7 +209,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -238,7 +231,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL OR container.memory.usage.limit IS NOT NULL
-            - STATS memory_usage = AVG(AVG_OVER_TIME(container.memory.usage.total)), memory_limit = MAX(LAST_OVER_TIME(container.memory.usage.limit))
+            - STATS memory_usage = AVG(container.memory.usage.total), memory_limit = MAX(container.memory.usage.limit)
               BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           legend:
@@ -264,7 +257,7 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.percent IS NOT NULL
-            - STATS memory_pct = AVG(AVG_OVER_TIME(container.memory.percent)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS memory_pct = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
             - SORT time_bucket ASC
           legend:
             visible: hide

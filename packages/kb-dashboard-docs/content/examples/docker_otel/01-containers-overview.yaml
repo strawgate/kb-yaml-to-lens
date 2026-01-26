@@ -155,11 +155,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(AVG_OVER_TIME(container.cpu.utilization)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -168,7 +166,7 @@ dashboards:
               format:
                 type: percent
           breakdown:
-            field: container_id
+            field: container_name
 
       # Memory Usage Time Series
       - title: Memory Usage
@@ -181,11 +179,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.percent IS NOT NULL
-            - STATS memory_usage = AVG(AVG_OVER_TIME(container.memory.percent)) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id
+            - STATS memory_usage = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -194,7 +190,7 @@ dashboards:
               format:
                 type: percent
           breakdown:
-            field: container_id
+            field: container_name
       - title: Memory Usage (Bytes)
         size: {w: 24, h: 8}
         hide_title: true
@@ -205,11 +201,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL
-            - STATS memory_bytes = AVG(AVG_OVER_TIME(container.memory.usage.total)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id
+            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -218,7 +212,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: container_name
 
       # Disk I/O Time Series
       - title: Disk I/O - Read
@@ -232,10 +226,8 @@ dashboards:
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
             - WHERE attributes.operation == "read"
             - STATS read_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -244,7 +236,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: container_name
       - title: Disk I/O - Write
         size: {w: 24, h: 8}
         esql:
@@ -256,10 +248,8 @@ dashboards:
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
             - WHERE attributes.operation == "write"
             - STATS write_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -268,7 +258,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: container_name
 
       # Network I/O Time Series
       - title: Network I/O - Received
@@ -280,11 +270,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.rx_bytes IS NOT NULL
-            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container_id
-              = container.id
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -293,7 +281,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: container_name
       - title: Network I/O - Transmitted
         size: {w: 24, h: 8}
         esql:
@@ -303,11 +291,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.tx_bytes IS NOT NULL
-            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container_id
-              = container.id
+            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_name = container.name
             - SORT time_bucket ASC
-          legend:
-            visible: hide
           dimension:
             field: time_bucket
           metrics:
@@ -316,4 +302,4 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: container_name
