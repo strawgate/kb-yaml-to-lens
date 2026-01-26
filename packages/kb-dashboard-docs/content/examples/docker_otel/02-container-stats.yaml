@@ -51,7 +51,7 @@ dashboards:
 
       # Container count metric
       - title: Containers count
-        size: {w: 7, h: 4}
+        size: {w: 7, h: 8}
         hide_title: true
         esql:
           type: metric
@@ -69,7 +69,7 @@ dashboards:
 
       # Container info table
       - title: Container info
-        size: {w: 41, h: 4}
+        size: {w: 41, h: 14}
         esql:
           type: datatable
           query:
@@ -106,7 +106,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -118,6 +119,8 @@ dashboards:
               label: CPU Usage
               format:
                 type: percent
+          breakdown:
+            field: container_id
 
       # Memory Usage (line chart)
       - title: Memory Usage
@@ -128,10 +131,12 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL
-            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS memory_bytes = AVG(container.memory.usage.total) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id
             - SORT time_bucket ASC
           legend:
-            visible: hide
+            visible: show
+            position: right
           dimension:
             field: time_bucket
           metrics:
@@ -139,6 +144,8 @@ dashboards:
               label: Memory Usage
               format:
                 type: bytes
+          breakdown:
+            field: container_id
 
       # Disk I/O (line chart by device)
       - title: Disk I/O
@@ -150,6 +157,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
             - STATS io_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id,
               device = attributes.device_major
             - SORT time_bucket ASC
           legend:
@@ -163,7 +171,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: device
+            field: container_id
 
       # Network I/O (line chart with rx and tx)
       - title: Network I/O
@@ -175,7 +183,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.rx_bytes IS NOT NULL OR container.network.io.usage.tx_bytes IS NOT NULL
             - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)), tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket
-              = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), interface = attributes.interface
+              = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container_id = container.id, interface = attributes.interface
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -192,7 +200,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: interface
+            field: container_id
 
       # "Detailed information" markdown panel
       - size: {w: 48, h: 3}
@@ -209,7 +217,8 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -221,6 +230,8 @@ dashboards:
               label: CPU %
               format:
                 type: percent
+          breakdown:
+            field: container_id
 
       # Memory Usage with limit (line chart)
       - title: Memory Usage with limit
@@ -232,10 +243,11 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.usage.total IS NOT NULL OR container.memory.usage.limit IS NOT NULL
             - STATS memory_usage = AVG(container.memory.usage.total), memory_limit = MAX(container.memory.usage.limit)
-              BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+              BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container_id = container.id
             - SORT time_bucket ASC
           legend:
-            visible: hide
+            visible: show
+            position: right
           dimension:
             field: time_bucket
           metrics:
@@ -247,6 +259,8 @@ dashboards:
               label: Memory Limit
               format:
                 type: bytes
+          breakdown:
+            field: container_id
 
       # Memory Usage (line chart percentage)
       - title: Memory Usage
@@ -257,10 +271,12 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.memory.percent IS NOT NULL
-            - STATS memory_pct = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS memory_pct = AVG(container.memory.percent) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id
             - SORT time_bucket ASC
           legend:
-            visible: hide
+            visible: show
+            position: right
           dimension:
             field: time_bucket
           metrics:
@@ -268,6 +284,8 @@ dashboards:
               label: Memory %
               format:
                 type: percent
+          breakdown:
+            field: container_id
 
       # Disk I/O (line chart by device) - second visualization
       - title: Disk I/O
@@ -279,6 +297,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
             - STATS io_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id,
               device = attributes.device_major
             - SORT time_bucket ASC
           legend:
@@ -292,7 +311,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: device
+            field: container_id
 
       # Network - Received Bytes (line chart)
       - title: Network - Received Bytes
@@ -303,8 +322,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.rx_bytes IS NOT NULL
-            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), interface
-              = attributes.interface
+            - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id,
+              interface = attributes.interface
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -317,7 +337,7 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: interface
+            field: container_id
 
       # Network - Transmitted Bytes (line chart)
       - title: Network - Transmitted Bytes
@@ -328,8 +348,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.tx_bytes IS NOT NULL
-            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), interface
-              = attributes.interface
+            - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              container_id = container.id,
+              interface = attributes.interface
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -342,4 +363,4 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: interface
+            field: container_id
