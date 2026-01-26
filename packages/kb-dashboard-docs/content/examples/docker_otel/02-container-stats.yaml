@@ -40,6 +40,7 @@ dashboards:
     panels:
       # Navigation Links
       - title: Navigation Links
+        description: Navigate between dashboard views.
         size: {w: 48, h: 2}
         links:
           layout: horizontal
@@ -202,6 +203,7 @@ dashboards:
 
       # Memory Usage (line chart)
       - title: Memory Usage
+        description: Memory consumption in bytes over time broken down by container. Shows absolute memory usage trends for each container.
         size: {w: 48, h: 9}
         esql:
           type: line
