@@ -6,8 +6,14 @@ This guide covers development workflows for the kb-yaml-to-lens project.
 
 ```text
 kb-yaml-to-lens/
-├── packages/kb-dashboard-compiler/ # Python YAML → JSON compiler
+├── packages/kb-dashboard-cli/  # CLI, LSP, and MCP server
 │   └── src/dashboard_compiler/
+├── packages/kb-dashboard-core/ # Core compilation engine
+│   └── src/kb_dashboard_core/
+├── packages/kb-dashboard-lint/ # Lint rules and CLI
+│   └── src/dashboard_lint/
+├── packages/kb-dashboard-tools/ # Kibana client utilities
+│   └── src/kb_dashboard_tools/
 ├── packages/vscode-extension/ # VS Code extension
 │   └── src/
 └── packages/kb-dashboard-docs/  # User documentation
@@ -15,7 +21,10 @@ kb-yaml-to-lens/
 
 | Directory | Technology | Purpose |
 | --------- | ---------- | ------- |
-| `packages/kb-dashboard-compiler/` | Python 3.12+, Pydantic, uv | Dashboard compilation engine |
+| `packages/kb-dashboard-cli/` | Python 3.12+, Click, pygls | CLI, LSP, and future MCP server |
+| `packages/kb-dashboard-core/` | Python 3.12+, Pydantic, uv | Dashboard compilation engine |
+| `packages/kb-dashboard-lint/` | Python 3.12+, Pydantic | Lint rules and CLI for dashboard validation |
+| `packages/kb-dashboard-tools/` | Python 3.12+, aiohttp | Kibana client and utilities |
 | `packages/vscode-extension/` | TypeScript, Node.js | VS Code extension with live preview |
 | `packages/kb-dashboard-docs/` | MkDocs | User-facing documentation site |
 
@@ -65,8 +74,11 @@ Run any component-specific target from the repository root:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make all <target>` | Run target in all components (compiler + vscode) |
-| `make compiler <target>` | Run target in `packages/kb-dashboard-compiler/` |
+| `make all <target>` | Run target in all components (cli + core + lint + tools + vscode) |
+| `make cli <target>` | Run target in `packages/kb-dashboard-cli/` |
+| `make core <target>` | Run target in `packages/kb-dashboard-core/` |
+| `make lint <target>` | Run target in `packages/kb-dashboard-lint/` |
+| `make tools <target>` | Run target in `packages/kb-dashboard-tools/` |
 | `make vscode <target>` | Run target in `packages/vscode-extension/` |
 | `make docs <target>` | Run target in `packages/kb-dashboard-docs/` |
 | `make gh <target>` | Run target in `.github/scripts/` |
@@ -75,24 +87,26 @@ Run any component-specific target from the repository root:
 
 ```bash
 # Run across all components (parallel)
-make all ci           # Run CI in compiler + vscode
+make all ci           # Run CI in cli + core + lint + tools + vscode
 make all fix          # Auto-fix linting in all components
 make all clean        # Clean all components
 
 # Run in specific component
-make compiler test       # Run compiler tests
-make compiler test-smoke # Run compiler smoke tests
+make cli test            # Run CLI tests
+make cli test-e2e         # Run CLI E2E tests (includes Docker tests if available)
+make core test           # Run core tests
 make vscode test-unit    # Run VS Code unit tests
 make vscode test-e2e     # Run VS Code E2E tests
 make docs serve          # Start docs server
-make compiler help       # Show all compiler targets
+make cli help            # Show all CLI targets
 ```
 
 ## Component Development
 
 See component-specific DEVELOPING.md files for detailed workflows:
 
-- **Compiler:** [packages/kb-dashboard-compiler/DEVELOPING.md](packages/kb-dashboard-compiler/DEVELOPING.md)
+- **CLI:** [packages/kb-dashboard-cli/DEVELOPING.md](packages/kb-dashboard-cli/DEVELOPING.md)
+- **Core:** [packages/kb-dashboard-core/DEVELOPING.md](packages/kb-dashboard-core/DEVELOPING.md)
 - **VS Code Extension:** [packages/vscode-extension/DEVELOPING.md](packages/vscode-extension/DEVELOPING.md)
 - **Documentation:** [packages/kb-dashboard-docs/DEVELOPING.md](packages/kb-dashboard-docs/DEVELOPING.md)
 

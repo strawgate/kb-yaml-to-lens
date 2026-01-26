@@ -35,9 +35,12 @@ jobs:
           name: Release ${{ steps.get_version.outputs.VERSION }}
           body: |
             ## Installation
-            **Python Package:**
+            **Python Packages:**
             ```bash
-            pip install kb-dashboard-compiler==${{ steps.get_version.outputs.VERSION }}
+            pip install kb-dashboard-cli==${{ steps.get_version.outputs.VERSION }}
+            pip install kb-dashboard-core==${{ steps.get_version.outputs.VERSION }}
+            pip install kb-dashboard-tools==${{ steps.get_version.outputs.VERSION }}
+            pip install kb-dashboard-lint==${{ steps.get_version.outputs.VERSION }}
             ```
             **Docker:**
             ```bash

@@ -27,7 +27,7 @@ async function main() {
         // The path to the extension test script
         const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
-        // The workspace folder to open (repository root, where packages/kb-dashboard-compiler/ lives)
+        // The workspace folder to open (repository root, where packages/kb-dashboard-cli/ lives)
         const workspaceFolder = path.resolve(__dirname, '../../../../');
 
         // Download VS Code, unzip it and run the integration test

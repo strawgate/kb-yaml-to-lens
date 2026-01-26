@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VSCODE_DIR="$(dirname "$SCRIPT_DIR")"
-COMPILER_DIR="$(dirname "$VSCODE_DIR")/kb-dashboard-compiler"
+COMPILER_DIR="$(dirname "$VSCODE_DIR")/kb-dashboard-cli"
 OUTPUT_FILE="$VSCODE_DIR/src/schemas.generated.ts"
 
 echo "Generating Zod schemas from Pydantic models..."
@@ -44,7 +44,7 @@ cat > "$OUTPUT_FILE" << 'EOF'
  * This file is generated from Pydantic models using pydantic2zod.
  * Run `make generate-schemas` to regenerate.
  *
- * Source: packages/kb-dashboard-compiler/scripts/export_lsp_schemas.py
+ * Source: packages/kb-dashboard-cli/scripts/export_lsp_schemas.py
  */
 
 /* eslint-disable @typescript-eslint/naming-convention */

@@ -55,7 +55,7 @@ For all commands, see `make vscode help`.
 | `src/compiler.ts` | Python subprocess management |
 | `src/previewPanel.ts` | Webview preview panel |
 | `src/gridEditorPanel.ts` | Visual grid editor |
-| `packages/kb-dashboard-compiler/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in compiler component) |
+| `packages/kb-dashboard-cli/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in CLI component) |
 
 ### Extension Commands
 
@@ -96,14 +96,14 @@ make vscode test-e2e
 
 Python tests for LSP functionality are located in the compiler component:
 
-- `packages/kb-dashboard-compiler/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
-- `packages/kb-dashboard-compiler/tests/lsp/test_server.py` — LSP server functionality
+- `packages/kb-dashboard-cli/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
+- `packages/kb-dashboard-cli/tests/lsp/test_server.py` — LSP server functionality
 
 ```bash
 # Run Python LSP tests (from repository root)
-make compiler test
+make cli test
 # Or run specific LSP tests:
-cd packages/kb-dashboard-compiler && uv run pytest tests/lsp/ -v
+cd packages/kb-dashboard-cli && uv run pytest tests/lsp/ -v
 ```
 
 ### Test Coverage

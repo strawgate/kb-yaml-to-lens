@@ -1,16 +1,16 @@
 [project]
 name = "kb-dashboard-docs"
-version = "0.1.10"
+version = "0.2.1"
 description = "Documentation for kb-yaml-to-lens"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 
 dependencies = [
-    "kb-dashboard-compiler",
+    "kb-dashboard-cli==0.2.1",
 ]
 
 [tool.uv.sources]
-kb-dashboard-compiler = { workspace = true }
+kb-dashboard-cli = { workspace = true }
 
 [dependency-groups]
 dev = [

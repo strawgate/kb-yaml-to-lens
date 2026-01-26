@@ -1,0 +1,292 @@
+# pyright: reportAny=false
+# Uses Any for dynamic data fields like compiled dashboards and JSON schemas
+"""Pydantic models for LSP request parameters and response types.
+
+These models define the shapes of LSP request/response objects. They serve as:
+1. Type safety for the Python LSP server
+2. Single source of truth for TypeScript schema generation via pydantic2zod
+
+Note: These are mutable view models for API responses, not frozen config models.
+The BaseLSPModel class provides shared configuration (extra='forbid') without
+using ClassVar which is not supported by pydantic2zod.
+"""
+
+from typing import Any, ClassVar
+
+from kb_dashboard_tools.models import EsqlColumn, EsqlResponse
+from pydantic import BaseModel, ConfigDict
+
+# Re-export for schema generation
+__all__ = [
+    'BaseLSPModel',
+    'CompileRequest',
+    'CompileResult',
+    'DashboardGridInfo',
+    'DashboardInfo',
+    'DashboardListResult',
+    'EsqlColumn',
+    'EsqlExecuteRequest',
+    'EsqlExecuteResult',
+    'EsqlResponse',
+    'GetDashboardsRequest',
+    'GetGridLayoutRequest',
+    'Grid',
+    'GridLayoutResult',
+    'PanelGridInfo',
+    'SchemaResult',
+    'UnpinPanelRequest',
+    'UpdateGridLayoutRequest',
+    'UpdateGridLayoutResult',
+    'UploadResult',
+    'UploadToKibanaRequest',
+]
+
+
+# ============================================================================
+# Base Model for LSP Types
+# ============================================================================
+
+
+class BaseLSPModel(BaseModel):
+    """Base class for all LSP request and response models.
+
+    Provides shared configuration:
+    - extra='forbid': Reject unknown fields for strict validation
+    - No frozen=True: These are mutable API objects, not config models
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='forbid')
+
+
+# ============================================================================
+# Grid Model (must be defined before request models that reference it)
+# ============================================================================
+
+
+class Grid(BaseLSPModel):
+    """Grid position and size for a panel."""
+
+    x: int
+    """X position in the grid (column)."""
+    y: int
+    """Y position in the grid (row)."""
+    w: int
+    """Width in grid units."""
+    h: int
+    """Height in grid units."""
+
+
+# ============================================================================
+# LSP Request Models
+# ============================================================================
+
+
+class CompileRequest(BaseLSPModel):
+    """Request parameters for dashboard/compile endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    dashboard_index: int = 0
+    """Index of the dashboard to compile (default: 0)."""
+
+
+class GetDashboardsRequest(BaseLSPModel):
+    """Request parameters for dashboard/getDashboards endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+
+
+class GetGridLayoutRequest(BaseLSPModel):
+    """Request parameters for dashboard/getGridLayout endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    dashboard_index: int = 0
+    """Index of the dashboard to extract (default: 0)."""
+
+
+class UpdateGridLayoutRequest(BaseLSPModel):
+    """Request parameters for dashboard/updateGridLayout endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    panel_id: str
+    """ID of the panel to update."""
+    grid: Grid
+    """New grid coordinates with x, y, w, h."""
+    dashboard_index: int = 0
+    """Index of the dashboard (default: 0)."""
+
+
+class UnpinPanelRequest(BaseLSPModel):
+    """Request parameters for dashboard/unpinPanel endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    panel_id: str
+    """ID of the panel to unpin."""
+    dashboard_index: int = 0
+    """Index of the dashboard (default: 0)."""
+
+
+class UploadToKibanaRequest(BaseLSPModel):
+    """Request parameters for dashboard/uploadToKibana endpoint."""
+
+    path: str
+    """Path to the YAML file containing dashboards."""
+    dashboard_index: int = 0
+    """Index of the dashboard to upload."""
+    kibana_url: str
+    """Kibana base URL."""
+    username: str | None = None
+    """Optional username for basic auth."""
+    password: str | None = None
+    """Optional password for basic auth."""
+    api_key: str | None = None
+    """Optional API key for auth."""
+    ssl_verify: bool = True
+    """Whether to verify SSL certificates."""
+
+
+class EsqlExecuteRequest(BaseLSPModel):
+    """Request parameters for esql/execute endpoint."""
+
+    query: str
+    """ES|QL query string to execute."""
+    kibana_url: str
+    """Kibana base URL."""
+    username: str | None = None
+    """Optional username for basic auth."""
+    password: str | None = None
+    """Optional password for basic auth."""
+    api_key: str | None = None
+    """Optional API key for auth."""
+    ssl_verify: bool = True
+    """Whether to verify SSL certificates."""
+
+
+# ============================================================================
+# Grid Layout Models
+# ============================================================================
+
+
+class PanelGridInfo(BaseLSPModel):
+    """Panel information including grid position."""
+
+    id: str
+    """Panel identifier."""
+    title: str
+    """Panel title."""
+    type: str
+    """Panel type (e.g., 'esql', 'markdown')."""
+    grid: Grid
+    """Grid position and size."""
+    is_pinned: bool
+    """Whether the panel has an explicit position (not auto-positioned)."""
+
+
+class DashboardGridInfo(BaseLSPModel):
+    """Dashboard grid layout information returned by getGridLayout."""
+
+    title: str
+    """Dashboard title."""
+    description: str
+    """Dashboard description."""
+    panels: list[PanelGridInfo]
+    """List of panels with grid information."""
+
+
+class DashboardInfo(BaseLSPModel):
+    """Basic dashboard information for getDashboards response."""
+
+    index: int
+    """Dashboard index in the YAML file."""
+    title: str
+    """Dashboard title."""
+    description: str
+    """Dashboard description."""
+
+
+# ============================================================================
+# LSP Response Models
+# ============================================================================
+
+
+class CompileResult(BaseLSPModel):
+    """Response from dashboard/compile endpoint."""
+
+    success: bool
+    """Whether compilation succeeded."""
+    data: Any | None = None
+    """Compiled dashboard JSON on success."""
+    error: str | None = None
+    """Error message on failure."""
+
+
+class DashboardListResult(BaseLSPModel):
+    """Response from dashboard/getDashboards endpoint."""
+
+    success: bool
+    """Whether the request succeeded."""
+    data: list[DashboardInfo] | None = None
+    """List of dashboards on success."""
+    error: str | None = None
+    """Error message on failure."""
+
+
+class GridLayoutResult(BaseLSPModel):
+    """Response from dashboard/getGridLayout endpoint."""
+
+    success: bool
+    """Whether the request succeeded."""
+    data: DashboardGridInfo | None = None
+    """Grid layout information on success."""
+    error: str | None = None
+    """Error message on failure."""
+
+
+class UpdateGridLayoutResult(BaseLSPModel):
+    """Response from dashboard/updateGridLayout endpoint."""
+
+    success: bool
+    """Whether the update succeeded."""
+    message: str | None = None
+    """Success message."""
+    error: str | None = None
+    """Error message on failure."""
+
+
+class UploadResult(BaseLSPModel):
+    """Response from dashboard/uploadToKibana endpoint."""
+
+    success: bool
+    """Whether the upload succeeded."""
+    dashboard_url: str | None = None
+    """URL to the uploaded dashboard on success."""
+    dashboard_id: str | None = None
+    """ID of the uploaded dashboard on success."""
+    error: str | None = None
+    """Error message on failure."""
+
+
+class EsqlExecuteResult(BaseLSPModel):
+    """Response from esql/execute endpoint."""
+
+    success: bool
+    """Whether the query succeeded."""
+    data: EsqlResponse | None = None
+    """Query results on success."""
+    error: str | None = None
+    """Error message on failure."""
+
+
+class SchemaResult(BaseLSPModel):
+    """Response from dashboard/getSchema endpoint."""
+
+    success: bool
+    """Whether the request succeeded."""
+    data: Any | None = None
+    """JSON Schema on success."""
+    error: str | None = None
+    """Error message on failure."""

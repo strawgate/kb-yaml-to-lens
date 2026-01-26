@@ -1,21 +1,10 @@
 # Dashboard Lint Makefile
 # Component-specific commands for the Python linting package
 
-# Set SHELL before including Makefile.shared to ensure bash is used
-ifdef RUNNER_OS
-  ifeq ($(RUNNER_OS),Windows)
-    SHELL := bash
-  else
-    SHELL := /bin/bash
-  endif
-else
-  SHELL := /bin/bash
-endif
-
-# Include shared helpers
+# Include shared helpers (SHELL is set automatically by Makefile.shared based on RUNNER_OS)
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
+.PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
 
 help:
 	@echo "Dashboard Lint Commands:"
@@ -37,7 +26,9 @@ help:
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test              - Run Python unit tests"
+	@echo "  test              - Run unit tests"
+	@echo "  test-unit         - Run unit tests (alias for test)"
+	@echo "  test-e2e          - No E2E tests (library package)"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
 	@echo ""
@@ -55,7 +46,7 @@ all: ci
 install:
 	$(call run_cmd, "Installing Python dependencies", uv sync --group dev, "Python dependencies installed")
 
-ci: lint-check typecheck test
+ci: lint-check typecheck test-unit
 	$(call print_end, "Lint CI checks passed")
 
 check: ci
@@ -74,11 +65,16 @@ lint-check:
 
 # Type checking
 typecheck:
-	$(call run_cmd, "Running type checking", cd ../.. && uv run --group dev basedpyright packages/kb-dashboard-lint, "Type checking passed")
+	$(call run_cmd, "Running type checking", cd $(ROOT) && uv run --group dev basedpyright packages/kb-dashboard-lint, "Type checking passed")
 
 # Testing
-test:
+test-unit:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
+
+test-e2e:
+	@echo "No E2E tests for kb-dashboard-lint (library package)"
+
+test: test-unit
 
 test-coverage:
 	$(call run_cmd, "Running pytest with coverage", uv run pytest --cov=src/dashboard_lint --cov-report=term-missing --cov-report=html --cov-report=json, "Coverage report generated")
@@ -103,10 +99,11 @@ clean:
 
 # PyPI Publishing
 build:
-	$(call run_cmd, "Building package", uv build, "Package built successfully")
+	@rm -rf $(ROOT)/dist/kb_dashboard_lint-*.tar.gz $(ROOT)/dist/kb_dashboard_lint-*.whl 2>/dev/null || true
+	$(call run_cmd, "Building package", uv build --out-dir $(ROOT)/dist, "Package built successfully")
 
 publish: build
-	$(call run_cmd, "Publishing to PyPI", uv publish, "Package published to PyPI")
+	$(call run_cmd, "Publishing to PyPI", uv publish $(ROOT)/dist/kb_dashboard_lint-*.tar.gz $(ROOT)/dist/kb_dashboard_lint-*.whl, "Package published to PyPI")
 
 publish-test: build
-	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/, "Package published to TestPyPI")
+	$(call run_cmd, "Publishing to TestPyPI", uv publish --publish-url https://test.pypi.org/legacy/ $(ROOT)/dist/kb_dashboard_lint-*.tar.gz $(ROOT)/dist/kb_dashboard_lint-*.whl, "Package published to TestPyPI")

@@ -30,7 +30,7 @@
 ```bash
 # Example verification commands (run from repository root)
 make all install
-make compiler compile  # or other relevant commands
+make cli compile  # or other relevant commands
 ```
 
 ## Related Issues
@@ -41,6 +41,7 @@ Relates to #
 ## Checklist
 
 - [ ] All static checks pass (`make all ci`)
+- [ ] I followed the [contributing guide](CONTRIBUTING.md)
 - [ ] Tests added/updated as needed
 - [ ] Documentation updated (if API changed)
 - [ ] Breaking changes documented with migration path

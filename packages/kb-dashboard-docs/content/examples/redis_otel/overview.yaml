@@ -51,6 +51,9 @@ dashboards:
           primary:
             field: instances
             label: Instances
+            format:
+              type: number
+              decimals: 0
       - title: Total Client Connections
         hide_title: true
         size: {w: 8, h: 5}
@@ -66,6 +69,9 @@ dashboards:
           primary:
             field: clients
             label: Clients
+            format:
+              type: number
+              decimals: 0
       - title: Commands/sec
         hide_title: true
         size: {w: 8, h: 5}
@@ -83,6 +89,9 @@ dashboards:
             field: commands_per_sec
             label: Commands/sec
       - title: Cache Hit Rate
+        description: >-
+          Hits / (hits + misses). Values <80% indicate cache misses increasing
+          backend load.
         hide_title: true
         size: {w: 8, h: 5}
         esql:
@@ -210,6 +219,9 @@ dashboards:
           metrics:
             - field: clients
               label: Connected Clients
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: instance
 

@@ -29,17 +29,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
       - name: Build Docker image for testing
-        uses: docker/build-push-action@v6
-        with:
-          context: packages/kb-dashboard-compiler
-          platforms: linux/amd64
-          load: true
-          tags: kb-dashboard-compiler:test
-          cache-from: type=gha
-      - name: Run smoke tests
         shell: bash
-        run: IMAGE_NAME="kb-dashboard-compiler:test" make compiler test-docker-smoke
+        run: DOCKER_IMAGE_TAG=test make cli docker-build
+      - name: Run E2E tests
+        shell: bash
+        run: IMAGE_NAME="kb-dashboard-compiler:test" make cli test-e2e
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -47,12 +44,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push multi-arch Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: packages/kb-dashboard-compiler
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        shell: bash
+        run: |
+          CONFIRM_PUBLISH=yes \
+          DOCKER_TAGS="${{ steps.meta.outputs.tags }}" \
+          make cli docker-publish

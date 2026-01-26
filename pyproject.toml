@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-compiler-root"
-version = "0.1.10"
+version = "0.2.1"
 description = "Root project for the kb-yaml-to-lens project"
 readme = "./README.md"
 requires-python = ">=3.12"
@@ -15,8 +15,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "kb-dashboard-compiler",
-    "kb-dashboard-lint",
+    "kb-dashboard-cli==0.2.1",
+    "kb-dashboard-lint==0.2.1",
     "click>=8.0",
 ]
 
@@ -28,11 +28,11 @@ dev = [
 ]
 
 [tool.uv.sources]
-kb-dashboard-compiler = { workspace = true }
+kb-dashboard-cli = { workspace = true }
 kb-dashboard-lint = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/kb-dashboard-compiler", "packages/kb-dashboard-lint", "packages/kb-dashboard-docs"]
+members = ["packages/kb-dashboard-cli", "packages/kb-dashboard-core", "packages/kb-dashboard-lint", "packages/kb-dashboard-tools", "packages/kb-dashboard-docs"]
 
 
 [tool.ruff]
@@ -83,9 +83,16 @@ ignore = [
 
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
-"packages/kb-dashboard-compiler/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-cli/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-core/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-lint/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
-"packages/kb-dashboard-compiler/tests/**/*.py" = [
+"packages/kb-dashboard-tools/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-cli/tests/**/*.py" = [
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "INP001", # Tests are not meant to be imported as packages
+]
+"packages/kb-dashboard-core/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
@@ -96,17 +103,29 @@ ignore = [
     "INP001", # Tests are not meant to be imported as packages
     "F401", # Allow side-effect imports for rule registration
 ]
+"packages/kb-dashboard-tools/tests/**/*.py" = [
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "INP001", # Tests are not meant to be imported as packages
+]
 "packages/kb-dashboard-lint/src/dashboard_lint/cli.py" = [
     "F401", # Allow side-effect imports for rule registration
 ]
-"packages/kb-dashboard-compiler/src/dashboard_compiler/**/view.py" = [
+"packages/kb-dashboard-cli/src/dashboard_compiler/**/view.py" = [
     "N815", # Ignore casing requirements for view models
     "N803",  # Ignore lowercase arguments in view models
     "D101", # Ignore missing docstrings in view models
     "ANN202", # Ignore missing return type for private serializer methods
     "ERA001", # Allow commented JSON structure documentation
 ]
-"packages/kb-dashboard-compiler/src/dashboard_compiler/lsp/grid_*.py" = [
+"packages/kb-dashboard-core/src/kb_dashboard_core/**/view.py" = [
+    "N815", # Ignore casing requirements for view models
+    "N803",  # Ignore lowercase arguments in view models
+    "D101", # Ignore missing docstrings in view models
+    "ANN202", # Ignore missing return type for private serializer methods
+    "ERA001", # Allow commented JSON structure documentation
+]
+"packages/kb-dashboard-cli/src/dashboard_compiler/lsp/grid_*.py" = [
     "PLR2004", # Allow magic numbers (CLI arg counts)
     "PLR0911", # Allow many return statements in grid_updater
     "PLR0912", # Allow many branches in grid_updater
@@ -126,7 +145,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["dashboard_compiler", "dashboard_lint"]
+known-first-party = ["dashboard_compiler", "kb_dashboard_core", "dashboard_lint", "kb_dashboard_tools"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -151,15 +170,16 @@ exclude = [
 ]
 
 [[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard-compiler/src"
-extraPaths = ["packages/kb-dashboard-compiler/src"]
+root = "packages/kb-dashboard-cli/src"
+extraPaths = ["packages/kb-dashboard-cli/src", "packages/kb-dashboard-core/src", "packages/kb-dashboard-tools/src"]
 reportIncompatibleVariableOverride = false
+reportMissingTypeStubs = false
 
 [[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard-compiler/tests"
+root = "packages/kb-dashboard-cli/tests"
 # Tests use many libraries and test patterns that trigger type warnings.
 # The volume of warnings makes inline ignores impractical for test code.
-extraPaths = ["packages/kb-dashboard-compiler/src"]
+extraPaths = ["packages/kb-dashboard-cli/src", "packages/kb-dashboard-core/src", "packages/kb-dashboard-tools/src"]
 reportMissingTypeStubs = false
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
@@ -176,19 +196,55 @@ reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
 
 [[tool.basedpyright.executionEnvironments]]
-root = "packages/kb-dashboard-compiler/src/dashboard_compiler/yaml_roundtrip.py"
+root = "packages/kb-dashboard-core/src"
+extraPaths = ["packages/kb-dashboard-core/src"]
+reportIncompatibleVariableOverride = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-core/tests"
+# Tests use many libraries and test patterns that trigger type warnings.
+# The volume of warnings makes inline ignores impractical for test code.
+extraPaths = ["packages/kb-dashboard-core/src"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/lens/metrics/formula_parser.py"
+# Formula parser uses TatSu which lacks type stubs and returns untyped AST structures.
+# With 100+ type unknowns, per-line ignores would severely harm readability.
+reportMissingTypeStubs = false
+reportAny = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-core/src/kb_dashboard_core/yaml_roundtrip.py"
 # ruamel.yaml lacks type stubs and returns dynamic types from load/dump operations.
 reportAny = false
 reportUnknownMemberType = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-lint/src"
-extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-compiler/src"]
+extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-core/src"]
 reportIncompatibleVariableOverride = false
+reportMissingTypeStubs = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-lint/tests"
-extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-compiler/src"]
+extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-core/src"]
 reportMissingTypeStubs = false
 reportUnknownParameterType = false
 reportUnknownArgumentType = false
@@ -206,7 +262,37 @@ reportUnannotatedClassAttribute = false
 reportUntypedNamedTuple = false
 
 [[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-tools/src"
+extraPaths = ["packages/kb-dashboard-tools/src", "packages/kb-dashboard-core/src"]
+reportIncompatibleVariableOverride = false
+reportMissingTypeStubs = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-tools/tests"
+extraPaths = ["packages/kb-dashboard-tools/src", "packages/kb-dashboard-core/src"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-tools/src/kb_dashboard_tools/kibana_client.py"
+# kibana_client.py uses prison library which lacks type stubs
+reportMissingTypeStubs = false
+
+[[tool.basedpyright.executionEnvironments]]
 # export_lsp_schemas.py uses model_config without ClassVar because pydantic2zod
 # parses source code directly and doesn't support ClassVar annotations
-root = "packages/kb-dashboard-compiler/scripts/export_lsp_schemas.py"
+root = "packages/kb-dashboard-cli/scripts/export_lsp_schemas.py"
 reportUnannotatedClassAttribute = false

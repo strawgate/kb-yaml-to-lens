@@ -1,5 +1,5 @@
 # VSCode Extension Makefile
-# Component-specific commands for the kb-dashboard-compiler extension
+# Component-specific commands for the VS Code extension
 
 .PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all generate-schemas check-schemas
 
@@ -31,9 +31,9 @@ help:
 	@echo "  typecheck        - Run TypeScript type checking (no emit)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test             - Run all tests"
+	@echo "  test             - Run all tests (unit + E2E)"
 	@echo "  test-unit        - Run unit tests only"
-	@echo "  test-e2e         - Run E2E tests (compiles first)"
+	@echo "  test-e2e         - Run E2E tests only"
 	@echo ""
 	@echo "Packaging and Installation:"
 	@echo "  package          - Create .vsix package"
@@ -56,7 +56,7 @@ install:
 
 all: ci
 
-ci: install compile
+ci: install compile test-e2e
 	$(call print_start, "Running linting and tests")
 	$(MAKE) lint-only test-unit-only
 	$(call print_end, "VSCode extension CI checks passed")

@@ -63,6 +63,9 @@ dashboards:
           metrics:
             - field: connection_count
               label: Connection Count
+              format:
+                type: number
+                decimals: 0
       - title: Max Used Connections
         size: {w: 24, h: 9}
         description: Maximum number of connections used (mysql.max_used_connections)
@@ -81,6 +84,9 @@ dashboards:
           metrics:
             - field: max_connections
               label: Max Used Connections
+              format:
+                type: number
+                decimals: 0
       - title: Connection Errors
         size: {w: 48, h: 9}
         description: Connection errors by type (mysql.connection.errors)
@@ -99,6 +105,9 @@ dashboards:
           metrics:
             - field: error_count
               label: Errors
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: error
 
@@ -237,6 +246,9 @@ dashboards:
           metrics:
             - field: row_count
               label: Rows
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: table
       - title: Table Size by Table
@@ -453,5 +465,8 @@ dashboards:
           metrics:
             - field: thread_count
               label: Threads
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: kind

@@ -92,6 +92,7 @@ dashboards:
             format:
               type: number
               pattern: 0,0
+              decimals: 0
       - title: CPU Load
         hide_title: true
         size: {w: 12, h: 4}
@@ -223,7 +224,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
             label: Time
@@ -255,7 +256,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
             label: Time
@@ -280,7 +281,7 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
             label: Time

@@ -11,19 +11,8 @@ on:
     branches:
       - main
 jobs:
-  lint-python:
-    name: Lint Python
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Run Python linting checks
-        shell: bash
-        run: make compiler lint-check
-  lint-markdown:
-    name: Lint Markdown
+  lint-all-packages:
+    name: Lint All Packages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,34 +23,25 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Install markdownlint-cli
         shell: bash
-        run: make docs install
-      - name: Run markdownlint
+        run: npm install -g markdownlint-cli
+      - name: Run linting checks on all packages
         shell: bash
-        run: make lint-markdown-check
-  lint-yaml:
-    name: Lint YAML
+        run: make all lint-check
+  typecheck-all-packages:
+    name: Type-check All Packages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node-env
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run yamlfix
+      - name: Run type checking on all packages
         shell: bash
-        run: make lint-yaml-check
-  typecheck-python:
-    name: Type-check Python
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Run basedpyright
-        shell: bash
-        run: make compiler typecheck
-  test-python:
-    name: Test Python (${{ matrix.os }})
+        run: make all typecheck
+  test-all-packages:
+    name: Test All Packages (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -73,11 +53,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node-env
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Run pytest
+      - name: Run unit tests on all packages
         shell: bash
-        run: make compiler test
+        run: make all test-unit
   test-python-coverage:
     name: Test Python Code Coverage
     runs-on: ubuntu-latest
@@ -92,23 +74,23 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Run tests with coverage
         shell: bash
-        run: make compiler test-coverage
+        run: make cli test-coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
           path: |
-            packages/kb-dashboard-compiler/.coverage
-            packages/kb-dashboard-compiler/htmlcov/
-            packages/kb-dashboard-compiler/coverage.json
+            packages/kb-dashboard-cli/.coverage
+            packages/kb-dashboard-cli/htmlcov/
+            packages/kb-dashboard-cli/coverage.json
           retention-days: 30
       - name: Comment coverage on PR
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERAGE_PATH: packages/kb-dashboard-compiler
+          COVERAGE_PATH: packages/kb-dashboard-cli
       - name: Print coverage comment outputs
         shell: bash
         run: |
@@ -118,42 +100,13 @@ jobs:
         shell: bash
         run: |
           echo "Overall coverage decreased from ${{ steps.coverage_comment.outputs.reference_percent_covered }}% to ${{ steps.coverage_comment.outputs.new_percent_covered }}%."
-          && exit 1
+          exit 1
       - name: Enforce minimum PR coverage of 90%
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
         shell: bash
         run: echo "PR coverage ${{ steps.coverage_comment.outputs.diff_total_percent_covered }}% below minimum 90%" && exit 1
-  test-python-cli:
-    name: Test Python CLI (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Run smoke tests
-        shell: bash
-        run: make compiler test-smoke
-  test-markdown-links:
-    name: Validate Documentation Links
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Python Environment
-        uses: ./.github/actions/setup-python-env
-      - name: Check documentation links
-        shell: bash
-        run: make docs test-links
-  build-docs:
-    name: Build Documentation
+  docs-check-and-build:
+    name: Check Documentation Links and Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -163,25 +116,14 @@ jobs:
       - name: Install documentation dependencies
         shell: bash
         run: make docs install
+      - name: Check documentation links
+        shell: bash
+        run: make docs test-links
       - name: Build documentation
         shell: bash
         run: make docs build
-  test-vscode-extension-typescript:
-    name: Test VSCode Extension (TypeScript)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Node.js Environment
-        uses: ./.github/actions/setup-node-env
-      - name: Install dependencies
-        shell: bash
-        run: make vscode install
-      - name: Run TypeScript tests for extension
-        shell: bash
-        run: make vscode test-unit
-  test-vscode-extension-e2e:
-    name: Test VSCode Extension E2E
+  test-all-e2e:
+    name: Test E2E
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -192,12 +134,9 @@ jobs:
         uses: ./.github/actions/setup-python-env
         with:
           setup-xvfb: 'true'
-      - name: Install extension dependencies
+      - name: Run E2E tests
         shell: bash
-        run: make vscode install
-      - name: Run E2E tests for extension
-        shell: bash
-        run: make vscode test
+        run: make all test-e2e
         env:
           DISPLAY: :99.0
   checks-passed:
@@ -205,17 +144,12 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     needs:
-      - lint-python
-      - lint-markdown
-      - lint-yaml
-      - typecheck-python
-      - test-python
+      - lint-all-packages
+      - typecheck-all-packages
+      - test-all-packages
       - test-python-coverage
-      - test-python-cli
-      - test-markdown-links
-      - build-docs
-      - test-vscode-extension-typescript
-      - test-vscode-extension-e2e
+      - docs-check-and-build
+      - test-all-e2e
     steps:
       - name: All Checks Passed
         shell: bash

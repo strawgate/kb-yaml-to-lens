@@ -49,6 +49,9 @@ dashboards:
             aggregation: average
             field: elasticsearch.node.documents
             label: Documents
+            format:
+              type: number
+              decimals: 0
       - title: Open Files
         hide_title: true
         size: {w: 12, h: 4}
@@ -59,6 +62,9 @@ dashboards:
             aggregation: average
             field: elasticsearch.node.open_files
             label: Open Files
+            format:
+              type: number
+              decimals: 0
       - title: HTTP Connections
         hide_title: true
         size: {w: 12, h: 4}
@@ -69,6 +75,9 @@ dashboards:
             aggregation: average
             field: elasticsearch.node.http.connections
             label: Connections
+            format:
+              type: number
+              decimals: 0
       - title: Active Nodes
         hide_title: true
         size: {w: 12, h: 4}
@@ -79,6 +88,9 @@ dashboards:
             aggregation: unique_count
             field: elasticsearch.node.name
             label: Nodes
+            format:
+              type: number
+              decimals: 0
       - title: CPU & Memory Section
         size: {w: 48, h: 3}
         markdown:
@@ -221,7 +233,13 @@ dashboards:
               aggregation: average
               field: elasticsearch.node.thread_pool.tasks.queued
               label: Queue Size
+              format:
+                type: number
+                decimals: 0
             - id: active
               aggregation: average
               field: elasticsearch.node.thread_pool.threads
               label: Active Threads
+              format:
+                type: number
+                decimals: 0

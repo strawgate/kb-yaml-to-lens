@@ -18,3 +18,4 @@ dashboards.ndjson
 htmlcov/
 .coverage
 coverage.json
+publish-to-pypi.sh

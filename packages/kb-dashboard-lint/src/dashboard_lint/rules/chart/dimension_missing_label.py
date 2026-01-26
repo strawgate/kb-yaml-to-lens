@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLPanel,
     LensAreaPanelConfig,
     LensBarPanelConfig,
@@ -11,7 +13,7 @@ from dashboard_compiler.panels.charts.config import (
     LensMosaicPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.lens.dimensions.config import (
+from kb_dashboard_core.panels.charts.lens.dimensions.config import (
     BaseLensDimension,
     LensDateHistogramDimension,
     LensFiltersDimension,
@@ -19,8 +21,6 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensMultiTermsDimension,
     LensTermsDimension,
 )
-from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
 
 type BreakdownConfig = LensMetricPanelConfig | LensLinePanelConfig | LensBarPanelConfig | LensAreaPanelConfig | LensMosaicPanelConfig
 

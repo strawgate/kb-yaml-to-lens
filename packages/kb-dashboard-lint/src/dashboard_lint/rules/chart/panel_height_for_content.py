@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLPanel,
     ESQLPanelConfig,
     LensPanel,
     LensPanelConfig,
 )
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
 
 # Minimum recommended heights for different chart types.
 # Update this mapping when new chart types are added or height requirements change.

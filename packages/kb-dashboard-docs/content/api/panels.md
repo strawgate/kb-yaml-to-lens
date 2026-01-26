@@ -4,7 +4,7 @@ Panel types and compilation logic.
 
 ## Base Panel Configuration
 
-::: dashboard_compiler.panels.base.BasePanel
+::: kb_dashboard_core.panels.base.BasePanel
     options:
       show_source: true
 
@@ -14,7 +14,7 @@ Display rich text content using markdown syntax.
 
 ### API Reference
 
-::: dashboard_compiler.panels.markdown.config.MarkdownPanel
+::: kb_dashboard_core.panels.markdown.config.MarkdownPanel
     options:
       show_source: true
 
@@ -26,7 +26,7 @@ Display collections of clickable links.
 
 ### API Reference
 
-::: dashboard_compiler.panels.links.config.LinksPanel
+::: kb_dashboard_core.panels.links.config.LinksPanel
     options:
       show_source: true
 
@@ -38,7 +38,7 @@ Embed images in your dashboard.
 
 ### API Reference
 
-::: dashboard_compiler.panels.images.config.ImagePanel
+::: kb_dashboard_core.panels.images.config.ImagePanel
     options:
       show_source: true
 
@@ -50,7 +50,7 @@ Display search results from Elasticsearch.
 
 ### API Reference
 
-::: dashboard_compiler.panels.search.config.SearchPanel
+::: kb_dashboard_core.panels.search.config.SearchPanel
     options:
       show_source: true
 
@@ -62,7 +62,7 @@ Lens panels are used to create data visualizations including metrics, pie charts
 
 ### API Reference
 
-::: dashboard_compiler.panels.charts.config.LensPanel
+::: kb_dashboard_core.panels.charts.config.LensPanel
     options:
       show_source: true
 
@@ -84,11 +84,11 @@ Create heatmap visualizations to show patterns across two categorical dimensions
 
 For configuration details and examples, see the [Heatmap Chart Panel Configuration](../panels/heatmap.md).
 
-::: dashboard_compiler.panels.charts.heatmap.config.LensHeatmapChart
+::: kb_dashboard_core.panels.charts.heatmap.config.LensHeatmapChart
     options:
       show_source: true
 
-::: dashboard_compiler.panels.charts.heatmap.config.ESQLHeatmapChart
+::: kb_dashboard_core.panels.charts.heatmap.config.ESQLHeatmapChart
     options:
       show_source: true
 
@@ -100,6 +100,6 @@ For configuration details and examples, see the [XY Chart Panel Configuration](.
 
 ## ESQL Panel
 
-::: dashboard_compiler.panels.charts.config.ESQLPanel
+::: kb_dashboard_core.panels.charts.config.ESQLPanel
     options:
       show_source: true

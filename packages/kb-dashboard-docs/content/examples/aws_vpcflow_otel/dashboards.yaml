@@ -46,6 +46,9 @@ dashboards:
           primary:
             field: total_flows
             label: Flow Records
+            format:
+              type: number
+              decimals: 0
       - title: Rejection Rate
         hide_title: true
         size: {w: 8, h: 4}
@@ -89,6 +92,9 @@ dashboards:
           primary:
             field: unique_interfaces
             label: Active Interfaces
+            format:
+              type: number
+              decimals: 0
       - title: Cloud Accounts
         hide_title: true
         size: {w: 8, h: 4}
@@ -101,6 +107,9 @@ dashboards:
           primary:
             field: unique_accounts
             label: Cloud Accounts
+            format:
+              type: number
+              decimals: 0
       - title: Unique Protocols
         hide_title: true
         size: {w: 8, h: 4}
@@ -113,6 +122,9 @@ dashboards:
           primary:
             field: unique_protocols
             label: Unique Protocols
+            format:
+              type: number
+              decimals: 0
 
       # Quick Insights
       - markdown:
@@ -133,6 +145,9 @@ dashboards:
           metrics:
             - field: rejected_count
               label: Rejected Flows
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           color:
@@ -155,6 +170,9 @@ dashboards:
           metrics:
             - field: rejected_count
               label: Rejected Flows
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           color:
@@ -184,6 +202,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: aws.vpc.flow.action
           color:
@@ -286,6 +307,9 @@ dashboards:
           primary:
             field: total_flows
             label: Flow Records
+            format:
+              type: number
+              decimals: 0
       - title: Unique Source IPs
         hide_title: true
         size: {w: 10, h: 4}
@@ -298,6 +322,9 @@ dashboards:
           primary:
             field: unique_sources
             label: Unique Sources
+            format:
+              type: number
+              decimals: 0
       - title: Unique Destination IPs
         hide_title: true
         size: {w: 9, h: 4}
@@ -310,6 +337,9 @@ dashboards:
           primary:
             field: unique_destinations
             label: Unique Destinations
+            format:
+              type: number
+              decimals: 0
       - title: Unique Protocols
         hide_title: true
         size: {w: 10, h: 4}
@@ -322,6 +352,9 @@ dashboards:
           primary:
             field: unique_protocols
             label: Protocols
+            format:
+              type: number
+              decimals: 0
       - title: Unique Destination Ports
         hide_title: true
         size: {w: 9, h: 4}
@@ -334,6 +367,9 @@ dashboards:
           primary:
             field: unique_ports
             label: Dest Ports
+            format:
+              type: number
+              decimals: 0
 
       # Traffic Trend
       - title: Traffic by Action Over Time
@@ -353,6 +389,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: aws.vpc.flow.action
           color:
@@ -382,6 +421,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: network.protocol.name
               label: Protocol
@@ -400,6 +442,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           appearance:
@@ -429,10 +474,19 @@ dashboards:
           metrics:
             - field: total_flows
               label: Total Flows
+              format:
+                type: number
+                decimals: 0
             - field: accepted_flows
               label: Accepted
+              format:
+                type: number
+                decimals: 0
             - field: rejected_flows
               label: Rejected
+              format:
+                type: number
+                decimals: 0
             - field: rejection_rate
               label: Rejection %
               format:
@@ -444,6 +498,9 @@ dashboards:
                 type: bytes
             - field: total_packets
               label: Packets
+              format:
+                type: number
+                decimals: 0
           paging:
             enabled: true
             page_size: 10
@@ -467,6 +524,9 @@ dashboards:
           metrics:
             - field: rejected_count
               label: Rejected Count
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           color:
@@ -489,6 +549,9 @@ dashboards:
           metrics:
             - field: rejected_count
               label: Rejected Count
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           color:
@@ -527,6 +590,9 @@ dashboards:
                 type: bytes
             - field: aws.vpc.flow.packets
               label: Packets
+              format:
+                type: number
+                decimals: 0
           paging:
             enabled: true
             page_size: 15
@@ -550,6 +616,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           appearance:
@@ -570,6 +639,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           appearance:
@@ -590,6 +662,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           legend:
             visible: hide
           appearance:
@@ -655,6 +730,9 @@ dashboards:
           primary:
             field: total_interfaces
             label: Total Interfaces
+            format:
+              type: number
+              decimals: 0
       - title: Total Flow Records
         hide_title: true
         size: {w: 9, h: 4}
@@ -667,6 +745,9 @@ dashboards:
           primary:
             field: total_flows
             label: Flow Records
+            format:
+              type: number
+              decimals: 0
       - title: Unique Source IPs
         hide_title: true
         size: {w: 10, h: 4}
@@ -679,6 +760,9 @@ dashboards:
           primary:
             field: unique_sources
             label: Unique Sources
+            format:
+              type: number
+              decimals: 0
       - title: Unique Destination IPs
         hide_title: true
         size: {w: 9, h: 4}
@@ -691,6 +775,9 @@ dashboards:
           primary:
             field: unique_destinations
             label: Unique Destinations
+            format:
+              type: number
+              decimals: 0
       - title: Unique Protocols
         hide_title: true
         size: {w: 10, h: 4}
@@ -703,6 +790,9 @@ dashboards:
           primary:
             field: unique_protocols
             label: Protocols
+            format:
+              type: number
+              decimals: 0
 
       # Interface Traffic Trend
       - title: Interface Traffic Over Time
@@ -721,6 +811,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           appearance:
             x_axis:
               title: '@timestamp'
@@ -743,6 +836,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: aws.vpc.flow.action
           color:
@@ -799,6 +895,9 @@ dashboards:
           metrics:
             - field: flow_count
               label: Flow Count
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: aws.vpc.flow.action
           color:
@@ -858,10 +957,19 @@ dashboards:
           metrics:
             - field: total_flows
               label: Total Flows
+              format:
+                type: number
+                decimals: 0
             - field: accepted_flows
               label: Accepted
+              format:
+                type: number
+                decimals: 0
             - field: rejected_flows
               label: Rejected
+              format:
+                type: number
+                decimals: 0
             - field: rejection_rate
               label: Rejection %
               format:
@@ -873,8 +981,14 @@ dashboards:
                 type: bytes
             - field: unique_interfaces
               label: Interfaces
+              format:
+                type: number
+                decimals: 0
             - field: unique_sources
               label: Unique Sources
+              format:
+                type: number
+                decimals: 0
           paging:
             enabled: true
             page_size: 10

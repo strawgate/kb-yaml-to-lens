@@ -163,7 +163,7 @@ Many chart panel types (Pie, XY, Metric) support color customization through the
 
 ### ColorMapping Object
 
-::: dashboard_compiler.panels.charts.base.config.ColorMapping
+::: kb_dashboard_core.panels.charts.base.config.ColorMapping
     options:
       show_root_heading: false
       heading_level: 4
@@ -172,7 +172,7 @@ Many chart panel types (Pie, XY, Metric) support color customization through the
 
 Manual color assignments are an advanced feature. For an introduction and examples, see the [Custom Color Assignments](../advanced/color-assignments.md) guide.
 
-::: dashboard_compiler.panels.charts.base.config.ColorAssignment
+::: kb_dashboard_core.panels.charts.base.config.ColorAssignment
     options:
       show_root_heading: false
       heading_level: 4

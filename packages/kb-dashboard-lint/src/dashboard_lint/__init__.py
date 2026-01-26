@@ -5,7 +5,7 @@ A configurable linting system for Kibana dashboard YAML configurations.
 Example usage:
 
     from dashboard_lint import check_dashboards
-    from dashboard_compiler import load
+    from kb_dashboard_core import load
 
     dashboards = load('inputs/')
     violations = check_dashboards(dashboards)

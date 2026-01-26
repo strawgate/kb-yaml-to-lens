@@ -6,7 +6,7 @@ The Mosaic chart panel visualizes categorical data as proportional rectangles, s
 
 ## Lens Mosaic Charts
 
-::: dashboard_compiler.panels.charts.mosaic.config.LensMosaicChart
+::: kb_dashboard_core.panels.charts.mosaic.config.LensMosaicChart
     options:
       show_root_heading: false
       heading_level: 3
@@ -15,21 +15,21 @@ The Mosaic chart panel visualizes categorical data as proportional rectangles, s
 
 For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../advanced/legend-configuration.md).
 
-::: dashboard_compiler.panels.charts.mosaic.config.MosaicLegend
+::: kb_dashboard_core.panels.charts.mosaic.config.MosaicLegend
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Mosaic Chart Titles and Text
 
-::: dashboard_compiler.panels.charts.mosaic.config.MosaicTitlesAndText
+::: kb_dashboard_core.panels.charts.mosaic.config.MosaicTitlesAndText
     options:
       show_root_heading: false
       heading_level: 3
 
 ## ES|QL Mosaic Charts
 
-::: dashboard_compiler.panels.charts.mosaic.config.ESQLMosaicChart
+::: kb_dashboard_core.panels.charts.mosaic.config.ESQLMosaicChart
     options:
       show_root_heading: false
       heading_level: 3

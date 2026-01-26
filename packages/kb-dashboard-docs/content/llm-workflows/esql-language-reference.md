@@ -24,6 +24,36 @@ Key differences:
 - **Wildcards**: Use `*` in patterns, not `%`
 - **Index patterns**: FROM uses Elasticsearch index patterns (e.g., `logs-*`)
 
+### Syntax Rules
+
+**Case sensitivity:**
+
+- Keywords and function names are **case-insensitive**: `FROM`, `from`, `WHERE`, `where` all work
+- Field names are **case-sensitive**: `host.name` ≠ `Host.Name`
+- String comparisons are **case-sensitive**: `"Germany"` ≠ `"germany"`
+
+**String literals use double quotes**, not single quotes:
+
+```esql
+# Correct
+WHERE country == "Germany"
+
+# Wrong - single quotes not supported
+WHERE country == 'Germany'
+```
+
+**Always name computed columns** to avoid awkward backtick references later:
+
+```esql
+# Bad - creates column named "height * 3.281"
+| EVAL height * 3.281
+| STATS MEDIAN(`height * 3.281`)  # Must quote expression
+
+# Good - explicit name
+| EVAL height_feet = height * 3.281
+| STATS MEDIAN(height_feet)
+```
+
 ---
 
 ## Source Commands
@@ -103,6 +133,14 @@ FROM logs-*
     total = COUNT(*),
     avg_time = AVG(response_time),
     max_time = MAX(response_time)
+  BY service.name
+
+# Conditional aggregation (inline WHERE - powerful feature)
+FROM logs-*
+| STATS
+    total = COUNT(*),
+    errors = COUNT(*) WHERE status >= 500,
+    slow_requests = COUNT(*) WHERE response_time > 1000
   BY service.name
 
 # Time bucketing (dynamic - recommended)
@@ -214,12 +252,42 @@ FROM logs-*
 
 ### LOOKUP JOIN
 
-Joins with a lookup index:
+Joins with a lookup index (requires `index.mode: lookup` on the lookup index):
 
 ```esql
 FROM logs-*
 | LOOKUP JOIN user_lookup ON user.id
 ```
+
+**Limitations:** Single shard only (max ~2B docs), no wildcards in index name, can reorder rows (always SORT after join).
+
+### FORK
+
+Splits processing into multiple branches and combines results. Useful for combining metrics from different conditions or fields:
+
+```esql
+TS metrics-*
+| FORK (
+    WHERE container.cpu.usage.kernelmode IS NOT NULL
+    | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
+      BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), container.id
+    | EVAL cpu_mode = "kernelmode"
+  )
+  (
+    WHERE container.cpu.usage.usermode IS NOT NULL
+    | STATS cpu_rate = AVG(RATE(container.cpu.usage.usermode))
+      BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), container.id
+    | EVAL cpu_mode = "usermode"
+  )
+| STATS combined_rate = AVG(cpu_rate) BY time_bucket, cpu_mode
+```
+
+**Key points:**
+
+- Each branch processes independently
+- Branches must produce compatible schemas (same columns)
+- Use `STATS` within branches when using `RATE()` (RATE can only be used in STATS)
+- Combine results after FORK with additional processing commands
 
 ---
 
@@ -253,6 +321,30 @@ For use with the TS source command (Elasticsearch 9.2+):
 | -------- | ----------- | ------- |
 | `RATE(field)` | Per-second rate of counter increase | `STATS SUM(RATE(requests))` |
 | `IRATE(field)` | Instant rate (last two points) | `STATS SUM(IRATE(requests))` |
+
+**Important:** `RATE()` and `IRATE()` can **only** be used within `STATS` commands (or other aggregate functions). They cannot be used directly in `EVAL` or `WHERE` clauses:
+
+```esql
+# CORRECT - RATE() inside STATS
+TS metrics-*
+| STATS request_rate = SUM(RATE(requests))
+
+# CORRECT - RATE() inside STATS within FORK branch
+TS metrics-*
+| FORK (
+    WHERE field1 IS NOT NULL
+    | STATS rate1 = AVG(RATE(field1))
+  )
+  (
+    WHERE field2 IS NOT NULL
+    | STATS rate2 = AVG(RATE(field2))
+  )
+
+# WRONG - RATE() cannot be used in EVAL
+TS metrics-*
+| EVAL rate = RATE(requests)  # Error: RATE can only be used in STATS
+```
+
 | `DELTA(field)` | Absolute change of gauge | `STATS SUM(DELTA(temperature))` |
 | `IDELTA(field)` | Instant delta (last two points) | `STATS SUM(IDELTA(gauge))` |
 | `INCREASE(field)` | Absolute increase of counter | `STATS SUM(INCREASE(total_bytes))` |
@@ -263,6 +355,22 @@ For use with the TS source command (Elasticsearch 9.2+):
 | `COUNT_OVER_TIME(field)` | Count over time window | `STATS SUM(COUNT_OVER_TIME(events))` |
 | `FIRST_OVER_TIME(field)` | Earliest value by timestamp | `STATS MAX(FIRST_OVER_TIME(value))` |
 | `LAST_OVER_TIME(field)` | Latest value by timestamp | `STATS MAX(LAST_OVER_TIME(value))` |
+
+**Important:** All `*_OVER_TIME()` functions **must** be wrapped in another aggregate function like `AVG()`, `MAX()`, `MIN()`, or `SUM()`. They cannot be used directly:
+
+```esql
+# CORRECT - AVG_OVER_TIME wrapped in MAX()
+TS metrics-*
+| STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
+
+# CORRECT - LAST_OVER_TIME wrapped in MAX()
+TS metrics-*
+| STATS connections = MAX(LAST_OVER_TIME(postgresql.backends))
+
+# WRONG - *_OVER_TIME() must be wrapped in aggregate
+TS metrics-*
+| STATS cpu = AVG_OVER_TIME(system.cpu.utilization)  # Error: must be wrapped
+```
 
 ### Choosing the Right Gauge Aggregation
 
@@ -344,6 +452,18 @@ This ensures visualizations remain readable whether the user views 5 minutes or 
 | `TRIM(s)` | Remove whitespace | `EVAL clean = TRIM(input)` |
 | `REPLACE(s, old, new)` | Replace substring | `EVAL fixed = REPLACE(msg, "err", "error")` |
 | `SPLIT(s, delim)` | Split into array | `EVAL parts = SPLIT(path, "/")` |
+| `MV_FIRST(array)` | First element of array | `EVAL first = MV_FIRST(parts)` |
+| `MV_LAST(array)` | Last element of array | `EVAL last = MV_LAST(parts)` |
+
+**Array access:** ES|QL doesn't support bracket indexing like `array[0]`. Use `MV_FIRST()` and `MV_LAST()` to access array elements:
+
+```esql
+# Split image name and extract name/version
+FROM metrics-*
+| EVAL image_parts = SPLIT(container.image.name, ":")
+| EVAL image_name = MV_FIRST(image_parts)
+| EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+```
 
 ### Date/Time Functions
 
@@ -554,6 +674,47 @@ FROM logs-*
 12. **Hardcoded time buckets**: Always use dynamic sizing ``BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)`` for both FROM and TS queries so visualizations scale with the time range. Avoid fixed intervals like ``BUCKET(`@timestamp`, 1 minute)`` or ``TBUCKET(5 minutes)`` as they create too many data points for long time ranges.
     *Lint rule: `esql-dynamic-time-bucket`*
 
+13. **Multivalue fields return NULL**: Most functions silently return NULL on multivalue fields. Use `MV_EXPAND` first:
+
+    ```esql
+    # Wrong - returns no hits on array fields
+    WHERE tags LIKE "*error*"
+
+    # Correct - expand first
+    | MV_EXPAND tags
+    | WHERE tags LIKE "*error*"
+    ```
+
+14. **Type mismatch across indices**: Same field with different types causes errors. Fix with explicit conversion:
+
+    ```esql
+    # Error: client_ip mapped as [ip] in one index, [keyword] in another
+    # Fix: Convert to consistent type
+    FROM events_*
+    | EVAL client_ip = TO_IP(client_ip)
+    ```
+
+15. **Late filtering wastes resources**: Filter on indexed fields immediately after FROM for Lucene pushdown:
+
+    ```esql
+    # Bad - processes all documents first
+    FROM logs-*
+    | DISSECT message "%{action}"
+    | WHERE @timestamp > NOW() - 1h
+
+    # Good - filter first for Lucene pushdown
+    FROM logs-*
+    | WHERE @timestamp > NOW() - 1h
+    | DISSECT message "%{action}"
+    ```
+
+16. **Type conversions fail silently**: Failed conversions return NULL with warnings, not errors. Check results:
+
+    ```esql
+    ROW str = "not_a_number" | EVAL num = TO_DOUBLE(str)
+    # Returns null, emits warning in response headers
+    ```
+
 ---
 
 ## OpenTelemetry Data Patterns
@@ -643,6 +804,40 @@ TS metrics-*
 ```
 
 For comprehensive OTel dashboard guidance, see [Creating Dashboards from OTel Receivers](otel-dashboard-guide.md).
+
+---
+
+## Key Limitations
+
+| Limitation | Detail |
+| ---------- | ------ |
+| Row limit | Default 1,000 rows, max 10,000 (output only, not docs processed) |
+| Timeout | 30-second default regardless of Kibana settings |
+| Timezone | ES\|QL only supports UTC |
+| Nested fields | Not returned at all |
+| Subqueries | Not supported—use ENRICH or LOOKUP JOIN |
+| BUCKET gaps | Does not create empty buckets for missing time intervals |
+| date_nanos | Partial support—cast to datetime for BUCKET, DATE_FORMAT, DATE_PARSE |
+
+---
+
+## Quick Reference: Pipeline Order
+
+Optimal command ordering for performance:
+
+```esql
+FROM logs-*                              -- 1. Source command
+| WHERE @timestamp > NOW() - 1h          -- 2. Filter indexed fields (Lucene pushdown)
+| KEEP @timestamp, status, message       -- 3. Drop unused columns early
+| EVAL status_group = status / 100       -- 4. Compute new columns
+| DISSECT message "%{method} %{path}"    -- 5. Parse unstructured data
+| ENRICH geo_policy ON client.ip         -- 6. Add reference data
+| LOOKUP JOIN users ON user.id           -- 7. Join with lookup data
+| WHERE status_group == 5                -- 8. Filter on computed values
+| STATS count = COUNT(*) BY path         -- 9. Aggregate
+| SORT count DESC                        -- 10. Sort (after aggregation)
+| LIMIT 100                              -- 11. Cap output rows
+```
 
 ---
 

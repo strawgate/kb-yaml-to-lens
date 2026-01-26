@@ -24,9 +24,13 @@ import click
 
 # Version file locations relative to project root
 VERSION_FILES = {
-    'packages/kb-dashboard-compiler/pyproject.toml': 'toml',
-    'packages/vscode-extension/package.json': 'json',
     'pyproject.toml': 'toml',
+    'packages/kb-dashboard-core/pyproject.toml': 'toml',
+    'packages/kb-dashboard-cli/pyproject.toml': 'toml',
+    'packages/kb-dashboard-tools/pyproject.toml': 'toml',
+    'packages/kb-dashboard-lint/pyproject.toml': 'toml',
+    'packages/kb-dashboard-docs/pyproject.toml': 'toml',
+    'packages/vscode-extension/package.json': 'json',
 }
 
 
@@ -79,12 +83,103 @@ def write_version(path: Path, file_format: str, old_version: str, new_version: s
     path.write_text(new_content, encoding='utf-8')
 
 
+def check_all_dependencies_pinned(root: Path) -> None:
+    """Check that all internal package dependencies are pinned (have version specifiers)."""
+    internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli']
+    
+    # Files that might have internal dependencies
+    files_with_deps = [
+        'packages/kb-dashboard-tools/pyproject.toml',
+        'packages/kb-dashboard-lint/pyproject.toml',
+        'packages/kb-dashboard-cli/pyproject.toml',
+        'packages/kb-dashboard-docs/pyproject.toml',
+        'pyproject.toml',
+    ]
+    
+    unpinned_deps = []
+    
+    for file_path in files_with_deps:
+        full_path = root / file_path
+        if not full_path.exists():
+            continue
+            
+        content = full_path.read_text(encoding='utf-8')
+        lines = content.split('\n')
+        
+        for line_num, line in enumerate(lines, start=1):
+            # Skip name fields
+            if 'name =' in line:
+                continue
+            
+            for pkg in internal_packages:
+                # Check for unpinned dependency: "pkg" followed by comma or closing bracket
+                # But not "pkg==" or "pkg>=" or "pkg<=" etc.
+                unpinned_pattern = re.compile(r'"' + re.escape(pkg) + r'"(?=\s*[,)])')
+                if unpinned_pattern.search(line) and '==' not in line and '>=' not in line and '<=' not in line and '~=' not in line and '!=' not in line:
+                    unpinned_deps.append((file_path, line_num, pkg))
+    
+    if unpinned_deps:
+        click.echo('\nError: Found unpinned internal package dependencies:', err=True)
+        for file_path, line_num, pkg in unpinned_deps:
+            click.echo(f'  {file_path}:{line_num} - "{pkg}" is not pinned', err=True)
+        click.echo('\nAll internal package dependencies must be pinned with a version (e.g., "pkg==1.0.0")', err=True)
+        raise click.ClickException('Unpinned dependencies found')
+
+
+def update_internal_dependencies(root: Path, old_version: str, new_version: str, dry_run: bool) -> None:
+    """Update internal package dependencies to exact versions."""
+    internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli']
+    
+    # Files that might have internal dependencies
+    files_with_deps = [
+        'packages/kb-dashboard-tools/pyproject.toml',
+        'packages/kb-dashboard-lint/pyproject.toml',
+        'packages/kb-dashboard-cli/pyproject.toml',
+        'packages/kb-dashboard-docs/pyproject.toml',
+        'pyproject.toml',
+    ]
+    
+    click.echo('\nUpdating internal package dependencies...')
+    
+    for file_path in files_with_deps:
+        full_path = root / file_path
+        if not full_path.exists():
+            continue
+            
+        content = full_path.read_text(encoding='utf-8')
+        updated = False
+        new_content = content
+        
+        for pkg in internal_packages:
+            # Only match pinned dependencies (safe - won't match name fields):
+            # "kb-dashboard-core==0.1.10",
+            # "kb-dashboard-core>=0.1.10",
+            
+            # Pattern 1: Pinned to old version (safe to replace directly - won't match name field)
+            pinned_pattern = f'"{pkg}=={old_version}"'
+            if pinned_pattern in new_content:
+                new_content = new_content.replace(pinned_pattern, f'"{pkg}=={new_version}"')
+                updated = True
+            
+            # Pattern 2: Minimum version (safe to replace directly - won't match name field)
+            min_version_pattern = f'"{pkg}>={old_version}"'
+            if min_version_pattern in new_content:
+                new_content = new_content.replace(min_version_pattern, f'"{pkg}=={new_version}"')
+                updated = True
+        
+        if updated:
+            if not dry_run:
+                full_path.write_text(new_content, encoding='utf-8')
+            status = '(dry-run)' if dry_run else 'OK'
+            click.echo(f'  {file_path}: internal deps -> {new_version} {status}')
+
+
 def update_versions(new_version: str, dry_run: bool) -> None:
     """Update version in all version files."""
     root = get_project_root()
 
     # Determine current version from canonical source
-    canonical_path = root / 'packages/kb-dashboard-compiler/pyproject.toml'
+    canonical_path = root / 'packages/kb-dashboard-cli/pyproject.toml'
     current_version = read_version(canonical_path, 'toml')
 
     action = 'Would update' if dry_run else 'Updating'
@@ -107,6 +202,16 @@ def update_versions(new_version: str, dry_run: bool) -> None:
             package_json_updated = True
         if file_path.endswith('pyproject.toml'):
             pyproject_updated = True
+
+    # Check that all internal dependencies are pinned before updating
+    check_all_dependencies_pinned(root)
+    
+    # Update internal package dependencies
+    if not dry_run:
+        update_internal_dependencies(root, current_version, new_version, dry_run)
+    else:
+        click.echo('\nWould update internal package dependencies...')
+        update_internal_dependencies(root, current_version, new_version, dry_run)
 
     # Update package-lock.json by running npm install
     if package_json_updated and not dry_run:
@@ -145,21 +250,18 @@ def update_versions(new_version: str, dry_run: bool) -> None:
         except FileNotFoundError:
             click.echo('  Warning: uv not found. Skipping uv.lock update.', err=True)
         
-        # Update compiler uv.lock
-        compiler_dir = root / 'packages/kb-dashboard-compiler'
+        # Update CLI uv.lock (workspace uses root lock, but keep for compatibility)
+        # Note: In a workspace, uv.lock is managed at root, but we check CLI directory
+        cli_dir = root / 'packages/kb-dashboard-cli'
         try:
-            subprocess.run(
-                ['uv', 'lock'],
-                cwd=compiler_dir,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            click.echo('  packages/kb-dashboard-compiler/uv.lock: updated')
-        except subprocess.CalledProcessError as e:
-            click.echo(f'  Warning: Failed to update packages/kb-dashboard-compiler/uv.lock: {e.stderr}', err=True)
-        except FileNotFoundError:
-            click.echo('  Warning: uv not found. Skipping packages/kb-dashboard-compiler/uv.lock update.', err=True)
+            # In workspace mode, uv lock should be run from root
+            # But we verify the CLI directory exists
+            if cli_dir.exists():
+                click.echo('  Note: Using root workspace uv.lock (packages/kb-dashboard-cli is a workspace member)')
+            else:
+                click.echo('  Warning: packages/kb-dashboard-cli directory not found', err=True)
+        except Exception as e:
+            click.echo(f'  Warning: Failed to verify CLI directory: {e}', err=True)
 
     if dry_run:
         click.echo('\nDry run complete. No files were modified.')
@@ -193,7 +295,7 @@ def show() -> None:
 def patch(dry_run: bool) -> None:
     """Bump patch version (0.1.1 -> 0.1.2)."""
     root = get_project_root()
-    current = read_version(root / 'packages/kb-dashboard-compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard-cli/pyproject.toml', 'toml')
     new_version = bump_version(current, 'patch')
     update_versions(new_version, dry_run)
 
@@ -203,7 +305,7 @@ def patch(dry_run: bool) -> None:
 def minor(dry_run: bool) -> None:
     """Bump minor version (0.1.1 -> 0.2.0)."""
     root = get_project_root()
-    current = read_version(root / 'packages/kb-dashboard-compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard-cli/pyproject.toml', 'toml')
     new_version = bump_version(current, 'minor')
     update_versions(new_version, dry_run)
 
@@ -213,7 +315,7 @@ def minor(dry_run: bool) -> None:
 def major(dry_run: bool) -> None:
     """Bump major version (0.1.1 -> 1.0.0)."""
     root = get_project_root()
-    current = read_version(root / 'packages/kb-dashboard-compiler/pyproject.toml', 'toml')
+    current = read_version(root / 'packages/kb-dashboard-cli/pyproject.toml', 'toml')
     new_version = bump_version(current, 'major')
     update_versions(new_version, dry_run)
 

@@ -33,6 +33,9 @@ dashboards:
             data_type: date
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: outcome
           appearance:
@@ -50,6 +53,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: rpc.service
               label: Service
@@ -72,6 +78,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: agent
               label: User Agent
@@ -90,6 +99,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: rpc.system
               label: Event Type
@@ -109,6 +121,9 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: aws.error.code
               label: Error Code
@@ -163,6 +178,9 @@ dashboards:
           metrics:
             - id: events
               field: total
+              format:
+                type: number
+                decimals: 0
           sorting:
             column_id: events
             direction: desc

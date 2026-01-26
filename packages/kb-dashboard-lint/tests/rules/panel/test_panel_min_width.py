@@ -1,11 +1,11 @@
 """Tests for PanelMinWidthRule."""
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.charts.config import LensMetricPanelConfig, LensPanel
-from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
-from dashboard_compiler.panels.config import Size
 from dashboard_lint.rules.panel import PanelMinWidthRule
 from dashboard_lint.types import Severity
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.panels.charts.config import LensMetricPanelConfig, LensPanel
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.config import Size
 
 
 class TestPanelMinWidthRule:

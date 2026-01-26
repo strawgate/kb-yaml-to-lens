@@ -43,6 +43,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count of records
+              format:
+                type: number
+                decimals: 0
       - title: Top Related Files
         size:
           w: 20
@@ -62,6 +65,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count of records
+              format:
+                type: number
+                decimals: 0
       - title: Events over time, By Event Kind
         size:
           w: 20
@@ -83,6 +89,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Events
+              format:
+                type: number
+                decimals: 0
       - title: Top Event Types
         size:
           w: 10
@@ -103,6 +112,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count of records
+              format:
+                type: number
+                decimals: 0
           filters:
             - not:
                 field: event.kind
@@ -126,6 +138,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count of records
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: event.kind
               equals: alert

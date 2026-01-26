@@ -2,15 +2,15 @@
 
 import pytest
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.filters import PhraseFilter
-from dashboard_compiler.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel, LensMetricPanelConfig, LensPanel
-from dashboard_compiler.panels.charts.esql.columns.config import ESQLMetric
-from dashboard_compiler.panels.charts.lens.dimensions.config import LensTermsDimension
-from dashboard_compiler.panels.charts.lens.metrics.config import LensCountAggregatedMetric
-from dashboard_compiler.panels.config import Size
-from dashboard_compiler.panels.markdown import MarkdownPanel
-from dashboard_compiler.panels.markdown.config import MarkdownPanelConfig
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.filters import PhraseFilter
+from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel, LensMetricPanelConfig, LensPanel
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
+from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.config import Size
+from kb_dashboard_core.panels.markdown import MarkdownPanel
+from kb_dashboard_core.panels.markdown.config import MarkdownPanelConfig
 
 
 @pytest.fixture

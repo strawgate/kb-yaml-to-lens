@@ -167,7 +167,7 @@ def check(
     """
     # Import rules to register them
     import dashboard_lint.rules  # pyright: ignore[reportUnusedImport]
-    from dashboard_compiler import load
+    from kb_dashboard_core import load
 
     # Validate input options
     if input_dir is None and input_file is None:

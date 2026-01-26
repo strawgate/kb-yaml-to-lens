@@ -1,0 +1,192 @@
+"""Test panel compilation functions."""
+
+from typing import TYPE_CHECKING
+
+from dirty_equals import IsUUID
+from inline_snapshot import snapshot
+
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.dashboard_compiler import render
+from kb_dashboard_core.panels.compile import compile_dashboard_panel, get_panel_type_name
+from kb_dashboard_core.panels.config import Grid
+from kb_dashboard_core.panels.images.config import ImagePanel, ImagePanelConfig
+from kb_dashboard_core.panels.links.config import LinksPanel, LinksPanelConfig, UrlLink
+from kb_dashboard_core.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
+from kb_dashboard_core.panels.search.config import SearchPanel, SearchPanelConfig
+
+if TYPE_CHECKING:
+    from kb_dashboard_core.dashboard.view import KbnDashboard
+
+
+class TestGetPanelTypeName:
+    """Test the get_panel_type_name function."""
+
+    def test_returns_markdown_for_markdown_panel(self) -> None:
+        """Test that 'markdown' is returned for a MarkdownPanel."""
+        panel = MarkdownPanel(markdown=MarkdownPanelConfig(content='# Test'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
+        assert get_panel_type_name(panel) == 'markdown'
+
+    def test_returns_links_for_links_panel(self) -> None:
+        """Test that 'links' is returned for a LinksPanel."""
+        panel = LinksPanel(
+            links=LinksPanelConfig(items=[UrlLink(url='https://example.com')]), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+        )
+        assert get_panel_type_name(panel) == 'links'
+
+    def test_returns_image_for_image_panel(self) -> None:
+        """Test that 'image' is returned for an ImagePanel."""
+        panel = ImagePanel(
+            image=ImagePanelConfig(from_url='https://example.com/image.png'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+        )
+        assert get_panel_type_name(panel) == 'image'
+
+    def test_returns_search_for_search_panel(self) -> None:
+        """Test that 'search' is returned for a SearchPanel."""
+        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
+        assert get_panel_type_name(panel) == 'search'
+
+
+class TestCompileDashboardPanel:
+    """Test the compile_dashboard_panel function."""
+
+    def test_compiles_links_panel(self) -> None:
+        """Test that a LinksPanel is compiled correctly."""
+        panel = LinksPanel(
+            links=LinksPanelConfig(items=[UrlLink(url='https://example.com', label='Example')]),
+            position={'x': 0, 'y': 0},
+            size={'w': 12, 'h': 4},
+        )
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        _references, kbn_panel = compile_dashboard_panel(panel, grid)
+
+        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+            {
+                'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
+                'embeddableConfig': {
+                    'enhancements': {},
+                    'attributes': {
+                        'layout': 'horizontal',
+                        'links': [
+                            {
+                                'id': IsUUID,
+                                'order': 0,
+                                'label': 'Example',
+                                'type': 'externalLink',
+                                'destination': 'https://example.com',
+                            }
+                        ],
+                    },
+                },
+                'panelIndex': IsUUID,
+                'type': 'links',
+            }
+        )
+
+    def test_compiles_image_panel(self) -> None:
+        """Test that an ImagePanel is compiled correctly."""
+        panel = ImagePanel(
+            image=ImagePanelConfig(from_url='https://example.com/image.png'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+        )
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        _references, kbn_panel = compile_dashboard_panel(panel, grid)
+
+        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+            {
+                'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
+                'embeddableConfig': {
+                    'enhancements': {'dynamicActions': {'events': []}},
+                    'imageConfig': {
+                        'altText': '',
+                        'backgroundColor': '',
+                        'sizing': {'objectFit': 'contain'},
+                        'src': {'type': 'url', 'url': 'https://example.com/image.png'},
+                    },
+                },
+                'panelIndex': IsUUID,
+                'type': 'image',
+            }
+        )
+
+    def test_compiles_search_panel(self) -> None:
+        """Test that a SearchPanel is compiled correctly."""
+        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        references, kbn_panel = compile_dashboard_panel(panel, grid)
+
+        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+            {
+                'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
+                'embeddableConfig': {
+                    'enhancements': {},
+                    'savedSearchRefName': 'search:search-id',
+                },
+                'panelIndex': IsUUID,
+                'type': 'search',
+            }
+        )
+
+        assert len(references) == 1
+        assert references[0].model_dump() == {
+            'name': 'search:search-id',
+            'type': 'search',
+            'id': 'search-id',
+        }
+
+
+class TestDashboardReferenceBubbleUp:
+    """Test that panel references bubble up to dashboard level correctly."""
+
+    def test_search_panel_references_bubble_up(self) -> None:
+        """Test that search panel references bubble up to dashboard level correctly.
+
+        Search panels reference saved searches, so these references should appear
+        at the dashboard's top-level references array with proper panel namespacing.
+        """
+        dashboard = Dashboard(
+            name='Test Search Dashboard',
+            panels=[
+                {
+                    'title': 'My Saved Search',
+                    'id': 'search-panel-1',
+                    'size': {'w': 24, 'h': 15},
+                    'search': {
+                        'saved_search_id': 'my-saved-search',
+                    },
+                }
+            ],
+        )
+
+        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+        references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+        assert references == snapshot([{'id': 'my-saved-search', 'name': 'search-panel-1:search:my-saved-search', 'type': 'search'}])
+
+    def test_image_panel_references_bubble_up(self) -> None:
+        """Test that image panel references bubble up to dashboard level correctly.
+
+        Image panels have no external references, so the dashboard's references array should be empty.
+        """
+        dashboard = Dashboard(
+            name='Test Image Dashboard',
+            panels=[
+                {
+                    'title': 'Test Image',
+                    'id': 'image-panel-1',
+                    'size': {'w': 24, 'h': 15},
+                    'image': {
+                        'from_url': 'https://example.com/image.png',
+                    },
+                }
+            ],
+        )
+
+        kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+        references = [ref.model_dump() for ref in kbn_dashboard.references]
+
+        assert references == snapshot([])

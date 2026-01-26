@@ -2,11 +2,25 @@
 # Common helper functions and variables used across all component Makefiles
 # Include this file with: include ../Makefile.shared (or ../Makefile.shared from subdirectories)
 
+# Automatically detect repository root directory
+# This works by finding the directory containing Makefile.shared (which is at the root)
+ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 # Force use of bash for PIPESTATUS support
-# SHELL should be set by the including Makefile before including this file
-# If not set, default to /bin/bash (fallback for direct inclusion)
+# SHELL can be set by the including Makefile before including this file to override
+# If not set, detect RUNNER_OS (set by GitHub Actions) and set SHELL accordingly
+# On Windows in GitHub Actions, bash is available via Git Bash when shell: bash is used
 ifndef SHELL
-  SHELL := /bin/bash
+  ifdef RUNNER_OS
+    ifeq ($(RUNNER_OS),Windows)
+      SHELL := bash
+    else
+      SHELL := /bin/bash
+    endif
+  else
+    # Not in GitHub Actions - default to /bin/bash for Unix-like systems
+    SHELL := /bin/bash
+  endif
 endif
 
 # Helper to indent command output (4 spaces) while preserving exit codes

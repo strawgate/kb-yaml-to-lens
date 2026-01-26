@@ -5,9 +5,9 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from dashboard_compiler.panels.markdown import MarkdownPanel
 from dashboard_lint.rules.core import PanelContext, PanelRule, ViolationResult, panel_rule
 from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.markdown import MarkdownPanel
 
 # Pattern to match markdown headers (# through ######)
 HEADER_PATTERN = re.compile(r'^#{1,6}\s+', re.MULTILINE)
