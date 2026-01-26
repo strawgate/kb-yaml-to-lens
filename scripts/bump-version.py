@@ -83,6 +83,49 @@ def write_version(path: Path, file_format: str, old_version: str, new_version: s
     path.write_text(new_content, encoding='utf-8')
 
 
+def check_all_dependencies_pinned(root: Path) -> None:
+    """Check that all internal package dependencies are pinned (have version specifiers)."""
+    internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli']
+    
+    # Files that might have internal dependencies
+    files_with_deps = [
+        'packages/kb-dashboard-tools/pyproject.toml',
+        'packages/kb-dashboard-lint/pyproject.toml',
+        'packages/kb-dashboard-cli/pyproject.toml',
+        'packages/kb-dashboard-docs/pyproject.toml',
+        'pyproject.toml',
+    ]
+    
+    unpinned_deps = []
+    
+    for file_path in files_with_deps:
+        full_path = root / file_path
+        if not full_path.exists():
+            continue
+            
+        content = full_path.read_text(encoding='utf-8')
+        lines = content.split('\n')
+        
+        for line_num, line in enumerate(lines, start=1):
+            # Skip name fields
+            if 'name =' in line:
+                continue
+            
+            for pkg in internal_packages:
+                # Check for unpinned dependency: "pkg" followed by comma or closing bracket
+                # But not "pkg==" or "pkg>=" or "pkg<=" etc.
+                unpinned_pattern = re.compile(r'"' + re.escape(pkg) + r'"(?=\s*[,)])')
+                if unpinned_pattern.search(line) and '==' not in line and '>=' not in line and '<=' not in line and '~=' not in line and '!=' not in line:
+                    unpinned_deps.append((file_path, line_num, pkg))
+    
+    if unpinned_deps:
+        click.echo('\nError: Found unpinned internal package dependencies:', err=True)
+        for file_path, line_num, pkg in unpinned_deps:
+            click.echo(f'  {file_path}:{line_num} - "{pkg}" is not pinned', err=True)
+        click.echo('\nAll internal package dependencies must be pinned with a version (e.g., "pkg==1.0.0")', err=True)
+        raise click.ClickException('Unpinned dependencies found')
+
+
 def update_internal_dependencies(root: Path, old_version: str, new_version: str, dry_run: bool) -> None:
     """Update internal package dependencies to exact versions."""
     internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli']
@@ -108,20 +151,21 @@ def update_internal_dependencies(root: Path, old_version: str, new_version: str,
         new_content = content
         
         for pkg in internal_packages:
-            # Match patterns like:
-            # "kb-dashboard-core",
+            # Only match pinned dependencies (safe - won't match name fields):
             # "kb-dashboard-core==0.1.10",
             # "kb-dashboard-core>=0.1.10",
-            patterns = [
-                (f'"{pkg}"', f'"{pkg}=={new_version}"'),  # Unpinned
-                (f'"{pkg}=={old_version}"', f'"{pkg}=={new_version}"'),  # Pinned to old version
-                (f'"{pkg}>={old_version}"', f'"{pkg}=={new_version}"'),  # Min version
-            ]
             
-            for old_pattern, new_pattern in patterns:
-                if old_pattern in new_content:
-                    new_content = new_content.replace(old_pattern, new_pattern)
-                    updated = True
+            # Pattern 1: Pinned to old version (safe to replace directly - won't match name field)
+            pinned_pattern = f'"{pkg}=={old_version}"'
+            if pinned_pattern in new_content:
+                new_content = new_content.replace(pinned_pattern, f'"{pkg}=={new_version}"')
+                updated = True
+            
+            # Pattern 2: Minimum version (safe to replace directly - won't match name field)
+            min_version_pattern = f'"{pkg}>={old_version}"'
+            if min_version_pattern in new_content:
+                new_content = new_content.replace(min_version_pattern, f'"{pkg}=={new_version}"')
+                updated = True
         
         if updated:
             if not dry_run:
@@ -159,6 +203,9 @@ def update_versions(new_version: str, dry_run: bool) -> None:
         if file_path.endswith('pyproject.toml'):
             pyproject_updated = True
 
+    # Check that all internal dependencies are pinned before updating
+    check_all_dependencies_pinned(root)
+    
     # Update internal package dependencies
     if not dry_run:
         update_internal_dependencies(root, current_version, new_version, dry_run)

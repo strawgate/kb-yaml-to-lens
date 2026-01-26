@@ -64,7 +64,7 @@ help:
 	@echo "  make root ci              - Run root-level CI checks (markdown + YAML lint)"
 	@echo "  make root fix             - Auto-fix root-level linting"
 	@echo "  make root install         - Install root-level dependencies"
-	@echo "  make cli test-smoke     - Run CLI smoke tests"
+	@echo "  make cli test-e2e         - Run CLI E2E tests (includes Docker tests if available)"
 	@echo "  make vscode test-e2e      - Run VS Code E2E tests"
 	@echo "  make docs ci              - Check docs (markdown lint + links)"
 	@echo "  make docs serve           - Start docs server"

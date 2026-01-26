@@ -7,7 +7,7 @@ SHELL := /bin/bash
 # Include shared helpers
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean build publish publish-test export-schemas
+.PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish setup update-deps clean build publish publish-test export-schemas
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -39,7 +39,7 @@ help:
 	@echo "Testing:"
 	@echo "  test              - Run all tests (unit + E2E)"
 	@echo "  test-unit         - Run unit tests only"
-	@echo "  test-e2e          - Run E2E tests (CLI compilation pipeline)"
+	@echo "  test-e2e          - Run E2E tests (CLI compilation pipeline + Docker smoke tests)"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
 	@echo ""
@@ -55,7 +55,6 @@ help:
 	@echo "  docker-run         - Run Docker container"
 	@echo "  docker-test        - Test Docker image"
 	@echo "  docker-publish     - Publish Docker image to GHCR"
-	@echo "  test-docker-smoke  - Run Docker smoke tests"
 	@echo ""
 	@echo "PyPI Publishing:"
 	@echo "  build         - Build package for PyPI"
@@ -101,7 +100,12 @@ test-unit:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
 
 test-e2e:
-	$(call run_cmd, "Running E2E tests", bash scripts/test_cli_smoke.sh, "E2E tests passed")
+	$(call run_cmd, "Running CLI E2E tests", bash scripts/test_cli_smoke.sh, "CLI E2E tests passed")
+	@if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then \
+		$(call run_cmd, "Running Docker E2E tests", bash scripts/test_docker_smoke.sh, "Docker E2E tests passed"); \
+	else \
+		echo "⚠ Docker not available, skipping Docker E2E tests"; \
+	fi
 
 test: test-unit test-e2e
 
@@ -152,9 +156,6 @@ docker-publish:
 	$(call require_var, CONFIRM_PUBLISH, "Set CONFIRM_PUBLISH=yes to confirm publishing to GHCR. Usage: make docker-publish CONFIRM_PUBLISH=yes")
 	@docker buildx version > /dev/null 2>&1 || (echo "Error: docker buildx not available. See https://docs.docker.com/build/buildx/install/" && exit 1)
 	$(call run_cmd, "Publishing Docker image to GHCR", docker buildx build --platform linux/amd64,linux/arm64 -t $(GHCR_REGISTRY) -f Dockerfile --push ., "Docker image published to GHCR")
-
-test-docker-smoke:
-	$(call run_cmd, "Running Docker smoke tests", bash scripts/test_docker_smoke.sh, "Docker smoke tests passed")
 
 # Cleaning
 clean:

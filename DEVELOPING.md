@@ -93,7 +93,7 @@ make all clean        # Clean all components
 
 # Run in specific component
 make cli test            # Run CLI tests
-make cli test-smoke      # Run CLI smoke tests
+make cli test-e2e         # Run CLI E2E tests (includes Docker tests if available)
 make core test           # Run core tests
 make vscode test-unit    # Run VS Code unit tests
 make vscode test-e2e     # Run VS Code E2E tests

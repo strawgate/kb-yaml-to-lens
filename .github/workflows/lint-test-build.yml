@@ -100,7 +100,7 @@ jobs:
         shell: bash
         run: |
           echo "Overall coverage decreased from ${{ steps.coverage_comment.outputs.reference_percent_covered }}% to ${{ steps.coverage_comment.outputs.new_percent_covered }}%."
-          && exit 1
+          exit 1
       - name: Enforce minimum PR coverage of 90%
         if: ${{ steps.coverage_comment.outputs.diff_total_percent_covered < 0.90 }}
         shell: bash
