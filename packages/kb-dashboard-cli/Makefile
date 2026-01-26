@@ -100,6 +100,7 @@ test-e2e:
 	$(call run_cmd, "Running CLI E2E tests", bash scripts/test_cli_smoke.sh, "CLI E2E tests passed")
 	$(call print_start, "Running Docker E2E tests")
 	@if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then \
+		$(MAKE) docker-build > /dev/null 2>&1; \
 		bash scripts/test_docker_smoke.sh $(INDENT); \
 	else \
 		echo "⚠ Docker not available, skipping Docker E2E tests"; \
