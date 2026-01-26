@@ -289,14 +289,16 @@ dashboards:
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.cpu.usage.kernelmode IS NOT NULL OR container.cpu.usage.usermode IS NOT NULL
-            - EVAL kernel_rate = RATE(container.cpu.usage.kernelmode)
-            - EVAL user_rate = RATE(container.cpu.usage.usermode)
-            - EVAL cpu_rate = COALESCE(kernel_rate, user_rate)
-            - EVAL cpu_mode = CASE(kernel_rate IS NOT NULL, "kernelmode", "usermode")
-            - EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id))
-            - STATS cpu_usage = AVG(cpu_rate) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              breakdown_label
+            - FORK ( WHERE container.cpu.usage.kernelmode IS NOT NULL
+                     | EVAL cpu_rate = RATE(container.cpu.usage.kernelmode)
+                     | EVAL cpu_mode = "kernelmode"
+                     | EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id)) )
+                   ( WHERE container.cpu.usage.usermode IS NOT NULL
+                     | EVAL cpu_rate = RATE(container.cpu.usage.usermode)
+                     | EVAL cpu_mode = "usermode"
+                     | EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id)) )
+            - EVAL time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend)
+            - STATS cpu_usage = AVG(cpu_rate) BY time_bucket, breakdown_label
             - SORT time_bucket ASC
           legend:
             visible: show
