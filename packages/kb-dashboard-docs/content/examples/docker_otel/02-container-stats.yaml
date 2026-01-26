@@ -281,7 +281,7 @@ dashboards:
 
       # CPU Usage (area stacked chart)
       - title: CPU Usage
-        description: CPU usage broken down by mode (kernel/user) and container. Shows how CPU time is split between kernel and user space per container.
+        description: CPU usage broken down by execution mode (kernelmode/usermode) and container. Kernel mode represents time spent in system calls and kernel operations, while user mode represents time spent executing application code. Labels show mode and container ID (e.g., "kernelmode - abc123").
         size: {w: 48, h: 9}
         esql:
           type: area
@@ -291,7 +291,7 @@ dashboards:
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.cpu.usage.kernelmode IS NOT NULL OR container.cpu.usage.usermode IS NOT NULL
             - EVAL cpu_mode = CASE(container.cpu.usage.kernelmode IS NOT NULL, "kernelmode", "usermode")
-            - EVAL cpu_time = COALESCE(container.cpu.usage.kernelmode, container.cpu.usage.usermode)
+            - EVAL cpu_time = CASE(container.cpu.usage.kernelmode IS NOT NULL, container.cpu.usage.kernelmode, container.cpu.usage.usermode)
             - EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id))
             - STATS cpu_usage = AVG(RATE(cpu_time)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
               breakdown_label
@@ -366,7 +366,7 @@ dashboards:
 
       # Disk I/O (line chart by device) - second visualization
       - title: Disk I/O
-        description: Disk I/O broken down by device and container. Shows which devices each container is using for block I/O operations.
+        description: Disk I/O broken down by device major number and container. Device major numbers identify the type of block device (e.g., 8 for SCSI disks, 259 for NVMe). Labels show device major number and container ID (e.g., "8 - abc123"). Use this to identify which physical devices each container is accessing.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -393,7 +393,7 @@ dashboards:
 
       # Network - Received Bytes (line chart)
       - title: Network - Received Bytes
-        description: Network received bytes broken down by interface and container. Shows which network interfaces each container is using.
+        description: Network received bytes broken down by network interface and container. Interface names identify the network interface (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name and container ID (e.g., "eth0 - abc123"). Use this to see which network interfaces each container is receiving traffic on.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -420,7 +420,7 @@ dashboards:
 
       # Network - Transmitted Bytes (line chart)
       - title: Network - Transmitted Bytes
-        description: Network transmitted bytes broken down by interface and container. Shows which network interfaces each container is using for outbound traffic.
+        description: Network transmitted bytes broken down by network interface and container. Interface names identify the network interface (e.g., "eth0" for the first Ethernet interface, "docker0" for Docker bridge). Labels show interface name and container ID (e.g., "eth0 - abc123"). Use this to see which network interfaces each container is sending traffic through.
         size: {w: 24, h: 9}
         esql:
           type: line
