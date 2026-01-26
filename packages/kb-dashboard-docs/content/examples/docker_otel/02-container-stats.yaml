@@ -52,7 +52,7 @@ dashboards:
       # KPI Metrics Row
       - title: Selected Containers
         hide_title: true
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -69,7 +69,7 @@ dashboards:
       - title: Unique Images
         description: Number of distinct container images running. Helps identify image diversity and potential consolidation opportunities.
         hide_title: true
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -85,7 +85,7 @@ dashboards:
               decimals: 0
       - title: Avg Memory Used
         hide_title: true
-        size: {w: 10, h: 8}
+        size: {w: 10, h: 4}
         esql:
           type: metric
           query:
@@ -100,7 +100,7 @@ dashboards:
               type: bytes
       - title: Avg CPU Usage
         hide_title: true
-        size: {w: 10, h: 8}
+        size: {w: 10, h: 4}
         esql:
           type: metric
           query:
@@ -116,7 +116,7 @@ dashboards:
       - title: Total Memory Used
         description: Aggregate memory consumption across all selected containers. Useful for capacity planning and resource allocation.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -281,6 +281,7 @@ dashboards:
 
       # CPU Usage (area stacked chart)
       - title: CPU Usage
+        description: CPU usage broken down by mode (kernel/user) and container. Shows how CPU time is split between kernel and user space per container.
         size: {w: 48, h: 9}
         esql:
           type: area
@@ -288,9 +289,12 @@ dashboards:
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.cpu.utilization IS NOT NULL
-            - STATS cpu_usage = AVG(container.cpu.utilization) / 100 BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id
+            - WHERE container.cpu.usage.kernelmode IS NOT NULL OR container.cpu.usage.usermode IS NOT NULL
+            - EVAL cpu_mode = CASE(container.cpu.usage.kernelmode IS NOT NULL, "kernelmode", "usermode")
+            - EVAL cpu_time = COALESCE(container.cpu.usage.kernelmode, container.cpu.usage.usermode)
+            - EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id))
+            - STATS cpu_usage = AVG(RATE(cpu_time)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
+              breakdown_label
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -303,7 +307,7 @@ dashboards:
               format:
                 type: percent
           breakdown:
-            field: container_id
+            field: breakdown_label
 
       # Memory Usage with limit (line chart)
       - title: Memory Usage with limit
@@ -362,6 +366,7 @@ dashboards:
 
       # Disk I/O (line chart by device) - second visualization
       - title: Disk I/O
+        description: Disk I/O broken down by device and container. Shows which devices each container is using for block I/O operations.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -369,9 +374,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.blockio.io_service_bytes_recursive IS NOT NULL
+            - EVAL breakdown_label = CONCAT(TO_STRING(attributes.device_major), " - ", TO_STRING(container.id))
             - STATS io_rate = SUM(RATE(container.blockio.io_service_bytes_recursive)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id,
-              device = attributes.device_major
+              breakdown_label
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -384,10 +389,11 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: breakdown_label
 
       # Network - Received Bytes (line chart)
       - title: Network - Received Bytes
+        description: Network received bytes broken down by interface and container. Shows which network interfaces each container is using.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -395,9 +401,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.rx_bytes IS NOT NULL
+            - EVAL breakdown_label = CONCAT(attributes.interface, " - ", TO_STRING(container.id))
             - STATS rx_rate = SUM(RATE(container.network.io.usage.rx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id,
-              interface = attributes.interface
+              breakdown_label
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -410,10 +416,11 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: breakdown_label
 
       # Network - Transmitted Bytes (line chart)
       - title: Network - Transmitted Bytes
+        description: Network transmitted bytes broken down by interface and container. Shows which network interfaces each container is using for outbound traffic.
         size: {w: 24, h: 9}
         esql:
           type: line
@@ -421,9 +428,9 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE container.network.io.usage.tx_bytes IS NOT NULL
+            - EVAL breakdown_label = CONCAT(attributes.interface, " - ", TO_STRING(container.id))
             - STATS tx_rate = SUM(RATE(container.network.io.usage.tx_bytes)) BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-              container_id = container.id,
-              interface = attributes.interface
+              breakdown_label
             - SORT time_bucket ASC
           legend:
             visible: show
@@ -436,4 +443,4 @@ dashboards:
               format:
                 type: bytes
           breakdown:
-            field: container_id
+            field: breakdown_label
