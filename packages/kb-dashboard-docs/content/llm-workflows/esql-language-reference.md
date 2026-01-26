@@ -267,7 +267,7 @@ Splits processing into multiple branches and combines results. Useful for combin
 
 ```esql
 TS metrics-*
-|| FORK (
+| FORK (
     WHERE container.cpu.usage.kernelmode IS NOT NULL
     | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
       BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), container.id
@@ -279,7 +279,7 @@ TS metrics-*
       BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), container.id
     | EVAL cpu_mode = "usermode"
   )
-|| STATS combined_rate = AVG(cpu_rate) BY time_bucket, cpu_mode
+| STATS combined_rate = AVG(cpu_rate) BY time_bucket, cpu_mode
 ```
 
 **Key points:**
@@ -326,11 +326,11 @@ For use with the TS source command (Elasticsearch 9.2+):
 ```esql
 # CORRECT - RATE() inside STATS
 TS metrics-*
-|| STATS request_rate = SUM(RATE(requests))
+| STATS request_rate = SUM(RATE(requests))
 
 # CORRECT - RATE() inside STATS within FORK branch
 TS metrics-*
-|| FORK (
+| FORK (
     WHERE field1 IS NOT NULL
     | STATS rate1 = AVG(RATE(field1))
   )
@@ -341,7 +341,7 @@ TS metrics-*
 
 # WRONG - RATE() cannot be used in EVAL
 TS metrics-*
-|| EVAL rate = RATE(requests)  # Error: RATE can only be used in STATS
+| EVAL rate = RATE(requests)  # Error: RATE can only be used in STATS
 ```
 | `DELTA(field)` | Absolute change of gauge | `STATS SUM(DELTA(temperature))` |
 | `IDELTA(field)` | Instant delta (last two points) | `STATS SUM(IDELTA(gauge))` |
@@ -359,15 +359,15 @@ TS metrics-*
 ```esql
 # CORRECT - AVG_OVER_TIME wrapped in MAX()
 TS metrics-*
-|| STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
+| STATS avg_cpu = MAX(AVG_OVER_TIME(system.cpu.utilization))
 
 # CORRECT - LAST_OVER_TIME wrapped in MAX()
 TS metrics-*
-|| STATS connections = MAX(LAST_OVER_TIME(postgresql.backends))
+| STATS connections = MAX(LAST_OVER_TIME(postgresql.backends))
 
 # WRONG - *_OVER_TIME() must be wrapped in aggregate
 TS metrics-*
-|| STATS cpu = AVG_OVER_TIME(system.cpu.utilization)  # Error: must be wrapped
+| STATS cpu = AVG_OVER_TIME(system.cpu.utilization)  # Error: must be wrapped
 ```
 
 ### Choosing the Right Gauge Aggregation
@@ -458,9 +458,9 @@ This ensures visualizations remain readable whether the user views 5 minutes or 
 ```esql
 # Split image name and extract name/version
 FROM metrics-*
-|| EVAL image_parts = SPLIT(container.image.name, ":")
-|| EVAL image_name = MV_FIRST(image_parts)
-|| EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+| EVAL image_parts = SPLIT(container.image.name, ":")
+| EVAL image_name = MV_FIRST(image_parts)
+| EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
 ```
 
 ### Date/Time Functions
