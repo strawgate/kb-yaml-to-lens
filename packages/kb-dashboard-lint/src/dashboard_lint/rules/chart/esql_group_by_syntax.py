@@ -1,26 +1,29 @@
-"""Rule: ES|QL queries should include a WHERE clause."""
+"""Rule: ES|QL uses BY within STATS, not GROUP BY."""
 
 from dataclasses import dataclass
 
 from dashboard_compiler.panels.charts.config import ESQLPanel, LensPanel
-from dashboard_lint.esql_helpers import ESQLConfig, get_query_string, has_command_starting_with
+from dashboard_lint.esql_helpers import ESQLConfig, get_query_string, has_group_by
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
 
 
 @chart_rule
 @dataclass(frozen=True)
-class ESQLWhereClauseRule(ChartRule[ESQLConfig, EmptyOptions]):
-    """Rule: ES|QL queries should include a WHERE clause.
+class ESQLGroupBySyntaxRule(ChartRule[ESQLConfig, EmptyOptions]):
+    """Rule: ES|QL uses BY within STATS, not GROUP BY.
 
-    Adding a WHERE clause to filter data improves query performance
-    and ensures the visualization shows only relevant data.
-    This is especially important for large datasets.
+    ES|QL is not SQL. In ES|QL, grouping is done with the BY clause
+    within STATS, not a separate GROUP BY clause.
+
+    Example fix:
+        Before: FROM logs-* | STATS count = COUNT(*) GROUP BY host.name
+        After:  FROM logs-* | STATS count = COUNT(*) BY host.name
     """
 
-    id: str = 'esql-where-clause'
-    description: str = 'ES|QL queries should include a WHERE clause'
-    default_severity: Severity = Severity.INFO
+    id: str = 'esql-group-by-syntax'
+    description: str = 'ES|QL uses BY within STATS, not GROUP BY'
+    default_severity: Severity = Severity.WARNING
     options_model: type[EmptyOptions] = EmptyOptions
 
     def check_chart(  # pyright: ignore[reportImplicitOverride]
@@ -30,7 +33,7 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig, EmptyOptions]):
         context: ChartContext,
         options: EmptyOptions,  # noqa: ARG002
     ) -> ViolationResult:
-        """Check ES|QL panel for missing WHERE clause.
+        """Check if ES|QL query uses GROUP BY instead of BY.
 
         Args:
             panel: The ESQL panel to check.
@@ -39,16 +42,15 @@ class ESQLWhereClauseRule(ChartRule[ESQLConfig, EmptyOptions]):
             options: Validated rule options (empty for this rule).
 
         Returns:
-            Violation if no WHERE clause found, None otherwise.
+            Violation if GROUP BY is found, None otherwise.
 
         """
         query_str = get_query_string(config.query)
 
-        # Check for WHERE clause
-        if not has_command_starting_with(query_str, 'WHERE'):
+        if has_group_by(query_str):
             return Violation(
                 rule_id=self.id,
-                message='ES|QL query should include a WHERE clause to filter data',
+                message='ES|QL uses BY within STATS, not GROUP BY; use STATS ... BY field instead',
                 severity=self.default_severity,
                 dashboard_name=context.dashboard_name,
                 panel_title=context.panel_title,

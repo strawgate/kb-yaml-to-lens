@@ -9,7 +9,10 @@ from dashboard_lint.rules.chart.dimension_missing_label import DimensionMissingL
 from dashboard_lint.rules.chart.esql_dimension_missing_label import ESQLDimensionMissingLabelRule
 from dashboard_lint.rules.chart.esql_dynamic_time_bucket import ESQLDynamicTimeBucketRule
 from dashboard_lint.rules.chart.esql_field_escaping import ESQLFieldEscapingRule
+from dashboard_lint.rules.chart.esql_group_by_syntax import ESQLGroupBySyntaxRule
 from dashboard_lint.rules.chart.esql_metric_missing_label import ESQLMetricMissingLabelRule
+from dashboard_lint.rules.chart.esql_missing_limit import ESQLMissingLimitRule
+from dashboard_lint.rules.chart.esql_missing_sort_after_bucket import ESQLMissingSortAfterBucketRule
 from dashboard_lint.rules.chart.esql_sql_syntax import ESQLSqlSyntaxRule
 from dashboard_lint.rules.chart.esql_where_clause import ESQLWhereClauseRule
 from dashboard_lint.rules.chart.gauge_goal_without_max import GaugeGoalWithoutMaxRule
@@ -18,6 +21,7 @@ from dashboard_lint.rules.chart.metric_redundant_label import MetricRedundantLab
 from dashboard_lint.rules.chart.narrow_xy_chart_side_legend import NarrowXYChartSideLegendRule
 from dashboard_lint.rules.chart.panel_height_for_content import PanelHeightForContentRule
 from dashboard_lint.rules.chart.pie_chart_dimension_count import PieChartDimensionCountRule
+from dashboard_lint.rules.chart.pie_missing_limit import PieMissingLimitRule
 
 __all__ = [
     'DatatableRowDensityRule',
@@ -25,7 +29,10 @@ __all__ = [
     'ESQLDimensionMissingLabelRule',
     'ESQLDynamicTimeBucketRule',
     'ESQLFieldEscapingRule',
+    'ESQLGroupBySyntaxRule',
     'ESQLMetricMissingLabelRule',
+    'ESQLMissingLimitRule',
+    'ESQLMissingSortAfterBucketRule',
     'ESQLSqlSyntaxRule',
     'ESQLWhereClauseRule',
     'GaugeGoalWithoutMaxRule',
@@ -34,4 +41,5 @@ __all__ = [
     'NarrowXYChartSideLegendRule',
     'PanelHeightForContentRule',
     'PieChartDimensionCountRule',
+    'PieMissingLimitRule',
 ]

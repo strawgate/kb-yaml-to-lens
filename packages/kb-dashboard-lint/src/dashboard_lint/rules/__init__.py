@@ -12,12 +12,16 @@ This module provides:
 from dashboard_lint.rules.chart import (
     DatatableRowDensityRule,
     DimensionMissingLabelRule,
+    ESQLGroupBySyntaxRule,
+    ESQLMissingLimitRule,
+    ESQLMissingSortAfterBucketRule,
     ESQLWhereClauseRule,
     GaugeGoalWithoutMaxRule,
     MetricMultipleMetricsWidthRule,
     MetricRedundantLabelRule,
     PanelHeightForContentRule,
     PieChartDimensionCountRule,
+    PieMissingLimitRule,
 )
 from dashboard_lint.rules.core import (
     ChartContext,
@@ -31,23 +35,37 @@ from dashboard_lint.rules.core import (
     normalize_result,
     panel_rule,
 )
-from dashboard_lint.rules.dashboard import DashboardDatasetFilterRule
+from dashboard_lint.rules.dashboard import (
+    DashboardDatasetFilterRule,
+    DashboardMissingDescriptionRule,
+    DatatableAtBottomRule,
+    MarkdownAtTopRule,
+    MetricExcessiveCountRule,
+)
 from dashboard_lint.rules.panel import (
     MarkdownHeaderHeightRule,
     PanelDescriptionRecommendedRule,
     PanelMinWidthRule,
+    PanelTitleRedundantPrefixRule,
 )
 
 __all__ = [
     'ChartContext',
     'ChartRule',
     'DashboardDatasetFilterRule',
+    'DashboardMissingDescriptionRule',
     'DashboardRule',
+    'DatatableAtBottomRule',
     'DatatableRowDensityRule',
     'DimensionMissingLabelRule',
+    'ESQLGroupBySyntaxRule',
+    'ESQLMissingLimitRule',
+    'ESQLMissingSortAfterBucketRule',
     'ESQLWhereClauseRule',
     'GaugeGoalWithoutMaxRule',
+    'MarkdownAtTopRule',
     'MarkdownHeaderHeightRule',
+    'MetricExcessiveCountRule',
     'MetricMultipleMetricsWidthRule',
     'MetricRedundantLabelRule',
     'PanelContext',
@@ -55,7 +73,9 @@ __all__ = [
     'PanelHeightForContentRule',
     'PanelMinWidthRule',
     'PanelRule',
+    'PanelTitleRedundantPrefixRule',
     'PieChartDimensionCountRule',
+    'PieMissingLimitRule',
     'ViolationResult',
     'chart_rule',
     'dashboard_rule',
