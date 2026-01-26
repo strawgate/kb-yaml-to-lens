@@ -2,10 +2,10 @@
 
 from dataclasses import dataclass
 
-from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_lint.esql_helpers import ESQLConfig, get_query_string, has_group_by
 from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 
 
 @chart_rule

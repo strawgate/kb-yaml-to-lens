@@ -2,11 +2,11 @@
 
 import pytest
 
+from dashboard_lint.rules.chart import ESQLMissingLimitRule
+from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLDatatablePanelConfig, ESQLMetricPanelConfig, ESQLPanel
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
-from dashboard_lint.rules.chart import ESQLMissingLimitRule
-from dashboard_lint.types import Severity
 
 
 @pytest.fixture

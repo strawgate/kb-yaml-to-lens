@@ -32,21 +32,21 @@ The gauge tracks progress throughout the year.
 
 ## Lens Gauge Charts
 
-::: dashboard_compiler.panels.charts.gauge.config.LensGaugeChart
+::: kb_dashboard_core.panels.charts.gauge.config.LensGaugeChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Gauge Appearance
 
-::: dashboard_compiler.panels.charts.gauge.config.GaugeAppearance
+::: kb_dashboard_core.panels.charts.gauge.config.GaugeAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
 ## ES|QL Gauge Charts
 
-::: dashboard_compiler.panels.charts.gauge.config.ESQLGaugeChart
+::: kb_dashboard_core.panels.charts.gauge.config.ESQLGaugeChart
     options:
       show_root_heading: false
       heading_level: 3

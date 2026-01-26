@@ -2,6 +2,8 @@
 
 import pytest
 
+from dashboard_lint.rules.dashboard import DatatableAtBottomRule
+from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import (
     LensDatatablePanelConfig,
@@ -11,8 +13,6 @@ from kb_dashboard_core.panels.charts.config import (
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Position
-from dashboard_lint.rules.dashboard import DatatableAtBottomRule
-from dashboard_lint.types import Severity
 
 
 @pytest.fixture

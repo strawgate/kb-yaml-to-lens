@@ -32,14 +32,14 @@ That shows what numbers never knew.
 
 ## Image Panel
 
-::: dashboard_compiler.panels.images.config.ImagePanel
+::: kb_dashboard_core.panels.images.config.ImagePanel
     options:
       show_root_heading: false
       heading_level: 2
 
 ## Image Panel Configuration
 
-::: dashboard_compiler.panels.images.config.ImagePanelConfig
+::: kb_dashboard_core.panels.images.config.ImagePanelConfig
     options:
       show_root_heading: false
       heading_level: 3

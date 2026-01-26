@@ -2,11 +2,11 @@
 
 import pytest
 
+from dashboard_lint.rules.chart import ESQLGroupBySyntaxRule
+from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
-from dashboard_lint.rules.chart import ESQLGroupBySyntaxRule
-from dashboard_lint.types import Severity
 
 
 @pytest.fixture

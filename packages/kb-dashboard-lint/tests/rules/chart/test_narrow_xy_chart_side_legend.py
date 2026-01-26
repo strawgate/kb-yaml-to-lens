@@ -1,5 +1,6 @@
 """Tests for narrow-xy-chart-side-legend rule."""
 
+from dashboard_lint.rules.chart import NarrowXYChartSideLegendRule
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import (
     ESQLAreaPanelConfig,
@@ -16,7 +17,6 @@ from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDateHisto
 from kb_dashboard_core.panels.charts.xy.config import XYLegend
 from kb_dashboard_core.panels.charts.xy.metrics import XYESQLMetric, XYLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
-from dashboard_lint.rules.chart import NarrowXYChartSideLegendRule
 
 
 class TestNarrowXYChartSideLegendRule:

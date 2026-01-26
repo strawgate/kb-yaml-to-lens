@@ -12,12 +12,12 @@ what the auto-layout algorithm would produce, and removes those position
 properties to simplify future maintenance.
 
 Usage:
-    python3 scripts/remove_redundant_positions.py [--dry-run] [path...]
+    python3 packages/kb-dashboard-cli/scripts/remove_redundant_positions.py [--dry-run] [path...]
 
 Arguments:
     path     Optional paths to process. If not provided, processes all
-             dashboards in inputs/crowdstrike/, inputs/crowdstrike-modern/,
-             and inputs/elastic_agent/.
+             dashboards in packages/kb-dashboard-docs/content/examples/crowdstrike/
+             and packages/kb-dashboard-docs/content/examples/crowdstrike-modern/.
 
 Options:
     --dry-run    Report which dashboards would be modified without making changes.
@@ -43,11 +43,12 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 logger = logging.getLogger(__name__)
 
-# Default input directories relative to compiler/
+# Default input directories relative to repository root
+# Note: These paths are relative to repo root, not the package directory.
+# The script resolves the repo root by walking up from the script location.
 DEFAULT_INPUT_DIRS = [
-    'inputs/crowdstrike',
-    'inputs/crowdstrike-modern',
-    'inputs/elastic_agent',
+    'packages/kb-dashboard-docs/content/examples/crowdstrike',
+    'packages/kb-dashboard-docs/content/examples/crowdstrike-modern',
 ]
 
 # Map of semantic width values to grid units
@@ -472,9 +473,10 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # Determine base directory (compiler/)
+    # Determine base directory (repository root)
     script_dir = Path(__file__).resolve().parent
-    base_dir = script_dir.parent
+    # Walk up from scripts/ -> kb-dashboard-cli -> packages -> repo root
+    base_dir = script_dir.parent.parent.parent
 
     # Find files to process
     files = [Path(p).resolve() for p in args.paths] if args.paths else find_dashboard_files(base_dir, DEFAULT_INPUT_DIRS)

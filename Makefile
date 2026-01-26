@@ -31,6 +31,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-cli/.venv/**/*.yaml" --exclude "packages/kb-dashboard-cli/.venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-core/.venv/**/*.yaml" --exclude "packages/kb-dashboard-core/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-lint/.venv/**/*.yaml" --exclude "packages/kb-dashboard-lint/.venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-tools/.venv/**/*.yaml" --exclude "packages/kb-dashboard-tools/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \

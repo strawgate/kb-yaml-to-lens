@@ -2,9 +2,9 @@
 
 import pytest
 
-from kb_dashboard_core.dashboard.config import Dashboard
 from dashboard_lint.rules.dashboard import DashboardMissingDescriptionRule
 from dashboard_lint.types import Severity
+from kb_dashboard_core.dashboard.config import Dashboard
 
 
 @pytest.fixture

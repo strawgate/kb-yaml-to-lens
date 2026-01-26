@@ -37,49 +37,49 @@ When details matter, datatable never fails!
 
 ## Lens Datatable Charts
 
-::: dashboard_compiler.panels.charts.datatable.config.LensDatatableChart
+::: kb_dashboard_core.panels.charts.datatable.config.LensDatatableChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Column Configuration
 
-::: dashboard_compiler.panels.charts.datatable.config.DatatableColumnConfig
+::: kb_dashboard_core.panels.charts.datatable.config.DatatableColumnConfig
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Metric Column Configuration
 
-::: dashboard_compiler.panels.charts.datatable.config.DatatableMetricColumnConfig
+::: kb_dashboard_core.panels.charts.datatable.config.DatatableMetricColumnConfig
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Datatable Appearance
 
-::: dashboard_compiler.panels.charts.datatable.config.DatatableAppearance
+::: kb_dashboard_core.panels.charts.datatable.config.DatatableAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Sorting Configuration
 
-::: dashboard_compiler.panels.charts.datatable.config.DatatableSortingConfig
+::: kb_dashboard_core.panels.charts.datatable.config.DatatableSortingConfig
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Pagination Configuration
 
-::: dashboard_compiler.panels.charts.datatable.config.DatatablePagingConfig
+::: kb_dashboard_core.panels.charts.datatable.config.DatatablePagingConfig
     options:
       show_root_heading: false
       heading_level: 3
 
 ## ES|QL Datatable Charts
 
-::: dashboard_compiler.panels.charts.datatable.config.ESQLDatatableChart
+::: kb_dashboard_core.panels.charts.datatable.config.ESQLDatatableChart
     options:
       show_root_heading: false
       heading_level: 3

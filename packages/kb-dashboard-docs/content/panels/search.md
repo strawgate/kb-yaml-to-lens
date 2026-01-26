@@ -32,14 +32,14 @@ The log detective's on patrol.
 
 ## Search Panel
 
-::: dashboard_compiler.panels.search.config.SearchPanel
+::: kb_dashboard_core.panels.search.config.SearchPanel
     options:
       show_root_heading: false
       heading_level: 2
 
 ## Search Panel Configuration
 
-::: dashboard_compiler.panels.search.config.SearchPanelConfig
+::: kb_dashboard_core.panels.search.config.SearchPanelConfig
     options:
       show_root_heading: false
       heading_level: 3

@@ -68,7 +68,7 @@ dashboards:
 
 Global settings for all controls on the dashboard. These are configured under the `settings.controls` path in your main dashboard YAML.
 
-::: dashboard_compiler.controls.config.ControlSettings
+::: kb_dashboard_core.controls.config.ControlSettings
     options:
       show_root_heading: false
       heading_level: 4
@@ -77,14 +77,14 @@ Global settings for all controls on the dashboard. These are configured under th
 
 Allows users to select one or more values from a list to filter data.
 
-::: dashboard_compiler.controls.config.OptionsListControl
+::: kb_dashboard_core.controls.config.OptionsListControl
     options:
       show_root_heading: false
       heading_level: 4
 
 #### Match Technique Options
 
-::: dashboard_compiler.controls.config.MatchTechnique
+::: kb_dashboard_core.controls.config.MatchTechnique
     options:
       show_root_heading: false
       heading_level: 5
@@ -93,7 +93,7 @@ Allows users to select one or more values from a list to filter data.
 
 Allows users to select a range of numeric values to filter data.
 
-::: dashboard_compiler.controls.config.RangeSliderControl
+::: kb_dashboard_core.controls.config.RangeSliderControl
     options:
       show_root_heading: false
       heading_level: 4
@@ -102,7 +102,7 @@ Allows users to select a range of numeric values to filter data.
 
 Allows users to select a sub-section of the dashboard's current time range. This control does not use a `data_view` or `field` as it operates on the global time context.
 
-::: dashboard_compiler.controls.config.TimeSliderControl
+::: kb_dashboard_core.controls.config.TimeSliderControl
     options:
       show_root_heading: false
       heading_level: 4
@@ -120,7 +120,7 @@ ES|QL controls allow users to filter ES|QL visualizations via variables. There a
 
 For field selection in ES|QL visualizations. Only supports static values via `choices`.
 
-::: dashboard_compiler.controls.config.ESQLFieldControl
+::: kb_dashboard_core.controls.config.ESQLFieldControl
     options:
       show_root_heading: false
       heading_level: 5
@@ -129,7 +129,7 @@ For field selection in ES|QL visualizations. Only supports static values via `ch
 
 For function selection in ES|QL visualizations. Only supports static values via `choices`.
 
-::: dashboard_compiler.controls.config.ESQLFunctionControl
+::: kb_dashboard_core.controls.config.ESQLFunctionControl
     options:
       show_root_heading: false
       heading_level: 5
@@ -185,7 +185,7 @@ panels:
 
 #### ES|QL Static Single-Select Control (DEPRECATED)
 
-::: dashboard_compiler.controls.config.ESQLStaticSingleSelectControl
+::: kb_dashboard_core.controls.config.ESQLStaticSingleSelectControl
     options:
       show_root_heading: false
       heading_level: 5
@@ -214,21 +214,21 @@ controls:
 
 #### ES|QL Static Multi-Select Control (DEPRECATED)
 
-::: dashboard_compiler.controls.config.ESQLStaticMultiSelectControl
+::: kb_dashboard_core.controls.config.ESQLStaticMultiSelectControl
     options:
       show_root_heading: false
       heading_level: 5
 
 #### ES|QL Query-Driven Single-Select Control (DEPRECATED)
 
-::: dashboard_compiler.controls.config.ESQLQuerySingleSelectControl
+::: kb_dashboard_core.controls.config.ESQLQuerySingleSelectControl
     options:
       show_root_heading: false
       heading_level: 5
 
 #### ES|QL Query-Driven Multi-Select Control (DEPRECATED)
 
-::: dashboard_compiler.controls.config.ESQLQueryMultiSelectControl
+::: kb_dashboard_core.controls.config.ESQLQueryMultiSelectControl
     options:
       show_root_heading: false
       heading_level: 5
@@ -278,7 +278,7 @@ controls:
 
 ## ES|QL Variable Types
 
-::: dashboard_compiler.controls.types.ESQLVariableType
+::: kb_dashboard_core.controls.types.ESQLVariableType
     options:
       show_root_heading: false
       heading_level: 3

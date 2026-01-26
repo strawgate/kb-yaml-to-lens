@@ -2,10 +2,10 @@
 
 from dataclasses import dataclass
 
-from kb_dashboard_core.dashboard.config import Dashboard
-from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_lint.rules.core import DashboardRule, EmptyOptions, ViolationResult, dashboard_rule
 from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 
 
 @dashboard_rule

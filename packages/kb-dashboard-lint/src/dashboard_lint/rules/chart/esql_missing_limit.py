@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
-from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 from dashboard_lint.esql_helpers import (
     ESQLConfig,
     get_query_string,
@@ -13,6 +12,7 @@ from dashboard_lint.esql_helpers import (
 )
 from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
 from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 
 
 class ESQLMissingLimitOptions(BaseModel):

@@ -116,14 +116,14 @@ dashboards:
 
 ## Lens Heatmap Chart
 
-::: dashboard_compiler.panels.charts.heatmap.config.LensHeatmapChart
+::: kb_dashboard_core.panels.charts.heatmap.config.LensHeatmapChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## ES|QL Heatmap Chart
 
-::: dashboard_compiler.panels.charts.heatmap.config.ESQLHeatmapChart
+::: kb_dashboard_core.panels.charts.heatmap.config.ESQLHeatmapChart
     options:
       show_root_heading: false
       heading_level: 3
@@ -132,17 +132,17 @@ dashboards:
 
 Control the visibility of cell labels, axis labels, and titles:
 
-::: dashboard_compiler.panels.charts.heatmap.config.HeatmapGridConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapGridConfig
     options:
       show_root_heading: false
       heading_level: 3
 
-::: dashboard_compiler.panels.charts.heatmap.config.HeatmapCellsConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapCellsConfig
     options:
       show_root_heading: false
       heading_level: 3
 
-::: dashboard_compiler.panels.charts.heatmap.config.HeatmapAxisConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisConfig
     options:
       show_root_heading: false
       heading_level: 3
@@ -151,7 +151,7 @@ Control the visibility of cell labels, axis labels, and titles:
 
 Configure the color legend for your heatmap:
 
-::: dashboard_compiler.panels.charts.heatmap.config.HeatmapLegendConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapLegendConfig
     options:
       show_root_heading: false
       heading_level: 3

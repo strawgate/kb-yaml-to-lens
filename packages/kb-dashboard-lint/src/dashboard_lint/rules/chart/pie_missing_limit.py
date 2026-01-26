@@ -5,6 +5,9 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
+from dashboard_lint.esql_helpers import get_query_string
+from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
 from kb_dashboard_core.panels.charts.config import (
     ESQLPanel,
     ESQLPiePanelConfig,
@@ -14,9 +17,6 @@ from kb_dashboard_core.panels.charts.config import (
 from kb_dashboard_core.panels.charts.lens.dimensions.config import (
     BaseLensTermsDimension,
 )
-from dashboard_lint.esql_helpers import get_query_string
-from dashboard_lint.rules.core import ChartContext, ChartRule, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
 
 type PieConfig = LensPiePanelConfig | ESQLPiePanelConfig
 
