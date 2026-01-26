@@ -47,10 +47,13 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGr
         panel_type = get_panel_type(panel)
 
         # Use computed position if available, otherwise use panel's position
+        # A panel is "pinned" if it has explicit position coordinates (not auto-positioned)
         if index in position_map:
             x, y = position_map[index]
+            is_pinned = False
         elif panel.position.x is not None and panel.position.y is not None:
             x, y = panel.position.x, panel.position.y
+            is_pinned = True
         else:
             msg = f'Panel at index {index} has no position and auto-layout failed'
             raise ValueError(msg)
@@ -60,6 +63,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGr
             title=panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
             type=panel_type,
             grid=Grid(x=x, y=y, w=resolve_semantic_width(panel.size.w), h=panel.size.h),
+            is_pinned=is_pinned,
         )
         panels.append(panel_info)
 

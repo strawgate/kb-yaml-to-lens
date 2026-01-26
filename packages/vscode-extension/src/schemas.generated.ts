@@ -159,6 +159,25 @@ export const UpdateGridLayoutRequest = BaseLSPModel.extend({
 export type UpdateGridLayoutRequestType = z.infer<typeof UpdateGridLayoutRequest>;
 
 /**
+ * Request parameters for dashboard/unpinPanel endpoint.
+ */
+export const UnpinPanelRequest = BaseLSPModel.extend({
+  /**
+   * Path to the YAML file containing dashboards.
+   */
+  path: z.string(),
+  /**
+   * ID of the panel to unpin.
+   */
+  panel_id: z.string(),
+  /**
+   * Index of the dashboard (default: 0).
+   */
+  dashboard_index: z.number().int().default(0),
+}).strict();
+export type UnpinPanelRequestType = z.infer<typeof UnpinPanelRequest>;
+
+/**
  * Request parameters for dashboard/uploadToKibana endpoint.
  */
 export const UploadToKibanaRequest = BaseLSPModel.extend({
@@ -262,6 +281,10 @@ export const PanelGridInfo = BaseLSPModel.extend({
    * Grid position and size.
    */
   grid: Grid,
+  /**
+   * Whether the panel has an explicit position (not auto-positioned).
+   */
+  is_pinned: z.boolean(),
 }).strict();
 export type PanelGridInfoType = z.infer<typeof PanelGridInfo>;
 

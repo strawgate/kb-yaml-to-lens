@@ -41,6 +41,7 @@ Relates to #
 ## Checklist
 
 - [ ] All static checks pass (`make all ci`)
+- [ ] I followed the [contributing guide](CONTRIBUTING.md)
 - [ ] Tests added/updated as needed
 - [ ] Documentation updated (if API changed)
 - [ ] Breaking changes documented with migration path
