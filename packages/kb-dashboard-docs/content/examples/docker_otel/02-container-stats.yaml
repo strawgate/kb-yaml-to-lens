@@ -290,15 +290,13 @@ dashboards:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - FORK ( WHERE container.cpu.usage.kernelmode IS NOT NULL
-                     | STATS time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-                            cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
-                       BY BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id
+                     | STATS cpu_rate = AVG(RATE(container.cpu.usage.kernelmode))
+                       BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id
                      | EVAL cpu_mode = "kernelmode"
                      | EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id)) )
                    ( WHERE container.cpu.usage.usermode IS NOT NULL
-                     | STATS time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend),
-                            cpu_rate = AVG(RATE(container.cpu.usage.usermode))
-                       BY BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id
+                     | STATS cpu_rate = AVG(RATE(container.cpu.usage.usermode))
+                       BY time_bucket = BUCKET(`@timestamp`, 20, ?_tstart, ?_tend), container.id
                      | EVAL cpu_mode = "usermode"
                      | EVAL breakdown_label = CONCAT(cpu_mode, " - ", TO_STRING(container.id)) )
             - STATS cpu_usage = AVG(cpu_rate) BY time_bucket, breakdown_label
