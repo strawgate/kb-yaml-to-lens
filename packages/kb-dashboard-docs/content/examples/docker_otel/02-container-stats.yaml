@@ -50,7 +50,7 @@ dashboards:
               dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
-      - title: Selected Containers
+      - title: Containers
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -59,10 +59,10 @@ dashboards:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-            - STATS selected_containers = COUNT_DISTINCT(container.id)
+            - STATS containers = COUNT_DISTINCT(container.id)
           primary:
-            field: selected_containers
-            label: Selected Containers
+            field: containers
+            label: Containers
             format:
               type: number
               decimals: 0
@@ -139,10 +139,10 @@ dashboards:
           query:
             - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100, `Memory %` = AVG(container.memory.percent)
-              / 100, `Memory (Bytes)` = AVG(container.memory.usage.total) BY `Container Name` = container.name, Image = container.image.name,
+            - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100, `Memory (Bytes)` = AVG(container.memory.usage.total),
+              `Memory %` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, Image = container.image.name,
               Runtime = container.runtime, `Container ID` = container.id, Hostname = container.hostname
-            - KEEP `Container Name`, Image, Runtime, `Container ID`, Hostname, `CPU Usage`, `Memory %`, `Memory (Bytes)`
+            - KEEP `Container Name`, Image, Runtime, `Container ID`, Hostname, `CPU Usage`, `Memory (Bytes)`, `Memory %`
             - LIMIT 10
           dimensions:
             - field: Container Name
@@ -160,14 +160,14 @@ dashboards:
               label: CPU Usage
               format:
                 type: percent
-            - field: Memory %
-              label: Memory %
-              format:
-                type: percent
             - field: Memory (Bytes)
               label: Memory (Bytes)
               format:
                 type: bytes
+            - field: Memory %
+              label: Memory %
+              format:
+                type: percent
 
       # CPU Usage (line chart)
       - title: CPU Usage

@@ -50,71 +50,59 @@ dashboards:
               dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
-      - title: Total Containers
+      - title: Containers
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-            - STATS total_containers = COUNT_DISTINCT(container.id)
+            - STATS containers = COUNT_DISTINCT(container.id)
           primary:
-            field: total_containers
-            label: Total Containers
+            field: containers
+            label: Containers
             format:
               type: number
               decimals: 0
       - title: Unique Images
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
             - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-            - STATS unique_images = COUNT_DISTINCT(container.image.name)
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL image_name = MV_FIRST(image_parts)
+            - STATS unique_images = COUNT_DISTINCT(image_name)
           primary:
             field: unique_images
             label: Unique Images
             format:
               type: number
               decimals: 0
-      - title: Avg CPU Usage
+      - title: Unique Image Versions
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
-            - TS metrics-*
+            - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.cpu.utilization IS NOT NULL
-            - STATS avg_cpu = AVG(container.cpu.utilization) / 100
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS unique_image_versions = COUNT_DISTINCT(container.image.name)
           primary:
-            field: avg_cpu
-            label: Avg CPU Usage
+            field: unique_image_versions
+            label: Unique Image Versions
             format:
-              type: percent
-      - title: Avg Memory Usage
-        hide_title: true
-        size: {w: 7, h: 4}
-        esql:
-          type: metric
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.memory.percent IS NOT NULL
-            - STATS avg_memory = AVG(container.memory.percent) / 100
-          primary:
-            field: avg_memory
-            label: Avg Memory Usage
-            format:
-              type: percent
+              type: number
+              decimals: 0
       - title: Total Memory Used
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -129,7 +117,7 @@ dashboards:
               type: bytes
       - title: Containers Above 90% Memory
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -147,7 +135,7 @@ dashboards:
               decimals: 0
       - title: Unpinned Images
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
