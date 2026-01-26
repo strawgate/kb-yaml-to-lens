@@ -50,25 +50,9 @@ dashboards:
               dashboard: docker-otel-container-stats
 
       # KPI Metrics Row
-      - title: Active Containers
-        hide_title: true
-        size: {w: 6, h: 4}
-        esql:
-          type: metric
-          query:
-            - FROM metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-            - STATS active_containers = COUNT_DISTINCT(container.id)
-          primary:
-            field: active_containers
-            label: Active Containers
-            format:
-              type: number
-              decimals: 0
       - title: Total Containers
         hide_title: true
-        size: {w: 6, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -82,9 +66,25 @@ dashboards:
             format:
               type: number
               decimals: 0
+      - title: Active Containers
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - STATS active_containers = COUNT_DISTINCT(container.id)
+          primary:
+            field: active_containers
+            label: Active Containers
+            format:
+              type: number
+              decimals: 0
       - title: Unique Images
         hide_title: true
-        size: {w: 6, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -100,7 +100,7 @@ dashboards:
               decimals: 0
       - title: Avg CPU Usage
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -115,7 +115,7 @@ dashboards:
               type: percent
       - title: Avg Memory Usage
         hide_title: true
-        size: {w: 7, h: 4}
+        size: {w: 8, h: 4}
         esql:
           type: metric
           query:
@@ -187,11 +187,15 @@ dashboards:
           query:
             - FROM metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - STATS Containers = COUNT_DISTINCT(container.id) BY Image = container.image.name
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL `Image Name` = CASE(IS_NULL(image_parts[0]), container.image.name, image_parts[0])
+            - EVAL `Image Version` = CASE(LENGTH(image_parts) > 1, image_parts[1], "latest")
+            - STATS Containers = COUNT_DISTINCT(container.id) BY `Image Name`, `Image Version`
             - SORT Containers DESC
             - LIMIT 100
           dimensions:
-            - field: Image
+            - field: Image Name
+            - field: Image Version
           metrics:
             - field: Containers
       - title: Containers by Name
@@ -209,6 +213,13 @@ dashboards:
             - field: Name
           metrics:
             - field: Containers
+
+      # Markdown separator
+      - title: Top Containers
+        hide_title: true
+        size: {w: 48, h: 2}
+        markdown:
+          content: '## Top Containers by Resource Usage'
 
       # Top Containers by Resource Usage
       - title: Top Containers by CPU Usage
