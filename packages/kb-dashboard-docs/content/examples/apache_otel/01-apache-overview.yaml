@@ -92,6 +92,7 @@ dashboards:
             format:
               type: number
               pattern: 0,0
+              decimals: 0
       - title: CPU Load
         hide_title: true
         size: {w: 12, h: 4}

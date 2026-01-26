@@ -42,6 +42,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: Host over Hostname [Logs CrowdStrike]
         size:
           w: 18
@@ -60,6 +63,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: Host over Host IP [Logs CrowdStrike]
         size:
           w: 24
@@ -78,6 +84,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
       - title: Host over Timestamp [Logs CrowdStrike]
         size:
           w: 24
@@ -100,3 +109,6 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0

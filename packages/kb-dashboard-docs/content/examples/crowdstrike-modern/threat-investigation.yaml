@@ -91,6 +91,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: threat.technique.name
 
@@ -115,6 +118,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: threat.tactic.name
 
@@ -140,6 +146,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.falcon
@@ -165,6 +174,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.alert
@@ -190,6 +202,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.alert
@@ -215,6 +230,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
 
       # Detail Layer - Top Source IPs
       - title: Top 10 Source IP Addresses

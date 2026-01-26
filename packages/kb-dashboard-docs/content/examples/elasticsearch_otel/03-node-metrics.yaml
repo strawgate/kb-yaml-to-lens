@@ -129,6 +129,9 @@ dashboards:
             - aggregation: average
               field: elasticsearch.node.documents
               label: Document Count
+              format:
+                type: number
+                decimals: 0
       - title: Indexing Operations
         size: {w: 24, h: 10}
         lens:
@@ -251,6 +254,9 @@ dashboards:
             - aggregation: average
               field: elasticsearch.node.thread_pool.tasks.queued
               label: Queue Size
+              format:
+                type: number
+                decimals: 0
       - title: Thread Pool Queue Size - Write
         size: {w: 24, h: 10}
         lens:
@@ -270,6 +276,9 @@ dashboards:
             - aggregation: average
               field: elasticsearch.node.thread_pool.tasks.queued
               label: Queue Size
+              format:
+                type: number
+                decimals: 0
       - title: Thread Pool Active Threads - Search
         size: {w: 24, h: 10}
         lens:
@@ -289,6 +298,9 @@ dashboards:
             - aggregation: average
               field: elasticsearch.node.thread_pool.threads
               label: Active Threads
+              format:
+                type: number
+                decimals: 0
       - title: Thread Pool Active Threads - Write
         size: {w: 24, h: 10}
         lens:
@@ -308,6 +320,9 @@ dashboards:
             - aggregation: average
               field: elasticsearch.node.thread_pool.threads
               label: Active Threads
+              format:
+                type: number
+                decimals: 0
       - title: Thread Pool Rejections
         size: {w: 48, h: 10}
         lens:

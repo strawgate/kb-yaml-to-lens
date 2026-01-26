@@ -64,6 +64,9 @@ dashboards:
           primary:
             field: clients
             label: Clients
+            format:
+              type: number
+              decimals: 0
       - title: Blocked Clients
         hide_title: true
         size: {w: 8, h: 5}
@@ -77,6 +80,9 @@ dashboards:
           primary:
             field: blocked
             label: Blocked
+            format:
+              type: number
+              decimals: 0
       - title: Commands/sec
         hide_title: true
         size: {w: 8, h: 5}
@@ -103,6 +109,9 @@ dashboards:
           primary:
             field: replicas
             label: Replicas
+            format:
+              type: number
+              decimals: 0
       - title: Cache Hit Rate
         hide_title: true
         size: {w: 8, h: 5}
@@ -298,8 +307,14 @@ dashboards:
           metrics:
             - field: connected
               label: Connected
+              format:
+                type: number
+                decimals: 0
             - field: blocked
               label: Blocked
+              format:
+                type: number
+                decimals: 0
 
       # Connection Activity (Counters - use RATE)
       - title: Connection Activity
@@ -590,6 +605,9 @@ dashboards:
           metrics:
             - field: replicas
               label: Replicas
+              format:
+                type: number
+                decimals: 0
 
       # Fork Duration (Gauge)
       - title: Fork Duration

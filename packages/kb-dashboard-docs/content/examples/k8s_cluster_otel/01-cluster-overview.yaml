@@ -51,6 +51,9 @@ dashboards:
           primary:
             formula: unique_count(k8s.pod.name)
             label: Running
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.pod.phase
               equals: '2'
@@ -66,6 +69,9 @@ dashboards:
           primary:
             formula: unique_count(k8s.pod.name)
             label: Pending
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.pod.phase
               equals: '1'
@@ -79,6 +85,9 @@ dashboards:
           primary:
             formula: unique_count(k8s.pod.name)
             label: Failed
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.pod.phase
               equals: '4'
@@ -91,6 +100,9 @@ dashboards:
           primary:
             formula: sum(k8s.container.restarts)
             label: Restarts
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.container.restarts
 
@@ -111,6 +123,9 @@ dashboards:
             - aggregation: unique_count
               field: k8s.pod.name
               label: Pods
+              format:
+                type: number
+                decimals: 0
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -141,6 +156,9 @@ dashboards:
             - aggregation: unique_count
               field: k8s.pod.name
               label: Pods
+              format:
+                type: number
+                decimals: 0
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -177,8 +195,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.deployment.desired)
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.deployment.available)
               label: Available
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.deployment.name
       - title: Container Restarts by Namespace
@@ -196,6 +220,9 @@ dashboards:
           metrics:
             - formula: sum(k8s.container.restarts)
               label: Restarts
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.container.restarts
 
@@ -231,10 +258,19 @@ dashboards:
             - field: k8s.deployment.desired
               aggregation: max
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - field: k8s.deployment.available
               aggregation: max
               label: Available
+              format:
+                type: number
+                decimals: 0
             - formula: max(k8s.deployment.desired) - max(k8s.deployment.available)
               label: Missing
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.deployment.name

@@ -54,6 +54,9 @@ dashboards:
             aggregation: unique_count
             field: resource.attributes.host.name
             label: Total Hosts
+            format:
+              type: number
+              decimals: 0
       - title: Hosts by OS Type
         hide_title: true
         size: {w: 12, h: 4}
@@ -68,6 +71,9 @@ dashboards:
             aggregation: unique_count
             field: resource.attributes.host.name
             label: Hosts
+            format:
+              type: number
+              decimals: 0
       - title: CPU Utilization Fleet
         description: >-
           100% minus idle and wait time. Wait time is CPU waiting for I/O, not

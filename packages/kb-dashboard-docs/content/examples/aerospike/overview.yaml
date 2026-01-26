@@ -45,6 +45,9 @@ dashboards:
           primary:
             field: node_count
             label: Nodes
+            format:
+              type: number
+              decimals: 0
       - title: Unique Namespaces
         size: {w: 12, h: 5}
         esql:
@@ -57,6 +60,9 @@ dashboards:
           primary:
             field: namespace_count
             label: Namespaces
+            format:
+              type: number
+              decimals: 0
       - title: Avg Connections
         size: {w: 12, h: 5}
         esql:
@@ -69,6 +75,8 @@ dashboards:
           primary:
             field: avg_connections
             label: Connections
+            format:
+              type: number
       - title: Avg Memory Free
         size: {w: 12, h: 5}
         esql:
@@ -150,6 +158,8 @@ dashboards:
           metrics:
             - field: connections
               label: Open Connections
+              format:
+                type: number
           breakdown:
             field: node
 
@@ -189,6 +199,8 @@ dashboards:
           metrics:
             - field: connections
               label: Connections
+              format:
+                type: number
           dimensions:
             - field: node
           appearance:

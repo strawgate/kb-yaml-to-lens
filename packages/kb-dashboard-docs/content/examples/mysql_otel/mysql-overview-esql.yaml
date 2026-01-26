@@ -47,6 +47,9 @@ dashboards:
           primary:
             field: active_connections
             label: Active Connections
+            format:
+              type: number
+              decimals: 0
       - title: Buffer Pool Efficiency
         description: >-
           Clean pages / total pages. Higher = efficient memory use. Lower =
@@ -400,6 +403,9 @@ dashboards:
           metrics:
             - field: thread_count
               label: Threads
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: kind
       - title: Sort Operations

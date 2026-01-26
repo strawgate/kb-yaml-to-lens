@@ -189,6 +189,9 @@ dashboards:
             - aggregation: average
               field: jvm.threads.count
               label: Thread Count
+              format:
+                type: number
+                decimals: 0
       - title: JVM Classes Loaded
         size: {w: 24, h: 10}
         lens:
@@ -205,6 +208,9 @@ dashboards:
             - aggregation: average
               field: jvm.classes.loaded
               label: Classes Loaded
+              format:
+                type: number
+                decimals: 0
       - title: Memory Pool Usage Section
         size: {w: 48, h: 3}
         markdown:

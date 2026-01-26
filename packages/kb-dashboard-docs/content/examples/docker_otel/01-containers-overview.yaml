@@ -52,6 +52,9 @@ dashboards:
           primary:
             formula: unique_count(container.id, reducedTimeRange='1h')
             label: Active Containers
+            format:
+              type: number
+              decimals: 0
       - title: Total Containers
         description: All unique containers seen in the selected time range.
         size: {w: 6, h: 4}
@@ -61,6 +64,9 @@ dashboards:
           primary:
             formula: unique_count(container.id)
             label: Total Containers
+            format:
+              type: number
+              decimals: 0
       - size: {w: 36, h: 6}
         lens:
           type: bar
@@ -72,6 +78,9 @@ dashboards:
             - field: container.id
               aggregation: unique_count
               label: Containers
+              format:
+                type: number
+                decimals: 0
       - title: Containers by Runtime
         size: {w: 16, h: 11}
         lens:
@@ -88,6 +97,9 @@ dashboards:
               field: container.id
               aggregation: unique_count
               label: Containers
+              format:
+                type: number
+                decimals: 0
       - title: Containers by Image
         size: {w: 16, h: 11}
         lens:
@@ -104,6 +116,9 @@ dashboards:
               field: container.id
               aggregation: unique_count
               label: Containers
+              format:
+                type: number
+                decimals: 0
       - title: Containers by Name
         size: {w: 16, h: 11}
         lens:
@@ -120,6 +135,9 @@ dashboards:
               field: container.id
               aggregation: unique_count
               label: Containers
+              format:
+                type: number
+                decimals: 0
       - title: CPU Usage
         size: {w: 48, h: 8}
         hide_title: true

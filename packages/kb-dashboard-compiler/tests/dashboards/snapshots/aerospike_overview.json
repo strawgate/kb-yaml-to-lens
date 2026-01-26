@@ -66,9 +66,9 @@
             "references": [],
             "state": {
               "visualization": {
-                "layerId": "b7c76376-2206-e3aa-1fe7-8e73c2e52be1",
+                "layerId": "5e6f4e7d-fd5d-1c09-fa5c-8665545a9120",
                 "layerType": "data",
-                "metricAccessor": "78cdc18d-567c-473d-b81b-e7fee9b78a4e",
+                "metricAccessor": "e38dc4f7-44fa-b474-a79b-cce9d543e86d",
                 "showBar": false
               },
               "query": {
@@ -78,34 +78,50 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "b7c76376-2206-e3aa-1fe7-8e73c2e52be1": {
+                    "5e6f4e7d-fd5d-1c09-fa5c-8665545a9120": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS node_count = COUNT_DISTINCT(aerospike.node.name)\n"
                       },
                       "columns": [
                         {
                           "fieldName": "node_count",
-                          "columnId": "78cdc18d-567c-473d-b81b-e7fee9b78a4e",
+                          "columnId": "e38dc4f7-44fa-b474-a79b-cce9d543e86d",
                           "label": "Nodes",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 0
+                              }
+                            }
+                          }
                         }
                       ],
                       "allColumns": [
                         {
                           "fieldName": "node_count",
-                          "columnId": "78cdc18d-567c-473d-b81b-e7fee9b78a4e",
+                          "columnId": "e38dc4f7-44fa-b474-a79b-cce9d543e86d",
                           "label": "Nodes",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 0
+                              }
+                            }
+                          }
                         }
                       ],
                       "timeField": "@timestamp"
@@ -150,9 +166,9 @@
             "references": [],
             "state": {
               "visualization": {
-                "layerId": "62b12a92-d7ba-0fef-fc57-efdd7152f152",
+                "layerId": "b9268e6d-4635-b091-dacf-2dc9b4178674",
                 "layerType": "data",
-                "metricAccessor": "c17dc980-8fd4-e1c6-0ed3-a297f887137a",
+                "metricAccessor": "f9f011d7-29d7-8141-d3e2-a7069001b4d3",
                 "showBar": false
               },
               "query": {
@@ -162,34 +178,50 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "62b12a92-d7ba-0fef-fc57-efdd7152f152": {
+                    "b9268e6d-4635-b091-dacf-2dc9b4178674": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.namespace IS NOT NULL\n| STATS namespace_count = COUNT_DISTINCT(aerospike.namespace)\n"
                       },
                       "columns": [
                         {
                           "fieldName": "namespace_count",
-                          "columnId": "c17dc980-8fd4-e1c6-0ed3-a297f887137a",
+                          "columnId": "f9f011d7-29d7-8141-d3e2-a7069001b4d3",
                           "label": "Namespaces",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 0
+                              }
+                            }
+                          }
                         }
                       ],
                       "allColumns": [
                         {
                           "fieldName": "namespace_count",
-                          "columnId": "c17dc980-8fd4-e1c6-0ed3-a297f887137a",
+                          "columnId": "f9f011d7-29d7-8141-d3e2-a7069001b4d3",
                           "label": "Namespaces",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 0
+                              }
+                            }
+                          }
                         }
                       ],
                       "timeField": "@timestamp"
@@ -234,9 +266,9 @@
             "references": [],
             "state": {
               "visualization": {
-                "layerId": "944946a8-a14b-3400-be39-6303d05b9365",
+                "layerId": "fa841edc-5e08-860f-16e4-dda6c36cd622",
                 "layerType": "data",
-                "metricAccessor": "dfd78516-5a9a-6856-9ff4-3673c52a513d",
+                "metricAccessor": "6514d47b-f40f-724a-1470-c36e46303f99",
                 "showBar": false
               },
               "query": {
@@ -246,34 +278,50 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "944946a8-a14b-3400-be39-6303d05b9365": {
+                    "fa841edc-5e08-860f-16e4-dda6c36cd622": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS avg_connections = AVG(aerospike.node.connection.open)\n"
                       },
                       "columns": [
                         {
                           "fieldName": "avg_connections",
-                          "columnId": "dfd78516-5a9a-6856-9ff4-3673c52a513d",
+                          "columnId": "6514d47b-f40f-724a-1470-c36e46303f99",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 2
+                              }
+                            }
+                          }
                         }
                       ],
                       "allColumns": [
                         {
                           "fieldName": "avg_connections",
-                          "columnId": "dfd78516-5a9a-6856-9ff4-3673c52a513d",
+                          "columnId": "6514d47b-f40f-724a-1470-c36e46303f99",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 2
+                              }
+                            }
+                          }
                         }
                       ],
                       "timeField": "@timestamp"
@@ -712,9 +760,9 @@
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "9a527b9e-1c7b-cd5b-819d-ce18604bc6f8",
+                    "layerId": "c46b6430-68c5-d1d5-2b3d-a9d891737d64",
                     "accessors": [
-                      "06858c01-d87e-cdda-a98c-4552adb8443a"
+                      "d86fe7b3-6b96-d2dc-601e-b58e250f279e"
                     ],
                     "layerType": "data",
                     "seriesType": "line",
@@ -756,21 +804,29 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "9a527b9e-1c7b-cd5b-819d-ce18604bc6f8": {
+                    "c46b6430-68c5-d1d5-2b3d-a9d891737d64": {
                       "query": {
                         "esql": "TS metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(AVG_OVER_TIME(aerospike.node.connection.open)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = aerospike.node.name\n| SORT time_bucket ASC\n"
                       },
                       "columns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "06858c01-d87e-cdda-a98c-4552adb8443a",
+                          "columnId": "d86fe7b3-6b96-d2dc-601e-b58e250f279e",
                           "label": "Open Connections",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 2
+                              }
+                            }
+                          }
                         },
                         {
                           "fieldName": "time_bucket",
@@ -788,14 +844,22 @@
                       "allColumns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "06858c01-d87e-cdda-a98c-4552adb8443a",
+                          "columnId": "d86fe7b3-6b96-d2dc-601e-b58e250f279e",
                           "label": "Open Connections",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 2
+                              }
+                            }
+                          }
                         },
                         {
                           "fieldName": "time_bucket",
@@ -999,7 +1063,7 @@
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "5e672377-fa4e-11d5-360f-f10915b2e296",
+                    "layerId": "3a8f801c-34a3-6788-dcb0-992dab76f617",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -1023,7 +1087,7 @@
                       "85a09301-92c0-1507-818c-365b710b7555"
                     ],
                     "metrics": [
-                      "aa2d2807-757c-400a-40dd-3ff3bf2e2822"
+                      "3cd83b8e-8896-4363-867e-d5f948beb031"
                     ],
                     "numberDisplay": "percent",
                     "categoryDisplay": "default",
@@ -1040,21 +1104,29 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "5e672377-fa4e-11d5-360f-f10915b2e296": {
+                    "3a8f801c-34a3-6788-dcb0-992dab76f617": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
                       },
                       "columns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "aa2d2807-757c-400a-40dd-3ff3bf2e2822",
+                          "columnId": "3cd83b8e-8896-4363-867e-d5f948beb031",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 2
+                              }
+                            }
+                          }
                         },
                         {
                           "fieldName": "node",
@@ -1066,14 +1138,22 @@
                       "allColumns": [
                         {
                           "fieldName": "connections",
-                          "columnId": "aa2d2807-757c-400a-40dd-3ff3bf2e2822",
+                          "columnId": "3cd83b8e-8896-4363-867e-d5f948beb031",
                           "label": "Connections",
                           "customLabel": true,
                           "meta": {
                             "type": "number",
                             "esType": "long"
                           },
-                          "inMetricDimension": true
+                          "inMetricDimension": true,
+                          "params": {
+                            "format": {
+                              "id": "number",
+                              "params": {
+                                "decimals": 2
+                              }
+                            }
+                          }
                         },
                         {
                           "fieldName": "node",

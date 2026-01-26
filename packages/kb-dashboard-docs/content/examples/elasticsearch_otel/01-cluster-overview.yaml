@@ -60,6 +60,9 @@ dashboards:
             aggregation: max
             field: elasticsearch.cluster.nodes
             label: Nodes
+            format:
+              type: number
+              decimals: 0
       - title: Data Nodes
         hide_title: true
         size: {w: 12, h: 4}
@@ -70,6 +73,9 @@ dashboards:
             aggregation: max
             field: elasticsearch.cluster.data_nodes
             label: Data Nodes
+            format:
+              type: number
+              decimals: 0
       - title: Cluster Nodes Over Time
         size: {w: 48, h: 8}
         lens:
@@ -108,18 +114,33 @@ dashboards:
             - id: active_primary
               formula: "max(elasticsearch.cluster.shards, kql='state: active_primary')"
               label: Active Primary
+              format:
+                type: number
+                decimals: 0
             - id: active
               formula: "max(elasticsearch.cluster.shards, kql='state: active')"
               label: Active Shards
+              format:
+                type: number
+                decimals: 0
             - id: initializing
               formula: "max(elasticsearch.cluster.shards, kql='state: initializing')"
               label: Initializing
+              format:
+                type: number
+                decimals: 0
             - id: relocating
               formula: "max(elasticsearch.cluster.shards, kql='state: relocating')"
               label: Relocating
+              format:
+                type: number
+                decimals: 0
             - id: unassigned
               formula: "max(elasticsearch.cluster.shards, kql='state: unassigned')"
               label: Unassigned
+              format:
+                type: number
+                decimals: 0
       - title: Pending Tasks
         description: >-
           Cluster state updates waiting to be applied. High or increasing values
@@ -139,6 +160,9 @@ dashboards:
             - aggregation: max
               field: elasticsearch.cluster.pending_tasks
               label: Pending Tasks
+              format:
+                type: number
+                decimals: 0
       - title: In-Flight Fetches
         description: >-
           Snapshot recovery operations in progress. Values >0 indicate the
@@ -158,6 +182,9 @@ dashboards:
             - aggregation: max
               field: elasticsearch.cluster.in_flight_fetch
               label: In-Flight Fetches
+              format:
+                type: number
+                decimals: 0
       - title: Index Statistics
         size: {w: 24, h: 8}
         lens:
@@ -174,10 +201,15 @@ dashboards:
               aggregation: unique_count
               field: elasticsearch.index.name
               label: Indices
+              format:
+                type: number
+                decimals: 0
             - id: state_queue
               aggregation: average
               field: elasticsearch.cluster.state_queue
               label: State Queue
+              format:
+                type: number
       - title: Shards Over Time
         size: {w: 24, h: 8}
         lens:

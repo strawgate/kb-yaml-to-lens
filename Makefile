@@ -34,7 +34,7 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler lint vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts compiler lint vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -78,6 +78,10 @@ help:
 	@echo "  bump-minor         - Bump minor version (x.Y.0)"
 	@echo "  bump-major         - Bump major version (X.0.0)"
 	@echo "  bump-version-show  - Show current version"
+	@echo ""
+	@echo "=== Git Helpers ==="
+	@echo ""
+	@echo "  check-merge-conflicts [branch] - Check for merge conflicts with branch (default: origin/main)"
 
 # Root-level targets (run linting checks)
 root-ci:
@@ -172,6 +176,10 @@ bump-major:
 bump-version-show:
 	@$(BUMP_VERSION_SCRIPT) show
 
+# Git helpers
+check-merge-conflicts:
+	@bash scripts/check-merge-conflicts.sh $(filter-out $@,$(MAKECMDGOALS))
+
 # Component pass-through targets
 # This hack prevents the parent Makefile from trying to execute the arguments
 # as its own targets after passing them to sub-makes.
@@ -231,6 +239,11 @@ gh:
 # Prevent make from trying to build targets passed as arguments to 'all'
 # Without this, 'make all clean' would try to run 'clean' after the all target completes
 ifeq ($(_FIRST_GOAL),all)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),check-merge-conflicts)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
 endif

@@ -57,6 +57,9 @@ dashboards:
           primary:
             field: databases
             label: Databases
+            format:
+              type: number
+              decimals: 0
       - title: Total Keys
         hide_title: true
         size: {w: 12, h: 5}
@@ -71,6 +74,9 @@ dashboards:
           primary:
             field: keys
             label: Keys
+            format:
+              type: number
+              decimals: 0
       - title: Total Keys with Expiry
         hide_title: true
         size: {w: 12, h: 5}
@@ -85,6 +91,9 @@ dashboards:
           primary:
             field: expires
             label: Keys w/ TTL
+            format:
+              type: number
+              decimals: 0
       - title: Avg TTL (All DBs)
         hide_title: true
         size: {w: 12, h: 5}
@@ -124,6 +133,8 @@ dashboards:
           metrics:
             - field: keys
               label: Keys
+              format:
+                type: number
 
       # Keys Distribution (Pie Chart)
       - title: Keys Distribution (Pie)
@@ -140,6 +151,8 @@ dashboards:
           metrics:
             - field: keys
               label: Keys
+              format:
+                type: number
           dimensions:
             - field: db
           appearance:
@@ -165,6 +178,9 @@ dashboards:
           metrics:
             - field: keys
               label: Keys
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: db
 
@@ -193,6 +209,8 @@ dashboards:
           metrics:
             - field: expires
               label: Expires
+              format:
+                type: number
 
       # Keys with TTL Trend (Gauge - use LAST_OVER_TIME for current state)
       - title: Keys with TTL Trend
@@ -214,6 +232,9 @@ dashboards:
           metrics:
             - field: expires
               label: Expires
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: db
 
