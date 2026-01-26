@@ -67,6 +67,7 @@ dashboards:
               type: number
               decimals: 0
       - title: Unique Images
+        description: Count of distinct container image names (excluding version tags). Helps identify image diversity and potential standardization opportunities.
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -84,7 +85,28 @@ dashboards:
             format:
               type: number
               decimals: 0
+      - title: Unpinned Images
+        description: Count of distinct images using the 'latest' tag (unpinned). Unpinned images can lead to unpredictable deployments as they may pull different versions over time.
+        hide_title: true
+        size: {w: 8, h: 4}
+        esql:
+          type: metric
+          query:
+            - FROM metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
+            - EVAL image_parts = SPLIT(container.image.name, ":")
+            - EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
+            - WHERE image_version == "latest"
+            - STATS unpinned_images = COUNT_DISTINCT(container.image.name)
+          primary:
+            field: unpinned_images
+            label: Unpinned Images
+            format:
+              type: number
+              decimals: 0
       - title: Unique Image Versions
+        description: Count of distinct container images including version tags. Higher than Unique Images when multiple versions of the same image are deployed.
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -101,6 +123,7 @@ dashboards:
               type: number
               decimals: 0
       - title: Total Memory Used
+        description: Aggregate memory consumption across all containers. Useful for capacity planning and identifying overall resource utilization.
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -115,7 +138,8 @@ dashboards:
             label: Total Memory Used
             format:
               type: bytes
-      - title: Containers Above 90% Memory
+      - title: Containers >90% Memory
+        description: Count of containers with average memory utilization above 90%. High memory usage may indicate memory leaks, insufficient limits, or need for optimization.
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -129,26 +153,7 @@ dashboards:
             - STATS high_memory_containers = COUNT_DISTINCT(container_id)
           primary:
             field: high_memory_containers
-            label: Containers Above 90% Memory
-            format:
-              type: number
-              decimals: 0
-      - title: Unpinned Images
-        hide_title: true
-        size: {w: 8, h: 4}
-        esql:
-          type: metric
-          query:
-            - FROM metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-            - EVAL image_parts = SPLIT(container.image.name, ":")
-            - EVAL image_version = CASE(MV_FIRST(image_parts) == MV_LAST(image_parts), "latest", MV_LAST(image_parts))
-            - WHERE image_version == "latest"
-            - STATS unpinned_images = COUNT_DISTINCT(container.image.name)
-          primary:
-            field: unpinned_images
-            label: Unpinned Images
+            label: Containers >90% Memory
             format:
               type: number
               decimals: 0
