@@ -7,7 +7,7 @@ SHELL := /bin/bash
 # Include shared helpers
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-coverage coverage-report test-smoke lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean build publish publish-test export-schemas
+.PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck compile upload docker-build docker-run docker-test docker-publish test-docker-smoke setup update-deps clean build publish publish-test export-schemas
 
 # Docker configuration
 DOCKER_IMAGE_NAME := kb-dashboard-compiler
@@ -37,10 +37,11 @@ help:
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test              - Run Python unit tests"
+	@echo "  test              - Run all tests (unit + E2E)"
+	@echo "  test-unit         - Run unit tests only"
+	@echo "  test-e2e          - Run E2E tests (CLI compilation pipeline)"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
-	@echo "  test-smoke        - Run smoke tests"
 	@echo ""
 	@echo "Schema Export:"
 	@echo "  export-schemas    - Export LSP response schemas as JSON"
@@ -70,7 +71,7 @@ all: ci
 install:
 	$(call run_cmd, "Installing Python dependencies", uv sync --group dev, "Python dependencies installed")
 
-ci: lint-check typecheck test
+ci: lint-check typecheck test-unit
 	$(call print_end, "Compiler CI checks passed")
 
 check: ci
@@ -96,8 +97,13 @@ typecheck:
 	$(call print_end, "Type checking passed")
 
 # Testing
-test:
+test-unit:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
+
+test-e2e:
+	$(call run_cmd, "Running E2E tests", bash scripts/test_cli_smoke.sh, "E2E tests passed")
+
+test: test-unit test-e2e
 
 test-coverage:
 	$(call run_cmd, "Running pytest with coverage", uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json, "Coverage report generated")
@@ -109,9 +115,6 @@ test-coverage:
 coverage-report:
 	$(call require_file, htmlcov/index.html, "Run 'make test-coverage' first")
 	$(call run_cmd, "Opening coverage report", python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html, "Coverage report opened")
-
-test-smoke:
-	$(call run_cmd, "Running smoke tests", bash scripts/test_cli_smoke.sh, "Smoke tests passed")
 
 # Dependency management
 setup:

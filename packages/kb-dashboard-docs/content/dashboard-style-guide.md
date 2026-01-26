@@ -426,7 +426,7 @@ sync_tooltips: false
 
 ## Examples and Templates
 
-Reference the `packages/kb-dashboard-cli/inputs/` directory for complete dashboard examples demonstrating these patterns. Templates show navigation panels, metric cards, time series charts, categorical breakdowns, and detail tables in standard configurations.
+Reference the `packages/kb-dashboard-docs/content/examples/` directory for complete dashboard examples demonstrating these patterns (aerospike, apache_otel, aws_cloudtrail_otel, crowdstrike, elasticsearch_otel, k8s_cluster_otel, memcached_otel, and more). Templates show navigation panels, metric cards, time series charts, categorical breakdowns, and detail tables in standard configurations.
 
 ---
 

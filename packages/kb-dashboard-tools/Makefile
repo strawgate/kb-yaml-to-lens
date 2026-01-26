@@ -15,7 +15,7 @@ endif
 # Include shared helpers
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
+.PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
 
 help:
 	@echo "Dashboard Tools Commands:"
@@ -37,7 +37,9 @@ help:
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test              - Run Python unit tests"
+	@echo "  test              - Run unit tests"
+	@echo "  test-unit         - Run unit tests (alias for test)"
+	@echo "  test-e2e          - No E2E tests (library package)"
 	@echo "  test-coverage     - Run tests with coverage"
 	@echo "  coverage-report   - Open HTML coverage report"
 	@echo ""
@@ -55,7 +57,7 @@ all: ci
 install:
 	$(call run_cmd, "Installing Python dependencies", uv sync --group dev, "Python dependencies installed")
 
-ci: lint-check typecheck test
+ci: lint-check typecheck test-unit
 	$(call print_end, "Tools CI checks passed")
 
 check: ci
@@ -77,8 +79,13 @@ typecheck:
 	$(call run_cmd, "Running type checking", cd ../.. && uv run --group dev basedpyright packages/kb-dashboard-tools, "Type checking passed")
 
 # Testing
-test:
+test-unit:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
+
+test-e2e:
+	@echo "No E2E tests for kb-dashboard-tools (library package)"
+
+test: test-unit
 
 test-coverage:
 	$(call run_cmd, "Running pytest with coverage", uv run pytest --cov=src/kb_dashboard_tools --cov-report=term-missing --cov-report=html --cov-report=json, "Coverage report generated")

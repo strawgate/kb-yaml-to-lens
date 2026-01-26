@@ -29,7 +29,13 @@ COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 # Note: Build context should be repository root for workspace uv.lock access
 COPY packages/kb-dashboard-cli/pyproject.toml packages/kb-dashboard-cli/README.md /app/
 COPY uv.lock /app/uv.lock
+COPY pyproject.toml /app/workspace-pyproject.toml
 COPY packages/kb-dashboard-cli/src/ /app/src/
+# Copy workspace dependencies (required for uv to resolve workspace deps)
+COPY packages/kb-dashboard-core/pyproject.toml /app/packages/kb-dashboard-core/
+COPY packages/kb-dashboard-core/src/ /app/packages/kb-dashboard-core/src/
+COPY packages/kb-dashboard-tools/pyproject.toml /app/packages/kb-dashboard-tools/
+COPY packages/kb-dashboard-tools/src/ /app/packages/kb-dashboard-tools/src/
 
 # Sync dependencies using uv (uses lockfile for reproducible builds)
 RUN uv sync --frozen --no-dev && \

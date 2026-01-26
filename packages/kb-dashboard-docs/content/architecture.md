@@ -54,8 +54,11 @@ The codebase is organized into packages:
 - **`cli.py`:** Command-line interface for compiling dashboards and uploading to Kibana.
 - **`lsp/`:** Language Server Protocol implementation for VS Code extension.
 - **`sample_data/`:** Sample data loading utilities.
-- **`shared/`:** Shared base models and utilities (`model.py`, `view.py`).
-- **`tests/`:** Test files including snapshot tests to verify compiler output against expected JSON.
+- **`tools/`:** CLI tooling utilities.
+
+**CLI Package Tests (`packages/kb-dashboard-cli/tests/`):**
+
+- Test files including snapshot tests to verify compiler output against expected JSON.
 
 ## Data Flow
 

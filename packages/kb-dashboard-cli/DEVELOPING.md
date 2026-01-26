@@ -72,6 +72,7 @@ After making changes:
 
 1. Run `make cli typecheck` — catches type errors
 2. Run `make cli ci` — runs all quality checks
-3. Test compiled output validity
+3. Run `make cli test-coverage` — runs coverage checks
+4. Test compiled output validity
 
 **CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring, code coverage <80%
