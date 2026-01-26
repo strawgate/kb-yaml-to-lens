@@ -6,10 +6,6 @@
 # This file is derived from the Elastic integrations repository:
 # https://github.com/elastic/integrations/tree/main/packages/docker_otel
 #
-# Modified by kb-yaml-to-lens contributors to convert from Kibana JSON format
-# to YAML format for use as documentation examples.
-#
-# ES|QL Version - Uses TS command for time-series optimization
 dashboards:
 - id: docker-otel-overview
   name: '[Metrics Docker] Overview'
