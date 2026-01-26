@@ -83,21 +83,6 @@ dashboards:
             format:
               type: number
               decimals: 0
-      - title: Avg Memory Used
-        hide_title: true
-        size: {w: 10, h: 4}
-        esql:
-          type: metric
-          query:
-            - TS metrics-*
-            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE container.memory.usage.total IS NOT NULL
-            - STATS avg_memory = AVG(container.memory.usage.total)
-          primary:
-            field: avg_memory
-            label: Avg Memory Used
-            format:
-              type: bytes
       - title: Avg CPU Usage
         hide_title: true
         size: {w: 10, h: 4}
@@ -113,6 +98,21 @@ dashboards:
             label: Avg CPU Usage
             format:
               type: percent
+      - title: Avg Memory Used
+        hide_title: true
+        size: {w: 10, h: 4}
+        esql:
+          type: metric
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
+            - WHERE container.memory.usage.total IS NOT NULL
+            - STATS avg_memory = AVG(container.memory.usage.total)
+          primary:
+            field: avg_memory
+            label: Avg Memory Used
+            format:
+              type: bytes
       - title: Total Memory Used
         description: Aggregate memory consumption across all selected containers. Useful for capacity planning and resource allocation.
         hide_title: true
