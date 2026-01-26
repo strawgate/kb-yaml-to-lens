@@ -51,6 +51,7 @@ dashboards:
 
       # KPI Metrics Row
       - title: Containers
+        description: Number of distinct containers matching the current filters. Use filters at the top to focus on specific containers.
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -67,7 +68,7 @@ dashboards:
               type: number
               decimals: 0
       - title: Unique Images
-        description: Number of distinct container images running. Helps identify image diversity and potential consolidation opportunities.
+        description: Number of distinct container images including version tags. Helps identify image diversity and potential consolidation opportunities.
         hide_title: true
         size: {w: 8, h: 4}
         esql:
@@ -84,6 +85,7 @@ dashboards:
               type: number
               decimals: 0
       - title: Avg CPU Usage
+        description: Average CPU utilization across all selected containers. CPU can exceed 100% on multi-core systems.
         hide_title: true
         size: {w: 10, h: 4}
         esql:
@@ -99,6 +101,7 @@ dashboards:
             format:
               type: percent
       - title: Avg Memory Used
+        description: Average memory consumption per container. Useful for understanding typical memory footprint of containers.
         hide_title: true
         size: {w: 10, h: 4}
         esql:
@@ -171,6 +174,7 @@ dashboards:
 
       # CPU Usage (line chart)
       - title: CPU Usage
+        description: CPU utilization over time broken down by container. Shows overall CPU usage trends for each container.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -225,6 +229,7 @@ dashboards:
 
       # Disk I/O (line chart by device)
       - title: Disk I/O
+        description: Aggregate disk I/O rates (read and write combined) over time broken down by container. Shows total disk activity per container.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -252,6 +257,7 @@ dashboards:
 
       # Network I/O (line chart with rx and tx)
       - title: Network I/O
+        description: Network traffic rates (received and transmitted) over time broken down by container. Shows aggregate network activity per container across all interfaces.
         size: {w: 48, h: 9}
         esql:
           type: line
@@ -359,6 +365,7 @@ dashboards:
 
       # Memory Usage (line chart percentage)
       - title: Memory Usage
+        description: Memory utilization as a percentage of the configured limit over time. Values approaching 100% indicate containers near their memory limits.
         size: {w: 24, h: 9}
         esql:
           type: line
