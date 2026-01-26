@@ -66,19 +66,21 @@ dashboards:
             format:
               type: number
               decimals: 0
-      - title: Active Containers
+      - title: Containers Above 90% CPU
         hide_title: true
         size: {w: 8, h: 4}
         esql:
           type: metric
           query:
-            - FROM metrics-*
+            - TS metrics-*
             - WHERE data_stream.dataset == "dockerstatsreceiver.otel"
-            - WHERE `@timestamp` >= ?_tstart AND `@timestamp` <= ?_tend
-            - STATS active_containers = COUNT_DISTINCT(container.id)
+            - WHERE container.cpu.utilization IS NOT NULL
+            - STATS avg_cpu = AVG(container.cpu.utilization) BY container_id = container.id
+            - WHERE avg_cpu > 90
+            - STATS high_cpu_containers = COUNT_DISTINCT(container_id)
           primary:
-            field: active_containers
-            label: Active Containers
+            field: high_cpu_containers
+            label: Containers Above 90% CPU
             format:
               type: number
               decimals: 0
