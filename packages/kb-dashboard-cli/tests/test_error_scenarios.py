@@ -394,7 +394,10 @@ dashboards:
         assert error is not None
         assert 'no-panel-type.yaml' in error
         assert "Cannot determine panel type from dict with keys: ['title', 'size', 'position']" in error
-        assert "Each panel must have exactly one type discriminator key: 'markdown', 'search', 'links', 'image', 'lens', or 'esql'" in error
+        assert (
+            "Each panel must have exactly one type discriminator key: 'markdown', 'search', 'links', 'image', 'lens', 'esql', or 'vega'"
+            in error
+        )
 
     def test_multiple_panel_types(self, tmp_path: Path) -> None:
         """Test error when panel has multiple type discriminators."""
