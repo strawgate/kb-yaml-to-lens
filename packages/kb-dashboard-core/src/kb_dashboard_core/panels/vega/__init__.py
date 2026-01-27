@@ -1,4 +1,4 @@
-"""Compile Vega panels into their Kibana view models."""
+"""Vega panel configuration models."""
 
 from .config import VegaPanel
 

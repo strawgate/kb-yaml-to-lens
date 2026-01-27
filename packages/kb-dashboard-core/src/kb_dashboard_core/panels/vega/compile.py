@@ -58,7 +58,7 @@ def compile_vega_saved_vis(vega_panel: VegaPanel) -> KbnVegaSavedVis:
     return KbnVegaSavedVis(
         id='',
         title=vega_panel.title,
-        description=vega_panel.description or '',
+        description=vega_panel.description if vega_panel.description is not None else '',
         type='vega',
         params=compile_vega_saved_vis_params(vega_panel=vega_panel),
         uiState={},
