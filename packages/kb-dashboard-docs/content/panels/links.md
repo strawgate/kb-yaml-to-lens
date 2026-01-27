@@ -37,7 +37,7 @@ Click once, arrive. You know the rest.
       show_root_heading: false
       heading_level: 2
 
-## Links Panel Configuration
+## Links Panel Config Options
 
 ::: kb_dashboard_core.panels.links.config.LinksPanelConfig
     options:

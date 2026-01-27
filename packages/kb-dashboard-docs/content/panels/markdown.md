@@ -37,7 +37,7 @@ Thanks to documentation found in-line!
       show_root_heading: false
       heading_level: 2
 
-## Markdown Panel Configuration
+## Markdown Panel Config Options
 
 ::: kb_dashboard_core.panels.markdown.config.MarkdownPanelConfig
     options:

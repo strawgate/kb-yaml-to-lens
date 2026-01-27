@@ -7,7 +7,7 @@ Queries are used to define the search criteria for retrieving data. They can be 
 **KQL Query:**
 
 ```yaml
-# Applied at the dashboard level
+# KQL applied at the dashboard level
 dashboards:
 - # ...
   query:
@@ -17,7 +17,7 @@ dashboards:
 **Lucene Query:**
 
 ```yaml
-# Applied at the dashboard level
+# Lucene applied at the dashboard level
 dashboards:
 - # ...
   query:

@@ -37,7 +37,7 @@ That shows what numbers never knew.
       show_root_heading: false
       heading_level: 2
 
-## Image Panel Configuration
+## Image Panel Config Options
 
 ::: kb_dashboard_core.panels.images.config.ImagePanelConfig
     options:

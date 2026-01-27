@@ -37,7 +37,7 @@ The log detective's on patrol.
       show_root_heading: false
       heading_level: 2
 
-## Search Panel Configuration
+## Search Panel Config Options
 
 ::: kb_dashboard_core.panels.search.config.SearchPanelConfig
     options:

@@ -12,7 +12,7 @@ Panel types and compilation logic.
 
 Display rich text content using markdown syntax.
 
-### API Reference
+### Markdown Panel API Reference
 
 ::: kb_dashboard_core.panels.markdown.config.MarkdownPanel
     options:
@@ -24,7 +24,7 @@ For configuration details and examples, see the [Markdown Panel Configuration](.
 
 Display collections of clickable links.
 
-### API Reference
+### Links Panel API Reference
 
 ::: kb_dashboard_core.panels.links.config.LinksPanel
     options:
@@ -36,7 +36,7 @@ For configuration details and examples, see the [Links Panel Configuration](../p
 
 Embed images in your dashboard.
 
-### API Reference
+### Image Panel API Reference
 
 ::: kb_dashboard_core.panels.images.config.ImagePanel
     options:
@@ -48,7 +48,7 @@ For configuration details and examples, see the [Image Panel Configuration](../p
 
 Display search results from Elasticsearch.
 
-### API Reference
+### Search Panel API Reference
 
 ::: kb_dashboard_core.panels.search.config.SearchPanel
     options:
@@ -60,7 +60,7 @@ For configuration details and examples, see the [Search Panel Configuration](../
 
 Lens panels are used to create data visualizations including metrics, pie charts, and XY charts.
 
-### API Reference
+### Lens Panel API Reference
 
 ::: kb_dashboard_core.panels.charts.config.LensPanel
     options:
