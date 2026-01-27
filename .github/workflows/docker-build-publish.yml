@@ -45,5 +45,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push multi-arch Docker image
         shell: bash
-        run: |
+        run: |-
           make -C packages/kb-dashboard-cli SHELL=/bin/bash CONFIRM_PUBLISH=yes DOCKER_TAGS="${{ steps.meta.outputs.tags }}" docker-publish
