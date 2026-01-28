@@ -548,7 +548,11 @@ class KibanaClient:
             data.add_field('file', ndjson_data.encode('utf-8'), filename='dashboard.ndjson', content_type='application/ndjson')
 
         async with await self._post(endpoint, data=data) as response:
-            response.raise_for_status()
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                logger.error('Saved objects import failed with status %s: %s', response.status, error_text[:500])
+                msg = f'Saved objects import failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
             json_response = await response.json()  # pyright: ignore[reportAny]
             return KibanaSavedObjectsResponse.model_validate(json_response)
 
