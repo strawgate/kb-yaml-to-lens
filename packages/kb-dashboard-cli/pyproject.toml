@@ -37,6 +37,7 @@ dev = [
 
 [project.scripts]
 kb-dashboard = "dashboard_compiler.cli:cli"
+kb-dashboard-cli = "dashboard_compiler.cli:cli"  # Alias for uvx kb-dashboard-cli
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

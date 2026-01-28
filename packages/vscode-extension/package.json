@@ -108,6 +108,11 @@
     "configuration": {
       "title": "Kibana Dashboard Compiler",
       "properties": {
+        "yamlDashboard.cli.source": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Source for the dashboard compiler CLI:\n- **Empty/default**: Uses matching PyPI version (recommended)\n- **Version number** (e.g., `0.2.5`): Fetches specific version from PyPI\n- **`main`**: Fetches latest from GitHub main branch\n- **Local path** (e.g., `/path/to/kb-dashboard-cli`): Uses local directory for development"
+        },
         "yamlDashboard.pythonPath": {
           "type": "string",
           "default": "python",
