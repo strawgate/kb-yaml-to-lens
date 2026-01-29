@@ -52,6 +52,7 @@ from kb_dashboard_core.panels.charts.xy.config import (
     LensReferenceLineLayer,
 )
 from kb_dashboard_core.panels.charts.xy.view import KbnXYVisualizationState
+from kb_dashboard_core.panels.drilldowns import compile_drilldowns
 from kb_dashboard_core.queries.compile import compile_esql_query, compile_nonesql_query
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.queries.view import KbnQuery
@@ -312,9 +313,19 @@ def compile_charts_panel_config(
 
     """
     attributes, references = compile_charts_attributes(panel)
+
+    # Compile drilldowns if present
+    enhancements: dict[str, object]
+    if panel.drilldowns is not None and len(panel.drilldowns) > 0:
+        drilldown_refs, enhancements_model = compile_drilldowns(panel.drilldowns)
+        references.extend(drilldown_refs)
+        enhancements = enhancements_model.model_dump(by_alias=True)
+    else:
+        enhancements = {'dynamicActions': {'events': []}}
+
     return references, KbnLensPanelEmbeddableConfig(
         hidePanelTitles=panel.hide_title,
-        enhancements={'dynamicActions': {'events': []}},
+        enhancements=enhancements,
         attributes=attributes,
         syncTooltips=False,
         syncColors=False,

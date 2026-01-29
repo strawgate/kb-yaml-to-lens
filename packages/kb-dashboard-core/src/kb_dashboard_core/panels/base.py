@@ -1,6 +1,7 @@
 from pydantic import Field
 
 from kb_dashboard_core.panels.config import Position, Size
+from kb_dashboard_core.panels.drilldowns.config import DrilldownTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -32,3 +33,6 @@ class BasePanel(BaseCfgModel):
 
     position: Position = Field(default_factory=Position)
     """Defines the panel's position on the dashboard grid. If not specified, position will be auto-calculated."""
+
+    drilldowns: list[DrilldownTypes] | None = Field(default=None)
+    """Optional list of drilldowns to attach to this panel."""
