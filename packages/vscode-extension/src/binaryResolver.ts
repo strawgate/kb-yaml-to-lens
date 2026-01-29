@@ -47,6 +47,30 @@ export class BinaryResolver {
     }
 
     /**
+     * Normalize CLI source by converting relative local paths to absolute paths.
+     * This prevents double-resolution when both buildUvArgs and cwd use the same path.
+     *
+     * @param cliSource The CLI source configuration to normalize
+     * @returns Normalized CLI source with absolute local path if applicable
+     */
+    private normalizeCliSource(cliSource: CliSourceConfig): CliSourceConfig {
+        if (cliSource.type !== 'local') {
+            return cliSource;
+        }
+
+        // If already absolute, return as-is
+        if (path.isAbsolute(cliSource.value)) {
+            return cliSource;
+        }
+
+        // Resolve relative path against workspace root, or extension path as fallback
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? this.extensionPath;
+        const resolvedPath = path.resolve(workspaceRoot, cliSource.value);
+
+        return { ...cliSource, value: resolvedPath };
+    }
+
+    /**
      * Get platform-specific directory name (e.g., 'linux-x64', 'darwin-arm64').
      */
     private getPlatformDir(): string {
@@ -177,7 +201,7 @@ export class BinaryResolver {
      */
     resolveLSPServer(outputChannel?: vscode.OutputChannel): BinaryResolverResult {
         const uvPath = this.getBundledUvPath();
-        const cliSource = this.getCliSourceConfig();
+        const cliSource = this.normalizeCliSource(this.getCliSourceConfig());
 
         // Check for bundled uv
         if (this.isExecutable(uvPath)) {
@@ -237,7 +261,7 @@ export class BinaryResolver {
      */
     resolveForScripts(outputChannel?: vscode.OutputChannel): BinaryResolverResult {
         const uvPath = this.getBundledUvPath();
-        const cliSource = this.getCliSourceConfig();
+        const cliSource = this.normalizeCliSource(this.getCliSourceConfig());
 
         // Check for bundled uv
         if (this.isExecutable(uvPath)) {
