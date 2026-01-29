@@ -31,6 +31,9 @@ def compile_trigger(trigger: DrilldownTrigger) -> str:
             return 'FILTER_TRIGGER'
         case DrilldownTrigger.range:
             return 'SELECT_RANGE_TRIGGER'
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            msg = f'Unsupported drilldown trigger: {trigger!s}'  # pyright: ignore[reportUnreachable]
+            raise ValueError(msg)
 
 
 def compile_dashboard_drilldown(drilldown: DashboardDrilldown, order: int) -> tuple[KbnReference, KbnDrilldownEvent]:
@@ -43,7 +46,7 @@ def compile_dashboard_drilldown(drilldown: DashboardDrilldown, order: int) -> tu
     Returns:
         tuple[KbnReference, KbnDrilldownEvent]: Dashboard reference and drilldown event.
     """
-    event_id = drilldown.id or stable_id_generator([drilldown.name, str(order)])
+    event_id = drilldown.id if drilldown.id is not None else stable_id_generator([drilldown.name, str(order)])
 
     reference = KbnReference(
         type='dashboard',
@@ -79,7 +82,7 @@ def compile_url_drilldown(drilldown: UrlDrilldown, order: int) -> KbnDrilldownEv
     Returns:
         KbnDrilldownEvent: Drilldown event.
     """
-    event_id = drilldown.id or stable_id_generator([drilldown.name, str(order)])
+    event_id = drilldown.id if drilldown.id is not None else stable_id_generator([drilldown.name, str(order)])
 
     config = KbnUrlDrilldownConfig(
         url={'template': drilldown.url},

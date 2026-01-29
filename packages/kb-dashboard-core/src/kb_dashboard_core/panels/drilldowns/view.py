@@ -23,41 +23,61 @@ class KbnDrilldownTrigger(StrEnum):
 class KbnDashboardDrilldownConfig(BaseVwModel):
     """Configuration for dashboard-to-dashboard drilldown."""
 
-    useCurrentFilters: bool
-    useCurrentDateRange: bool
+    useCurrentFilters: bool = Field()
+    """Whether to inherit current filters."""
+
+    useCurrentDateRange: bool = Field()
+    """Whether to inherit current time range."""
 
 
 class KbnUrlDrilldownConfig(BaseVwModel):
     """Configuration for URL drilldown."""
 
-    url: dict[str, str]
-    openInNewTab: bool
-    encodeUrl: bool = True
+    url: dict[str, str] = Field()
+    """URL template payload."""
+
+    openInNewTab: bool = Field()
+    """Whether to open in a new tab."""
+
+    encodeUrl: bool = Field(default=True)
+    """Whether to URL-encode template variables."""
 
 
 class KbnDrilldownAction(BaseVwModel):
     """Drilldown action configuration."""
 
-    factoryId: str
-    name: str
-    config: dict[str, Any]
+    factoryId: str = Field()
+    """Factory identifier for the drilldown type."""
+
+    name: str = Field()
+    """Display name for the drilldown."""
+
+    config: dict[str, Any] = Field()
+    """Configuration payload for the drilldown action."""
 
 
 class KbnDrilldownEvent(BaseVwModel):
     """Drilldown event configuration."""
 
-    eventId: str
-    triggers: list[str]
-    action: KbnDrilldownAction
+    eventId: str = Field()
+    """Unique identifier for the drilldown event."""
+
+    triggers: list[str] = Field()
+    """List of trigger types that activate this drilldown."""
+
+    action: KbnDrilldownAction = Field()
+    """Action to perform when triggered."""
 
 
 class KbnDynamicActions(BaseVwModel):
     """Dynamic actions configuration for enhancements."""
 
     events: list[KbnDrilldownEvent] = Field(default_factory=list)
+    """List of drilldown events."""
 
 
 class KbnEnhancements(BaseVwModel):
     """Enhancements configuration for panel embeddable config."""
 
     dynamicActions: KbnDynamicActions = Field(default_factory=KbnDynamicActions)
+    """Dynamic actions configuration containing drilldown events."""

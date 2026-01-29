@@ -74,9 +74,9 @@ def get_drilldown_type(v: dict[str, object] | object) -> str:
             return 'url'
         msg = f'Cannot determine drilldown type from: {list(v.keys())}'  # pyright: ignore[reportUnknownArgumentType]
         raise ValueError(msg)
-    if hasattr(v, 'dashboard'):
+    if isinstance(v, DashboardDrilldown):
         return 'dashboard'
-    if hasattr(v, 'url'):
+    if isinstance(v, UrlDrilldown):
         return 'url'
     msg = f'Cannot determine drilldown type: {type(v).__name__}'
     raise ValueError(msg)
