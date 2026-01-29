@@ -422,14 +422,14 @@ dashboards:
         esql:
           type: datatable
           query: |
-            FROM metrics-*
+            TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
             | WHERE resource.attributes.iis.site IS NOT NULL
             | STATS
-                connections = ROUND(MAX(iis.connection.active), 0),
-                queue = ROUND(MAX(iis.request.queue.count), 0),
-                threads = ROUND(MAX(iis.thread.active), 0),
-                uptime_sec = MAX(iis.uptime)
+                connections = ROUND(MAX(LAST_OVER_TIME(iis.connection.active)), 0),
+                queue = ROUND(MAX(LAST_OVER_TIME(iis.request.queue.count)), 0),
+                threads = ROUND(MAX(LAST_OVER_TIME(iis.thread.active)), 0),
+                uptime_sec = MAX(LAST_OVER_TIME(iis.uptime))
               BY site = resource.attributes.iis.site
             | EVAL uptime_hrs = ROUND(uptime_sec / 3600, 1)
             | KEEP site, connections, queue, threads, uptime_hrs
