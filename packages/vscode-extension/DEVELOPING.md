@@ -137,7 +137,7 @@ make vscode package      # Create .vsix
 
 The extension uses **uvx** to run `kb-dashboard-cli` directly from PyPI:
 
-```
+```bash
 uv tool run kb-dashboard-cli==0.2.5 lsp
 ```
 
