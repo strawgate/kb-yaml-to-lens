@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-compiler-root"
-version = "0.2.5"
+version = "0.2.7"
 description = "Root project for the kb-yaml-to-lens project"
 readme = "./README.md"
 requires-python = ">=3.12"
@@ -15,8 +15,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "kb-dashboard-cli==0.2.5",
-    "kb-dashboard-lint==0.2.5",
+    "kb-dashboard-cli==0.2.7",
+    "kb-dashboard-lint==0.2.7",
     "click>=8.0",
 ]
 

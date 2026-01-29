@@ -6,7 +6,6 @@ import logging
 import sys
 import webbrowser
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import rich_click as click
 import yaml
@@ -14,6 +13,7 @@ from kb_dashboard_core.dashboard.view import KbnDashboard
 from kb_dashboard_core.dashboard_compiler import load, render
 from kb_dashboard_core.shared.error_formatter import format_validation_error, format_yaml_error
 from kb_dashboard_core.tools.disassemble import disassemble_dashboard, parse_ndjson
+from kb_dashboard_tools.kibana_client import KibanaClient
 from pydantic import ValidationError
 
 from dashboard_compiler.cli_context import CliContext
@@ -31,9 +31,6 @@ from dashboard_compiler.cli_output import (
     print_upload,
     print_warning,
 )
-
-if TYPE_CHECKING:
-    from kb_dashboard_tools.kibana_client import KibanaClient
 
 # Constants
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -142,7 +139,7 @@ def get_yaml_files(directory: Path) -> list[Path]:
 
 
 async def _upload_to_kibana(
-    client: 'KibanaClient',
+    client: KibanaClient,
     ndjson_file: Path,
     overwrite: bool,
     open_browser: bool,

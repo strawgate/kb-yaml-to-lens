@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-cli"
-version = "0.2.5"
+version = "0.2.7"
 description = "CLI, LSP, and future MCP server for kb-yaml-to-lens dashboard compiler"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,8 +14,8 @@ classifiers = [
     "Topic :: Software Development :: Code Generators",
 ]
 dependencies = [
-    "kb-dashboard-core==0.2.5",
-    "kb-dashboard-tools==0.2.5",
+    "kb-dashboard-core==0.2.7",
+    "kb-dashboard-tools==0.2.7",
     "click>=8.3",
     "rich-click>=1.9.0",
     "elasticsearch>=8.16.2",
@@ -37,6 +37,7 @@ dev = [
 
 [project.scripts]
 kb-dashboard = "dashboard_compiler.cli:cli"
+kb-dashboard-cli = "dashboard_compiler.cli:cli"  # Alias for uvx kb-dashboard-cli
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
