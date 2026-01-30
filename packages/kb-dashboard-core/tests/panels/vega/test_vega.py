@@ -134,7 +134,9 @@ def test_compile_vega_panel_with_hidden_title() -> None:
 
 def test_vega_panel_spec_rejects_string() -> None:
     """Test that vega panel spec rejects string input."""
-    with pytest.raises(TypeError, match='Vega spec must be provided as a YAML/JSON object, not a string'):
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError, match='Input should be a valid dictionary'):
         VegaPanel(
             size={'w': 24, 'h': 15},
             position={'x': 0, 'y': 0},

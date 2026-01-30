@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.base import BasePanel
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -13,19 +13,6 @@ class VegaPanelConfig(BaseCfgModel):
 
     spec: dict[str, Any] = Field(...)
     """The Vega specification as a structured YAML/JSON object."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def validate_spec_is_dict(cls, data: dict[str, Any]) -> dict[str, Any]:
-        """Validate that spec is a dictionary, not a string."""
-        spec: object = data.get('spec')
-        if isinstance(spec, str):
-            msg = 'Vega spec must be provided as a YAML/JSON object, not a string'
-            raise TypeError(msg)
-        if spec is not None and not isinstance(spec, dict):
-            msg = f'Vega spec must be a dictionary, got {type(spec).__name__}'
-            raise TypeError(msg)
-        return data
 
 
 class VegaPanel(BasePanel):
