@@ -421,11 +421,24 @@ export async function activate(context: vscode.ExtensionContext) {
     configService = new ConfigService(context);
     compiler = new DashboardCompilerLSP(context, configService);
 
-    // Start the LSP server
-    await compiler.start();
+    // Start the LSP server - wrap in try-catch to ensure commands are registered even if LSP fails
+    let lspStarted = false;
+    try {
+        await compiler.start();
+        lspStarted = true;
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('Failed to start LSP server:', errorMessage);
+        vscode.window.showErrorMessage(
+            `Dashboard Compiler: Failed to start LSP server. ${errorMessage}. ` +
+            'Check the "Dashboard Compiler LSP" output channel for details.'
+        );
+    }
 
-    // Register JSON schema with YAML extension for auto-complete
-    await registerYamlSchema();
+    // Register JSON schema with YAML extension for auto-complete (only if LSP started)
+    if (lspStarted) {
+        await registerYamlSchema();
+    }
 
     previewPanel = new PreviewPanel(context, compiler);
     gridEditorPanel = new GridEditorPanel(context, compiler);

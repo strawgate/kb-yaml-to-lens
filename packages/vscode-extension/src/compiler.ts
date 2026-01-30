@@ -58,7 +58,8 @@ export class DashboardCompilerLSP {
         }
 
         // Resolve LSP server (bundled binary or Python script)
-        const resolver = new BinaryResolver(this.context.extensionPath, this.configService);
+        const extensionVersion = this.context.extension.packageJSON.version as string;
+        const resolver = new BinaryResolver(this.context.extensionPath, this.configService, extensionVersion);
         const config = resolver.resolveLSPServer(this.outputChannel);
 
         // Server options - how to start the LSP server

@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-lint"
-version = "0.2.5"
+version = "0.2.7"
 description = "Linting rules for dashboard YAML configurations"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,7 +14,7 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
 ]
 dependencies = [
-    "kb-dashboard-core==0.2.5",
+    "kb-dashboard-core==0.2.7",
     "pydantic>=2.12",
     "beartype>=0.22",
     "click>=8.3",

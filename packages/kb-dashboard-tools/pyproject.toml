@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-tools"
-version = "0.2.5"
+version = "0.2.7"
 description = "Shared utilities for Kibana operations, authentication, and workflows"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,7 +14,7 @@ classifiers = [
     "Topic :: Software Development :: Code Generators",
 ]
 dependencies = [
-    "kb-dashboard-core==0.2.5",
+    "kb-dashboard-core==0.2.7",
     "aiohttp>=3.13",
     "prison>=0.2.1",
     "pydantic>=2.12",

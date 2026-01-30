@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-core"
-version = "0.2.5"
+version = "0.2.7"
 description = "Core compilation engine for YAML to Kibana dashboard format"
 readme = "README.md"
 requires-python = ">=3.12"

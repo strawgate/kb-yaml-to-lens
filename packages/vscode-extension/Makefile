@@ -1,7 +1,7 @@
 # VSCode Extension Makefile
 # Component-specific commands for the VS Code extension
 
-.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all generate-schemas check-schemas
+.PHONY: help all install ci check fix test test-unit test-unit-only test-e2e test-e2e-only compile watch lint lint-check lint-only typecheck package install-vscode install-cursor clean prepare prepare-all prepare-linux prepare-macos-x64 prepare-macos-arm64 prepare-windows package-linux package-macos-x64 package-macos-arm64 package-windows package-all-platforms generate-schemas check-schemas
 
 # Include shared helpers
 include ../../Makefile.shared
@@ -36,13 +36,18 @@ help:
 	@echo "  test-e2e         - Run E2E tests only"
 	@echo ""
 	@echo "Packaging and Installation:"
-	@echo "  package          - Create .vsix package"
+	@echo "  package          - Create universal .vsix package"
+	@echo "  package-linux    - Create Linux x64 .vsix package (~22MB)"
+	@echo "  package-macos-x64    - Create macOS Intel .vsix package (~22MB)"
+	@echo "  package-macos-arm64  - Create macOS ARM64 .vsix package (~22MB)"
+	@echo "  package-windows  - Create Windows x64 .vsix package (~22MB)"
+	@echo "  package-all-platforms - Create all platform-specific packages"
 	@echo "  install-vscode   - Install packaged extension into VS Code"
 	@echo "  install-cursor   - Install packaged extension into Cursor"
 	@echo ""
 	@echo "Preparation:"
-	@echo "  prepare          - Download uv + bundle compiler (current platform, for dev)"
-	@echo "  prepare-all      - Download uv for all platforms + bundle compiler (for release)"
+	@echo "  prepare          - Download uv (current platform, for dev)"
+	@echo "  prepare-all      - Download uv for all platforms (universal package)"
 	@echo ""
 	@echo "Schema Generation:"
 	@echo "  generate-schemas - Generate Zod schemas from Pydantic models"
@@ -139,11 +144,11 @@ install-vscode: package
 install-cursor: package
 	$(call install_extension, "Cursor", cursor)
 
-# Helper function to prepare extension (download uv + bundle compiler)
+# Helper function to prepare extension (download uv)
+# The extension uses uvx to run kb-dashboard-cli from PyPI, so no compiler bundling needed
 # Usage: $(call prepare_extension, platform_description, platform_arg, success_message)
 define prepare_extension
 	$(call run_cmd, "Downloading uv for $(1)", bash scripts/download_uv.sh $(2), "uv downloaded")
-	$(call run_cmd, "Bundling compiler", bash scripts/bundle_compiler.sh, "Compiler bundled")
 	$(call print_end, $(3))
 endef
 
@@ -152,6 +157,45 @@ prepare:
 
 prepare-all:
 	$(call prepare_extension, "all platforms", all, "Extension prepared for all platforms")
+
+# Platform-specific preparation and packaging
+# These targets prepare a single platform and create a platform-specific .vsix
+prepare-linux:
+	$(call prepare_extension, "linux-x64", linux-x64, "Extension prepared for Linux x64")
+
+prepare-macos-x64:
+	$(call prepare_extension, "darwin-x64", darwin-x64, "Extension prepared for macOS x64")
+
+prepare-macos-arm64:
+	$(call prepare_extension, "darwin-arm64", darwin-arm64, "Extension prepared for macOS ARM64")
+
+prepare-windows:
+	$(call prepare_extension, "win32-x64", win32-x64, "Extension prepared for Windows x64")
+
+package-linux: install prepare-linux
+	$(call run_cmd, "Creating Linux x64 .vsix package", npm run package:linux, "Linux x64 .vsix package created")
+
+package-macos-x64: install prepare-macos-x64
+	$(call run_cmd, "Creating macOS x64 .vsix package", npm run package:macos-x64, "macOS x64 .vsix package created")
+
+package-macos-arm64: install prepare-macos-arm64
+	$(call run_cmd, "Creating macOS ARM64 .vsix package", npm run package:macos-arm64, "macOS ARM64 .vsix package created")
+
+package-windows: install prepare-windows
+	$(call run_cmd, "Creating Windows x64 .vsix package", npm run package:windows, "Windows x64 .vsix package created")
+
+# Build all platform-specific packages (for release)
+package-all-platforms: install
+	$(call print_start, "Building all platform-specific packages")
+	@rm -rf bin/ *.vsix 2>/dev/null || true
+	$(MAKE) package-linux
+	@rm -rf bin/
+	$(MAKE) package-macos-x64
+	@rm -rf bin/
+	$(MAKE) package-macos-arm64
+	@rm -rf bin/
+	$(MAKE) package-windows
+	$(call print_end, "All platform-specific packages created")
 
 # Schema Generation
 generate-schemas:

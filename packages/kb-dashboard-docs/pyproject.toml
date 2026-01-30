@@ -1,12 +1,12 @@
 [project]
 name = "kb-dashboard-docs"
-version = "0.2.5"
+version = "0.2.7"
 description = "Documentation for kb-yaml-to-lens"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 
 dependencies = [
-    "kb-dashboard-cli==0.2.5",
+    "kb-dashboard-cli==0.2.7",
 ]
 
 [tool.uv.sources]
