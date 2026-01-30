@@ -16,6 +16,28 @@ These dashboards provide comprehensive monitoring for Redis instances, including
 
 All dashboards include navigation links for easy switching between views.
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Overview (overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/overview.yaml"
+    ```
+
+??? example "Instance Details (instance-details.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/instance-details.yaml"
+    ```
+
+??? example "Database Metrics (database-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/redis_otel/database-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **Redis**: Redis server instances (6.x or later recommended)
@@ -109,6 +131,10 @@ service:
 | `redis.version` | Server version identifier |
 | `server.address` | Server address (optional) |
 | `server.port` | Server port (optional) |
+
+## Metrics Not Used in Dashboards
+
+All optional metrics listed in the [Optional Metrics](#optional-metrics-disabled-by-default) section above are not currently visualized in the dashboards. These metrics are disabled by default and must be explicitly enabled in the OpenTelemetry Collector configuration.
 
 ## Related Resources
 

@@ -18,9 +18,9 @@ runs:
     - name: Install root Python dependencies
       shell: bash
       run: uv sync --group dev
-    - name: Install compiler Python dependencies
+    - name: Install CLI Python dependencies
       shell: bash
-      run: make compiler install
+      run: make cli install
     - name: Setup Xvfb
       if: inputs.setup-xvfb == 'true'
       shell: bash

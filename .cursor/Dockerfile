@@ -1,6 +1,7 @@
 # Cursor Cloud Agents Development Environment
 #
-# This Dockerfile creates a development environment for the kb-yaml-to-lens project,
+# This Dockerfile is used by Cursor Cloud Agents via environment.json.
+# It creates a development environment for the kb-yaml-to-lens project,
 # supporting both the Python compiler and TypeScript VS Code extension.
 
 FROM ubuntu:24.04
@@ -49,7 +50,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv (Python package manager)
-COPY --from=ghcr.io/astral-sh/uv:0.9.18 /uv /uvx /usr/local/bin/
+COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /usr/local/bin/
 
 # Install global npm packages
 RUN npm install -g markdownlint-cli

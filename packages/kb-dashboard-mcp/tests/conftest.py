@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from dashboard_compiler.kibana_client import KibanaClient
+from kb_dashboard_tools.kibana_client import KibanaClient
 
 
 @pytest.fixture

@@ -54,7 +54,7 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: User Created (4720)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -65,7 +65,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4720'
       - title: User Enabled (4722)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -76,7 +76,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4722'
       - title: User Disabled (4725)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -87,7 +87,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4725'
       - title: User Deleted (4726)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

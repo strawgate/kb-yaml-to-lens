@@ -8,9 +8,9 @@ from typing import Literal
 
 import rich_click as click
 
-from dashboard_compiler.kibana_client import KibanaClient
 from kb_dashboard_mcp import __version__
 from kb_dashboard_mcp.server import build_mcp_server
+from kb_dashboard_tools.kibana_client import KibanaClient
 
 
 @dataclass

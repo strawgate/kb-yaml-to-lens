@@ -47,46 +47,58 @@ dashboards:
           font_size: 14
       - title: Total HPAs
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(k8s.hpa.name)
             label: HPAs
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.hpa.name
       - title: Current Replicas
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: sum(k8s.hpa.current_replicas)
             label: Current
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.hpa.name
       - title: Desired Replicas
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: sum(k8s.hpa.desired_replicas)
             label: Desired
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.hpa.name
       - title: Max Replicas Limit
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: sum(k8s.hpa.max_replicas)
             label: Max Total
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.hpa.name
 
@@ -109,8 +121,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.hpa.current_replicas)
               label: Current Replicas
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.hpa.desired_replicas)
               label: Desired Replicas
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.hpa.name
       - title: Capacity Headroom (Min / Current / Max)
@@ -124,10 +142,19 @@ dashboards:
           metrics:
             - formula: sum(k8s.hpa.min_replicas)
               label: Min Replicas
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.hpa.current_replicas)
               label: Current Replicas
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.hpa.max_replicas)
               label: Max Replicas
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.hpa.name
 
@@ -157,14 +184,26 @@ dashboards:
             - field: k8s.hpa.current_replicas
               aggregation: max
               label: Current
+              format:
+                type: number
+                decimals: 0
             - field: k8s.hpa.desired_replicas
               aggregation: max
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - field: k8s.hpa.min_replicas
               aggregation: max
               label: Min
+              format:
+                type: number
+                decimals: 0
             - field: k8s.hpa.max_replicas
               aggregation: max
               label: Max
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.hpa.name

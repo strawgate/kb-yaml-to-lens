@@ -49,6 +49,9 @@ dashboards:
           primary:
             field: node_count
             label: Nodes
+            format:
+              type: number
+              decimals: 0
       - title: Aerospike Namespaces
         size: {w: 8, h: 5}
         position: {x: 8, y: 4}
@@ -62,6 +65,9 @@ dashboards:
           primary:
             field: namespace_count
             label: Namespaces
+            format:
+              type: number
+              decimals: 0
       - title: Memory Free
         size: {w: 16, h: 5}
         position: {x: 16, y: 4}
@@ -91,6 +97,8 @@ dashboards:
           primary:
             field: connections
             label: Connections
+            format:
+              type: number
 
       # Memory Section Header
       - size: {w: 48, h: 2}
@@ -115,6 +123,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: memory_free
               label: Memory Free %
@@ -147,9 +157,13 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Open Connections
+              format:
+                type: number
           breakdown:
             field: node
 
@@ -171,9 +185,13 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Connections
+              format:
+                type: number
           breakdown:
             field: connection_type
 
@@ -194,5 +212,8 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: node
+              label: Node
             - field: memory_free
+              label: Memory Free %
             - field: connections_open
+              label: Open Connections

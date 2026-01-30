@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/kb-dashboard-compiler
+      url: https://pypi.org/p/kb-dashboard-cli
     permissions:
       id-token: write
       contents: read
@@ -19,9 +19,27 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
-      - name: Build package
+      - name: Build kb-dashboard-core
         shell: bash
-        run: make compiler build
-      - name: Publish to PyPI
+        run: make core build
+      - name: Build kb-dashboard-tools
         shell: bash
-        run: make compiler publish
+        run: make tools build
+      - name: Build kb-dashboard-lint
+        shell: bash
+        run: make lint build
+      - name: Build kb-dashboard-cli
+        shell: bash
+        run: make cli build
+      - name: Publish kb-dashboard-core to PyPI
+        shell: bash
+        run: make core publish
+      - name: Publish kb-dashboard-tools to PyPI
+        shell: bash
+        run: make tools publish
+      - name: Publish kb-dashboard-lint to PyPI
+        shell: bash
+        run: make lint publish
+      - name: Publish kb-dashboard-cli to PyPI
+        shell: bash
+        run: make cli publish

@@ -48,7 +48,7 @@ dashboards:
       # Overview Metrics Row
       - title: Request Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -63,7 +63,7 @@ dashboards:
               type: number
       - title: Traffic Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -78,7 +78,7 @@ dashboards:
               type: bytes
       - title: Active Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -92,9 +92,10 @@ dashboards:
             format:
               type: number
               pattern: 0,0
+              decimals: 0
       - title: CPU Load
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -124,6 +125,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: requests_rate
               label: Requests/sec
@@ -146,6 +149,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: traffic_rate
               label: Traffic/sec
@@ -169,6 +174,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: cpu_time_rate
               label: CPU Time/sec
@@ -192,6 +199,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: request_time_rate
               label: Request Time/sec
@@ -215,9 +224,11 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: load_1m
               label: 1-min Load
@@ -245,9 +256,11 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Current Connections
@@ -268,9 +281,11 @@ dashboards:
             - SORT time_bucket ASC
           legend:
             visible: show
-            position: right
+            position: bottom
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: cpu_load
               label: CPU Load
@@ -296,6 +311,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Async Connections
@@ -323,6 +340,7 @@ dashboards:
                 pattern: 0,0
           dimensions:
             - field: state
+              label: Worker State
           appearance:
             donut: medium
 
@@ -343,6 +361,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: scoreboard
               label: Scoreboard
@@ -367,6 +387,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: workers
               label: Workers
@@ -393,8 +415,14 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: server_name
+              label: Server Name
             - field: server_port
+              label: Port
             - field: connections
+              label: Connections
             - field: cpu_load_pct
+              label: CPU Load %
             - field: load_1m
+              label: 1-min Load
             - field: busy_workers
+              label: Busy Workers

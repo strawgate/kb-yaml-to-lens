@@ -32,14 +32,14 @@ Thanks to documentation found in-line!
 
 ## Markdown Panel
 
-::: dashboard_compiler.panels.markdown.config.MarkdownPanel
+::: kb_dashboard_core.panels.markdown.config.MarkdownPanel
     options:
       show_root_heading: false
       heading_level: 2
 
 ## Markdown Panel Configuration
 
-::: dashboard_compiler.panels.markdown.config.MarkdownPanelConfig
+::: kb_dashboard_core.panels.markdown.config.MarkdownPanelConfig
     options:
       show_root_heading: false
       heading_level: 3

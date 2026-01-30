@@ -1,1 +1,1 @@
-packages/kb-dashboard-compiler/README.md
+packages/kb-dashboard-cli/README.md

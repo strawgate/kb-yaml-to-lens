@@ -47,7 +47,7 @@ dashboards:
 
       # Summary Layer - Key Security Metrics
       - title: Total Attempts
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -55,7 +55,7 @@ dashboards:
             aggregation: count
             label: Attempts
       - title: Accepted Logins
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -66,7 +66,7 @@ dashboards:
             - field: system.auth.ssh.event
               equals: Accepted
       - title: Failed Logins
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -77,7 +77,7 @@ dashboards:
             - field: system.auth.ssh.event
               equals: Failed
       - title: Unique Users
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

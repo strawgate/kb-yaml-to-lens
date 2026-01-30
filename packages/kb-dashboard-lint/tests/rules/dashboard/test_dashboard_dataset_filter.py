@@ -1,8 +1,8 @@
 """Tests for DashboardDatasetFilterRule."""
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.filters import PhraseFilter
 from dashboard_lint.rules.dashboard import DashboardDatasetFilterRule
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.filters import PhraseFilter
 
 
 class TestDashboardDatasetFilterRule:

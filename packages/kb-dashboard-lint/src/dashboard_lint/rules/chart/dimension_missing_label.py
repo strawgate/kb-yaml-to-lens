@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass
 
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.panels.charts.config import (
     ESQLPanel,
     LensAreaPanelConfig,
     LensBarPanelConfig,
@@ -11,7 +13,7 @@ from dashboard_compiler.panels.charts.config import (
     LensMosaicPanelConfig,
     LensPanel,
 )
-from dashboard_compiler.panels.charts.lens.dimensions.config import (
+from kb_dashboard_core.panels.charts.lens.dimensions.config import (
     BaseLensDimension,
     LensDateHistogramDimension,
     LensFiltersDimension,
@@ -19,22 +21,12 @@ from dashboard_compiler.panels.charts.lens.dimensions.config import (
     LensMultiTermsDimension,
     LensTermsDimension,
 )
-from dashboard_lint.rules.core import ChartContext, ChartRule, EmptyOptions, ViolationResult, chart_rule
-from dashboard_lint.types import Severity, Violation
 
 type BreakdownConfig = LensMetricPanelConfig | LensLinePanelConfig | LensBarPanelConfig | LensAreaPanelConfig | LensMosaicPanelConfig
 
 
 def _get_dimension_field(dimension: BaseLensDimension) -> str:
-    """Extract the field name from a dimension object.
-
-    Args:
-        dimension: A dimension configuration object.
-
-    Returns:
-        The field name or a descriptive string.
-
-    """
+    """Extract the field name from a dimension object."""
     if isinstance(dimension, LensTermsDimension):
         return dimension.field
     if isinstance(dimension, LensMultiTermsDimension):
@@ -49,15 +41,7 @@ def _get_dimension_field(dimension: BaseLensDimension) -> str:
 
 
 def _dimension_has_empty_label(dimension: BaseLensDimension) -> bool:
-    """Check if a dimension has an empty or missing label.
-
-    Args:
-        dimension: A dimension configuration object.
-
-    Returns:
-        True if the dimension lacks a label, False otherwise.
-
-    """
+    """Check if a dimension has an empty or missing label."""
     return dimension.label is None or len(dimension.label) == 0
 
 

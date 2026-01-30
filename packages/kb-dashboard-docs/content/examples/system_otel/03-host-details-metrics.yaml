@@ -196,6 +196,9 @@ dashboards:
           metrics:
             - formula: counter_rate(metrics.system.disk.operations)
               label: Operations/sec
+              format:
+                type: number
+                decimals: 0
       - title: Disk I/O by Device
         size: {w: 24, h: 12}
         lens:
@@ -274,6 +277,9 @@ dashboards:
             - aggregation: average
               field: metrics.system.network.packets
               label: Packets
+              format:
+                type: number
+                decimals: 0
       - title: Network Errors by Interface
         size: {w: 24, h: 12}
         lens:
@@ -290,6 +296,9 @@ dashboards:
             - aggregation: sum
               field: metrics.system.network.errors
               label: Errors
+              format:
+                type: number
+                decimals: 0
       - title: Network Dropped Packets by Interface
         size: {w: 24, h: 12}
         lens:
@@ -306,6 +315,9 @@ dashboards:
             - aggregation: sum
               field: metrics.system.network.dropped
               label: Dropped
+              format:
+                type: number
+                decimals: 0
 
       # ═══════════════════════════════════════════════════════════════════════
       # PAGING SECTION
@@ -345,3 +357,6 @@ dashboards:
             - aggregation: average
               field: metrics.system.paging.operations
               label: Operations
+              format:
+                type: number
+                decimals: 0

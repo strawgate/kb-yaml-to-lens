@@ -11,7 +11,7 @@ from kb_dashboard_mcp.models import EsqlQueryResult
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
-    from dashboard_compiler.kibana_client import KibanaClient
+    from kb_dashboard_tools.kibana_client import KibanaClient
 
 
 async def execute_esql(

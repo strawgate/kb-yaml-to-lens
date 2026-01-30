@@ -107,7 +107,7 @@
       "  lens:",
       "    type: metric",
       "    data_view: ${9:logs-*}",
-      "    metric:",
+      "    primary:",
       "      aggregation: ${10|count,sum,avg,min,max,median,unique_count|}",
       "      ${11:field: ${12:field_name}}"
     ],
@@ -227,13 +227,17 @@
       "  lens:",
       "    type: datatable",
       "    data_view: ${9:logs-*}",
-      "    columns:",
+      "    dimensions:",
       "      - field: ${10:field_name}",
       "        type: ${11|values,date_histogram|}",
       "        ${12:label: ${13:Column 1}}",
       "      ${14:- field: ${15:another_field}",
       "        type: ${16|values,date_histogram|}",
-      "        label: ${17:Column 2}}"
+      "        label: ${17:Column 2}}",
+      "    metrics:",
+      "      - aggregation: ${18|count,sum,avg,min,max|}",
+      "        ${19:field: ${20:numeric_field}}",
+      "        ${21:label: ${22:Metric}}"
     ],
     "description": "Add a Lens datatable with multiple columns"
   },
@@ -498,7 +502,7 @@
     "prefix": "control-options",
     "body": [
       "- type: options",
-      "  ${1:title: ${2:Filter by Category}}",
+      "  ${1:label: ${2:Filter by Category}}",
       "  data_view: ${3:logs-*}",
       "  field: ${4:category_field}",
       "  ${5:width: ${6|small,medium,large|}}"
@@ -509,7 +513,7 @@
     "prefix": "control-range",
     "body": [
       "- type: range",
-      "  ${1:title: ${2:Numeric Range}}",
+      "  ${1:label: ${2:Numeric Range}}",
       "  data_view: ${3:logs-*}",
       "  field: ${4:numeric_field}",
       "  ${5:width: ${6|small,medium,large|}}"
@@ -520,7 +524,7 @@
     "prefix": "control-time",
     "body": [
       "- type: time",
-      "  ${1:title: ${2:Time Range}}",
+      "  ${1:label: ${2:Time Range}}",
       "  ${3:start_offset: ${4:0.0}}",
       "  ${5:end_offset: ${6:1.0}}"
     ],

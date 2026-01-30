@@ -29,8 +29,13 @@ dashboards:
             | STATS total = COUNT() BY outcome, time_bucket = BUCKET(@timestamp, 50, ?_tstart, ?_tend)
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: outcome
           appearance:
@@ -48,9 +53,14 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: rpc.service
+              label: Service
             - field: rpc.method
+              label: Method
           appearance:
             donut: large
           titles_and_text:
@@ -68,8 +78,12 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: agent
+              label: User Agent
           appearance:
             donut: large
           titles_and_text:
@@ -85,8 +99,12 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: rpc.system
+              label: Event Type
           appearance:
             donut: large
           titles_and_text:
@@ -103,8 +121,12 @@ dashboards:
             | SORT total DESC
           metrics:
             - field: total
+              format:
+                type: number
+                decimals: 0
           dimensions:
             - field: aws.error.code
+              label: Error Code
           appearance:
             donut: large
           titles_and_text:
@@ -118,18 +140,25 @@ dashboards:
           dimensions:
             - id: timestamp
               field: '@timestamp'
+              label: Timestamp
             - id: access-key
               field: aws.access_key.id
+              label: Access Key ID
             - id: service
               field: rpc.service
+              label: Service
             - id: event-type
               field: rpc.system
+              label: Event Type
             - id: action
               field: rpc.method
+              label: Action
             - id: error-code
               field: aws.error.code
+              label: Error Code
             - id: source
               field: source.address
+              label: Source Address
           paging:
             enabled: true
             page_size: 10
@@ -145,9 +174,13 @@ dashboards:
           dimensions:
             - id: user-id
               field: aws.access_key.id
+              label: Access Key ID
           metrics:
             - id: events
               field: total
+              format:
+                type: number
+                decimals: 0
           sorting:
             column_id: events
             direction: desc

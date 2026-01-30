@@ -32,21 +32,21 @@ That show exactly where things are.
 
 ## Lens Bar Charts
 
-::: dashboard_compiler.panels.charts.xy.config.LensBarChart
+::: kb_dashboard_core.panels.charts.xy.config.LensBarChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Lens Line Charts
 
-::: dashboard_compiler.panels.charts.xy.config.LensLineChart
+::: kb_dashboard_core.panels.charts.xy.config.LensLineChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Lens Area Charts
 
-::: dashboard_compiler.panels.charts.xy.config.LensAreaChart
+::: kb_dashboard_core.panels.charts.xy.config.LensAreaChart
     options:
       show_root_heading: false
       heading_level: 3
@@ -55,33 +55,33 @@ That show exactly where things are.
 
 ### Bar Chart Appearance
 
-::: dashboard_compiler.panels.charts.xy.config.BarChartAppearance
+::: kb_dashboard_core.panels.charts.xy.config.BarChartAppearance
     options:
       show_root_heading: false
       heading_level: 4
 
 ### Line Chart Appearance
 
-::: dashboard_compiler.panels.charts.xy.config.LineChartAppearance
+::: kb_dashboard_core.panels.charts.xy.config.LineChartAppearance
     options:
       show_root_heading: false
       heading_level: 4
 
 ### Area Chart Appearance
 
-::: dashboard_compiler.panels.charts.xy.config.AreaChartAppearance
+::: kb_dashboard_core.panels.charts.xy.config.AreaChartAppearance
     options:
       show_root_heading: false
       heading_level: 4
 
 ## Axis Configuration
 
-::: dashboard_compiler.panels.charts.xy.config.AxisConfig
+::: kb_dashboard_core.panels.charts.xy.config.AxisConfig
     options:
       show_root_heading: false
       heading_level: 3
 
-::: dashboard_compiler.panels.charts.xy.config.AxisExtent
+::: kb_dashboard_core.panels.charts.xy.config.AxisExtent
     options:
       show_root_heading: false
       heading_level: 3
@@ -235,7 +235,7 @@ dashboards:
 
 For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../advanced/legend-configuration.md).
 
-::: dashboard_compiler.panels.charts.xy.config.XYLegend
+::: kb_dashboard_core.panels.charts.xy.config.XYLegend
     options:
       show_root_heading: false
       heading_level: 3
@@ -244,12 +244,12 @@ For comprehensive guidance on legend configuration, see the [Legend Configuratio
 
 Reference lines are implemented as separate layers in multi-layer panels. This allows you to combine data visualizations with threshold lines in a single chart.
 
-::: dashboard_compiler.panels.charts.xy.config.LensReferenceLineLayer
+::: kb_dashboard_core.panels.charts.xy.config.LensReferenceLineLayer
     options:
       show_root_heading: false
       heading_level: 3
 
-::: dashboard_compiler.panels.charts.xy.config.XYReferenceLine
+::: kb_dashboard_core.panels.charts.xy.config.XYReferenceLine
     options:
       show_root_heading: false
       heading_level: 3
@@ -490,17 +490,17 @@ dashboards:
 
 ## ES|QL XY Charts
 
-::: dashboard_compiler.panels.charts.xy.config.ESQLBarChart
+::: kb_dashboard_core.panels.charts.xy.config.ESQLBarChart
     options:
       show_root_heading: false
       heading_level: 3
 
-::: dashboard_compiler.panels.charts.xy.config.ESQLLineChart
+::: kb_dashboard_core.panels.charts.xy.config.ESQLLineChart
     options:
       show_root_heading: false
       heading_level: 3
 
-::: dashboard_compiler.panels.charts.xy.config.ESQLAreaChart
+::: kb_dashboard_core.panels.charts.xy.config.ESQLAreaChart
     options:
       show_root_heading: false
       heading_level: 3

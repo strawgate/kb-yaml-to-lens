@@ -215,5 +215,8 @@ dashboards:
                 type: bytes
             - formula: sum(k8s.container.restarts)
               label: Restarts
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.container.name

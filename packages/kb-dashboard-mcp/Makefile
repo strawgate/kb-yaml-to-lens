@@ -1,10 +1,7 @@
 # MCP Server Makefile
 # Component-specific commands for the MCP server
 
-# Use bash for PIPESTATUS support (required by Makefile.shared)
-SHELL := /bin/bash
-
-# Include shared helpers
+# Include shared helpers (SHELL is set automatically by Makefile.shared based on RUNNER_OS)
 include ../../Makefile.shared
 
 .PHONY: help all install ci check fix test test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
@@ -66,7 +63,11 @@ lint-check:
 
 # Type checking
 typecheck:
-	$(call run_cmd, "Running type checking", cd ../.. && uv run --group dev basedpyright packages/kb-dashboard-mcp, "Type checking passed")
+	$(call print_start, "Running type checking")
+	@cd $(ROOT) && output=$$(uv run --group dev basedpyright packages/kb-dashboard-mcp --level error 2>&1); \
+		echo "$$output" | sed 's/^/    /'; \
+		if echo "$$output" | grep -q "0 errors"; then exit 0; else exit 1; fi
+	$(call print_end, "Type checking passed")
 
 # Testing
 test:

@@ -12,6 +12,16 @@ This dashboard provides comprehensive monitoring for Memcached instances, displa
 |-----------|------|-------------|
 | **Overview** | `01-memcached-overview.yaml` | Memcached monitoring with items, storage, connections, and hit/miss rates |
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Overview (01-memcached-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/memcached_otel/01-memcached-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **Memcached**: Memcached server instances

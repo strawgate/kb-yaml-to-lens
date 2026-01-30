@@ -70,7 +70,7 @@ filters:
 
 Checks for the existence of a specific field.
 
-::: dashboard_compiler.filters.config.ExistsFilter
+::: kb_dashboard_core.filters.config.ExistsFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -79,7 +79,7 @@ Checks for the existence of a specific field.
 
 Matches documents where a specific field contains an exact phrase.
 
-::: dashboard_compiler.filters.config.PhraseFilter
+::: kb_dashboard_core.filters.config.PhraseFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -88,7 +88,7 @@ Matches documents where a specific field contains an exact phrase.
 
 Matches documents where a specific field contains one or more of the specified phrases.
 
-::: dashboard_compiler.filters.config.PhrasesFilter
+::: kb_dashboard_core.filters.config.PhrasesFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -97,7 +97,7 @@ Matches documents where a specific field contains one or more of the specified p
 
 Matches documents where a numeric or date field falls within a specified range. At least one of `gte`, `lte`, `gt`, or `lt` must be provided.
 
-::: dashboard_compiler.filters.config.RangeFilter
+::: kb_dashboard_core.filters.config.RangeFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -106,7 +106,7 @@ Matches documents where a numeric or date field falls within a specified range. 
 
 Allows for defining a custom Elasticsearch Query DSL filter.
 
-::: dashboard_compiler.filters.config.CustomFilter
+::: kb_dashboard_core.filters.config.CustomFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -115,7 +115,7 @@ Allows for defining a custom Elasticsearch Query DSL filter.
 
 Excludes documents that match the nested filter.
 
-::: dashboard_compiler.filters.config.NegateFilter
+::: kb_dashboard_core.filters.config.NegateFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -124,7 +124,7 @@ Excludes documents that match the nested filter.
 
 Matches documents that satisfy ALL of the specified nested filters.
 
-::: dashboard_compiler.filters.config.AndFilter
+::: kb_dashboard_core.filters.config.AndFilter
     options:
       show_root_heading: false
       heading_level: 4
@@ -133,7 +133,7 @@ Matches documents that satisfy ALL of the specified nested filters.
 
 Matches documents that satisfy AT LEAST ONE of the specified nested filters.
 
-::: dashboard_compiler.filters.config.OrFilter
+::: kb_dashboard_core.filters.config.OrFilter
     options:
       show_root_heading: false
       heading_level: 4

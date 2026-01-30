@@ -44,7 +44,7 @@ Queries are typically defined under a `query` key, either at the root of the `da
 
 Filters documents using the Kibana Query Language (KQL). This is often the default query language in Kibana.
 
-::: dashboard_compiler.queries.config.KqlQuery
+::: kb_dashboard_core.queries.config.KqlQuery
     options:
       show_root_heading: false
       heading_level: 4
@@ -62,7 +62,7 @@ dashboards:
 
 Filters documents using the more expressive, but complex, Lucene query syntax.
 
-::: dashboard_compiler.queries.config.LuceneQuery
+::: kb_dashboard_core.queries.config.LuceneQuery
     options:
       show_root_heading: false
       heading_level: 4
@@ -80,7 +80,7 @@ dashboards:
 
 Uses Elasticsearch Query Language (ESQL) for data retrieval and aggregation. ESQL queries are typically used by specific panel types that are designed to work with ESQL's tabular results (e.g., ESQL-driven charts or tables).
 
-::: dashboard_compiler.queries.config.ESQLQuery
+::: kb_dashboard_core.queries.config.ESQLQuery
     options:
       show_root_heading: false
       heading_level: 4

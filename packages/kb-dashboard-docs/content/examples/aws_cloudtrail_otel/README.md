@@ -14,6 +14,16 @@ Based on the dashboard from the [Elastic integrations repository](https://github
 |-----------|------|-------------|
 | **CloudTrail Logs Overview** | `cloudtrail-logs-overview.yaml` | CloudTrail activity logs overview |
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "CloudTrail Logs Overview (cloudtrail-logs-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_cloudtrail_otel/cloudtrail-logs-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **AWS CloudTrail**: With data streaming via OpenTelemetry

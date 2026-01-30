@@ -419,7 +419,7 @@ Defines how metric values are displayed in visualizations.
 
 ### Standard Format
 
-::: dashboard_compiler.panels.charts.lens.metrics.config.LensMetricFormat
+::: kb_dashboard_core.panels.charts.lens.metrics.config.LensMetricFormat
     options:
       show_root_heading: false
       heading_level: 4
@@ -438,7 +438,7 @@ Use the `decimals` field to override these defaults with a specific number of de
 
 ### Custom Format
 
-::: dashboard_compiler.panels.charts.lens.metrics.config.LensCustomMetricFormat
+::: kb_dashboard_core.panels.charts.lens.metrics.config.LensCustomMetricFormat
     options:
       show_root_heading: false
       heading_level: 4

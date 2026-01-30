@@ -32,14 +32,14 @@ Every slice helps reach your goal!
 
 ## Lens Pie Charts
 
-::: dashboard_compiler.panels.charts.pie.config.LensPieChart
+::: kb_dashboard_core.panels.charts.pie.config.LensPieChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Pie Chart Appearance
 
-::: dashboard_compiler.panels.charts.pie.config.PieChartAppearance
+::: kb_dashboard_core.panels.charts.pie.config.PieChartAppearance
     options:
       show_root_heading: false
       heading_level: 3
@@ -48,21 +48,21 @@ Every slice helps reach your goal!
 
 For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../advanced/legend-configuration.md).
 
-::: dashboard_compiler.panels.charts.pie.config.PieLegend
+::: kb_dashboard_core.panels.charts.pie.config.PieLegend
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Pie Chart Titles and Text
 
-::: dashboard_compiler.panels.charts.pie.config.PieTitlesAndText
+::: kb_dashboard_core.panels.charts.pie.config.PieTitlesAndText
     options:
       show_root_heading: false
       heading_level: 3
 
 ## ES|QL Pie Charts
 
-::: dashboard_compiler.panels.charts.pie.config.ESQLPieChart
+::: kb_dashboard_core.panels.charts.pie.config.ESQLPieChart
     options:
       show_root_heading: false
       heading_level: 3

@@ -16,6 +16,28 @@ These dashboards provide comprehensive monitoring for Aerospike clusters, includ
 
 All dashboards include navigation links for easy switching between views.
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Overview (overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/aerospike/overview.yaml"
+    ```
+
+??? example "Node Metrics (node-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/aerospike/node-metrics.yaml"
+    ```
+
+??? example "Namespace Metrics (namespace-metrics.yaml)"
+
+    ```yaml
+    --8<-- "examples/aerospike/namespace-metrics.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **Aerospike**: Aerospike database cluster

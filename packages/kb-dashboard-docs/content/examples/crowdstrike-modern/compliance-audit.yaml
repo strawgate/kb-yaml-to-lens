@@ -92,6 +92,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
 
       # Analysis Layer - Event Kinds
       - title: Event Kind Distribution
@@ -114,6 +117,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
 
       # Analysis Layer - FDR Event Categories
       - title: FDR Event Categories
@@ -136,6 +142,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.fdr
@@ -161,6 +170,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.alert
@@ -186,6 +198,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
           filters:
             - field: data_stream.dataset
               equals: crowdstrike.falcon
@@ -211,6 +226,9 @@ dashboards:
           metrics:
             - aggregation: count
               label: Count
+              format:
+                type: number
+                decimals: 0
 
       # Detail Layer - Top Event Actions
       - title: Top 10 Event Actions

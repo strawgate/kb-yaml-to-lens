@@ -32,14 +32,14 @@ Click once, arrive. You know the rest.
 
 ## Links Panel
 
-::: dashboard_compiler.panels.links.config.LinksPanel
+::: kb_dashboard_core.panels.links.config.LinksPanel
     options:
       show_root_heading: false
       heading_level: 2
 
 ## Links Panel Configuration
 
-::: dashboard_compiler.panels.links.config.LinksPanelConfig
+::: kb_dashboard_core.panels.links.config.LinksPanelConfig
     options:
       show_root_heading: false
       heading_level: 3
@@ -48,14 +48,14 @@ Click once, arrive. You know the rest.
 
 ### Dashboard Link
 
-::: dashboard_compiler.panels.links.config.DashboardLink
+::: kb_dashboard_core.panels.links.config.DashboardLink
     options:
       show_root_heading: false
       heading_level: 4
 
 ### URL Link
 
-::: dashboard_compiler.panels.links.config.UrlLink
+::: kb_dashboard_core.panels.links.config.UrlLink
     options:
       show_root_heading: false
       heading_level: 4

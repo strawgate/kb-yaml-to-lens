@@ -4,13 +4,13 @@ Dashboard configuration and compilation.
 
 ## Configuration Model
 
-::: dashboard_compiler.dashboard.config.Dashboard
+::: kb_dashboard_core.dashboard.config.Dashboard
     options:
       show_source: true
 
 ## Compilation
 
-::: dashboard_compiler.dashboard.compile
+::: kb_dashboard_core.dashboard.compile
     options:
       show_source: true
       members:

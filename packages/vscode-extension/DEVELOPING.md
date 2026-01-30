@@ -55,7 +55,7 @@ For all commands, see `make vscode help`.
 | `src/compiler.ts` | Python subprocess management |
 | `src/previewPanel.ts` | Webview preview panel |
 | `src/gridEditorPanel.ts` | Visual grid editor |
-| `packages/kb-dashboard-compiler/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in compiler component) |
+| `packages/kb-dashboard-cli/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in CLI component) |
 
 ### Extension Commands
 
@@ -96,14 +96,14 @@ make vscode test-e2e
 
 Python tests for LSP functionality are located in the compiler component:
 
-- `packages/kb-dashboard-compiler/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
-- `packages/kb-dashboard-compiler/tests/lsp/test_server.py` — LSP server functionality
+- `packages/kb-dashboard-cli/tests/lsp/test_grid_updater.py` — Grid coordinate updates in YAML
+- `packages/kb-dashboard-cli/tests/lsp/test_server.py` — LSP server functionality
 
 ```bash
 # Run Python LSP tests (from repository root)
-make compiler test
+make cli test
 # Or run specific LSP tests:
-cd packages/kb-dashboard-compiler && uv run pytest tests/lsp/ -v
+cd packages/kb-dashboard-cli && uv run pytest tests/lsp/ -v
 ```
 
 ### Test Coverage
@@ -122,26 +122,39 @@ Currently tested:
 ### Development Build (Current Platform)
 
 ```bash
-make vscode prepare      # Download uv + bundle compiler
+make vscode prepare      # Download uv
 make vscode package      # Create .vsix
 ```
 
 ### Release Build (All Platforms)
 
 ```bash
-make vscode prepare-all  # Download uv for all platforms + bundle compiler
+make vscode prepare-all  # Download uv for all platforms
 make vscode package      # Create .vsix
 ```
+
+### How It Works
+
+The extension uses **uvx** to run `kb-dashboard-cli` directly from PyPI:
+
+```bash
+uv tool run kb-dashboard-cli==0.2.5 lsp
+```
+
+This means:
+
+- No Python source code is bundled in the extension
+- The package is fetched from PyPI on first run (then cached)
+- Dependencies are resolved automatically by uv
 
 ### What Gets Bundled
 
 | Component | Size | Notes |
 | --------- | ---- | ----- |
 | uv binary | ~20MB | Platform-specific |
-| Compiler source | ~200KB | pyproject.toml, uv.lock, src/ |
 | Compiled TypeScript | varies | out/ directory |
 
-Python virtualenv is created at first run by uv.
+The Python package is fetched from PyPI at runtime via uvx.
 
 ### Platform Directories
 
@@ -156,9 +169,9 @@ Python virtualenv is created at first run by uv.
 
 ### Python Server Not Starting
 
-1. Verify `dashboard_compiler` is installed: `uv sync`
-2. Check Python path in settings
-3. Check Output panel: View → Output → "Kibana Dashboard Compiler"
+1. Check Output panel: View → Output → "Dashboard Compiler LSP"
+2. Verify internet connectivity (first run downloads from PyPI)
+3. For development, verify `dashboard_compiler` is installed: `uv sync`
 
 ### Preview Not Updating
 
@@ -170,8 +183,7 @@ Python virtualenv is created at first run by uv.
 In production, if extension falls back to Python:
 
 1. Verify uv exists: `ls bin/{platform}/uv`
-2. Verify compiler bundled: `ls compiler/pyproject.toml`
-3. Check `.vscodeignore` doesn't exclude `bin/` or `compiler/`
+2. Check `.vscodeignore` doesn't exclude `bin/`
 
 ### Package Too Small
 
@@ -179,4 +191,3 @@ Expected VSIX size: ~22MB. If much smaller:
 
 1. Run `make vscode prepare` before packaging
 2. Verify `bin/{platform}/uv` exists
-3. Verify `compiler/src/` exists

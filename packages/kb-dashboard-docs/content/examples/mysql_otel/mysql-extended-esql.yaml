@@ -58,9 +58,14 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connection_count
               label: Connection Count
+              format:
+                type: number
+                decimals: 0
       - title: Max Used Connections
         size: {w: 24, h: 9}
         description: Maximum number of connections used (mysql.max_used_connections)
@@ -74,9 +79,14 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: max_connections
               label: Max Used Connections
+              format:
+                type: number
+                decimals: 0
       - title: Connection Errors
         size: {w: 48, h: 9}
         description: Connection errors by type (mysql.connection.errors)
@@ -90,9 +100,14 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: error_count
               label: Errors
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: error
 
@@ -110,6 +125,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: query_rate
               label: Queries/sec
@@ -126,6 +143,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: slow_query_rate
               label: Slow Queries/sec
@@ -142,6 +161,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: client_query_rate
               label: Client Queries/sec
@@ -160,6 +181,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: command_rate
               label: Commands/sec
@@ -180,6 +203,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: lag_seconds
               label: Seconds Behind Source
@@ -196,6 +221,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: sql_delay
               label: SQL Delay (seconds)
@@ -214,9 +241,14 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: row_count
               label: Rows
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: table
       - title: Table Size by Table
@@ -232,6 +264,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: size_bytes
               label: Size
@@ -252,6 +286,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: avg_row_length
               label: Avg Row Length
@@ -274,6 +310,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: io_bytes
               label: Bytes/sec
@@ -294,6 +332,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: joins_rate
               label: Joins/sec
@@ -314,6 +354,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: lock_count
               label: Read Lock Waits/sec
@@ -332,6 +374,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: lock_count
               label: Write Lock Waits/sec
@@ -352,6 +396,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: cache_count
               label: Operations/sec
@@ -370,6 +416,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: stmt_count
               label: Statements/sec
@@ -390,6 +438,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: event_count
               label: Events/sec
@@ -410,8 +460,13 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: thread_count
               label: Threads
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: kind

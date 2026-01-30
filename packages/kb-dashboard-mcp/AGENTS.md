@@ -34,14 +34,14 @@ The server uses FastMCP to register tools that LLMs can invoke:
 
 ### Kibana Client
 
-This package uses the `KibanaClient` from `kb-dashboard-compiler` to proxy requests through Kibana's console API. This enables:
+This package uses the `KibanaClient` from `kb-dashboard-tools` to proxy requests through Kibana's console API. This enables:
 
 - Unified authentication through Kibana
 - Access to Kibana-specific features (screenshots, etc.)
 - Simpler configuration (just Kibana URL, no ES URL needed)
 
 ```python
-from dashboard_compiler.kibana_client import KibanaClient
+from kb_dashboard_tools.kibana_client import KibanaClient
 
 async def build_mcp_server(client: KibanaClient) -> FastMCP:
     mcp = FastMCP(name='kb-dashboard-mcp')
@@ -63,6 +63,6 @@ async def build_mcp_server(client: KibanaClient) -> FastMCP:
 
 ### Testing
 
-- Mock the `KibanaClient` from `dashboard_compiler` in tests
+- Mock the `KibanaClient` from `kb_dashboard_tools` in tests
 - Test tool registration and invocation
 - Verify Pydantic model serialization

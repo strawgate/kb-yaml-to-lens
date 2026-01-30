@@ -64,6 +64,9 @@ dashboards:
           primary:
             field: clients
             label: Clients
+            format:
+              type: number
+              decimals: 0
       - title: Blocked Clients
         hide_title: true
         size: {w: 8, h: 5}
@@ -77,6 +80,9 @@ dashboards:
           primary:
             field: blocked
             label: Blocked
+            format:
+              type: number
+              decimals: 0
       - title: Commands/sec
         hide_title: true
         size: {w: 8, h: 5}
@@ -103,6 +109,9 @@ dashboards:
           primary:
             field: replicas
             label: Replicas
+            format:
+              type: number
+              decimals: 0
       - title: Cache Hit Rate
         hide_title: true
         size: {w: 8, h: 5}
@@ -220,6 +229,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: used
               label: Used Memory
@@ -248,6 +259,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: fragmentation
               label: Fragmentation Ratio
@@ -266,6 +279,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: lua
               label: Lua Memory
@@ -295,11 +310,19 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connected
               label: Connected
+              format:
+                type: number
+                decimals: 0
             - field: blocked
               label: Blocked
+              format:
+                type: number
+                decimals: 0
 
       # Connection Activity (Counters - use RATE)
       - title: Connection Activity
@@ -319,6 +342,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: received
               label: Received/sec
@@ -343,6 +368,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: max_input
               label: Max Input Buffer
@@ -367,6 +394,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: commands
               label: Commands/sec
@@ -395,6 +424,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: hits
               label: Hits/sec
@@ -418,6 +449,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: hit_rate
               label: Hit Rate
@@ -442,6 +475,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: evicted
               label: Evicted/sec
@@ -462,6 +497,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: changes
               label: Unsaved Changes
@@ -489,6 +526,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: input
               label: Input (bytes/sec)
@@ -522,6 +561,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: cpu_time
               label: CPU Time
@@ -547,6 +588,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: offset
               label: Replication Offset
@@ -567,6 +610,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: backlog
               label: Backlog Offset
@@ -587,9 +632,14 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: replicas
               label: Replicas
+              format:
+                type: number
+                decimals: 0
 
       # Fork Duration (Gauge)
       - title: Fork Duration
@@ -605,6 +655,8 @@ dashboards:
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: fork_duration
               label: Fork Duration (μs)

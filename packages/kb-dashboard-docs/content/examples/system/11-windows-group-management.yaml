@@ -62,7 +62,7 @@ dashboards:
             field: winlog.event_id
             size: 20
       - title: Group Created
-        size: {w: 10, h: 8}
+        size: {w: 10, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -77,7 +77,7 @@ dashboards:
                 - '4754'
                 - '4759'
       - title: Member Added
-        size: {w: 10, h: 8}
+        size: {w: 10, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -92,7 +92,7 @@ dashboards:
                 - '4756'
                 - '4761'
       - title: Group Modified
-        size: {w: 8, h: 8}
+        size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -108,7 +108,7 @@ dashboards:
                 - '4760'
                 - '4764'
       - title: Member Removed
-        size: {w: 10, h: 8}
+        size: {w: 10, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -123,7 +123,7 @@ dashboards:
                 - '4757'
                 - '4762'
       - title: Group Deleted
-        size: {w: 10, h: 8}
+        size: {w: 10, h: 4}
         lens:
           type: metric
           data_view: logs-*

@@ -34,8 +34,9 @@ dashboards:
 
       # Overview Metrics Row (y=2, h=6)
       - title: Active Connections
+        description: Connected client threads. Excludes aborted and disconnected threads.
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -46,10 +47,15 @@ dashboards:
           primary:
             field: active_connections
             label: Active Connections
+            format:
+              type: number
+              decimals: 0
       - title: Buffer Pool Efficiency
+        description: >-
+          Clean pages / total pages. Higher = efficient memory use. Lower =
+          more dirty pages requiring flush.
         hide_title: true
-        size: {w: 12, h: 6}
-        description: Ratio of clean to total buffer pool pages
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -66,7 +72,7 @@ dashboards:
               type: percent
       - title: InnoDB Operations Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -79,7 +85,7 @@ dashboards:
             label: InnoDB Ops/sec
       - title: Handler Operations Rate
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -104,6 +110,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: usage
               label: Buffer Pool Usage
@@ -123,6 +131,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: pages
               label: Buffer Pool Pages
@@ -141,6 +151,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: ops_rate
               label: Operations/sec
@@ -158,6 +170,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: flush_rate
               label: Page Flushes/sec
@@ -175,6 +189,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: row_ops_rate
               label: Row Ops/sec
@@ -192,6 +208,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: page_ops_rate
               label: Page Ops/sec
@@ -209,6 +227,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: ops_rate
               label: Operations/sec
@@ -226,6 +246,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: double_writes_rate
               label: Double Writes/sec
@@ -246,6 +268,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: handler_rate
               label: Handler Ops/sec
@@ -265,6 +289,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: lock_rate
               label: Locks/sec
@@ -282,6 +308,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: row_lock_rate
               label: Row Locks/sec
@@ -301,6 +329,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: log_ops_rate
               label: Log Ops/sec
@@ -321,6 +351,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: table_io_wait_rate
               label: Table I/O Waits/sec
@@ -339,6 +371,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: index_io_wait_rate
               label: Index I/O Waits/sec
@@ -358,6 +392,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: opened_rate
               label: Opened Resources/sec
@@ -375,6 +411,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: tmp_rate
               label: Temp Resources/sec
@@ -394,9 +432,14 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: thread_count
               label: Threads
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: kind
       - title: Sort Operations
@@ -411,6 +454,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: sorts_rate
               label: Sorts/sec
@@ -431,6 +476,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: uptime_rate
               label: Uptime Rate (sec/sec)
@@ -447,6 +494,8 @@ dashboards:
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: mysqlx_conn_rate
               label: MySQLx Connections/sec

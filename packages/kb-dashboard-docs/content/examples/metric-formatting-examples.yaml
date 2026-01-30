@@ -36,6 +36,7 @@ dashboards:
             label: Requests
             format:
               type: number
+              decimals: 0
               suffix: ' req/sec'
       - title: Active Users
         hide_title: true
@@ -55,6 +56,7 @@ dashboards:
             label: Active Users
             format:
               type: number
+              decimals: 0
               suffix: ' users'
       - title: Temperature
         hide_title: true
@@ -93,6 +95,7 @@ dashboards:
             label: API Calls
             format:
               type: number
+              decimals: 0
               suffix: ' calls/hour'
 
       # Compact Notation Examples
@@ -113,6 +116,7 @@ dashboards:
             label: Total Events
             format:
               type: number
+              decimals: 0
               compact: true
       - title: Unique IPs (Compact)
         hide_title: true
@@ -132,6 +136,7 @@ dashboards:
             label: Unique IPs
             format:
               type: number
+              decimals: 0
               compact: true
               suffix: ' IPs'
       - title: Data Processed
@@ -362,6 +367,7 @@ dashboards:
             label: Transactions
             format:
               type: number
+              decimals: 0
               compact: true
               pattern: 0.0a
               suffix: ' txn'

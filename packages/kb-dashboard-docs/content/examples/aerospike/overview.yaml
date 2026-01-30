@@ -45,6 +45,9 @@ dashboards:
           primary:
             field: node_count
             label: Nodes
+            format:
+              type: number
+              decimals: 0
       - title: Unique Namespaces
         size: {w: 12, h: 5}
         esql:
@@ -57,6 +60,9 @@ dashboards:
           primary:
             field: namespace_count
             label: Namespaces
+            format:
+              type: number
+              decimals: 0
       - title: Avg Connections
         size: {w: 12, h: 5}
         esql:
@@ -69,6 +75,8 @@ dashboards:
           primary:
             field: avg_connections
             label: Connections
+            format:
+              type: number
       - title: Avg Memory Free
         size: {w: 12, h: 5}
         esql:
@@ -102,9 +110,13 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: node
+              label: Node
             - field: namespaces
+              label: Namespaces
             - field: memory_free
+              label: Memory Free %
             - field: connections
+              label: Connections
 
       # Memory Free Over Time
       - title: Memory Free Over Time
@@ -122,6 +134,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: memory_free
               label: Memory Free %
@@ -147,9 +161,13 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Open Connections
+              format:
+                type: number
           breakdown:
             field: node
 
@@ -173,6 +191,7 @@ dashboards:
                 suffix: '%'
           dimensions:
             - field: node
+              label: Node
           appearance:
             donut: medium
       - title: Connections by Node
@@ -189,7 +208,10 @@ dashboards:
           metrics:
             - field: connections
               label: Connections
+              format:
+                type: number
           dimensions:
             - field: node
+              label: Node
           appearance:
             donut: medium

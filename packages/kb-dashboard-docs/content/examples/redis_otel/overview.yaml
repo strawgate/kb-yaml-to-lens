@@ -51,6 +51,9 @@ dashboards:
           primary:
             field: instances
             label: Instances
+            format:
+              type: number
+              decimals: 0
       - title: Total Client Connections
         hide_title: true
         size: {w: 8, h: 5}
@@ -66,6 +69,9 @@ dashboards:
           primary:
             field: clients
             label: Clients
+            format:
+              type: number
+              decimals: 0
       - title: Commands/sec
         hide_title: true
         size: {w: 8, h: 5}
@@ -83,6 +89,9 @@ dashboards:
             field: commands_per_sec
             label: Commands/sec
       - title: Cache Hit Rate
+        description: >-
+          Hits / (hits + misses). Values <80% indicate cache misses increasing
+          backend load.
         hide_title: true
         size: {w: 8, h: 5}
         esql:
@@ -153,6 +162,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: memory
               label: Memory Used
@@ -178,6 +189,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: commands
               label: Commands/sec
@@ -201,9 +214,14 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: clients
               label: Connected Clients
+              format:
+                type: number
+                decimals: 0
           breakdown:
             field: instance
 
@@ -225,6 +243,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: hits
               label: Hits/sec
@@ -253,6 +273,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: evicted
               label: Evicted/sec
@@ -276,6 +298,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: expired
               label: Expired/sec
@@ -305,6 +329,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: input
               label: Input
@@ -331,6 +357,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: output
               label: Output
@@ -360,7 +388,12 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: instance
+              label: Instance
             - field: memory
+              label: Memory Used
             - field: clients
+              label: Clients
             - field: commands
+              label: Commands/sec
             - field: fragmentation
+              label: Fragmentation Ratio

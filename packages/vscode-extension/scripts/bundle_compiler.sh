@@ -6,8 +6,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXTENSION_ROOT="$(dirname "$SCRIPT_DIR")"
-PROJECT_ROOT="$(dirname "$EXTENSION_ROOT")"
-COMPILER_SRC="$PROJECT_ROOT/packages/kb-dashboard-compiler"
+PROJECT_ROOT="$(dirname "$(dirname "$EXTENSION_ROOT")")"
+COMPILER_SRC="$PROJECT_ROOT/packages/kb-dashboard-cli"
 BUNDLE_DIR="$EXTENSION_ROOT/compiler"
 
 echo "Bundling compiler source code..."
@@ -18,7 +18,7 @@ mkdir -p "$BUNDLE_DIR"
 
 # Copy essential files
 cp "$COMPILER_SRC/pyproject.toml" "$BUNDLE_DIR/"
-cp "$COMPILER_SRC/uv.lock" "$BUNDLE_DIR/"
+cp "$PROJECT_ROOT/uv.lock" "$BUNDLE_DIR/"
 cp "$COMPILER_SRC/README.md" "$BUNDLE_DIR/"
 
 # Copy source code

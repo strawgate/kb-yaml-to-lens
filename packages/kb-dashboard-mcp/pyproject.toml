@@ -18,7 +18,7 @@ dependencies = [
     "click>=8.3",
     "rich-click>=1.9.0",
     "fastmcp>=2.0",
-    "kb-dashboard-compiler",
+    "kb-dashboard-tools",
 ]
 
 [dependency-groups]
@@ -30,7 +30,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-kb-dashboard-compiler = { workspace = true }
+kb-dashboard-tools = { workspace = true }
 
 [project.scripts]
 kb-mcp = "kb_dashboard_mcp.cli:cli"

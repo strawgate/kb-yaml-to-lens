@@ -1,0 +1,1 @@
+"""Charts panel configuration."""

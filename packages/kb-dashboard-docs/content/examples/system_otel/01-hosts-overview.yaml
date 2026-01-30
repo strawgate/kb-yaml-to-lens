@@ -46,7 +46,7 @@ dashboards:
           content: '## Fleet Health'
       - title: Total Hosts
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -54,9 +54,12 @@ dashboards:
             aggregation: unique_count
             field: resource.attributes.host.name
             label: Total Hosts
+            format:
+              type: number
+              decimals: 0
       - title: Hosts by OS Type
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -68,9 +71,15 @@ dashboards:
             aggregation: unique_count
             field: resource.attributes.host.name
             label: Hosts
+            format:
+              type: number
+              decimals: 0
       - title: CPU Utilization Fleet
+        description: >-
+          100% minus idle and wait time. Wait time is CPU waiting for I/O, not
+          active work.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -83,7 +92,7 @@ dashboards:
               type: percent
       - title: Memory Utilization Fleet
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
@@ -175,6 +184,7 @@ dashboards:
                 type: percent
             - id: norm-load
               formula: average(metrics.system.cpu.load_average.1m) / max(metrics.system.cpu.logical.count)
+              # Normalized Load: 1-min load average / CPU count. >1 = overloaded.
               label: Normalized Load
               format:
                 type: percent

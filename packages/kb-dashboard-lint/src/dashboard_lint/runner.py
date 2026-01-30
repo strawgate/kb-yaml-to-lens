@@ -1,9 +1,9 @@
 """Lint runner for orchestrating rule execution."""
 
-from dashboard_compiler.dashboard.config import Dashboard
 from dashboard_lint.config import LintConfig, get_effective_config
 from dashboard_lint.registry import RuleRegistry, default_registry
 from dashboard_lint.types import Violation
+from kb_dashboard_core.dashboard.config import Dashboard
 
 
 class LintRunner:

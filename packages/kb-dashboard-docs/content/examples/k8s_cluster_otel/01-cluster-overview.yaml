@@ -42,50 +42,67 @@ dashboards:
           content: '## 🏥 Cluster Health'
           font_size: 14
       - title: Running Pods
+        description: Pods in Running phase (phase=2).
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(k8s.pod.name)
             label: Running
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.pod.phase
               equals: '2'
       - title: Pending Pods
+        description: >-
+          Pods in Pending phase (phase=1), waiting for scheduling or container
+          image pull.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(k8s.pod.name)
             label: Pending
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.pod.phase
               equals: '1'
       - title: Failed Pods
+        description: Pods in Failed phase (phase=4). Check pod logs for root cause.
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: unique_count(k8s.pod.name)
             label: Failed
+            format:
+              type: number
+              decimals: 0
           filters:
             - field: k8s.pod.phase
               equals: '4'
       - title: Container Restarts
         hide_title: true
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: metrics-*
           primary:
             formula: sum(k8s.container.restarts)
             label: Restarts
+            format:
+              type: number
+              decimals: 0
           filters:
             - exists: k8s.container.restarts
 
@@ -106,6 +123,9 @@ dashboards:
             - aggregation: unique_count
               field: k8s.pod.name
               label: Pods
+              format:
+                type: number
+                decimals: 0
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -136,6 +156,9 @@ dashboards:
             - aggregation: unique_count
               field: k8s.pod.name
               label: Pods
+              format:
+                type: number
+                decimals: 0
           color:
             palette: eui_amsterdam_color_blind
             assignments:
@@ -159,6 +182,9 @@ dashboards:
           content: '## 🚀 Workload Health Preview'
           font_size: 14
       - title: Deployments - Desired vs Available
+        description: >-
+          Gap between lines indicates deployments that can't reach desired
+          replica count.
         size: {w: 24, h: 12}
         lens:
           type: line
@@ -169,8 +195,14 @@ dashboards:
           metrics:
             - formula: sum(k8s.deployment.desired)
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - formula: sum(k8s.deployment.available)
               label: Available
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.deployment.name
       - title: Container Restarts by Namespace
@@ -188,6 +220,9 @@ dashboards:
           metrics:
             - formula: sum(k8s.container.restarts)
               label: Restarts
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.container.restarts
 
@@ -200,6 +235,9 @@ dashboards:
           content: '## 🔍 Unhealthy Deployments (Desired ≠ Available)'
           font_size: 14
       - title: Deployments Missing Replicas
+        description: >-
+          Missing = Desired - Available. Positive values indicate failed
+          provisioning or insufficient resources.
         size: {w: 48, h: 12}
         lens:
           type: datatable
@@ -220,10 +258,19 @@ dashboards:
             - field: k8s.deployment.desired
               aggregation: max
               label: Desired
+              format:
+                type: number
+                decimals: 0
             - field: k8s.deployment.available
               aggregation: max
               label: Available
+              format:
+                type: number
+                decimals: 0
             - formula: max(k8s.deployment.desired) - max(k8s.deployment.available)
               label: Missing
+              format:
+                type: number
+                decimals: 0
           filters:
             - exists: k8s.deployment.name

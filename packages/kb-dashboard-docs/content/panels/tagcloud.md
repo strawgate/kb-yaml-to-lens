@@ -32,28 +32,28 @@ Their data in words, big and free!
 
 ## Lens Tagcloud Charts
 
-::: dashboard_compiler.panels.charts.tagcloud.config.LensTagcloudChart
+::: kb_dashboard_core.panels.charts.tagcloud.config.LensTagcloudChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## ESQL Tagcloud Charts
 
-::: dashboard_compiler.panels.charts.tagcloud.config.ESQLTagcloudChart
+::: kb_dashboard_core.panels.charts.tagcloud.config.ESQLTagcloudChart
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Tagcloud Appearance
 
-::: dashboard_compiler.panels.charts.tagcloud.config.TagcloudAppearance
+::: kb_dashboard_core.panels.charts.tagcloud.config.TagcloudAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
 ### Orientation Options
 
-::: dashboard_compiler.panels.charts.tagcloud.config.TagcloudOrientationEnum
+::: kb_dashboard_core.panels.charts.tagcloud.config.TagcloudOrientationEnum
     options:
       show_root_heading: false
       heading_level: 4

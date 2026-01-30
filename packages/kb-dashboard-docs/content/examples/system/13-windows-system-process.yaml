@@ -60,7 +60,7 @@ dashboards:
             field: winlog.event_id
             size: 15
       - title: Audit Log Cleared (1102)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -71,7 +71,7 @@ dashboards:
             - field: winlog.event_id
               equals: '1102'
       - title: Process Created (4688)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -82,7 +82,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4688'
       - title: Process Terminated (4689)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*
@@ -93,7 +93,7 @@ dashboards:
             - field: winlog.event_id
               equals: '4689'
       - title: Service Installed (4697)
-        size: {w: 12, h: 8}
+        size: {w: 12, h: 4}
         lens:
           type: metric
           data_view: logs-*

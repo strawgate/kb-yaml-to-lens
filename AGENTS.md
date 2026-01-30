@@ -57,7 +57,8 @@ See DEVELOPING.md above.
 
 Read the component-specific AGENTS.md before working in that component:
 
-- **Compiler (Python):** [packages/kb-dashboard-compiler/AGENTS.md](packages/kb-dashboard-compiler/AGENTS.md)
+- **CLI (Python):** [packages/kb-dashboard-cli/AGENTS.md](packages/kb-dashboard-cli/AGENTS.md)
+- **Core (Python):** [packages/kb-dashboard-core/AGENTS.md](packages/kb-dashboard-core/AGENTS.md)
 - **VS Code Extension (TypeScript):** [packages/vscode-extension/AGENTS.md](packages/vscode-extension/AGENTS.md)
 
 ---

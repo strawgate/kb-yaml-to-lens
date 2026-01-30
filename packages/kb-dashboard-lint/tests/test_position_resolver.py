@@ -203,8 +203,9 @@ class TestMultiFilePositionResolver:
 
         assert range1 is not None
         assert range2 is not None
-        assert range1.file_path == str(path1)
-        assert range2.file_path == str(path2)
+        # Resolve paths to handle symlinks (e.g., /var -> /private/var on macOS)
+        assert Path(range1.file_path).resolve() == path1.resolve()
+        assert Path(range2.file_path).resolve() == path2.resolve()
 
     def test_clear_cache(self, sample_yaml_files: tuple[Path, Path]) -> None:
         """Should clear cached resolvers."""

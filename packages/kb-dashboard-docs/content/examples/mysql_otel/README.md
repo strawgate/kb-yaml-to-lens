@@ -15,6 +15,22 @@ These dashboards provide comprehensive monitoring for MySQL database instances, 
 
 Both dashboards include navigation links for easy switching between views.
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Overview (mysql-overview-esql.yaml)"
+
+    ```yaml
+    --8<-- "examples/mysql_otel/mysql-overview-esql.yaml"
+    ```
+
+??? example "Extended (mysql-extended-esql.yaml)"
+
+    ```yaml
+    --8<-- "examples/mysql_otel/mysql-extended-esql.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **MySQL**: MySQL 5.7+ or 8.x database server
@@ -116,6 +132,19 @@ service:
 | --------- | ----------- |
 | `host.name` | MySQL host name |
 | `service.instance.id` | MySQL instance identifier |
+
+## Metrics Not Used in Dashboards
+
+The following default metrics are available from the MySQL receiver but are not currently visualized in the dashboards:
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `mysql.buffer_pool.data_pages` | Sum | `1` | Number of data pages in the InnoDB buffer pool | `status` |
+| `mysql.buffer_pool.limit` | Sum | `By` | Configured size of the InnoDB buffer pool | — |
+| `mysql.index.io.wait.time` | Sum | `ns` | Total I/O wait time for an index | `operation`, `table`, `schema`, `index` |
+| `mysql.table.io.wait.time` | Sum | `ns` | Total I/O wait time for a table | `operation`, `table`, `schema` |
+
+All optional metrics listed above are used in the Extended dashboard.
 
 ## Related Resources
 

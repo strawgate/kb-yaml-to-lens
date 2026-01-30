@@ -12,6 +12,16 @@ These dashboards provide comprehensive monitoring for Apache HTTP Server 2.4.13+
 |-----------|------|-------------|
 | **Overview** | `01-apache-overview.yaml` | Apache HTTP Server performance and health metrics |
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Overview (01-apache-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/apache_otel/01-apache-overview.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **Apache HTTP Server**: Version 2.4.13 or later with `mod_status` enabled

@@ -37,18 +37,28 @@ The compiler is designed using a layered approach with distinct components respo
 
 ## Components
 
-The codebase is organized into a hierarchical structure under `src/dashboard_compiler/`:
+The codebase is organized into packages:
+
+**Core Package (`packages/kb-dashboard-core/src/kb_dashboard_core/`):**
 
 - **`dashboard_compiler.py`:** Main entry point containing the core compilation orchestration functions (`load`, `render`, `dump`).
-- **`cli.py`:** Command-line interface for compiling dashboards and uploading to Kibana.
 - **`dashboard/`:** Top-level dashboard compilation with `config.py`, `view.py`, and `compile.py`.
 - **`panels/`:** Panel compilation with subdirectories for each panel type (markdown, links, images, search, charts).
 - **`panels/charts/`:** Chart-specific compilation with subdirectories for different chart types (metric, pie, xy) and components (lens/esql metrics, dimensions, columns).
 - **`controls/`:** Control group compilation for dashboard interactivity.
 - **`filters/`:** Filter compilation supporting various filter types.
-- **`queries/`:** Query compilation for KQL, Lucene, and ESQL.
-- **`shared/`:** Shared base models and utilities (`model.py`, `view.py`).
-- **`tests/`:** Test files including snapshot tests to verify compiler output against expected JSON.
+- **`queries/`:** Query compilation for KQL, Lucene, and ES|QL.
+
+**CLI Package (`packages/kb-dashboard-cli/src/dashboard_compiler/`):**
+
+- **`cli.py`:** Command-line interface for compiling dashboards and uploading to Kibana.
+- **`lsp/`:** Language Server Protocol implementation for VS Code extension.
+- **`sample_data/`:** Sample data loading utilities.
+- **`tools/`:** CLI tooling utilities.
+
+**CLI Package Tests (`packages/kb-dashboard-cli/tests/`):**
+
+- Test files including snapshot tests to verify compiler output against expected JSON.
 
 ## Data Flow
 

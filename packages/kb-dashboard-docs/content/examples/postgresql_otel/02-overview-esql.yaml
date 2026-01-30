@@ -30,7 +30,7 @@ dashboards:
       # KPI Metrics Row (y=0, h=6)
       - title: Total Databases
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -41,9 +41,12 @@ dashboards:
           primary:
             field: total_databases
             label: Databases
+            format:
+              type: number
+              decimals: 0
       - title: Active Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         esql:
           type: metric
           query:
@@ -54,9 +57,12 @@ dashboards:
           primary:
             field: active_backends
             label: Active Backends
+            format:
+              type: number
+              decimals: 0
       - title: Max Connections
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         description: Requires postgresql.connection.max metric (enable in OTel collector)
         esql:
           type: metric
@@ -68,9 +74,12 @@ dashboards:
           primary:
             field: max_connections
             label: Max Connections
+            format:
+              type: number
+              decimals: 0
       - title: Database Count
         hide_title: true
-        size: {w: 12, h: 6}
+        size: {w: 12, h: 4}
         description: Requires postgresql.database.count metric (enable in OTel collector)
         esql:
           type: metric
@@ -82,6 +91,9 @@ dashboards:
           primary:
             field: db_count
             label: Total DB Count
+            format:
+              type: number
+              decimals: 0
 
       # Performance Summary DataTable (y=6)
       - title: Database Performance Summary
@@ -100,11 +112,30 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+              label: Database
+          metrics:
             - field: backends_count
+              label: Active Backends
+              format:
+                type: number
+                decimals: 0
             - field: size_bytes
+              label: Size (Bytes)
             - field: commit_total
+              label: Total Commits
+              format:
+                type: number
+                decimals: 0
             - field: rollback_total
+              label: Total Rollbacks
+              format:
+                type: number
+                decimals: 0
             - field: blocks_read_total
+              label: Blocks Read
+              format:
+                type: number
+                decimals: 0
 
       # Connections Over Time (y=24)
       - title: Active Connections Over Time
@@ -123,9 +154,13 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: connections
               label: Active Connections
+              format:
+                type: number
           breakdown:
             field: database
 
@@ -146,6 +181,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: commits_rate
               label: Commits/sec
@@ -170,6 +207,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: rollbacks_rate
               label: Rollbacks/sec
@@ -195,6 +234,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: blocks_rate
               label: Blocks Read/sec
@@ -219,6 +260,8 @@ dashboards:
             position: right
           dimension:
             field: time_bucket
+            label: Time
+            data_type: date
           metrics:
             - field: operations_rate
               label: Operations/sec
@@ -245,6 +288,7 @@ dashboards:
                 decimals: 2
           dimensions:
             - field: database
+              label: Database
           appearance:
             donut: medium
       - title: Connection States
@@ -267,6 +311,7 @@ dashboards:
                 decimals: 0
           dimensions:
             - field: state
+              label: State
           appearance:
             donut: medium
 
@@ -286,4 +331,6 @@ dashboards:
             - LIMIT 100
           dimensions:
             - field: database
+              label: Database
             - field: instance
+              label: Instance

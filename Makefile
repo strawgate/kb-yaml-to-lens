@@ -24,18 +24,21 @@ include Makefile.shared
 # Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
-COMPONENTS := packages/kb-dashboard-compiler packages/kb-dashboard-lint packages/kb-dashboard-mcp packages/vscode-extension
+COMPONENTS := packages/kb-dashboard-cli packages/kb-dashboard-core packages/kb-dashboard-lint packages/kb-dashboard-mcp packages/kb-dashboard-tools packages/vscode-extension
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := \
 	--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" \
-	--exclude "packages/kb-dashboard-compiler/.venv/**/*.yaml" --exclude "packages/kb-dashboard-compiler/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-cli/.venv/**/*.yaml" --exclude "packages/kb-dashboard-cli/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-core/.venv/**/*.yaml" --exclude "packages/kb-dashboard-core/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-lint/.venv/**/*.yaml" --exclude "packages/kb-dashboard-lint/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-tools/.venv/**/*.yaml" --exclude "packages/kb-dashboard-tools/.venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-mcp/.venv/**/*.yaml" --exclude "packages/kb-dashboard-mcp/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show compiler lint mcp vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts release-tag cli lint mcp tools vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -43,12 +46,14 @@ help:
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run target in all components:"
-	@echo "  make all <target>       - Run in compiler + lint + mcp + vscode"
+	@echo "  make all <target>       - Run in cli + core + lint + mcp + tools + vscode"
 	@echo ""
 	@echo "Run target in single component:"
-	@echo "  make compiler <target>  - Run in packages/kb-dashboard-compiler/"
+	@echo "  make cli <target>       - Run in packages/kb-dashboard-cli/"
+	@echo "  make core <target>      - Run in packages/kb-dashboard-core/"
 	@echo "  make lint <target>      - Run in packages/kb-dashboard-lint/"
 	@echo "  make mcp <target>       - Run in packages/kb-dashboard-mcp/"
+	@echo "  make tools <target>     - Run in packages/kb-dashboard-tools/"
 	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
 	@echo "  make gh <target>        - Run in .github/scripts/"
@@ -61,7 +66,7 @@ help:
 	@echo "  make root ci              - Run root-level CI checks (markdown + YAML lint)"
 	@echo "  make root fix             - Auto-fix root-level linting"
 	@echo "  make root install         - Install root-level dependencies"
-	@echo "  make compiler test-smoke  - Run compiler smoke tests"
+	@echo "  make cli test-e2e         - Run CLI E2E tests (includes Docker tests if available)"
 	@echo "  make vscode test-e2e      - Run VS Code E2E tests"
 	@echo "  make docs ci              - Check docs (markdown lint + links)"
 	@echo "  make docs serve           - Start docs server"
@@ -80,6 +85,14 @@ help:
 	@echo "  bump-minor         - Bump minor version (x.Y.0)"
 	@echo "  bump-major         - Bump major version (X.0.0)"
 	@echo "  bump-version-show  - Show current version"
+	@echo ""
+	@echo "=== Release ==="
+	@echo ""
+	@echo "  release-tag        - Create and push git tag from pyproject.toml version"
+	@echo ""
+	@echo "=== Git Helpers ==="
+	@echo ""
+	@echo "  check-merge-conflicts [branch] - Check for merge conflicts with branch (default: origin/main)"
 
 # Root-level targets (run linting checks)
 root-ci:
@@ -141,7 +154,7 @@ all:
 	fi; \
 	for component in $(COMPONENTS); do \
 		printf "Component: %s\n" "$$component"; \
-		$(MAKE) -C $$component $$target || exit 1; \
+		$(MAKE) SHELL=$(MAKE_SHELL) -C $$component $$target || exit 1; \
 	done; \
 	printf "✓ All components: %s complete\n" "$$target"
 
@@ -174,6 +187,26 @@ bump-major:
 bump-version-show:
 	@$(BUMP_VERSION_SCRIPT) show
 
+# Release
+release-tag:
+	@VERSION=$$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"); \
+	TAG="v$$VERSION"; \
+	echo "Current version: $$VERSION"; \
+	echo "Creating tag: $$TAG"; \
+	if git rev-parse "$$TAG" >/dev/null 2>&1; then \
+		echo "Error: Tag $$TAG already exists"; \
+		exit 1; \
+	fi; \
+	git tag -a "$$TAG" -m "Release $$VERSION"; \
+	echo "Tag $$TAG created"; \
+	echo "Pushing tag to origin..."; \
+	git push origin "$$TAG"; \
+	echo "✓ Tag $$TAG pushed successfully"
+
+# Git helpers
+check-merge-conflicts:
+	@bash scripts/check-merge-conflicts.sh $(filter-out $@,$(MAKECMDGOALS))
+
 # Component pass-through targets
 # This hack prevents the parent Makefile from trying to execute the arguments
 # as its own targets after passing them to sub-makes.
@@ -182,23 +215,14 @@ bump-version-show:
 #
 # Note: If arguments match existing root targets (e.g., "help"), Make will print
 # "overriding commands for target" warnings. These warnings are expected and harmless.
-# To suppress them, pipe the make command: make compiler help 2>/dev/null
+# To suppress them, pipe the make command: make cli help 2>/dev/null
 _FIRST_GOAL := $(firstword $(MAKECMDGOALS))
 
-ifeq ($(_FIRST_GOAL),compiler)
+ifeq ($(_FIRST_GOAL),cli)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
 endif
 
-ifeq ($(_FIRST_GOAL),lint)
-  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(_ARGS):;@:)
-endif
-
-ifeq ($(_FIRST_GOAL),mcp)
-  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(_ARGS):;@:)
-endif
 
 ifeq ($(_FIRST_GOAL),vscode)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -215,19 +239,45 @@ ifeq ($(_FIRST_GOAL),gh)
   $(eval $(_ARGS):;@:)
 endif
 
+ifeq ($(_FIRST_GOAL),lint)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),core)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),mcp)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),tools)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 ifeq ($(_FIRST_GOAL),root)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
 endif
 
-compiler:
-	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-compiler $(_ARGS)
+cli:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-cli $(_ARGS)
+
+core:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-core $(_ARGS)
 
 lint:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-lint $(_ARGS)
 
 mcp:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-mcp $(_ARGS)
+
+tools:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-tools $(_ARGS)
 
 vscode:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/vscode-extension $(_ARGS)
@@ -241,6 +291,11 @@ gh:
 # Prevent make from trying to build targets passed as arguments to 'all'
 # Without this, 'make all clean' would try to run 'clean' after the all target completes
 ifeq ($(_FIRST_GOAL),all)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
+ifeq ($(_FIRST_GOAL),check-merge-conflicts)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
 endif

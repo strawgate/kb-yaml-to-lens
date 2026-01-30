@@ -206,24 +206,24 @@ The project includes convenient Makefile targets (run from repository root):
 
 ```bash
 # Compile only
-make compiler compile
+make cli compile
 
 # Compile and upload (uses environment variables for Kibana config)
-make compiler upload
+make cli upload
 ```
 
 Or use the CLI directly from anywhere with uv:
 
 ```bash
-cd packages/kb-dashboard-compiler && uv run kb-dashboard compile
-cd packages/kb-dashboard-compiler && uv run kb-dashboard compile --upload
+cd packages/kb-dashboard-cli && uv run kb-dashboard compile
+cd packages/kb-dashboard-cli && uv run kb-dashboard compile --upload
 ```
 
 Or using the passthrough pattern from repository root:
 
 ```bash
-make compiler compile
-make compiler upload
+make cli compile
+make cli upload
 ```
 
 ## Authentication
@@ -298,3 +298,72 @@ If objects fail to upload:
 - Check the Kibana logs for detailed error messages
 - Verify the NDJSON format is valid
 - Use `--no-overwrite` if you want to preserve existing objects
+
+---
+
+## Dashboard Linter CLI
+
+The `kb-dashboard-lint` CLI tool checks YAML dashboard configurations for best practices and common issues.
+
+### Basic Usage
+
+Check a single dashboard file:
+
+```bash
+kb-dashboard-lint check --input-file ./dashboards/example.yaml
+```
+
+Check all dashboards in a directory:
+
+```bash
+kb-dashboard-lint check --input-dir ./dashboards
+```
+
+### Severity Levels
+
+The linter reports issues at three severity levels:
+
+| Level | Description |
+| ----- | ----------- |
+| **error** | Critical issues that should be fixed |
+| **warning** | Problems that may affect usability |
+| **info** | Suggestions for improvement |
+
+By default, the linter exits with code 0 for info-only results. Use `--severity-threshold` to fail on warnings:
+
+```bash
+kb-dashboard-lint check --input-file dashboard.yaml --severity-threshold warning
+```
+
+### List Available Rules
+
+See all lint rules and their descriptions:
+
+```bash
+kb-dashboard-lint list-rules
+```
+
+### Configuration
+
+Create a `.dashboard-lint.yaml` file to customize rule behavior:
+
+```bash
+kb-dashboard-lint check --config .dashboard-lint.yaml
+```
+
+### Output Formats
+
+Get machine-readable output for CI integration:
+
+```bash
+kb-dashboard-lint check --input-dir ./dashboards --format json
+```
+
+### Linter Command Reference
+
+::: mkdocs-click
+    :module: dashboard_lint.cli
+    :command: cli
+    :prog_name: kb-dashboard-lint
+    :depth: 2
+    :style: table

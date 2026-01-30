@@ -1,4 +1,6 @@
-import * as assert from 'assert';
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+import { expect } from 'chai';
+import sinon from 'sinon';
 import * as vscode from 'vscode';
 import { ConfigService } from '../../configService';
 
@@ -6,31 +8,39 @@ suite('ConfigService Test Suite', () => {
     let configService: ConfigService;
     let mockContext: vscode.ExtensionContext;
     let secretsStore: Map<string, string>;
+    let storeStub: sinon.SinonStub;
+    let getStub: sinon.SinonStub;
+    let deleteStub: sinon.SinonStub;
 
     suiteSetup(async () => {
         // Get the extension and activate it
         const extension = vscode.extensions.getExtension('strawgate.kb-dashboard-compiler');
-        assert.ok(extension);
+        expect(extension).to.exist;
 
-        if (!extension.isActive) {
+        if (extension && !extension.isActive) {
             await extension.activate();
         }
 
         // Create in-memory secrets store for testing
         secretsStore = new Map<string, string>();
 
-        // Create mock context for testing
+        // Create sinon stubs for secrets API
+        storeStub = sinon.stub().callsFake(async (key: string, value: string) => {
+            secretsStore.set(key, value);
+        });
+        getStub = sinon.stub().callsFake(async (key: string) => {
+            return secretsStore.get(key);
+        });
+        deleteStub = sinon.stub().callsFake(async (key: string) => {
+            secretsStore.delete(key);
+        });
+
+        // Create mock context for testing with sinon stubs
         mockContext = {
             secrets: {
-                store: async (key: string, value: string) => {
-                    secretsStore.set(key, value);
-                },
-                get: async (key: string) => {
-                    return secretsStore.get(key);
-                },
-                delete: async (key: string) => {
-                    secretsStore.delete(key);
-                }
+                store: storeStub,
+                get: getStub,
+                delete: deleteStub
             }
         } as unknown as vscode.ExtensionContext;
 
@@ -38,23 +48,26 @@ suite('ConfigService Test Suite', () => {
     });
 
     setup(() => {
-        // Reset secrets store before each test to ensure isolation
+        // Reset secrets store and stub call history before each test
         secretsStore.clear();
+        storeStub.resetHistory();
+        getStub.resetHistory();
+        deleteStub.resetHistory();
     });
 
     test('Should get default Kibana URL', () => {
         const url = configService.getKibanaUrl();
-        assert.strictEqual(url, 'http://localhost:5601');
+        expect(url).to.equal('http://localhost:5601');
     });
 
     test('Should get default SSL verify setting', () => {
         const sslVerify = configService.getKibanaSslVerify();
-        assert.strictEqual(sslVerify, true);
+        expect(sslVerify).to.be.true;
     });
 
     test('Should get default browser type', () => {
         const browserType = configService.getKibanaBrowserType();
-        assert.strictEqual(browserType, 'external');
+        expect(browserType).to.equal('external');
     });
 
     interface CredentialCase {
@@ -93,16 +106,18 @@ suite('ConfigService Test Suite', () => {
         test(`Should store and retrieve ${credential.label}`, async () => {
             await credential.setter(credential.value);
             const retrieved = await credential.getter();
-            assert.strictEqual(retrieved, credential.value);
+            expect(retrieved).to.equal(credential.value);
+            expect(storeStub.calledWith(credential.secretKey, credential.value)).to.be.true;
         });
 
         test(`Should delete ${credential.label} from storage when set to empty string`, async () => {
             await credential.setter(credential.value);
-            assert.ok(secretsStore.has(credential.secretKey), 'Secret should exist before clearing');
+            expect(secretsStore.has(credential.secretKey)).to.be.true;
             await credential.setter('');
-            assert.ok(!secretsStore.has(credential.secretKey), 'Secret should be deleted from storage');
+            expect(secretsStore.has(credential.secretKey)).to.be.false;
+            expect(deleteStub.calledWith(credential.secretKey)).to.be.true;
             const cleared = await credential.getter();
-            assert.strictEqual(cleared, '');
+            expect(cleared).to.equal('');
         });
     }
 
@@ -120,9 +135,9 @@ suite('ConfigService Test Suite', () => {
         const password = await configService.getKibanaPassword();
         const apiKey = await configService.getKibanaApiKey();
 
-        assert.strictEqual(username, '');
-        assert.strictEqual(password, '');
-        assert.strictEqual(apiKey, '');
+        expect(username).to.equal('');
+        expect(password).to.equal('');
+        expect(apiKey).to.equal('');
     });
 
     test('Should return empty string for non-existent credentials', async () => {
@@ -133,8 +148,8 @@ suite('ConfigService Test Suite', () => {
         const password = await configService.getKibanaPassword();
         const apiKey = await configService.getKibanaApiKey();
 
-        assert.strictEqual(username, '');
-        assert.strictEqual(password, '');
-        assert.strictEqual(apiKey, '');
+        expect(username).to.equal('');
+        expect(password).to.equal('');
+        expect(apiKey).to.equal('');
     });
 });

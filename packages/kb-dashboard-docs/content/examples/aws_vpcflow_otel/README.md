@@ -14,6 +14,28 @@ Based on the [aws_vpcflow_otel](https://github.com/elastic/integrations/tree/mai
 | **Traffic Analysis** | `traffic.yaml` | Traffic distribution, source analysis, and security deep dive |
 | **Interface Analysis** | `interface.yaml` | Per-interface analysis and account metrics |
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "VPC Flow Logs Overview (overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/overview.yaml"
+    ```
+
+??? example "Traffic Analysis (traffic.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/traffic.yaml"
+    ```
+
+??? example "Interface Analysis (interface.yaml)"
+
+    ```yaml
+    --8<-- "examples/aws_vpcflow_otel/interface.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **AWS VPC Flow Logs**: Configured for OpenTelemetry collection

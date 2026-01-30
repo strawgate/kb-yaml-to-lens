@@ -19,6 +19,46 @@ These dashboards provide visibility into CrowdStrike Falcon EDR alerts, incident
 | **Host** | `host.yaml` | Host device monitoring with OS platform distribution and activity tracking |
 | **Vulnerability** | `vulnerability.yaml` | Vulnerability tracking with severity, status, and confidence breakdowns |
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Overview (overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/overview.yaml"
+    ```
+
+??? example "Alert (alert.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/alert.yaml"
+    ```
+
+??? example "Falcon Overview (falcon-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/falcon-overview.yaml"
+    ```
+
+??? example "FDR Overview (fdr-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/fdr-overview.yaml"
+    ```
+
+??? example "Host (host.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/host.yaml"
+    ```
+
+??? example "Vulnerability (vulnerability.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike/vulnerability.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **CrowdStrike Falcon**: EDR solution with data streaming enabled

@@ -13,7 +13,7 @@ from kb_dashboard_mcp.models import DataStreamFieldSummary, DataStreamInfo, Data
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
-    from dashboard_compiler.kibana_client import KibanaClient
+    from kb_dashboard_tools.kibana_client import KibanaClient
 
 
 # Pattern to validate data stream names (alphanumeric, -, _, ., and *)

@@ -17,6 +17,34 @@ Unlike the dataset-centric [CrowdStrike dashboards](../crowdstrike/README.md), t
 
 All dashboards include consistent navigation for seamless workflow transitions.
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "SOC Dashboard (soc.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/soc.yaml"
+    ```
+
+??? example "Threat Investigation (threat-investigation.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/threat-investigation.yaml"
+    ```
+
+??? example "Asset & Vulnerability (asset-vulnerability.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/asset-vulnerability.yaml"
+    ```
+
+??? example "Compliance & Audit (compliance-audit.yaml)"
+
+    ```yaml
+    --8<-- "examples/crowdstrike-modern/compliance-audit.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **CrowdStrike Falcon**: EDR solution with data streaming enabled

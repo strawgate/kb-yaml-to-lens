@@ -20,6 +20,40 @@ The **k8sclusterreceiver** is an OpenTelemetry Collector receiver that collects 
 
 All dashboards include navigation links for easy switching between views.
 
+## Dashboard Definitions
+
+<!-- markdownlint-disable MD046 -->
+??? example "Cluster Overview (01-cluster-overview.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/01-cluster-overview.yaml"
+    ```
+
+??? example "Workload Health (02-workload-health.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/02-workload-health.yaml"
+    ```
+
+??? example "Resource Allocation (03-resource-allocation.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/03-resource-allocation.yaml"
+    ```
+
+??? example "Batch Jobs (04-batch-jobs.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/04-batch-jobs.yaml"
+    ```
+
+??? example "Autoscaling (05-autoscaling.yaml)"
+
+    ```yaml
+    --8<-- "examples/k8s_cluster_otel/05-autoscaling.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ## Prerequisites
 
 - **Kubernetes cluster**: v1.24+
@@ -197,6 +231,31 @@ The `k8s.pod.phase` metric uses numeric values:
 | `k8s.container.status.reason` | `ContainerCreating`, `CrashLoopBackOff`, `CreateContainerConfigError`, `ErrImagePull`, `ImagePullBackOff`, `OOMKilled`, `Completed`, `Error`, `ContainerCannotRun` | Container status reason |
 | `k8s.container.status.state` | `terminated`, `running`, `waiting` | Container state |
 | `condition` | `Ready`, `MemoryPressure`, `PIDPressure`, `DiskPressure` | Node condition |
+
+## Metrics Not Used in Dashboards
+
+The following metrics are available from the k8sclusterreceiver but are not currently visualized in the dashboards:
+
+### Default Metrics Not Used
+
+| Metric | Type | Unit | Description |
+|--------|------|------|-------------|
+| `k8s.container.ephemeralstorage_limit` | Gauge | `By` | Maximum ephemeral storage limit |
+| `k8s.container.ephemeralstorage_request` | Gauge | `By` | Ephemeral storage requested |
+| `k8s.statefulset.updated_pods` | Gauge | `{pod}` | Pods created from current version |
+| `k8s.daemonset.current_scheduled_nodes` | Gauge | `{node}` | Nodes running daemon pods as intended |
+| `k8s.daemonset.misscheduled_nodes` | Gauge | `{node}` | Nodes running daemon pods incorrectly |
+| `k8s.job.max_parallel_pods` | Gauge | `{pod}` | Maximum concurrent pods |
+| `k8s.namespace.phase` | Gauge | — | Current phase (1=active, 0=terminating) |
+
+### Optional Metrics Not Used
+
+| Metric | Type | Unit | Description | Attributes |
+|--------|------|------|-------------|------------|
+| `k8s.container.status.reason` | Sum | `{container}` | Container count by status reason | `k8s.container.status.reason` |
+| `k8s.container.status.state` | Sum | `{container}` | Container count by state | `k8s.container.status.state` |
+| `k8s.node.condition` | Gauge | `{condition}` | Node condition status | `condition` |
+| `k8s.pod.status_reason` | Gauge | — | Pod status reason (numeric encoding) | — |
 
 ## Related Resources
 

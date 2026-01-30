@@ -26,15 +26,15 @@ from typing import Annotated, Any, Literal, get_args, get_origin
 
 from pydantic import BaseModel
 
-from dashboard_compiler.dashboard.config import Dashboard
-from dashboard_compiler.panels.base import BasePanel
-from dashboard_compiler.panels.charts.config import (
+from dashboard_lint.types import Severity, Violation
+from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.panels.base import BasePanel
+from kb_dashboard_core.panels.charts.config import (
     ESQLPanel,
     ESQLPanelConfig,
     LensPanel,
     LensPanelConfig,
 )
-from dashboard_lint.types import Severity, Violation
 
 
 class EmptyOptions(BaseModel):

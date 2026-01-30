@@ -18,7 +18,7 @@ The Dashboard Compiler provides a Python API for creating Kibana dashboards prog
 
 The Dashboard Compiler provides these core functions for working with dashboards:
 
-::: dashboard_compiler.dashboard_compiler
+::: kb_dashboard_core.dashboard_compiler
     options:
       show_source: true
       members:
