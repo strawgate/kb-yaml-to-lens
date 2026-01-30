@@ -54,19 +54,21 @@ dashboards:
         equals: iisreceiver.otel
     panels:
       # Overview Metrics Row
-      - title: Server Uptime
+      - title: IIS Servers
         hide_title: true
         size: {w: 10, h: 5}
         esql:
           type: metric
           query: |
-            TS metrics-*
+            FROM metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE metrics.iis.uptime IS NOT NULL
-            | STATS uptime = MAX(LAST_OVER_TIME(metrics.iis.uptime))
+            | STATS servers = COUNT_DISTINCT(host.name)
           primary:
-            field: uptime
-            label: Uptime (s)
+            field: servers
+            label: IIS Servers
+            format:
+              type: number
+              decimals: 0
       - title: Active Connections
         hide_title: true
         size: {w: 10, h: 5}
@@ -76,7 +78,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
             | WHERE metrics.iis.connection.active IS NOT NULL
-            | STATS connections = MAX(LAST_OVER_TIME(metrics.iis.connection.active))
+            | STATS connections = SUM(LAST_OVER_TIME(metrics.iis.connection.active))
           primary:
             field: connections
             label: Active Connections
@@ -107,7 +109,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
             | WHERE metrics.iis.request.queue.count IS NOT NULL
-            | STATS queue = MAX(LAST_OVER_TIME(metrics.iis.request.queue.count))
+            | STATS queue = SUM(LAST_OVER_TIME(metrics.iis.request.queue.count))
           primary:
             field: queue
             label: Queued Requests
@@ -123,7 +125,7 @@ dashboards:
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
             | WHERE metrics.iis.thread.active IS NOT NULL
-            | STATS threads = MAX(LAST_OVER_TIME(metrics.iis.thread.active))
+            | STATS threads = SUM(LAST_OVER_TIME(metrics.iis.thread.active))
           primary:
             field: threads
             label: Active Threads
@@ -132,6 +134,9 @@ dashboards:
               decimals: 0
 
       # Application Pool Section
+      - markdown:
+          content: '### Application Pools'
+        size: {w: 48, h: 3}
       - title: Application Pool States
         size: {w: 24, h: 10}
         esql:
@@ -192,6 +197,9 @@ dashboards:
             field: pool
 
       # Request Section
+      - markdown:
+          content: '### Requests'
+        size: {w: 48, h: 3}
       - title: Request Rate by HTTP Method
         size: {w: 24, h: 12}
         esql:
@@ -278,6 +286,9 @@ dashboards:
                 suffix: ' ms'
 
       # Connection Section
+      - markdown:
+          content: '### Connections'
+        size: {w: 48, h: 3}
       - title: Active Connections Over Time
         size: {w: 16, h: 10}
         esql:
@@ -288,6 +299,8 @@ dashboards:
             | WHERE metrics.iis.connection.active IS NOT NULL
             | STATS connections = MAX(LAST_OVER_TIME(metrics.iis.connection.active)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
+          legend:
+            visible: hide
           dimension:
             field: time_bucket
             label: Time
@@ -308,6 +321,8 @@ dashboards:
             | WHERE metrics.iis.connection.attempt.count IS NOT NULL
             | STATS attempts_rate = SUM(RATE(metrics.iis.connection.attempt.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
+          legend:
+            visible: hide
           dimension:
             field: time_bucket
             label: Time
@@ -327,6 +342,8 @@ dashboards:
             | WHERE metrics.iis.connection.anonymous IS NOT NULL
             | STATS anon_rate = SUM(RATE(metrics.iis.connection.anonymous)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
+          legend:
+            visible: hide
           dimension:
             field: time_bucket
             label: Time
@@ -338,6 +355,9 @@ dashboards:
                 type: number
 
       # Network Section
+      - markdown:
+          content: '### Network'
+        size: {w: 48, h: 3}
       - title: Network I/O Rate by Direction
         size: {w: 24, h: 12}
         esql:
@@ -409,6 +429,9 @@ dashboards:
                 type: bytes
 
       # Performance Section
+      - markdown:
+          content: '### Performance & Summary'
+        size: {w: 48, h: 3}
       - title: Active Threads Over Time
         size: {w: 48, h: 10}
         esql:
@@ -430,7 +453,6 @@ dashboards:
                 type: number
                 decimals: 0
 
-      # Summary Table
       - title: IIS Sites Summary
         size: {w: 48, h: 15}
         description: Summary of IIS sites with key metrics
