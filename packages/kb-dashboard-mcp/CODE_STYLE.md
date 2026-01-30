@@ -21,10 +21,7 @@ This document defines code conventions for the MCP server package.
 ### Type Annotations
 
 - All functions must have type annotations
-- **Note:** This package uses `from __future__ import annotations` which differs from kb-dashboard-cli and kb-dashboard-core. This is intentional because:
-  - The MCP package uses `TYPE_CHECKING` blocks extensively for imports used in type hints
-  - FastMCP's type introspection works correctly with this pattern
-  - The package's Pydantic models don't use complex forward references
+- **Do NOT use** `from __future__ import annotations` (same as kb-dashboard-cli and kb-dashboard-core)
 - Use Pydantic models for complex data structures
 
 ### Async Patterns

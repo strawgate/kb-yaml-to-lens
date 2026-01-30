@@ -272,7 +272,9 @@ reportUntypedNamedTuple = false
 
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-mcp/src"
+# fastmcp is installed in the MCP package venv, not root venv - pyright runs from root
 extraPaths = ["packages/kb-dashboard-mcp/src", "packages/kb-dashboard-tools/src", "packages/kb-dashboard-core/src"]
+reportMissingImports = false
 reportMissingTypeStubs = false
 reportIncompatibleVariableOverride = false
 

@@ -1,8 +1,7 @@
 """Tests for MCP tools."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Any
+from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp import FastMCP
@@ -15,9 +14,6 @@ from kb_dashboard_mcp.tools.data_streams import (
 )
 from kb_dashboard_mcp.tools.esql import execute_esql, register_esql_tools
 from kb_dashboard_mcp.tools.patterns import register_pattern_tools, run_dissect_pattern_test, run_grok_pattern_test
-
-if TYPE_CHECKING:
-    from unittest.mock import AsyncMock
 
 
 class TestDataStreamTools:

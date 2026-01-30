@@ -1,7 +1,5 @@
 """Tests for Pydantic models."""
 
-from __future__ import annotations
-
 from kb_dashboard_mcp.models import (
     DataStreamFieldSummary,
     DataStreamInfo,

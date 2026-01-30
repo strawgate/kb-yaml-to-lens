@@ -1,17 +1,12 @@
 """ES|QL query execution tool."""
 
-from __future__ import annotations
+from typing import Annotated, Any, cast
 
-from typing import TYPE_CHECKING, Annotated, Any, cast
-
+from fastmcp import FastMCP
 from fastmcp.tools import Tool
 
 from kb_dashboard_mcp.models import EsqlQueryResult
-
-if TYPE_CHECKING:
-    from fastmcp import FastMCP
-
-    from kb_dashboard_tools.kibana_client import KibanaClient
+from kb_dashboard_tools.kibana_client import KibanaClient
 
 
 async def execute_esql(

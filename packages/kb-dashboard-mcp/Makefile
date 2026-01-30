@@ -66,7 +66,7 @@ typecheck:
 	$(call print_start, "Running type checking")
 	@cd $(ROOT) && output=$$(uv run --group dev basedpyright packages/kb-dashboard-mcp --level error 2>&1); \
 		echo "$$output" | sed 's/^/    /'; \
-		if echo "$$output" | grep -q "0 errors"; then exit 0; else exit 1; fi
+		if echo "$$output" | grep -qw "0 errors"; then exit 0; else exit 1; fi
 	$(call print_end, "Type checking passed")
 
 # Testing

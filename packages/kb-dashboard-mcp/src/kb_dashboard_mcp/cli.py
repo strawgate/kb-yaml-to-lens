@@ -1,7 +1,5 @@
 """CLI entry point for the MCP server."""
 
-from __future__ import annotations
-
 import asyncio
 from dataclasses import dataclass
 from typing import Literal

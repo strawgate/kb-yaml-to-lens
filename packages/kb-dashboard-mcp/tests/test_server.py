@@ -1,13 +1,8 @@
 """Tests for MCP server setup."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock
 
 from kb_dashboard_mcp.server import build_mcp_server
-
-if TYPE_CHECKING:
-    from unittest.mock import AsyncMock
 
 
 class TestBuildMcpServer:
