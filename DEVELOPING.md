@@ -65,6 +65,7 @@ Run these from the **repository root**:
 | `make lint-markdown-check` | Check markdown linting (repo-wide) |
 | `make lint-yaml-check` | Check YAML linting (repo-wide) |
 | `make docs ci` | Check documentation (markdown lint + link verification) |
+| `kb-dashboard-lint check --input-file <file>` | Check dashboard YAML for best practices |
 
 **Troubleshooting CI failures:** Run `make all ci` + lint commands locally to reproduce CI checks.
 
