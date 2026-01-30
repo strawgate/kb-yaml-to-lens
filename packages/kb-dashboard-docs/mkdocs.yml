@@ -53,6 +53,7 @@ plugins:
           paths:
             - ../kb-dashboard-core/src
             - ../kb-dashboard-cli/src
+            - ../kb-dashboard-lint/src
           inventories:
             - url: https://docs.python.org/3/objects.inv
           options:
