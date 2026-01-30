@@ -10,28 +10,28 @@
 #
 # IIS OTel Receiver Metrics Reference:
 # Application Pool Metrics:
-# - iis.application_pool.state (gauge): App pool state (1-7: Uninitialized to Delete Pending)
-# - iis.application_pool.uptime (gauge): App pool uptime in milliseconds
+# - metrics.iis.application_pool.state (gauge): App pool state (1-7: Uninitialized to Delete Pending)
+# - metrics.iis.application_pool.uptime (gauge): App pool uptime in milliseconds
 #
 # Connection Metrics:
-# - iis.connection.active (sum, non-monotonic): Active connections
-# - iis.connection.anonymous (sum, monotonic): Anonymous connections established
-# - iis.connection.attempt.count (sum, monotonic): Total connection attempts
+# - metrics.iis.connection.active (sum, non-monotonic): Active connections
+# - metrics.iis.connection.anonymous (sum, monotonic): Anonymous connections established
+# - metrics.iis.connection.attempt.count (sum, monotonic): Total connection attempts
 #
 # Request Metrics:
-# - iis.request.count (sum, monotonic): Requests by HTTP method (attributes.request)
-# - iis.request.queue.age.max (gauge): Age of oldest queued request in ms
-# - iis.request.queue.count (sum, non-monotonic): Queued requests
-# - iis.request.rejected (sum, monotonic): Rejected requests
+# - metrics.iis.request.count (sum, monotonic): Requests by HTTP method (attributes.request)
+# - metrics.iis.request.queue.age.max (gauge): Age of oldest queued request in ms
+# - metrics.iis.request.queue.count (sum, non-monotonic): Queued requests
+# - metrics.iis.request.rejected (sum, monotonic): Rejected requests
 #
 # Network Metrics:
-# - iis.network.blocked (sum, monotonic): Bytes blocked by bandwidth throttling
-# - iis.network.file.count (sum, monotonic): Files transmitted (attributes.direction)
-# - iis.network.io (sum, monotonic): Bytes sent and received (attributes.direction)
+# - metrics.iis.network.blocked (sum, monotonic): Bytes blocked by bandwidth throttling
+# - metrics.iis.network.file.count (sum, monotonic): Files transmitted (attributes.direction)
+# - metrics.iis.network.io (sum, monotonic): Bytes sent and received (attributes.direction)
 #
 # Server Metrics:
-# - iis.thread.active (sum, non-monotonic): Active threads
-# - iis.uptime (gauge): Server uptime in seconds
+# - metrics.iis.thread.active (sum, non-monotonic): Active threads
+# - metrics.iis.uptime (gauge): Server uptime in seconds
 #
 # Resource Attributes:
 # - resource.attributes.iis.application_pool: Application pool name
@@ -62,8 +62,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.uptime IS NOT NULL
-            | STATS uptime = MAX(LAST_OVER_TIME(iis.uptime))
+            | WHERE metrics.iis.uptime IS NOT NULL
+            | STATS uptime = MAX(LAST_OVER_TIME(metrics.iis.uptime))
           primary:
             field: uptime
             label: Uptime (s)
@@ -75,8 +75,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.connection.active IS NOT NULL
-            | STATS connections = MAX(LAST_OVER_TIME(iis.connection.active))
+            | WHERE metrics.iis.connection.active IS NOT NULL
+            | STATS connections = MAX(LAST_OVER_TIME(metrics.iis.connection.active))
           primary:
             field: connections
             label: Active Connections
@@ -91,8 +91,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.request.queue.count IS NOT NULL
-            | STATS queue = MAX(LAST_OVER_TIME(iis.request.queue.count))
+            | WHERE metrics.iis.request.queue.count IS NOT NULL
+            | STATS queue = MAX(LAST_OVER_TIME(metrics.iis.request.queue.count))
           primary:
             field: queue
             label: Queued Requests
@@ -107,8 +107,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.thread.active IS NOT NULL
-            | STATS threads = MAX(LAST_OVER_TIME(iis.thread.active))
+            | WHERE metrics.iis.thread.active IS NOT NULL
+            | STATS threads = MAX(LAST_OVER_TIME(metrics.iis.thread.active))
           primary:
             field: threads
             label: Active Threads
@@ -125,8 +125,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.application_pool.state IS NOT NULL
-            | STATS state_value = MAX(LAST_OVER_TIME(iis.application_pool.state)) BY pool = resource.attributes.iis.application_pool
+            | WHERE metrics.iis.application_pool.state IS NOT NULL
+            | STATS state_value = MAX(LAST_OVER_TIME(metrics.iis.application_pool.state)) BY pool = resource.attributes.iis.application_pool
             | EVAL state_name = CASE(
                 state_value == 1, "Uninitialized",
                 state_value == 2, "Initialized",
@@ -156,8 +156,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.application_pool.uptime IS NOT NULL
-            | STATS uptime_ms = MAX(LAST_OVER_TIME(iis.application_pool.uptime)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), pool = resource.attributes.iis.application_pool
+            | WHERE metrics.iis.application_pool.uptime IS NOT NULL
+            | STATS uptime_ms = MAX(LAST_OVER_TIME(metrics.iis.application_pool.uptime)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), pool = resource.attributes.iis.application_pool
             | EVAL uptime_hrs = uptime_ms / 3600000
             | SORT time_bucket ASC
           legend:
@@ -185,8 +185,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.request.count IS NOT NULL
-            | STATS req_rate = SUM(RATE(iis.request.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), method = attributes.request
+            | WHERE metrics.iis.request.count IS NOT NULL
+            | STATS req_rate = SUM(RATE(metrics.iis.request.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), method = attributes.request
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -209,8 +209,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.request.rejected IS NOT NULL
-            | STATS rejected_rate = SUM(RATE(iis.request.rejected)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.request.rejected IS NOT NULL
+            | STATS rejected_rate = SUM(RATE(metrics.iis.request.rejected)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -228,8 +228,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.request.queue.count IS NOT NULL
-            | STATS queue = MAX(LAST_OVER_TIME(iis.request.queue.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.request.queue.count IS NOT NULL
+            | STATS queue = MAX(LAST_OVER_TIME(metrics.iis.request.queue.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -248,8 +248,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.request.queue.age.max IS NOT NULL
-            | STATS max_age = MAX(LAST_OVER_TIME(iis.request.queue.age.max)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.request.queue.age.max IS NOT NULL
+            | STATS max_age = MAX(LAST_OVER_TIME(metrics.iis.request.queue.age.max)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -270,8 +270,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.connection.active IS NOT NULL
-            | STATS connections = MAX(LAST_OVER_TIME(iis.connection.active)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.connection.active IS NOT NULL
+            | STATS connections = MAX(LAST_OVER_TIME(metrics.iis.connection.active)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -290,8 +290,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.connection.attempt.count IS NOT NULL
-            | STATS attempts_rate = SUM(RATE(iis.connection.attempt.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.connection.attempt.count IS NOT NULL
+            | STATS attempts_rate = SUM(RATE(metrics.iis.connection.attempt.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -309,8 +309,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.connection.anonymous IS NOT NULL
-            | STATS anon_rate = SUM(RATE(iis.connection.anonymous)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.connection.anonymous IS NOT NULL
+            | STATS anon_rate = SUM(RATE(metrics.iis.connection.anonymous)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -331,8 +331,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.network.io IS NOT NULL
-            | STATS io_rate = SUM(RATE(iis.network.io)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), direction = attributes.direction
+            | WHERE metrics.iis.network.io IS NOT NULL
+            | STATS io_rate = SUM(RATE(metrics.iis.network.io)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), direction = attributes.direction
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -356,8 +356,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.network.file.count IS NOT NULL
-            | STATS file_rate = SUM(RATE(iis.network.file.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), direction = attributes.direction
+            | WHERE metrics.iis.network.file.count IS NOT NULL
+            | STATS file_rate = SUM(RATE(metrics.iis.network.file.count)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), direction = attributes.direction
             | SORT time_bucket ASC
           legend:
             visible: show
@@ -380,8 +380,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.network.blocked IS NOT NULL
-            | STATS blocked_rate = SUM(RATE(iis.network.blocked)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.network.blocked IS NOT NULL
+            | STATS blocked_rate = SUM(RATE(metrics.iis.network.blocked)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -401,8 +401,8 @@ dashboards:
           query: |
             TS metrics-*
             | WHERE data_stream.dataset == "iisreceiver.otel"
-            | WHERE iis.thread.active IS NOT NULL
-            | STATS threads = MAX(LAST_OVER_TIME(iis.thread.active)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | WHERE metrics.iis.thread.active IS NOT NULL
+            | STATS threads = MAX(LAST_OVER_TIME(metrics.iis.thread.active)) BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
             | SORT time_bucket ASC
           dimension:
             field: time_bucket
@@ -426,10 +426,10 @@ dashboards:
             | WHERE data_stream.dataset == "iisreceiver.otel"
             | WHERE resource.attributes.iis.site IS NOT NULL
             | STATS
-                connections = ROUND(MAX(LAST_OVER_TIME(iis.connection.active)), 0),
-                queue = ROUND(MAX(LAST_OVER_TIME(iis.request.queue.count)), 0),
-                threads = ROUND(MAX(LAST_OVER_TIME(iis.thread.active)), 0),
-                uptime_sec = MAX(LAST_OVER_TIME(iis.uptime))
+                connections = ROUND(MAX(LAST_OVER_TIME(metrics.iis.connection.active)), 0),
+                queue = ROUND(MAX(LAST_OVER_TIME(metrics.iis.request.queue.count)), 0),
+                threads = ROUND(MAX(LAST_OVER_TIME(metrics.iis.thread.active)), 0),
+                uptime_sec = MAX(LAST_OVER_TIME(metrics.iis.uptime))
               BY site = resource.attributes.iis.site
             | EVAL uptime_hrs = ROUND(uptime_sec / 3600, 1)
             | KEEP site, connections, queue, threads, uptime_hrs
