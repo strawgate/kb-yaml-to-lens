@@ -25,6 +25,14 @@ export class ConfigService {
     }
 
     /**
+     * Gets the CLI source setting.
+     * @returns The configured CLI source (version, 'main', or local path), empty string means use extension version
+     */
+    getCliSource(): string {
+        return ConfigService.get<string>('cli.source', '');
+    }
+
+    /**
      * Gets the Python path setting.
      * @returns The configured Python path, or 'python' as default
      */

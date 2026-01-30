@@ -111,6 +111,7 @@ nav:
       - Panel Types:
           - Overview: panels/base.md
           - Auto-Layout Guide: panels/auto-layout.md
+          - Drilldowns: panels/drilldowns.md
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
           - Chart Panels:

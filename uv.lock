@@ -881,7 +881,7 @@ wheels = [
 
 [[package]]
 name = "kb-dashboard-cli"
-version = "0.2.5"
+version = "0.2.7"
 source = { editable = "packages/kb-dashboard-cli" }
 dependencies = [
     { name = "click" },
@@ -930,7 +930,7 @@ dev = [
 
 [[package]]
 name = "kb-dashboard-compiler-root"
-version = "0.2.5"
+version = "0.2.7"
 source = { virtual = "." }
 dependencies = [
     { name = "click" },
@@ -961,7 +961,7 @@ dev = [
 
 [[package]]
 name = "kb-dashboard-core"
-version = "0.2.5"
+version = "0.2.7"
 source = { editable = "packages/kb-dashboard-core" }
 dependencies = [
     { name = "beartype" },
@@ -1004,7 +1004,7 @@ dev = [
 
 [[package]]
 name = "kb-dashboard-docs"
-version = "0.2.5"
+version = "0.2.7"
 source = { virtual = "packages/kb-dashboard-docs" }
 dependencies = [
     { name = "kb-dashboard-cli" },
@@ -1041,7 +1041,7 @@ dev = [
 
 [[package]]
 name = "kb-dashboard-lint"
-version = "0.2.5"
+version = "0.2.7"
 source = { editable = "packages/kb-dashboard-lint" }
 dependencies = [
     { name = "beartype" },
@@ -1080,7 +1080,7 @@ dev = [
 
 [[package]]
 name = "kb-dashboard-tools"
-version = "0.2.5"
+version = "0.2.7"
 source = { editable = "packages/kb-dashboard-tools" }
 dependencies = [
     { name = "aiohttp" },

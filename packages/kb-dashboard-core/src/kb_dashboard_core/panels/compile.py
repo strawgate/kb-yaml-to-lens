@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from kb_dashboard_core.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel
+from kb_dashboard_core.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel, VegaPanel
 from kb_dashboard_core.panels.auto_layout import LayoutAlgorithm, create_layout_engine
 from kb_dashboard_core.panels.charts.compile import compile_charts_panel_config
 from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
@@ -17,6 +17,8 @@ from kb_dashboard_core.panels.markdown.view import KbnMarkdownPanel
 from kb_dashboard_core.panels.search.compile import compile_search_panel_config
 from kb_dashboard_core.panels.search.view import KbnSearchPanel
 from kb_dashboard_core.panels.types import PanelTypes
+from kb_dashboard_core.panels.vega.compile import compile_vega_panel_config
+from kb_dashboard_core.panels.vega.view import KbnVegaPanel
 from kb_dashboard_core.panels.view import KbnBasePanel, KbnGridData
 from kb_dashboard_core.shared.config import stable_id_generator
 from kb_dashboard_core.shared.logging import log_compile
@@ -53,6 +55,8 @@ def get_panel_type_name(panel: PanelTypes) -> str:
             return 'image'
         case SearchPanel():
             return 'search'
+        case VegaPanel():
+            return 'vega'
         case LensPanel() | ESQLPanel():
             return 'charts'
         case _:  # pyright: ignore[reportUnnecessaryComparison]
@@ -109,6 +113,9 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
         case SearchPanel():
             references, embeddable_config = compile_search_panel_config(panel)
             return references, KbnSearchPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+        case VegaPanel():
+            references, embeddable_config = compile_vega_panel_config(panel)
+            return references, KbnVegaPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case LensPanel() | ESQLPanel():
             references, kbn_panel = compile_charts_panel_config(panel)
             return references, KbnLensPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=kbn_panel)

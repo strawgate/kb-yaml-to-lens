@@ -5,6 +5,7 @@ from .images import ImagePanel
 from .links import LinksPanel
 from .markdown import MarkdownPanel
 from .search import SearchPanel
+from .vega import VegaPanel
 
 __all__ = [
     'DashboardDrilldown',
@@ -15,4 +16,5 @@ __all__ = [
     'MarkdownPanel',
     'SearchPanel',
     'UrlDrilldown',
+    'VegaPanel',
 ]

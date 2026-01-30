@@ -96,6 +96,18 @@ Demonstrates dashboard navigation features including links panels, dashboard lin
     ```
 <!-- markdownlint-enable MD046 -->
 
+### Drilldowns Example
+
+Demonstrates panel drilldowns including dashboard-to-dashboard navigation and URL drilldowns with template variables. See the [Drilldowns Example](drilldowns/README.md) for complete documentation.
+
+<!-- markdownlint-disable MD046 -->
+??? example "Dashboard Definition (drilldowns/01-drilldowns-demo.yaml)"
+
+    ```yaml
+    --8<-- "examples/drilldowns/01-drilldowns-demo.yaml"
+    ```
+<!-- markdownlint-enable MD046 -->
+
 ### Heatmap Examples
 
 Examples of heatmap visualizations.

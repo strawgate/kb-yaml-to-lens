@@ -69,6 +69,7 @@ These fields are available for all panel types and are inherited from the `BaseP
 | `description` | `string` | A brief description of the panel's content or purpose. This is often shown on hover or in panel information. | `""` (empty string, if `None`) | No |
 | `size` | `Size` object | Defines the panel's width and height. See [Size Object Configuration](#size-object-configuration-size) below. | `w: 12, h: 8` | No |
 | `position` | `Position` object | **Optional:** Defines the panel's x/y coordinates. Omit for automatic positioning. See [Position Object Configuration](#position-object-configuration-position) below. | Auto-calculated | No |
+| `drilldowns` | `list[Drilldown]` | **Optional:** List of drilldowns for interactive navigation. See [Drilldowns Configuration](./drilldowns.md). | `None` | No |
 
 **Note on Panel Types**: Each panel must have exactly one key identifying its type (e.g., `markdown`, `lens`, `search`, `links`, `image`, `esql`). This key contains the type-specific configuration.
 

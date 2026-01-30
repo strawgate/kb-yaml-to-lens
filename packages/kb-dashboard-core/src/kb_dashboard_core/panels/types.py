@@ -7,6 +7,7 @@ from kb_dashboard_core.panels.images import ImagePanel
 from kb_dashboard_core.panels.links import LinksPanel
 from kb_dashboard_core.panels.markdown import MarkdownPanel
 from kb_dashboard_core.panels.search import SearchPanel
+from kb_dashboard_core.panels.vega import VegaPanel
 
 __all__ = ['PanelTypes', 'get_panel_type']
 
@@ -21,8 +22,8 @@ def get_panel_type(v: dict[str, object] | object) -> str:
         str: The panel type identifier.
 
     """
-    simple_types = {'markdown': 'markdown', 'search': 'search', 'links': 'links', 'image': 'image'}
-    simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image'}
+    simple_types = {'markdown': 'markdown', 'search': 'search', 'links': 'links', 'image': 'image', 'vega': 'vega'}
+    simple_attrs = {'markdown': 'markdown', 'search': 'search', 'links_config': 'links', 'image': 'image', 'vega': 'vega'}
 
     if isinstance(v, dict):
         for key, panel_type in simple_types.items():
@@ -46,7 +47,7 @@ def get_panel_type(v: dict[str, object] | object) -> str:
         msg = (
             f'Cannot determine panel type from dict with keys: {keys}. '
             'Each panel must have exactly one type discriminator key: '
-            "'markdown', 'search', 'links', 'image', 'lens', or 'esql'."
+            "'markdown', 'search', 'links', 'image', 'lens', 'esql', or 'vega'."
         )
     else:
         msg = f'Cannot determine panel type from object: {type(v).__name__}'
@@ -59,6 +60,7 @@ type PanelTypes = Annotated[
     | Annotated[LinksPanel, Tag('links')]
     | Annotated[ImagePanel, Tag('image')]
     | Annotated[LensPanel, Tag('lens')]
-    | Annotated[ESQLPanel, Tag('esql')],
+    | Annotated[ESQLPanel, Tag('esql')]
+    | Annotated[VegaPanel, Tag('vega')],
     Discriminator(get_panel_type),
 ]

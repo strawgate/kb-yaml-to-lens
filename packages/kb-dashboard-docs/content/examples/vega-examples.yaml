@@ -1,0 +1,346 @@
+---
+dashboards:
+  - id: vega-examples-001
+    name: '[Example] Vega Visualizations'
+    description: Comprehensive examples of Vega and Vega-Lite custom visualization configurations
+    panels:
+      - title: Vega Examples Overview
+        size:
+          w: 48
+          h: 6
+        position:
+          x: 0
+          y: 0
+        markdown:
+          content: |
+            # Vega Visualization Examples
+            This dashboard demonstrates various Vega and Vega-Lite configurations:
+            - **Hello Vega** - Minimal static visualization
+            - **Vega-Lite Bar Chart** - Simple bar chart with inline data
+            - **Elasticsearch Integration** - Querying data from Elasticsearch
+            - **Interactive Charts** - Using signals and selections
+            Vega panels are perfect for:
+            - Custom visualizations not available in Lens
+            - Complex data transformations
+            - Interactive exploratory dashboards
+            - Combining multiple data sources
+
+      # Minimal Hello Vega
+      - title: Hello Vega
+        description: A minimal Vega visualization showing static text
+        size:
+          w: 24
+          h: 10
+        position:
+          x: 0
+          y: 6
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega/v3.json
+            width: 300
+            height: 100
+            marks:
+              - type: text
+                encode:
+                  enter:
+                    x:
+                      value: 150
+                    y:
+                      value: 50
+                    text:
+                      value: Hello Vega!
+                    fontSize:
+                      value: 24
+                    align:
+                      value: center
+                    fill:
+                      value: '#1a1a1a'
+
+      # Vega-Lite Bar Chart
+      - title: Simple Bar Chart (Vega-Lite)
+        description: Bar chart using Vega-Lite with inline data
+        size:
+          w: 24
+          h: 10
+        position:
+          x: 24
+          y: 6
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            description: A simple bar chart with inline data
+            data:
+              values:
+                - category: A
+                  amount: 28
+                - category: B
+                  amount: 55
+                - category: C
+                  amount: 43
+                - category: D
+                  amount: 91
+                - category: E
+                  amount: 81
+            mark: bar
+            encoding:
+              x:
+                field: category
+                type: nominal
+                axis:
+                  labelAngle: 0
+              y:
+                field: amount
+                type: quantitative
+
+      # Elasticsearch Time Series
+      - title: Time Series from Elasticsearch
+        description: Line chart querying data from Elasticsearch index
+        size:
+          w: 24
+          h: 15
+        position:
+          x: 0
+          y: 16
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            data:
+              url:
+                '%context%': true
+                '%timefield%': '@timestamp'
+                index: logs-*
+                body:
+                  size: 0
+                  aggs:
+                    time_buckets:
+                      date_histogram:
+                        field: '@timestamp'
+                        fixed_interval: 1h
+            format:
+              property: aggregations.time_buckets.buckets
+            mark: line
+            encoding:
+              x:
+                field: key
+                type: temporal
+                title: Time
+              y:
+                field: doc_count
+                type: quantitative
+                title: Event Count
+
+      # Multi-Series Line Chart
+      - title: Multi-Series by Service
+        description: Multiple lines showing trends per service
+        size:
+          w: 24
+          h: 15
+        position:
+          x: 24
+          y: 16
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            data:
+              url:
+                '%context%': true
+                '%timefield%': '@timestamp'
+                index: logs-*
+                body:
+                  size: 0
+                  aggs:
+                    services:
+                      terms:
+                        field: service.name
+                        size: 5
+                      aggs:
+                        over_time:
+                          date_histogram:
+                            field: '@timestamp'
+                            fixed_interval: 1h
+            transform:
+              - flatten:
+                  - buckets
+                as:
+                  - time_bucket
+            format:
+              property: aggregations.services.buckets
+            mark: line
+            encoding:
+              x:
+                field: time_bucket.key
+                type: temporal
+                title: Time
+              y:
+                field: time_bucket.doc_count
+                type: quantitative
+                title: Count
+              color:
+                field: key
+                type: nominal
+                title: Service
+
+      # Area Chart with Gradient
+      - title: Area Chart with Gradient Fill
+        description: Styled area chart showing traffic volume
+        size:
+          w: 24
+          h: 15
+        position:
+          x: 0
+          y: 31
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            data:
+              url:
+                '%context%': true
+                '%timefield%': '@timestamp'
+                index: logs-*
+                body:
+                  size: 0
+                  aggs:
+                    time_buckets:
+                      date_histogram:
+                        field: '@timestamp'
+                        fixed_interval: 30m
+            format:
+              property: aggregations.time_buckets.buckets
+            mark:
+              type: area
+              line: true
+              opacity: 0.7
+            encoding:
+              x:
+                field: key
+                type: temporal
+                title: Time
+              y:
+                field: doc_count
+                type: quantitative
+                title: Volume
+
+      # Horizontal Bar Chart
+      - title: Top Endpoints by Request Count
+        description: Horizontal bar chart showing top 10 endpoints
+        size:
+          w: 24
+          h: 15
+        position:
+          x: 24
+          y: 31
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            data:
+              url:
+                '%context%': true
+                '%timefield%': '@timestamp'
+                index: logs-*
+                body:
+                  size: 0
+                  aggs:
+                    endpoints:
+                      terms:
+                        field: url.path
+                        size: 10
+            format:
+              property: aggregations.endpoints.buckets
+            mark: bar
+            encoding:
+              y:
+                field: key
+                type: nominal
+                title: Endpoint
+                sort: -x
+              x:
+                field: doc_count
+                type: quantitative
+                title: Request Count
+
+      # Scatter Plot
+      - title: Response Time vs Payload Size
+        description: Scatter plot comparing metrics
+        size:
+          w: 24
+          h: 15
+        position:
+          x: 0
+          y: 46
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            data:
+              url:
+                '%context%': true
+                '%timefield%': '@timestamp'
+                index: logs-*
+                body:
+                  size: 500
+                  _source:
+                    - http.response.body.bytes
+                    - event.duration
+                    - service.name
+            format:
+              property: hits.hits
+            transform:
+              - calculate: datum._source['http.response.body.bytes']
+                as: bytes
+              - calculate: datum._source['event.duration'] / 1000000
+                as: duration_ms
+              - calculate: datum._source['service.name']
+                as: service
+            mark:
+              type: circle
+              opacity: 0.6
+            encoding:
+              x:
+                field: bytes
+                type: quantitative
+                title: Response Size (bytes)
+              y:
+                field: duration_ms
+                type: quantitative
+                title: Duration (ms)
+              color:
+                field: service
+                type: nominal
+                title: Service
+
+      # Pie Chart
+      - title: Request Distribution by Status
+        description: Pie chart showing HTTP status code distribution
+        size:
+          w: 24
+          h: 15
+        position:
+          x: 24
+          y: 46
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega-lite/v5.json
+            data:
+              url:
+                '%context%': true
+                '%timefield%': '@timestamp'
+                index: logs-*
+                body:
+                  size: 0
+                  aggs:
+                    status_codes:
+                      terms:
+                        field: http.response.status_code
+                        size: 10
+            format:
+              property: aggregations.status_codes.buckets
+            mark:
+              type: arc
+              innerRadius: 50
+            encoding:
+              theta:
+                field: doc_count
+                type: quantitative
+              color:
+                field: key
+                type: nominal
+                title: Status Code
