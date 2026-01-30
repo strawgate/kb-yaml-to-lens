@@ -142,7 +142,14 @@ async def list_data_streams(client: KibanaClient, pattern: str | None = None) ->
 
     Returns:
         Data stream names with backing indices and timestamp field.
+
+    Raises:
+        ValueError: If the pattern contains invalid characters.
     """
+    if pattern is not None and not DATA_STREAM_NAME_PATTERN.match(pattern):
+        msg = f'Invalid data stream pattern: {pattern}'
+        raise ValueError(msg)
+
     response = await client.get_data_streams(name=pattern)
     # ES API returns dynamic JSON - cast to expected structure
     data_streams_list = cast('list[dict[str, Any]]', response.get('data_streams', []))

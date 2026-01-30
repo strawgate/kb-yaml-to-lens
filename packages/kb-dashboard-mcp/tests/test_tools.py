@@ -154,6 +154,11 @@ class TestListDataStreams:
 
         assert len(result) == 0
 
+    async def test_list_data_streams_invalid_pattern(self, mock_kibana_client: AsyncMock) -> None:
+        """Test that invalid patterns raise ValueError."""
+        with pytest.raises(ValueError, match='Invalid data stream pattern'):
+            await list_data_streams(mock_kibana_client, pattern='invalid;pattern')
+
 
 class TestExecuteEsql:
     """Tests for ES|QL query execution."""

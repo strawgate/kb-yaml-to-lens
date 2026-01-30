@@ -37,10 +37,8 @@ def build_kibana_client(config: ServerConfig) -> KibanaClient:
 async def run_server(config: ServerConfig) -> None:
     """Run the MCP server."""
     client = build_kibana_client(config)
-
-    mcp = await build_mcp_server(client)
-
     try:
+        mcp = await build_mcp_server(client)
         await mcp.run_async(transport=config.transport)
     finally:
         await client.close()

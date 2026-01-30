@@ -14,7 +14,8 @@ class TestBuildMcpServer:
 
         assert mcp.name == 'kb-dashboard-mcp'
 
-        tool_names = [t.name for t in mcp._tool_manager._tools.values()]
+        tools = await mcp.get_tools()
+        tool_names = list(tools.keys())
         assert 'summarize_data_streams' in tool_names
         assert 'list_data_streams' in tool_names
         assert 'execute_esql' in tool_names
@@ -25,6 +26,7 @@ class TestBuildMcpServer:
         """Test that all tools have descriptions."""
         mcp = await build_mcp_server(mock_kibana_client)
 
-        for tool in mcp._tool_manager._tools.values():
+        tools = await mcp.get_tools()
+        for tool in tools.values():
             assert tool.description is not None
             assert len(tool.description) > 0

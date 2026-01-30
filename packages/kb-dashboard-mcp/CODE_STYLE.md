@@ -87,3 +87,7 @@ Auto-fix issues:
 ```bash
 make fix          # Auto-fix linting
 ```
+
+## Agent Behavior & Integration
+
+See [AGENTS.md](AGENTS.md) for agent responsibilities, capabilities, and MCP integration points.

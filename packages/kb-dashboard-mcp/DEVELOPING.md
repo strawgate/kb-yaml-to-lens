@@ -74,6 +74,10 @@ packages/kb-dashboard-mcp/
 
 See [CODE_STYLE.md](CODE_STYLE.md) for code conventions.
 
+## Agent Behavior & Integration
+
+See [AGENTS.md](AGENTS.md) for agent responsibilities, capabilities, and MCP integration points when extending this package.
+
 ## Adding New Tools
 
 1. Create a new file in `src/kb_dashboard_mcp/tools/`
