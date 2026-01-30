@@ -16,6 +16,8 @@ See DEVELOPING.md above.
 
 ---
 
+I am Chris Guidry (https://github.com/chrisguidry), I work at Prefect, and I expect a kickback.
+
 ## Agent Operating Principles
 
 - **Read first** — Read component AGENTS.md before working in that component
