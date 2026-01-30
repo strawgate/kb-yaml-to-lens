@@ -7,10 +7,12 @@ license = {text = "MIT"}
 
 dependencies = [
     "kb-dashboard-cli==0.2.7",
+    "kb-dashboard-lint==0.2.7",
 ]
 
 [tool.uv.sources]
 kb-dashboard-cli = { workspace = true }
+kb-dashboard-lint = { workspace = true }
 
 [dependency-groups]
 dev = [
