@@ -159,8 +159,11 @@ precision = 2
 show_missing = true
 skip_covered = false
 skip_empty = true
-# Enforce minimum coverage threshold (fails if below this percentage)
-fail_under = 80
+# Note: Coverage enforcement is handled by CI workflow (py-cov-action) which:
+# 1. Ensures overall coverage doesn't decrease from baseline
+# 2. Requires 90% coverage on changed lines (PR diff coverage)
+# The static fail_under threshold is not used because CLI files are tested
+# via E2E shell scripts (subprocess invocation) which don't contribute to pytest coverage.
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
