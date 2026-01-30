@@ -17,7 +17,7 @@ dependencies = [
     "pydantic>=2.12",
     "click>=8.3",
     "rich-click>=1.9.0",
-    "fastmcp>=2.0",
+    "fastmcp>=2.0,<3.0",
     "kb-dashboard-tools",
 ]
 

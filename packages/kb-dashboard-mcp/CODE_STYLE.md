@@ -5,7 +5,7 @@ This document defines code conventions for the MCP server package.
 ## General Principles
 
 - Follow the [root CODE_STYLE.md](../../CODE_STYLE.md) for project-wide conventions
-- See [kb-dashboard-compiler CODE_STYLE.md](../kb-dashboard-compiler/CODE_STYLE.md) for Python-specific patterns
+- See [kb-dashboard-cli CODE_STYLE.md](../kb-dashboard-cli/CODE_STYLE.md) for Python-specific patterns
 
 ## Python Conventions
 
@@ -21,14 +21,17 @@ This document defines code conventions for the MCP server package.
 ### Type Annotations
 
 - All functions must have type annotations
-- Use `from __future__ import annotations` for forward references
+- **Note:** This package uses `from __future__ import annotations` which differs from kb-dashboard-cli and kb-dashboard-core. This is intentional because:
+  - The MCP package uses `TYPE_CHECKING` blocks extensively for imports used in type hints
+  - FastMCP's type introspection works correctly with this pattern
+  - The package's Pydantic models don't use complex forward references
 - Use Pydantic models for complex data structures
 
 ### Async Patterns
 
 - All Elasticsearch operations must be async
-- Use `AsyncElasticsearch` client
-- Follow existing async patterns from kb-dashboard-compiler
+- Use `KibanaClient` from `kb-dashboard-tools` for all cluster operations
+- Follow existing async patterns from kb-dashboard-tools
 
 ### Pydantic Models
 
