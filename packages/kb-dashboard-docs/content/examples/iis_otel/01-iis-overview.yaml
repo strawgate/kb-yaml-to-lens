@@ -56,7 +56,7 @@ dashboards:
       # Overview Metrics Row
       - title: Server Uptime
         hide_title: true
-        size: {w: 12, h: 5}
+        size: {w: 10, h: 5}
         esql:
           type: metric
           query: |
@@ -69,7 +69,7 @@ dashboards:
             label: Uptime (s)
       - title: Active Connections
         hide_title: true
-        size: {w: 12, h: 5}
+        size: {w: 10, h: 5}
         esql:
           type: metric
           query: |
@@ -83,9 +83,24 @@ dashboards:
             format:
               type: number
               decimals: 0
+      - title: Anonymous Connections
+        hide_title: true
+        size: {w: 10, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "iisreceiver.otel"
+            | WHERE metrics.iis.connection.anonymous IS NOT NULL
+            | STATS anon_rate = SUM(RATE(metrics.iis.connection.anonymous))
+          primary:
+            field: anon_rate
+            label: Anonymous Conn/s
+            format:
+              type: number
       - title: Request Queue
         hide_title: true
-        size: {w: 12, h: 5}
+        size: {w: 9, h: 5}
         esql:
           type: metric
           query: |
@@ -101,7 +116,7 @@ dashboards:
               decimals: 0
       - title: Active Threads
         hide_title: true
-        size: {w: 12, h: 5}
+        size: {w: 9, h: 5}
         esql:
           type: metric
           query: |
@@ -426,12 +441,12 @@ dashboards:
             | WHERE data_stream.dataset == "iisreceiver.otel"
             | WHERE resource.attributes.iis.site IS NOT NULL
             | STATS
-                connections = ROUND(MAX(LAST_OVER_TIME(metrics.iis.connection.active)), 0),
-                queue = ROUND(MAX(LAST_OVER_TIME(metrics.iis.request.queue.count)), 0),
-                threads = ROUND(MAX(LAST_OVER_TIME(metrics.iis.thread.active)), 0),
+                connections = MAX(LAST_OVER_TIME(metrics.iis.connection.active)),
+                queue = MAX(LAST_OVER_TIME(metrics.iis.request.queue.count)),
+                threads = MAX(LAST_OVER_TIME(metrics.iis.thread.active)),
                 uptime_sec = MAX(LAST_OVER_TIME(metrics.iis.uptime))
               BY site = resource.attributes.iis.site
-            | EVAL uptime_hrs = ROUND(uptime_sec / 3600, 1)
+            | EVAL uptime_hrs = uptime_sec / 3600
             | KEEP site, connections, queue, threads, uptime_hrs
             | SORT site ASC
             | LIMIT 100
