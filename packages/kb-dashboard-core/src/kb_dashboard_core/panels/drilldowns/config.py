@@ -29,6 +29,7 @@ def _coerce_trigger(v: object) -> DrilldownTrigger:
 
     Raises:
         TypeError: If the value is not a string or DrilldownTrigger.
+        ValueError: If the string value is not a valid DrilldownTrigger.
     """
     if isinstance(v, DrilldownTrigger):
         return v

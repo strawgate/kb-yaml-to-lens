@@ -452,7 +452,6 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-
       - title: IIS Sites Summary
         size: {w: 48, h: 15}
         description: Summary of IIS sites with key metrics

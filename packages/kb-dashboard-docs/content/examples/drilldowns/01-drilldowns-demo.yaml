@@ -7,6 +7,12 @@
 #
 # Note: For the dashboard drilldowns to work, the target dashboards must exist
 # in your Kibana instance. Replace the dashboard IDs with actual dashboard IDs.
+#
+# Prerequisites: This example expects a `logs-*` data view with fields like
+# http.response.status_code, event.dataset, host.name, and event.action.
+# Adjust data_view and field names for your environment.
+#
+# To verify compilation: kb-dashboard compile --input-file packages/kb-dashboard-docs/content/examples/drilldowns/01-drilldowns-demo.yaml
 dashboards:
   - name: Drilldowns Demo
     description: Demonstrates dashboard and URL drilldowns on various panel types
