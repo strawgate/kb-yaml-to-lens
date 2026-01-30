@@ -1008,6 +1008,7 @@ version = "0.2.7"
 source = { virtual = "packages/kb-dashboard-docs" }
 dependencies = [
     { name = "kb-dashboard-cli" },
+    { name = "kb-dashboard-lint" },
 ]
 
 [package.dev-dependencies]
@@ -1024,7 +1025,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "kb-dashboard-cli", editable = "packages/kb-dashboard-cli" }]
+requires-dist = [
+    { name = "kb-dashboard-cli", editable = "packages/kb-dashboard-cli" },
+    { name = "kb-dashboard-lint", editable = "packages/kb-dashboard-lint" },
+]
 
 [package.metadata.requires-dev]
 dev = [
