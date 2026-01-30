@@ -37,7 +37,7 @@ dashboards:
             id: error-count
           filters:
             - field: log.level
-              value: error
+              equals: error
         drilldowns:
           - name: Open Error Documentation
             url: https://docs.example.com/errors
@@ -127,7 +127,7 @@ dashboards:
             - aggregation: count
               id: host-event-count
               label: Event Count
-            - aggregation: cardinality
+            - aggregation: unique_count
               field: event.action
               id: unique-actions
               label: Unique Actions

@@ -3,7 +3,7 @@
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import Discriminator, Field, Tag
+from pydantic import BeforeValidator, Discriminator, Field, Tag
 
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -16,6 +16,46 @@ class DrilldownTrigger(StrEnum):
     range = 'range'
 
 
+def _coerce_trigger(v: object) -> DrilldownTrigger:
+    """Coerce string values to DrilldownTrigger enum.
+
+    Required because BaseCfgModel uses strict=True which prevents automatic coercion.
+
+    Args:
+        v: A value to coerce to DrilldownTrigger.
+
+    Returns:
+        DrilldownTrigger: The coerced enum value.
+
+    Raises:
+        TypeError: If the value is not a string or DrilldownTrigger.
+    """
+    if isinstance(v, DrilldownTrigger):
+        return v
+    if isinstance(v, str):
+        return DrilldownTrigger(v)
+    msg = f'Expected str or DrilldownTrigger, got {type(v).__name__}'
+    raise TypeError(msg)
+
+
+def _coerce_triggers(v: object) -> list[DrilldownTrigger]:
+    """Coerce a list of string values to DrilldownTrigger enums.
+
+    Args:
+        v: A value to coerce to a list of DrilldownTriggers.
+
+    Returns:
+        list[DrilldownTrigger]: The coerced list of enum values.
+
+    Raises:
+        TypeError: If the value is not a list.
+    """
+    if isinstance(v, list):
+        return [_coerce_trigger(item) for item in v]  # pyright: ignore[reportUnknownArgumentType,reportUnknownVariableType]
+    msg = f'Expected list, got {type(v).__name__}'
+    raise TypeError(msg)
+
+
 class BaseDrilldown(BaseCfgModel):
     """Base configuration for all drilldown types."""
 
@@ -25,7 +65,7 @@ class BaseDrilldown(BaseCfgModel):
     name: str = Field(...)
     """Display name for the drilldown."""
 
-    triggers: list[DrilldownTrigger] = Field(default_factory=lambda: [DrilldownTrigger.click])
+    triggers: Annotated[list[DrilldownTrigger], BeforeValidator(_coerce_triggers)] = Field(default_factory=lambda: [DrilldownTrigger.click])
     """List of triggers that activate this drilldown. Defaults to ['click']."""
 
 
