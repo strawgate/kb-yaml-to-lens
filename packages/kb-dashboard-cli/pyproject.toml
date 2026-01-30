@@ -159,8 +159,10 @@ precision = 2
 show_missing = true
 skip_covered = false
 skip_empty = true
-# Enforce minimum coverage threshold (fails if below this percentage)
-fail_under = 80
+# Coverage enforcement is handled by CI workflow (lint-test-build.yml):
+# - Overall coverage must not decrease vs main branch
+# - New/changed code must have 90% coverage
+# See: .github/workflows/lint-test-build.yml lines 98-107
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
