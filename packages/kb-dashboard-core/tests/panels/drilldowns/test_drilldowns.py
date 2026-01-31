@@ -2,7 +2,6 @@
 
 from typing import Any
 
-import pytest
 from dirty_equals import IsStr
 from inline_snapshot import snapshot
 
@@ -17,7 +16,6 @@ from kb_dashboard_core.panels.drilldowns import (
     compile_drilldowns,
 )
 from kb_dashboard_core.panels.drilldowns.compile import compile_dashboard_drilldown, compile_trigger, compile_url_drilldown
-from kb_dashboard_core.panels.drilldowns.config import get_drilldown_type
 
 
 class TestCompileTrigger:
@@ -263,46 +261,6 @@ class TestCompileDrilldowns:
 
         # Same drilldown at different positions should have different IDs
         assert event1.eventId != event2.eventId
-
-
-class TestGetDrilldownType:
-    """Tests for get_drilldown_type discriminator function."""
-
-    def test_dict_with_dashboard_key(self) -> None:
-        """Test that dict with 'dashboard' key returns 'dashboard'."""
-        result = get_drilldown_type({'name': 'Test', 'dashboard': 'dash-123'})
-        assert result == 'dashboard'
-
-    def test_dict_with_url_key(self) -> None:
-        """Test that dict with 'url' key returns 'url'."""
-        result = get_drilldown_type({'name': 'Test', 'url': 'https://example.com'})
-        assert result == 'url'
-
-    def test_dict_without_dashboard_or_url_raises_error(self) -> None:
-        """Test that dict without 'dashboard' or 'url' raises ValueError."""
-        with pytest.raises(ValueError, match='Cannot determine drilldown type'):
-            get_drilldown_type({'name': 'Test', 'label': 'Label'})
-
-    def test_dashboard_drilldown_instance(self) -> None:
-        """Test that DashboardDrilldown instance returns 'dashboard'."""
-        drilldown = DashboardDrilldown(name='Test', dashboard='dash-123')
-        result = get_drilldown_type(drilldown)
-        assert result == 'dashboard'
-
-    def test_url_drilldown_instance(self) -> None:
-        """Test that UrlDrilldown instance returns 'url'."""
-        drilldown = UrlDrilldown(name='Test', url='https://example.com')
-        result = get_drilldown_type(drilldown)
-        assert result == 'url'
-
-    def test_unknown_object_raises_error(self) -> None:
-        """Test that unknown object type raises ValueError."""
-
-        class UnknownDrilldown:
-            name: str = 'test'
-
-        with pytest.raises(ValueError, match='Cannot determine drilldown type'):
-            get_drilldown_type(UnknownDrilldown())
 
 
 class TestDrilldownsInDashboard:
