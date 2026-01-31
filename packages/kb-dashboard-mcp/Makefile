@@ -4,7 +4,7 @@
 # Include shared helpers (SHELL is set automatically by Makefile.shared based on RUNNER_OS)
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-unit test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
+.PHONY: help all install ci check fix test test-unit test-e2e test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
 
 help:
 	@echo "MCP Server Commands:"
@@ -28,6 +28,7 @@ help:
 	@echo "Testing:"
 	@echo "  test          - Run all tests (alias for test-unit)"
 	@echo "  test-unit     - Run unit tests"
+	@echo "  test-e2e      - No E2E tests (library/server package)"
 	@echo "  test-coverage - Run tests with coverage"
 	@echo "  coverage-report - Open HTML coverage report"
 	@echo ""
@@ -71,10 +72,13 @@ typecheck:
 	$(call print_end, "Type checking passed")
 
 # Testing
-test: test-unit
-
 test-unit:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
+
+test-e2e:
+	@echo "No E2E tests for kb-dashboard-mcp (library/server package)"
+
+test: test-unit
 
 test-coverage:
 	$(call run_cmd, "Running pytest with coverage", uv run pytest --cov=src/kb_dashboard_mcp --cov-report=term-missing --cov-report=html --cov-report=json, "Coverage report generated")
