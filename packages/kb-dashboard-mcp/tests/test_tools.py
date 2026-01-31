@@ -1,6 +1,5 @@
 """Tests for MCP tools."""
 
-from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
@@ -14,6 +13,13 @@ from kb_dashboard_mcp.tools.data_streams import (
 )
 from kb_dashboard_mcp.tools.esql import execute_esql, register_esql_tools
 from kb_dashboard_mcp.tools.patterns import register_pattern_tools, run_dissect_pattern_test, run_grok_pattern_test
+from kb_dashboard_tools.models import (
+    DataStreamsResponse,
+    EsqlResponse,
+    GrokMatch,
+    GrokPatternResponse,
+    IngestSimulateResponse,
+)
 
 
 class TestDataStreamTools:
@@ -26,11 +32,11 @@ class TestDataStreamTools:
         register_data_stream_tools(mcp, mock_kibana_client)
         return mcp
 
-    def test_tools_registered(self, mcp_with_data_stream_tools: FastMCP) -> None:
+    async def test_tools_registered(self, mcp_with_data_stream_tools: FastMCP) -> None:
         """Test that data stream tools are registered."""
-        tool_names = [t.name for t in mcp_with_data_stream_tools._tool_manager._tools.values()]
-        assert 'summarize_data_streams' in tool_names
-        assert 'list_data_streams' in tool_names
+        tools = await mcp_with_data_stream_tools.get_tools()
+        assert 'summarize_data_streams' in tools
+        assert 'list_data_streams' in tools
 
 
 class TestEsqlTools:
@@ -43,10 +49,10 @@ class TestEsqlTools:
         register_esql_tools(mcp, mock_kibana_client)
         return mcp
 
-    def test_tool_registered(self, mcp_with_esql_tools: FastMCP) -> None:
+    async def test_tool_registered(self, mcp_with_esql_tools: FastMCP) -> None:
         """Test that ES|QL tool is registered."""
-        tool_names = [t.name for t in mcp_with_esql_tools._tool_manager._tools.values()]
-        assert 'execute_esql' in tool_names
+        tools = await mcp_with_esql_tools.get_tools()
+        assert 'execute_esql' in tools
 
 
 class TestPatternTools:
@@ -59,11 +65,11 @@ class TestPatternTools:
         register_pattern_tools(mcp, mock_kibana_client)
         return mcp
 
-    def test_tools_registered(self, mcp_with_pattern_tools: FastMCP) -> None:
+    async def test_tools_registered(self, mcp_with_pattern_tools: FastMCP) -> None:
         """Test that pattern tools are registered."""
-        tool_names = [t.name for t in mcp_with_pattern_tools._tool_manager._tools.values()]
-        assert 'test_grok_pattern' in tool_names
-        assert 'test_dissect_pattern' in tool_names
+        tools = await mcp_with_pattern_tools.get_tools()
+        assert 'test_grok_pattern' in tools
+        assert 'test_dissect_pattern' in tools
 
 
 class TestDataStreamSummarize:
@@ -72,21 +78,21 @@ class TestDataStreamSummarize:
     async def test_summarize_with_data(
         self,
         mock_kibana_client: AsyncMock,
-        sample_esql_response: dict[str, Any],
+        sample_esql_response: EsqlResponse,
     ) -> None:
         """Test summarizing a data stream with data."""
-        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
+        mock_kibana_client.execute_esql.return_value = sample_esql_response
 
         result = await summarize_single_data_stream(mock_kibana_client, 'logs-test')
 
         assert result.data_stream == 'logs-test'
         assert len(result.fields) == 3
         assert len(result.sample_rows) == 3
-        mock_kibana_client.esql_query_raw.assert_called_once_with(query='FROM logs-test | LIMIT 200')
+        mock_kibana_client.execute_esql.assert_called_once_with(query='FROM logs-test | LIMIT 200')
 
     async def test_summarize_empty_data_stream(self, mock_kibana_client: AsyncMock) -> None:
         """Test summarizing an empty data stream."""
-        mock_kibana_client.esql_query_raw.return_value = {'columns': [], 'values': []}
+        mock_kibana_client.execute_esql.return_value = EsqlResponse(columns=[], values=[])
 
         result = await summarize_single_data_stream(mock_kibana_client, 'empty-stream')
 
@@ -102,17 +108,17 @@ class TestDataStreamSummarize:
     async def test_summarize_multiple_data_streams(
         self,
         mock_kibana_client: AsyncMock,
-        sample_esql_response: dict[str, Any],
+        sample_esql_response: EsqlResponse,
     ) -> None:
         """Test summarizing multiple data streams."""
-        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
+        mock_kibana_client.execute_esql.return_value = sample_esql_response
 
         result = await summarize_data_streams(mock_kibana_client, ['logs-test', 'metrics-test'])
 
         assert len(result) == 2
         assert result[0].data_stream == 'logs-test'
         assert result[1].data_stream == 'metrics-test'
-        assert mock_kibana_client.esql_query_raw.call_count == 2
+        assert mock_kibana_client.execute_esql.call_count == 2
 
 
 class TestListDataStreams:
@@ -121,7 +127,7 @@ class TestListDataStreams:
     async def test_list_data_streams(
         self,
         mock_kibana_client: AsyncMock,
-        sample_data_stream_response: dict[str, Any],
+        sample_data_stream_response: DataStreamsResponse,
     ) -> None:
         """Test listing data streams."""
         mock_kibana_client.get_data_streams.return_value = sample_data_stream_response
@@ -137,7 +143,7 @@ class TestListDataStreams:
     async def test_list_data_streams_with_pattern(
         self,
         mock_kibana_client: AsyncMock,
-        sample_data_stream_response: dict[str, Any],
+        sample_data_stream_response: DataStreamsResponse,
     ) -> None:
         """Test listing data streams with a pattern filter."""
         mock_kibana_client.get_data_streams.return_value = sample_data_stream_response
@@ -148,7 +154,7 @@ class TestListDataStreams:
 
     async def test_list_data_streams_empty(self, mock_kibana_client: AsyncMock) -> None:
         """Test listing when no data streams exist."""
-        mock_kibana_client.get_data_streams.return_value = {'data_streams': []}
+        mock_kibana_client.get_data_streams.return_value = DataStreamsResponse(data_streams=[])
 
         result = await list_data_streams(mock_kibana_client)
 
@@ -166,30 +172,30 @@ class TestExecuteEsql:
     async def test_execute_esql(
         self,
         mock_kibana_client: AsyncMock,
-        sample_esql_response: dict[str, Any],
+        sample_esql_response: EsqlResponse,
     ) -> None:
         """Test executing an ES|QL query."""
-        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
+        mock_kibana_client.execute_esql.return_value = sample_esql_response
 
         result = await execute_esql(mock_kibana_client, 'FROM logs-* | LIMIT 10')
 
         assert len(result.columns) == 3
         assert len(result.values) == 3
         assert result.is_columnar is False
-        mock_kibana_client.esql_query_raw.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=False)
+        mock_kibana_client.execute_esql.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=False)
 
     async def test_execute_esql_columnar(
         self,
         mock_kibana_client: AsyncMock,
-        sample_esql_response: dict[str, Any],
+        sample_esql_response: EsqlResponse,
     ) -> None:
         """Test executing an ES|QL query in columnar format."""
-        mock_kibana_client.esql_query_raw.return_value = sample_esql_response
+        mock_kibana_client.execute_esql.return_value = sample_esql_response
 
         result = await execute_esql(mock_kibana_client, 'FROM logs-* | LIMIT 10', columnar=True)
 
         assert result.is_columnar is True
-        mock_kibana_client.esql_query_raw.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=True)
+        mock_kibana_client.execute_esql.assert_called_once_with(query='FROM logs-* | LIMIT 10', columnar=True)
 
     async def test_execute_esql_empty_query(self, mock_kibana_client: AsyncMock) -> None:
         """Test that empty queries raise ValueError."""
@@ -203,7 +209,7 @@ class TestGrokPattern:
     async def test_grok_pattern_match(
         self,
         mock_kibana_client: AsyncMock,
-        sample_grok_match_response: dict[str, Any],
+        sample_grok_match_response: GrokPatternResponse,
     ) -> None:
         """Test grok pattern matching."""
         mock_kibana_client.test_grok_pattern.return_value = sample_grok_match_response
@@ -220,7 +226,20 @@ class TestGrokPattern:
 
     async def test_grok_pattern_no_match(self, mock_kibana_client: AsyncMock) -> None:
         """Test grok pattern that doesn't match."""
-        mock_kibana_client.test_grok_pattern.return_value = {'matches': []}
+        mock_kibana_client.test_grok_pattern.return_value = GrokPatternResponse(matches=[])
+
+        result = await run_grok_pattern_test(
+            mock_kibana_client,
+            '%{IP:client}',
+            'not an IP address',
+        )
+
+        assert result.matched is False
+        assert result.fields == {}
+
+    async def test_grok_pattern_no_match_explicit(self, mock_kibana_client: AsyncMock) -> None:
+        """Test grok pattern that returns matched=False."""
+        mock_kibana_client.test_grok_pattern.return_value = GrokPatternResponse(matches=[GrokMatch(matched=False, match=None)])
 
         result = await run_grok_pattern_test(
             mock_kibana_client,
@@ -239,7 +258,7 @@ class TestGrokPattern:
     async def test_grok_pattern_with_custom_patterns(
         self,
         mock_kibana_client: AsyncMock,
-        sample_grok_match_response: dict[str, Any],
+        sample_grok_match_response: GrokPatternResponse,
     ) -> None:
         """Test grok pattern with custom pattern definitions."""
         mock_kibana_client.test_grok_pattern.return_value = sample_grok_match_response
@@ -264,7 +283,7 @@ class TestDissectPattern:
     async def test_dissect_pattern_match(
         self,
         mock_kibana_client: AsyncMock,
-        sample_dissect_response: dict[str, Any],
+        sample_dissect_response: IngestSimulateResponse,
     ) -> None:
         """Test dissect pattern matching."""
         mock_kibana_client.simulate_ingest.return_value = sample_dissect_response
@@ -285,7 +304,7 @@ class TestDissectPattern:
     async def test_dissect_pattern_error(
         self,
         mock_kibana_client: AsyncMock,
-        sample_dissect_error_response: dict[str, Any],
+        sample_dissect_error_response: IngestSimulateResponse,
     ) -> None:
         """Test dissect pattern that fails to match."""
         mock_kibana_client.simulate_ingest.return_value = sample_dissect_error_response
@@ -316,7 +335,7 @@ class TestDissectPattern:
     async def test_dissect_pattern_custom_field(
         self,
         mock_kibana_client: AsyncMock,
-        sample_dissect_response: dict[str, Any],
+        sample_dissect_response: IngestSimulateResponse,
     ) -> None:
         """Test dissect pattern with custom field name."""
         mock_kibana_client.simulate_ingest.return_value = sample_dissect_response

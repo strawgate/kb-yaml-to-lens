@@ -12,7 +12,12 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, TypeAdapter
 
-from kb_dashboard_tools.models import EsqlResponse
+from kb_dashboard_tools.models import (
+    DataStreamsResponse,
+    EsqlResponse,
+    GrokPatternResponse,
+    IngestSimulateResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -886,11 +891,12 @@ class KibanaClient:
             logger.info('Index template created successfully: %s', name)
             return template_response
 
-    async def execute_esql(self, query: str) -> EsqlResponse:
+    async def execute_esql(self, query: str, *, columnar: bool = False) -> EsqlResponse:
         """Execute an ES|QL query via Kibana's console proxy API.
 
         Args:
             query: The ES|QL query string to execute
+            columnar: Whether to return results in columnar format
 
         Returns:
             EsqlResponse with query results containing columns, values, and metadata
@@ -905,9 +911,9 @@ class KibanaClient:
         endpoint = '/api/console/proxy'
         params = {'path': '/_query', 'method': 'POST'}
 
-        request_body = {
-            'query': query,
-        }
+        request_body: dict[str, Any] = {'query': query}
+        if columnar:
+            request_body['columnar'] = True
 
         logger.info('Executing ES|QL query via Kibana console proxy')
 
@@ -943,81 +949,19 @@ class KibanaClient:
             msg = f'Unexpected ES|QL response type: {type(parsed).__name__}'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
 
-    async def esql_query_raw(
-        self,
-        query: str,
-        columnar: bool = False,
-    ) -> dict[str, Any]:
-        """Execute an ES|QL query and return the raw response dict.
-
-        This is a lower-level method that returns the raw Elasticsearch response
-        without Pydantic validation. Useful for MCP tools that need direct access
-        to the response structure.
-
-        Args:
-            query: The ES|QL query string to execute
-            columnar: Whether to return results in columnar format
-
-        Returns:
-            Raw response dict with columns and values
-
-        Raises:
-            aiohttp.ClientError: If the request fails due to network issues
-            asyncio.TimeoutError: If the request times out
-            ValueError: If the response contains an error message
-
-        """
-        endpoint = '/api/console/proxy'
-        params = {'path': '/_query', 'method': 'POST'}
-
-        request_body: dict[str, Any] = {'query': query}
-        if columnar:
-            request_body['columnar'] = True
-
-        timeout = aiohttp.ClientTimeout(total=30)
-        async with await self._post(
-            endpoint,
-            params=params,
-            json=request_body,
-            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
-            timeout=timeout,
-        ) as response:
-            if response.status != HTTP_OK:
-                error_text = await response.text()
-                msg = f'ES|QL query failed (HTTP {response.status}): {error_text[:200]}'
-                raise ValueError(msg)
-
-            result = await response.json()  # pyright: ignore[reportAny]
-
-            if not isinstance(result, dict):
-                msg = f'Unexpected ES|QL response type: {type(result).__name__}'  # pyright: ignore[reportAny]
-                raise TypeError(msg)
-
-            if 'error' in result:
-                error_info: object = result['error']  # pyright: ignore[reportUnknownVariableType]
-                if isinstance(error_info, dict):
-                    error_msg = str(error_info.get('reason', error_info))  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
-                elif isinstance(error_info, str):
-                    error_msg = error_info
-                else:
-                    error_msg = str(error_info)  # pyright: ignore[reportUnknownArgumentType]
-                msg = f'ES|QL query error: {error_msg}'
-                raise ValueError(msg)
-
-            return dict(result)  # pyright: ignore[reportUnknownArgumentType]
-
-    async def get_data_streams(self, name: str | None = None) -> dict[str, Any]:
+    async def get_data_streams(self, name: str | None = None) -> DataStreamsResponse:
         """Get data stream information via Kibana's console proxy.
 
         Args:
             name: Optional name pattern to filter data streams (supports wildcards).
 
         Returns:
-            Data stream information from Elasticsearch.
+            DataStreamsResponse with typed data stream information.
 
         Raises:
             aiohttp.ClientError: If the request fails due to network issues
             ValueError: If the response indicates an error
+            pydantic.ValidationError: If response validation fails
 
         """
         path = '/_data_stream'
@@ -1037,15 +981,15 @@ class KibanaClient:
                 msg = f'Get data streams failed (HTTP {response.status}): {error_text[:200]}'
                 raise ValueError(msg)
 
-            json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
-            return json_response
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return DataStreamsResponse.model_validate(json_response)
 
     async def test_grok_pattern(
         self,
         grok_pattern: str,
         text: list[str],
         pattern_definitions: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
+    ) -> GrokPatternResponse:
         """Test a grok pattern against sample text via Kibana's console proxy.
 
         Args:
@@ -1054,11 +998,12 @@ class KibanaClient:
             pattern_definitions: Optional custom pattern definitions.
 
         Returns:
-            Match results from Elasticsearch text_structure API.
+            GrokPatternResponse with typed match results.
 
         Raises:
             aiohttp.ClientError: If the request fails due to network issues
             ValueError: If the response indicates an error
+            pydantic.ValidationError: If response validation fails
 
         """
         endpoint = '/api/console/proxy'
@@ -1082,14 +1027,14 @@ class KibanaClient:
                 msg = f'Grok pattern test failed (HTTP {response.status}): {error_text[:200]}'
                 raise ValueError(msg)
 
-            json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
-            return json_response
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return GrokPatternResponse.model_validate(json_response)
 
     async def simulate_ingest(
         self,
         pipeline: dict[str, Any],
         docs: list[dict[str, Any]],
-    ) -> dict[str, Any]:
+    ) -> IngestSimulateResponse:
         """Simulate an ingest pipeline via Kibana's console proxy.
 
         Args:
@@ -1097,11 +1042,12 @@ class KibanaClient:
             docs: Documents to simulate.
 
         Returns:
-            Simulation results from Elasticsearch.
+            IngestSimulateResponse with typed document processing results.
 
         Raises:
             aiohttp.ClientError: If the request fails due to network issues
             ValueError: If the response indicates an error
+            pydantic.ValidationError: If response validation fails
 
         """
         endpoint = '/api/console/proxy'
@@ -1123,5 +1069,5 @@ class KibanaClient:
                 msg = f'Ingest simulation failed (HTTP {response.status}): {error_text[:200]}'
                 raise ValueError(msg)
 
-            json_response: dict[str, Any] = await response.json()  # pyright: ignore[reportAny]
-            return json_response
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return IngestSimulateResponse.model_validate(json_response)

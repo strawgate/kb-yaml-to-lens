@@ -9,13 +9,14 @@ from fastmcp.tools import Tool
 
 from kb_dashboard_mcp.models import DataStreamFieldSummary, DataStreamInfo, DataStreamRowExample, DataStreamSummary
 from kb_dashboard_tools.kibana_client import KibanaClient
+from kb_dashboard_tools.models import EsqlColumn
 
 # Pattern to validate data stream names (alphanumeric, -, _, ., and *)
 DATA_STREAM_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9\-_\.\*]+$')
 
 
-def _extract_unique_values(values: list[list[Any]], col_index: int) -> set[str | bool | int | float]:
-    """Extract unique non-null values from a column."""
+def _extract_unique_values(values: list[list[Any]], col_index: int) -> list[str | bool | int | float]:
+    """Extract unique non-null values from a column (up to 10)."""
     unique_values: set[str | bool | int | float] = set()
     for row in values:
         if col_index < len(row):
@@ -23,30 +24,24 @@ def _extract_unique_values(values: list[list[Any]], col_index: int) -> set[str |
             if raw_value is not None and isinstance(raw_value, (str, bool, int, float)):
                 with contextlib.suppress(TypeError):
                     unique_values.add(raw_value)
-    return unique_values
+                    if len(unique_values) >= 10:  # noqa: PLR2004
+                        break
+    return list(unique_values)
 
 
-def _build_field_summaries(columns: list[dict[str, Any]], values: list[list[Any]]) -> list[DataStreamFieldSummary]:
+def _build_field_summaries(columns: list[EsqlColumn], values: list[list[Any]]) -> list[DataStreamFieldSummary]:
     """Build field summaries from columns and values."""
     field_summaries: list[DataStreamFieldSummary] = []
 
     for col_index, column in enumerate(columns):
-        field_name: str | None = column.get('name')
-        field_type: str | None = column.get('type')
-
-        if field_name is None or field_type is None:
-            continue
-
         unique_values = _extract_unique_values(values, col_index)
-        # Cast to the expected type - list cannot contain None since we filter in _extract_unique_values
-        sample_values: list[str | bool | int | float | None] | None = (
-            cast('list[str | bool | int | float | None]', list(unique_values)[:10]) if len(unique_values) > 0 else None
-        )
+        # Cast needed: list[T] is not assignable to list[T | None] due to invariance
+        sample_values = cast('list[str | bool | int | float | None]', unique_values) if len(unique_values) > 0 else None
 
         field_summaries.append(
             DataStreamFieldSummary(
-                field=field_name,
-                type=field_type,
+                field=column.name,
+                type=column.type,
                 sample_values=sample_values,
             )
         )
@@ -54,7 +49,7 @@ def _build_field_summaries(columns: list[dict[str, Any]], values: list[list[Any]
     return field_summaries
 
 
-def _build_row_examples(columns: list[dict[str, Any]], values: list[list[Any]]) -> list[DataStreamRowExample]:
+def _build_row_examples(columns: list[EsqlColumn], values: list[list[Any]]) -> list[DataStreamRowExample]:
     """Build row examples from columns and values."""
     row_examples: list[DataStreamRowExample] = []
 
@@ -66,9 +61,7 @@ def _build_row_examples(columns: list[dict[str, Any]], values: list[list[Any]]) 
             if col_index < len(row):
                 value: Any = row[col_index]  # pyright: ignore[reportAny]
                 if value is not None:
-                    col_name = column.get('name')
-                    if col_name is not None:
-                        row_dict[col_name] = value
+                    row_dict[column.name] = value
 
         row_examples.append(DataStreamRowExample(root=row_dict))
 
@@ -93,20 +86,13 @@ async def summarize_single_data_stream(client: KibanaClient, data_stream: str) -
         raise ValueError(msg)
 
     esql_query = f'FROM {data_stream} | LIMIT 200'
-    result = await client.esql_query_raw(query=esql_query)
+    result = await client.execute_esql(query=esql_query)
 
-    columns: list[dict[str, Any]] | None = result.get('columns')
-
-    if columns is None or len(columns) == 0:
+    if len(result.columns) == 0 or len(result.values) == 0:
         return DataStreamSummary(data_stream=data_stream, fields=[], sample_rows=[])
 
-    values: list[list[Any]] | None = result.get('values')
-
-    if values is None or len(values) == 0:
-        return DataStreamSummary(data_stream=data_stream, fields=[], sample_rows=[])
-
-    field_summaries = _build_field_summaries(columns, values)
-    row_examples = _build_row_examples(columns, values)
+    field_summaries = _build_field_summaries(result.columns, result.values)
+    row_examples = _build_row_examples(result.columns, result.values)
 
     return DataStreamSummary(
         data_stream=data_stream,
@@ -151,26 +137,15 @@ async def list_data_streams(client: KibanaClient, pattern: str | None = None) ->
         raise ValueError(msg)
 
     response = await client.get_data_streams(name=pattern)
-    # ES API returns dynamic JSON - cast to expected structure
-    data_streams_list = cast('list[dict[str, Any]]', response.get('data_streams', []))
 
-    result: list[DataStreamInfo] = []
-    for ds in data_streams_list:
-        name = cast('str', ds.get('name', ''))
-        ts_field = cast('dict[str, str]', ds.get('timestamp_field', {}))
-        timestamp_field = ts_field.get('name', '@timestamp')
-        indices = cast('list[dict[str, str]]', ds.get('indices', []))
-        backing_indices = [idx.get('index_name', '') for idx in indices]
-
-        result.append(
-            DataStreamInfo(
-                name=name,
-                timestamp_field=timestamp_field,
-                backing_indices=backing_indices,
-            )
+    return [
+        DataStreamInfo(
+            name=ds.name,
+            timestamp_field=ds.timestamp_field.name,
+            backing_indices=[idx.index_name for idx in ds.indices],
         )
-
-    return result
+        for ds in response.data_streams
+    ]
 
 
 def register_data_stream_tools(mcp: FastMCP, client: KibanaClient) -> None:

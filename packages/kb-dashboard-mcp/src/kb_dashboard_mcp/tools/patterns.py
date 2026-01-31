@@ -1,6 +1,6 @@
 """Grok and dissect pattern testing tools."""
 
-from typing import Annotated, Any, cast
+from typing import Annotated, Any
 
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
@@ -39,17 +39,16 @@ async def run_grok_pattern_test(
         pattern_definitions=custom_patterns,
     )
 
-    # Grok API returns dynamic JSON - cast to expected structure
-    matches = cast('list[dict[str, Any]]', result.get('matches', []))
-
-    if len(matches) == 0:
+    if len(result.matches) == 0:
         return GrokMatchResult(matched=False, fields={})
 
-    first_match = matches[0]
-    matched_fields = cast('dict[str, Any]', first_match.get('match', {}))
+    first_match = result.matches[0]
+    if not first_match.matched or first_match.match is None:
+        return GrokMatchResult(matched=False, fields={})
+
     return GrokMatchResult(
         matched=True,
-        fields=matched_fields,
+        fields=first_match.match,
     )
 
 
@@ -80,7 +79,7 @@ async def run_dissect_pattern_test(
     if len(documents) == 0:
         return []
 
-    pipeline = {
+    pipeline: dict[str, Any] = {
         'processors': [
             {
                 'dissect': {
@@ -95,17 +94,10 @@ async def run_dissect_pattern_test(
 
     result = await client.simulate_ingest(pipeline=pipeline, docs=docs)
 
-    # Ingest simulate API returns dynamic JSON - cast to expected structure
     results: list[DissectMatchResult] = []
-    response_docs = cast('list[dict[str, Any]]', result.get('docs', []))
-
-    for i, doc_result in enumerate(response_docs):
-        doc = cast('dict[str, Any]', doc_result.get('doc', {}))
-        source = cast('dict[str, Any]', doc.get('_source', {}))
-        error: dict[str, Any] | None = doc_result.get('error')
-
-        if error is not None:
-            error_reason = cast('str', error.get('reason', 'Unknown error'))
+    for i, doc_result in enumerate(result.docs):
+        if doc_result.error is not None:
+            error_reason = doc_result.error.reason or 'Unknown error'
             results.append(
                 DissectMatchResult(
                     document_index=i,
@@ -114,11 +106,11 @@ async def run_dissect_pattern_test(
                     error=error_reason,
                 )
             )
-        else:
-            # source.items() returns Any values from JSON - keep as dict[str, Any]
+        elif doc_result.doc is not None:
+            # Extract fields excluding the original input field
             extracted_fields: dict[str, Any] = {
                 k: v
-                for k, v in source.items()  # pyright: ignore[reportAny]
+                for k, v in doc_result.doc.source.items()  # pyright: ignore[reportAny]
                 if k != field
             }
             results.append(
@@ -126,6 +118,15 @@ async def run_dissect_pattern_test(
                     document_index=i,
                     success=True,
                     fields=extracted_fields,
+                )
+            )
+        else:
+            results.append(
+                DissectMatchResult(
+                    document_index=i,
+                    success=False,
+                    fields={},
+                    error='No document returned',
                 )
             )
 

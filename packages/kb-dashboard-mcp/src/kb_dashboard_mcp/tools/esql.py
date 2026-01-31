@@ -1,6 +1,6 @@
 """ES|QL query execution tool."""
 
-from typing import Annotated, Any, cast
+from typing import Annotated
 
 from fastmcp import FastMCP
 from fastmcp.tools import Tool
@@ -31,15 +31,11 @@ async def execute_esql(
         msg = 'Query cannot be empty'
         raise ValueError(msg)
 
-    result = await client.esql_query_raw(query=query, columnar=columnar)
-
-    # ES|QL API returns dynamic JSON - cast to expected structure
-    columns = cast('list[dict[str, str]]', result.get('columns', []))
-    values = cast('list[list[Any]]', result.get('values', []))
+    result = await client.execute_esql(query=query, columnar=columnar)
 
     return EsqlQueryResult(
-        columns=columns,
-        values=values,
+        columns=[{'name': col.name, 'type': col.type} for col in result.columns],
+        values=result.values,
         is_columnar=columnar,
     )
 
