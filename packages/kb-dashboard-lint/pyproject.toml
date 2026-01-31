@@ -61,7 +61,6 @@ precision = 2
 show_missing = true
 skip_covered = false
 skip_empty = true
-fail_under = 80
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

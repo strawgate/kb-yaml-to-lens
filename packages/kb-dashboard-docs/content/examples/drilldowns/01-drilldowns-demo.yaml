@@ -1,0 +1,145 @@
+---
+# Drilldowns Demo Dashboard
+# This dashboard demonstrates various drilldown configurations including:
+# - Dashboard-to-dashboard drilldowns (navigate to another dashboard)
+# - URL drilldowns (open external URLs)
+# - Different trigger types (click, filter, range)
+#
+# Note: For the dashboard drilldowns to work, the target dashboards must exist
+# in your Kibana instance. Replace the dashboard IDs with actual dashboard IDs.
+#
+# Prerequisites: This example expects a `logs-*` data view with fields like
+# http.response.status_code, event.dataset, host.name, and event.action.
+# Adjust data_view and field names for your environment.
+#
+# To verify compilation: kb-dashboard compile --input-file packages/kb-dashboard-docs/content/examples/drilldowns/01-drilldowns-demo.yaml
+dashboards:
+  - name: Drilldowns Demo
+    description: Demonstrates dashboard and URL drilldowns on various panel types
+    panels:
+      # Overview metric with dashboard drilldown
+      - title: Total Events (Click for Details)
+        size: {w: quarter, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            id: total-events
+        drilldowns:
+          - name: View Event Details
+            dashboard: event-details-dashboard
+            with_filters: true
+            with_time: true
+
+      # Metric with URL drilldown
+      - title: Error Rate (Click for Docs)
+        size: {w: quarter, h: 8}
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+            id: error-count
+          filters:
+            - field: log.level
+              equals: error
+        drilldowns:
+          - name: Open Error Documentation
+            url: https://docs.example.com/errors
+            new_tab: true
+
+      # Panel with multiple drilldowns
+      - title: Requests by Status
+        size: {w: half, h: 8}
+        lens:
+          type: bar
+          data_view: logs-*
+          dimension:
+            type: values
+            field: http.response.status_code
+            id: status-code
+            size: 10
+          metrics:
+            - aggregation: count
+              id: request-count
+        drilldowns:
+          # Dashboard drilldown for deeper analysis
+          - name: Analyze Status Code
+            dashboard: status-code-analysis
+            id: status-drill
+            with_filters: true
+          # URL drilldown for external reference
+          - name: HTTP Status Reference
+            url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/{{event.value}}
+            id: mdn-status
+            new_tab: true
+            encode_url: true
+
+      # Time series with range trigger drilldown
+      - title: Events Over Time
+        size: {w: half, h: 12}
+        lens:
+          type: line
+          data_view: logs-*
+          dimension:
+            type: date_histogram
+            field: '@timestamp'
+            id: time-bucket
+          metrics:
+            - aggregation: count
+              id: event-count
+        drilldowns:
+          - name: Zoom to Time Range
+            dashboard: detailed-events-dashboard
+            triggers:
+              - range
+            with_time: true
+            with_filters: true
+
+      # Pie chart with click trigger
+      - title: Events by Source
+        size: {w: half, h: 12}
+        lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: event.dataset
+              id: source-group
+              size: 5
+          metrics:
+            - aggregation: count
+              id: source-count
+        drilldowns:
+          - name: View Source Details
+            dashboard: source-specific-dashboard
+            triggers:
+              - click
+              - filter
+
+      # Data table with URL drilldown
+      - title: Top Hosts
+        size: {w: whole, h: 10}
+        lens:
+          type: datatable
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: host.name
+              id: host-col
+              size: 20
+          metrics:
+            - aggregation: count
+              id: host-event-count
+              label: Event Count
+            - aggregation: unique_count
+              field: event.action
+              id: unique-actions
+              label: Unique Actions
+        drilldowns:
+          - name: View Host in Fleet
+            url: https://kibana.example.com/app/fleet/agents?kuery=host.name:{{event.value}}
+            new_tab: true
+            triggers:
+              - click

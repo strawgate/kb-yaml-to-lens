@@ -53,6 +53,7 @@ plugins:
           paths:
             - ../kb-dashboard-core/src
             - ../kb-dashboard-cli/src
+            - ../kb-dashboard-lint/src
           inventories:
             - url: https://docs.python.org/3/objects.inv
           options:
@@ -111,6 +112,7 @@ nav:
       - Panel Types:
           - Overview: panels/base.md
           - Auto-Layout Guide: panels/auto-layout.md
+          - Drilldowns: panels/drilldowns.md
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
           - Chart Panels:

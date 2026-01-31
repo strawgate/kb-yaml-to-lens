@@ -16,14 +16,13 @@ dashboards:
             # Vega Visualization Examples
             This dashboard demonstrates various Vega and Vega-Lite configurations:
             - **Hello Vega** - Minimal static visualization
-            - **Vega-Lite Bar Chart** - Simple bar chart with inline data
-            - **Elasticsearch Integration** - Querying data from Elasticsearch
-            - **Interactive Charts** - Using signals and selections
-            Vega panels are perfect for:
-            - Custom visualizations not available in Lens
-            - Complex data transformations
-            - Interactive exploratory dashboards
-            - Combining multiple data sources
+            - **Bar Charts** - Vertical and horizontal bar charts
+            - **Time Series** - Line and area charts with temporal data
+            - **Multi-Series** - Multiple lines with color encoding
+            - **Scatter Plots** - Comparing two quantitative dimensions
+            - **Pie/Donut Charts** - Arc marks for proportional data
+            - **Sankey Diagram** - Flow visualization between services
+            Vega panels are perfect for custom visualizations not available in Lens.
 
       # Minimal Hello Vega
       - title: Hello Vega
@@ -344,3 +343,242 @@ dashboards:
                 field: key
                 type: nominal
                 title: Status Code
+
+      # Sankey Diagram - Full Vega (not Vega-Lite)
+      # To query Elasticsearch for service-to-service traffic, you could use:
+      #   - name: links
+      #     url:
+      #       '%context%': true
+      #       '%timefield%': '@timestamp'
+      #       index: traces-*
+      #       body:
+      #         size: 0
+      #         aggs:
+      #           sources:
+      #             terms:
+      #               field: service.name
+      #               size: 20
+      #             aggs:
+      #               targets:
+      #                 terms:
+      #                   field: destination.service.name
+      #                   size: 20
+      #     format:
+      #       property: aggregations.sources.buckets
+      #     transform:
+      #       - type: flatten
+      #         fields: [targets.buckets]
+      #         as: [target]
+      #       - type: formula
+      #         as: source
+      #         expr: datum.key
+      #       - type: formula
+      #         as: targetName
+      #         expr: datum.target.key
+      #       - type: formula
+      #         as: value
+      #         expr: datum.target.doc_count
+      # Note: Sankey requires computing node positions from the data, which adds complexity.
+      # The inline example below uses pre-computed positions for simplicity.
+      - title: Request Flow Through Services
+        description: Sankey diagram showing traffic flow between services
+        size:
+          w: 48
+          h: 20
+        position:
+          x: 0
+          y: 61
+        vega:
+          spec:
+            $schema: https://vega.github.io/schema/vega/v5.json
+            autosize: none
+            width: 800
+            height: 350
+            padding: 10
+            data:
+              - name: nodes
+                values:
+                  - id: lb
+                    name: Load Balancer
+                    x: 50
+                    y: 150
+                  - id: api
+                    name: API Gateway
+                    x: 200
+                    y: 150
+                  - id: auth
+                    name: Auth Service
+                    x: 350
+                    y: 50
+                  - id: user
+                    name: User Service
+                    x: 350
+                    y: 150
+                  - id: order
+                    name: Order Service
+                    x: 350
+                    y: 250
+                  - id: session
+                    name: Session Cache
+                    x: 500
+                    y: 30
+                  - id: cache
+                    name: Cache
+                    x: 500
+                    y: 100
+                  - id: db
+                    name: Database
+                    x: 500
+                    y: 180
+                  - id: payment
+                    name: Payment
+                    x: 500
+                    y: 260
+                  - id: external
+                    name: External API
+                    x: 650
+                    y: 260
+              - name: links
+                values:
+                  - source: lb
+                    target: api
+                    value: 45000
+                    sx: 90
+                    sy: 170
+                    tx: 200
+                    ty: 170
+                  - source: api
+                    target: auth
+                    value: 12000
+                    sx: 240
+                    sy: 150
+                    tx: 350
+                    ty: 70
+                  - source: api
+                    target: user
+                    value: 18000
+                    sx: 240
+                    sy: 170
+                    tx: 350
+                    ty: 170
+                  - source: api
+                    target: order
+                    value: 15000
+                    sx: 240
+                    sy: 190
+                    tx: 350
+                    ty: 270
+                  - source: auth
+                    target: session
+                    value: 4000
+                    sx: 390
+                    sy: 60
+                    tx: 500
+                    ty: 50
+                  - source: auth
+                    target: cache
+                    value: 8000
+                    sx: 390
+                    sy: 80
+                    tx: 500
+                    ty: 120
+                  - source: user
+                    target: cache
+                    value: 6000
+                    sx: 390
+                    sy: 160
+                    tx: 500
+                    ty: 130
+                  - source: user
+                    target: db
+                    value: 20000
+                    sx: 390
+                    sy: 180
+                    tx: 500
+                    ty: 200
+                  - source: order
+                    target: db
+                    value: 10000
+                    sx: 390
+                    sy: 260
+                    tx: 500
+                    ty: 210
+                  - source: order
+                    target: payment
+                    value: 5000
+                    sx: 390
+                    sy: 280
+                    tx: 500
+                    ty: 280
+                  - source: payment
+                    target: external
+                    value: 5000
+                    sx: 540
+                    sy: 280
+                    tx: 650
+                    ty: 280
+            scales:
+              - name: color
+                type: ordinal
+                domain:
+                  data: nodes
+                  field: name
+                range: category
+            marks:
+              - type: path
+                from:
+                  data: links
+                encode:
+                  enter:
+                    stroke:
+                      value: '#6baed6'
+                    strokeWidth:
+                      signal: max(datum.value / 3000, 3)
+                    strokeOpacity:
+                      value: 0.6
+                    path:
+                      signal: "'M' + datum.sx + ',' + datum.sy + ' C' + (datum.sx + 50) + ',' + datum.sy + ' ' + (datum.tx - 50) + ',' + datum.ty + ' ' + datum.tx + ',' + datum.ty"
+              - type: rect
+                from:
+                  data: nodes
+                encode:
+                  enter:
+                    x:
+                      field: x
+                    y:
+                      field: y
+                    width:
+                      value: 40
+                    height:
+                      value: 40
+                    fill:
+                      scale: color
+                      field: name
+                    cornerRadius:
+                      value: 6
+                    stroke:
+                      value: '#fff'
+                    strokeWidth:
+                      value: 2
+                  update:
+                    tooltip:
+                      field: name
+              - type: text
+                from:
+                  data: nodes
+                encode:
+                  enter:
+                    x:
+                      signal: datum.x + 20
+                    y:
+                      signal: datum.y - 8
+                    text:
+                      field: name
+                    fontSize:
+                      value: 11
+                    fontWeight:
+                      value: bold
+                    align:
+                      value: center
+                    fill:
+                      value: '#333'
