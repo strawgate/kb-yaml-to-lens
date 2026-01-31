@@ -17,7 +17,14 @@ jobs:
     if: |
       (github.event.review.state == 'commented' || github.event.review.state == 'changes_requested') &&
       !github.event.pull_request.draft && !github.event.pull_request.closed_at &&
-      !contains(github.event.pull_request.labels.*.name, 'no-claude')
+      !contains(github.event.pull_request.labels.*.name, 'no-claude') &&
+      (
+        github.event.review.author_association == 'OWNER' ||
+        github.event.review.author_association == 'MEMBER' ||
+        github.event.review.author_association == 'COLLABORATOR' ||
+        github.event.review.user.login == 'claude[bot]' ||
+        github.event.review.user.login == 'coderabbitai[bot]'
+      )
     uses: ./.github/workflows/run-claude.yml
     with:
       checkout-ref: ${{ github.event.pull_request.head.ref }}

@@ -16,7 +16,14 @@ permissions:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-issue'))
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-issue')) &&
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.comment.user.login == 'claude[bot]' ||
+        github.event.comment.user.login == 'coderabbitai[bot]'
+      )
     uses: ./.github/workflows/run-claude.yml
     with:
       model: claude-sonnet-4-5
