@@ -4,7 +4,7 @@
 # Include shared helpers (SHELL is set automatically by Makefile.shared based on RUNNER_OS)
 include ../../Makefile.shared
 
-.PHONY: help all install ci check fix test test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
+.PHONY: help all install ci check fix test test-unit test-coverage coverage-report lint lint-check typecheck clean build publish publish-test
 
 help:
 	@echo "MCP Server Commands:"
@@ -26,7 +26,8 @@ help:
 	@echo "  typecheck     - Run Python type checking (basedpyright)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  test          - Run Python unit tests"
+	@echo "  test          - Run all tests (alias for test-unit)"
+	@echo "  test-unit     - Run unit tests"
 	@echo "  test-coverage - Run tests with coverage"
 	@echo "  coverage-report - Open HTML coverage report"
 	@echo ""
@@ -70,7 +71,9 @@ typecheck:
 	$(call print_end, "Type checking passed")
 
 # Testing
-test:
+test: test-unit
+
+test-unit:
 	$(call run_cmd, "Running pytest", uv run pytest -o addopts="" --tb=line --no-header -q, "Tests passed")
 
 test-coverage:
