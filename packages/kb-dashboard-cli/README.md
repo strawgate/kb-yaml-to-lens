@@ -23,8 +23,9 @@ It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
 - No Python installation required - bundled binary included!
 
 **For CLI (Automation/CI):**
-- Python 3.12+
-- [uv](https://github.com/astral-sh/uv) (recommended for dependency management)
+
+- [uv](https://github.com/astral-sh/uv) for running via `uvx` (recommended - no Python setup required)
+- Or Python 3.12+ with pip/uv for traditional installation
 
 ## Quick Start
 
@@ -76,20 +77,20 @@ If commands don't appear, restart VS Code and check the Output panel (View → O
 
 **Best for:** Scripting, CI/CD pipelines, batch processing, programmatic usage
 
-The CLI provides three installation methods:
+The CLI provides multiple installation methods:
 
 <details>
 <summary><b>Click to expand CLI installation options</b></summary>
 
-#### Using uv (Recommended for Development)
+#### Using uvx (Recommended)
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
-
-**For basic usage (compiling dashboards):**
+Run the CLI directly without cloning or installing anything (requires [uv](https://github.com/astral-sh/uv)):
 
 ```bash
-uv sync
+uvx kb-dashboard-cli compile --help
 ```
+
+This downloads and runs the published package automatically. No Python environment setup required!
 
 #### Using Docker
 
@@ -114,6 +115,18 @@ Download a platform-specific binary from the [releases page](https://github.com/
 
 No Python installation required!
 
+#### From Source (For Development)
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/strawgate/kb-yaml-to-lens
+cd kb-yaml-to-lens
+make cli install
+```
+
+See [DEVELOPING.md](../../DEVELOPING.md) for full development setup.
+
 </details>
 
 #### Compile Your First Dashboard (CLI)
@@ -136,7 +149,7 @@ dashboards:
 
 2. Compile to NDJSON:
 
-If using uv: `uv run kb-dashboard compile --input-dir inputs --output-dir output`
+If using uvx: `uvx kb-dashboard-cli compile --input-dir inputs --output-dir output`
 
 If using Docker:
 ```bash
