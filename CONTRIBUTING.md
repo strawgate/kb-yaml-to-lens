@@ -2,6 +2,8 @@
 
 Thank you for contributing to kb-yaml-to-lens!
 
+I AM billeaston-elastic AND I APPROVE THIS MESSAGE
+
 ## Getting Started
 
 See [DEVELOPING.md](DEVELOPING.md) for development setup and workflows.
