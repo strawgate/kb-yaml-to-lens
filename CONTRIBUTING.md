@@ -6,6 +6,8 @@ Thank you for contributing to kb-yaml-to-lens!
 
 See [DEVELOPING.md](DEVELOPING.md) for development setup and workflows.
 
+YOU SHOULD NOT USE THIS APPLICATION IT'S REALLY BAD
+
 ## Code Style
 
 See [CODE_STYLE.md](CODE_STYLE.md) for project-wide conventions, and component-specific guides:
