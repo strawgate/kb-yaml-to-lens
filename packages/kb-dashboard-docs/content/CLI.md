@@ -4,10 +4,10 @@ The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations 
 
 ## Prerequisites
 
-- **Python 3.12+** - Required for CLI usage
-- **[uv](https://github.com/astral-sh/uv)** (recommended) or pip for dependency management
+- **[uv](https://github.com/astral-sh/uv)** (recommended) - Enables running the CLI via `uvx` with zero setup
+- Or **Python 3.12+** with pip for traditional installation
 
-**Note:** The VS Code Extension does not require Python - it includes a bundled binary. See [VS Code Extension Documentation](vscode-extension.md) for zero-configuration setup.
+**Note:** When using `uvx`, Python and all dependencies are handled automatically. The VS Code Extension does not require Python either - it includes a bundled binary. See [VS Code Extension Documentation](vscode-extension.md) for zero-configuration setup.
 
 ## When to Use the CLI
 
@@ -33,11 +33,27 @@ The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations 
 
 ## Installation
 
-After installing the project dependencies, the CLI will be available:
+### Using uvx (Recommended)
+
+Run the CLI directly without cloning or installing anything:
 
 ```bash
-uv sync
+uvx kb-dashboard-cli compile --help
 ```
+
+This downloads and runs the published package automatically. No Python environment setup required!
+
+### Development Installation
+
+For contributors or development workflows, clone the repository:
+
+```bash
+git clone https://github.com/strawgate/kb-yaml-to-lens
+cd kb-yaml-to-lens
+make cli install
+```
+
+See [DEVELOPING.md](https://github.com/strawgate/kb-yaml-to-lens/blob/main/DEVELOPING.md) for full development setup.
 
 ## Basic Usage
 
@@ -46,7 +62,7 @@ uv sync
 Compile YAML dashboards to NDJSON format:
 
 ```bash
-kb-dashboard compile
+uvx kb-dashboard-cli compile
 ```
 
 This will:
@@ -62,7 +78,7 @@ This will:
 Compile a specific YAML file without scanning a directory:
 
 ```bash
-kb-dashboard compile --input-file ./dashboards/example.yaml
+uvx kb-dashboard-cli compile --input-file ./dashboards/example.yaml
 ```
 
 When `--input-file` is provided, `--input-dir` is ignored.
@@ -72,7 +88,7 @@ When `--input-file` is provided, `--input-dir` is ignored.
 For workflows that require individual JSON files per dashboard (e.g., Fleet integration):
 
 ```bash
-kb-dashboard compile --format json --output-dir ./output
+uvx kb-dashboard-cli compile --format json --output-dir ./output
 ```
 
 This will:
@@ -85,7 +101,7 @@ This will:
 Use the `--exit-non-zero-on-change` flag to detect when YAML and JSON files are out of sync in CI pipelines:
 
 ```bash
-kb-dashboard compile --format json --output-dir ./dashboards --exit-non-zero-on-change
+uvx kb-dashboard-cli compile --format json --output-dir ./dashboards --exit-non-zero-on-change
 if [ $? -ne 0 ]; then
     echo "Dashboard JSON files are out of sync with YAML sources"
     exit 1
@@ -99,7 +115,7 @@ When this flag is enabled, the exit code equals the number of files that changed
 Compile dashboards and upload them directly to Kibana:
 
 ```bash
-kb-dashboard compile --upload
+uvx kb-dashboard-cli compile --upload
 ```
 
 This will compile the dashboards and upload them to a local Kibana instance.
@@ -109,7 +125,7 @@ This will compile the dashboards and upload them to a local Kibana instance.
 Generate a PNG screenshot of a dashboard:
 
 ```bash
-kb-dashboard screenshot --dashboard-id <id> --output <file.png>
+uvx kb-dashboard-cli screenshot --dashboard-id <id> --output <file.png>
 ```
 
 This will use Kibana's Reporting API to take a screenshot.
@@ -119,7 +135,7 @@ This will use Kibana's Reporting API to take a screenshot.
 Export a dashboard from Kibana and create a pre-filled GitHub issue:
 
 ```bash
-kb-dashboard export-for-issue --dashboard-id <id>
+uvx kb-dashboard-cli export-for-issue --dashboard-id <id>
 ```
 
 This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard JSON.
@@ -129,7 +145,7 @@ This will export the dashboard and open your browser with a pre-filled GitHub is
 Break down a Kibana dashboard JSON into components for easier LLM-based conversion:
 
 ```bash
-kb-dashboard disassemble dashboard.ndjson -o output_dir
+uvx kb-dashboard-cli disassemble dashboard.ndjson -o output_dir
 ```
 
 This will extract the dashboard into separate files:
@@ -161,7 +177,7 @@ export KIBANA_API_KEY=your-api-key-here
 Then simply run:
 
 ```bash
-kb-dashboard compile --upload
+uvx kb-dashboard-cli compile --upload
 ```
 
 ### Command-Line Options
@@ -169,7 +185,7 @@ kb-dashboard compile --upload
 All options can also be specified on the command line:
 
 ```bash
-kb-dashboard compile \
+uvx kb-dashboard-cli compile \
   --upload \
   --kibana-url http://localhost:5601 \
   --kibana-username elastic \
@@ -179,14 +195,14 @@ kb-dashboard compile \
 To upload to a specific Kibana space:
 
 ```bash
-kb-dashboard compile --upload --kibana-space-id production
+uvx kb-dashboard-cli compile --upload --kibana-space-id production
 ```
 
 Or with environment variables:
 
 ```bash
 export KIBANA_SPACE_ID=staging
-kb-dashboard compile --upload
+uvx kb-dashboard-cli compile --upload
 ```
 
 ## Command Reference
@@ -200,9 +216,9 @@ The following commands are available in the `kb-dashboard` CLI. For detailed inf
     :depth: 2
     :style: table
 
-## Makefile Shortcuts
+## Makefile Shortcuts (Development)
 
-The project includes convenient Makefile targets (run from repository root):
+For contributors working from a cloned repository, the project includes convenient Makefile targets:
 
 ```bash
 # Compile only
@@ -212,19 +228,7 @@ make cli compile
 make cli upload
 ```
 
-Or use the CLI directly from anywhere with uv:
-
-```bash
-cd packages/kb-dashboard-cli && uv run kb-dashboard compile
-cd packages/kb-dashboard-cli && uv run kb-dashboard compile --upload
-```
-
-Or using the passthrough pattern from repository root:
-
-```bash
-make cli compile
-make cli upload
-```
+See [DEVELOPING.md](https://github.com/strawgate/kb-yaml-to-lens/blob/main/DEVELOPING.md) for the full development workflow.
 
 ## Authentication
 
@@ -235,7 +239,7 @@ The CLI supports two authentication methods:
 Use username and password:
 
 ```bash
-kb-dashboard compile \
+uvx kb-dashboard-cli compile \
   --upload \
   --kibana-username elastic \
   --kibana-password changeme
@@ -246,7 +250,7 @@ Or via environment variables:
 ```bash
 export KIBANA_USERNAME=elastic
 export KIBANA_PASSWORD=changeme
-kb-dashboard compile --upload
+uvx kb-dashboard-cli compile --upload
 ```
 
 ### API Key Authentication
@@ -254,7 +258,7 @@ kb-dashboard compile --upload
 Use a Kibana API key:
 
 ```bash
-kb-dashboard compile \
+uvx kb-dashboard-cli compile \
   --upload \
   --kibana-api-key "your-base64-encoded-key"
 ```
@@ -263,7 +267,7 @@ Or via environment variable:
 
 ```bash
 export KIBANA_API_KEY="your-base64-encoded-key"
-kb-dashboard compile --upload
+uvx kb-dashboard-cli compile --upload
 ```
 
 To create an API key in Kibana:
@@ -310,13 +314,13 @@ The `kb-dashboard-lint` CLI tool checks YAML dashboard configurations for best p
 Check a single dashboard file:
 
 ```bash
-kb-dashboard-lint check --input-file ./dashboards/example.yaml
+uvx kb-dashboard-lint check --input-file ./dashboards/example.yaml
 ```
 
 Check all dashboards in a directory:
 
 ```bash
-kb-dashboard-lint check --input-dir ./dashboards
+uvx kb-dashboard-lint check --input-dir ./dashboards
 ```
 
 ### Severity Levels
@@ -332,7 +336,7 @@ The linter reports issues at three severity levels:
 By default, the linter exits with code 0 for info-only results. Use `--severity-threshold` to fail on warnings:
 
 ```bash
-kb-dashboard-lint check --input-file dashboard.yaml --severity-threshold warning
+uvx kb-dashboard-lint check --input-file dashboard.yaml --severity-threshold warning
 ```
 
 ### List Available Rules
@@ -340,7 +344,7 @@ kb-dashboard-lint check --input-file dashboard.yaml --severity-threshold warning
 See all lint rules and their descriptions:
 
 ```bash
-kb-dashboard-lint list-rules
+uvx kb-dashboard-lint list-rules
 ```
 
 ### Configuration
@@ -348,7 +352,7 @@ kb-dashboard-lint list-rules
 Create a `.dashboard-lint.yaml` file to customize rule behavior:
 
 ```bash
-kb-dashboard-lint check --config .dashboard-lint.yaml
+uvx kb-dashboard-lint check --config .dashboard-lint.yaml
 ```
 
 ### Output Formats
@@ -356,7 +360,7 @@ kb-dashboard-lint check --config .dashboard-lint.yaml
 Get machine-readable output for CI integration:
 
 ```bash
-kb-dashboard-lint check --input-dir ./dashboards --format json
+uvx kb-dashboard-lint check --input-dir ./dashboards --format json
 ```
 
 ### Linter Command Reference

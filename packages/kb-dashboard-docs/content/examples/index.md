@@ -5,18 +5,24 @@ This section provides real-world YAML dashboard examples demonstrating various f
 ## How to Use These Examples
 
 1. **Browse:** Click on any example bundle below to view its README with complete documentation
-2. **Copy:** Each bundle contains YAML files you can copy to your `inputs/` directory
-3. **Compile:** Run the compiler:
+2. **Copy:** Each bundle contains YAML files you can copy to your local directory
+3. **Compile:** Run the compiler using uvx (no clone required):
 
    ```bash
-   kb-dashboard compile
+   uvx kb-dashboard-cli compile --input-file my-dashboard.yaml
    ```
 
 4. **Upload (Optional):** To upload directly to Kibana:
 
    ```bash
-   kb-dashboard compile --upload
+   uvx kb-dashboard-cli compile --input-file my-dashboard.yaml --upload
    ```
+
+**For contributors:** If you've cloned the repository, you can compile examples from the repo:
+
+```bash
+uvx kb-dashboard-cli compile --input-dir packages/kb-dashboard-docs/content/examples --output-dir output
+```
 
 ## Standalone Examples
 
@@ -168,7 +174,7 @@ All example files are located in the `packages/kb-dashboard-docs/content/example
 
 1. **View README:** Click the bundle link to see complete setup instructions and dashboard descriptions
 2. **Clone locally:** Download the repository to experiment with examples
-3. **Compile examples:** Run `kb-dashboard compile --input-dir packages/kb-dashboard-docs/content/examples --output-dir output` to generate NDJSON files
+3. **Compile examples:** Run `uvx kb-dashboard-cli compile --input-dir packages/kb-dashboard-docs/content/examples --output-dir output` to generate NDJSON files
 
 ## Using Examples as Templates
 

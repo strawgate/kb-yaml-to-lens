@@ -59,13 +59,12 @@ hand-crafting complex JSON.
 
 **Best for:** CI/CD pipelines, batch processing, programmatic usage
 
-**Requirements:** Python 3.12+
+**Requirements:** [uv](https://github.com/astral-sh/uv) (recommended) or Python 3.12+
 
-**Installation** using [uv](https://github.com/astral-sh/uv):
+**Installation:** No clone or setup required! Run directly with uvx:
 
 ```bash
-# From repository root
-make cli install
+uvx kb-dashboard-cli compile --help
 ```
 
 **Your First Dashboard:**
@@ -87,14 +86,13 @@ make cli install
 2. Compile:
 
    ```bash
-   # From repository root
-   make cli compile
+   uvx kb-dashboard-cli compile --input-file inputs/my-dashboard.yaml
    ```
 
 3. Upload to Kibana:
 
    ```bash
-   uv run kb-dashboard compile --upload --kibana-url http://localhost:5601
+   uvx kb-dashboard-cli compile --input-file inputs/my-dashboard.yaml --upload --kibana-url http://localhost:5601
    ```
 
 **Full guide:** [CLI Documentation](CLI.md)

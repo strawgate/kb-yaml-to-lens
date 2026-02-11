@@ -1,6 +1,8 @@
 # Developing
 
-This guide covers development workflows for the kb-yaml-to-lens project.
+This guide covers development workflows for **contributors** to the kb-yaml-to-lens project.
+
+> **End users:** You don't need to clone this repository to use the CLI. Simply run `uvx kb-dashboard-cli compile --help` to get started. See the [CLI Documentation](https://strawgate.github.io/kb-yaml-to-lens/CLI) for usage details.
 
 ## Project Structure
 
