@@ -4,6 +4,9 @@
 # Import shared helpers
 import '../../shared.just'
 
+# Repository root (parent of packages directory)
+REPO_ROOT := justfile_directory() / "../.."
+
 # Default recipe - show help
 default:
     @just --list
@@ -77,7 +80,7 @@ lint-check:
 # Type checking
 typecheck:
     just _print-start "Running type checking"
-    cd "{{ROOT}}" && uv run --group dev basedpyright packages/kb-dashboard-core
+    cd "{{REPO_ROOT}}" && uv run --group dev basedpyright packages/kb-dashboard-core
     just _print-end "Type checking passed"
 
 # Testing
@@ -124,15 +127,15 @@ clean:
 # PyPI Publishing
 build:
     just _print-start "Building package"
-    uv build --out-dir "{{ROOT}}/dist"
+    uv build --out-dir "{{REPO_ROOT}}/dist"
     just _print-end "Package built successfully"
 
 publish: build
     just _print-start "Publishing to PyPI"
-    uv publish "{{ROOT}}"/dist/kb_dashboard_core-*.tar.gz "{{ROOT}}"/dist/kb_dashboard_core-*.whl
+    uv publish "{{REPO_ROOT}}"/dist/kb_dashboard_core-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_core-*.whl
     just _print-end "Package published to PyPI"
 
 publish-test: build
     just _print-start "Publishing to TestPyPI"
-    uv publish --publish-url https://test.pypi.org/legacy/ "{{ROOT}}"/dist/kb_dashboard_core-*.tar.gz "{{ROOT}}"/dist/kb_dashboard_core-*.whl
+    uv publish --publish-url https://test.pypi.org/legacy/ "{{REPO_ROOT}}"/dist/kb_dashboard_core-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_core-*.whl
     just _print-end "Package published to TestPyPI"

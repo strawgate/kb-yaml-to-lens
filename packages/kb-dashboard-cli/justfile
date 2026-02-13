@@ -4,6 +4,9 @@
 # Import shared helpers
 import '../../shared.just'
 
+# Repository root (parent of packages directory)
+REPO_ROOT := justfile_directory() / "../.."
+
 # Docker configuration
 DOCKER_IMAGE_NAME := "kb-dashboard-compiler"
 DOCKER_IMAGE_TAG := env("DOCKER_IMAGE_TAG", "latest")
@@ -101,7 +104,7 @@ typecheck:
     #!/usr/bin/env bash
     set -euo pipefail
     printf "→ Running type checking...\n"
-    cd "{{ROOT}}"
+    cd "{{REPO_ROOT}}"
     output=$(uv run --group dev basedpyright packages/kb-dashboard-cli --level error 2>&1) || true
     echo "$output" | sed 's/^/    /'
     if echo "$output" | grep -q "0 errors"; then
@@ -189,7 +192,7 @@ upload:
 # Docker commands
 docker-build:
     just _print-start "Building Docker image"
-    cd "{{ROOT}}" && docker build -t {{DOCKER_IMAGE}} -f packages/kb-dashboard-cli/Dockerfile .
+    cd "{{REPO_ROOT}}" && docker build -t {{DOCKER_IMAGE}} -f packages/kb-dashboard-cli/Dockerfile .
     just _print-end "Docker image built"
 
 docker-run:
@@ -218,7 +221,7 @@ docker-publish: docker-build
     just _print-start "Building and publishing multi-arch Docker image to GHCR"
     if [ -n "{{DOCKER_TAGS}}" ]; then
         FIRST_TAG=$(echo "{{DOCKER_TAGS}}" | head -n1 | tr -d ' ')
-        cd "{{ROOT}}" && docker buildx build --platform linux/amd64,linux/arm64 -t "$FIRST_TAG" -f packages/kb-dashboard-cli/Dockerfile --push .
+        cd "{{REPO_ROOT}}" && docker buildx build --platform linux/amd64,linux/arm64 -t "$FIRST_TAG" -f packages/kb-dashboard-cli/Dockerfile --push .
         for tag in {{DOCKER_TAGS}}; do
             if [ "$tag" != "$FIRST_TAG" ]; then
                 printf "  Tagging and pushing %s\n" "$tag"
@@ -226,7 +229,7 @@ docker-publish: docker-build
             fi
         done
     else
-        cd "{{ROOT}}" && docker buildx build --platform linux/amd64,linux/arm64 -t {{GHCR_REGISTRY}} -f packages/kb-dashboard-cli/Dockerfile --push .
+        cd "{{REPO_ROOT}}" && docker buildx build --platform linux/amd64,linux/arm64 -t {{GHCR_REGISTRY}} -f packages/kb-dashboard-cli/Dockerfile --push .
     fi
     just _print-end "Docker image published to GHCR"
 
@@ -243,15 +246,15 @@ clean:
 # PyPI Publishing
 build:
     just _print-start "Building package"
-    uv build --out-dir "{{ROOT}}/dist"
+    uv build --out-dir "{{REPO_ROOT}}/dist"
     just _print-end "Package built successfully"
 
 publish: build
     just _print-start "Publishing to PyPI"
-    uv publish "{{ROOT}}"/dist/kb_dashboard_cli-*.tar.gz "{{ROOT}}"/dist/kb_dashboard_cli-*.whl
+    uv publish "{{REPO_ROOT}}"/dist/kb_dashboard_cli-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_cli-*.whl
     just _print-end "Package published to PyPI"
 
 publish-test: build
     just _print-start "Publishing to TestPyPI"
-    uv publish --publish-url https://test.pypi.org/legacy/ "{{ROOT}}"/dist/kb_dashboard_cli-*.tar.gz "{{ROOT}}"/dist/kb_dashboard_cli-*.whl
+    uv publish --publish-url https://test.pypi.org/legacy/ "{{REPO_ROOT}}"/dist/kb_dashboard_cli-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_cli-*.whl
     just _print-end "Package published to TestPyPI"

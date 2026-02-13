@@ -4,6 +4,9 @@
 # Import shared helpers
 import '../../shared.just'
 
+# Repository root (parent of packages directory)
+REPO_ROOT := justfile_directory() / "../.."
+
 # Default recipe - show help
 default:
     @just --list
@@ -44,7 +47,7 @@ install:
 ci:
     just _print-start "Checking documentation (lint + links)"
     @echo ""
-    just --justfile "{{ROOT}}/justfile" lint-markdown-check
+    just --justfile "{{REPO_ROOT}}/justfile" lint-markdown-check
     @echo ""
     just test-links
     @echo ""

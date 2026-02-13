@@ -14,6 +14,8 @@ set export := true
 set positional-arguments := true
 
 # Repository root directory (detected from this file's location)
+# justfile_directory() returns the directory containing the justfile being run
+# For the root justfile, this is the repo root; for component justfiles, it's the component directory
 ROOT := justfile_directory()
 
 # Components for pass-through commands

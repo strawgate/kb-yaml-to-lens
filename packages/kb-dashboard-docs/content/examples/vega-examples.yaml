@@ -756,7 +756,8 @@ dashboards:
                     strokeOpacity:
                       value: 0.6
                     path:
-                      signal: "'M' + datum.sx + ',' + datum.sy + ' C' + (datum.sx + 50) + ',' + datum.sy + ' ' + (datum.tx - 50) + ',' + datum.ty + ' ' + datum.tx + ',' + datum.ty"
+                      signal: "'M' + datum.sx + ',' + datum.sy + ' C' + (datum.sx + 50) + ',' + datum.sy + ' ' + (datum.tx - 50) + ',' + datum.ty\
+                        \ + ' ' + datum.tx + ',' + datum.ty"
               - type: rect
                 from:
                   data: nodes

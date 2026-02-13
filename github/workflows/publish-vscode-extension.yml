@@ -34,7 +34,6 @@ jobs:
           name: vsix-${{ matrix.platform }}
           path: packages/vscode-extension/*.vsix
           retention-days: 1
-
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -48,12 +47,10 @@ jobs:
           path: vsix-files
           pattern: vsix-*
           merge-multiple: true
-
       - name: List VSIX files
         run: |
           echo "VSIX files to publish:"
           ls -la vsix-files/
-
       - name: Publish to OpenVSX
         id: publish-openvsx
         continue-on-error: true
@@ -63,7 +60,6 @@ jobs:
             echo "Publishing $vsix to OpenVSX..."
             ovsx publish "$vsix" -p ${{ secrets.OPEN_VSX_TOKEN }} || echo "Failed to publish $vsix"
           done
-
       - name: Publish to VS Code Marketplace
         id: publish-marketplace
         continue-on-error: true
@@ -73,7 +69,6 @@ jobs:
             echo "Publishing $vsix to VS Code Marketplace..."
             vsce publish --packagePath "$vsix" -p ${{ secrets.VS_MARKETPLACE_PAT }} || echo "Failed to publish $vsix"
           done
-
       - name: Upload VSIX on failure
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
         uses: actions/upload-artifact@v6
@@ -81,7 +76,6 @@ jobs:
           name: extension-vsix-all
           path: vsix-files/*.vsix
           retention-days: 7
-
       - name: Fail if publishing failed
         if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
         shell: bash
