@@ -43,6 +43,7 @@ See component-specific CODERABBIT.md files for detailed review instructions:
 1. Style choices that match existing patterns
 2. Intentional deviations documented with pragmas
 3. Test file relaxations (asserts, magic numbers)
+4. Missing agent documentation in general markdown files - agent behavior documentation is only required in `AGENTS.md`, `CLAUDE.md`, and `CODERABBIT.md` files
 
 ---
 
