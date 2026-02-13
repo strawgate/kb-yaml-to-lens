@@ -22,22 +22,22 @@ Run from the repository root using the passthrough pattern:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make vscode install` | Install dependencies |
-| `make vscode ci` | Run all CI checks |
-| `make vscode fix` | Auto-fix linting |
-| `make vscode compile` | Build TypeScript |
-| `make vscode watch` | Watch mode for development |
-| `make vscode test` | Run all tests |
-| `make vscode package` | Create .vsix package |
+| `just vscode install` | Install dependencies |
+| `just vscode ci` | Run all CI checks |
+| `just vscode fix` | Auto-fix linting |
+| `just vscode compile` | Build TypeScript |
+| `just vscode watch` | Watch mode for development |
+| `just vscode test` | Run all tests |
+| `just vscode package` | Create .vsix package |
 
-For all commands, see `make vscode help`.
+For all commands, see `just vscode help`.
 
-**From within component directory:** You can also run `make <target>` directly from `packages/vscode-extension/`.
+**From within component directory:** You can also run `just <target>` directly from `packages/vscode-extension/`.
 
 ## Development Workflow
 
-1. Install dependencies: `make vscode install`
-2. Start watch mode: `make vscode watch`
+1. Install dependencies: `just vscode install`
+2. Start watch mode: `just vscode watch`
 3. Press **F5** in VS Code to launch Extension Development Host
 4. Make changes—TypeScript recompiles automatically
 5. Reload Extension Development Host to see changes
@@ -80,13 +80,13 @@ Focus on **high-value, maintainable tests** that validate business logic:
 
 ```bash
 # All tests (from repository root)
-make vscode test
+just vscode test
 
 # TypeScript unit tests only (from repository root)
-make vscode test-unit
+just vscode test-unit
 
 # E2E tests (from repository root)
-make vscode test-e2e
+just vscode test-e2e
 
 # Or run directly from within vscode-extension directory
 # cd packages/vscode-extension && npm test
@@ -101,7 +101,7 @@ Python tests for LSP functionality are located in the compiler component:
 
 ```bash
 # Run Python LSP tests (from repository root)
-make cli test
+just cli test
 # Or run specific LSP tests:
 cd packages/kb-dashboard-cli && uv run pytest tests/lsp/ -v
 ```
@@ -122,15 +122,15 @@ Currently tested:
 ### Development Build (Current Platform)
 
 ```bash
-make vscode prepare      # Download uv
-make vscode package      # Create .vsix
+just vscode prepare      # Download uv
+just vscode package      # Create .vsix
 ```
 
 ### Release Build (All Platforms)
 
 ```bash
-make vscode prepare-all  # Download uv for all platforms
-make vscode package      # Create .vsix
+just vscode prepare-all  # Download uv for all platforms
+just vscode package      # Create .vsix
 ```
 
 ### How It Works
@@ -189,5 +189,5 @@ In production, if extension falls back to Python:
 
 Expected VSIX size: ~22MB. If much smaller:
 
-1. Run `make vscode prepare` before packaging
+1. Run `just vscode prepare` before packaging
 2. Verify `bin/{platform}/uv` exists

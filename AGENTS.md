@@ -21,7 +21,7 @@ See DEVELOPING.md above.
 - **Read first** — Read component AGENTS.md before working in that component
 - **Search, don't speculate** — Use Grep/Glob to find existing patterns
 - **Follow patterns** — Match existing code style unless justified to diverge
-- **Verify** — Run `make all ci`, test actual functionality
+- **Verify** — Run `just all ci`, test actual functionality
 - **Be honest** — Document unresolved items, acknowledge uncertainty
 - **Zero slop** — No obvious comments, no "this now does X" comparisons
 

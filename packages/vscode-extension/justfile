@@ -1,0 +1,253 @@
+# VSCode Extension justfile
+# Component-specific commands for the VS Code extension
+
+# Import shared helpers
+import '../../shared.just'
+
+# Default recipe - show help
+default:
+    @just --list
+
+help:
+    @echo "VSCode Extension Commands:"
+    @echo ""
+    @echo "Dependency Management:"
+    @echo "  install          - Install npm dependencies"
+    @echo ""
+    @echo "CI and Development Workflow:"
+    @echo "  all              - Default target (alias for ci)"
+    @echo "  ci               - Run all CI checks (compile + lint + test)"
+    @echo "  check            - Alias for ci"
+    @echo "  fix              - Auto-fix linting issues"
+    @echo ""
+    @echo "Compilation:"
+    @echo "  compile          - Compile TypeScript"
+    @echo "  watch            - Watch mode for development"
+    @echo ""
+    @echo "Linting:"
+    @echo "  lint             - Check linting (compiles first)"
+    @echo "  lint-check       - Alias for lint"
+    @echo "  lint-only        - Check linting (no compile, for CI)"
+    @echo ""
+    @echo "Type Checking:"
+    @echo "  typecheck        - Run TypeScript type checking (no emit)"
+    @echo ""
+    @echo "Testing:"
+    @echo "  test             - Run all tests (unit + E2E)"
+    @echo "  test-unit        - Run unit tests only"
+    @echo "  test-e2e         - Run E2E tests only"
+    @echo ""
+    @echo "Packaging and Installation:"
+    @echo "  package          - Create universal .vsix package"
+    @echo "  package-linux    - Create Linux x64 .vsix package (~22MB)"
+    @echo "  package-macos-x64    - Create macOS Intel .vsix package (~22MB)"
+    @echo "  package-macos-arm64  - Create macOS ARM64 .vsix package (~22MB)"
+    @echo "  package-windows  - Create Windows x64 .vsix package (~22MB)"
+    @echo "  package-all-platforms - Create all platform-specific packages"
+    @echo "  install-vscode   - Install packaged extension into VS Code"
+    @echo "  install-cursor   - Install packaged extension into Cursor"
+    @echo ""
+    @echo "Preparation:"
+    @echo "  prepare          - Download uv (current platform, for dev)"
+    @echo "  prepare-all      - Download uv for all platforms (universal package)"
+    @echo ""
+    @echo "Schema Generation:"
+    @echo "  generate-schemas - Generate Zod schemas from Pydantic models"
+    @echo "  check-schemas    - Check if generated schemas are up to date"
+    @echo ""
+    @echo "Cleaning:"
+    @echo "  clean            - Clean build artifacts, dependencies, and binaries"
+
+install:
+    just _print-start "Installing VSCode extension dependencies"
+    npm ci
+    just _print-end "VSCode extension dependencies installed"
+
+all: ci
+
+ci: install compile test-e2e
+    just _print-start "Running linting and tests"
+    just lint-only
+    just test-unit-only
+    just _print-end "VSCode extension CI checks passed"
+
+check: ci
+
+fix: install
+    just _print-start "Running ESLint --fix"
+    npm run lint -- --fix
+    just _print-end "TypeScript linting complete (with auto-fix)"
+
+test: install
+    just _print-start "Running VSCode extension tests"
+    npm test
+    just _print-end "VSCode extension tests passed"
+
+# Non-compiling target for use in CI after compile has already run
+test-unit-only:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "out/test/unit" ] || [ -z "$(find out/test/unit -name '*.test.js' 2>/dev/null | head -1)" ]; then
+        echo "Error: No unit tests found. Ensure tests are compiled with 'just compile'."
+        exit 1
+    fi
+    just _print-start "Running TypeScript tests"
+    ./node_modules/.bin/mocha out/test/unit/**/*.test.js --ui tdd
+    just _print-end "Unit tests passed"
+
+test-unit: install compile test-unit-only
+
+# Non-compiling target for use in CI after compile has already run
+test-e2e-only:
+    just _print-start "Running VSCode extension E2E tests"
+    node ./out/test/runTest.js
+    just _print-end "E2E tests passed"
+
+test-e2e: install compile test-e2e-only
+
+compile: install
+    just _print-start "Compiling TypeScript"
+    npm run compile
+    just _print-end "TypeScript compiled"
+
+watch: install
+    just _print-start "Starting watch mode"
+    @printf "  (Press Ctrl+C to stop)\n"
+    npm run watch
+
+# Non-compiling target for use in CI after compile has already run
+lint-only:
+    just _print-start "Running ESLint"
+    npm run lint
+    just _print-end "ESLint checks passed"
+
+lint: install compile lint-only
+
+lint-check: lint
+
+typecheck: install
+    just _print-start "Running TypeScript type checking"
+    npx tsc --noEmit
+    just _print-end "Type checking passed"
+
+package: install
+    just _print-start "Creating .vsix package"
+    npm run package
+    just _print-end ".vsix package created"
+
+# Helper function to install extension into an editor
+[private]
+_install-extension editor_name editor_cmd:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just _print-start "Installing extension into {{editor_name}}"
+    EXTENSION_NAME=$(node -p "require('./package.json').name")
+    EXTENSION_PUBLISHER=$(node -p "require('./package.json').publisher")
+    EXTENSION_VERSION=$(node -p "require('./package.json').version")
+    VSIX_FILE="${EXTENSION_NAME}-${EXTENSION_VERSION}.vsix"
+    if [ ! -f "$VSIX_FILE" ]; then
+        echo "Error: $VSIX_FILE not found. Run 'just package' first."
+        exit 1
+    fi
+    if ! command -v {{editor_cmd}} > /dev/null 2>&1; then
+        echo "Error: '{{editor_cmd}}' command not found. Please install {{editor_name}} or add it to your PATH."
+        exit 1
+    fi
+    {{editor_cmd}} --install-extension "$VSIX_FILE" --force
+    if ! {{editor_cmd}} --list-extensions | grep -qF "${EXTENSION_PUBLISHER}.${EXTENSION_NAME}"; then
+        echo "Error: Extension installation failed - extension not found in installed extensions list."
+        exit 1
+    fi
+    printf "✓ Extension installed in {{editor_name}}\n"
+    echo "NOTE: Reload the extension host via Command Palette (Ctrl/Cmd+Shift+P): Developer: Restart Extension Host"
+
+install-vscode: package
+    just _install-extension "VS Code" code
+
+install-cursor: package
+    just _install-extension "Cursor" cursor
+
+# Helper recipe for prepare extension
+[private]
+_prepare-extension desc platform_arg success_msg:
+    just _print-start "Downloading uv for {{desc}}"
+    bash scripts/download_uv.sh {{platform_arg}}
+    just _print-end "uv downloaded"
+    just _print-end "{{success_msg}}"
+
+prepare:
+    just _prepare-extension "current platform" current "Extension prepared"
+
+prepare-all:
+    just _prepare-extension "all platforms" all "Extension prepared for all platforms"
+
+# Platform-specific preparation and packaging
+prepare-linux:
+    just _prepare-extension "linux-x64" linux-x64 "Extension prepared for Linux x64"
+
+prepare-macos-x64:
+    just _prepare-extension "darwin-x64" darwin-x64 "Extension prepared for macOS x64"
+
+prepare-macos-arm64:
+    just _prepare-extension "darwin-arm64" darwin-arm64 "Extension prepared for macOS ARM64"
+
+prepare-windows:
+    just _prepare-extension "win32-x64" win32-x64 "Extension prepared for Windows x64"
+
+package-linux: install prepare-linux
+    just _print-start "Creating Linux x64 .vsix package"
+    npm run package:linux
+    just _print-end "Linux x64 .vsix package created"
+
+package-macos-x64: install prepare-macos-x64
+    just _print-start "Creating macOS x64 .vsix package"
+    npm run package:macos-x64
+    just _print-end "macOS x64 .vsix package created"
+
+package-macos-arm64: install prepare-macos-arm64
+    just _print-start "Creating macOS ARM64 .vsix package"
+    npm run package:macos-arm64
+    just _print-end "macOS ARM64 .vsix package created"
+
+package-windows: install prepare-windows
+    just _print-start "Creating Windows x64 .vsix package"
+    npm run package:windows
+    just _print-end "Windows x64 .vsix package created"
+
+# Build all platform-specific packages (for release)
+package-all-platforms: install
+    just _print-start "Building all platform-specific packages"
+    rm -rf bin/ *.vsix 2>/dev/null || true
+    just package-linux
+    rm -rf bin/
+    just package-macos-x64
+    rm -rf bin/
+    just package-macos-arm64
+    rm -rf bin/
+    just package-windows
+    just _print-end "All platform-specific packages created"
+
+# Schema Generation
+generate-schemas:
+    just _print-start "Generating Zod schemas from Pydantic models"
+    bash scripts/generate_schemas.sh
+    just _print-end "Schemas generated"
+
+check-schemas:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    printf "→ Checking if schemas are up to date...\n"
+    cp src/schemas.generated.ts src/schemas.generated.ts.bak 2>/dev/null || true
+    bash scripts/generate_schemas.sh > /dev/null 2>&1
+    if ! diff -q src/schemas.generated.ts src/schemas.generated.ts.bak > /dev/null 2>&1; then
+        mv src/schemas.generated.ts.bak src/schemas.generated.ts 2>/dev/null || true
+        echo "Error: Generated schemas are out of date. Run 'just generate-schemas' to update."
+        exit 1
+    fi
+    mv src/schemas.generated.ts.bak src/schemas.generated.ts 2>/dev/null || true
+    printf "✓ Schemas are up to date\n"
+
+clean:
+    just _print-start "Cleaning build artifacts"
+    rm -rf out/ node_modules/ bin/ compiler/ *.vsix 2>/dev/null || true
+    just _print-end "Build artifacts cleaned"

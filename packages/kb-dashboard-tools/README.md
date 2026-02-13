@@ -74,13 +74,13 @@ See the main repository's [DEVELOPING.md](../../DEVELOPING.md) for development s
 
 ```bash
 # Install dependencies
-make install
+just install
 
 # Run CI checks
-make ci
+just ci
 
 # Run tests
-make test
+just test
 ```
 
 ## License

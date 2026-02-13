@@ -1,0 +1,46 @@
+---
+name: Deploy MkDocs to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - packages/kb-dashboard-docs/**
+      - packages/kb-dashboard-cli/src/**
+      - .github/workflows/deploy-gh-pages.yml
+  workflow_dispatch: null
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Install documentation dependencies
+        shell: bash
+        run: just docs install
+      - name: Build documentation
+        shell: bash
+        run: just docs build
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/kb-dashboard-docs/site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -4,7 +4,7 @@
 
 ### Link Verification
 
-All links are verified in CI. Broken links fail the build. Test locally: `make docs ci`
+All links are verified in CI. Broken links fail the build. Test locally: `just docs ci`
 
 ### Compilable Examples
 

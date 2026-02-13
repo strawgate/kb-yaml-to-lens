@@ -101,7 +101,7 @@ Run the compiler in a container without installing Python or dependencies:
 docker pull ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest
 
 # Or build locally (from repo root)
-make cli docker-build
+just cli docker-build
 ```
 
 #### Standalone Binary
@@ -122,7 +122,7 @@ Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/strawgate/kb-yaml-to-lens
 cd kb-yaml-to-lens
-make cli install
+just cli install
 ```
 
 See [DEVELOPING.md](../../DEVELOPING.md) for full development setup.

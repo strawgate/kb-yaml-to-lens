@@ -15,7 +15,7 @@ Releases are **tag-based and fully automated**. Push a version tag (`v*`) to tri
 
 ```bash
 # 1. Bump version (updates all components atomically)
-make bump-patch    # or bump-minor/bump-major
+just bump-patch    # or bump-minor/bump-major
 # Or set explicit version: uv run scripts/bump-version.py set 1.0.0
 # Preview changes first: uv run scripts/bump-version.py patch --dry-run
 
@@ -23,7 +23,7 @@ make bump-patch    # or bump-minor/bump-major
 git add packages/*/pyproject.toml packages/vscode-extension/package.json \
         pyproject.toml uv.lock packages/vscode-extension/package-lock.json
 git commit -m "chore: Bump version to 1.0.0"
-make release-tag  # Creates and pushes v1.0.0 tag
+just release-tag  # Creates and pushes v1.0.0 tag
 
 # 3. Monitor workflows at github.com/strawgate/kb-yaml-to-lens/actions
 # 4. Verify release at github.com/strawgate/kb-yaml-to-lens/releases
@@ -44,8 +44,8 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 **Before tagging:**
 
 - [ ] All PRs merged to `main`
-- [ ] CI passes: `make all ci`
-- [ ] Versions updated: `make bump-patch` (or `bump-minor`/`bump-major`)
+- [ ] CI passes: `just all ci`
+- [ ] Versions updated: `just bump-patch` (or `bump-minor`/`bump-major`)
 
 **After tagging:**
 
@@ -78,12 +78,12 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 **Manual publishing** (if automation fails):
 
 ```bash
-# PyPI (uses Makefile targets - publish in dependency order)
+# PyPI (uses justfile targets - publish in dependency order)
 # The publish target depends on build, so build is automatic
-make core publish    # Core first (no dependencies)
-make tools publish   # Tools depends on core
-make lint publish    # Lint depends on core
-make cli publish     # CLI depends on core + tools
+just core publish    # Core first (no dependencies)
+just tools publish   # Tools depends on core
+just lint publish    # Lint depends on core
+just cli publish     # CLI depends on core + tools
 
 # Docker (multi-arch - prefer re-running workflow)
 # Manual single-arch build for testing only:
@@ -91,7 +91,7 @@ make cli publish     # CLI depends on core + tools
 docker build -f packages/kb-dashboard-cli/Dockerfile -t ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:1.0.0 .
 
 # VS Code (publishes to both VS Code Marketplace and Open VSX)
-make vscode package && cd packages/vscode-extension && npx vsce publish && npx ovsx publish *.vsix
+just vscode package && cd packages/vscode-extension && npx vsce publish && npx ovsx publish *.vsix
 ```
 
 **Do not delete tags/releases** - breaks user installations. Instead: mark as pre-release or publish patch.

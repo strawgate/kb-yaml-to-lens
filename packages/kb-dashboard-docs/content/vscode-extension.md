@@ -96,12 +96,12 @@ After installation, confirm the extension is working:
 
 Only needed if you're developing the extension itself:
 
-1. Build the extension using make (from repository root):
+1. Build the extension using just (from repository root):
 
    ```bash
-   make vscode install
-   make vscode compile
-   make vscode package
+   just vscode install
+   just vscode compile
+   just vscode package
    ```
 
    Or manually within the packages/vscode-extension directory:

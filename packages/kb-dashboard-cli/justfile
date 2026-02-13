@@ -1,0 +1,257 @@
+# Dashboard Compiler justfile
+# Component-specific commands for the Python compiler
+
+# Import shared helpers
+import '../../shared.just'
+
+# Docker configuration
+DOCKER_IMAGE_NAME := "kb-dashboard-compiler"
+DOCKER_IMAGE_TAG := env("DOCKER_IMAGE_TAG", "latest")
+DOCKER_IMAGE := DOCKER_IMAGE_NAME + ":" + DOCKER_IMAGE_TAG
+GHCR_REGISTRY := "ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:" + DOCKER_IMAGE_TAG
+DOCKER_TAGS := env("DOCKER_TAGS", "")
+
+# Default recipe - show help
+default:
+    @just --list
+
+help:
+    @echo "Dashboard Compiler Commands:"
+    @echo ""
+    @echo "Dependency Management:"
+    @echo "  install       - Install Python dependencies using uv"
+    @echo "  setup         - Set up environment from scratch"
+    @echo "  update-deps   - Update dependencies"
+    @echo ""
+    @echo "CI and Development Workflow:"
+    @echo "  all           - Default target (alias for ci)"
+    @echo "  ci            - Run all CI checks (lint + typecheck + test)"
+    @echo "  check         - Alias for ci"
+    @echo "  fix           - Auto-fix linting issues"
+    @echo ""
+    @echo "Linting:"
+    @echo "  lint              - Auto-fix Python linting issues (format + lint)"
+    @echo "  lint-check        - Check Python linting without fixing"
+    @echo ""
+    @echo "Type Checking:"
+    @echo "  typecheck     - Run Python type checking (basedpyright)"
+    @echo ""
+    @echo "Testing:"
+    @echo "  test              - Run all tests (unit + E2E)"
+    @echo "  test-unit         - Run unit tests only"
+    @echo "  test-e2e          - Run E2E tests (CLI compilation pipeline + Docker smoke tests)"
+    @echo "  test-coverage     - Run tests with coverage"
+    @echo "  coverage-report   - Open HTML coverage report"
+    @echo ""
+    @echo "Schema Export:"
+    @echo "  export-schemas    - Export LSP response schemas as JSON"
+    @echo ""
+    @echo "Dashboard Compilation:"
+    @echo "  compile       - Compile YAML dashboards to NDJSON"
+    @echo "  upload        - Compile and upload dashboards to Kibana"
+    @echo ""
+    @echo "Docker:"
+    @echo "  docker-build       - Build Docker image"
+    @echo "  docker-run         - Run Docker container"
+    @echo "  docker-test        - Test Docker image"
+    @echo "  docker-publish     - Publish Docker image to GHCR"
+    @echo ""
+    @echo "PyPI Publishing:"
+    @echo "  build         - Build package for PyPI"
+    @echo "  publish       - Publish package to PyPI"
+    @echo "  publish-test  - Publish package to TestPyPI"
+    @echo ""
+    @echo "Cleaning:"
+    @echo "  clean         - Clean cache, temporary files, and virtual environment"
+
+all: ci
+
+install:
+    just _print-start "Installing Python dependencies"
+    uv sync --group dev
+    just _print-end "Python dependencies installed"
+
+ci: lint-check typecheck test-unit test-e2e
+    just _print-end "Compiler CI checks passed"
+
+check: ci
+
+fix: lint
+
+# Python linting
+lint:
+    just _print-start "Running ruff format"
+    uv run ruff format .
+    just _print-end "ruff format complete"
+    just _print-start "Running ruff check --fix"
+    uv run ruff check . --fix
+    just _print-end "ruff check complete"
+
+lint-check:
+    just _print-start "Running ruff format --check"
+    uv run ruff format . --check --quiet
+    just _print-end "ruff format check passed"
+    just _print-start "Running ruff check"
+    uv run ruff check . --quiet
+    just _print-end "ruff check passed"
+    just _print-end "Python linting checks passed"
+
+# Type checking
+typecheck:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    printf "→ Running type checking...\n"
+    cd "{{ROOT}}"
+    output=$(uv run --group dev basedpyright packages/kb-dashboard-cli --level error 2>&1) || true
+    echo "$output" | sed 's/^/    /'
+    if echo "$output" | grep -q "0 errors"; then
+        printf "✓ Type checking passed\n"
+        exit 0
+    else
+        exit 1
+    fi
+
+# Testing
+test-unit:
+    just _print-start "Running pytest"
+    uv run pytest -o addopts="" --tb=line --no-header -q
+    just _print-end "Tests passed"
+
+test-e2e:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    printf "→ Running CLI E2E tests...\n"
+    bash scripts/test_cli_smoke.sh
+    printf "✓ CLI E2E tests passed\n"
+    printf "→ Running Docker E2E tests...\n"
+    if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then
+        just docker-build
+        bash scripts/test_docker_smoke.sh
+    else
+        echo "⚠ Docker not available, skipping Docker E2E tests"
+    fi
+    printf "✓ Docker E2E tests passed\n"
+
+test: test-unit test-e2e
+
+test-coverage:
+    just _print-start "Running pytest with coverage"
+    uv run pytest --cov=src/dashboard_compiler --cov-report=term-missing --cov-report=html --cov-report=json
+    just _print-end "Coverage report generated"
+    @echo "  • HTML report: htmlcov/index.html"
+    @echo "  • JSON report: coverage.json"
+    @echo ""
+    @echo "Run 'just coverage-report' to open the HTML report in your browser"
+
+coverage-report:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -f "htmlcov/index.html" ]; then
+        echo "Error: htmlcov/index.html not found. Run 'just test-coverage' first."
+        exit 1
+    fi
+    just _print-start "Opening coverage report"
+    python -m webbrowser htmlcov/index.html || xdg-open htmlcov/index.html || open htmlcov/index.html
+    just _print-end "Coverage report opened"
+
+# Dependency management
+setup:
+    just _print-start "Installing uv"
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    just _print-end "uv installed"
+    just _print-start "Installing Python dependencies"
+    uv sync --group dev
+    just _print-end "Dependencies installed"
+    just _print-end "Environment set up successfully!"
+
+update-deps:
+    just _print-start "Updating dependencies"
+    uv lock --upgrade
+    just _print-end "Dependencies updated"
+
+# Schema Export
+export-schemas:
+    just _print-start "Exporting LSP schemas"
+    uv run python scripts/export_lsp_schemas.py
+    just _print-end "Schemas exported"
+
+# Compilation
+compile:
+    just _print-start "Compiling dashboards"
+    uv run kb-dashboard compile
+    just _print-end "Dashboards compiled"
+
+upload:
+    just _print-start "Compiling and uploading dashboards to Kibana"
+    uv run kb-dashboard compile --upload
+    just _print-end "Dashboards compiled and uploaded"
+
+# Docker commands
+docker-build:
+    just _print-start "Building Docker image"
+    cd "{{ROOT}}" && docker build -t {{DOCKER_IMAGE}} -f packages/kb-dashboard-cli/Dockerfile .
+    just _print-end "Docker image built"
+
+docker-run:
+    @mkdir -p inputs ../output
+    @echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
+    just _print-start "Running Docker container"
+    docker run --rm -v "{{justfile_directory()}}/inputs:/inputs" -v "{{justfile_directory()}}/../output:/output" {{DOCKER_IMAGE}} compile --input-dir /inputs --output-dir /output
+    just _print-end "Docker container completed"
+
+docker-test:
+    just _print-start "Testing Docker image"
+    docker run --rm {{DOCKER_IMAGE}} --help
+    just _print-end "Docker image test passed"
+
+docker-publish: docker-build
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -z "${CONFIRM_PUBLISH:-}" ]; then
+        echo "Error: Set CONFIRM_PUBLISH=yes to confirm publishing to GHCR. Usage: just docker-publish CONFIRM_PUBLISH=yes"
+        exit 1
+    fi
+    if ! docker buildx version > /dev/null 2>&1; then
+        echo "Error: docker buildx not available. See https://docs.docker.com/build/buildx/install/"
+        exit 1
+    fi
+    just _print-start "Building and publishing multi-arch Docker image to GHCR"
+    if [ -n "{{DOCKER_TAGS}}" ]; then
+        FIRST_TAG=$(echo "{{DOCKER_TAGS}}" | head -n1 | tr -d ' ')
+        cd "{{ROOT}}" && docker buildx build --platform linux/amd64,linux/arm64 -t "$FIRST_TAG" -f packages/kb-dashboard-cli/Dockerfile --push .
+        for tag in {{DOCKER_TAGS}}; do
+            if [ "$tag" != "$FIRST_TAG" ]; then
+                printf "  Tagging and pushing %s\n" "$tag"
+                docker buildx imagetools create -t "$tag" "$FIRST_TAG"
+            fi
+        done
+    else
+        cd "{{ROOT}}" && docker buildx build --platform linux/amd64,linux/arm64 -t {{GHCR_REGISTRY}} -f packages/kb-dashboard-cli/Dockerfile --push .
+    fi
+    just _print-end "Docker image published to GHCR"
+
+# Cleaning
+clean:
+    just _print-start "Cleaning up"
+    find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name '.pytest_cache' -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name '.ruff_cache' -exec rm -rf {} + 2>/dev/null || true
+    find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete 2>/dev/null || true
+    rm -rf .venv htmlcov/ .coverage coverage.json 2>/dev/null || true
+    just _print-end "Cleanup complete"
+
+# PyPI Publishing
+build:
+    just _print-start "Building package"
+    uv build --out-dir "{{ROOT}}/dist"
+    just _print-end "Package built successfully"
+
+publish: build
+    just _print-start "Publishing to PyPI"
+    uv publish "{{ROOT}}"/dist/kb_dashboard_cli-*.tar.gz "{{ROOT}}"/dist/kb_dashboard_cli-*.whl
+    just _print-end "Package published to PyPI"
+
+publish-test: build
+    just _print-start "Publishing to TestPyPI"
+    uv publish --publish-url https://test.pypi.org/legacy/ "{{ROOT}}"/dist/kb_dashboard_cli-*.tar.gz "{{ROOT}}"/dist/kb_dashboard_cli-*.whl
+    just _print-end "Package published to TestPyPI"

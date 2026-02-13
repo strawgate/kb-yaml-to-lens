@@ -22,16 +22,16 @@ Run from the repository root using the passthrough pattern:
 
 ```bash
 # Serve locally
-make docs serve
+just docs serve
 
 # Build
-make docs build
+just docs build
 
 # Full check (lint + link verification)
-make docs ci
+just docs ci
 ```
 
-**From within component directory:** You can also run `make <target>` directly from `packages/kb-dashboard-docs/`, or use `mkdocs` commands directly.
+**From within component directory:** You can also run `just <target>` directly from `packages/kb-dashboard-docs/`, or use `mkdocs` commands directly.
 
 ## Adding Pages
 
@@ -51,8 +51,8 @@ See existing files in `content/examples/` for patterns.
 
 ## Link Verification
 
-CI verifies all internal and external links. Run `make docs ci` before committing.
+CI verifies all internal and external links. Run `just docs ci` before committing.
 
 ## Build Hooks
 
-Python hooks in `hooks/` run during build (e.g., generating llms.txt). Test with `make docs build` from the repository root, or `mkdocs build` from within `packages/kb-dashboard-docs/`.
+Python hooks in `hooks/` run during build (e.g., generating llms.txt). Test with `just docs build` from the repository root, or `mkdocs build` from within `packages/kb-dashboard-docs/`.

@@ -29,8 +29,8 @@
 
 ```bash
 # Example verification commands (run from repository root)
-make all install
-make cli compile  # or other relevant commands
+just all install
+just cli compile  # or other relevant commands
 ```
 
 ## Related Issues
@@ -40,7 +40,7 @@ Relates to #
 
 ## Checklist
 
-- [ ] All static checks pass (`make all ci`)
+- [ ] All static checks pass (`just all ci`)
 - [ ] I followed the [contributing guide](CONTRIBUTING.md)
 - [ ] Tests added/updated as needed
 - [ ] Documentation updated (if API changed)

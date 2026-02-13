@@ -1,0 +1,88 @@
+---
+name: Publish VS Code Extension
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - platform: linux-x64
+            just_target: package-linux
+          - platform: darwin-x64
+            just_target: package-macos-x64
+          - platform: darwin-arm64
+            just_target: package-macos-arm64
+          - platform: win32-x64
+            just_target: package-windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Setup just
+        uses: extractions/setup-just@v2
+      - name: Setup Node.js Environment
+        uses: ./.github/actions/setup-node-env
+      - name: Build ${{ matrix.platform }} package
+        shell: bash
+        run: just vscode ${{ matrix.just_target }}
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: vsix-${{ matrix.platform }}
+          path: packages/vscode-extension/*.vsix
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish-vscode-extension
+      cancel-in-progress: false
+    steps:
+      - name: Download all VSIX artifacts
+        uses: actions/download-artifact@v6
+        with:
+          path: vsix-files
+          pattern: vsix-*
+          merge-multiple: true
+
+      - name: List VSIX files
+        run: |
+          echo "VSIX files to publish:"
+          ls -la vsix-files/
+
+      - name: Publish to OpenVSX
+        id: publish-openvsx
+        continue-on-error: true
+        run: |
+          npm install -g ovsx
+          for vsix in vsix-files/*.vsix; do
+            echo "Publishing $vsix to OpenVSX..."
+            ovsx publish "$vsix" -p ${{ secrets.OPEN_VSX_TOKEN }} || echo "Failed to publish $vsix"
+          done
+
+      - name: Publish to VS Code Marketplace
+        id: publish-marketplace
+        continue-on-error: true
+        run: |
+          npm install -g @vscode/vsce
+          for vsix in vsix-files/*.vsix; do
+            echo "Publishing $vsix to VS Code Marketplace..."
+            vsce publish --packagePath "$vsix" -p ${{ secrets.VS_MARKETPLACE_PAT }} || echo "Failed to publish $vsix"
+          done
+
+      - name: Upload VSIX on failure
+        if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
+        uses: actions/upload-artifact@v6
+        with:
+          name: extension-vsix-all
+          path: vsix-files/*.vsix
+          retention-days: 7
+
+      - name: Fail if publishing failed
+        if: steps.publish-openvsx.outcome == 'failure' || steps.publish-marketplace.outcome == 'failure'
+        shell: bash
+        run: exit 1

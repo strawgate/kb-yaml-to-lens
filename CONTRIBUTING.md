@@ -18,10 +18,10 @@ See [CODE_STYLE.md](CODE_STYLE.md) for project-wide conventions, and component-s
 
 ### Before Submitting/Updating
 
-1. **Check for merge conflicts:** `make check-merge-conflicts`
+1. **Check for merge conflicts:** `just check-merge-conflicts`
    - This checks if merging your branch with `main` would cause conflicts
    - Resolve any conflicts before submitting your PR
-2. **Run all checks:** `make all ci`
+2. **Run all checks:** `just all ci`
 3. **Self-review your changes:**
    - Does it solve the stated problem?
    - Does the code follow existing patterns?

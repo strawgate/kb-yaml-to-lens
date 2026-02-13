@@ -11,7 +11,7 @@ This guide covers development workflows for the core dashboard compilation engin
 
 ```bash
 # From repository root
-make core install
+just core install
 ```
 
 ## Commands
@@ -20,14 +20,14 @@ Run from the repository root using the passthrough pattern:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make core ci` | Run all CI checks (lint + typecheck + test) |
-| `make core fix` | Auto-fix Python linting issues |
-| `make core test` | Run Python unit tests |
-| `make core typecheck` | Run type checking with basedpyright |
+| `just core ci` | Run all CI checks (lint + typecheck + test) |
+| `just core fix` | Auto-fix Python linting issues |
+| `just core test` | Run Python unit tests |
+| `just core typecheck` | Run type checking with basedpyright |
 
-For all commands, see `make core help`.
+For all commands, see `just core help`.
 
-**From within component directory:** You can also run `make <target>` directly from `packages/kb-dashboard-core/`.
+**From within component directory:** You can also run `just <target>` directly from `packages/kb-dashboard-core/`.
 
 ## Architecture
 
@@ -59,8 +59,8 @@ kb_dashboard_core/
 
 After making changes:
 
-1. Run `make core typecheck` - catches type errors
-2. Run `make core ci` - runs all quality checks
-3. Test with CLI: `make cli test` - ensures core changes work end-to-end
+1. Run `just core typecheck` - catches type errors
+2. Run `just core ci` - runs all quality checks
+3. Test with CLI: `just cli test` - ensures core changes work end-to-end
 
 **CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring coverage <80%

@@ -50,7 +50,7 @@ For contributors or development workflows, clone the repository:
 ```bash
 git clone https://github.com/strawgate/kb-yaml-to-lens
 cd kb-yaml-to-lens
-make cli install
+just cli install
 ```
 
 See [DEVELOPING.md](https://github.com/strawgate/kb-yaml-to-lens/blob/main/DEVELOPING.md) for full development setup.
@@ -216,16 +216,16 @@ The following commands are available in the `kb-dashboard` CLI. For detailed inf
     :depth: 2
     :style: table
 
-## Makefile Shortcuts (Development)
+## Justfile Shortcuts (Development)
 
-For contributors working from a cloned repository, the project includes convenient Makefile targets:
+For contributors working from a cloned repository, the project includes convenient justfile targets:
 
 ```bash
 # Compile only
-make cli compile
+just cli compile
 
 # Compile and upload (uses environment variables for Kibana config)
-make cli upload
+just cli upload
 ```
 
 See [DEVELOPING.md](https://github.com/strawgate/kb-yaml-to-lens/blob/main/DEVELOPING.md) for the full development workflow.

@@ -11,7 +11,7 @@ This guide covers development workflows for the Python dashboard CLI (CLI, LSP, 
 
 ```bash
 # From repository root
-make cli install
+just cli install
 ```
 
 ## Commands
@@ -20,15 +20,15 @@ Run from the repository root using the passthrough pattern:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make cli ci` | Run all CI checks (lint + typecheck + test) |
-| `make cli fix` | Auto-fix Python linting issues |
-| `make cli test` | Run Python unit tests |
-| `make cli typecheck` | Run type checking with basedpyright |
-| `make cli compile` | Compile YAML dashboards to NDJSON |
+| `just cli ci` | Run all CI checks (lint + typecheck + test) |
+| `just cli fix` | Auto-fix Python linting issues |
+| `just cli test` | Run Python unit tests |
+| `just cli typecheck` | Run type checking with basedpyright |
+| `just cli compile` | Compile YAML dashboards to NDJSON |
 
-For all commands, see `make cli help`.
+For all commands, see `just cli help`.
 
-**From within component directory:** You can also run `make <target>` directly from `packages/kb-dashboard-cli/`.
+**From within component directory:** You can also run `just <target>` directly from `packages/kb-dashboard-cli/`.
 
 ## Architecture
 
@@ -70,9 +70,9 @@ Each fixture has ES|QL and Data View versions:
 
 After making changes:
 
-1. Run `make cli typecheck` — catches type errors
-2. Run `make cli ci` — runs all quality checks
-3. Run `make cli test-coverage` — runs coverage checks
+1. Run `just cli typecheck` — catches type errors
+2. Run `just cli ci` — runs all quality checks
+3. Run `just cli test-coverage` — runs coverage checks
 4. Test compiled output validity
 
 **CI fails on:** Ruff/Markdown/YAML lint failures, test failures, type errors, docstring, code coverage <80%

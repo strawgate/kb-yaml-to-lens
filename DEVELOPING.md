@@ -35,7 +35,8 @@ kb-yaml-to-lens/
 - **Python 3.12+** (for compiler development)
 - **Node.js 20+** (for extension development)
 - **[uv](https://github.com/astral-sh/uv)** (Python package manager)
-- **make** (build automation)
+- **[just](https://github.com/casey/just)** (command runner)
+  - Install: `brew install just` (macOS), `cargo install just` (Rust), or see [installation docs](https://github.com/casey/just#installation)
 
 ## Quick Start
 
@@ -45,13 +46,13 @@ git clone https://github.com/strawgate/kb-yaml-to-lens
 cd kb-yaml-to-lens
 
 # Install all dependencies
-make all install
-make docs install  # For markdownlint-cli
+just all install
+just docs install  # For markdownlint-cli
 
 # Run all checks (lint + typecheck + tests)
-make all ci
-make lint-markdown-check
-make lint-yaml-check
+just all ci
+just lint-markdown-check
+just lint-yaml-check
 ```
 
 ## Essential Commands
@@ -60,16 +61,16 @@ Run these from the **repository root**:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make all install` | Install all component dependencies |
-| `make all ci` | Run CI checks in all components |
-| `make all fix` | Auto-fix linting issues across all components |
-| `make all clean` | Clean cache and temporary files |
-| `make lint-markdown-check` | Check markdown linting (repo-wide) |
-| `make lint-yaml-check` | Check YAML linting (repo-wide) |
-| `make docs ci` | Check documentation (markdown lint + link verification) |
+| `just all install` | Install all component dependencies |
+| `just all ci` | Run CI checks in all components |
+| `just all fix` | Auto-fix linting issues across all components |
+| `just all clean` | Clean cache and temporary files |
+| `just lint-markdown-check` | Check markdown linting (repo-wide) |
+| `just lint-yaml-check` | Check YAML linting (repo-wide) |
+| `just docs ci` | Check documentation (markdown lint + link verification) |
 | `kb-dashboard-lint check --input-file <file>` | Check dashboard YAML for best practices |
 
-**Troubleshooting CI failures:** Run `make all ci` + lint commands locally to reproduce CI checks.
+**Troubleshooting CI failures:** Run `just all ci` + lint commands locally to reproduce CI checks.
 
 ## Component Pass-Through Commands
 
@@ -77,31 +78,31 @@ Run any component-specific target from the repository root:
 
 | Command | Purpose |
 | ------- | ------- |
-| `make all <target>` | Run target in all components (cli + core + lint + tools + vscode) |
-| `make cli <target>` | Run target in `packages/kb-dashboard-cli/` |
-| `make core <target>` | Run target in `packages/kb-dashboard-core/` |
-| `make lint <target>` | Run target in `packages/kb-dashboard-lint/` |
-| `make tools <target>` | Run target in `packages/kb-dashboard-tools/` |
-| `make vscode <target>` | Run target in `packages/vscode-extension/` |
-| `make docs <target>` | Run target in `packages/kb-dashboard-docs/` |
-| `make gh <target>` | Run target in `.github/scripts/` |
+| `just all <target>` | Run target in all components (cli + core + lint + tools + vscode) |
+| `just cli <target>` | Run target in `packages/kb-dashboard-cli/` |
+| `just core <target>` | Run target in `packages/kb-dashboard-core/` |
+| `just lint <target>` | Run target in `packages/kb-dashboard-lint/` |
+| `just tools <target>` | Run target in `packages/kb-dashboard-tools/` |
+| `just vscode <target>` | Run target in `packages/vscode-extension/` |
+| `just docs <target>` | Run target in `packages/kb-dashboard-docs/` |
+| `just gh <target>` | Run target in `.github/scripts/` |
 
 **Examples:**
 
 ```bash
 # Run across all components (parallel)
-make all ci           # Run CI in cli + core + lint + tools + vscode
-make all fix          # Auto-fix linting in all components
-make all clean        # Clean all components
+just all ci           # Run CI in cli + core + lint + tools + vscode
+just all fix          # Auto-fix linting in all components
+just all clean        # Clean all components
 
 # Run in specific component
-make cli test            # Run CLI tests
-make cli test-e2e         # Run CLI E2E tests (includes Docker tests if available)
-make core test           # Run core tests
-make vscode test-unit    # Run VS Code unit tests
-make vscode test-e2e     # Run VS Code E2E tests
-make docs serve          # Start docs server
-make cli help            # Show all CLI targets
+just cli test            # Run CLI tests
+just cli test-e2e         # Run CLI E2E tests (includes Docker tests if available)
+just core test           # Run core tests
+just vscode test-unit    # Run VS Code unit tests
+just vscode test-e2e     # Run VS Code E2E tests
+just docs serve          # Start docs server
+just cli help            # Show all CLI targets
 ```
 
 ## Component Development
