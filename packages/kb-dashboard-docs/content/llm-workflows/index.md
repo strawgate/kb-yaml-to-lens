@@ -10,6 +10,7 @@ LLMs can assist with dashboard creation and conversion in several ways:
 - **Generating new dashboards** from natural language descriptions
 - **Following best practices** for dashboard design and layout
 - **Accessing complete documentation** via llms.txt and llms-full.txt
+- **Visual verification** of dashboards using browser automation
 
 ## Workflows
 
@@ -59,6 +60,30 @@ Systematic guide for building Kibana dashboards from OpenTelemetry Collector rec
 - ES|QL and Lens formula patterns for counter vs gauge metrics
 - Validation checklist for metric names, attributes, and queries
 - Common pitfalls and how to avoid them
+
+## Browser Automation
+
+### [Playwright MCP for Dashboard Development](playwright-mcp.md)
+
+Configure Microsoft's `@playwright/mcp` server for browser-based dashboard verification and exploration. Covers installation, Kibana authentication, and environment configuration.
+
+**Key topics:**
+
+- Installing and configuring `@playwright/mcp`
+- Kibana authentication approaches
+- Environment variable patterns
+- SSL/TLS considerations
+
+### [AI Dashboard Iteration Workflows](ai-dashboard-workflows.md)
+
+Practical workflows for AI agents combining kb-dashboard CLI with Playwright MCP. Includes verification prompts and troubleshooting patterns.
+
+**Key topics:**
+
+- Edit → Compile → Upload → Verify iteration loop
+- Pattern discovery from existing dashboards
+- Reusable verification prompts
+- Common failure patterns and diagnostics
 
 ## LLM Resources
 
