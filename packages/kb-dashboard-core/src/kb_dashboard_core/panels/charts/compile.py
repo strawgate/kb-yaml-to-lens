@@ -5,6 +5,7 @@ from kb_dashboard_core.filters.compile import compile_filters
 from kb_dashboard_core.filters.config import FilterTypes
 from kb_dashboard_core.panels.charts.config import (
     AllChartTypes,
+    ESQLChartTypes,
     ESQLPanel,
     LensAreaPanelConfig,
     LensBarPanelConfig,
@@ -14,7 +15,12 @@ from kb_dashboard_core.panels.charts.config import (
 )
 from kb_dashboard_core.panels.charts.datatable.compile import compile_esql_datatable_chart, compile_lens_datatable_chart
 from kb_dashboard_core.panels.charts.datatable.config import ESQLDatatableChart, LensDatatableChart
-from kb_dashboard_core.panels.charts.gauge.compile import compile_esql_gauge_chart, compile_lens_gauge_chart
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric, ESQLMetricTypes, ESQLStaticValue
+from kb_dashboard_core.panels.charts.gauge.compile import (
+    compile_esql_gauge_chart,
+    compile_lens_gauge_chart,
+    prepare_esql_gauge_chart,
+)
 from kb_dashboard_core.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from kb_dashboard_core.panels.charts.heatmap.compile import compile_esql_heatmap_chart, compile_lens_heatmap_chart
 from kb_dashboard_core.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
@@ -51,9 +57,11 @@ from kb_dashboard_core.panels.charts.xy.config import (
     LensLineChart,
     LensReferenceLineLayer,
 )
+from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, XYESQLMetric, XYESQLStaticValue
 from kb_dashboard_core.panels.charts.xy.view import KbnXYVisualizationState
 from kb_dashboard_core.panels.drilldowns import compile_drilldowns
 from kb_dashboard_core.queries.compile import compile_esql_query, compile_nonesql_query
+from kb_dashboard_core.queries.config import ESQLQuery
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.queries.view import KbnQuery
 from kb_dashboard_core.shared.view import KbnReference
@@ -93,6 +101,148 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             msg = f'Unsupported Lens chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
+
+
+def _format_esql_numeric(value: int | float) -> str:
+    """Format a numeric literal for ESQL ``EVAL`` expressions."""
+    return str(value) if isinstance(value, int) else repr(value)
+
+
+def _build_static_field_name(chart_type: str, role: str, column_id: str) -> str:
+    """Generate a deterministic synthetic field name for static ES|QL values."""
+    return f'__kb_{chart_type}_{role}_{column_id.replace("-", "_")}'
+
+
+def _rewrite_esql_metric_static_value(
+    metric: ESQLMetricTypes,
+    *,
+    chart_type: str,
+    role: str,
+    eval_assignments: list[str],
+) -> ESQLMetric:
+    """Rewrite ESQL static metric values to synthetic query-backed fields."""
+    if isinstance(metric, ESQLStaticValue):
+        field_name = _build_static_field_name(chart_type, role, metric.get_id())
+        eval_assignments.append(f'{field_name} = {_format_esql_numeric(metric.value)}')
+        return ESQLMetric(
+            id=metric.get_id(),
+            field=field_name,
+            label=metric.label if metric.label is not None else str(metric.value),
+        )
+    return metric
+
+
+def _rewrite_esql_xy_metric_static_value(
+    metric: ESQLXYMetricTypes,
+    *,
+    chart_type: str,
+    role: str,
+    eval_assignments: list[str],
+) -> ESQLXYMetricTypes:
+    """Rewrite XY ESQL static metric values while preserving axis/color appearance."""
+    if isinstance(metric, XYESQLStaticValue):
+        field_name = _build_static_field_name(chart_type, role, metric.get_id())
+        eval_assignments.append(f'{field_name} = {_format_esql_numeric(metric.value)}')
+        return XYESQLMetric(
+            id=metric.get_id(),
+            field=field_name,
+            label=metric.label if metric.label is not None else str(metric.value),
+            axis=metric.axis,
+            color=metric.color,
+        )
+    return metric
+
+
+def _prepare_esql_chart_static_values(
+    chart: ESQLChartTypes,
+    query: ESQLQuery,
+) -> tuple[ESQLChartTypes, ESQLQuery]:
+    """Rewrite static values in ES|QL chart configs into synthetic ``EVAL`` fields."""
+    if isinstance(chart, ESQLGaugeChart):
+        prepared_chart, prepared_query = prepare_esql_gauge_chart(chart, query=query)
+        return prepared_chart, prepared_query if prepared_query is not None else query
+
+    eval_assignments: list[str] = []
+    updates: dict[str, object] = {}
+
+    match chart:
+        case ESQLMetricChart():
+            updates['primary'] = _rewrite_esql_metric_static_value(
+                chart.primary,
+                chart_type=chart.type,
+                role='primary',
+                eval_assignments=eval_assignments,
+            )
+            if chart.secondary is not None:
+                updates['secondary'] = _rewrite_esql_metric_static_value(
+                    chart.secondary,
+                    chart_type=chart.type,
+                    role='secondary',
+                    eval_assignments=eval_assignments,
+                )
+            if chart.maximum is not None:
+                updates['maximum'] = _rewrite_esql_metric_static_value(
+                    chart.maximum,
+                    chart_type=chart.type,
+                    role='maximum',
+                    eval_assignments=eval_assignments,
+                )
+        case ESQLHeatmapChart():
+            updates['value'] = _rewrite_esql_metric_static_value(
+                chart.value,
+                chart_type=chart.type,
+                role='value',
+                eval_assignments=eval_assignments,
+            )
+        case ESQLPieChart():
+            updates['metrics'] = [
+                _rewrite_esql_metric_static_value(
+                    metric,
+                    chart_type=chart.type,
+                    role=f'metric_{index}',
+                    eval_assignments=eval_assignments,
+                )
+                for index, metric in enumerate(chart.metrics)
+            ]
+        case ESQLDatatableChart():
+            updates['metrics'] = [
+                _rewrite_esql_metric_static_value(
+                    metric,
+                    chart_type=chart.type,
+                    role=f'metric_{index}',
+                    eval_assignments=eval_assignments,
+                )
+                for index, metric in enumerate(chart.metrics)
+            ]
+        case ESQLTagcloudChart():
+            updates['metric'] = _rewrite_esql_metric_static_value(
+                chart.metric,
+                chart_type=chart.type,
+                role='metric',
+                eval_assignments=eval_assignments,
+            )
+        case ESQLMosaicChart():
+            updates['metric'] = _rewrite_esql_metric_static_value(
+                chart.metric,
+                chart_type=chart.type,
+                role='metric',
+                eval_assignments=eval_assignments,
+            )
+        case ESQLBarChart() | ESQLLineChart() | ESQLAreaChart():
+            updates['metrics'] = [
+                _rewrite_esql_xy_metric_static_value(
+                    metric,
+                    chart_type=chart.type,
+                    role=f'metric_{index}',
+                    eval_assignments=eval_assignments,
+                )
+                for index, metric in enumerate(chart.metrics)
+            ]
+
+    prepared_chart = chart.model_copy(update=updates) if len(updates) > 0 else chart
+    prepared_query = ESQLQuery(root=f'{query.root}\n| EVAL {", ".join(eval_assignments)}') if len(eval_assignments) > 0 else query
+
+    return prepared_chart, prepared_query
 
 
 def compile_lens_chart_state(  # noqa: PLR0912
@@ -207,30 +357,32 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
     text_based_datasource_state_layer_by_id: dict[str, KbnTextBasedDataSourceStateLayer] = {}
 
     chart = panel.esql
+    prepared_chart, prepared_query = _prepare_esql_chart_static_values(chart, query=chart.query)
+    compiled_query = compile_esql_query(prepared_query)
 
-    match chart:
+    match prepared_chart:
         case ESQLMetricChart():
-            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_metric_chart(prepared_chart)
         case ESQLGaugeChart():
-            layer_id, esql_columns, visualization_state = compile_esql_gauge_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_gauge_chart(prepared_chart)
         case ESQLHeatmapChart():
-            layer_id, esql_columns, visualization_state = compile_esql_heatmap_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_heatmap_chart(prepared_chart)
         case ESQLPieChart():
-            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_pie_chart(prepared_chart)
         case ESQLDatatableChart():
-            layer_id, esql_columns, visualization_state = compile_esql_datatable_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_datatable_chart(prepared_chart)
         case ESQLTagcloudChart():
-            layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(prepared_chart)
         case ESQLMosaicChart():
-            layer_id, esql_columns, visualization_state = compile_esql_mosaic_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_mosaic_chart(prepared_chart)
         case ESQLBarChart() | ESQLLineChart() | ESQLAreaChart():
-            layer_id, esql_columns, visualization_state = compile_esql_xy_chart(chart)
+            layer_id, esql_columns, visualization_state = compile_esql_xy_chart(prepared_chart)
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             msg = f'Unsupported ESQL chart type: {type(chart)}'
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
     text_based_datasource_state_layer_by_id[layer_id] = KbnTextBasedDataSourceStateLayer(
-        query=compile_esql_query(chart.query),
+        query=compiled_query,
         columns=esql_columns,
         allColumns=esql_columns,
         timeField=panel.esql.time_field,
@@ -242,7 +394,7 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
 
     panel_state = KbnLensPanelState(
         visualization=visualization_state,
-        query=compile_esql_query(chart.query),
+        query=compiled_query,
         filters=[],
         datasourceStates=datasource_states,
         internalReferences=[],

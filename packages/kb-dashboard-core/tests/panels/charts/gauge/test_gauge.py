@@ -230,13 +230,29 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
             'labelMinor': 'Percentage',
             'labelMajorMode': 'custom',
             'colorMode': 'palette',
+            'palette': {
+                'type': 'palette',
+                'name': 'status',
+                'params': {
+                    'name': 'status',
+                    'reverse': False,
+                    'rangeType': 'percent',
+                    'continuity': 'above',
+                    'rangeMin': 0,
+                    'rangeMax': 100,
+                    'stops': [],
+                    'colorStops': [],
+                    'steps': 4,
+                    'maxSteps': 5,
+                },
+            },
         }
     )
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
     """Test the compilation of gauge charts with different shape options."""
-    shapes = ['horizontalBullet', 'verticalBullet', 'arc', 'circle']
+    shapes = ['horizontalBullet', 'verticalBullet', 'semiCircle', 'arc', 'circle']
 
     for shape in shapes:
         config = {
@@ -257,6 +273,62 @@ def test_compile_gauge_chart_with_all_shapes() -> None:
         assert result['shape'] == shape
         assert result['layerType'] == 'data'
         assert result['metricAccessor'] == 'metric_accessor'
+
+
+def test_compile_gauge_chart_with_custom_palette_lens() -> None:
+    """Test custom gauge palette compilation with derived lower-bound stops."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'appearance': {
+            'shape': 'arc',
+            'color_mode': 'palette',
+            'palette': {
+                'name': 'custom',
+                'range_type': 'percent',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'above',
+                'stops': [
+                    {'color': '#cc5642', 'stop': 75},
+                    {'color': '#d6bf57', 'stop': 95},
+                    {'color': '#209280', 'stop': 100},
+                ],
+            },
+        },
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+
+    assert result['colorMode'] == 'palette'
+    assert result['palette'] == snapshot(
+        {
+            'type': 'palette',
+            'name': 'custom',
+            'params': {
+                'name': 'custom',
+                'rangeType': 'percent',
+                'continuity': 'above',
+                'rangeMin': 0,
+                'rangeMax': 100,
+                'stops': [
+                    {'color': '#cc5642', 'stop': 75},
+                    {'color': '#d6bf57', 'stop': 95},
+                    {'color': '#209280', 'stop': 100},
+                ],
+                'colorStops': [
+                    {'color': '#cc5642', 'stop': 0},
+                    {'color': '#d6bf57', 'stop': 75},
+                    {'color': '#209280', 'stop': 95},
+                ],
+            },
+        }
+    )
 
 
 def test_compile_gauge_chart_with_ticks_positions() -> None:

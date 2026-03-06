@@ -17,7 +17,7 @@ class GaugeAppearance(BaseCfgModel):
     labels, and color mode.
     """
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)
+    shape: Literal['horizontalBullet', 'verticalBullet', 'semiCircle', 'arc', 'circle'] | None = Field(default=None)
     """The shape of the gauge visualization."""
 
     ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(default=None)
@@ -31,6 +31,59 @@ class GaugeAppearance(BaseCfgModel):
 
     color_mode: Literal['none', 'palette'] | None = Field(default=None)
     """Color mode for the gauge visualization."""
+
+    palette: 'GaugePalette | None' = Field(default=None)
+    """Optional palette configuration used when ``color_mode`` is ``palette``."""
+
+
+class GaugeColorStop(BaseCfgModel):
+    """A color stop for gauge palette thresholds."""
+
+    color: str = Field(...)
+    """Hex color value, for example ``#209280``."""
+
+    stop: int | float = Field(...)
+    """Threshold stop value for this color."""
+
+
+class GaugePalette(BaseCfgModel):
+    """Gauge palette configuration matching Kibana's palette output parameters."""
+
+    type: Literal['palette', 'system_palette'] = Field(default='palette')
+    """Palette type. ``palette`` is the common choice for gauge color bands."""
+
+    name: str = Field(default='status')
+    """Palette name. ``status`` is Kibana's default red/yellow/green style."""
+
+    reverse: bool | None = Field(default=None)
+    """Reverse palette ordering."""
+
+    range_type: Literal['number', 'percent'] | None = Field(default=None)
+    """Range type for stop interpretation."""
+
+    continuity: Literal['above', 'below', 'none', 'all'] | None = Field(default=None)
+    """Continuity behavior between color bands."""
+
+    progression: Literal['fixed'] | None = Field(default=None)
+    """Band progression mode."""
+
+    range_min: int | float | None = Field(default=None)
+    """Lower bound for palette range."""
+
+    range_max: int | float | None = Field(default=None)
+    """Upper bound for palette range."""
+
+    stops: list[GaugeColorStop] | None = Field(default=None)
+    """Upper-bound color stops."""
+
+    color_stops: list[GaugeColorStop] | None = Field(default=None)
+    """Lower-bound color stops. If omitted, they are derived from ``stops``."""
+
+    steps: int | None = Field(default=None)
+    """Number of color steps."""
+
+    max_steps: int | None = Field(default=None)
+    """Maximum number of color steps."""
 
 
 class BaseGaugeChart(BaseCfgModel):

@@ -13,6 +13,40 @@ from pydantic import Field
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
+class KbnGaugeColorStop(BaseVwModel):
+    """A color stop in Kibana gauge palette format."""
+
+    color: str = Field(...)
+    """Hex color value, for example ``#209280``."""
+
+    stop: int | float = Field(...)
+    """Threshold stop value."""
+
+
+class KbnGaugePaletteParams(BaseVwModel):
+    """Palette parameters for Kibana gauge visualizations."""
+
+    name: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    reverse: Annotated[bool | None, OmitIfNone()] = Field(default=None)
+    rangeType: Annotated[Literal['number', 'percent'] | None, OmitIfNone()] = Field(default=None)
+    continuity: Annotated[Literal['above', 'below', 'none', 'all'] | None, OmitIfNone()] = Field(default=None)
+    progression: Annotated[Literal['fixed'] | None, OmitIfNone()] = Field(default=None)
+    rangeMin: Annotated[int | float | None, OmitIfNone()] = Field(default=None)
+    rangeMax: Annotated[int | float | None, OmitIfNone()] = Field(default=None)
+    stops: Annotated[list[KbnGaugeColorStop] | None, OmitIfNone()] = Field(default=None)
+    colorStops: Annotated[list[KbnGaugeColorStop] | None, OmitIfNone()] = Field(default=None)
+    steps: Annotated[int | None, OmitIfNone()] = Field(default=None)
+    maxSteps: Annotated[int | None, OmitIfNone()] = Field(default=None)
+
+
+class KbnGaugePalette(BaseVwModel):
+    """Palette output model used by Kibana gauge visualization state."""
+
+    type: Literal['palette', 'system_palette'] = Field(default='palette')
+    name: str = Field(default='status')
+    params: Annotated[KbnGaugePaletteParams | None, OmitIfNone()] = Field(default=None)
+
+
 class KbnGaugeVisualizationState(BaseVwModel):
     """View model for gauge visualization state after compilation to Kibana Lens format.
 
@@ -50,7 +84,7 @@ class KbnGaugeVisualizationState(BaseVwModel):
     goalAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for the goal/target metric (shown as reference line)."""
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] = Field(default='arc')
+    shape: Literal['horizontalBullet', 'verticalBullet', 'semiCircle', 'arc', 'circle'] = Field(default='arc')
     """The shape of the gauge visualization. Defaults to 'arc'."""
 
     ticksPosition: Literal['auto', 'bands', 'hidden'] = Field(default='auto')
@@ -67,3 +101,6 @@ class KbnGaugeVisualizationState(BaseVwModel):
 
     colorMode: Annotated[Literal['none', 'palette'] | None, OmitIfNone()] = Field(default=None)
     """Color mode for the gauge visualization."""
+
+    palette: Annotated[KbnGaugePalette | None, OmitIfNone()] = Field(default=None)
+    """Palette configuration for ``colorMode='palette'``."""

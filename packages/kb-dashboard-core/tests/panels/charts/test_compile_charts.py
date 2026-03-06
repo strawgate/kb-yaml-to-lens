@@ -919,6 +919,176 @@ class TestCompileESQLChartState:
             assert layer_id in layers
             assert state.adHocDataViews == {}
 
+    def test_esql_gauge_static_values_are_rewritten_to_eval_fields(self) -> None:
+        """Test that static gauge min/max/goal values compile to EVAL-backed ESQL fields."""
+        from kb_dashboard_core.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'gauge',
+                    'query': 'FROM logs-* | STATS hit_ratio = AVG(cache.hit.ratio)',
+                    'metric': {'field': 'hit_ratio', 'id': 'metric1'},
+                    'minimum': 0,
+                    'maximum': 1,
+                    'goal': 0.95,
+                },
+            }
+        )
+
+        state, _ = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layer = next(iter(state.datasourceStates.textBased.layers.root.values()))
+
+        # Query gets rewritten with synthetic EVAL fields for static values.
+        assert '| EVAL ' in layer.query.esql
+        assert '__kb_gauge_min_' in layer.query.esql
+        assert '__kb_gauge_max_' in layer.query.esql
+        assert '__kb_gauge_goal_' in layer.query.esql
+
+        # Columns reference generated field names instead of literal "0", "1", "0.95".
+        field_names = {column.fieldName for column in layer.columns}
+        assert '0' not in field_names
+        assert '1' not in field_names
+        assert '0.95' not in field_names
+        assert any(name.startswith('__kb_gauge_min_') for name in field_names)
+        assert any(name.startswith('__kb_gauge_max_') for name in field_names)
+        assert any(name.startswith('__kb_gauge_goal_') for name in field_names)
+
+        # Gauge accessors point to those generated fields.
+        visualization = state.visualization.model_dump()
+        field_by_id = {column.columnId: column.fieldName for column in layer.columns}
+        assert field_by_id[visualization['minAccessor']].startswith('__kb_gauge_min_')
+        assert field_by_id[visualization['maxAccessor']].startswith('__kb_gauge_max_')
+        assert field_by_id[visualization['goalAccessor']].startswith('__kb_gauge_goal_')
+
+        # Panel-level query and layer-level query stay in sync.
+        assert state.query.esql == layer.query.esql
+
+    def test_esql_gauge_static_metric_is_rewritten_to_eval_field(self) -> None:
+        """Test that static gauge metric values compile to EVAL-backed ESQL fields."""
+        from kb_dashboard_core.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'esql': {
+                    'type': 'gauge',
+                    'query': 'FROM logs-* | LIMIT 1',
+                    'metric': {'value': 0.97, 'id': 'metric_static'},
+                    'minimum': 0,
+                    'maximum': 1,
+                    'goal': 0.95,
+                },
+            }
+        )
+
+        state, _ = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layer = next(iter(state.datasourceStates.textBased.layers.root.values()))
+
+        assert '__kb_gauge_metric_' in layer.query.esql
+        field_names = {column.fieldName for column in layer.columns}
+        assert any(name.startswith('__kb_gauge_metric_') for name in field_names)
+
+    @pytest.mark.parametrize(
+        ('chart_config', 'expected_prefix'),
+        [
+            (
+                {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | LIMIT 1',
+                    'primary': {'value': 10, 'id': 'metric_static'},
+                },
+                '__kb_metric_primary_',
+            ),
+            (
+                {
+                    'type': 'pie',
+                    'query': 'FROM logs-* | STATS c = COUNT(*) BY status',
+                    'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                    'metrics': [{'value': 10, 'id': 'metric_static'}],
+                },
+                '__kb_pie_metric_0_',
+            ),
+            (
+                {
+                    'type': 'datatable',
+                    'query': 'FROM logs-* | LIMIT 1',
+                    'metrics': [{'value': 10, 'id': 'metric_static'}],
+                },
+                '__kb_datatable_metric_0_',
+            ),
+            (
+                {
+                    'type': 'heatmap',
+                    'query': 'FROM logs-* | STATS c = COUNT(*) BY x, y',
+                    'x_axis': {'field': 'x', 'id': 'x1'},
+                    'y_axis': {'field': 'y', 'id': 'y1'},
+                    'value': {'value': 10, 'id': 'metric_static'},
+                },
+                '__kb_heatmap_value_',
+            ),
+            (
+                {
+                    'type': 'tagcloud',
+                    'query': 'FROM logs-* | STATS c = COUNT(*) BY tag',
+                    'dimension': {'field': 'tag', 'id': 'dim1'},
+                    'metric': {'value': 10, 'id': 'metric_static'},
+                },
+                '__kb_tagcloud_metric_',
+            ),
+            (
+                {
+                    'type': 'mosaic',
+                    'query': 'FROM logs-* | STATS c = COUNT(*) BY tag',
+                    'dimension': {'field': 'tag', 'id': 'dim1'},
+                    'metric': {'value': 10, 'id': 'metric_static'},
+                },
+                '__kb_mosaic_metric_',
+            ),
+            (
+                {
+                    'type': 'bar',
+                    'query': 'FROM logs-* | STATS c = COUNT(*) BY category',
+                    'dimension': {'field': 'category', 'id': 'dim1'},
+                    'metrics': [{'value': 10, 'id': 'metric_static'}],
+                },
+                '__kb_bar_metric_0_',
+            ),
+        ],
+    )
+    def test_esql_static_metrics_are_rewritten_across_chart_types(
+        self,
+        chart_config: dict[str, object],
+        expected_prefix: str,
+    ) -> None:
+        """Test that all ES|QL chart types rewrite static metrics into EVAL-backed fields."""
+        from kb_dashboard_core.panels.charts.config import ESQLPanel
+
+        panel = ESQLPanel.model_validate(
+            {
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 24, 'h': 15},
+                'esql': chart_config,
+            }
+        )
+
+        state, _ = compile_esql_chart_state(panel)
+        assert state.datasourceStates.textBased is not None
+        assert state.datasourceStates.textBased.layers is not None
+        layer = next(iter(state.datasourceStates.textBased.layers.root.values()))
+
+        assert '| EVAL ' in layer.query.esql
+        field_names = {column.fieldName for column in layer.columns}
+        assert '10' not in field_names
+        assert any(name.startswith(expected_prefix) for name in field_names)
+
 
 class TestESQLDataTypeDate:
     """Tests for ES|QL dimension data_type: date feature.
