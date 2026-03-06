@@ -1,6 +1,6 @@
 from typing import Self
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 
 from kb_dashboard_core.controls import ControlTypes
 from kb_dashboard_core.controls.config import ControlSettings
@@ -50,6 +50,22 @@ class DashboardSettings(BaseCfgModel):
     """The auto-layout algorithm to use for positioning panels without explicit coordinates. Defaults to 'up-left'."""
 
 
+class DashboardSection(BaseCfgModel):
+    """Collapsible dashboard section metadata."""
+
+    id: str | None = Field(default=None)
+    """Optional stable section identifier. If omitted, a stable ID is generated from the title."""
+
+    title: str = Field(...)
+    """Section title shown in Kibana."""
+
+    collapsed: bool | None = Field(default=None)
+    """Whether the section is collapsed by default."""
+
+    y: int | None = Field(default=None, ge=0, validation_alias=AliasChoices('y', 'from_top'))
+    """Optional section header Y coordinate. If omitted, derived from the section's panels."""
+
+
 class Dashboard(BaseCfgModel):
     """A dashboard with filters, controls, panels and more."""
 
@@ -75,6 +91,9 @@ class Dashboard(BaseCfgModel):
 
     controls: list[ControlTypes] = Field(default_factory=list)
     """A list of Controls for the dashboard."""
+
+    sections: list[DashboardSection] = Field(default_factory=list)
+    """Collapsible sections available to dashboard panels."""
 
     panels: list[PanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
@@ -107,6 +126,20 @@ class Dashboard(BaseCfgModel):
 
         """
         self.controls.append(control)
+
+        return self
+
+    def add_section(self, section: DashboardSection) -> Self:
+        """Add a collapsible section to the dashboard.
+
+        Args:
+            section: The section object to add.
+
+        Returns:
+            Self: The current instance of the Dashboard for method chaining.
+
+        """
+        self.sections.append(section)
 
         return self
 

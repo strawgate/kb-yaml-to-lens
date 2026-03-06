@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import AliasChoices, Field
 
 from kb_dashboard_core.panels.config import Position, Size
 from kb_dashboard_core.panels.drilldowns.config import DrilldownTypes
@@ -33,6 +33,9 @@ class BasePanel(BaseCfgModel):
 
     position: Position = Field(default_factory=Position)
     """Defines the panel's position on the dashboard grid. If not specified, position will be auto-calculated."""
+
+    section: str | None = Field(default=None, validation_alias=AliasChoices('section', 'section_id'))
+    """Optional collapsible section identifier (or title) this panel belongs to."""
 
     drilldowns: list[DrilldownTypes] | None = Field(default=None)
     """Optional list of drilldowns to attach to this panel."""
