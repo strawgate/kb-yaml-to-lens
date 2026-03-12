@@ -11,6 +11,7 @@ import json
 import sys
 
 from kb_dashboard_core.dashboard_compiler import load
+from kb_dashboard_core.panels.collapsible import CollapsiblePanel
 from kb_dashboard_core.panels.compile import compute_panel_positions
 from kb_dashboard_core.panels.config import resolve_semantic_width
 
@@ -39,12 +40,15 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGr
 
     dashboard_config = dashboards[dashboard_index]
 
+    # Filter out CollapsiblePanel instances as they are not regular panels
+    regular_panels = [p for p in dashboard_config.panels if not isinstance(p, CollapsiblePanel)]
+
     # Compute positions for panels that need auto-layout
-    position_map = compute_panel_positions(dashboard_config.panels, algorithm=dashboard_config.settings.layout_algorithm)
+    position_map = compute_panel_positions(regular_panels, algorithm=dashboard_config.settings.layout_algorithm)
 
     # Extract panel information
     panels: list[PanelGridInfo] = []
-    for index, panel in enumerate(dashboard_config.panels):
+    for index, panel in enumerate(regular_panels):
         panel_type = get_panel_type(panel)
 
         # Use computed position if available, otherwise use panel's position

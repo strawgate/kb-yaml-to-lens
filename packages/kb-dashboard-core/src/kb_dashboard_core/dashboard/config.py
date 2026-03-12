@@ -12,7 +12,7 @@ from kb_dashboard_core.panels.images import ImagePanel
 from kb_dashboard_core.panels.links import LinksPanel
 from kb_dashboard_core.panels.markdown import MarkdownPanel
 from kb_dashboard_core.panels.search import SearchPanel
-from kb_dashboard_core.panels.types import PanelTypes, get_panel_type
+from kb_dashboard_core.panels.types import get_panel_type
 from kb_dashboard_core.panels.vega import VegaPanel
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.sample_data.config import SampleData

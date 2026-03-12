@@ -2,8 +2,6 @@
 
 from typing import Any
 
-import pytest
-
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
 from kb_dashboard_core.panels.collapsible import CollapsiblePanel, SectionConfig
@@ -34,6 +32,7 @@ class TestBasicSection:
     """Test basic section with explicit positions."""
 
     def test_section_with_explicit_positions(self) -> None:
+        """Verify section panels render correctly with explicit position coordinates."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -101,6 +100,7 @@ class TestSectionWithAutogrid:
     """Test section with autogrid (no explicit positions)."""
 
     def test_autogrid_positions(self) -> None:
+        """Verify autogrid correctly positions panels around a collapsible section."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -154,6 +154,7 @@ class TestSectionMultipleInnerPanels:
     """Test section with multiple inner panels."""
 
     def test_multiple_inner_panels(self) -> None:
+        """Verify multiple inner panels are laid out correctly within a section."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -206,6 +207,7 @@ class TestMultipleSections:
     """Test multiple collapsible sections."""
 
     def test_two_sections(self) -> None:
+        """Verify two consecutive collapsible sections have distinct IDs and panels."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -258,6 +260,7 @@ class TestCollapsedState:
     """Test collapsed state handling."""
 
     def test_collapsed_true(self) -> None:
+        """Verify collapsed=True is preserved in the rendered output."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -282,6 +285,7 @@ class TestCollapsedState:
         assert sections[0]['collapsed'] is True
 
     def test_collapsed_none_omitted(self) -> None:
+        """Verify collapsed key is omitted when not explicitly set."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -309,6 +313,7 @@ class TestNoSections:
     """Test dashboard without sections."""
 
     def test_no_sections_key(self) -> None:
+        """Verify sections key is absent when dashboard has no collapsible panels."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -329,6 +334,7 @@ class TestSectionIdGeneration:
     """Test section ID generation."""
 
     def test_explicit_id(self) -> None:
+        """Verify a custom section ID is used when explicitly provided."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -357,6 +363,7 @@ class TestSectionIdGeneration:
         assert panels[0]['gridData']['sectionId'] == 'my-custom-section-id'
 
     def test_auto_generated_id(self) -> None:
+        """Verify section ID is auto-generated from the section title."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -385,6 +392,7 @@ class TestSectionIdNotOnNonSectionPanels:
     """Test that sectionId is NOT present on non-section panels."""
 
     def test_no_section_id_on_outer_panels(self) -> None:
+        """Verify sectionId is only present on inner panels, not outer ones."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
@@ -430,6 +438,7 @@ class TestInnerPanelRelativeCoordinates:
     """Test that inner panel Y coordinates are relative to section, not absolute."""
 
     def test_inner_y_is_relative(self) -> None:
+        """Verify inner panel Y coordinates are relative to the section, not absolute."""
         dashboard = Dashboard(
             name='Test Dashboard',
             panels=[
