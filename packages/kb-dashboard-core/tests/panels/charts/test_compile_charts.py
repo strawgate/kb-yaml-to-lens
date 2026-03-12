@@ -933,6 +933,24 @@ class TestCompileESQLChartState:
             ),
             (
                 {
+                    'type': 'gauge',
+                    'query': 'FROM logs-* | STATS avg_cpu = AVG(system.cpu.total.pct)',
+                    'metric': {'field': 'avg_cpu', 'id': 'metric1'},
+                    'maximum': 100,
+                },
+                'maximum',
+            ),
+            (
+                {
+                    'type': 'gauge',
+                    'query': 'FROM logs-* | STATS avg_cpu = AVG(system.cpu.total.pct)',
+                    'metric': {'field': 'avg_cpu', 'id': 'metric1'},
+                    'goal': 80,
+                },
+                'goal',
+            ),
+            (
+                {
                     'type': 'metric',
                     'query': 'FROM logs-* | STATS avg_cpu = AVG(system.cpu.total.pct)',
                     'primary': 42,

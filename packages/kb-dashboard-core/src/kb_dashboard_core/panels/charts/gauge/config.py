@@ -120,8 +120,8 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
             FROM metrics-*
             | STATS avg_cpu = AVG(system.cpu.total.pct),
                     min_cpu = MIN(system.cpu.total.pct),
-                    max_cpu = MAX(system.cpu.total.pct),
-                    goal_cpu = 80
+                    max_cpu = MAX(system.cpu.total.pct)
+            | EVAL goal_cpu = 80
           metric:
             field: "avg_cpu"
           minimum:

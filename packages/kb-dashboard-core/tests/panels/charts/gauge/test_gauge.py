@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -330,8 +331,8 @@ def test_compile_gauge_chart_with_static_values_esql() -> None:
         'goal': 80,
     }
 
-    with pytest.raises(ValueError):
-        _ = compile_gauge_chart_snapshot(config, 'esql')
+    with pytest.raises(ValidationError, match=r'\bminimum\b|\bmaximum\b|\bgoal\b'):
+        compile_gauge_chart_snapshot(config, 'esql')
 
 
 def test_gauge_chart_dashboard_references_bubble_up() -> None:

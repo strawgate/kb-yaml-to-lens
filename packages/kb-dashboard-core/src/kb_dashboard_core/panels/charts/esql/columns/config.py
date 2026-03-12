@@ -80,5 +80,3 @@ class ESQLMetric(BaseESQLColumn):
 
     format: ESQLMetricFormatTypes | None = Field(default=None)
     """The format of the metric (number, bytes, bits, percent, duration, or custom)."""
-
-
