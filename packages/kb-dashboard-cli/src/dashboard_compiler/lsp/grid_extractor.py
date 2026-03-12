@@ -13,7 +13,7 @@ import sys
 from kb_dashboard_core.dashboard_compiler import load
 from kb_dashboard_core.panels.collapsible import CollapsiblePanel
 from kb_dashboard_core.panels.compile import compute_panel_positions
-from kb_dashboard_core.panels.config import resolve_semantic_width
+from kb_dashboard_core.panels.config import GRID_WIDTH_WHOLE, resolve_semantic_width
 
 from dashboard_compiler.lsp.models import DashboardGridInfo, Grid, PanelGridInfo
 from dashboard_compiler.lsp.utils import get_panel_type
@@ -40,37 +40,49 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGr
 
     dashboard_config = dashboards[dashboard_index]
 
-    # Filter out CollapsiblePanel instances as they are not regular panels
-    regular_panels = [p for p in dashboard_config.panels if not isinstance(p, CollapsiblePanel)]
-
-    # Compute positions for panels that need auto-layout
-    position_map = compute_panel_positions(regular_panels, algorithm=dashboard_config.settings.layout_algorithm)
+    # Filter out CollapsiblePanels for auto-layout (they are full-width section headers)
+    layout_panels = [p for p in dashboard_config.panels if not isinstance(p, CollapsiblePanel)]
+    position_map = compute_panel_positions(layout_panels, algorithm=dashboard_config.settings.layout_algorithm)
 
     # Extract panel information
     panels: list[PanelGridInfo] = []
-    for index, panel in enumerate(regular_panels):
-        panel_type = get_panel_type(panel)
+    layout_index = 0
+    for panel in dashboard_config.panels:
+        if isinstance(panel, CollapsiblePanel):
+            # Section headers are full-width, 1 row tall; position from the panel itself
+            x = panel.position.x if panel.position.x is not None else 0
+            y = panel.position.y if panel.position.y is not None else 0
+            panel_info = PanelGridInfo(
+                id=panel.id if (panel.id is not None and len(panel.id) > 0) else f'section_{panel.title}',
+                title=panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Section',
+                type='section',
+                grid=Grid(x=x, y=y, w=GRID_WIDTH_WHOLE, h=1),
+                is_pinned=panel.position.x is not None and panel.position.y is not None,
+            )
+            panels.append(panel_info)
+            continue
 
         # Use computed position if available, otherwise use panel's position
         # A panel is "pinned" if it has explicit position coordinates (not auto-positioned)
-        if index in position_map:
-            x, y = position_map[index]
+        if layout_index in position_map:
+            x, y = position_map[layout_index]
             is_pinned = False
         elif panel.position.x is not None and panel.position.y is not None:
             x, y = panel.position.x, panel.position.y
             is_pinned = True
         else:
-            msg = f'Panel at index {index} has no position and auto-layout failed'
+            msg = f'Panel "{panel.title}" has no position and auto-layout failed'
             raise ValueError(msg)
 
         panel_info = PanelGridInfo(
-            id=panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{index}',
+            id=panel.id if (panel.id is not None and len(panel.id) > 0) else f'panel_{layout_index}',
             title=panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Panel',
-            type=panel_type,
+            type=get_panel_type(panel),
             grid=Grid(x=x, y=y, w=resolve_semantic_width(panel.size.w), h=panel.size.h),
             is_pinned=is_pinned,
         )
         panels.append(panel_info)
+        layout_index += 1
 
     title = dashboard_config.name if (dashboard_config.name is not None and len(dashboard_config.name) > 0) else 'Untitled Dashboard'
     description = (

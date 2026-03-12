@@ -549,3 +549,90 @@ class TestEmptySection:
         # The section should have valid gridData with y and i
         assert 'y' in sections[0]['gridData']
         assert 'i' in sections[0]['gridData']
+
+
+class TestNestedCollapsiblePrevention:
+    """Test that nesting CollapsiblePanels inside other CollapsiblePanels is rejected."""
+
+    def test_nested_collapsible_raises(self) -> None:
+        """Verify that placing a CollapsiblePanel inside another CollapsiblePanel raises an error."""
+        import pytest
+        from pydantic import ValidationError
+
+        with pytest.raises((ValidationError, ValueError)):
+            Dashboard(
+                name='Test Dashboard',
+                panels=[
+                    CollapsiblePanel(
+                        title='Outer Section',
+                        section=SectionConfig(
+                            panels=[
+                                CollapsiblePanel(
+                                    title='Inner Section',
+                                    section=SectionConfig(
+                                        panels=[
+                                            MarkdownPanel(
+                                                title='Deep Inner',
+                                                size=Size(w=48, h=8),
+                                                markdown=MarkdownPanelConfig(content='# Deep'),
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ),
+                ],
+            )
+
+
+class TestSectionIdCollision:
+    """Test behavior when multiple sections could produce the same auto-generated ID."""
+
+    def test_duplicate_titles_produce_same_id(self) -> None:
+        """Verify that duplicate section titles produce the same stable ID (known limitation)."""
+        id_a = stable_id_generator(['section', 'Same Title'])
+        id_b = stable_id_generator(['section', 'Same Title'])
+        assert id_a == id_b
+
+    def test_explicit_ids_avoid_collision(self) -> None:
+        """Verify that explicit IDs can be used to differentiate sections with the same title."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                CollapsiblePanel(
+                    id='section-a',
+                    title='Same Title',
+                    section=SectionConfig(
+                        panels=[
+                            MarkdownPanel(
+                                title='Inner A',
+                                size=Size(w=48, h=8),
+                                markdown=MarkdownPanelConfig(content='# A'),
+                            ),
+                        ],
+                    ),
+                ),
+                CollapsiblePanel(
+                    id='section-b',
+                    title='Same Title',
+                    section=SectionConfig(
+                        panels=[
+                            MarkdownPanel(
+                                title='Inner B',
+                                size=Size(w=48, h=8),
+                                markdown=MarkdownPanelConfig(content='# B'),
+                            ),
+                        ],
+                    ),
+                ),
+            ],
+        )
+
+        result = _compile(dashboard)
+        sections = _get_sections(result)
+
+        assert len(sections) == 2
+        assert sections[0]['gridData']['i'] == 'section-a'
+        assert sections[1]['gridData']['i'] == 'section-b'
+        assert sections[0]['gridData']['i'] != sections[1]['gridData']['i']
