@@ -475,34 +475,90 @@ export class PreviewPanel {
                 continue;
             }
 
-            const panelBottom = panel.grid.y + panel.grid.h;
-            if (panelBottom > maxY) {
-                maxY = panelBottom;
+            if (panel.type === 'section') {
+                // Calculate section total height: header (1 row) + inner panel content
+                let innerMaxY = 0;
+                if (panel.panels && panel.panels.length > 0) {
+                    for (const inner of panel.panels) {
+                        const innerBottom = inner.grid.y + inner.grid.h;
+                        if (innerBottom > innerMaxY) {
+                            innerMaxY = innerBottom;
+                        }
+                    }
+                }
+                const sectionHeaderH = 1;
+                const sectionTotalH = sectionHeaderH + innerMaxY;
+                const panelBottom = panel.grid.y + sectionTotalH;
+                if (panelBottom > maxY) {
+                    maxY = panelBottom;
+                }
+
+                const left = panel.grid.x * PreviewPanel.scaleFactor;
+                const top = panel.grid.y * PreviewPanel.scaleFactor;
+                const width = panel.grid.w * PreviewPanel.scaleFactor;
+                const headerHeight = sectionHeaderH * PreviewPanel.scaleFactor;
+                const totalHeight = sectionTotalH * PreviewPanel.scaleFactor;
+
+                // Render inner panels within the section container
+                let innerPanelsHtml = '';
+                if (panel.panels && panel.panels.length > 0) {
+                    for (const inner of panel.panels) {
+                        const innerLeft = inner.grid.x * PreviewPanel.scaleFactor;
+                        const innerTop = inner.grid.y * PreviewPanel.scaleFactor;
+                        const innerWidth = inner.grid.w * PreviewPanel.scaleFactor;
+                        const innerHeight = inner.grid.h * PreviewPanel.scaleFactor;
+
+                        innerPanelsHtml += `
+                            <div class="layout-panel section-inner-panel" style="left: ${innerLeft}px; top: ${innerTop}px; width: ${innerWidth}px; height: ${innerHeight}px;">
+                                <div class="panel-header">${escapeHtml(inner.title || 'Untitled')}</div>
+                                <div class="panel-type">Type: ${escapeHtml(inner.type)}</div>
+                                <div class="panel-size">w:${inner.grid.w} h:${inner.grid.h}</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                panelsHtml += `
+                    <div class="section-container" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${totalHeight}px;">
+                        <div class="section-header" style="height: ${headerHeight}px;">
+                            <span class="section-icon">\u{25BC}</span>
+                            <span class="section-title-text">${escapeHtml(panel.title || 'Untitled Section')}</span>
+                        </div>
+                        <div class="section-body" style="position: relative; height: ${totalHeight - headerHeight}px;">
+                            ${innerPanelsHtml}
+                        </div>
+                    </div>
+                `;
+            } else {
+                const panelBottom = panel.grid.y + panel.grid.h;
+                if (panelBottom > maxY) {
+                    maxY = panelBottom;
+                }
+
+                const left = panel.grid.x * PreviewPanel.scaleFactor;
+                const top = panel.grid.y * PreviewPanel.scaleFactor;
+                const width = panel.grid.w * PreviewPanel.scaleFactor;
+                const height = panel.grid.h * PreviewPanel.scaleFactor;
+
+                // Position element and unpin button are only shown for pinned panels (explicit position in YAML)
+                const positionHtml = panel.is_pinned
+                    ? `<div class="panel-position">x:${panel.grid.x} y:${panel.grid.y}</div>`
+                    : '';
+                const unpinBtnHtml = panel.is_pinned
+                    ? `<button class="unpin-btn" title="Unpin panel (allow auto-positioning)" onclick="handleUnpinClick(event)">\u{1F4CC}</button>`
+                    : '';
+
+                panelsHtml += `
+                    <div class="layout-panel" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" data-pinned="${panel.is_pinned}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px;" onmousedown="handlePanelMouseDown(event)">
+                        <div class="panel-header">${escapeHtml(panel.title || 'Untitled')}</div>
+                        <div class="panel-type">Type: ${escapeHtml(panel.type)}</div>
+                        <div class="panel-size">w:${panel.grid.w} h:${panel.grid.h}</div>
+                        ${positionHtml}
+                        ${unpinBtnHtml}
+                        <div class="resize-handle" onmousedown="handleResizeMouseDown(event)"></div>
+                    </div>
+                `;
             }
-
-            const left = panel.grid.x * PreviewPanel.scaleFactor;
-            const top = panel.grid.y * PreviewPanel.scaleFactor;
-            const width = panel.grid.w * PreviewPanel.scaleFactor;
-            const height = panel.grid.h * PreviewPanel.scaleFactor;
-
-            // Position element and unpin button are only shown for pinned panels (explicit position in YAML)
-            const positionHtml = panel.is_pinned
-                ? `<div class="panel-position">x:${panel.grid.x} y:${panel.grid.y}</div>`
-                : '';
-            const unpinBtnHtml = panel.is_pinned
-                ? `<button class="unpin-btn" title="Unpin panel (allow auto-positioning)" onclick="handleUnpinClick(event)">\u{1F4CC}</button>`
-                : '';
-
-            panelsHtml += `
-                <div class="layout-panel" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" data-pinned="${panel.is_pinned}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px;" onmousedown="handlePanelMouseDown(event)">
-                    <div class="panel-header">${escapeHtml(panel.title || 'Untitled')}</div>
-                    <div class="panel-type">Type: ${escapeHtml(panel.type)}</div>
-                    <div class="panel-size">w:${panel.grid.w} h:${panel.grid.h}</div>
-                    ${positionHtml}
-                    ${unpinBtnHtml}
-                    <div class="resize-handle" onmousedown="handleResizeMouseDown(event)"></div>
-                </div>
-            `;
         }
 
         const containerHeight = (maxY + 10) * PreviewPanel.scaleFactor;

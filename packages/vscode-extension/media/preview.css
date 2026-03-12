@@ -384,6 +384,59 @@ code {
 }
 
 /* ==========================================================================
+   Section Panels (Collapsible Sections in Grid)
+   ========================================================================== */
+
+.section-container {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: hidden;
+    user-select: none;
+}
+
+.section-header {
+    background: var(--vscode-editor-selectionBackground);
+    border: 2px solid var(--vscode-focusBorder);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.section-icon {
+    font-size: 8px;
+    opacity: 0.7;
+}
+
+.section-title-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-body {
+    border-left: 2px solid var(--vscode-focusBorder);
+    border-right: 2px solid var(--vscode-focusBorder);
+    border-bottom: 2px solid var(--vscode-focusBorder);
+    border-radius: 0 0 3px 3px;
+    box-sizing: border-box;
+    background: color-mix(in srgb, var(--vscode-editor-selectionBackground) 30%, transparent);
+}
+
+.section-inner-panel {
+    cursor: default;
+    opacity: 0.85;
+}
+
+.section-inner-panel:hover {
+    cursor: default;
+}
+
+/* ==========================================================================
    Collapsible Sections (Full Preview)
    ========================================================================== */
 

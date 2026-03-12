@@ -61,9 +61,24 @@
     function calculateGridHeight() {
         let maxY = 20;
         panels.forEach(panel => {
-            const panelBottom = panel.grid.y + panel.grid.h;
-            if (panelBottom > maxY) {
-                maxY = panelBottom;
+            if (panel.type === 'section' && panel.panels && panel.panels.length > 0) {
+                // Section height = header (1 row) + max inner panel bottom
+                let innerMaxY = 0;
+                panel.panels.forEach(inner => {
+                    const innerBottom = inner.grid.y + inner.grid.h;
+                    if (innerBottom > innerMaxY) {
+                        innerMaxY = innerBottom;
+                    }
+                });
+                const sectionBottom = panel.grid.y + 1 + innerMaxY;
+                if (sectionBottom > maxY) {
+                    maxY = sectionBottom;
+                }
+            } else {
+                const panelBottom = panel.grid.y + panel.grid.h;
+                if (panelBottom > maxY) {
+                    maxY = panelBottom;
+                }
             }
         });
         return maxY + 10;
@@ -95,6 +110,12 @@
         e.preventDefault();
         draggedPanel = e.target.closest('.layout-panel');
         if (!draggedPanel) return;
+
+        // Don't allow dragging inner section panels
+        if (draggedPanel.classList.contains('section-inner-panel')) {
+            draggedPanel = null;
+            return;
+        }
 
         const index = parseInt(draggedPanel.dataset.index, 10);
         if (isNaN(index) || !panels[index]) return;

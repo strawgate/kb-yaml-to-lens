@@ -179,11 +179,13 @@ class PanelGridInfo(BaseLSPModel):
     title: str
     """Panel title."""
     type: str
-    """Panel type (e.g., 'esql', 'markdown')."""
+    """Panel type (e.g., 'esql', 'markdown', 'section')."""
     grid: Grid
     """Grid position and size."""
     is_pinned: bool
     """Whether the panel has an explicit position (not auto-positioned)."""
+    panels: list['PanelGridInfo'] = []
+    """Child panels (only populated for section panels)."""
 
 
 class DashboardGridInfo(BaseLSPModel):
