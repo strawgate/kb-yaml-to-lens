@@ -26,6 +26,7 @@ class KbnGridData(BaseVwModel):
     w: int
     h: int
     i: str
+    sectionId: Annotated[str | None, OmitIfNone()] = None
 
 
 class KbnBasePanelEmbeddableConfig(BaseVwModel):

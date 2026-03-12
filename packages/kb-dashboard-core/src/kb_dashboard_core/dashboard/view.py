@@ -23,10 +23,26 @@ class KbnDashboardOptions(BaseModel):
     """Whether to hide the titles in the panel headers."""
 
 
+class KbnDashboardSectionGridData(BaseVwModel):
+    """Grid metadata for a collapsible dashboard section header."""
+
+    y: int
+    i: str
+
+
+class KbnDashboardSection(BaseVwModel):
+    """Represents a collapsible dashboard section in Kibana saved object attributes."""
+
+    title: str
+    collapsed: Annotated[bool | None, OmitIfNone()] = None
+    gridData: KbnDashboardSectionGridData
+
+
 class KbnDashboardAttributes(BaseVwModel):
     title: str
     description: str
     panelsJSON: list[KbnBasePanel]
+    sections: Annotated[list[KbnDashboardSection] | None, OmitIfNone()] = Field(default=None)
     optionsJSON: KbnDashboardOptions
     kibanaSavedObjectMeta: KbnSavedObjectMeta
     timeRestore: bool

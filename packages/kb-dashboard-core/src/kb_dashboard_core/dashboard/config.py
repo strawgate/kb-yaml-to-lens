@@ -1,15 +1,52 @@
-from typing import Self
+from typing import Annotated, Self
 
-from pydantic import Field
+from pydantic import Discriminator, Field, Tag
 
 from kb_dashboard_core.controls import ControlTypes
 from kb_dashboard_core.controls.config import ControlSettings
 from kb_dashboard_core.filters.config import FilterTypes
 from kb_dashboard_core.panels.auto_layout import LayoutAlgorithm
-from kb_dashboard_core.panels.types import PanelTypes
+from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
+from kb_dashboard_core.panels.collapsible import CollapsiblePanel
+from kb_dashboard_core.panels.images import ImagePanel
+from kb_dashboard_core.panels.links import LinksPanel
+from kb_dashboard_core.panels.markdown import MarkdownPanel
+from kb_dashboard_core.panels.search import SearchPanel
+from kb_dashboard_core.panels.types import PanelTypes, get_panel_type
+from kb_dashboard_core.panels.vega import VegaPanel
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.sample_data.config import SampleData
 from kb_dashboard_core.shared.config import BaseCfgModel
+
+
+def get_dashboard_panel_type(v: dict[str, object] | object) -> str:
+    """Extract panel type for discriminated union validation, including collapsible sections.
+
+    Args:
+        v: Either a dict (during validation) or a panel instance.
+
+    Returns:
+        str: The panel type identifier.
+
+    """
+    if isinstance(v, dict) and 'section' in v:
+        return 'section'
+    if not isinstance(v, dict) and isinstance(v, CollapsiblePanel):
+        return 'section'
+    return get_panel_type(v)
+
+
+type DashboardPanelTypes = Annotated[
+    Annotated[MarkdownPanel, Tag('markdown')]
+    | Annotated[SearchPanel, Tag('search')]
+    | Annotated[LinksPanel, Tag('links')]
+    | Annotated[ImagePanel, Tag('image')]
+    | Annotated[LensPanel, Tag('lens')]
+    | Annotated[ESQLPanel, Tag('esql')]
+    | Annotated[VegaPanel, Tag('vega')]
+    | Annotated[CollapsiblePanel, Tag('section')],
+    Discriminator(get_dashboard_panel_type),
+]
 
 
 class TimeRange(BaseCfgModel):
@@ -76,7 +113,7 @@ class Dashboard(BaseCfgModel):
     controls: list[ControlTypes] = Field(default_factory=list)
     """A list of Controls for the dashboard."""
 
-    panels: list[PanelTypes] = Field(default_factory=list)
+    panels: list[DashboardPanelTypes] = Field(default_factory=list)
     """A list of Panels defining the content and layout of the dashboard."""
 
     sample_data: SampleData | None = Field(default=None)
@@ -110,7 +147,7 @@ class Dashboard(BaseCfgModel):
 
         return self
 
-    def add_panel(self, panel: PanelTypes) -> Self:
+    def add_panel(self, panel: DashboardPanelTypes) -> Self:
         """Add a panel object to the dashboard's panels list.
 
         Args:
