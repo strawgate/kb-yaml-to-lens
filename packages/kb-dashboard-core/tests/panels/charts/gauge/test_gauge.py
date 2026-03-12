@@ -236,7 +236,7 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
     """Test the compilation of gauge charts with different shape options."""
-    shapes = ['horizontalBullet', 'verticalBullet', 'arc', 'circle']
+    shapes = ['horizontalBullet', 'verticalBullet', 'arc', 'circle', 'semiCircle']
 
     for shape in shapes:
         config = {

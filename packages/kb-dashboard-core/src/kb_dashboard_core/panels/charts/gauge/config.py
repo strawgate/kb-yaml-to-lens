@@ -17,7 +17,7 @@ class GaugeAppearance(BaseCfgModel):
     labels, and color mode.
     """
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle', 'semiCircle'] | None = Field(default=None)
     """The shape of the gauge visualization."""
 
     ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(default=None)

@@ -50,7 +50,7 @@ class KbnGaugeVisualizationState(BaseVwModel):
     goalAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for the goal/target metric (shown as reference line)."""
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] = Field(default='arc')
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle', 'semiCircle'] = Field(default='arc')
     """The shape of the gauge visualization. Defaults to 'arc'."""
 
     ticksPosition: Literal['auto', 'bands', 'hidden'] = Field(default='auto')
