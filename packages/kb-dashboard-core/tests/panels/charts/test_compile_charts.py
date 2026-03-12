@@ -1021,9 +1021,9 @@ class TestESQLDataTypeDate:
 
         # Verify meta fields are set correctly
         assert hasattr(dim_column, 'meta')
-        assert dim_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        assert dim_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        assert dim_column.meta.esType == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert dim_column.meta is not None
+        assert dim_column.meta.type == 'date'
+        assert dim_column.meta.esType == 'date'
 
     def test_dimension_without_data_type_has_no_meta(self) -> None:
         """Test that dimension without data_type does not have meta field."""
@@ -1054,7 +1054,7 @@ class TestESQLDataTypeDate:
 
         # Verify meta field is None
         assert hasattr(dim_column, 'meta')
-        assert dim_column.meta is None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert dim_column.meta is None
 
     def test_breakdown_dimension_with_data_type_date(self) -> None:
         """Test that breakdown dimension with data_type: 'date' works correctly."""
@@ -1086,9 +1086,9 @@ class TestESQLDataTypeDate:
 
         # Verify meta fields are set correctly
         assert hasattr(breakdown_column, 'meta')
-        assert breakdown_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        assert breakdown_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        assert breakdown_column.meta.esType == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert breakdown_column.meta is not None
+        assert breakdown_column.meta.type == 'date'
+        assert breakdown_column.meta.esType == 'date'
 
     def test_pie_chart_with_date_dimension(self) -> None:
         """Test that pie chart with date dimension correctly sets meta fields."""
@@ -1117,8 +1117,8 @@ class TestESQLDataTypeDate:
         assert dim_column is not None
 
         assert hasattr(dim_column, 'meta')
-        assert dim_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        assert dim_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert dim_column.meta is not None
+        assert dim_column.meta.type == 'date'
 
     def test_heatmap_x_axis_with_data_type_date(self) -> None:
         """Test that heatmap x_axis with data_type: 'date' correctly sets meta fields."""
@@ -1148,8 +1148,8 @@ class TestESQLDataTypeDate:
         assert x_axis_column is not None
 
         assert hasattr(x_axis_column, 'meta')
-        assert x_axis_column.meta is not None  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
-        assert x_axis_column.meta.type == 'date'  # pyright: ignore[reportAttributeAccessIssue,reportUnknownMemberType]
+        assert x_axis_column.meta is not None
+        assert x_axis_column.meta.type == 'date'
 
 
 class TestCompileChartsPanelConfig:
