@@ -5,6 +5,9 @@ from pydantic import Field, model_validator
 
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel
 
+PERCENT_MAX = 100
+"""Maximum value for percent-based range stops."""
+
 
 class BaseChart(BaseIdentifiableModel):
     """Base configuration for all chart types."""
@@ -96,5 +99,19 @@ class ColorRangeMapping(BaseCfgModel):
     range_type: Literal['number', 'percent'] = Field(default='number')
     """How stop values are interpreted by Kibana."""
 
-    stops: list[ColorRangeStop] = Field(default_factory=list, min_length=1)
+    stops: list[ColorRangeStop] = Field(min_length=1)
     """Ordered range stops used to build gauge-style color palettes."""
+
+    @model_validator(mode='after')
+    def validate_stops(self) -> 'ColorRangeMapping':
+        """Validate stop ordering and percent bounds."""
+        stop_values = [color_stop.stop for color_stop in self.stops]
+        if stop_values != sorted(stop_values):
+            msg = "'stops' must be sorted in ascending order"
+            raise ValueError(msg)
+        if self.range_type == 'percent':
+            for stop_value in stop_values:
+                if stop_value < 0 or stop_value > PERCENT_MAX:
+                    msg = f'Percent-based stops must be between 0 and {PERCENT_MAX}'
+                    raise ValueError(msg)
+        return self

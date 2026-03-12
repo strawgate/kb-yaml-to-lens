@@ -1,8 +1,8 @@
 """Base classes for chart visualizations."""
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
@@ -135,6 +135,14 @@ class KbnGaugePalette(BaseVwModel):
 
     colorStops: list[str] = Field(...)
     """Color list aligned by index with `stops`."""
+
+    @model_validator(mode='after')
+    def validate_stop_alignment(self) -> Self:
+        """Validate that stops and colorStops have matching lengths."""
+        if len(self.stops) != len(self.colorStops):
+            msg = "'stops' and 'colorStops' must have the same length"
+            raise ValueError(msg)
+        return self
 
 
 class KbnBaseStateVisualizationLayer(BaseVwModel):

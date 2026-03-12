@@ -492,9 +492,12 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 
 ### Color Mapping Formatting (`color` field)
 
+See [ColorValueMapping](base.md#colorvaluemapping-object) for full details on color customization options.
+
 | YAML Key | Data Type | Description | Kibana Default | Required |
-| --------- | --------- | ------------------------------------------------ | ---------------- | -------- |
-| `palette` | `string` | The ID of the color palette to use (e.g., `default`, `elasticColors`). | `default` | Yes |
+| ------------- | -------------------------- | ------------------------------------------------ | -------------------------------- | -------- |
+| `palette` | `string` | The ID of the color palette to use (e.g., `eui_amsterdam_color_blind`, `elastic_brand`). | `eui_amsterdam_color_blind` | No |
+| `assignments` | `list[ColorValueAssignment]` | Manual color assignments to specific data values. See [ColorValueAssignment](base.md#colorvalueassignment-object). | `[]` | No |
 
 ---
 
