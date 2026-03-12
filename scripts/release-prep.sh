@@ -25,6 +25,18 @@ else
 fi
 
 echo "Preparing release v${VERSION}"
+
+# Determine the last release tag for diff-scoped reviews
+LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+if [ -n "$LAST_TAG" ]; then
+    DIFF_RANGE="${LAST_TAG}..HEAD"
+    echo "Last release: ${LAST_TAG}"
+    echo "Review scope: ${DIFF_RANGE}"
+else
+    DIFF_RANGE=""
+    echo "No previous release tag found — issues will review the full codebase"
+fi
+
 echo "Creating pre-release review issues..."
 echo
 
@@ -34,57 +46,100 @@ LABEL="release-prep"
 # Ensure the label exists
 gh label create "$LABEL" --repo "$REPO" --color "D4C5F9" --description "Pre-release preparation tasks" 2>/dev/null || true
 
+# Build reusable diff context for issue bodies
+if [ -n "$DIFF_RANGE" ]; then
+    COMMIT_LOG=$(git log "$DIFF_RANGE" --oneline)
+    CHANGED_FILES=$(git diff --stat "$DIFF_RANGE" | tail -1)
+    CHANGED_DOCS=$(git diff --name-only "$DIFF_RANGE" -- '*.md' 'RELEASE.md' 'DEVELOPING.md' 'CONTRIBUTING.md' || true)
+    CHANGED_PY=$(git diff --name-only "$DIFF_RANGE" -- '*.py' || true)
+    CHANGED_TS=$(git diff --name-only "$DIFF_RANGE" -- '*.ts' '*.tsx' || true)
+    CHANGED_TESTS=$(git diff --name-only "$DIFF_RANGE" -- '*test*' '*tests*' || true)
+
+    DIFF_CONTEXT_HEADER="### Scope
+
+This review covers changes between \`${LAST_TAG}\` and \`HEAD\` ($(echo "$COMMIT_LOG" | wc -l | tr -d ' ') commits, ${CHANGED_FILES}).
+
+<details>
+<summary>Commit log</summary>
+
+\`\`\`
+${COMMIT_LOG}
+\`\`\`
+
+</details>"
+else
+    CHANGED_DOCS=""
+    CHANGED_PY=""
+    CHANGED_TS=""
+    CHANGED_TESTS=""
+    DIFF_CONTEXT_HEADER=""
+fi
+
 # ============================================================================
 # Issue 1: Documentation Review
 # ============================================================================
 echo "Creating issue: Documentation Review..."
-gh issue create --repo "$REPO" \
-    --label "$LABEL" \
-    --title "Release v${VERSION}: Documentation review" \
-    --body "$(cat <<'BODY'
-## Task
 
-Review all documentation for accuracy ahead of the v__VERSION__ release.
+# Build doc-specific file list
+if [ -n "$CHANGED_DOCS" ]; then
+    DOC_FILE_LIST=$(echo "$CHANGED_DOCS" | sed 's/^/- [ ] `/' | sed 's/$/`/')
+    DOC_SCOPE_NOTE="The following documentation files were modified since \`${LAST_TAG}\` and should be reviewed for accuracy:
 
-### Files to review
+${DOC_FILE_LIST}
 
-- [ ] `RELEASE.md` — release steps match current tooling (just vs make)
-- [ ] `DEVELOPING.md` — setup instructions work on a fresh clone
-- [ ] `CONTRIBUTING.md` — contribution guide is current
-- [ ] `packages/kb-dashboard-cli/DEVELOPING.md`
-- [ ] `packages/kb-dashboard-core/DEVELOPING.md`
-- [ ] `packages/vscode-extension/DEVELOPING.md`
-- [ ] `packages/kb-dashboard-docs/DEVELOPING.md`
-- [ ] `packages/kb-dashboard-docs/content/CLI.md` — CLI usage instructions
-- [ ] `packages/kb-dashboard-docs/content/vscode-extension.md`
-- [ ] `packages/kb-dashboard-docs/content/panels/*.md` — panel documentation
+Also check that any new features introduced in this release are documented."
+else
+    DOC_SCOPE_NOTE="No documentation files were modified since \`${LAST_TAG}\`. Check that any new features introduced in this release have adequate documentation."
+fi
+
+DOC_BODY="## Task
+
+Review documentation for accuracy ahead of the v${VERSION} release.
+
+${DIFF_CONTEXT_HEADER}
+
+### Focus areas
+
+${DOC_SCOPE_NOTE}
 
 ### What to look for
 
-- Commands that reference `make` instead of `just` (or vice versa)
+- Commands that reference \`make\` instead of \`just\` (or vice versa)
 - Outdated version numbers or package names
 - Broken links or references to removed files
-- Missing documentation for new features (e.g., collapsible sections)
+- Missing documentation for new features
 - Setup instructions that skip required steps
 - Examples that no longer work
 
+### How to find changed docs
+
+\`\`\`bash
+# Docs modified since last release
+git diff --name-only ${LAST_TAG}..HEAD -- '*.md'
+
+# All commits touching docs
+git log ${LAST_TAG}..HEAD --oneline -- '*.md'
+\`\`\`
+
 ### Definition of done
 
-Open a PR fixing any issues found, or comment confirming all docs are accurate.
-BODY
-)" | sed "s/__VERSION__/${VERSION}/g"
+Open a PR fixing any issues found, or comment confirming all docs are accurate."
+
+gh issue create --repo "$REPO" \
+    --label "$LABEL" \
+    --title "Release v${VERSION}: Documentation review" \
+    --body "$DOC_BODY"
 
 # ============================================================================
 # Issue 2: Release Dry Run
 # ============================================================================
 echo "Creating issue: Release Dry Run..."
-gh issue create --repo "$REPO" \
-    --label "$LABEL" \
-    --title "Release v${VERSION}: Dry run of release steps" \
-    --body "$(cat <<BODY
-## Task
 
-Perform a dry run of the release process to catch issues before tagging.
+DRY_RUN_BODY="## Task
+
+Perform a dry run of the release process to catch issues before tagging v${VERSION}.
+
+${DIFF_CONTEXT_HEADER}
 
 ### Steps
 
@@ -123,82 +178,115 @@ Perform a dry run of the release process to catch issues before tagging.
 
 ### Definition of done
 
-Comment with results of each step. If any step fails, open a PR to fix it.
-BODY
-)"
+Comment with results of each step. If any step fails, open a PR to fix it."
+
+gh issue create --repo "$REPO" \
+    --label "$LABEL" \
+    --title "Release v${VERSION}: Dry run of release steps" \
+    --body "$DRY_RUN_BODY"
 
 # ============================================================================
 # Issue 3: Code Quality Scan
 # ============================================================================
 echo "Creating issue: Code Quality Scan..."
-gh issue create --repo "$REPO" \
-    --label "$LABEL" \
-    --title "Release v${VERSION}: Code quality scan" \
-    --body "$(cat <<'BODY'
-## Task
 
-Scan the codebase for code smells, dead code, and quality issues before release.
+# Build changed-files context for code quality
+QUALITY_FILE_CONTEXT=""
+if [ -n "$DIFF_RANGE" ]; then
+    QUALITY_FILE_CONTEXT="### Changed files to focus on
 
-### Areas to check
+\`\`\`bash
+# Python files changed since ${LAST_TAG}
+git diff --name-only ${DIFF_RANGE} -- '*.py'
 
-- [ ] **Dead code**: Unused functions, classes, imports, or variables across all packages
-- [ ] **Dead files**: Files that are not imported or referenced anywhere
+# TypeScript files changed since ${LAST_TAG}
+git diff --name-only ${DIFF_RANGE} -- '*.ts' '*.tsx'
+
+# Full diff for review
+git diff ${DIFF_RANGE} -- '*.py' '*.ts' '*.tsx'
+\`\`\`"
+fi
+
+QUALITY_BODY="## Task
+
+Scan code changed since \`${LAST_TAG}\` for code smells, dead code, and quality issues before the v${VERSION} release.
+
+${DIFF_CONTEXT_HEADER}
+
+${QUALITY_FILE_CONTEXT}
+
+### Areas to check (focused on changed code)
+
+- [ ] **Dead code**: Unused functions, classes, imports, or variables in changed files
 - [ ] **TODO/FIXME/HACK comments**: Review and resolve or convert to issues
 - [ ] **Commented-out code**: Remove or restore
 - [ ] **Inconsistent error handling**: Missing error messages, swallowed exceptions
-- [ ] **Type safety**: Any `type: ignore` comments that can be resolved, `Any` types that should be narrowed
+- [ ] **Type safety**: Any \`type: ignore\` comments that can be resolved, \`Any\` types that should be narrowed
 - [ ] **Test coverage gaps**: Important code paths without tests (especially new features)
 - [ ] **Dependency health**: Outdated or vulnerable dependencies
 
 ### Commands to run
 
-```bash
-# Find TODOs/FIXMEs
-rg "TODO|FIXME|HACK|XXX" --type py --type ts -g '!node_modules' -g '!.venv'
+\`\`\`bash
+# Find TODOs/FIXMEs in changed files
+git diff --name-only ${LAST_TAG}..HEAD -- '*.py' '*.ts' | xargs rg 'TODO|FIXME|HACK|XXX' || true
 
-# Find type: ignore comments
-rg "type: ignore" --type py
+# Find type: ignore in changed Python files
+git diff --name-only ${LAST_TAG}..HEAD -- '*.py' | xargs rg 'type: ignore' || true
 
-# Check for unused imports (Python)
+# Run linters (full suite)
 just core lint
 just cli lint
 just tools lint
 just lint lint
-
-# TypeScript lint
 just vscode lint
-```
+\`\`\`
 
 ### Definition of done
 
-Open PRs for any fixes, or comment confirming the codebase is clean.
-BODY
-)"
+Open PRs for any fixes, or comment confirming the changed code is clean."
+
+gh issue create --repo "$REPO" \
+    --label "$LABEL" \
+    --title "Release v${VERSION}: Code quality scan" \
+    --body "$QUALITY_BODY"
 
 # ============================================================================
 # Issue 4: Test Suite Review
 # ============================================================================
 echo "Creating issue: Test Suite Review..."
-gh issue create --repo "$REPO" \
-    --label "$LABEL" \
-    --title "Release v${VERSION}: Test suite review" \
-    --body "$(cat <<'BODY'
-## Task
 
-Review the test suite for completeness and reliability before release.
+TEST_BODY="## Task
+
+Review the test suite for completeness and reliability before the v${VERSION} release, with focus on changes since \`${LAST_TAG}\`.
+
+${DIFF_CONTEXT_HEADER}
 
 ### Checks
 
-- [ ] **All tests pass**: `just all ci`
-- [ ] **New features have tests**: Check recent PRs for test coverage
+- [ ] **All tests pass**: \`just all ci\`
+- [ ] **New/modified features have tests**: Review changed source files and verify test coverage
+- [ ] **New/modified tests are correct**: Review changed test files for correctness
 - [ ] **Flaky tests**: Identify any tests that fail intermittently
-- [ ] **Test examples match docs**: Verify docstring/doctest examples still work
-- [ ] **Example dashboards compile**: All YAML files in `packages/kb-dashboard-docs/content/examples/` should compile without errors
-- [ ] **E2E tests**: Run `just cli test-e2e` and `just vscode test-e2e` if environments are available
+- [ ] **Example dashboards compile**: All YAML files in \`packages/kb-dashboard-docs/content/examples/\` should compile without errors
+- [ ] **E2E tests**: Run \`just cli test-e2e\` and \`just vscode test-e2e\` if environments are available
+
+### How to find what changed
+
+\`\`\`bash
+# Test files changed since ${LAST_TAG}
+git diff --name-only ${LAST_TAG}..HEAD -- '*test*' '*tests*'
+
+# Source files changed (check these have test coverage)
+git diff --name-only ${LAST_TAG}..HEAD -- '*.py' '*.ts' | grep -v test
+
+# Feature commits that should have tests
+git log ${LAST_TAG}..HEAD --oneline --grep='feat:'
+\`\`\`
 
 ### Commands
 
-```bash
+\`\`\`bash
 # Run all unit tests
 just core test
 just cli test
@@ -210,13 +298,16 @@ just cli test-e2e
 
 # Run doctest examples
 just core test  # includes doctests
-```
+\`\`\`
 
 ### Definition of done
 
-Comment confirming all tests pass and coverage is adequate for new features.
-BODY
-)"
+Comment confirming all tests pass and coverage is adequate for new features."
+
+gh issue create --repo "$REPO" \
+    --label "$LABEL" \
+    --title "Release v${VERSION}: Test suite review" \
+    --body "$TEST_BODY"
 
 # ============================================================================
 # Issue 5: CHANGELOG / Release Notes Draft
@@ -224,13 +315,16 @@ BODY
 echo "Creating issue: Release Notes Draft..."
 RELEASE_NOTES_BODY="## Task
 
-Draft release notes for v${VERSION} based on changes since the last release.
+Draft release notes for v${VERSION} based on changes since \`${LAST_TAG}\`.
+
+${DIFF_CONTEXT_HEADER}
 
 ### Steps
 
 1. Review commits since last tag:
    \`\`\`bash
-   git log \$(git describe --tags --abbrev=0)..HEAD --oneline
+   git log ${LAST_TAG}..HEAD --oneline
+   git diff --stat ${LAST_TAG}..HEAD
    \`\`\`
 
 2. Categorize changes:
