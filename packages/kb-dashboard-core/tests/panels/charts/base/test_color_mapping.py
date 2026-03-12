@@ -174,6 +174,84 @@ class TestCompileColorValueMapping:
         )
 
 
+class TestColorRangeMappingValidation:
+    """Tests for ColorRangeMapping validation."""
+
+    def test_rejects_non_ascending_stops(self) -> None:
+        """Test that non-ascending stops raise validation error."""
+        import pytest
+
+        with pytest.raises(ValueError, match="'stops' must be sorted in ascending order"):
+            ColorRangeMapping(
+                range_type='number',
+                stops=[
+                    ColorRangeStop(stop=80, color='#00BF6F'),
+                    ColorRangeStop(stop=50, color='#FFA500'),
+                ],
+            )
+
+    def test_rejects_percent_stops_below_zero(self) -> None:
+        """Test that percent range type validates lower bound."""
+        import pytest
+
+        with pytest.raises(ValueError, match='Percent-based stops must be between 0 and 100'):
+            ColorRangeMapping(
+                range_type='percent',
+                stops=[
+                    ColorRangeStop(stop=-10, color='#00BF6F'),
+                    ColorRangeStop(stop=50, color='#BD271E'),
+                ],
+            )
+
+    def test_rejects_percent_stops_above_hundred(self) -> None:
+        """Test that percent range type validates upper bound."""
+        import pytest
+
+        with pytest.raises(ValueError, match='Percent-based stops must be between 0 and 100'):
+            ColorRangeMapping(
+                range_type='percent',
+                stops=[
+                    ColorRangeStop(stop=0, color='#00BF6F'),
+                    ColorRangeStop(stop=150, color='#BD271E'),
+                ],
+            )
+
+    def test_accepts_valid_ascending_stops(self) -> None:
+        """Test that valid ascending stops are accepted."""
+        mapping = ColorRangeMapping(
+            range_type='number',
+            stops=[
+                ColorRangeStop(stop=0, color='#00BF6F'),
+                ColorRangeStop(stop=50, color='#FFA500'),
+                ColorRangeStop(stop=100, color='#BD271E'),
+            ],
+        )
+        assert len(mapping.stops) == 3
+
+    def test_accepts_valid_percent_stops_within_bounds(self) -> None:
+        """Test that valid percent stops within 0-100 are accepted."""
+        mapping = ColorRangeMapping(
+            range_type='percent',
+            stops=[
+                ColorRangeStop(stop=0, color='#00BF6F'),
+                ColorRangeStop(stop=50, color='#FFA500'),
+                ColorRangeStop(stop=100, color='#BD271E'),
+            ],
+        )
+        assert len(mapping.stops) == 3
+
+    def test_number_type_allows_values_outside_percent_bounds(self) -> None:
+        """Test that number range type allows values outside 0-100."""
+        mapping = ColorRangeMapping(
+            range_type='number',
+            stops=[
+                ColorRangeStop(stop=-50, color='#00BF6F'),
+                ColorRangeStop(stop=200, color='#BD271E'),
+            ],
+        )
+        assert len(mapping.stops) == 2
+
+
 class TestCompileColorRangeMapping:
     """Tests for compile_color_range_mapping function."""
 
