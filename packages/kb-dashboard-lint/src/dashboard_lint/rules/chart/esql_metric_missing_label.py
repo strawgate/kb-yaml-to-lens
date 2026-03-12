@@ -49,7 +49,6 @@ class ESQLMetricMissingLabelRule(ChartRule[ESQLDatatablePanelConfig, EmptyOption
         violations: list[Violation] = []
 
         for idx, metric in enumerate(config.metrics):
-            # Only check ESQLMetric types (not ESQLStaticValue which has different semantics)
             if isinstance(metric, ESQLMetric) and (metric.label is None or len(metric.label) == 0):
                 violations.append(
                     Violation(
