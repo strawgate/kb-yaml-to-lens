@@ -236,6 +236,49 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
     )
 
 
+def test_compile_gauge_chart_with_range_palette() -> None:
+    """Test the compilation of a gauge chart with range-based palette stops."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'appearance': {
+            'color_mode': 'palette',
+            'palette': {
+                'range_type': 'percent',
+                'stops': [
+                    {'stop': 0, 'color': '#00BF6F'},
+                    {'stop': 80, 'color': '#FFA500'},
+                    {'stop': 95, 'color': '#BD271E'},
+                ],
+            },
+        },
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'metric_accessor',
+            'shape': 'arc',
+            'ticksPosition': 'auto',
+            'labelMajorMode': 'auto',
+            'colorMode': 'palette',
+            'palette': {
+                'rangeType': 'percent',
+                'stops': [0.0, 80.0, 95.0],
+                'colorStops': ['#00BF6F', '#FFA500', '#BD271E'],
+            },
+        }
+    )
+
+
 def test_compile_gauge_chart_with_all_shapes() -> None:
     """Test the compilation of gauge charts with different shape options for both Lens and ESQL."""
     chart_configs: dict[str, dict[str, Any]] = {

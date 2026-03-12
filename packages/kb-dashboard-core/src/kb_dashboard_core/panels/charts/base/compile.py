@@ -1,12 +1,13 @@
 """Compilation utilities for base chart components."""
 
-from kb_dashboard_core.panels.charts.base.config import ColorMapping
+from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorValueMapping
 from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
     KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
     KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
+    KbnGaugePalette,
     KbnLayerColorMapping,
     KbnLayerColorMappingAssignment,
     KbnLayerColorMappingColor,
@@ -15,8 +16,8 @@ from kb_dashboard_core.panels.charts.base.view import (
 )
 
 
-def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMapping:
-    """Compile a ColorMapping config object into a Kibana color mapping view model.
+def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLayerColorMapping:
+    """Compile a ColorValueMapping config object into a Kibana color mapping view model.
 
     Args:
         color_config: The color configuration from YAML, or None for default color mapping.
@@ -25,9 +26,9 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
         KbnLayerColorMapping: The compiled Kibana color mapping view model with defaults if no config provided.
 
     """
-    # Use default ColorMapping if none provided
+    # Use default ColorValueMapping if none provided
     if color_config is None:
-        color_config = ColorMapping()
+        color_config = ColorValueMapping()
 
     # Build manual color assignments
     kbn_assignments: list[KbnLayerColorMappingAssignment] = []
@@ -74,4 +75,16 @@ def compile_color_mapping(color_config: ColorMapping | None) -> KbnLayerColorMap
         colorMode=color_mode,
         assignments=kbn_assignments,
         specialAssignments=special_assignments,
+    )
+
+
+def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnGaugePalette | None:
+    """Compile a range-based color config into Kibana gauge palette format."""
+    if color_config is None:
+        return None
+
+    return KbnGaugePalette(
+        rangeType=color_config.range_type,
+        stops=[stop.stop for stop in color_config.stops],
+        colorStops=[stop.color for stop in color_config.stops],
     )

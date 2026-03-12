@@ -179,7 +179,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens). | `None` | No |
-| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None` | No |
+| `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None` | No |
 
 **Example (ESQL Pie Chart):**
 
@@ -221,7 +221,7 @@ Displays bar chart visualizations with data sourced from an ESQL query. Supports
 | `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
 | `legend` | `XYLegend` object | Formatting options for the chart legend. See [XY Legend](#xy-legend-formatting-legend-field). | `None` | No |
-| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
+| `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
 
 **Example (ESQL Bar Chart):**
 
@@ -262,7 +262,7 @@ Displays line chart visualizations with data sourced from an ESQL query. The `fi
 | `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
 | `legend` | `XYLegend` object | Formatting options for the chart legend. See [XY Legend](#xy-legend-formatting-legend-field). | `None` | No |
-| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
+| `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
 
 **Example (ESQL Line Chart):**
 
@@ -303,7 +303,7 @@ Displays area chart visualizations with data sourced from an ESQL query. Support
 | `breakdown` | `ESQLDimension` object | An optional dimension to split the series by. Its `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | `None` | No |
 | `appearance` | `XYAppearance` object | Formatting options for chart appearance. See [XY Chart Appearance](#xy-chart-appearance-formatting-appearance-field). | `None` | No |
 | `legend` | `XYLegend` object | Formatting options for the chart legend. See [XY Legend](#xy-legend-formatting-legend-field). | `None` | No |
-| `color` | `ColorMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
+| `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with other chart types). | `None` | No |
 
 **Example (ESQL Area Chart):**
 

@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING, Final, Literal
 
+from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLStaticValue
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -56,6 +57,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     label_major = appearance.label_major if appearance is not None else None
     label_minor = appearance.label_minor if appearance is not None else None
     color_mode = appearance.color_mode if appearance is not None else None
+    palette = compile_color_range_mapping(appearance.palette) if appearance is not None else None
 
     label_major_mode = 'custom' if label_major is not None else 'auto'
 
@@ -71,6 +73,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
         labelMinor=label_minor,
         labelMajorMode=label_major_mode,
         colorMode=color_mode,
+        palette=palette,
     )
 
 

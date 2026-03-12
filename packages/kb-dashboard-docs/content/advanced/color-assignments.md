@@ -51,16 +51,16 @@ In this example:
 
 ## Configuration Reference
 
-### ColorMapping Object
+### ColorValueMapping Object
 
-The `color` field on chart panels accepts a `ColorMapping` object:
+The `color` field on chart panels accepts a `ColorValueMapping` object:
 
 | YAML Key | Data Type | Description | Default | Required |
 | -------- | --------- | ----------- | ------- | -------- |
 | `palette` | `string` | The color palette ID to use for unassigned colors. | `'eui_amsterdam_color_blind'` | No |
-| `assignments` | `list[ColorAssignment]` | Manual color assignments to specific data values. | `[]` | No |
+| `assignments` | `list[ColorValueAssignment]` | Manual color assignments to specific data values. | `[]` | No |
 
-### ColorAssignment Object
+### ColorValueAssignment Object
 
 Each item in the `assignments` list specifies a color for one or more data values:
 

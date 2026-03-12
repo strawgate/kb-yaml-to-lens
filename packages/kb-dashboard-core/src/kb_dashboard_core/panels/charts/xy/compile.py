@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_mapping
+from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
 from kb_dashboard_core.panels.charts.base.config import LegendVisibleEnum
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metrics
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -383,7 +383,7 @@ def compile_xy_chart_visualization_state(
     """
     series_type: str = compile_series_type(chart=chart)
 
-    kbn_color_mapping = compile_color_mapping(chart.color)
+    kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     # Build yConfig from metric appearance properties
     y_config: list[YConfig] | None = None

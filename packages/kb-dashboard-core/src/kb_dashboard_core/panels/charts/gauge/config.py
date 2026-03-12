@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -31,6 +31,9 @@ class GaugeAppearance(BaseCfgModel):
 
     color_mode: Literal['none', 'palette'] | None = Field(default=None)
     """Color mode for the gauge visualization."""
+
+    palette: ColorRangeMapping | None = Field(default=None)
+    """Range-based palette configuration for gauge thresholds."""
 
 
 class BaseGaugeChart(BaseCfgModel):

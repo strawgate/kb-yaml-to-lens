@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -56,7 +56,7 @@ class LensMetricChart(BaseChart):
     breakdown: LensDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = Field(default=None)
+    color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
     color_mode: Literal['none', 'labels', 'background'] | None = Field(default=None)
@@ -105,7 +105,7 @@ class ESQLMetricChart(BaseChart):
     breakdown: ESQLDimensionTypes | None = Field(default=None)
     """An optional breakdown metric to display, often used for comparison or thresholds."""
 
-    color: ColorMapping | None = Field(default=None)
+    color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
     color_mode: Literal['none', 'labels', 'background'] | None = Field(default=None)

@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnGaugePalette
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -67,3 +68,6 @@ class KbnGaugeVisualizationState(BaseVwModel):
 
     colorMode: Annotated[Literal['none', 'palette'] | None, OmitIfNone()] = Field(default=None)
     """Color mode for the gauge visualization."""
+
+    palette: Annotated[KbnGaugePalette | None, OmitIfNone()] = Field(default=None)
+    """Range-based palette settings for threshold coloring."""

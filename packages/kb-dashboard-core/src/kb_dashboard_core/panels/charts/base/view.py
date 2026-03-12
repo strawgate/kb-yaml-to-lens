@@ -1,6 +1,6 @@
 """Base classes for chart visualizations."""
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -122,6 +122,19 @@ class KbnLayerColorMapping(BaseVwModel):
 
     colorMode: dict[str, str] = Field(...)
     """Color assignment mode configuration (set during compilation)."""
+
+
+class KbnGaugePalette(BaseVwModel):
+    """Range-based gauge palette configuration."""
+
+    rangeType: Literal['number', 'percent'] = Field(...)
+    """How stop values are interpreted."""
+
+    stops: list[float] = Field(...)
+    """Numeric stop values for each color threshold."""
+
+    colorStops: list[str] = Field(...)
+    """Color list aligned by index with `stops`."""
 
 
 class KbnBaseStateVisualizationLayer(BaseVwModel):
