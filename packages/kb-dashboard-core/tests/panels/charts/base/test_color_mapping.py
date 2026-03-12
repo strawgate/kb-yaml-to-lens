@@ -1,6 +1,8 @@
 """Tests for color mapping compilation utilities."""
 
+import pytest
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping, compile_color_value_mapping
 from kb_dashboard_core.panels.charts.base.config import (
@@ -174,14 +176,26 @@ class TestCompileColorValueMapping:
         )
 
 
+class TestColorValueAssignmentValidation:
+    """Tests for ColorValueAssignment validation."""
+
+    def test_rejects_assignment_without_value_or_values(self) -> None:
+        """Test that assignment requires at least one of value or values."""
+        with pytest.raises(ValidationError, match="At least one of 'value' or 'values' must be provided"):
+            ColorValueAssignment(color='#FF0000')
+
+    def test_rejects_assignment_with_empty_values_list(self) -> None:
+        """Test that assignment rejects empty values list when value is also None."""
+        with pytest.raises(ValidationError, match="At least one of 'value' or 'values' must be provided"):
+            ColorValueAssignment(values=[], color='#FF0000')
+
+
 class TestColorRangeMappingValidation:
     """Tests for ColorRangeMapping validation."""
 
-    def test_rejects_non_ascending_stops(self) -> None:
-        """Test that non-ascending stops raise validation error."""
-        import pytest
-
-        with pytest.raises(ValueError, match="'stops' must be sorted in ascending order"):
+    def test_rejects_unsorted_stops(self) -> None:
+        """Test that stops must be in ascending order."""
+        with pytest.raises(ValidationError, match='sorted in ascending order'):
             ColorRangeMapping(
                 range_type='number',
                 stops=[
@@ -190,11 +204,20 @@ class TestColorRangeMappingValidation:
                 ],
             )
 
-    def test_rejects_percent_stops_below_zero(self) -> None:
-        """Test that percent range type validates lower bound."""
-        import pytest
+    def test_rejects_percent_stop_above_100(self) -> None:
+        """Test that percent-based stops cannot exceed 100."""
+        with pytest.raises(ValidationError, match='between 0 and 100'):
+            ColorRangeMapping(
+                range_type='percent',
+                stops=[
+                    ColorRangeStop(stop=0, color='#00BF6F'),
+                    ColorRangeStop(stop=150, color='#BD271E'),
+                ],
+            )
 
-        with pytest.raises(ValueError, match='Percent-based stops must be between 0 and 100'):
+    def test_rejects_percent_stop_below_zero(self) -> None:
+        """Test that percent-based stops cannot be negative."""
+        with pytest.raises(ValidationError, match='between 0 and 100'):
             ColorRangeMapping(
                 range_type='percent',
                 stops=[
@@ -203,18 +226,18 @@ class TestColorRangeMappingValidation:
                 ],
             )
 
-    def test_rejects_percent_stops_above_hundred(self) -> None:
-        """Test that percent range type validates upper bound."""
-        import pytest
+    def test_rejects_empty_stops(self) -> None:
+        """Test that at least one stop is required."""
+        with pytest.raises(ValidationError):
+            ColorRangeMapping(range_type='number', stops=[])
 
-        with pytest.raises(ValueError, match='Percent-based stops must be between 0 and 100'):
-            ColorRangeMapping(
-                range_type='percent',
-                stops=[
-                    ColorRangeStop(stop=0, color='#00BF6F'),
-                    ColorRangeStop(stop=150, color='#BD271E'),
-                ],
-            )
+    def test_accepts_single_stop(self) -> None:
+        """Test that a single stop is valid."""
+        mapping = ColorRangeMapping(
+            range_type='percent',
+            stops=[ColorRangeStop(stop=50, color='#FFA500')],
+        )
+        assert len(mapping.stops) == 1
 
     def test_accepts_valid_ascending_stops(self) -> None:
         """Test that valid ascending stops are accepted."""
@@ -260,10 +283,10 @@ class TestCompileColorRangeMapping:
         result = compile_color_range_mapping(None)
         assert result is None
 
-    def test_compiles_range_mapping_to_gauge_palette(self) -> None:
-        """Test range mapping compilation to Kibana gauge palette format.
+    def test_compiles_number_range_mapping(self) -> None:
+        """Test number-based range mapping compilation.
 
-        Note: The last stop in 'stops' (band endpoints) equals the last user-provided
+        The last stop in 'stops' (band endpoints) equals the last user-provided
         stop value for number ranges, resulting in a zero-width final band. This is
         intentional to match Kibana's expected format.
         """
@@ -305,17 +328,37 @@ class TestCompileColorRangeMapping:
             }
         )
 
-    def test_compiles_percent_range_mapping_caps_at_100(self) -> None:
-        """Test that percent range mapping caps the last stop at 100."""
+    def test_compiles_percent_range_mapping(self) -> None:
+        """Test percent-based range mapping caps the last stop at 100."""
         color_config = ColorRangeMapping(
             range_type='percent',
             stops=[
                 ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=80, color='#FFA500'),
+                ColorRangeStop(stop=60, color='#FFA500'),
+                ColorRangeStop(stop=85, color='#BD271E'),
             ],
         )
         result = compile_color_range_mapping(color_config)
         assert result is not None
         assert result.params.rangeType == 'percent'
         assert result.params.stops[-1].stop == 100.0
-        assert result.params.maxSteps == 2
+        assert result.params.maxSteps == 3
+        # colorStops reflect the user's input directly
+        assert result.params.colorStops[0].stop == 0.0
+        assert result.params.colorStops[1].stop == 60.0
+        assert result.params.colorStops[2].stop == 85.0
+
+    def test_compiles_single_stop(self) -> None:
+        """Test compilation with a single stop."""
+        color_config = ColorRangeMapping(
+            range_type='percent',
+            stops=[ColorRangeStop(stop=50, color='#FFA500')],
+        )
+        result = compile_color_range_mapping(color_config)
+        assert result is not None
+        assert result.params.steps == 1
+        assert result.params.rangeMin == 50.0
+        assert len(result.params.stops) == 1
+        assert len(result.params.colorStops) == 1
+        assert result.params.stops[0].stop == 100.0
+        assert result.params.colorStops[0].stop == 50.0
