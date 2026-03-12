@@ -53,7 +53,7 @@ def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGr
             x = panel.position.x if panel.position.x is not None else 0
             y = panel.position.y if panel.position.y is not None else 0
             panel_info = PanelGridInfo(
-                id=panel.id if (panel.id is not None and len(panel.id) > 0) else f'section_{panel.title}',
+                id=panel.id if (panel.id is not None and len(panel.id) > 0) else f'section_{panel.title or "Untitled Section"}',
                 title=panel.title if (panel.title is not None and len(panel.title) > 0) else 'Untitled Section',
                 type='section',
                 grid=Grid(x=x, y=y, w=GRID_WIDTH_WHOLE, h=1),
