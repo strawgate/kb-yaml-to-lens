@@ -8,8 +8,10 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -235,10 +237,59 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
-    """Test the compilation of gauge charts with different shape options."""
-    shapes = ['horizontalBullet', 'verticalBullet', 'arc', 'circle']
+    """Test the compilation of gauge charts with different shape options for both Lens and ESQL."""
+    chart_configs: dict[str, dict[str, Any]] = {
+        'lens': {
+            'type': 'gauge',
+            'data_view': 'metrics-*',
+            'metric': {
+                'field': 'system.cpu.total.pct',
+                'id': 'metric_accessor',
+                'aggregation': 'average',
+            },
+        },
+        'esql': {
+            'type': 'gauge',
+            'metric': {
+                'field': 'avg_cpu',
+                'id': 'metric_accessor',
+            },
+        },
+    }
 
-    for shape in shapes:
+    shape_pairs = [
+        ('horizontal_bullet', 'horizontalBullet'),
+        ('vertical_bullet', 'verticalBullet'),
+        ('arc', 'arc'),
+        ('circle', 'circle'),
+        ('semi_circle', 'semiCircle'),
+    ]
+
+    for chart_type, base_config in chart_configs.items():
+        for input_shape, expected_shape in shape_pairs:
+            config = {
+                **base_config,
+                'appearance': {
+                    'shape': input_shape,
+                },
+            }
+
+            result = compile_gauge_chart_snapshot(config, chart_type)
+
+            assert result['shape'] == expected_shape, f'{chart_type}: {input_shape}'
+            assert result['layerType'] == 'data'
+            assert result['metricAccessor'] == 'metric_accessor'
+
+
+def test_gauge_chart_rejects_camel_case_shapes() -> None:
+    """Test that camelCase shape values are rejected by validation.
+
+    This is a regression test to ensure the snake_case contract is enforced.
+    Legacy camelCase values like 'horizontalBullet' must fail validation.
+    """
+    invalid_camel_case_shapes = ['horizontalBullet', 'verticalBullet', 'semiCircle']
+
+    for invalid_shape in invalid_camel_case_shapes:
         config = {
             'type': 'gauge',
             'data_view': 'metrics-*',
@@ -248,15 +299,12 @@ def test_compile_gauge_chart_with_all_shapes() -> None:
                 'aggregation': 'average',
             },
             'appearance': {
-                'shape': shape,
+                'shape': invalid_shape,
             },
         }
 
-        result = compile_gauge_chart_snapshot(config, 'lens')
-
-        assert result['shape'] == shape
-        assert result['layerType'] == 'data'
-        assert result['metricAccessor'] == 'metric_accessor'
+        with pytest.raises(ValidationError):
+            LensGaugeChart.model_validate(config)
 
 
 def test_compile_gauge_chart_with_ticks_positions() -> None:
