@@ -45,32 +45,45 @@ for i in $(seq 1 90); do
 done
 
 cat <<'EOF' > /tmp/explore-seed.ndjson
-{"index":{"_index":"logs-default-generic"}}
+{"create":{"_index":"logs-default-generic"}}
 {"@timestamp":"2026-03-12T00:00:00Z","service":{"name":"api"},"host":{"name":"host-a"},"event":{"dataset":"app.logs"},"log":{"level":"info"},"env":"prod","status":"ok","value":12.5}
-{"index":{"_index":"logs-default-generic"}}
+{"create":{"_index":"logs-default-generic"}}
 {"@timestamp":"2026-03-12T00:01:00Z","service":{"name":"api"},"host":{"name":"host-b"},"event":{"dataset":"app.logs"},"log":{"level":"error"},"env":"prod","status":"error","value":41.1}
-{"index":{"_index":"logs-default-generic"}}
+{"create":{"_index":"logs-default-generic"}}
 {"@timestamp":"2026-03-12T00:02:00Z","service":{"name":"worker"},"host":{"name":"host-c"},"event":{"dataset":"app.logs"},"log":{"level":"warn"},"env":"staging","status":"warn","value":22.0}
-{"index":{"_index":"metrics-default-generic"}}
+{"create":{"_index":"metrics-default-generic"}}
 {"@timestamp":"2026-03-12T00:00:00Z","service.name":"api","host.name":"host-a","env":"prod","cpu.pct":0.43,"latency_ms":121,"requests":240}
-{"index":{"_index":"metrics-default-generic"}}
+{"create":{"_index":"metrics-default-generic"}}
 {"@timestamp":"2026-03-12T00:01:00Z","service.name":"api","host.name":"host-b","env":"prod","cpu.pct":0.88,"latency_ms":292,"requests":310}
-{"index":{"_index":"metrics-default-generic"}}
+{"create":{"_index":"metrics-default-generic"}}
 {"@timestamp":"2026-03-12T00:02:00Z","service.name":"worker","host.name":"host-c","env":"staging","cpu.pct":0.36,"latency_ms":95,"requests":125}
 EOF
 
 echo "Seeding indices logs-default-generic + metrics-default-generic ..."
-curl -fsS -H "Content-Type: application/x-ndjson" \
+bulk_response="$(curl -fsS -H "Content-Type: application/x-ndjson" \
   -XPOST "http://localhost:9200/_bulk?refresh=true" \
-  --data-binary @/tmp/explore-seed.ndjson >/dev/null
+  --data-binary @/tmp/explore-seed.ndjson)"
+
+if printf '%s' "${bulk_response}" | grep -qE '"errors":[[:space:]]*true'; then
+  echo "Elasticsearch bulk seeding returned item-level errors." >&2
+  printf '%s\n' "${bulk_response}" >&2
+  exit 1
+fi
 
 echo "Waiting for Kibana on http://localhost:5601 ..."
-for i in $(seq 1 180); do
+KIBANA_READY=0
+for _ in $(seq 1 180); do
   if curl -fsS "http://localhost:5601/api/status" >/dev/null; then
+    KIBANA_READY=1
     break
   fi
   sleep 2
 done
+
+if [ "${KIBANA_READY}" -ne 1 ]; then
+  echo "Kibana did not become ready within timeout." >&2
+  exit 1
+fi
 
 echo "Bootstrap complete."
 echo "- Elasticsearch: http://localhost:9200"
