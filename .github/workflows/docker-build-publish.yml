@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -33,10 +35,10 @@ jobs:
         uses: ./.github/actions/setup-python-env
       - name: Build Docker image for testing
         shell: bash
-        run: DOCKER_IMAGE_TAG=test make cli docker-build
+        run: DOCKER_IMAGE_TAG=test just cli docker-build
       - name: Run E2E tests
         shell: bash
-        run: IMAGE_NAME="kb-dashboard-compiler:test" make cli test-e2e
+        run: IMAGE_NAME="kb-dashboard-compiler:test" just cli test-e2e
       - name: Log in to GitHub Container Registry
         if: github.event_name == 'push' || vars.PUBLISH_DOCKER == 'true'
         uses: docker/login-action@v3
@@ -47,5 +49,6 @@ jobs:
       - name: Build and push multi-arch Docker image
         if: github.event_name == 'push' || vars.PUBLISH_DOCKER == 'true'
         shell: bash
+        working-directory: packages/kb-dashboard-cli
         run: |-
-          make -C packages/kb-dashboard-cli SHELL=/bin/bash CONFIRM_PUBLISH=yes DOCKER_TAGS="${{ steps.meta.outputs.tags }}" docker-publish
+          CONFIRM_PUBLISH=yes DOCKER_TAGS="${{ steps.meta.outputs.tags }}" just docker-publish

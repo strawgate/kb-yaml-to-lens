@@ -20,7 +20,7 @@ runs:
       run: uv sync --group dev
     - name: Install CLI Python dependencies
       shell: bash
-      run: make cli install
+      run: just cli install
     - name: Setup Xvfb
       if: inputs.setup-xvfb == 'true'
       shell: bash

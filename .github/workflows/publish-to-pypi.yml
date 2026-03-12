@@ -17,29 +17,31 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Build kb-dashboard-core
         shell: bash
-        run: make core build
+        run: just core build
       - name: Build kb-dashboard-tools
         shell: bash
-        run: make tools build
+        run: just tools build
       - name: Build kb-dashboard-lint
         shell: bash
-        run: make lint build
+        run: just lint build
       - name: Build kb-dashboard-cli
         shell: bash
-        run: make cli build
+        run: just cli build
       - name: Publish kb-dashboard-core to PyPI
         shell: bash
-        run: make core publish
+        run: just core publish
       - name: Publish kb-dashboard-tools to PyPI
         shell: bash
-        run: make tools publish
+        run: just tools publish
       - name: Publish kb-dashboard-lint to PyPI
         shell: bash
-        run: make lint publish
+        run: just lint publish
       - name: Publish kb-dashboard-cli to PyPI
         shell: bash
-        run: make cli publish
+        run: just cli publish

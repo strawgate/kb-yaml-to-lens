@@ -25,14 +25,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
         shell: bash
-        run: make docs install
+        run: just docs install
       - name: Build documentation
         shell: bash
-        run: make docs build
+        run: just docs build
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact

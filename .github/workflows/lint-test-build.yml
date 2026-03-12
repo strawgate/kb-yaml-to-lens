@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node-env
       - name: Setup Python Environment
@@ -26,20 +28,22 @@ jobs:
         run: npm install -g markdownlint-cli
       - name: Run linting checks on all packages
         shell: bash
-        run: make all lint-check
+        run: just all lint-check
   typecheck-all-packages:
     name: Type-check All Packages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node-env
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run type checking on all packages
         shell: bash
-        run: make all typecheck
+        run: just all typecheck
   test-all-packages:
     name: Test All Packages (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -53,13 +57,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node-env
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run unit tests on all packages
         shell: bash
-        run: make all test-unit
+        run: just all test-unit
   test-python-coverage:
     name: Test Python Code Coverage
     runs-on: ubuntu-latest
@@ -70,11 +76,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Run tests with coverage
         shell: bash
-        run: make cli test-coverage
+        run: just cli test-coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
@@ -111,23 +119,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Python Environment
         uses: ./.github/actions/setup-python-env
       - name: Install documentation dependencies
         shell: bash
-        run: make docs install
+        run: just docs install
       - name: Check documentation links
         shell: bash
-        run: make docs test-links
+        run: just docs test-links
       - name: Build documentation
         shell: bash
-        run: make docs build
+        run: just docs build
   test-all-e2e:
     name: Test E2E
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Setup just
+        uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node-env
       - name: Setup Python Environment
@@ -136,7 +148,7 @@ jobs:
           setup-xvfb: 'true'
       - name: Run E2E tests
         shell: bash
-        run: make all test-e2e
+        run: just all test-e2e
         env:
           DISPLAY: :99.0
   checks-passed:
