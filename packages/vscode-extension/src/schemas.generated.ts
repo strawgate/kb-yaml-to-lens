@@ -263,9 +263,19 @@ export type EsqlExecuteRequestType = z.infer<typeof EsqlExecuteRequest>;
 
 /**
  * Panel information including grid position.
- * Note: panels field uses z.lazy() for recursive self-reference (section panels contain child panels).
+ * Note: uses z.lazy() for recursive self-reference (section panels contain child panels).
+ * Cannot use BaseLSPModel.extend() with z.ZodType annotation as strict mode
+ * rejects the lazy field. Using z.object() directly instead.
  */
-export const PanelGridInfo: z.ZodType<PanelGridInfoType> = BaseLSPModel.extend({
+export type PanelGridInfoType = {
+  id: string;
+  title: string;
+  type: string;
+  grid: z.infer<typeof Grid>;
+  is_pinned: boolean;
+  panels: PanelGridInfoType[];
+};
+export const PanelGridInfo: z.ZodType<PanelGridInfoType> = z.object({
   /**
    * Panel identifier.
    */
@@ -291,14 +301,6 @@ export const PanelGridInfo: z.ZodType<PanelGridInfoType> = BaseLSPModel.extend({
    */
   panels: z.lazy(() => z.array(PanelGridInfo)).default([]),
 });
-export type PanelGridInfoType = {
-  id: string;
-  title: string;
-  type: string;
-  grid: z.infer<typeof Grid>;
-  is_pinned: boolean;
-  panels: PanelGridInfoType[];
-};
 
 /**
  * Dashboard grid layout information returned by getGridLayout.
