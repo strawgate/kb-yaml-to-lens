@@ -48,7 +48,7 @@ class ESQLMetricMissingLabelRule(ChartRule[ESQLDatatablePanelConfig, EmptyOption
         violations: list[Violation] = []
 
         for idx, metric in enumerate(config.metrics):
-            if not metric.label:
+            if metric.label is None or metric.label == '':
                 violations.append(
                     Violation(
                         rule_id=self.id,
