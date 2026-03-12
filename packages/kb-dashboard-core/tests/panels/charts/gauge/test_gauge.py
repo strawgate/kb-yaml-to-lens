@@ -8,8 +8,10 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -277,6 +279,32 @@ def test_compile_gauge_chart_with_all_shapes() -> None:
             assert result['shape'] == expected_shape, f'{chart_type}: {input_shape}'
             assert result['layerType'] == 'data'
             assert result['metricAccessor'] == 'metric_accessor'
+
+
+def test_gauge_chart_rejects_camel_case_shapes() -> None:
+    """Test that camelCase shape values are rejected by validation.
+
+    This is a regression test to ensure the snake_case contract is enforced.
+    Legacy camelCase values like 'horizontalBullet' must fail validation.
+    """
+    invalid_camel_case_shapes = ['horizontalBullet', 'verticalBullet', 'semiCircle']
+
+    for invalid_shape in invalid_camel_case_shapes:
+        config = {
+            'type': 'gauge',
+            'data_view': 'metrics-*',
+            'metric': {
+                'field': 'system.cpu.total.pct',
+                'id': 'metric_accessor',
+                'aggregation': 'average',
+            },
+            'appearance': {
+                'shape': invalid_shape,
+            },
+        }
+
+        with pytest.raises(ValidationError):
+            LensGaugeChart.model_validate(config)
 
 
 def test_compile_gauge_chart_with_ticks_positions() -> None:
