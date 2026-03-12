@@ -118,5 +118,6 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
             rangeMin=user_stops[0].stop,
             stops=stops,
             colorStops=color_stops,
+            maxSteps=n,
         ),
     )

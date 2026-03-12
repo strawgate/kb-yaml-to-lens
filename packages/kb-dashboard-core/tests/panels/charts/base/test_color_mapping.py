@@ -261,7 +261,12 @@ class TestCompileColorRangeMapping:
         assert result is None
 
     def test_compiles_range_mapping_to_gauge_palette(self) -> None:
-        """Test range mapping compilation to Kibana gauge palette format."""
+        """Test range mapping compilation to Kibana gauge palette format.
+
+        Note: The last stop in 'stops' (band endpoints) equals the last user-provided
+        stop value for number ranges, resulting in a zero-width final band. This is
+        intentional to match Kibana's expected format.
+        """
         color_config = ColorRangeMapping(
             range_type='number',
             stops=[
@@ -295,7 +300,22 @@ class TestCompileColorRangeMapping:
                         {'color': '#BD271E', 'stop': 95.0},
                     ],
                     'continuity': 'above',
-                    'maxSteps': 5,
+                    'maxSteps': 3,
                 },
             }
         )
+
+    def test_compiles_percent_range_mapping_caps_at_100(self) -> None:
+        """Test that percent range mapping caps the last stop at 100."""
+        color_config = ColorRangeMapping(
+            range_type='percent',
+            stops=[
+                ColorRangeStop(stop=0, color='#00BF6F'),
+                ColorRangeStop(stop=80, color='#FFA500'),
+            ],
+        )
+        result = compile_color_range_mapping(color_config)
+        assert result is not None
+        assert result.params.rangeType == 'percent'
+        assert result.params.stops[-1].stop == 100.0
+        assert result.params.maxSteps == 2

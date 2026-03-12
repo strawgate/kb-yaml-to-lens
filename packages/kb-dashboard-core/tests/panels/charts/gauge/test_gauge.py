@@ -289,7 +289,7 @@ def test_compile_gauge_chart_with_range_palette() -> None:
                         {'color': '#BD271E', 'stop': 95.0},
                     ],
                     'continuity': 'above',
-                    'maxSteps': 5,
+                    'maxSteps': 3,
                 },
             },
         }
