@@ -9,7 +9,6 @@ from kb_dashboard_core.panels.charts.config import (
     ESQLPanel,
     LensPanel,
 )
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
 
 
 @chart_rule
@@ -49,7 +48,7 @@ class ESQLMetricMissingLabelRule(ChartRule[ESQLDatatablePanelConfig, EmptyOption
         violations: list[Violation] = []
 
         for idx, metric in enumerate(config.metrics):
-            if isinstance(metric, ESQLMetric) and (metric.label is None or len(metric.label) == 0):
+            if metric.label is None or len(metric.label) == 0:
                 violations.append(
                     Violation(
                         rule_id=self.id,

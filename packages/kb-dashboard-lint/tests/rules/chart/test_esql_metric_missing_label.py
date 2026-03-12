@@ -107,4 +107,3 @@ class TestESQLMetricMissingLabelRule:
         assert len(violations) == 1
         assert violations[0].rule_id == 'esql-metric-missing-label'
         assert 'count' in violations[0].message
-
