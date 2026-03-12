@@ -284,6 +284,32 @@ class TestCollapsedState:
         sections = _get_sections(result)
         assert sections[0]['collapsed'] is True
 
+    def test_collapsed_false(self) -> None:
+        """Verify collapsed=False is present in the serialized output."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                CollapsiblePanel(
+                    title='Explicit False Section',
+                    section=SectionConfig(
+                        collapsed=False,
+                        panels=[
+                            MarkdownPanel(
+                                title='Inner',
+                                size=Size(w=48, h=8),
+                                markdown=MarkdownPanelConfig(content='# I'),
+                            ),
+                        ],
+                    ),
+                ),
+            ],
+        )
+
+        result = _compile(dashboard)
+        sections = _get_sections(result)
+        assert 'collapsed' in sections[0]
+        assert sections[0]['collapsed'] is False
+
     def test_collapsed_none_omitted(self) -> None:
         """Verify collapsed key is omitted when not explicitly set."""
         dashboard = Dashboard(
@@ -489,3 +515,37 @@ class TestInnerPanelRelativeCoordinates:
         # Neither inner panel has the outer grid Y coordinate
         for ip in inner_panels:
             assert ip['gridData']['y'] != 20
+
+
+class TestEmptySection:
+    """Test collapsible panel with an empty panels list."""
+
+    def test_empty_section_panels(self) -> None:
+        """Verify a CollapsiblePanel with no inner panels produces a section but no sectionId on panels."""
+        dashboard = Dashboard(
+            name='Test Dashboard',
+            panels=[
+                CollapsiblePanel(
+                    title='Empty Section',
+                    section=SectionConfig(
+                        panels=[],
+                    ),
+                ),
+            ],
+        )
+
+        result = _compile(dashboard)
+        panels = _get_panels(result)
+        sections = _get_sections(result)
+
+        # The sections array should have one entry
+        assert len(sections) == 1
+        assert sections[0]['title'] == 'Empty Section'
+
+        # No panels should have a sectionId
+        for panel in panels:
+            assert 'sectionId' not in panel['gridData']
+
+        # The section should have valid gridData with y and i
+        assert 'y' in sections[0]['gridData']
+        assert 'i' in sections[0]['gridData']
