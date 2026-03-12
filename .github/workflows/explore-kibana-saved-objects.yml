@@ -1,5 +1,5 @@
 ---
-name: 'Explore: Kibana Saved Objects from Spec'
+name: "Explore: Kibana Saved Objects from Spec"
 on:
   issue_comment:
     types:
@@ -19,10 +19,10 @@ concurrency:
 
 jobs:
   run:
-    if: startsWith(github.event.comment.body, '/explore')
+    if: startsWith(github.event.comment.body, '/explore') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: '[explore-kibana-saved-objects]'
+      title-prefix: "[explore-kibana-saved-objects]"
       setup-commands: |
         npx playwright install chromium
         if command -v just >/dev/null 2>&1; then
@@ -58,8 +58,7 @@ jobs:
         ## Saved object export hints
         - Prefer the Kibana HTTP APIs for deterministic export:
           - Find object(s)
-          - POST `/api/saved_objects/_export` with `includeReferencesDeep: true`
-        - Keep exported NDJSON in the repo as artifact evidence.
+          - POST `/api/saved_objects/_export` with `includeReferencesDeep: false`
 
         ## Deliverables
         - Working code + tests for the requested capability.
