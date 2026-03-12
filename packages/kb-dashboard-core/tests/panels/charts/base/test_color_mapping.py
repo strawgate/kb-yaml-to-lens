@@ -196,8 +196,28 @@ class TestCompileColorRangeMapping:
         assert result is not None
         assert result.model_dump() == snapshot(
             {
-                'rangeType': 'number',
-                'stops': [0.0, 80.0, 95.0],
-                'colorStops': ['#00BF6F', '#FFA500', '#BD271E'],
+                'name': 'custom',
+                'type': 'palette',
+                'params': {
+                    'steps': 3,
+                    'name': 'custom',
+                    'reverse': False,
+                    'rangeType': 'number',
+                    'rangeMin': 0.0,
+                    'rangeMax': None,
+                    'progression': 'fixed',
+                    'stops': [
+                        {'color': '#00BF6F', 'stop': 80.0},
+                        {'color': '#FFA500', 'stop': 95.0},
+                        {'color': '#BD271E', 'stop': 95.0},
+                    ],
+                    'colorStops': [
+                        {'color': '#00BF6F', 'stop': 0.0},
+                        {'color': '#FFA500', 'stop': 80.0},
+                        {'color': '#BD271E', 'stop': 95.0},
+                    ],
+                    'continuity': 'above',
+                    'maxSteps': 5,
+                },
             }
         )

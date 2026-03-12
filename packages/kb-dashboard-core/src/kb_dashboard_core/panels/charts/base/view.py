@@ -1,8 +1,8 @@
 """Base classes for chart visualizations."""
 
-from typing import Annotated, Literal, Self
+from typing import Annotated, Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
@@ -124,25 +124,64 @@ class KbnLayerColorMapping(BaseVwModel):
     """Color assignment mode configuration (set during compilation)."""
 
 
-class KbnRangePalette(BaseVwModel):
-    """Range-based palette configuration for threshold coloring."""
+class KbnRangePaletteStop(BaseVwModel):
+    """A single stop entry in a Kibana range palette."""
+
+    color: str = Field(...)
+    """Hex color code for this stop."""
+
+    stop: float = Field(...)
+    """Numeric value for this stop boundary."""
+
+
+class KbnRangePaletteParams(BaseVwModel):
+    """Inner params for a Kibana range palette."""
+
+    steps: int = Field(...)
+    """Number of color bands."""
+
+    name: Literal['custom'] = 'custom'
+    """Palette name — always 'custom' for user-defined palettes."""
+
+    reverse: bool = False
+    """Whether to reverse the color order."""
 
     rangeType: Literal['number', 'percent'] = Field(...)
     """How stop values are interpreted."""
 
-    stops: list[float] = Field(...)
-    """Numeric stop values for each color threshold."""
+    rangeMin: float = Field(...)
+    """Start value of the first color band."""
 
-    colorStops: list[str] = Field(...)
-    """Color list aligned by index with `stops`."""
+    rangeMax: None = None
+    """End cap — always null; the last stop's value serves as the upper bound."""
 
-    @model_validator(mode='after')
-    def validate_stop_alignment(self) -> Self:
-        """Validate that stops and colorStops have matching lengths."""
-        if len(self.stops) != len(self.colorStops):
-            msg = "'stops' and 'colorStops' must have the same length"
-            raise ValueError(msg)
-        return self
+    progression: Literal['fixed'] = 'fixed'
+    """Band sizing strategy."""
+
+    stops: list[KbnRangePaletteStop] = Field(...)
+    """Band endpoints — each entry marks the END of one band."""
+
+    colorStops: list[KbnRangePaletteStop] = Field(...)
+    """Band start-points — each entry marks the START of one band."""
+
+    continuity: Literal['above'] = 'above'
+    """Continuity mode — 'above' extends the last color beyond the final stop."""
+
+    maxSteps: int = 5
+    """Maximum number of steps in the palette."""
+
+
+class KbnRangePalette(BaseVwModel):
+    """Kibana range palette wrapper matching the saved object format."""
+
+    name: Literal['custom'] = 'custom'
+    """Palette name."""
+
+    type: Literal['palette'] = 'palette'
+    """Palette type identifier."""
+
+    params: KbnRangePaletteParams = Field(...)
+    """Palette parameters including stops and colors."""
 
 
 class KbnBaseStateVisualizationLayer(BaseVwModel):
@@ -179,7 +218,7 @@ class KbnBaseStateVisualization(BaseVwModel):
     for different chart types (XY, pie, metric, etc.).
 
     See Also:
-        Related to visualization state types in Kibana Lens.
+        Related to visualization state types in Kibana Lens visualizations.
     """
 
     layers: list[KbnBaseStateVisualizationLayer] = Field(...)
