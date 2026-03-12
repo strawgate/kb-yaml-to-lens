@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING
 
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_metric
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLStaticValue
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from kb_dashboard_core.panels.charts.gauge.view import KbnGaugeVisualizationState
@@ -156,25 +155,22 @@ def compile_esql_gauge_chart(
 
     layer_id = esql_gauge_chart.get_id()
 
-    # Compile optional min/max/goal - handle both static values and metrics
+    # Compile optional min/max/goal
     min_id: str | None = None
     if esql_gauge_chart.minimum is not None:
-        minimum_metric = normalize_static_metric(esql_gauge_chart.minimum, ESQLStaticValue)
-        min_column = compile_esql_metric(minimum_metric)
+        min_column = compile_esql_metric(esql_gauge_chart.minimum)
         min_id = min_column.columnId
         kbn_columns.append(min_column)
 
     max_id: str | None = None
     if esql_gauge_chart.maximum is not None:
-        maximum_metric = normalize_static_metric(esql_gauge_chart.maximum, ESQLStaticValue)
-        max_column = compile_esql_metric(maximum_metric)
+        max_column = compile_esql_metric(esql_gauge_chart.maximum)
         max_id = max_column.columnId
         kbn_columns.append(max_column)
 
     goal_id: str | None = None
     if esql_gauge_chart.goal is not None:
-        goal_metric = normalize_static_metric(esql_gauge_chart.goal, ESQLStaticValue)
-        goal_column = compile_esql_metric(goal_metric)
+        goal_column = compile_esql_metric(esql_gauge_chart.goal)
         goal_id = goal_column.columnId
         kbn_columns.append(goal_column)
 

@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric, ESQLStaticValue
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
 from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensCountAggregatedMetric,
     LensFormulaMetric,
@@ -108,14 +108,6 @@ class XYESQLMetric(ESQLMetric, XYMetricAppearance):
     """
 
 
-class XYESQLStaticValue(ESQLStaticValue, XYMetricAppearance):
-    """XY chart ESQL static value with appearance options.
-
-    Extends ESQLStaticValue to include axis and color configuration
-    for use in XY charts.
-    """
-
-
 type LensXYMetricTypes = (
     XYLensFormulaMetric
     | XYLensCountAggregatedMetric
@@ -127,4 +119,4 @@ type LensXYMetricTypes = (
     | XYLensStaticValue
 )
 
-type ESQLXYMetricTypes = XYESQLMetric | XYESQLStaticValue
+type ESQLXYMetricTypes = XYESQLMetric

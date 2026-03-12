@@ -335,6 +335,24 @@ dashboards:
 
 For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metrics`, `dimensions` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
 
+!!! note "Static values in ES|QL charts"
+    ES|QL chart metric fields must reference query result columns. If you need a constant value (for example, a gauge goal), add it in the query with `EVAL`, then reference that field in your chart config.
+
+Example:
+
+```yaml
+esql:
+  type: gauge
+  query: |
+    FROM metrics-*
+    | STATS avg_cpu = AVG(system.cpu.total.pct)
+    | EVAL goal_cpu = 80
+  metric:
+    field: "avg_cpu"
+  goal:
+    field: "goal_cpu"
+```
+
 ### ESQL Metric Column
 
 Used to specify a metric column from your ESQL query result.

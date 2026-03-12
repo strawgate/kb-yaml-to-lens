@@ -919,6 +919,53 @@ class TestCompileESQLChartState:
             assert layer_id in layers
             assert state.adHocDataViews == {}
 
+    @pytest.mark.parametrize(
+        ('chart_config', 'value_label'),
+        [
+            (
+                {
+                    'type': 'gauge',
+                    'query': 'FROM logs-* | STATS avg_cpu = AVG(system.cpu.total.pct)',
+                    'metric': {'field': 'avg_cpu', 'id': 'metric1'},
+                    'minimum': 0,
+                },
+                'minimum',
+            ),
+            (
+                {
+                    'type': 'metric',
+                    'query': 'FROM logs-* | STATS avg_cpu = AVG(system.cpu.total.pct)',
+                    'primary': 42,
+                },
+                'primary',
+            ),
+            (
+                {
+                    'type': 'pie',
+                    'query': 'FROM logs-* | STATS count_by_status = COUNT(*) BY status',
+                    'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                    'metrics': [10],
+                },
+                r'metrics\.0',
+            ),
+            (
+                {
+                    'type': 'bar',
+                    'query': 'FROM logs-* | STATS event_count = COUNT(*) BY status',
+                    'dimension': {'field': 'status', 'id': 'dim1'},
+                    'metrics': [5],
+                },
+                r'metrics\.0',
+            ),
+        ],
+    )
+    def test_esql_static_values_are_rejected(self, chart_config: dict[str, Any], value_label: str) -> None:
+        """Test that ESQL charts reject static numeric metrics and thresholds."""
+        from kb_dashboard_core.panels.charts.config import ESQLPanel
+
+        with pytest.raises(ValueError, match=value_label):
+            _ = ESQLPanel.model_validate({'position': {'x': 0, 'y': 0}, 'size': {'w': 24, 'h': 15}, 'esql': chart_config})
+
 
 class TestESQLDataTypeDate:
     """Tests for ES|QL dimension data_type: date feature.

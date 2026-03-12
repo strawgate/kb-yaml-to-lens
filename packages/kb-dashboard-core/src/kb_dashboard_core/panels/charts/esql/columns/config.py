@@ -5,11 +5,11 @@ from pydantic import Field
 from kb_dashboard_core.panels.charts.lens.dimensions.config import CollapseAggregationEnum
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel
 
-type ESQLColumnTypes = ESQLDimension | ESQLMetric | ESQLStaticValue
+type ESQLColumnTypes = ESQLDimension | ESQLMetric
 
 type ESQLDimensionTypes = ESQLDimension
 
-type ESQLMetricTypes = ESQLMetric | ESQLStaticValue
+type ESQLMetricTypes = ESQLMetric
 
 type ESQLMetricFormatTypes = ESQLMetricFormat | ESQLCustomMetricFormat
 
@@ -82,15 +82,3 @@ class ESQLMetric(BaseESQLColumn):
     """The format of the metric (number, bytes, bits, percent, duration, or custom)."""
 
 
-class ESQLStaticValue(BaseESQLColumn):
-    """A static numeric value metric for ESQL charts.
-
-    Used to display a fixed numeric value rather than querying from data.
-    Commonly used for gauge min/max/goal values or reference lines.
-    """
-
-    value: int | float = Field(...)
-    """The static numeric value to display."""
-
-    label: str | None = Field(default=None)
-    """Optional label for the static value."""

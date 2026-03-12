@@ -7,7 +7,6 @@ from kb_dashboard_core.panels.charts.esql.columns.config import (
     ESQLMetricFormat,
     ESQLMetricFormatTypes,
     ESQLMetricTypes,
-    ESQLStaticValue,
 )
 from kb_dashboard_core.panels.charts.esql.columns.view import (
     KbnESQLColumnMeta,
@@ -17,7 +16,6 @@ from kb_dashboard_core.panels.charts.esql.columns.view import (
     KbnESQLMetricColumnTypes,
     KbnESQLMetricFormat,
     KbnESQLMetricFormatParams,
-    KbnESQLStaticValueColumn,
 )
 
 
@@ -70,13 +68,6 @@ def compile_esql_metric(metric: ESQLMetricTypes) -> KbnESQLMetricColumnTypes:
         KbnESQLMetricColumnTypes: The compiled Kibana column.
 
     """
-    if isinstance(metric, ESQLStaticValue):
-        field_name = metric.label if metric.label is not None else str(metric.value)
-        return KbnESQLStaticValueColumn(
-            fieldName=field_name,
-            columnId=metric.get_id(),
-        )
-
     if not isinstance(metric, ESQLMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = f'Unknown metric type: {type(metric).__name__}'
         raise TypeError(msg)  # pyright: ignore[reportUnreachable]
@@ -109,7 +100,7 @@ def compile_esql_metrics(metrics: Sequence[ESQLMetricTypes]) -> list[KbnESQLMetr
         metrics (Sequence[ESQLMetricTypes]): The sequence of ESQLMetricTypes objects to compile.
 
     Returns:
-        list[KbnESQLMetricColumnTypes]: A list of compiled metric columns (field-based or static values).
+        list[KbnESQLMetricColumnTypes]: A list of compiled field-based metric columns.
 
     """
     return [compile_esql_metric(metric) for metric in metrics]

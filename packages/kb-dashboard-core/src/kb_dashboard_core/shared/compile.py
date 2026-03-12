@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 if TYPE_CHECKING:
-    from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetricTypes, ESQLStaticValue
     from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes, LensStaticValue
 
 T = TypeVar('T')
@@ -48,15 +47,7 @@ def normalize_static_metric(value: int | float, static_value_class: type['LensSt
 
 
 @overload
-def normalize_static_metric(value: int | float, static_value_class: type['ESQLStaticValue']) -> 'ESQLStaticValue': ...
-
-
-@overload
 def normalize_static_metric(value: 'LensMetricTypes', static_value_class: type['LensStaticValue']) -> 'LensMetricTypes': ...
-
-
-@overload
-def normalize_static_metric(value: 'ESQLMetricTypes', static_value_class: type['ESQLStaticValue']) -> 'ESQLMetricTypes': ...
 
 
 def normalize_static_metric(value: Any, static_value_class: type) -> Any:  # pyright: ignore[reportAny]
@@ -64,7 +55,7 @@ def normalize_static_metric(value: Any, static_value_class: type) -> Any:  # pyr
 
     Args:
         value: Value to normalize (number or metric config)
-        static_value_class: StaticValue class (LensStaticValue or ESQLStaticValue)
+        static_value_class: StaticValue class used for conversion
 
     Returns:
         StaticValue instance if input is numeric, otherwise original value

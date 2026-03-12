@@ -8,6 +8,7 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
@@ -317,7 +318,7 @@ def test_compile_gauge_chart_with_static_values_lens() -> None:
 
 
 def test_compile_gauge_chart_with_static_values_esql() -> None:
-    """Test the compilation of a gauge chart with static min/max/goal values (ESQL)."""
+    """Test that ESQL gauge rejects static min/max/goal values."""
     config = {
         'type': 'gauge',
         'metric': {
@@ -329,21 +330,8 @@ def test_compile_gauge_chart_with_static_values_esql() -> None:
         'goal': 80,
     }
 
-    result = compile_gauge_chart_snapshot(config, 'esql')
-
-    assert result == snapshot(
-        {
-            'layerId': IsUUID,
-            'layerType': 'data',
-            'metricAccessor': 'metric_accessor',
-            'minAccessor': IsUUID,
-            'maxAccessor': IsUUID,
-            'goalAccessor': IsUUID,
-            'shape': 'arc',
-            'ticksPosition': 'auto',
-            'labelMajorMode': 'auto',
-        }
-    )
+    with pytest.raises(ValueError):
+        _ = compile_gauge_chart_snapshot(config, 'esql')
 
 
 def test_gauge_chart_dashboard_references_bubble_up() -> None:

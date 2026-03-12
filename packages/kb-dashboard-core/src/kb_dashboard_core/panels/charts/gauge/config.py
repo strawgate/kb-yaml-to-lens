@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetricTypes
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -118,30 +118,36 @@ class ESQLGaugeChart(BaseChart, BaseGaugeChart):
           type: gauge
           query: |
             FROM metrics-*
-            | STATS avg_cpu = AVG(system.cpu.total.pct)
+            | STATS avg_cpu = AVG(system.cpu.total.pct),
+                    min_cpu = MIN(system.cpu.total.pct),
+                    max_cpu = MAX(system.cpu.total.pct),
+                    goal_cpu = 80
           metric:
             field: "avg_cpu"
-          minimum: 0
-          maximum: 100
-          goal: 80
+          minimum:
+            field: "min_cpu"
+          maximum:
+            field: "max_cpu"
+          goal:
+            field: "goal_cpu"
           appearance:
             shape: arc
         ```
     """
 
-    metric: ESQLMetricTypes = Field(default=...)
+    metric: ESQLMetric = Field(default=...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
-    minimum: ESQLMetricTypes | int | float | None = Field(default=None)
-    """An optional minimum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
+    minimum: ESQLMetric | None = Field(default=None)
+    """An optional minimum value for the gauge range, referenced from an ESQL query field."""
 
-    maximum: ESQLMetricTypes | int | float | None = Field(default=None)
-    """An optional maximum value for the gauge range. Can be a metric (field-based) or a static numeric value."""
+    maximum: ESQLMetric | None = Field(default=None)
+    """An optional maximum value for the gauge range, referenced from an ESQL query field."""
 
-    goal: ESQLMetricTypes | int | float | None = Field(default=None)
-    """An optional goal/target value to display as a reference. Can be a metric (field-based) or a static numeric value."""
+    goal: ESQLMetric | None = Field(default=None)
+    """An optional goal/target value to display as a reference, referenced from an ESQL query field."""
 
     @property
-    def metrics(self) -> list[ESQLMetricTypes]:
+    def metrics(self) -> list[ESQLMetric]:
         """Provide metrics accessor for consistency with other chart types."""
         return [self.metric]
