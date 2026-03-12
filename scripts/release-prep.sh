@@ -51,9 +51,6 @@ if [ -n "$DIFF_RANGE" ]; then
     COMMIT_LOG=$(git log "$DIFF_RANGE" --oneline)
     CHANGED_FILES=$(git diff --stat "$DIFF_RANGE" | tail -1)
     CHANGED_DOCS=$(git diff --name-only "$DIFF_RANGE" -- '*.md' 'RELEASE.md' 'DEVELOPING.md' 'CONTRIBUTING.md' || true)
-    CHANGED_PY=$(git diff --name-only "$DIFF_RANGE" -- '*.py' || true)
-    CHANGED_TS=$(git diff --name-only "$DIFF_RANGE" -- '*.ts' '*.tsx' || true)
-    CHANGED_TESTS=$(git diff --name-only "$DIFF_RANGE" -- '*test*' '*tests*' || true)
 
     DIFF_CONTEXT_HEADER="### Scope
 
@@ -69,9 +66,6 @@ ${COMMIT_LOG}
 </details>"
 else
     CHANGED_DOCS=""
-    CHANGED_PY=""
-    CHANGED_TS=""
-    CHANGED_TESTS=""
     DIFF_CONTEXT_HEADER=""
 fi
 
