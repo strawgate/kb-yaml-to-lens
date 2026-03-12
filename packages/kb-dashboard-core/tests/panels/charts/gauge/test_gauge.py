@@ -235,7 +235,26 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
-    """Test the compilation of gauge charts with different shape options."""
+    """Test the compilation of gauge charts with different shape options for both Lens and ESQL."""
+    chart_configs: dict[str, dict[str, Any]] = {
+        'lens': {
+            'type': 'gauge',
+            'data_view': 'metrics-*',
+            'metric': {
+                'field': 'system.cpu.total.pct',
+                'id': 'metric_accessor',
+                'aggregation': 'average',
+            },
+        },
+        'esql': {
+            'type': 'gauge',
+            'metric': {
+                'field': 'avg_cpu',
+                'id': 'metric_accessor',
+            },
+        },
+    }
+
     shape_pairs = [
         ('horizontal_bullet', 'horizontalBullet'),
         ('vertical_bullet', 'verticalBullet'),
@@ -244,25 +263,20 @@ def test_compile_gauge_chart_with_all_shapes() -> None:
         ('semi_circle', 'semiCircle'),
     ]
 
-    for input_shape, expected_shape in shape_pairs:
-        config = {
-            'type': 'gauge',
-            'data_view': 'metrics-*',
-            'metric': {
-                'field': 'system.cpu.total.pct',
-                'id': 'metric_accessor',
-                'aggregation': 'average',
-            },
-            'appearance': {
-                'shape': input_shape,
-            },
-        }
+    for chart_type, base_config in chart_configs.items():
+        for input_shape, expected_shape in shape_pairs:
+            config = {
+                **base_config,
+                'appearance': {
+                    'shape': input_shape,
+                },
+            }
 
-        result = compile_gauge_chart_snapshot(config, 'lens')
+            result = compile_gauge_chart_snapshot(config, chart_type)
 
-        assert result['shape'] == expected_shape
-        assert result['layerType'] == 'data'
-        assert result['metricAccessor'] == 'metric_accessor'
+            assert result['shape'] == expected_shape, f'{chart_type}: {input_shape}'
+            assert result['layerType'] == 'data'
+            assert result['metricAccessor'] == 'metric_accessor'
 
 
 def test_compile_gauge_chart_with_ticks_positions() -> None:
