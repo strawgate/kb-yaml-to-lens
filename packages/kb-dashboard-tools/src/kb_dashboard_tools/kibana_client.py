@@ -12,7 +12,12 @@ import aiohttp
 import prison
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag, TypeAdapter
 
-from kb_dashboard_tools.models import EsqlResponse
+from kb_dashboard_tools.models import (
+    DataStreamsResponse,
+    EsqlResponse,
+    GrokPatternResponse,
+    IngestSimulateResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -886,11 +891,12 @@ class KibanaClient:
             logger.info('Index template created successfully: %s', name)
             return template_response
 
-    async def execute_esql(self, query: str) -> EsqlResponse:
+    async def execute_esql(self, query: str, *, columnar: bool = False) -> EsqlResponse:
         """Execute an ES|QL query via Kibana's console proxy API.
 
         Args:
             query: The ES|QL query string to execute
+            columnar: Whether to return results in columnar format
 
         Returns:
             EsqlResponse with query results containing columns, values, and metadata
@@ -905,9 +911,9 @@ class KibanaClient:
         endpoint = '/api/console/proxy'
         params = {'path': '/_query', 'method': 'POST'}
 
-        request_body = {
-            'query': query,
-        }
+        request_body: dict[str, Any] = {'query': query}
+        if columnar:
+            request_body['columnar'] = True
 
         logger.info('Executing ES|QL query via Kibana console proxy')
 
@@ -942,3 +948,126 @@ class KibanaClient:
 
             msg = f'Unexpected ES|QL response type: {type(parsed).__name__}'  # pyright: ignore[reportUnknownArgumentType]
             raise TypeError(msg)
+
+    async def get_data_streams(self, name: str | None = None) -> DataStreamsResponse:
+        """Get data stream information via Kibana's console proxy.
+
+        Args:
+            name: Optional name pattern to filter data streams (supports wildcards).
+
+        Returns:
+            DataStreamsResponse with typed data stream information.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            ValueError: If the response indicates an error
+            pydantic.ValidationError: If response validation fails
+
+        """
+        path = '/_data_stream'
+        if name is not None:
+            path = f'/_data_stream/{name}'
+
+        endpoint = '/api/console/proxy'
+        params = {'path': path, 'method': 'GET'}
+
+        async with await self._post(
+            endpoint,
+            params=params,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'Get data streams failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return DataStreamsResponse.model_validate(json_response)
+
+    async def test_grok_pattern(
+        self,
+        grok_pattern: str,
+        text: list[str],
+        pattern_definitions: dict[str, str] | None = None,
+    ) -> GrokPatternResponse:
+        """Test a grok pattern against sample text via Kibana's console proxy.
+
+        Args:
+            grok_pattern: The grok pattern to test.
+            text: Sample text lines to match against.
+            pattern_definitions: Optional custom pattern definitions.
+
+        Returns:
+            GrokPatternResponse with typed match results.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            ValueError: If the response indicates an error
+            pydantic.ValidationError: If response validation fails
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_text_structure/test_grok_pattern', 'method': 'POST'}
+
+        request_body: dict[str, Any] = {
+            'grok_pattern': grok_pattern,
+            'text': text,
+        }
+        if pattern_definitions is not None:
+            request_body['pattern_definitions'] = pattern_definitions
+
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'Grok pattern test failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return GrokPatternResponse.model_validate(json_response)
+
+    async def simulate_ingest(
+        self,
+        pipeline: dict[str, Any],
+        docs: list[dict[str, Any]],
+    ) -> IngestSimulateResponse:
+        """Simulate an ingest pipeline via Kibana's console proxy.
+
+        Args:
+            pipeline: The pipeline configuration.
+            docs: Documents to simulate.
+
+        Returns:
+            IngestSimulateResponse with typed document processing results.
+
+        Raises:
+            aiohttp.ClientError: If the request fails due to network issues
+            ValueError: If the response indicates an error
+            pydantic.ValidationError: If response validation fails
+
+        """
+        endpoint = '/api/console/proxy'
+        params = {'path': '/_ingest/pipeline/_simulate', 'method': 'POST'}
+
+        request_body = {
+            'pipeline': pipeline,
+            'docs': docs,
+        }
+
+        async with await self._post(
+            endpoint,
+            params=params,
+            json=request_body,
+            headers={'Content-Type': 'application/json', 'x-elastic-internal-origin': 'kibana'},
+        ) as response:
+            if response.status != HTTP_OK:
+                error_text = await response.text()
+                msg = f'Ingest simulation failed (HTTP {response.status}): {error_text[:200]}'
+                raise ValueError(msg)
+
+            json_response = await response.json()  # pyright: ignore[reportAny]
+            return IngestSimulateResponse.model_validate(json_response)

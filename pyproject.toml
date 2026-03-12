@@ -32,7 +32,7 @@ kb-dashboard-cli = { workspace = true }
 kb-dashboard-lint = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/kb-dashboard-cli", "packages/kb-dashboard-core", "packages/kb-dashboard-lint", "packages/kb-dashboard-tools", "packages/kb-dashboard-docs"]
+members = ["packages/kb-dashboard-cli", "packages/kb-dashboard-core", "packages/kb-dashboard-lint", "packages/kb-dashboard-mcp", "packages/kb-dashboard-tools", "packages/kb-dashboard-docs"]
 
 
 [tool.ruff]
@@ -86,6 +86,7 @@ ignore = [
 "packages/kb-dashboard-cli/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-core/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-lint/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-mcp/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-tools/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-cli/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
@@ -102,6 +103,11 @@ ignore = [
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
     "F401", # Allow side-effect imports for rule registration
+]
+"packages/kb-dashboard-mcp/tests/**/*.py" = [
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "INP001", # Tests are not meant to be imported as packages
 ]
 "packages/kb-dashboard-tools/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
@@ -131,6 +137,9 @@ ignore = [
     "PLR0912", # Allow many branches in grid_updater
     "PLR0915", # Allow many statements in grid_updater
 ]
+"packages/kb-dashboard-mcp/src/kb_dashboard_mcp/cli.py" = [
+    "PLR0913",  # CLI commands with click options have many arguments
+]
 "packages/kb-dashboard-lint/src/dashboard_lint/config.py" = [
     "PLR0911", # Allow many return statements for config loading
 ]
@@ -145,7 +154,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["dashboard_compiler", "kb_dashboard_core", "dashboard_lint", "kb_dashboard_tools"]
+known-first-party = ["dashboard_compiler", "kb_dashboard_core", "dashboard_lint", "kb_dashboard_mcp", "kb_dashboard_tools"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -245,6 +254,33 @@ reportMissingTypeStubs = false
 [[tool.basedpyright.executionEnvironments]]
 root = "packages/kb-dashboard-lint/tests"
 extraPaths = ["packages/kb-dashboard-lint/src", "packages/kb-dashboard-core/src"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-mcp/src"
+# fastmcp is installed in the MCP package venv, not root venv - pyright runs from root
+extraPaths = ["packages/kb-dashboard-mcp/src", "packages/kb-dashboard-tools/src", "packages/kb-dashboard-core/src"]
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportIncompatibleVariableOverride = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-mcp/tests"
+extraPaths = ["packages/kb-dashboard-mcp/src", "packages/kb-dashboard-tools/src", "packages/kb-dashboard-core/src"]
 reportMissingTypeStubs = false
 reportUnknownParameterType = false
 reportUnknownArgumentType = false

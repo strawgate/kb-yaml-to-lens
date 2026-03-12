@@ -24,7 +24,7 @@ include Makefile.shared
 # Detect OS and set appropriate shell for recursive make calls
 
 # Components for pass-through commands
-COMPONENTS := packages/kb-dashboard-cli packages/kb-dashboard-core packages/kb-dashboard-lint packages/kb-dashboard-tools packages/vscode-extension
+COMPONENTS := packages/kb-dashboard-cli packages/kb-dashboard-core packages/kb-dashboard-lint packages/kb-dashboard-mcp packages/kb-dashboard-tools packages/vscode-extension
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := \
@@ -33,11 +33,12 @@ YAMLFIX_EXCLUDE := \
 	--exclude "packages/kb-dashboard-core/.venv/**/*.yaml" --exclude "packages/kb-dashboard-core/.venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-lint/.venv/**/*.yaml" --exclude "packages/kb-dashboard-lint/.venv/**/*.yml" \
 	--exclude "packages/kb-dashboard-tools/.venv/**/*.yaml" --exclude "packages/kb-dashboard-tools/.venv/**/*.yml" \
+	--exclude "packages/kb-dashboard-mcp/.venv/**/*.yaml" --exclude "packages/kb-dashboard-mcp/.venv/**/*.yml" \
 	--exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" \
 	--exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"
 
-.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts release-tag cli lint tools vscode docs gh
+.PHONY: help all root ci fix install lint-markdown lint-markdown-check lint-yaml lint-yaml-check bump-patch bump-minor bump-major bump-version-show check-merge-conflicts release-tag cli lint mcp tools vscode docs gh
 
 help:
 	@echo "Root Makefile - Global Commands"
@@ -45,12 +46,13 @@ help:
 	@echo "=== Component Pass-Through Commands ==="
 	@echo ""
 	@echo "Run target in all components:"
-	@echo "  make all <target>       - Run in cli + core + lint + tools + vscode"
+	@echo "  make all <target>       - Run in cli + core + lint + mcp + tools + vscode"
 	@echo ""
 	@echo "Run target in single component:"
 	@echo "  make cli <target>       - Run in packages/kb-dashboard-cli/"
 	@echo "  make core <target>      - Run in packages/kb-dashboard-core/"
 	@echo "  make lint <target>      - Run in packages/kb-dashboard-lint/"
+	@echo "  make mcp <target>       - Run in packages/kb-dashboard-mcp/"
 	@echo "  make tools <target>     - Run in packages/kb-dashboard-tools/"
 	@echo "  make vscode <target>    - Run in packages/vscode-extension/"
 	@echo "  make docs <target>      - Run in packages/kb-dashboard-docs/"
@@ -247,6 +249,11 @@ ifeq ($(_FIRST_GOAL),core)
   $(eval $(_ARGS):;@:)
 endif
 
+ifeq ($(_FIRST_GOAL),mcp)
+  _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(_ARGS):;@:)
+endif
+
 ifeq ($(_FIRST_GOAL),tools)
   _ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(_ARGS):;@:)
@@ -265,6 +272,9 @@ core:
 
 lint:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-lint $(_ARGS)
+
+mcp:
+	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-mcp $(_ARGS)
 
 tools:
 	@$(MAKE) SHELL=$(MAKE_SHELL) -C packages/kb-dashboard-tools $(_ARGS)
