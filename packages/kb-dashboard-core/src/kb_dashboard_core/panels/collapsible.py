@@ -15,7 +15,15 @@ class SectionConfig(BaseCfgModel):
     """Whether the section is collapsed by default in Kibana."""
 
     panels: list[PanelTypes] = Field(default_factory=list)
-    """Panels contained within this collapsible section."""
+    """Panels contained within this collapsible section.
+
+    Inner panels use a **relative** coordinate space — their (x, y) positions
+    start at (0, 0) within the section body, independent of the section's
+    absolute position in the outer dashboard grid.
+
+    Nested CollapsiblePanels are not supported and will be rejected by the
+    Dashboard-level discriminator.
+    """
 
 
 class CollapsiblePanel(BasePanel):

@@ -62,7 +62,7 @@
         let maxY = 20;
         panels.forEach(panel => {
             if (panel.type === 'section' && panel.panels && panel.panels.length > 0) {
-                // Section height = header (1 row) + max inner panel bottom
+                // Section footprint = header (h=1) + max inner panel bottom
                 let innerMaxY = 0;
                 panel.panels.forEach(inner => {
                     const innerBottom = inner.grid.y + inner.grid.h;
@@ -70,7 +70,7 @@
                         innerMaxY = innerBottom;
                     }
                 });
-                const sectionBottom = panel.grid.y + 1 + innerMaxY;
+                const sectionBottom = panel.grid.y + panel.grid.h + innerMaxY;
                 if (sectionBottom > maxY) {
                     maxY = sectionBottom;
                 }

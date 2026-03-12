@@ -263,9 +263,15 @@ export type EsqlExecuteRequestType = z.infer<typeof EsqlExecuteRequest>;
 
 /**
  * Panel information including grid position.
- * Note: uses z.lazy() for recursive self-reference (section panels contain child panels).
- * Cannot use BaseLSPModel.extend() with z.ZodType annotation as strict mode
- * rejects the lazy field. Using z.object() directly instead.
+ *
+ * MANUALLY EDITED — pydantic2zod cannot generate this schema because:
+ * 1. The Pydantic model uses a recursive forward reference (list['PanelGridInfo'])
+ *    which pydantic2zod's parser doesn't support.
+ * 2. z.lazy() is required for the recursive `panels` field.
+ * 3. BaseLSPModel.extend().strict() rejects the lazy field, so we use z.object() directly
+ *    with an explicit z.ZodType<PanelGridInfoType> annotation.
+ *
+ * If regenerating schemas, this block must be preserved manually.
  */
 export type PanelGridInfoType = {
   id: string;

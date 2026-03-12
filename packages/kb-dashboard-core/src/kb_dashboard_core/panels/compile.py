@@ -1,9 +1,15 @@
 """Compile Dashboard Panels to Kibana View Models."""
 
+from __future__ import annotations
+
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from kb_dashboard_core.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel, VegaPanel
 from kb_dashboard_core.panels.auto_layout import LayoutAlgorithm, create_layout_engine
+
+if TYPE_CHECKING:
+    from kb_dashboard_core.panels.base import BasePanel
 from kb_dashboard_core.panels.charts.compile import compile_charts_panel_config
 from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 from kb_dashboard_core.panels.charts.view import KbnLensPanel
@@ -127,17 +133,20 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
 
 @log_compile
 def compute_panel_positions(
-    panels: Sequence[PanelTypes],
+    panels: Sequence['BasePanel'],
     algorithm: LayoutAlgorithm = 'up-left',
 ) -> dict[int, tuple[int, int]]:
     """Compute positions for panels that need auto-layout.
 
+    Only uses ``position`` and ``size`` attributes from BasePanel, so any panel
+    subclass (including CollapsiblePanel) can participate in the layout.
+
     Args:
-        panels (Sequence[PanelTypes]): The sequence of panel objects.
-        algorithm (LayoutAlgorithm): The layout algorithm to use. Defaults to 'up-left'.
+        panels: The sequence of panel objects (any BasePanel subclass).
+        algorithm: The layout algorithm to use. Defaults to 'up-left'.
 
     Returns:
-        dict[int, tuple[int, int]]: Mapping of panel index to (x, y) position.
+        Mapping of panel index to (x, y) position.
 
     """
     # Check if any panels need positioning

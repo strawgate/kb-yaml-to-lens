@@ -424,6 +424,7 @@ code {
     border-bottom: 2px solid var(--vscode-focusBorder);
     border-radius: 0 0 3px 3px;
     box-sizing: border-box;
+    background: var(--vscode-editor-selectionBackground);
     background: color-mix(in srgb, var(--vscode-editor-selectionBackground) 30%, transparent);
 }
 

@@ -476,19 +476,39 @@ export class PreviewPanel {
             }
 
             if (panel.type === 'section') {
-                // Calculate section total height: header (1 row) + inner panel content
-                let innerMaxY = 0;
+                // Section: h=1 header bar + inner panels rendered below it.
+                // The layout engine already reserved space for the full section footprint.
+                const headerHeight = panel.grid.h * PreviewPanel.scaleFactor;
+                let innerMaxBottom = 0;
+                let innerPanelsHtml = '';
+
                 if (panel.panels && panel.panels.length > 0) {
                     for (const inner of panel.panels) {
+                        const innerLeft = inner.grid.x * PreviewPanel.scaleFactor;
+                        const innerTop = inner.grid.y * PreviewPanel.scaleFactor;
+                        const innerWidth = inner.grid.w * PreviewPanel.scaleFactor;
+                        const innerHeight = inner.grid.h * PreviewPanel.scaleFactor;
                         const innerBottom = inner.grid.y + inner.grid.h;
-                        if (innerBottom > innerMaxY) {
-                            innerMaxY = innerBottom;
+                        if (innerBottom > innerMaxBottom) {
+                            innerMaxBottom = innerBottom;
                         }
+
+                        const chartInfo = PreviewPanel.chartTypeRegistry[inner.type];
+                        const icon = chartInfo ? chartInfo.icon : '';
+                        const label = chartInfo ? chartInfo.label : inner.type;
+
+                        innerPanelsHtml += `
+                            <div class="layout-panel section-inner-panel" style="left: ${innerLeft}px; top: ${innerTop}px; width: ${innerWidth}px; height: ${innerHeight}px;">
+                                <div class="panel-header">${escapeHtml(inner.title || 'Untitled')}</div>
+                                <div class="panel-type">${icon} ${escapeHtml(label)}</div>
+                                <div class="panel-size">w:${inner.grid.w} h:${inner.grid.h}</div>
+                            </div>
+                        `;
                     }
                 }
-                const sectionHeaderH = 1;
-                const sectionTotalH = sectionHeaderH + innerMaxY;
-                const panelBottom = panel.grid.y + sectionTotalH;
+
+                const totalHeight = headerHeight + (innerMaxBottom * PreviewPanel.scaleFactor);
+                const panelBottom = panel.grid.y + panel.grid.h + innerMaxBottom;
                 if (panelBottom > maxY) {
                     maxY = panelBottom;
                 }
@@ -496,27 +516,6 @@ export class PreviewPanel {
                 const left = panel.grid.x * PreviewPanel.scaleFactor;
                 const top = panel.grid.y * PreviewPanel.scaleFactor;
                 const width = panel.grid.w * PreviewPanel.scaleFactor;
-                const headerHeight = sectionHeaderH * PreviewPanel.scaleFactor;
-                const totalHeight = sectionTotalH * PreviewPanel.scaleFactor;
-
-                // Render inner panels within the section container
-                let innerPanelsHtml = '';
-                if (panel.panels && panel.panels.length > 0) {
-                    for (const inner of panel.panels) {
-                        const innerLeft = inner.grid.x * PreviewPanel.scaleFactor;
-                        const innerTop = inner.grid.y * PreviewPanel.scaleFactor;
-                        const innerWidth = inner.grid.w * PreviewPanel.scaleFactor;
-                        const innerHeight = inner.grid.h * PreviewPanel.scaleFactor;
-
-                        innerPanelsHtml += `
-                            <div class="layout-panel section-inner-panel" style="left: ${innerLeft}px; top: ${innerTop}px; width: ${innerWidth}px; height: ${innerHeight}px;">
-                                <div class="panel-header">${escapeHtml(inner.title || 'Untitled')}</div>
-                                <div class="panel-type">Type: ${escapeHtml(inner.type)}</div>
-                                <div class="panel-size">w:${inner.grid.w} h:${inner.grid.h}</div>
-                            </div>
-                        `;
-                    }
-                }
 
                 panelsHtml += `
                     <div class="section-container" data-panel-id="${escapeHtml(panel.id)}" data-index="${i}" style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${totalHeight}px;">
