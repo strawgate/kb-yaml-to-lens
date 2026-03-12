@@ -29,9 +29,12 @@ def get_dashboard_panel_type(v: dict[str, object] | object) -> str:
         str: The panel type identifier.
 
     """
-    if isinstance(v, dict) and 'section' in v:
-        return 'section'
-    if not isinstance(v, dict) and isinstance(v, CollapsiblePanel):
+    if isinstance(v, dict):
+        if 'section' in v:
+            return 'section'
+        # Delegate to get_panel_type for non-section dicts
+        return get_panel_type(v)  # pyright: ignore[reportUnknownArgumentType]
+    if isinstance(v, CollapsiblePanel):
         return 'section'
     return get_panel_type(v)
 
