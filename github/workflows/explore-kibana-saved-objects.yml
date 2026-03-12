@@ -1,0 +1,75 @@
+---
+name: 'Explore: Kibana Saved Objects from Spec'
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  actions: read
+  contents: read
+  discussions: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: explore-kibana-saved-objects-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    if: startsWith(github.event.comment.body, '/explore')
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-kibana-saved-objects]'
+      setup-commands: |
+        npx playwright install chromium
+        if command -v just >/dev/null 2>&1; then
+          just explore-bootstrap 9.3.0
+        else
+          bash scripts/bootstrap-explore-kibana.sh 9.3.0
+        fi
+      additional-instructions: |
+        You are running an exploration+implementation workflow for kb-yaml-to-lens.
+
+        ## Goal
+        Implement support for a chart configuration by first generating a real Kibana saved object from UI configuration, then mapping that artifact into compiler/config/view code and tests.
+
+        ## Input
+        - Trigger comment: `${{ github.event.comment.body }}`
+        - Treat text after `/explore` as the detailed specification.
+        - If the comment is only `/explore`, infer a reasonable narrow spec from issue/PR context and state your assumption.
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Seeded indices: `logs-default-generic`, `metrics-default-generic`
+
+        ## Required workflow
+        1. Use Playwright (Chromium) to automate Kibana and create the exact target visualization.
+           - Use MCP browser tools (`browser_navigate`, `browser_snapshot`, `browser_take_screenshot`) while exploring and configuring.
+        2. Prefer the seeded data views that match the seeded indices. If Kibana does not auto-provide a data view, create one.
+        3. Export the created saved object with deep references via Kibana Saved Objects API.
+        4. Save export artifacts under `artifacts/kibana-saved-objects/`.
+        5. Implement compiler support in this repo using existing patterns.
+        6. Add/update tests for config -> compiled Lens output mapping.
+        7. Run targeted validation for touched files and tests.
+        8. Add/update docs/examples if user-facing behavior changed.
+
+        ## Saved object export hints
+        - Prefer the Kibana HTTP APIs for deterministic export:
+          - Find object(s)
+          - POST `/api/saved_objects/_export` with `includeReferencesDeep: true`
+        - Keep exported NDJSON in the repo as artifact evidence.
+
+        ## Deliverables
+        - Working code + tests for the requested capability.
+        - Saved object artifact(s) committed under `artifacts/kibana-saved-objects/`.
+        - Clear summary mapping: spec -> saved object fields -> compiler fields.
+        - A comment back on the triggering issue/PR summarizing results.
+
+        ## Guardrails
+        - Be surgical; avoid broad refactors.
+        - Follow existing naming/style conventions.
+        - If blocked, report exact blocker and reproduction steps.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

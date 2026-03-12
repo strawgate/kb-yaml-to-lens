@@ -1,0 +1,38 @@
+---
+name: Refactor Opportunist
+on:
+  schedule:
+    - cron: '0 14 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  id-token: write
+  actions: read
+jobs:
+  run:
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      model: claude-sonnet-4-5
+      track-progress: false
+      prompt: |
+        You are running the Refactor Opportunist workflow for kb-yaml-to-lens.
+
+        Goal: identify safe, high-leverage refactor opportunities that improve maintainability.
+        Do not create branches or pull requests in this workflow.
+
+        Process:
+        1. Review recent changes and repeated code patterns.
+        2. Find refactors with clear value and low migration risk.
+        3. Propose concrete, scoped implementation steps.
+
+        Output:
+        Create one GitHub issue with title prefix "[refactor-opportunist]" and include:
+        - Refactor candidates (prioritized)
+        - Why each is valuable
+        - Suggested implementation approach
+        - Risks and validation steps
+      allowed-tools: Bash(gh:issue:*,gh:pr:*,gh:api:*,git:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

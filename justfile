@@ -70,6 +70,7 @@ help:
     @echo "=== Git Helpers ==="
     @echo ""
     @echo "  check-merge-conflicts [branch] - Check for merge conflicts with branch (default: origin/main)"
+    @echo "  explore-bootstrap [version]    - Bootstrap ES/Kibana and seed explore data"
 
 # Run target across root + all components
 # Usage: just all <target>
@@ -184,3 +185,7 @@ release-tag:
 # Git helpers
 check-merge-conflicts branch="origin/main":
     bash scripts/check-merge-conflicts.sh {{branch}}
+
+# Explore workflow helpers
+explore-bootstrap version="9.3.0":
+    bash scripts/bootstrap-explore-kibana.sh {{version}}

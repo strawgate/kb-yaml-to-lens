@@ -1,0 +1,37 @@
+---
+name: Newbie Contributor Patrol
+on:
+  schedule:
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  id-token: write
+  actions: read
+jobs:
+  run:
+    uses: ./.github/workflows/run-claude.yml
+    with:
+      model: claude-sonnet-4-5
+      track-progress: false
+      prompt: |
+        You are running the Newbie Contributor Patrol workflow for kb-yaml-to-lens.
+
+        Goal: reduce onboarding friction by identifying tasks and docs that are good for new contributors.
+        Do not create branches or pull requests in this workflow.
+
+        Process:
+        1. Review open issues, labels, and contribution docs.
+        2. Identify missing context that blocks first-time contributors.
+        3. Propose beginner-friendly issues or doc improvements.
+
+        Output:
+        Create one GitHub issue with title prefix "[newbie-contributor]" and include:
+        - Beginner-friendly opportunities
+        - Onboarding/documentation gaps
+        - Suggested issue labels and acceptance criteria
+      allowed-tools: Bash(gh:issue:*,gh:pr:*,gh:api:*,git:*)
+    secrets:
+      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
