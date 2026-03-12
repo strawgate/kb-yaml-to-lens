@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -52,7 +52,7 @@ class BaseTagcloudChart(BaseChart):
     appearance: TagcloudAppearance | None = Field(default=None)
     """Formatting options for the chart appearance."""
 
-    color: ColorMapping | None = Field(default=None)
+    color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart colors."""
 
 

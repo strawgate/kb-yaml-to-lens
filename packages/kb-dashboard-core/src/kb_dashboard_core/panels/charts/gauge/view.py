@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -50,7 +51,7 @@ class KbnGaugeVisualizationState(BaseVwModel):
     goalAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for the goal/target metric (shown as reference line)."""
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] = Field(default='arc')
+    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle', 'semiCircle'] = Field(default='arc')
     """The shape of the gauge visualization. Defaults to 'arc'."""
 
     ticksPosition: Literal['auto', 'bands', 'hidden'] = Field(default='auto')
@@ -67,3 +68,6 @@ class KbnGaugeVisualizationState(BaseVwModel):
 
     colorMode: Annotated[Literal['none', 'palette'] | None, OmitIfNone()] = Field(default=None)
     """Color mode for the gauge visualization."""
+
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Range-based palette settings for threshold coloring."""

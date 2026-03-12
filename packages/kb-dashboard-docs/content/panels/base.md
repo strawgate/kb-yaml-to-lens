@@ -162,18 +162,27 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 
 Many chart panel types (Pie, XY, Metric) support color customization through the `color` field. You can select from built-in color palettes or manually assign specific colors to data values.
 
-### ColorMapping Object
+### ColorValueMapping Object
 
-::: kb_dashboard_core.panels.charts.base.config.ColorMapping
+::: kb_dashboard_core.panels.charts.base.config.ColorValueMapping
     options:
       show_root_heading: false
       heading_level: 4
 
-### ColorAssignment Object
+### ColorValueAssignment Object
 
 Manual color assignments are an advanced feature. For an introduction and examples, see the [Custom Color Assignments](../advanced/color-assignments.md) guide.
 
-::: kb_dashboard_core.panels.charts.base.config.ColorAssignment
+::: kb_dashboard_core.panels.charts.base.config.ColorValueAssignment
+    options:
+      show_root_heading: false
+      heading_level: 4
+
+### ColorRangeMapping Object
+
+Range-based color mapping is used for threshold-oriented visualizations (for example, gauge palettes). Use this with `gauge.appearance.palette`; it is not accepted by the generic chart `color` field.
+
+::: kb_dashboard_core.panels.charts.base.config.ColorRangeMapping
     options:
       show_root_heading: false
       heading_level: 4

@@ -1,7 +1,8 @@
 """Compilation logic for gauge chart visualizations."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final, Literal
 
+from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
@@ -12,6 +13,17 @@ from kb_dashboard_core.shared.compile import normalize_static_metric
 
 if TYPE_CHECKING:
     from kb_dashboard_core.panels.charts.lens.columns.view import KbnLensColumnTypes
+
+GaugeShapeCfg = Literal['arc', 'circle', 'horizontal_bullet', 'semi_circle', 'vertical_bullet']
+GaugeShapeKbn = Literal['arc', 'circle', 'horizontalBullet', 'semiCircle', 'verticalBullet']
+
+GAUGE_SHAPE_TO_KBN: Final[dict[GaugeShapeCfg, GaugeShapeKbn]] = {
+    'arc': 'arc',
+    'circle': 'circle',
+    'horizontal_bullet': 'horizontalBullet',
+    'semi_circle': 'semiCircle',
+    'vertical_bullet': 'verticalBullet',
+}
 
 
 def compile_gauge_chart_visualization_state(  # noqa: PLR0913
@@ -38,11 +50,15 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     """
     # Extract appearance settings with defaults
     appearance = chart.appearance
-    shape = appearance.shape if appearance is not None and appearance.shape is not None else 'arc'
+    shape_cfg: GaugeShapeCfg = appearance.shape if appearance is not None and appearance.shape is not None else 'arc'
+    shape = GAUGE_SHAPE_TO_KBN[shape_cfg]
     ticks_position = appearance.ticks_position if appearance is not None and appearance.ticks_position is not None else 'auto'
     label_major = appearance.label_major if appearance is not None else None
     label_minor = appearance.label_minor if appearance is not None else None
-    color_mode = appearance.color_mode if appearance is not None else None
+    palette = compile_color_range_mapping(appearance.palette) if appearance is not None else None
+
+    # Infer color_mode from palette presence
+    color_mode = 'palette' if palette is not None else None
 
     label_major_mode = 'custom' if label_major is not None else 'auto'
 
@@ -58,6 +74,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
         labelMinor=label_minor,
         labelMajorMode=label_major_mode,
         colorMode=color_mode,
+        palette=palette,
     )
 
 

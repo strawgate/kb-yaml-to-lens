@@ -2,7 +2,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes
 from kb_dashboard_core.panels.charts.lens.dimensions import LensDimensionTypes
 from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
@@ -220,7 +220,7 @@ class BaseXYChart(BaseChart):
         description='Formatting options for the chart legend.',
     )
 
-    color: ColorMapping | None = Field(
+    color: ColorValueMapping | None = Field(
         None,
         description='Formatting options for the chart color palette.',
     )

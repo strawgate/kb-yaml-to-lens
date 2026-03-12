@@ -9,7 +9,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -64,7 +64,7 @@ class BaseMosaicChart(BaseChart):
     legend: MosaicLegend | None = Field(default=None)
     """Formatting options for the chart legend."""
 
-    color: ColorMapping | None = Field(default=None)
+    color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color."""
 
 

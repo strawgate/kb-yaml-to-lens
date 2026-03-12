@@ -1,6 +1,6 @@
 """Compile Lens pie visualizations into their Kibana view models."""
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_mapping
+from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -82,7 +82,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     if chart.legend and chart.legend.show_single_series is not None:
         show_single_series = chart.legend.show_single_series
 
-    kbn_color_mapping = compile_color_mapping(chart.color)
+    kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     empty_size_ratio = 0.0 if len(metric_ids) > 1 else None

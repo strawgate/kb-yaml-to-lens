@@ -1,6 +1,6 @@
 """Compile Lens mosaic visualizations into their Kibana view models."""
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_mapping
+from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -73,7 +73,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         if chart.legend.position is not None:
             legend_position = chart.legend.position
 
-    kbn_color_mapping = compile_color_mapping(chart.color)
+    kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     percent_decimals = None
     if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:

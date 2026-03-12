@@ -16,7 +16,7 @@ type LensDimensionTypes = (
 class BaseDimension(BaseIdentifiableModel):
     """Base model for defining dimensions."""
 
-    # color: ColorMapping | None = Field(default=None)
+    # color: ColorValueMapping | None = Field(default=None)
 
 
 class CollapseAggregationEnum(StrEnum):

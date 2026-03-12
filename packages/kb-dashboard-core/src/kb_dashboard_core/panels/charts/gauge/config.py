@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -14,10 +14,10 @@ class GaugeAppearance(BaseCfgModel):
     """Appearance configuration for gauge visualizations.
 
     Groups all visual styling options for gauge charts including shape, tick positioning,
-    labels, and color mode.
+    labels, and palette configuration.
     """
 
-    shape: Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle'] | None = Field(default=None)
+    shape: Literal['horizontal_bullet', 'vertical_bullet', 'arc', 'circle', 'semi_circle'] | None = Field(default=None)
     """The shape of the gauge visualization."""
 
     ticks_position: Literal['auto', 'bands', 'hidden'] | None = Field(default=None)
@@ -29,8 +29,8 @@ class GaugeAppearance(BaseCfgModel):
     label_minor: str | None = Field(default=None)
     """Minor label text to display on the gauge."""
 
-    color_mode: Literal['none', 'palette'] | None = Field(default=None)
-    """Color mode for the gauge visualization."""
+    palette: ColorRangeMapping | None = Field(default=None)
+    """Range-based palette configuration for gauge thresholds. When set, enables palette color mode."""
 
 
 class BaseGaugeChart(BaseCfgModel):
@@ -67,7 +67,7 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
           goal: 80
         ```
 
-        Gauge with custom appearance:
+        Gauge with custom appearance and palette:
         ```yaml
         lens:
           type: gauge
@@ -80,7 +80,13 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
           goal: 500
           appearance:
             shape: arc
-            color_mode: palette
+            palette:
+              range_type: percent
+              stops:
+                - stop: 0
+                  color: "#00BF6F"
+                - stop: 80
+                  color: "#FFA500"
         ```
     """
 
