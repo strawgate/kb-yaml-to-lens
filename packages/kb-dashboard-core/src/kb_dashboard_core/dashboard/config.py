@@ -32,8 +32,17 @@ def get_dashboard_panel_type(v: dict[str, object] | object) -> str:
     if isinstance(v, dict):
         if 'section' in v:
             return 'section'
-        # Delegate to get_panel_type for non-section dicts
-        return get_panel_type(v)  # pyright: ignore[reportUnknownArgumentType]
+        # Delegate to get_panel_type for non-section dicts, but update error message
+        try:
+            return get_panel_type(v)  # pyright: ignore[reportUnknownArgumentType]
+        except ValueError:
+            keys = list(v)  # pyright: ignore[reportUnknownArgumentType]
+            msg = (
+                f'Cannot determine dashboard panel type from dict with keys: {keys}. '
+                'Each panel must have exactly one type discriminator key: '
+                "'markdown', 'search', 'links', 'image', 'lens', 'esql', 'vega', or 'section'."
+            )
+            raise ValueError(msg) from None
     if isinstance(v, CollapsiblePanel):
         return 'section'
     return get_panel_type(v)
