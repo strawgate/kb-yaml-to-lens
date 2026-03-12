@@ -1,0 +1,19 @@
+---
+name: Auto-label New Issues with Triage
+on:
+  issues:
+    types:
+      - opened
+permissions:
+  issues: write
+jobs:
+  add-triage-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add triage label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |-
+          gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels \
+            -f labels[]='triage'
