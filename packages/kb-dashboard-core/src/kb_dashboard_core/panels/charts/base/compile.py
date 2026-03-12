@@ -7,12 +7,12 @@ from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE_MATCH_EXACTLY,
     KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
-    KbnGaugePalette,
     KbnLayerColorMapping,
     KbnLayerColorMappingAssignment,
     KbnLayerColorMappingColor,
     KbnLayerColorMappingRule,
     KbnLayerColorMappingSpecialAssignment,
+    KbnRangePalette,
 )
 
 
@@ -78,12 +78,12 @@ def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLa
     )
 
 
-def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnGaugePalette | None:
-    """Compile a range-based color config into Kibana gauge palette format."""
+def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRangePalette | None:
+    """Compile a range-based color config into Kibana range palette format."""
     if color_config is None:
         return None
 
-    return KbnGaugePalette(
+    return KbnRangePalette(
         rangeType=color_config.range_type,
         stops=[stop.stop for stop in color_config.stops],
         colorStops=[stop.color for stop in color_config.stops],

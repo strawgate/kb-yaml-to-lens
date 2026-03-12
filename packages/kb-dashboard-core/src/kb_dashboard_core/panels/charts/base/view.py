@@ -124,8 +124,8 @@ class KbnLayerColorMapping(BaseVwModel):
     """Color assignment mode configuration (set during compilation)."""
 
 
-class KbnGaugePalette(BaseVwModel):
-    """Range-based gauge palette configuration."""
+class KbnRangePalette(BaseVwModel):
+    """Range-based palette configuration for threshold coloring."""
 
     rangeType: Literal['number', 'percent'] = Field(...)
     """How stop values are interpreted."""

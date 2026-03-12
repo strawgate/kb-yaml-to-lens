@@ -215,7 +215,6 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
             'ticks_position': 'auto',
             'label_major': 'CPU Usage',
             'label_minor': 'Percentage',
-            'color_mode': 'palette',
         },
     }
 
@@ -231,7 +230,6 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
             'labelMajor': 'CPU Usage',
             'labelMinor': 'Percentage',
             'labelMajorMode': 'custom',
-            'colorMode': 'palette',
         }
     )
 
@@ -247,7 +245,6 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             'aggregation': 'average',
         },
         'appearance': {
-            'color_mode': 'palette',
             'palette': {
                 'range_type': 'percent',
                 'stops': [
