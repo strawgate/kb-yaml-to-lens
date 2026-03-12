@@ -1,6 +1,6 @@
 """Compilation logic for gauge chart visualizations."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLStaticValue
@@ -15,7 +15,9 @@ if TYPE_CHECKING:
     from kb_dashboard_core.panels.charts.lens.columns.view import KbnLensColumnTypes
 
 
-GAUGE_SHAPE_TO_KBN = {
+KbnGaugeShape = Literal['horizontalBullet', 'verticalBullet', 'arc', 'circle', 'semiCircle']
+
+GAUGE_SHAPE_TO_KBN: dict[str, KbnGaugeShape] = {
     'arc': 'arc',
     'circle': 'circle',
     'horizontal_bullet': 'horizontalBullet',
