@@ -5,7 +5,7 @@
 # Shell settings for cross-platform compatibility
 # just handles exit codes natively, simplifying the migration from PIPESTATUS handling
 set shell := ["bash", "-euo", "pipefail", "-c"]
-set windows-shell := ["bash", "-euo", "pipefail", "-c"]
+set windows-shell := ["C:/Program Files/Git/bin/bash.exe", "-euo", "pipefail", "-c"]
 
 # Export all variables as environment variables
 set export := true
