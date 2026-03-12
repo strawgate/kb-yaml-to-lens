@@ -15,6 +15,15 @@ if TYPE_CHECKING:
     from kb_dashboard_core.panels.charts.lens.columns.view import KbnLensColumnTypes
 
 
+GAUGE_SHAPE_TO_KBN = {
+    'arc': 'arc',
+    'circle': 'circle',
+    'horizontal_bullet': 'horizontalBullet',
+    'semi_circle': 'semiCircle',
+    'vertical_bullet': 'verticalBullet',
+}
+
+
 def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     layer_id: str,
     metric_id: str,
@@ -39,7 +48,8 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     """
     # Extract appearance settings with defaults
     appearance = chart.appearance
-    shape = appearance.shape if appearance is not None and appearance.shape is not None else 'arc'
+    shape_cfg = appearance.shape if appearance is not None and appearance.shape is not None else 'arc'
+    shape = GAUGE_SHAPE_TO_KBN[shape_cfg]
     ticks_position = appearance.ticks_position if appearance is not None and appearance.ticks_position is not None else 'auto'
     label_major = appearance.label_major if appearance is not None else None
     label_minor = appearance.label_minor if appearance is not None else None

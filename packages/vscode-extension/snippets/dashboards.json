@@ -262,7 +262,7 @@
       "    ${15:maximum: ${16:100}}",
       "    ${17:goal: ${18:80}}",
       "    ${19:appearance:",
-      "      shape: ${20|arc,circle,horizontalBullet,verticalBullet|}",
+      "      shape: ${20|arc,circle,horizontal_bullet,vertical_bullet,semi_circle|}",
       "      color_mode: ${21|none,palette|}}"
     ],
     "description": "Add a Lens gauge showing a metric with optional min/max/goal values"
@@ -432,7 +432,7 @@
       "    ${14:maximum: ${15:100}}",
       "    ${16:goal: ${17:80}}",
       "    ${18:appearance:",
-      "      shape: ${19|arc,circle,horizontalBullet,verticalBullet|}",
+      "      shape: ${19|arc,circle,horizontal_bullet,vertical_bullet,semi_circle|}",
       "      color_mode: ${20|none,palette|}}"
     ],
     "description": "Add an ESQL gauge using ES|QL query language"

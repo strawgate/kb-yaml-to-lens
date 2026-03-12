@@ -236,9 +236,15 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
     """Test the compilation of gauge charts with different shape options."""
-    shapes = ['horizontalBullet', 'verticalBullet', 'arc', 'circle', 'semiCircle']
+    shape_pairs = [
+        ('horizontal_bullet', 'horizontalBullet'),
+        ('vertical_bullet', 'verticalBullet'),
+        ('arc', 'arc'),
+        ('circle', 'circle'),
+        ('semi_circle', 'semiCircle'),
+    ]
 
-    for shape in shapes:
+    for input_shape, expected_shape in shape_pairs:
         config = {
             'type': 'gauge',
             'data_view': 'metrics-*',
@@ -248,13 +254,13 @@ def test_compile_gauge_chart_with_all_shapes() -> None:
                 'aggregation': 'average',
             },
             'appearance': {
-                'shape': shape,
+                'shape': input_shape,
             },
         }
 
         result = compile_gauge_chart_snapshot(config, 'lens')
 
-        assert result['shape'] == shape
+        assert result['shape'] == expected_shape
         assert result['layerType'] == 'data'
         assert result['metricAccessor'] == 'metric_accessor'
 
