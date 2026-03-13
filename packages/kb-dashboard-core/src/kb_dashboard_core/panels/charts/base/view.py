@@ -152,8 +152,8 @@ class KbnRangePaletteParams(BaseVwModel):
     rangeMin: float = Field(...)
     """Start value of the first color band."""
 
-    rangeMax: None = None
-    """End cap — always null; the last stop's value serves as the upper bound."""
+    rangeMax: float | None = None
+    """Optional upper bound for the palette range."""
 
     progression: Literal['fixed'] = 'fixed'
     """Band sizing strategy."""

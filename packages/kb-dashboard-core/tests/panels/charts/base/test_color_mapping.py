@@ -284,18 +284,13 @@ class TestCompileColorRangeMapping:
         assert result is None
 
     def test_compiles_number_range_mapping(self) -> None:
-        """Test number-based range mapping compilation.
-
-        The last stop in 'stops' (band endpoints) equals the last user-provided
-        stop value for number ranges, resulting in a zero-width final band. This is
-        intentional to match Kibana's expected format.
-        """
+        """Test number-based range mapping compilation."""
         color_config = ColorRangeMapping(
             range_type='number',
             stops=[
-                ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=80, color='#FFA500'),
-                ColorRangeStop(stop=95, color='#BD271E'),
+                ColorRangeStop(stop=80, color='#00BF6F'),
+                ColorRangeStop(stop=95, color='#FFA500'),
+                ColorRangeStop(stop=120, color='#BD271E'),
             ],
         )
         result = compile_color_range_mapping(color_config)
@@ -315,7 +310,7 @@ class TestCompileColorRangeMapping:
                     'stops': [
                         {'color': '#00BF6F', 'stop': 80.0},
                         {'color': '#FFA500', 'stop': 95.0},
-                        {'color': '#BD271E', 'stop': 95.0},
+                        {'color': '#BD271E', 'stop': 120.0},
                     ],
                     'colorStops': [
                         {'color': '#00BF6F', 'stop': 0.0},
@@ -329,24 +324,27 @@ class TestCompileColorRangeMapping:
         )
 
     def test_compiles_percent_range_mapping(self) -> None:
-        """Test percent-based range mapping caps the last stop at 100."""
+        """Test percent ranges use shifted color starts and 0..100 bounds."""
         color_config = ColorRangeMapping(
             range_type='percent',
             stops=[
-                ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=60, color='#FFA500'),
-                ColorRangeStop(stop=85, color='#BD271E'),
+                ColorRangeStop(stop=90, color='#cc5642'),
+                ColorRangeStop(stop=95, color='#d6bf57'),
+                ColorRangeStop(stop=100, color='#54b399'),
             ],
         )
         result = compile_color_range_mapping(color_config)
         assert result is not None
         assert result.params.rangeType == 'percent'
+        assert result.params.rangeMin == 0.0
+        assert result.params.rangeMax == 100.0
+        assert result.params.stops[0].stop == 90.0
+        assert result.params.stops[1].stop == 95.0
         assert result.params.stops[-1].stop == 100.0
         assert result.params.maxSteps == 3
-        # colorStops reflect the user's input directly
         assert result.params.colorStops[0].stop == 0.0
-        assert result.params.colorStops[1].stop == 60.0
-        assert result.params.colorStops[2].stop == 85.0
+        assert result.params.colorStops[1].stop == 90.0
+        assert result.params.colorStops[2].stop == 95.0
 
     def test_compiles_single_stop(self) -> None:
         """Test compilation with a single stop."""
@@ -357,8 +355,9 @@ class TestCompileColorRangeMapping:
         result = compile_color_range_mapping(color_config)
         assert result is not None
         assert result.params.steps == 1
-        assert result.params.rangeMin == 50.0
+        assert result.params.rangeMin == 0.0
+        assert result.params.rangeMax == 100.0
         assert len(result.params.stops) == 1
         assert len(result.params.colorStops) == 1
         assert result.params.stops[0].stop == 100.0
-        assert result.params.colorStops[0].stop == 50.0
+        assert result.params.colorStops[0].stop == 0.0
