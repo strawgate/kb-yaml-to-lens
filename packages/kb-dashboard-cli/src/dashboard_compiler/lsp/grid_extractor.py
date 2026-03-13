@@ -55,8 +55,7 @@ def _extract_inner_panels(section_panel: CollapsiblePanel) -> tuple[list[PanelGr
             continue
 
         bottom = iy + inner.size.h
-        if bottom > max_bottom:
-            max_bottom = bottom
+        max_bottom = max(max_bottom, bottom)
 
         result.append(
             PanelGridInfo(
