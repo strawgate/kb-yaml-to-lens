@@ -667,6 +667,8 @@ class KibanaClient:
                             raise ValueError(msg)
 
                         if response.status == HTTP_SERVICE_UNAVAILABLE:
+                            # 503 indicates the screenshot job is still processing.
+                            # Continue polling until completion or timeout.
                             pass
                         else:
                             response.raise_for_status()
