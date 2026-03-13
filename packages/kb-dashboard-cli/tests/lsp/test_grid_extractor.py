@@ -7,10 +7,10 @@ import pytest
 
 from dashboard_compiler.lsp.grid_extractor import extract_grid_layout
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _write_yaml(tmp_path: Path, content: str) -> Path:
     yaml_path = tmp_path / 'dashboard.yaml'
@@ -22,11 +22,15 @@ def _write_yaml(tmp_path: Path, content: str) -> Path:
 # Basic extraction (no sections)
 # ---------------------------------------------------------------------------
 
+
 class TestBasicExtraction:
     """Grid extraction for dashboards without collapsible sections."""
 
     def test_single_panel(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Extract a single panel with correct grid position and type."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Simple"
                 panels:
@@ -34,21 +38,25 @@ class TestBasicExtraction:
                     size: {w: 48, h: 6}
                     markdown:
                       content: "Hello"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
-        assert result.title == "Simple"
+        assert result.title == 'Simple'
         assert len(result.panels) == 1
         p = result.panels[0]
-        assert p.title == "Panel A"
+        assert p.title == 'Panel A'
         assert p.grid.x == 0
         assert p.grid.y == 0
         assert p.grid.w == 48
         assert p.grid.h == 6
-        assert p.type == "markdown"
+        assert p.type == 'markdown'
         assert p.panels == []
 
     def test_two_panels_auto_layout(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Two half-width panels are placed side by side on the same row."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Two Panels"
                 panels:
@@ -60,7 +68,8 @@ class TestBasicExtraction:
                     size: {w: 24, h: 4}
                     markdown:
                       content: "B"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert len(result.panels) == 2
         # Side by side (both fit in 48 columns)
@@ -74,12 +83,15 @@ class TestBasicExtraction:
 # Sections in layout flow
 # ---------------------------------------------------------------------------
 
+
 class TestSectionLayout:
     """Sections participate in auto-layout with correct Y coordinates."""
 
     def test_section_gets_auto_position(self, tmp_path: Path) -> None:
         """A section without explicit position gets placed after preceding panels."""
-        yaml_path = _write_yaml(tmp_path, """
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "With Section"
                 panels:
@@ -94,7 +106,8 @@ class TestSectionLayout:
                           size: {w: 48, h: 8}
                           markdown:
                             content: "Inside"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert len(result.panels) == 2
 
@@ -105,11 +118,13 @@ class TestSectionLayout:
         # Section positioned after header
         assert section.grid.y == 6
         assert section.grid.h == 1  # Always h=1 in output
-        assert section.type == "section"
+        assert section.type == 'section'
 
     def test_panel_after_section_not_overlapping(self, tmp_path: Path) -> None:
         """Panels after a section are placed below the section's full footprint."""
-        yaml_path = _write_yaml(tmp_path, """
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Section Then Panel"
                 panels:
@@ -128,7 +143,8 @@ class TestSectionLayout:
                     size: {w: 48, h: 4}
                     markdown:
                       content: "Bottom"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert len(result.panels) == 3
 
@@ -143,7 +159,9 @@ class TestSectionLayout:
 
     def test_multiple_consecutive_sections(self, tmp_path: Path) -> None:
         """Multiple sections in a row each get correct Y positions."""
-        yaml_path = _write_yaml(tmp_path, """
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Multi Section"
                 panels:
@@ -161,7 +179,8 @@ class TestSectionLayout:
                           size: {w: 48, h: 8}
                           markdown:
                             content: "B"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert len(result.panels) == 2
 
@@ -176,12 +195,15 @@ class TestSectionLayout:
 # Section inner panels
 # ---------------------------------------------------------------------------
 
+
 class TestSectionInnerPanels:
     """Inner panels use relative coordinates within the section."""
 
     def test_inner_panels_have_relative_coordinates(self, tmp_path: Path) -> None:
         """Inner panel Y coordinates start at 0, not at the section's outer Y."""
-        yaml_path = _write_yaml(tmp_path, """
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Inner Coords"
                 panels:
@@ -196,7 +218,8 @@ class TestSectionInnerPanels:
                           size: {w: 48, h: 8}
                           markdown:
                             content: "Inside"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         section = result.panels[1]
         assert section.grid.y == 20  # After the spacer
@@ -209,7 +232,9 @@ class TestSectionInnerPanels:
 
     def test_multiple_inner_panels_auto_layout(self, tmp_path: Path) -> None:
         """Inner panels get auto-laid out within the section's coordinate space."""
-        yaml_path = _write_yaml(tmp_path, """
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Multi Inner"
                 panels:
@@ -228,7 +253,8 @@ class TestSectionInnerPanels:
                           size: {w: 16, h: 8}
                           markdown:
                             content: "R"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         section = result.panels[0]
         assert len(section.panels) == 3
@@ -243,7 +269,9 @@ class TestSectionInnerPanels:
 
     def test_inner_panels_with_explicit_positions(self, tmp_path: Path) -> None:
         """Inner panels with explicit positions are marked as pinned."""
-        yaml_path = _write_yaml(tmp_path, """
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Pinned Inner"
                 panels:
@@ -255,7 +283,8 @@ class TestSectionInnerPanels:
                           position: {x: 10, y: 5}
                           markdown:
                             content: "P"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         section = result.panels[0]
         inner = section.panels[0]
@@ -268,11 +297,15 @@ class TestSectionInnerPanels:
 # Empty sections
 # ---------------------------------------------------------------------------
 
+
 class TestEmptySection:
     """Empty sections have no inner panels and minimal footprint."""
 
     def test_empty_section(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Empty section has h=1 and following panel starts at y=1."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Empty Section"
                 panels:
@@ -283,7 +316,8 @@ class TestEmptySection:
                     size: {w: 48, h: 4}
                     markdown:
                       content: "After"
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert len(result.panels) == 2
 
@@ -294,17 +328,21 @@ class TestEmptySection:
         assert after.grid.y == 1
 
     def test_section_without_panels_key(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Section without a panels key is treated as an empty section."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "No Panels Key"
                 panels:
                   - title: "Bare Section"
                     section:
                       collapsed: true
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert len(result.panels) == 1
-        assert result.panels[0].type == "section"
+        assert result.panels[0].type == 'section'
         assert result.panels[0].panels == []
 
 
@@ -312,23 +350,31 @@ class TestEmptySection:
 # Section metadata
 # ---------------------------------------------------------------------------
 
+
 class TestSectionMetadata:
     """Section grid info has correct IDs, titles, and types."""
 
     def test_section_type_is_section(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Section panels report type as 'section'."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Type Check"
                 panels:
                   - title: "My Section"
                     section:
                       panels: []
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
-        assert result.panels[0].type == "section"
+        assert result.panels[0].type == 'section'
 
     def test_section_with_explicit_id(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Explicit id on a section is preserved in the output."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "ID Check"
                 panels:
@@ -336,31 +382,40 @@ class TestSectionMetadata:
                     title: "My Section"
                     section:
                       panels: []
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
-        assert result.panels[0].id == "custom-section-id"
+        assert result.panels[0].id == 'custom-section-id'
 
     def test_section_auto_id(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Section without explicit id gets 'section_<title>' as id."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Auto ID"
                 panels:
                   - title: "Health Metrics"
                     section:
                       panels: []
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
-        assert result.panels[0].id == "section_Health Metrics"
+        assert result.panels[0].id == 'section_Health Metrics'
 
     def test_section_width_is_full(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """Sections always span the full 48-column width."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Width Check"
                 panels:
                   - title: "Section"
                     section:
                       panels: []
-        """)
+        """,
+        )
         result = extract_grid_layout(yaml_path.as_posix())
         assert result.panels[0].grid.w == 48
 
@@ -369,18 +424,26 @@ class TestSectionMetadata:
 # Error cases
 # ---------------------------------------------------------------------------
 
+
 class TestErrorCases:
     """Edge cases and error handling."""
 
     def test_no_dashboards_raises(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """ValueError is raised when dashboards list is empty."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards: []
-        """)
-        with pytest.raises(ValueError, match="No dashboards found"):
+        """,
+        )
+        with pytest.raises(ValueError, match='No dashboards found'):
             extract_grid_layout(yaml_path.as_posix())
 
     def test_invalid_index_raises(self, tmp_path: Path) -> None:
-        yaml_path = _write_yaml(tmp_path, """
+        """ValueError is raised when dashboard_index is out of range."""
+        yaml_path = _write_yaml(
+            tmp_path,
+            """
             dashboards:
               - name: "Only One"
                 panels:
@@ -388,6 +451,7 @@ class TestErrorCases:
                     size: {w: 48, h: 4}
                     markdown:
                       content: "X"
-        """)
-        with pytest.raises(ValueError, match="out of range"):
+        """,
+        )
+        with pytest.raises(ValueError, match='out of range'):
             extract_grid_layout(yaml_path.as_posix(), dashboard_index=5)

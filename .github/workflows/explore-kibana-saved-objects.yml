@@ -1,10 +1,9 @@
 ---
-name: "Explore: Kibana Saved Objects from Spec"
+name: 'Explore: Kibana Saved Objects from Spec'
 on:
   issue_comment:
     types:
       - created
-
 permissions:
   actions: read
   contents: read
@@ -12,17 +11,15 @@ permissions:
   issues: write
   pull-requests: write
   id-token: write
-
 concurrency:
   group: explore-kibana-saved-objects-${{ github.event.issue.number }}
   cancel-in-progress: false
-
 jobs:
   run:
     if: startsWith(github.event.comment.body, '/explore') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: "[explore-kibana-saved-objects]"
+      title-prefix: '[explore-kibana-saved-objects]'
       setup-commands: |
         npx playwright install chromium
         if command -v just >/dev/null 2>&1; then

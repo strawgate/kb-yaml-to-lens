@@ -1,8 +1,9 @@
 ---
-name: 'Minimize Resolved Reviews'
+name: Minimize Resolved Reviews
 on:
   pull_request_review:
-    types: [submitted]
+    types:
+      - submitted
 concurrency:
   group: minimize-reviews-${{ github.event.pull_request.number || github.event.issue.number }}
   cancel-in-progress: true
