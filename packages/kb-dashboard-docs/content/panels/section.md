@@ -65,20 +65,20 @@ dashboards:
               lens:
                 type: metric
                 data_view: "metrics-*"
-                metrics:
-                  - aggregation: avg
-                    field: system.cpu.total.pct
+                primary:
+                  aggregation: average
+                  field: system.cpu.total.pct
             - title: "CPU History"
               size: { w: half, h: 12 }
               lens:
                 type: line
                 data_view: "metrics-*"
                 metrics:
-                  - aggregation: avg
+                  - aggregation: average
                     field: system.cpu.total.pct
-                dimensions:
-                  - field: "@timestamp"
-                    type: date_histogram
+                dimension:
+                  field: "@timestamp"
+                  type: date_histogram
 ```
 
 ### Collapsed by Default
@@ -103,17 +103,17 @@ dashboards:
               lens:
                 type: metric
                 data_view: "metrics-*"
-                metrics:
-                  - aggregation: avg
-                    field: system.memory.used.pct
+                primary:
+                  aggregation: average
+                  field: system.memory.used.pct
             - title: "Disk Usage"
               size: { w: quarter, h: 8 }
               lens:
                 type: metric
                 data_view: "metrics-*"
-                metrics:
-                  - aggregation: avg
-                    field: system.filesystem.used.pct
+                primary:
+                  aggregation: average
+                  field: system.filesystem.used.pct
 ```
 
 ### Multiple Sections
@@ -137,17 +137,17 @@ dashboards:
               lens:
                 type: gauge
                 data_view: "metrics-*"
-                metrics:
-                  - aggregation: avg
-                    field: system.cpu.total.pct
+                metric:
+                  aggregation: average
+                  field: system.cpu.total.pct
             - title: "Memory"
               size: { w: third, h: 10 }
               lens:
                 type: gauge
                 data_view: "metrics-*"
-                metrics:
-                  - aggregation: avg
-                    field: system.memory.used.pct
+                metric:
+                  aggregation: average
+                  field: system.memory.used.pct
 
       - title: "Storage"
         section:
@@ -159,11 +159,11 @@ dashboards:
                 type: bar
                 data_view: "metrics-*"
                 metrics:
-                  - aggregation: avg
+                  - aggregation: average
                     field: system.filesystem.used.pct
-                dimensions:
-                  - field: host.name
-                    type: values
+                dimension:
+                  field: host.name
+                  type: values
 ```
 
 ## Important Notes
