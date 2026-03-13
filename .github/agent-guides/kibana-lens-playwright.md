@@ -10,6 +10,7 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
 - **Wait after navigation.** `browser_navigate` then `browser_wait_for` with `textGone: "Loading Elastic"`.
 - **Comboboxes are NOT `<select>`.** Kibana uses EUI comboboxes. Use `browser_type` into the ref, `browser_snapshot`, then `browser_click` the matching option. Never use `browser_fill_form` with type `combobox`.
 - **Close dialogs** with the "Close"/"Back" button ref, or `browser_press_key` with `Escape`.
+- **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts even during read-only inspection. Always exit via "Exit without saving"/discard path unless a save is intentional.
 
 ## Create a Lens Visualization
 
@@ -57,6 +58,12 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
 3. Click "Pick a color" per term → Colors/Custom/Neutral tabs
 4. Press Escape to close picker, "Back" to return
 
+### Gauge Color Range Editor Notes
+
+- Kibana's range editor may normalize row display (for example, final row shown as `<= max`) instead of mirroring raw stop arrays one-to-one.
+- For number ranges, UI labels like "Suggested value" can refer to gauge bounds and are easy to confuse with palette stop rows; verify both controls explicitly.
+- Open bounds (`range_min: null` / `range_max: null`) can appear as disabled/auto edge rows with only interior boundaries shown as explicit stop inputs.
+
 ## ES|QL Visualizations
 
 ES|QL panels are added from a **Dashboard** (not Lens directly): Dashboard → Add → New panel → ES|QL.
@@ -86,6 +93,23 @@ curl -fsS -X POST "http://localhost:5601/api/saved_objects/_export" \
 ```
 Returns NDJSON: index-pattern, lens object, export summary.
 
+## Validation Rule: Do Not Re-Export Imports
+
+Re-exporting a saved object that was just imported is **not** a valid correctness test. That only proves round-trip persistence for the same JSON payload, not whether Kibana's editor interprets and displays settings as expected.
+
+Use this validation sequence instead:
+1. Import compiled artifact.
+2. Open panel in **Edit visualization**.
+3. Verify visible editor controls (shape, range type, min/max, stops, etc.) match expectations.
+4. Confirm rendered panel appearance on dashboard.
+
+Only treat export diffs as supplemental evidence after UI editor checks pass.
+
+Some palette parameters (for example `continuity`) may not be exposed in the current Kibana editor for certain chart types. In those cases:
+- do not fail UI-parity solely because the control is absent,
+- verify all visible editor controls and rendered behavior,
+- then use export checks only as supplemental evidence for the non-exposed field.
+
 ## Common Pitfalls
 
 1. **Stale refs** — always re-snapshot before clicking.
@@ -96,6 +120,7 @@ Returns NDJSON: index-pattern, lens object, export summary.
 6. **Unsaved work dialog** — handle `beforeunload` with `browser_handle_dialog` (accept: true).
 7. **Chart type switching** — Gauge/Legacy Metric warn "modifies configuration"; Region map warns "clears configuration".
 8. **Metric Method toggle** — dialog has Quick function / Formula toggle; pipeline aggregations may be disabled.
+9. **False-positive export checks** — exporting an object you just imported does not validate UI/editor parity.
 
 ## Saved Object Structure Reference (Pie/Donut)
 

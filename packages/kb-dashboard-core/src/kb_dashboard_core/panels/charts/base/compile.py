@@ -87,10 +87,9 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     - ``colorStops``: each entry marks the START of a color band
     - ``stops``: each entry marks the END of a color band
 
-    Given user-provided stops ``[(0, green), (60, yellow), (85, red)]``:
-    - colorStops = [{color: green, stop: 0}, {color: yellow, stop: 60}, {color: red, stop: 85}]
-    - stops = [{color: green, stop: 60}, {color: yellow, stop: 85}, {color: red, stop: 100}]
-      (last stop is capped at 100 for percent, or uses the last user value for number)
+    User-provided stops are interpreted as band END points. START points are
+    derived by shifting endpoints down by one and anchoring the first band to
+    ``range_min``.
     """
     if color_config is None:
         return None
@@ -98,26 +97,29 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     user_stops = color_config.stops
     n = len(user_stops)
 
-    # Build colorStops (START of each band) — directly from user input
-    color_stops = [KbnRangePaletteStop(color=s.color, stop=s.stop) for s in user_stops]
+    range_min = color_config.range_min
+    range_max = color_config.range_max
 
-    # Build stops (END of each band) — each band ends where the next begins;
-    # the last band ends at 100 for percent ranges
-    stops: list[KbnRangePaletteStop] = []
-    for i in range(n):
-        if i < n - 1:
-            stops.append(KbnRangePaletteStop(color=user_stops[i].color, stop=user_stops[i + 1].stop))
-        else:
-            end = 100.0 if color_config.range_type == 'percent' else user_stops[i].stop
-            stops.append(KbnRangePaletteStop(color=user_stops[i].color, stop=end))
+    # Build stops (END of each band) from user input.
+    stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in user_stops]
+    if color_config.range_type == 'percent':
+        stops[-1] = KbnRangePaletteStop(color=stops[-1].color, stop=100.0)
+
+    # Build colorStops (START of each band) by shifting endpoints down by one.
+    color_stops: list[KbnRangePaletteStop] = []
+    for i, entry in enumerate(user_stops):
+        start = range_min if i == 0 else user_stops[i - 1].stop
+        color_stops.append(KbnRangePaletteStop(color=entry.color, stop=start))
 
     return KbnRangePalette(
         params=KbnRangePaletteParams(
             steps=n,
             rangeType=color_config.range_type,
-            rangeMin=user_stops[0].stop,
+            rangeMin=range_min,
+            rangeMax=range_max,
             stops=stops,
             colorStops=color_stops,
+            continuity=color_config.continuity,
             maxSteps=n,
         ),
     )

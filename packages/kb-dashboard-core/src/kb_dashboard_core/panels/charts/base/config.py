@@ -99,6 +99,15 @@ class ColorRangeMapping(BaseCfgModel):
     range_type: Literal['number', 'percent'] = Field(default='number')
     """How stop values are interpreted by Kibana."""
 
+    range_min: float | None = Field(default=0)
+    """Optional lower bound for the palette domain. Use null for auto/open lower bound."""
+
+    range_max: float | None = Field(default=None)
+    """Optional upper bound for the palette domain. Use null for auto/open upper bound."""
+
+    continuity: Literal['above', 'below', 'all', 'none'] = Field(default='above')
+    """How colors extend beyond the configured range."""
+
     stops: list[ColorRangeStop] = Field(min_length=1)
     """Ordered range stops used to build gauge-style color palettes."""
 
@@ -114,4 +123,13 @@ class ColorRangeMapping(BaseCfgModel):
                 if stop_value < 0 or stop_value > PERCENT_MAX:
                     msg = f'Percent-based stops must be between 0 and {PERCENT_MAX}'
                     raise ValueError(msg)
+            if self.range_min is not None and (self.range_min < 0 or self.range_min > PERCENT_MAX):
+                msg = f'Percent-based range_min must be between 0 and {PERCENT_MAX}'
+                raise ValueError(msg)
+            if self.range_max is not None and (self.range_max < 0 or self.range_max > PERCENT_MAX):
+                msg = f'Percent-based range_max must be between 0 and {PERCENT_MAX}'
+                raise ValueError(msg)
+        if self.range_min is not None and self.range_max is not None and self.range_min >= self.range_max:
+            msg = "'range_min' must be less than 'range_max'"
+            raise ValueError(msg)
         return self

@@ -3,6 +3,29 @@ import * as path from 'path';
 import { DashboardCompilerLSP, CompiledDashboard, DashboardGridInfo, Grid } from './compiler';
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 
+/**
+ * Interface describing dashboard display properties.
+ * Used for type-safe access to dynamically-typed CompiledDashboard data.
+ */
+interface DashboardDisplayInfo {
+    attributes?: {
+        title?: string;
+        panelsJSON?: string;
+        optionsJSON?: string;
+        controlGroupInput?: {
+            panelsJSON?: string;
+        };
+    };
+    type?: string;
+    id?: string;
+    version?: string;
+}
+
+/** Type guard to check if a value has DashboardDisplayInfo shape. */
+function isDashboardDisplayInfo(value: unknown): value is DashboardDisplayInfo {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
 export class PreviewPanel {
     private static readonly gridColumns = 48;
     private static readonly scaleFactor = 12; // pixels per grid unit (48 cols * 12px = 576px width)
@@ -201,9 +224,8 @@ export class PreviewPanel {
         const layoutEditorUri = this.getMediaUri(webview, 'layoutEditor.js');
         const previewJsUri = this.getMediaUri(webview, 'preview.js');
         
-        // Cast to any for property access since CompiledDashboard structure is dynamic
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const dashboardData = dashboard as any;
+        // Use type guard for safe property access since CompiledDashboard structure is dynamic
+        const dashboardData: DashboardDisplayInfo = isDashboardDisplayInfo(dashboard) ? dashboard : {};
         const fileName = path.basename(filePath);
         const downloadFilename = fileName.replace('.yaml', '.ndjson');
         // Escape < to prevent </script> injection in embedded JSON
@@ -373,11 +395,11 @@ export class PreviewPanel {
         return PreviewPanel.chartTypeRegistry[type.toLowerCase()]?.label || type;
     }
 
-    private generateJsonFieldsHtml(dashboardData: Record<string, unknown>): string {
+    private generateJsonFieldsHtml(dashboardData: DashboardDisplayInfo): string {
         const sections: Array<{ id: string; title: string; json: string | null }> = [];
 
         // Extract panelsJSON
-        const panelsJSON = this.getNestedProperty(dashboardData, 'attributes.panelsJSON');
+        const panelsJSON = dashboardData.attributes?.panelsJSON;
         if (panelsJSON && typeof panelsJSON === 'string') {
             sections.push({
                 id: 'panels-json',
@@ -387,7 +409,7 @@ export class PreviewPanel {
         }
 
         // Extract optionsJSON
-        const optionsJSON = this.getNestedProperty(dashboardData, 'attributes.optionsJSON');
+        const optionsJSON = dashboardData.attributes?.optionsJSON;
         if (optionsJSON && typeof optionsJSON === 'string') {
             sections.push({
                 id: 'options-json',
@@ -397,7 +419,7 @@ export class PreviewPanel {
         }
 
         // Extract controlGroupInput.panelsJSON (controls)
-        const controlsJSON = this.getNestedProperty(dashboardData, 'attributes.controlGroupInput.panelsJSON');
+        const controlsJSON = dashboardData.attributes?.controlGroupInput?.panelsJSON;
         if (controlsJSON && typeof controlsJSON === 'string') {
             sections.push({
                 id: 'controls-json',
@@ -440,20 +462,6 @@ export class PreviewPanel {
 
         html += '</div>';
         return html;
-    }
-
-    private getNestedProperty(obj: Record<string, unknown>, path: string): unknown {
-        const parts = path.split('.');
-        let current: unknown = obj;
-
-        for (const part of parts) {
-            if (current === null || current === undefined || typeof current !== 'object') {
-                return undefined;
-            }
-            current = (current as Record<string, unknown>)[part];
-        }
-
-        return current;
     }
 
     private generateLayoutHtml(gridInfo: DashboardGridInfo): string {

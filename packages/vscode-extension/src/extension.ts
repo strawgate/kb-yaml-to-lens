@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { DashboardCompilerLSP } from './compiler';
 import { PreviewPanel } from './previewPanel';
-import { GridEditorPanel } from './gridEditorPanel';
 import { EsqlResultsPanel } from './esqlResultsPanel';
 import { setupFileWatcher } from './fileWatcher';
 import { ConfigService } from './configService';
@@ -11,7 +10,6 @@ import { TextDecoder } from 'util';
 
 let compiler: DashboardCompilerLSP;
 let previewPanel: PreviewPanel;
-let gridEditorPanel: GridEditorPanel;
 let esqlResultsPanel: EsqlResultsPanel;
 let configService: ConfigService;
 let uploadResultsChannel: vscode.OutputChannel | undefined;
@@ -441,7 +439,6 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     previewPanel = new PreviewPanel(context, compiler);
-    gridEditorPanel = new GridEditorPanel(context, compiler);
     esqlResultsPanel = new EsqlResultsPanel();
 
     // Setup file watching for auto-compile
@@ -854,9 +851,6 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function deactivate(): Promise<void> {
     if (previewPanel) {
         previewPanel.dispose();
-    }
-    if (gridEditorPanel) {
-        gridEditorPanel.dispose();
     }
     if (esqlResultsPanel) {
         esqlResultsPanel.dispose();
