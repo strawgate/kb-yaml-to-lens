@@ -4,8 +4,8 @@ import { DashboardCompilerLSP, CompiledDashboard, DashboardGridInfo, Grid } from
 import { escapeHtml, getLoadingContent, getErrorContent } from './webviewUtils';
 
 /**
- * Type guard to check if an object has dashboard display properties.
- * Used to safely access dashboard properties from the dynamically-typed CompiledDashboard.
+ * Interface describing dashboard display properties.
+ * Used for type-safe access to dynamically-typed CompiledDashboard data.
  */
 interface DashboardDisplayInfo {
     attributes?: {
@@ -21,8 +21,9 @@ interface DashboardDisplayInfo {
     version?: string;
 }
 
+/** Type guard to check if a value has DashboardDisplayInfo shape. */
 function isDashboardDisplayInfo(value: unknown): value is DashboardDisplayInfo {
-    return value !== null && typeof value === 'object';
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 export class PreviewPanel {
