@@ -49,12 +49,14 @@ gh label create "$LABEL" --repo "$REPO" --color "D4C5F9" --description "Pre-rele
 # Build reusable diff context for issue bodies
 if [ -n "$DIFF_RANGE" ]; then
     COMMIT_LOG=$(git log "$DIFF_RANGE" --oneline)
+    COMMIT_COUNT=$(git rev-list --count "$DIFF_RANGE")
     CHANGED_FILES=$(git diff --stat "$DIFF_RANGE" | tail -1)
     CHANGED_DOCS=$(git diff --name-only "$DIFF_RANGE" -- '*.md' 'RELEASE.md' 'DEVELOPING.md' 'CONTRIBUTING.md' || true)
+    RANGE_TEXT="since \`${LAST_TAG}\`"
 
     DIFF_CONTEXT_HEADER="### Scope
 
-This review covers changes between \`${LAST_TAG}\` and \`HEAD\` ($(echo "$COMMIT_LOG" | wc -l | tr -d ' ') commits, ${CHANGED_FILES}).
+This review covers changes between \`${LAST_TAG}\` and \`HEAD\` (${COMMIT_COUNT} commits, ${CHANGED_FILES}).
 
 <details>
 <summary>Commit log</summary>
@@ -67,6 +69,7 @@ ${COMMIT_LOG}
 else
     CHANGED_DOCS=""
     DIFF_CONTEXT_HEADER=""
+    RANGE_TEXT="for the full codebase (no previous tag)"
 fi
 
 # ============================================================================
@@ -77,13 +80,13 @@ echo "Creating issue: Documentation Review..."
 # Build doc-specific file list
 if [ -n "$CHANGED_DOCS" ]; then
     DOC_FILE_LIST=$(echo "$CHANGED_DOCS" | sed 's/^/- [ ] `/' | sed 's/$/`/')
-    DOC_SCOPE_NOTE="The following documentation files were modified since \`${LAST_TAG}\` and should be reviewed for accuracy:
+    DOC_SCOPE_NOTE="The following documentation files were modified ${RANGE_TEXT} and should be reviewed for accuracy:
 
 ${DOC_FILE_LIST}
 
 Also check that any new features introduced in this release are documented."
 else
-    DOC_SCOPE_NOTE="No documentation files were modified since \`${LAST_TAG}\`. Check that any new features introduced in this release have adequate documentation."
+    DOC_SCOPE_NOTE="No documentation files were modified ${RANGE_TEXT}. Check that any new features introduced in this release have adequate documentation."
 fi
 
 DOC_BODY="## Task
@@ -109,10 +112,10 @@ ${DOC_SCOPE_NOTE}
 
 \`\`\`bash
 # Docs modified since last release
-git diff --name-only ${LAST_TAG}..HEAD -- '*.md'
+git diff --name-only ${DIFF_RANGE:-HEAD} -- '*.md'
 
 # All commits touching docs
-git log ${LAST_TAG}..HEAD --oneline -- '*.md'
+git log ${DIFF_RANGE:-HEAD} --oneline -- '*.md'
 \`\`\`
 
 ### Definition of done
@@ -190,10 +193,10 @@ if [ -n "$DIFF_RANGE" ]; then
     QUALITY_FILE_CONTEXT="### Changed files to focus on
 
 \`\`\`bash
-# Python files changed since ${LAST_TAG}
+# Python files changed ${RANGE_TEXT}
 git diff --name-only ${DIFF_RANGE} -- '*.py'
 
-# TypeScript files changed since ${LAST_TAG}
+# TypeScript files changed ${RANGE_TEXT}
 git diff --name-only ${DIFF_RANGE} -- '*.ts' '*.tsx'
 
 # Full diff for review
@@ -203,7 +206,7 @@ fi
 
 QUALITY_BODY="## Task
 
-Scan code changed since \`${LAST_TAG}\` for code smells, dead code, and quality issues before the v${VERSION} release.
+Scan code changed ${RANGE_TEXT} for code smells, dead code, and quality issues before the v${VERSION} release.
 
 ${DIFF_CONTEXT_HEADER}
 
@@ -223,10 +226,10 @@ ${QUALITY_FILE_CONTEXT}
 
 \`\`\`bash
 # Find TODOs/FIXMEs in changed files
-git diff --name-only ${LAST_TAG}..HEAD -- '*.py' '*.ts' | xargs rg 'TODO|FIXME|HACK|XXX' || true
+git diff --name-only ${DIFF_RANGE:-HEAD} -- '*.py' '*.ts' | xargs rg 'TODO|FIXME|HACK|XXX' || true
 
 # Find type: ignore in changed Python files
-git diff --name-only ${LAST_TAG}..HEAD -- '*.py' | xargs rg 'type: ignore' || true
+git diff --name-only ${DIFF_RANGE:-HEAD} -- '*.py' | xargs rg 'type: ignore' || true
 
 # Run linters (full suite)
 just core lint
@@ -252,7 +255,7 @@ echo "Creating issue: Test Suite Review..."
 
 TEST_BODY="## Task
 
-Review the test suite for completeness and reliability before the v${VERSION} release, with focus on changes since \`${LAST_TAG}\`.
+Review the test suite for completeness and reliability before the v${VERSION} release, with focus on changes ${RANGE_TEXT}.
 
 ${DIFF_CONTEXT_HEADER}
 
@@ -268,14 +271,14 @@ ${DIFF_CONTEXT_HEADER}
 ### How to find what changed
 
 \`\`\`bash
-# Test files changed since ${LAST_TAG}
-git diff --name-only ${LAST_TAG}..HEAD -- '*test*' '*tests*'
+# Test files changed ${RANGE_TEXT}
+git diff --name-only ${DIFF_RANGE:-HEAD} -- '*test*' '*tests*'
 
 # Source files changed (check these have test coverage)
-git diff --name-only ${LAST_TAG}..HEAD -- '*.py' '*.ts' | grep -v test
+git diff --name-only ${DIFF_RANGE:-HEAD} -- '*.py' '*.ts' | grep -v test
 
 # Feature commits that should have tests
-git log ${LAST_TAG}..HEAD --oneline --grep='feat:'
+git log ${DIFF_RANGE:-HEAD} --oneline --grep='feat:'
 \`\`\`
 
 ### Commands
@@ -309,7 +312,7 @@ gh issue create --repo "$REPO" \
 echo "Creating issue: Release Notes Draft..."
 RELEASE_NOTES_BODY="## Task
 
-Draft release notes for v${VERSION} based on changes since \`${LAST_TAG}\`.
+Draft release notes for v${VERSION} based on changes ${RANGE_TEXT}.
 
 ${DIFF_CONTEXT_HEADER}
 
@@ -317,8 +320,8 @@ ${DIFF_CONTEXT_HEADER}
 
 1. Review commits since last tag:
    \`\`\`bash
-   git log ${LAST_TAG}..HEAD --oneline
-   git diff --stat ${LAST_TAG}..HEAD
+   git log ${DIFF_RANGE:-HEAD} --oneline
+   git diff --stat ${DIFF_RANGE:-HEAD}
    \`\`\`
 
 2. Categorize changes:
