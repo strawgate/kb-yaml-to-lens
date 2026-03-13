@@ -19,8 +19,7 @@ runs:
       shell: bash
       run: uv sync --group dev
     - name: Install just
-      shell: bash
-      run: make install-just
+      uses: extractions/setup-just@v2
     - name: Install CLI Python dependencies
       shell: bash
       run: just cli install
