@@ -111,6 +111,8 @@ See component-specific DEVELOPING.md files for detailed workflows:
 
 - **CLI:** [packages/kb-dashboard-cli/DEVELOPING.md](packages/kb-dashboard-cli/DEVELOPING.md)
 - **Core:** [packages/kb-dashboard-core/DEVELOPING.md](packages/kb-dashboard-core/DEVELOPING.md)
+- **Lint:** `packages/kb-dashboard-lint/` — follows same patterns as CLI/Core (`just lint ci`)
+- **Tools:** `packages/kb-dashboard-tools/` — follows same patterns as CLI/Core (`just tools ci`)
 - **VS Code Extension:** [packages/vscode-extension/DEVELOPING.md](packages/vscode-extension/DEVELOPING.md)
 - **Documentation:** [packages/kb-dashboard-docs/DEVELOPING.md](packages/kb-dashboard-docs/DEVELOPING.md)
 

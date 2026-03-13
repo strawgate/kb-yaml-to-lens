@@ -59,6 +59,8 @@ Read the component-specific AGENTS.md before working in that component:
 
 - **CLI (Python):** [packages/kb-dashboard-cli/AGENTS.md](packages/kb-dashboard-cli/AGENTS.md)
 - **Core (Python):** [packages/kb-dashboard-core/AGENTS.md](packages/kb-dashboard-core/AGENTS.md)
+- **Lint (Python):** `packages/kb-dashboard-lint/` — follows same patterns as other Python packages (`just lint ci`)
+- **Tools (Python):** `packages/kb-dashboard-tools/` — follows same patterns as other Python packages (`just tools ci`)
 - **VS Code Extension (TypeScript):** [packages/vscode-extension/AGENTS.md](packages/vscode-extension/AGENTS.md)
 
 ---

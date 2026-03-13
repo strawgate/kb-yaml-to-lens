@@ -149,6 +149,7 @@ The `BasePanel` fields are common to all panel types. For details on the specifi
 * [Links Panel](./links.md)
 * [Search Panel](./search.md)
 * [Image Panel](./image.md)
+* [Section Panel](./section.md) (collapsible sections)
 * [XY Chart Panel](./xy.md)
 * [Pie Chart Panel](./pie.md)
 * [Metric Panel](./metric.md)

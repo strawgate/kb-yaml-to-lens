@@ -115,6 +115,7 @@ nav:
           - Drilldowns: panels/drilldowns.md
           - Links Panels: panels/links.md
           - Markdown Panels: panels/markdown.md
+          - Section Panels: panels/section.md
           - Chart Panels:
               - Getting Started:
                   - Lens Panels: panels/lens.md
