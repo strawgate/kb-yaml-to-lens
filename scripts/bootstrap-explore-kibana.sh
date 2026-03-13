@@ -44,8 +44,24 @@ for i in $(seq 1 90); do
   sleep 2
 done
 
+echo "Waiting for Kibana on http://localhost:5601 ..."
+KIBANA_READY=0
+for _ in $(seq 1 180); do
+  if curl -fsS "http://localhost:5601/api/status" >/dev/null; then
+    KIBANA_READY=1
+    break
+  fi
+  sleep 2
+done
+
+if [ "${KIBANA_READY}" -ne 1 ]; then
+  echo "Kibana did not become ready within timeout." >&2
+  exit 1
+fi
+
 # Generate timestamps relative to "now" so data always falls within Kibana's
 # default "Last 15 minutes" range — no time picker changes needed.
+# Placed after the Kibana wait so timestamps don't age during boot.
 NOW_EPOCH="$(date +%s)"
 # Portable epoch-to-ISO: macOS uses `date -r`, GNU/Linux uses `date -d @`
 epoch_to_iso() {
@@ -82,21 +98,6 @@ bulk_response="$(curl -fsS -H "Content-Type: application/x-ndjson" \
 if printf '%s' "${bulk_response}" | grep -qE '"errors":[[:space:]]*true'; then
   echo "Elasticsearch bulk seeding returned item-level errors." >&2
   printf '%s\n' "${bulk_response}" >&2
-  exit 1
-fi
-
-echo "Waiting for Kibana on http://localhost:5601 ..."
-KIBANA_READY=0
-for _ in $(seq 1 180); do
-  if curl -fsS "http://localhost:5601/api/status" >/dev/null; then
-    KIBANA_READY=1
-    break
-  fi
-  sleep 2
-done
-
-if [ "${KIBANA_READY}" -ne 1 ]; then
-  echo "Kibana did not become ready within timeout." >&2
   exit 1
 fi
 

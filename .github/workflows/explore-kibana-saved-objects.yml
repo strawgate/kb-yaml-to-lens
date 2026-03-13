@@ -33,7 +33,7 @@ jobs:
       additional-instructions: |
         You are running an exploration+implementation workflow for kb-yaml-to-lens.
 
-        **IMPORTANT**: Read `.github/KIBANA_LENS_PLAYWRIGHT_GUIDE.md` FIRST — it
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST — it
         contains validated step-by-step Playwright instructions for the Kibana Lens UI.
 
         ## Goal
@@ -56,19 +56,20 @@ jobs:
         - After navigating, always `browser_wait_for` with `textGone: "Loading Elastic"`.
         - The bootstrap seeds data with recent timestamps — the default "Last 15 minutes"
           time range should show data. If the field list is empty, re-run the bootstrap.
-        - See `.github/KIBANA_LENS_PLAYWRIGHT_GUIDE.md` for the full reference.
+        - See `.github/agent-guides/kibana-lens-playwright.md` for the full reference.
 
         ## Required workflow
-        1. Read `.github/KIBANA_LENS_PLAYWRIGHT_GUIDE.md` for detailed Playwright steps.
+        1. Read `.github/agent-guides/kibana-lens-playwright.md` for detailed Playwright steps.
         2. Use Playwright (Chromium) to automate Kibana and create the target visualization.
         3. If no data view exists for the target index, create one (see guide).
-        4. Export the saved object via Kibana API:
+        4. Export the saved object via Kibana API and save the artifact:
            ```bash
-           curl -s -X POST "http://localhost:5601/api/saved_objects/_export" \
+           mkdir -p artifacts/kibana-saved-objects
+           curl -fsS -X POST "http://localhost:5601/api/saved_objects/_export" \
              -H "kbn-xsrf: true" -H "Content-Type: application/json" \
-             -d '{"objects":[{"type":"lens","id":"<ID>"}],"includeReferencesDeep":true}'
+             -d '{"objects":[{"type":"lens","id":"<ID>"}],"includeReferencesDeep":true}' \
+             -o "artifacts/kibana-saved-objects/<name>.ndjson"
            ```
-        5. Save export artifacts under `artifacts/kibana-saved-objects/`.
         6. Implement compiler support in this repo using existing patterns.
         7. Add/update tests for config -> compiled Lens output mapping.
         8. Run targeted validation for touched files and tests.

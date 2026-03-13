@@ -76,13 +76,15 @@ After typing: Escape (dismiss autocomplete) → click "Run query". The config pa
 ## Exporting Saved Objects
 
 ```bash
+mkdir -p artifacts/kibana-saved-objects
 SAVED_OBJECT_ID="<id-from-url>"
-curl -s -X POST "http://localhost:5601/api/saved_objects/_export" \
+curl -fsS -X POST "http://localhost:5601/api/saved_objects/_export" \
   -H "kbn-xsrf: true" \
   -H "Content-Type: application/json" \
-  -d "{\"objects\":[{\"type\":\"lens\",\"id\":\"${SAVED_OBJECT_ID}\"}],\"includeReferencesDeep\":true}"
+  -d "{\"objects\":[{\"type\":\"lens\",\"id\":\"${SAVED_OBJECT_ID}\"}],\"includeReferencesDeep\":true}" \
+  -o "artifacts/kibana-saved-objects/<name>.ndjson"
 ```
-Returns NDJSON: index-pattern, lens object, export summary. Save to `artifacts/kibana-saved-objects/<name>.ndjson`.
+Returns NDJSON: index-pattern, lens object, export summary.
 
 ## Common Pitfalls
 
@@ -98,7 +100,7 @@ Returns NDJSON: index-pattern, lens object, export summary. Save to `artifacts/k
 ## Saved Object Structure Reference (Pie/Donut)
 
 Key fields in exported `lens` object `attributes.state`:
-```
+```yaml
 visualization:
   shape: "donut" | "pie"
   layers[0]:
