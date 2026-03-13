@@ -1,5 +1,8 @@
-# Minimal Makefile for CI environments that don't have just pre-installed.
+# Minimal Makefile for local development environments that don't have just pre-installed.
 # The primary build system is justfile — this only provides bootstrap helpers.
+#
+# NOTE: The install-just target is Linux x86_64 only. For CI environments,
+# use the extractions/setup-just@v2 GitHub Action which supports all platforms.
 
 JUST_VERSION := 1.46.0
 
