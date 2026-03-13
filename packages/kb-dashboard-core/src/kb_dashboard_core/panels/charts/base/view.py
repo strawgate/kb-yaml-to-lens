@@ -130,7 +130,7 @@ class KbnRangePaletteStop(BaseVwModel):
     color: str = Field(...)
     """Hex color code for this stop."""
 
-    stop: float = Field(...)
+    stop: float | None = Field(...)
     """Numeric value for this stop boundary."""
 
 
@@ -149,7 +149,7 @@ class KbnRangePaletteParams(BaseVwModel):
     rangeType: Literal['number', 'percent'] = Field(...)
     """How stop values are interpreted."""
 
-    rangeMin: float = Field(...)
+    rangeMin: float | None = Field(...)
     """Start value of the first color band."""
 
     rangeMax: float | None = None
@@ -164,8 +164,8 @@ class KbnRangePaletteParams(BaseVwModel):
     colorStops: list[KbnRangePaletteStop] = Field(...)
     """Band start-points — each entry marks the START of one band."""
 
-    continuity: Literal['above'] = 'above'
-    """Continuity mode — 'above' extends the last color beyond the final stop."""
+    continuity: Literal['above', 'below', 'all', 'none'] = 'above'
+    """Continuity mode for values outside the configured range."""
 
     maxSteps: int = 5
     """Maximum number of steps in the palette."""

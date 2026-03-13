@@ -274,6 +274,25 @@ class TestColorRangeMappingValidation:
         )
         assert len(mapping.stops) == 2
 
+    def test_rejects_percent_range_max_above_100(self) -> None:
+        """Test percent range_max must be between 0 and 100."""
+        with pytest.raises(ValidationError, match='range_max must be between 0 and 100'):
+            ColorRangeMapping(
+                range_type='percent',
+                range_max=101,
+                stops=[ColorRangeStop(stop=90, color='#00BF6F')],
+            )
+
+    def test_rejects_range_min_greater_than_or_equal_to_range_max(self) -> None:
+        """Test range bounds must be strictly increasing."""
+        with pytest.raises(ValidationError, match="'range_min' must be less than 'range_max'"):
+            ColorRangeMapping(
+                range_type='number',
+                range_min=10,
+                range_max=10,
+                stops=[ColorRangeStop(stop=20, color='#00BF6F')],
+            )
+
 
 class TestCompileColorRangeMapping:
     """Tests for compile_color_range_mapping function."""
@@ -337,7 +356,7 @@ class TestCompileColorRangeMapping:
         assert result is not None
         assert result.params.rangeType == 'percent'
         assert result.params.rangeMin == 0.0
-        assert result.params.rangeMax == 100.0
+        assert result.params.rangeMax is None
         assert result.params.stops[0].stop == 90.0
         assert result.params.stops[1].stop == 95.0
         assert result.params.stops[-1].stop == 100.0
@@ -356,8 +375,80 @@ class TestCompileColorRangeMapping:
         assert result is not None
         assert result.params.steps == 1
         assert result.params.rangeMin == 0.0
-        assert result.params.rangeMax == 100.0
+        assert result.params.rangeMax is None
         assert len(result.params.stops) == 1
         assert len(result.params.colorStops) == 1
         assert result.params.stops[0].stop == 100.0
         assert result.params.colorStops[0].stop == 0.0
+
+    def test_compiles_percent_range_mapping_with_legacy_start_points(self) -> None:
+        """Test backward compatibility for explicit 0-based start-point palettes."""
+        color_config = ColorRangeMapping(
+            range_type='percent',
+            stops=[
+                ColorRangeStop(stop=0, color='#00BF6F'),
+                ColorRangeStop(stop=80, color='#FFA500'),
+                ColorRangeStop(stop=95, color='#BD271E'),
+            ],
+        )
+        result = compile_color_range_mapping(color_config)
+        assert result is not None
+        assert [entry.stop for entry in result.params.colorStops] == [0.0, 80.0, 95.0]
+        assert [entry.stop for entry in result.params.stops] == [80.0, 95.0, 100.0]
+        assert result.params.rangeMin == 0.0
+        assert result.params.rangeMax is None
+
+    def test_compiles_percent_range_mapping_with_custom_range_max(self) -> None:
+        """Test percent range supports custom max while preserving stop semantics."""
+        color_config = ColorRangeMapping(
+            range_type='percent',
+            range_max=95,
+            stops=[ColorRangeStop(stop=100, color='#24c292')],
+        )
+        result = compile_color_range_mapping(color_config)
+        assert result is not None
+        assert result.params.rangeMin == 0.0
+        assert result.params.rangeMax == 95.0
+        assert [entry.stop for entry in result.params.colorStops] == [0.0]
+        assert [entry.stop for entry in result.params.stops] == [100.0]
+
+    def test_compiles_number_range_mapping_with_custom_bounds_and_continuity(self) -> None:
+        """Test number range honors explicit min/max bounds and continuity mode."""
+        color_config = ColorRangeMapping(
+            range_type='number',
+            range_min=-10,
+            range_max=100,
+            continuity='none',
+            stops=[
+                ColorRangeStop(stop=4.25, color='#24c292'),
+                ColorRangeStop(stop=5, color='#ffc9c2'),
+                ColorRangeStop(stop=6, color='#ffc9c2'),
+            ],
+        )
+        result = compile_color_range_mapping(color_config)
+        assert result is not None
+        assert result.params.rangeMin == -10.0
+        assert result.params.rangeMax == 100.0
+        assert result.params.continuity == 'none'
+        assert [entry.stop for entry in result.params.colorStops] == [-10.0, 4.25, 5.0]
+        assert [entry.stop for entry in result.params.stops] == [4.25, 5.0, 6.0]
+
+    def test_compiles_number_range_mapping_with_open_bounds(self) -> None:
+        """Test number range can emit open bounds with null lower start-point."""
+        color_config = ColorRangeMapping(
+            range_type='number',
+            range_min=None,
+            range_max=None,
+            continuity='all',
+            stops=[
+                ColorRangeStop(stop=4.25, color='#24c292'),
+                ColorRangeStop(stop=5, color='#ffc9c2'),
+            ],
+        )
+        result = compile_color_range_mapping(color_config)
+        assert result is not None
+        assert result.params.rangeMin is None
+        assert result.params.rangeMax is None
+        assert result.params.continuity == 'all'
+        assert [entry.stop for entry in result.params.colorStops] == [None, 4.25]
+        assert [entry.stop for entry in result.params.stops] == [4.25, 5.0]
