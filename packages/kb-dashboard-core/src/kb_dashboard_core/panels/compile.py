@@ -1,17 +1,10 @@
 """Compile Dashboard Panels to Kibana View Models."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
 
 from kb_dashboard_core.panels import ImagePanel, LinksPanel, MarkdownPanel, SearchPanel, VegaPanel
 from kb_dashboard_core.panels.auto_layout import LayoutAlgorithm, create_layout_engine
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from kb_dashboard_core.panels.base import BasePanel
-    from kb_dashboard_core.panels.types import PanelTypes
+from kb_dashboard_core.panels.base import BasePanel
 from kb_dashboard_core.panels.charts.compile import compile_charts_panel_config
 from kb_dashboard_core.panels.charts.config import ESQLPanel, LensPanel
 from kb_dashboard_core.panels.charts.view import KbnLensPanel
@@ -24,6 +17,7 @@ from kb_dashboard_core.panels.markdown.compile import compile_markdown_panel_con
 from kb_dashboard_core.panels.markdown.view import KbnMarkdownPanel
 from kb_dashboard_core.panels.search.compile import compile_search_panel_config
 from kb_dashboard_core.panels.search.view import KbnSearchPanel
+from kb_dashboard_core.panels.types import PanelTypes
 from kb_dashboard_core.panels.vega.compile import compile_vega_panel_config
 from kb_dashboard_core.panels.vega.view import KbnVegaPanel
 from kb_dashboard_core.panels.view import KbnBasePanel, KbnGridData
