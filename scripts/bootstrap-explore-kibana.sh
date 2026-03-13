@@ -102,16 +102,16 @@ fi
 
 # Create data views so Lens is immediately usable (Kibana never auto-creates these)
 echo "Creating data views ..."
-for INDEX in logs-default-generic metrics-default-generic; do
+for DV in "logs-*" "metrics-*"; do
   curl -fsS -X POST "http://localhost:5601/api/data_views/data_view" \
     -H "kbn-xsrf: true" \
     -H "Content-Type: application/json" \
-    -d "{\"data_view\":{\"title\":\"${INDEX}\",\"name\":\"${INDEX}\",\"timeFieldName\":\"@timestamp\"}}" \
+    -d "{\"data_view\":{\"title\":\"${DV}\",\"name\":\"${DV}\",\"timeFieldName\":\"@timestamp\"}}" \
     >/dev/null
-  echo "  Created data view: ${INDEX}"
+  echo "  Created data view: ${DV}"
 done
 
 echo "Bootstrap complete."
 echo "- Elasticsearch: http://localhost:9200"
 echo "- Kibana:        http://localhost:5601"
-echo "- Data views:    logs-default-generic, metrics-default-generic"
+echo "- Data views:    logs-*, metrics-*"

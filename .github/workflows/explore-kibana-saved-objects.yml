@@ -46,6 +46,7 @@ jobs:
         - Kibana URL: `http://localhost:5601`
         - Elasticsearch URL: `http://localhost:9200`
         - Seeded indices: `logs-default-generic`, `metrics-default-generic`
+        - Data views: `logs-*`, `metrics-*`
 
         ## Playwright automation rules
         - ALWAYS use `browser_snapshot` (not screenshots) to get element refs for clicking.
