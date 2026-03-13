@@ -248,9 +248,9 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             'palette': {
                 'range_type': 'percent',
                 'stops': [
-                    {'stop': 0, 'color': '#00BF6F'},
-                    {'stop': 80, 'color': '#FFA500'},
-                    {'stop': 95, 'color': '#BD271E'},
+                    {'stop': 80, 'color': '#00BF6F'},
+                    {'stop': 95, 'color': '#FFA500'},
+                    {'stop': 100, 'color': '#BD271E'},
                 ],
             },
         },

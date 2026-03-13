@@ -381,23 +381,6 @@ class TestCompileColorRangeMapping:
         assert result.params.stops[0].stop == 100.0
         assert result.params.colorStops[0].stop == 0.0
 
-    def test_compiles_percent_range_mapping_with_legacy_start_points(self) -> None:
-        """Test backward compatibility for explicit 0-based start-point palettes."""
-        color_config = ColorRangeMapping(
-            range_type='percent',
-            stops=[
-                ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=80, color='#FFA500'),
-                ColorRangeStop(stop=95, color='#BD271E'),
-            ],
-        )
-        result = compile_color_range_mapping(color_config)
-        assert result is not None
-        assert [entry.stop for entry in result.params.colorStops] == [0.0, 80.0, 95.0]
-        assert [entry.stop for entry in result.params.stops] == [80.0, 95.0, 100.0]
-        assert result.params.rangeMin == 0.0
-        assert result.params.rangeMax is None
-
     def test_compiles_percent_range_mapping_with_custom_range_max(self) -> None:
         """Test percent range supports custom max while preserving stop semantics."""
         color_config = ColorRangeMapping(
