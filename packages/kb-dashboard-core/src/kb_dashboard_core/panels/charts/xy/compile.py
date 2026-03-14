@@ -465,11 +465,16 @@ def compile_xy_chart_visualization_state(
         hide_endzones,
     ) = _extract_chart_type_specific_appearance(chart)
 
+    # Extract value labels setting from appearance
+    value_labels = 'hide'
+    if chart.appearance is not None and chart.appearance.value_labels is not None:
+        value_labels = chart.appearance.value_labels
+
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,
         layers=[kbn_layer_visualization],
         legend=legend_config,
-        valueLabels='hide',
+        valueLabels=value_labels,
         xTitle=x_title,
         yTitle=y_left_title,  # Legacy field for backward compatibility - Kibana requires both yTitle and yLeftTitle
         yLeftTitle=y_left_title,

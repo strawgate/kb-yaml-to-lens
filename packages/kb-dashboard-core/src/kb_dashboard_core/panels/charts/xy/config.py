@@ -160,6 +160,9 @@ class BaseXYChartAppearance(BaseCfgModel):
     y_right_axis: AxisConfig | None = Field(default=None)
     """Configuration for the right Y-axis."""
 
+    value_labels: Literal['hide', 'show'] | None = Field(default=None)
+    """How to display value labels on data points ('hide' or 'show'). Defaults to 'hide' if not specified."""
+
 
 class BarChartAppearance(BaseXYChartAppearance):
     """Represents bar chart appearance formatting options.
