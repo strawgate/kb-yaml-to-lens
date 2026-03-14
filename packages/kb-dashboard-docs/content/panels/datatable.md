@@ -42,23 +42,23 @@ When details matter, datatable never fails!
       show_root_heading: false
       heading_level: 3
 
-## Column Configuration
+## Column Appearance
 
-::: kb_dashboard_core.panels.charts.datatable.config.DatatableColumnConfig
+::: kb_dashboard_core.panels.charts.datatable.appearance.DatatableColumnAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
 ## Metric Column Configuration
 
-::: kb_dashboard_core.panels.charts.datatable.config.DatatableMetricColumnConfig
+::: kb_dashboard_core.panels.charts.datatable.appearance.DatatableMetricAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
 ## One-Click Filter
 
-Set `one_click_filter: true` on a column to enable Kibana's one-click filtering interaction for that column.
+Set `appearance.one_click_filter: true` on a metric or dimension to enable Kibana's one-click filtering interaction for that column.
 
 ```yaml
 dashboards:
@@ -73,9 +73,8 @@ dashboards:
             - id: "service"
               field: "service.name"
               type: values
-          columns:
-            - column_id: "service"
-              one_click_filter: true
+              appearance:
+                one_click_filter: true
           metrics:
             - id: "request-count"
               aggregation: count
@@ -84,14 +83,15 @@ dashboards:
 
 ## Column Colors
 
-Datatable metric columns support range-based coloring to highlight values based on numeric thresholds. Use the `color_mode` field to control how colors are applied (cell background or text), and the `color` field to define the color thresholds.
+Datatable metric columns support range-based coloring to highlight values based on numeric thresholds. Configure `appearance.color.apply_to` and optional range settings under `appearance.color`.
+Range palettes are emitted only when `appearance.color.stops` is configured; without `stops`, no range palette is generated even if other range fields are set.
 
 ### Color Configuration Fields
 
 | Field | Description |
 | ----- | ----------- |
-| `color_mode` | How colors are applied: `cell` (background color) or `text` (text color) |
-| `color` | A `ColorRangeMapping` object defining numeric thresholds and colors |
+| `appearance.color.apply_to` | How generated range colors are applied: `cell` (background color) or `text` (text color) |
+| `appearance.color` | Optional range settings (`range_type`, `range_min`, `range_max`, `continuity`, `stops`) |
 
 ### Example: CPU Usage Thresholds
 
@@ -113,24 +113,23 @@ dashboards:
               field: "system.cpu.total.pct"
               aggregation: average
               label: "CPU %"
-          metric_columns:
-            - column_id: "cpu-avg"
-              color_mode: cell
-              color:
-                range_type: percent
-                range_min: 0
-                range_max: 100
-                continuity: above
-                stops:
-                  - stop: 50
-                    color: '#00BF6F'  # Green for low usage
-                  - stop: 80
-                    color: '#FFA500'  # Orange for moderate
-                  - stop: 100
-                    color: '#BD271E'  # Red for high usage
+              appearance:
+                color:
+                  apply_to: cell
+                  range_type: percent
+                  range_min: 0
+                  range_max: 100
+                  continuity: above
+                  stops:
+                    - stop: 50
+                      color: '#00BF6F'  # Green for low usage
+                    - stop: 80
+                      color: '#FFA500'  # Orange for moderate
+                    - stop: 100
+                      color: '#BD271E'  # Red for high usage
 ```
 
-For detailed `ColorRangeMapping` configuration options, see the [Color Assignments documentation](../advanced/color-assignments.md).
+For detailed `ColorRangeMapping` configuration options, see the [Color Assignments documentation](../guides/color-assignments.md).
 
 ## Datatable Appearance
 

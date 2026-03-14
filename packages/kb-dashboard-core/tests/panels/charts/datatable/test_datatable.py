@@ -104,15 +104,12 @@ def test_compile_datatable_chart_with_metric_column_config_lens() -> None:
                 'field': 'aerospike.namespace.name',
                 'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
                 'aggregation': 'count',
-            }
-        ],
-        'metric_columns': [
-            {
-                'column_id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
-                'width': 200,
-                'alignment': 'right',
-                'summary_row': 'sum',
-                'summary_label': 'Total',
+                'appearance': {
+                    'width': 200,
+                    'alignment': 'right',
+                    'summary_row': 'sum',
+                    'summary_label': 'Total',
+                },
             }
         ],
     }
@@ -149,12 +146,7 @@ def test_compile_datatable_chart_with_one_click_filter_enabled() -> None:
                 'field': 'aerospike.namespace.name',
                 'id': 'metric-col-id',
                 'aggregation': 'count',
-            }
-        ],
-        'metric_columns': [
-            {
-                'column_id': 'metric-col-id',
-                'one_click_filter': True,
+                'appearance': {'one_click_filter': True},
             }
         ],
     }
@@ -173,11 +165,6 @@ def test_compile_datatable_chart_with_one_click_filter_default_omitted() -> None
                 'field': 'aerospike.namespace.name',
                 'id': 'metric-col-id',
                 'aggregation': 'count',
-            }
-        ],
-        'metric_columns': [
-            {
-                'column_id': 'metric-col-id',
             }
         ],
     }
@@ -406,13 +393,10 @@ def test_compile_datatable_chart_with_row_column_config_lens() -> None:
                 'type': 'values',
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
-            }
-        ],
-        'columns': [
-            {
-                'column_id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
-                'width': 150,
-                'alignment': 'left',
+                'appearance': {
+                    'width': 150,
+                    'alignment': 'left',
+                },
             }
         ],
     }
@@ -525,18 +509,16 @@ def test_lens_datatable_validation_with_only_dimensions_succeeds() -> None:
     assert len(chart.dimensions) == 1
 
 
-def test_esql_datatable_allows_empty_metrics_and_dimensions() -> None:
-    """Test that ESQL datatable allows empty metrics and dimensions (columns inferred from query)."""
+def test_esql_datatable_validation_requires_metrics_or_rows() -> None:
+    """Test that ESQL datatable validation fails when both metrics and rows are empty."""
     config = {
         'type': 'datatable',
         'metrics': [],
         'dimensions': [],
     }
 
-    chart = ESQLDatatableChart.model_validate(config)
-    assert chart is not None
-    assert len(chart.metrics) == 0
-    assert len(chart.dimensions) == 0
+    with pytest.raises(ValidationError, match='at least one metric or one dimension'):
+        ESQLDatatableChart.model_validate(config)
 
 
 def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
@@ -568,29 +550,31 @@ def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
 
 
 def test_compile_datatable_chart_with_range_colors_esql() -> None:
-    """Test ESQL datatable metric column with range color stops compiles correctly."""
+    """Test ESQL range colors compile to normalized Lens palette stops.
+
+    The compiler keeps input `stops` but also derives `colorStops` that start at
+    `range_min` and map each color to the lower-bound threshold used by Kibana.
+    This assertion intentionally snapshots that normalized structure.
+    """
     config = {
         'type': 'datatable',
         'metrics': [
             {
                 'field': 'avg(cpu_usage)',
                 'id': 'cpu-metric',
-            }
-        ],
-        'metric_columns': [
-            {
-                'column_id': 'cpu-metric',
-                'color_mode': 'cell',
-                'color': {
-                    'range_type': 'percent',
-                    'range_min': 0,
-                    'range_max': 100,
-                    'continuity': 'above',
-                    'stops': [
-                        {'stop': 50, 'color': '#00BF6F'},
-                        {'stop': 80, 'color': '#FFA500'},
-                        {'stop': 100, 'color': '#BD271E'},
-                    ],
+                'appearance': {
+                    'color': {
+                        'apply_to': 'cell',
+                        'range_type': 'percent',
+                        'range_min': 0,
+                        'range_max': 100,
+                        'continuity': 'above',
+                        'stops': [
+                            {'stop': 50, 'color': '#00BF6F'},
+                            {'stop': 80, 'color': '#FFA500'},
+                            {'stop': 100, 'color': '#BD271E'},
+                        ],
+                    },
                 },
             }
         ],
@@ -649,21 +633,18 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'cpu-metric',
                 'aggregation': 'average',
-            }
-        ],
-        'metric_columns': [
-            {
-                'column_id': 'cpu-metric',
-                'color_mode': 'text',
-                'color': {
-                    'range_type': 'number',
-                    'range_min': 0,
-                    'continuity': 'all',
-                    'stops': [
-                        {'stop': 0.5, 'color': '#00BF6F'},
-                        {'stop': 0.8, 'color': '#FFA500'},
-                        {'stop': 1.0, 'color': '#BD271E'},
-                    ],
+                'appearance': {
+                    'color': {
+                        'apply_to': 'text',
+                        'range_type': 'number',
+                        'range_min': 0,
+                        'continuity': 'all',
+                        'stops': [
+                            {'stop': 0.5, 'color': '#00BF6F'},
+                            {'stop': 0.8, 'color': '#FFA500'},
+                            {'stop': 1.0, 'color': '#BD271E'},
+                        ],
+                    },
                 },
             }
         ],
@@ -671,13 +652,40 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
 
     result = compile_datatable_chart_snapshot(config, 'lens')
 
-    # Verify the palette is included in the column state
     column = result['columns'][0]
-    assert column['colorMode'] == 'text'
-    assert column['palette'] is not None
-    assert column['palette']['name'] == 'custom'
-    assert column['palette']['params']['rangeType'] == 'number'
-    assert len(column['palette']['params']['stops']) == 3
+    assert column == snapshot(
+        {
+            'columnId': 'cpu-metric',
+            'isMetric': True,
+            'isTransposed': False,
+            'colorMode': 'text',
+            'palette': {
+                'type': 'palette',
+                'name': 'custom',
+                'params': {
+                    'colorStops': [
+                        {'stop': 0.0, 'color': '#00BF6F'},
+                        {'stop': 0.5, 'color': '#FFA500'},
+                        {'stop': 0.8, 'color': '#BD271E'},
+                    ],
+                    'name': 'custom',
+                    'rangeType': 'number',
+                    'rangeMin': 0.0,
+                    'rangeMax': None,
+                    'continuity': 'all',
+                    'steps': 3,
+                    'maxSteps': 3,
+                    'progression': 'fixed',
+                    'reverse': False,
+                    'stops': [
+                        {'stop': 0.5, 'color': '#00BF6F'},
+                        {'stop': 0.8, 'color': '#FFA500'},
+                        {'stop': 1.0, 'color': '#BD271E'},
+                    ],
+                },
+            },
+        }
+    )
 
 
 def test_compile_datatable_chart_without_color_omits_palette() -> None:
@@ -690,12 +698,7 @@ def test_compile_datatable_chart_without_color_omits_palette() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'cpu-metric',
                 'aggregation': 'average',
-            }
-        ],
-        'metric_columns': [
-            {
-                'column_id': 'cpu-metric',
-                'color_mode': 'cell',
+                'appearance': {'color': {'apply_to': 'cell'}},
             }
         ],
     }
@@ -706,6 +709,30 @@ def test_compile_datatable_chart_without_color_omits_palette() -> None:
     column = result['columns'][0]
     assert column['colorMode'] == 'cell'
     assert 'palette' not in column
+
+
+def test_datatable_metric_color_stops_empty_list_is_invalid() -> None:
+    """Test that empty range color stops are rejected."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'id': 'cpu-metric',
+                'field': 'system.cpu.total.pct',
+                'aggregation': 'average',
+                'appearance': {
+                    'color': {
+                        'apply_to': 'text',
+                        'stops': [],
+                    }
+                },
+            }
+        ],
+    }
+
+    with pytest.raises(ValidationError, match='at least 1 item'):
+        LensDatatableChart.model_validate(config)
 
 
 def test_datatable_chart_dashboard_references_bubble_up() -> None:

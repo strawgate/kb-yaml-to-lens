@@ -41,6 +41,8 @@ from kb_dashboard_core.panels.charts.view import (
     KbnTextBasedDataSourceStateLayerById,
     KbnVisualizationTypeEnum,
 )
+from kb_dashboard_core.panels.charts.waffle.compile import compile_esql_waffle_chart, compile_lens_waffle_chart
+from kb_dashboard_core.panels.charts.waffle.config import ESQLWaffleChart, LensWaffleChart
 from kb_dashboard_core.panels.charts.xy.compile import compile_esql_xy_chart, compile_lens_reference_line_layer, compile_lens_xy_chart
 from kb_dashboard_core.panels.charts.xy.config import (
     ESQLAreaChart,
@@ -68,7 +70,7 @@ if TYPE_CHECKING:
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
     match chart:
-        case LensPieChart() | ESQLPieChart() | LensMosaicChart() | ESQLMosaicChart():
+        case LensPieChart() | ESQLPieChart() | LensMosaicChart() | ESQLMosaicChart() | LensWaffleChart() | ESQLWaffleChart():
             return KbnVisualizationTypeEnum.PIE
         case (
             LensLineChart()
@@ -134,6 +136,8 @@ def compile_lens_chart_state(  # noqa: PLR0912
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
             case LensMosaicChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_mosaic_chart(chart)
+            case LensWaffleChart():
+                layer_id, lens_columns_by_id, visualization_state = compile_lens_waffle_chart(chart)
             case LensReferenceLineLayer():
                 # Reference line layers contribute layers and columns but no visualization state
                 layer_id, lens_columns_static, ref_line_layers = compile_lens_reference_line_layer(chart)
@@ -223,6 +227,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(chart)
         case ESQLMosaicChart():
             layer_id, esql_columns, visualization_state = compile_esql_mosaic_chart(chart)
+        case ESQLWaffleChart():
+            layer_id, esql_columns, visualization_state = compile_esql_waffle_chart(chart)
         case ESQLBarChart() | ESQLLineChart() | ESQLAreaChart():
             layer_id, esql_columns, visualization_state = compile_esql_xy_chart(chart)
         case _:  # pyright: ignore[reportUnnecessaryComparison]

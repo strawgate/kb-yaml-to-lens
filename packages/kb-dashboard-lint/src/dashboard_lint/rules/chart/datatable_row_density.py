@@ -68,8 +68,9 @@ class DatatableRowDensityRule(ChartRule[DatatableConfig, DatatableRowDensityOpti
         column_count = 0
         is_compact = False
 
-        if config.columns is not None:
-            column_count = len(config.columns)
+        column_count = len(config.dimensions) + len(config.metrics)
+        if config.dimensions_by is not None:
+            column_count += len(config.dimensions_by)
         if config.appearance is not None and config.appearance.density == DatatableDensityEnum.COMPACT:
             is_compact = True
 

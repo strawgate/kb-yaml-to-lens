@@ -286,6 +286,22 @@ async def test_compile_lens_metric_percentile_95() -> None:
     )
 
 
+async def test_compile_lens_metric_standard_deviation() -> None:
+    """Test the compilation of a standard deviation metric."""
+    result = compile_metric_snapshot({'aggregation': 'standard_deviation', 'field': 'response.time'})
+    assert result == snapshot(
+        {
+            'label': 'Standard deviation of response.time',
+            'dataType': 'number',
+            'operationType': 'standard_deviation',
+            'sourceField': 'response.time',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'params': {},
+        }
+    )
+
+
 async def test_compile_esql_metric_count() -> None:
     """Test the compilation of a count ESQL metric."""
     result = compile_esql_metric_snapshot({'id': 'ac345678-90ab-cdef-1234-567890abcdef', 'field': 'count(*)'})

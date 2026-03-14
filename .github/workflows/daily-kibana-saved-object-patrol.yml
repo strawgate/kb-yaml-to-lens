@@ -19,6 +19,7 @@ jobs:
     with:
       title-prefix: '[kibana-saved-object-patrol]'
       setup-commands: |
+        uv sync
         npx playwright install chromium
         if command -v just >/dev/null 2>&1; then
           just explore-bootstrap 9.3.0

@@ -133,6 +133,7 @@ class TestRegistry:
             'esql-missing-sort-after-bucket',
             'esql-metric-missing-label',
             'esql-sql-syntax',
+            'esql-ts-metrics-min-version',
             'esql-where-clause',
             'gauge-goal-without-max',
             'metric-multiple-metrics-width',

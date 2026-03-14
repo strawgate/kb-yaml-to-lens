@@ -59,6 +59,7 @@ def test_compile_metric_chart_primary_only_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
         }
@@ -84,6 +85,7 @@ def test_compile_metric_chart_primary_only_esql() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'applyColorTo': 'background',
             'showBar': False,
         }
     )
@@ -114,6 +116,7 @@ def test_compile_metric_chart_primary_and_secondary_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
@@ -144,6 +147,7 @@ def test_compile_metric_chart_primary_and_secondary_esql() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'applyColorTo': 'background',
             'showBar': False,
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
         }
@@ -180,6 +184,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
@@ -215,6 +220,7 @@ def test_compile_metric_chart_primary_secondary_breakdown_esql() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': '156e3e91-7bb6-406f-8ae5-cb409747953b',
+            'applyColorTo': 'background',
             'showBar': False,
             'secondaryMetricAccessor': 'a1ec5883-19b2-4ab9-b027-a13d6074128b',
             'breakdownByAccessor': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
@@ -242,6 +248,7 @@ def test_compile_metric_chart_formula_simple() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'formula-metric-1',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
         }
@@ -268,6 +275,7 @@ def test_compile_metric_chart_formula_with_fields() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'formula-metric-2',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
         }
@@ -366,7 +374,7 @@ def test_compile_metric_chart_column_order_with_breakdown_primary_only() -> None
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-@pytest.mark.parametrize('color_mode', ['labels', 'background', 'none'])
+@pytest.mark.parametrize('color_mode', ['value', 'background'])
 def test_compile_metric_chart_color_mode(chart_type: str, color_mode: str) -> None:
     """Test metric color_mode compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
@@ -390,12 +398,12 @@ def test_compile_metric_chart_color_mode(chart_type: str, color_mode: str) -> No
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
-    assert result['colorMode'] == color_mode
+    assert result['applyColorTo'] == color_mode
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 def test_compile_metric_chart_color_mode_omitted(chart_type: str) -> None:
-    """Test metric color_mode default omission for Lens and ES|QL charts."""
+    """Test metric color_mode defaults to background for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
@@ -415,9 +423,65 @@ def test_compile_metric_chart_color_mode_omitted(chart_type: str) -> None:
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
-    assert 'colorMode' not in result
+    assert result['applyColorTo'] == 'background'
+
+def test_compile_metric_chart_with_maximum_lens() -> None:
+    """Test the compilation of a metric chart with maximum metric (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.user.pct',
+            'id': 'primary-metric-1',
+            'aggregation': 'average',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'maximum-metric-1',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-metric-1',
+            'applyColorTo': 'background',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
+            'maxAccessor': 'maximum-metric-1',
+        }
+    )
 
 
+def test_compile_metric_chart_with_maximum_esql() -> None:
+    """Test the compilation of a metric chart with maximum metric (ESQL)."""
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'avg_cpu',
+            'id': 'primary-metric-1',
+        },
+        'maximum': {
+            'field': 'max_cpu',
+            'id': 'maximum-metric-1',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-metric-1',
+            'applyColorTo': 'background',
+            'showBar': False,
+            'maxAccessor': 'maximum-metric-1',
+        }
+    )
 def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
     """Test the compilation of a metric chart with primary, secondary, and maximum metrics (Lens)."""
     config = {
@@ -446,6 +510,7 @@ def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'primary-metric-1',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'secondary-metric-1',

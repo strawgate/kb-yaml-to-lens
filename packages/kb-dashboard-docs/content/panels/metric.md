@@ -79,7 +79,7 @@ dashboards:
 | `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 | `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
-| `color_mode` | `Literal['none', 'labels', 'background'] \| None` | Optional text/background color mode for metric values. | `None` | No |
+| `color_mode` | `Literal['value', 'background']` | Controls where metric colors are applied. | `'background'` | No |
 
 #### Lens Metric Types
 
@@ -144,7 +144,7 @@ primary:
 | `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
 | `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 | `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
-| `color_mode` | `Literal['none', 'labels', 'background'] \| None` | Optional text/background color mode for metric values. | `None` | No |
+| `color_mode` | `Literal['value', 'background']` | Controls where metric colors are applied. | `'background'` | No |
 
 #### ESQL Metric Types
 
@@ -183,20 +183,19 @@ The ESQL query determines what metrics are available - each column in your STATS
 
 Use `color_mode` to control how metric colors are applied:
 
-- `none`: disable metric color styling
-- `labels`: apply colors to metric labels/text
-- `background`: apply colors to metric background
+- `value`: apply colors to metric value text
+- `background`: apply colors to metric background (default)
 
 ```yaml
 dashboards:
   - name: "Metric Color Modes"
     panels:
-      - title: "Error Rate (Label Colors)"
+      - title: "Error Rate (Value Colors)"
         size: {w: 8, h: 4}
         lens:
           type: metric
           data_view: "logs-*"
-          color_mode: labels
+          color_mode: value
           primary:
             formula: "count(kql='event.outcome:failure') / count() * 100"
             label: "Error Rate"
