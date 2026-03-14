@@ -9,10 +9,12 @@ from mkdocs.structure.files import File, Files
 
 log = logging.getLogger('mkdocs.plugins.llms_txt')
 
+
 def write_file(path: Path, content: str) -> None:
     """Write content to a file."""
     _ = path.write_text(data=content, encoding='utf-8')
     log.info(msg=f'Generated {path} ({len(content)} characters)')
+
 
 def on_files(files: Files, config: MkDocsConfig) -> Files:
     """Generate llms.txt files and add them to the build before link validation."""
@@ -98,7 +100,6 @@ def generate_llms_txt_content(config: MkDocsConfig) -> str:
 
 ## Optional
 
-- [Kibana Architecture Reference]({site_url}/kibana-architecture/): Understanding Kibana's internal structure
 - [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
 """
 
