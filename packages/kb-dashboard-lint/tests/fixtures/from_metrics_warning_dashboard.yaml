@@ -1,0 +1,21 @@
+---
+dashboards:
+  - id: from-metrics-warning
+    name: "[Test] FROM metrics warning"
+    description: Dashboard fixture to verify FROM metrics-* lint warning output.
+    panels:
+      - title: CPU by host
+        size: {w: 24, h: 15}
+        esql:
+          type: line
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: cpu
+              label: CPU
+          query:
+            - FROM metrics-system.cpu-default
+            - STATS cpu = AVG(system.cpu.total.norm.pct) BY time_bucket = BUCKET(@timestamp, 1 minute)
+            - SORT time_bucket ASC

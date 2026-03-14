@@ -66,15 +66,12 @@ def dashboard_with_from_metrics() -> Dashboard:
 class TestESQLTSMetricsMinVersionRule:
     """Tests for ESQLTSMetricsMinVersionRule."""
 
-    def test_detects_ts_metrics(self, dashboard_with_ts_metrics: Dashboard) -> None:
-        """Should warn when TS is used with metrics-*."""
+    def test_passes_ts_metrics(self, dashboard_with_ts_metrics: Dashboard) -> None:
+        """Should not flag TS metrics-* usage."""
         rule = ESQLTSMetricsMinVersionRule()
         violations = rule.check(dashboard_with_ts_metrics, {})
 
-        assert len(violations) == 1
-        assert violations[0].rule_id == 'esql-ts-metrics-min-version'
-        assert '9.2+' in violations[0].message
-        assert violations[0].severity == Severity.WARNING
+        assert len(violations) == 0
 
     def test_passes_ts_non_metrics(self, dashboard_with_ts_logs: Dashboard) -> None:
         """Should not flag TS for non-metrics sources."""
@@ -90,5 +87,5 @@ class TestESQLTSMetricsMinVersionRule:
 
         assert len(violations) == 1
         assert violations[0].rule_id == 'esql-ts-metrics-min-version'
-        assert '9.2+' in violations[0].message
+        assert 'TS metrics-*' in violations[0].message
         assert violations[0].severity == Severity.WARNING
