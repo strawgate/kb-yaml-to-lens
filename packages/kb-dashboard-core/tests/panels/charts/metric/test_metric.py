@@ -425,63 +425,6 @@ def test_compile_metric_chart_color_mode_omitted(chart_type: str) -> None:
     result = compile_metric_chart_snapshot(config, chart_type)
     assert result['applyColorTo'] == 'background'
 
-def test_compile_metric_chart_with_maximum_lens() -> None:
-    """Test the compilation of a metric chart with maximum metric (Lens)."""
-    config = {
-        'type': 'metric',
-        'data_view': 'metrics-*',
-        'primary': {
-            'field': 'system.cpu.user.pct',
-            'id': 'primary-metric-1',
-            'aggregation': 'average',
-        },
-        'maximum': {
-            'value': 100,
-            'id': 'maximum-metric-1',
-        },
-    }
-
-    result = compile_metric_chart_snapshot(config, 'lens')
-
-    assert result == snapshot(
-        {
-            'layerId': IsUUID,
-            'layerType': 'data',
-            'metricAccessor': 'primary-metric-1',
-            'applyColorTo': 'background',
-            'secondaryTrend': {'type': 'none'},
-            'secondaryLabelPosition': 'before',
-            'maxAccessor': 'maximum-metric-1',
-        }
-    )
-
-
-def test_compile_metric_chart_with_maximum_esql() -> None:
-    """Test the compilation of a metric chart with maximum metric (ESQL)."""
-    config = {
-        'type': 'metric',
-        'primary': {
-            'field': 'avg_cpu',
-            'id': 'primary-metric-1',
-        },
-        'maximum': {
-            'field': 'max_cpu',
-            'id': 'maximum-metric-1',
-        },
-    }
-
-    result = compile_metric_chart_snapshot(config, 'esql')
-
-    assert result == snapshot(
-        {
-            'layerId': IsUUID,
-            'layerType': 'data',
-            'metricAccessor': 'primary-metric-1',
-            'applyColorTo': 'background',
-            'showBar': False,
-            'maxAccessor': 'maximum-metric-1',
-        }
-    )
 def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
     """Test the compilation of a metric chart with primary, secondary, and maximum metrics (Lens)."""
     config = {
@@ -609,6 +552,7 @@ def test_compile_metric_chart_with_maximum_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'primary-cpu',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
             'maxAccessor': 'max-cpu',
@@ -641,6 +585,7 @@ def test_compile_metric_chart_with_maximum_esql() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'primary-cpu',
+            'applyColorTo': 'background',
             'showBar': False,
             'maxAccessor': 'max-cpu',
         }
@@ -741,6 +686,7 @@ def test_compile_metric_chart_with_all_metrics_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'primary-cpu',
+            'applyColorTo': 'background',
             'secondaryTrend': {'type': 'none'},
             'secondaryLabelPosition': 'before',
             'secondaryMetricAccessor': 'secondary-cpu',
