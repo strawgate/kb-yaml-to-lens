@@ -32,10 +32,10 @@ def test_get_guide_returns_content() -> None:
 
 
 def test_get_guide_handles_md_extension() -> None:
-    """Test that get_guide handles .md extension."""
-    content = get_guide('otel-dashboard-guide.md')
-    assert isinstance(content, str)
-    assert len(content) > 0
+    """Test that get_guide handles .md extension and returns identical content."""
+    content_without_ext = get_guide('otel-dashboard-guide')
+    content_with_ext = get_guide('otel-dashboard-guide.md')
+    assert content_with_ext == content_without_ext
 
 
 def test_get_guide_not_found() -> None:
