@@ -1,34 +1,16 @@
----
 name: Docs Patrol
 on:
   schedule:
-    - cron: 0 10 * * 1-5
-  workflow_dispatch: null
+    - cron: "0 10 * * 1-5"
+  workflow_dispatch:
+
 permissions:
   contents: read
   issues: write
   pull-requests: read
-  id-token: write
-  actions: read
+
 jobs:
   run:
-    uses: ./.github/workflows/run-claude.yml
-    with:
-      model: claude-sonnet-4-5
-      track-progress: false
-      prompt: |
-        You are running the Docs Patrol workflow for kb-yaml-to-lens.
-        Goal: identify documentation gaps, stale docs, and high-value doc improvements.
-        Do not create branches or pull requests in this workflow.
-        Process:
-        1. Review recent merged PRs and changed docs.
-        2. Identify missing docs, outdated examples, or unclear guidance.
-        3. Produce a concise actionable report.
-        Output:
-        Create one GitHub issue with title prefix "[docs-patrol]" and include:
-        - Top findings (prioritized)
-        - Suggested fixes
-        - File paths / links for context
-      allowed-tools: Bash(gh:issue:*,gh:pr:*,gh:api:*,git:*)
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-docs-patrol.lock.yml@main
     secrets:
-      claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
