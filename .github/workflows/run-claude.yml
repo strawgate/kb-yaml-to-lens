@@ -2,7 +2,10 @@
 # Reusable workflow for running Claude Code Action
 #
 # Required Secrets:
-#   CONTEXT7_API_KEY - API key for Context7 MCP server (provides library documentation)
+#   claude-oauth-token - OAuth token for Claude Code Action
+#
+# Optional Secrets:
+#   context7-api-key - API key for Context7 MCP server (provides library documentation)
 #                      Configure in: Settings → Secrets → Actions → Repository secrets
 #
 name: Run Claude Code Action
@@ -71,7 +74,8 @@ jobs:
           CONTEXT7_API_KEY: ${{ secrets.context7-api-key }}
         run: |
           mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << EOF
+          if [ -n "$CONTEXT7_API_KEY" ]; then
+            cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
           {
             "mcpServers": {
               "repository-summary": {
@@ -86,12 +90,30 @@ jobs:
                 "type": "http",
                 "url": "https://mcp.context7.com/mcp",
                 "headers": {
-                  "CONTEXT7_API_KEY": "$CONTEXT7_API_KEY"
+                  "CONTEXT7_API_KEY": "PLACEHOLDER"
                 }
               }
             }
           }
           EOF
+            # Replace placeholder with actual key (avoids heredoc variable expansion issues)
+            sed -i "s/PLACEHOLDER/$CONTEXT7_API_KEY/" /tmp/mcp-config/mcp-servers.json
+          else
+            cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
+          {
+            "mcpServers": {
+              "repository-summary": {
+                "type": "http",
+                "url": "https://agents-md-generator.fastmcp.app/mcp"
+              },
+              "code-search": {
+                "type": "http",
+                "url": "https://public-code-search.fastmcp.app/mcp"
+              }
+            }
+          }
+          EOF
+          fi
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1.0.23
@@ -124,6 +146,11 @@ jobs:
             1. For complex or unfamiliar tasks, **delegate to Explore agent** to understand the codebase
                 - Use `subagent_type="Explore"` with thoroughness level: "quick", "medium", or "very thorough"
                 - Explore agent has access to all tools (Glob, Grep, Read, etc.) for fast analysis
+                - **IMPORTANT**: When delegating to the Explore agent, instruct it to document its exploration process:
+                  - Which files were searched and why
+                  - Key patterns or code discovered
+                  - Decisions made during exploration (e.g., why certain paths were followed)
+                  - Summary of findings with file paths and line numbers
             2. For tasks requiring implementation plans, **delegate to Plan agent**
                 - Use `subagent_type="Plan"` to create detailed architectural plans
                 - Plan agent will explore and return a comprehensive implementation strategy
@@ -154,10 +181,14 @@ jobs:
             - **Synthesize results** - Integrate sub-agent findings into your workflow
             - **Maintain control** - You coordinate the overall workflow; sub-agents are tools
             - **Use for isolation** - Sub-agents prevent exploratory work from cluttering main context
+            - **Request documentation** - When using Explore agents, always ask them to document:
+              - The search strategy used (what patterns, keywords, file types)
+              - Files examined and their relevance
+              - Key discoveries with specific file:line references
+              - Reasoning for conclusions drawn
 
             ## Your Role as Supervisor
-            You are ultimately responsible for making sure the specific request has been completed and that any issues encountered
-             during the workflow have been addressed or are communicated to the user.
+            You are ultimately responsible for making sure the specific request has been completed and that any issues encountered during the workflow have been addressed or are communicated to the user.
           track_progress: ${{ inputs.track-progress }}
           allowed_bots: ${{ inputs.allowed-bots }}
           claude_args: |-

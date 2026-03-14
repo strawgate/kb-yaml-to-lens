@@ -29,7 +29,6 @@ jobs:
         fi
       additional-instructions: |
         You are running an exploration+implementation workflow for kb-yaml-to-lens.
-
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST — it
         contains validated step-by-step Playwright instructions for the Kibana Lens UI.
 
@@ -61,8 +60,16 @@ jobs:
         - Do NOT run bootstrap scripts (`just explore-bootstrap`, `scripts/bootstrap-explore-kibana.sh`,
           Docker compose, or equivalent) from the agent task.
         - See `.github/agent-guides/kibana-lens-playwright.md` for the full reference.
+        - **Document each major step** you take in your GitHub comment using collapsible `<details>`
+          sections for detailed logs. This creates an audit trail and helps debug issues.
 
         ## Required workflow
+        **Documentation requirement**: As you execute each step below, document your actions
+        in real-time using collapsible `<details>` sections in your final GitHub comment. Include:
+        - Commands executed
+        - Key observations and decisions
+        - Errors encountered and resolutions
+        - Artifacts created
         1. Read `.github/agent-guides/kibana-lens-playwright.md` for detailed Playwright steps.
         2. If running in PR validation mode:
            - Read the PR title/body and extract the claimed bug fix / feature scope.
@@ -90,19 +97,35 @@ jobs:
         8. Add/update docs/examples if user-facing behavior changed.
 
         ## Deliverables
-
         You cannot create a pull request or push code to a branch. Your only deliverable is a comment on the issue.
-        If asked to provide an implementation, provide a detailed plan with in-depth coverage of the implementation
-        required to complete the task:
-        - Working code + tests for the requested capability.
-        - Saved object artifact(s) in code blocks.
-        - Clear summary mapping: spec -> saved object fields -> compiler fields.
 
-        In PR validation mode, include:
-        - PR claim checklist with pass/fail per claim
-        - YAML reproductions used for validation
-        - Compiler output vs manual Kibana output diff summary
-        - Explicit verdict on whether the PR fully satisfies its stated goal
+        ### Output Structure
+        Your comment MUST include these sections in order:
+        1. **Summary** - Brief overview of what was explored and key findings
+        2. **Execution Log** - Collapsible section documenting each major step with this format:
+           ```markdown
+           <details>
+           <summary>Execution steps</summary>
+
+           ### Step 1: [Description]
+           - **Commands**: `[command]`
+           - **Observations**: [what you found]
+           - **Artifacts**: [files created]
+           - **Issues**: [any problems and how you resolved them]
+
+           ### Step 2: [Description]
+           ...
+           </details>
+           ```
+        3. **Implementation Plan** (feature exploration mode) - Detailed plan with code + tests
+        4. **Artifacts** - Saved object JSON in code blocks
+        5. **Mapping Analysis** - Clear summary: spec → saved object fields → compiler fields
+        In PR validation mode, follow the same structure above and additionally include:
+        - **PR Claim Checklist** - Pass/fail per claim with supporting evidence
+        - **YAML Reproductions** - Test cases used for validation (in code blocks)
+        - **Diff Summary** - Compiler output vs manual Kibana output comparison
+        - **Validation Log** - Collapsible section documenting each validation scenario tested
+        - **Verdict** - Explicit conclusion on whether the PR fully satisfies its stated goal
 
         ## Guardrails
         - Be surgical; avoid broad refactors.
