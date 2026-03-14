@@ -1,19 +1,18 @@
 """MkDocs hook to generate llms.txt and llms-full.txt files during build."""
 
+import importlib
+import inspect
 import logging
 import re
 from pathlib import Path
 from typing import Any
 
-import html2text
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.structure.files import File, Files
-from mkdocs.structure.pages import Page
 
 log = logging.getLogger('mkdocs.plugins.llms_txt')
 
-# State to collect processed page content in navigation order
-_collected_pages: dict[str, str] = {}
+# State to collect navigation order
 _nav_order: list[str] = []
 
 
@@ -91,44 +90,112 @@ def on_files(files: Files, config: MkDocsConfig) -> Files:
     return files
 
 
-def on_page_content(html: str, page: Page, config: MkDocsConfig, files: Files) -> str:  # noqa: ARG001
-    """Collect processed HTML content for each page after mkdocstrings expansion."""
-    src_path = page.file.src_path
-    _collected_pages[src_path] = html
-    log.debug(f'Collected content for {src_path} ({len(html)} chars)')
-    return html
+_DIRECTIVE_BLOCK_RE = re.compile(r'(?ms)^:::\s+([A-Za-z_][\w\.-]*)\s*\n((?:^[ ]{4}.*\n?)*)')
+_LLMS_EXCLUDE_BLOCK_RE = re.compile(
+    r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?'
+)
+_LLMS_EXCLUDE_INLINE_RE = re.compile(r'(?m)^.*<!--\s*llms:exclude\s*-->.*(?:\n|$)')
+_POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$)')
 
 
-def _convert_html_to_markdown(html_content: str) -> str:
-    """Convert HTML to clean markdown suitable for LLMs."""
-    h = html2text.HTML2Text()
-    h.body_width = 0  # Don't wrap lines
-    h.ignore_links = False
-    h.ignore_images = True
-    h.ignore_emphasis = False
-    h.mark_code = True
-    h.wrap_links = False
-    h.wrap_list_items = False
-    h.pad_tables = True  # Better table formatting
-    h.default_image_alt = ''
-    h.ignore_tables = False
+def _format_annotation(annotation: Any) -> str:
+    """Format type annotation for concise markdown output."""
+    if annotation is inspect._empty:
+        return 'Any'
+    return str(annotation).replace('typing.', '').replace('types.', '')
 
-    markdown = h.handle(html_content)
 
-    # Clean up excessive whitespace
-    markdown = re.sub(r'\n{4,}', '\n\n\n', markdown)
+def _resolve_python_object(fully_qualified_name: str) -> Any | None:
+    """Resolve object path like package.module.Class.attr to a Python object."""
+    parts = fully_qualified_name.split('.')
+    for idx in range(len(parts), 0, -1):
+        module_name = '.'.join(parts[:idx])
+        try:
+            module = importlib.import_module(module_name)
+        except Exception:
+            continue
 
-    # Remove anchor links like [¶](#section)
-    markdown = re.sub(r'\[¶\]\([^)]*\)', '', markdown)
+        obj: Any = module
+        try:
+            for attr in parts[idx:]:
+                obj = getattr(obj, attr)
+            return obj
+        except Exception:
+            return None
+    return None
 
-    # Clean up empty links
-    markdown = re.sub(r'\[\]\([^)]*\)', '', markdown)
 
-    return markdown.strip()
+def _render_reference_block(fully_qualified_name: str) -> str | None:
+    """Render selected mkdocstrings references into compact markdown.
+
+    We only expand in-project references so we can filter and keep output focused.
+    """
+    if not fully_qualified_name.startswith('kb_dashboard_'):
+        return None
+
+    obj = _resolve_python_object(fully_qualified_name)
+    if obj is None:
+        return None
+
+    lines: list[str] = [f'**{fully_qualified_name}**', '']
+
+    doc = inspect.getdoc(obj)
+    if doc:
+        lines.extend([doc, ''])
+
+    if inspect.isclass(obj):
+        model_fields = getattr(obj, 'model_fields', None)
+        if isinstance(model_fields, dict) and model_fields:
+            lines.append('Fields:')
+            for field_name, field in model_fields.items():
+                annotation = _format_annotation(getattr(field, 'annotation', inspect._empty))
+                description = getattr(field, 'description', None) or ''
+                suffix = f': {description}' if description else ''
+                lines.append(f"- `{field_name}` (`{annotation}`){suffix}")
+            lines.append('')
+    elif inspect.isfunction(obj) or inspect.ismethod(obj):
+        signature = str(inspect.signature(obj))
+        lines.append(f'Signature: `{obj.__name__}{signature}`')
+        lines.append('')
+
+    return '\n'.join(lines).strip()
+
+
+def _expand_mkdocstrings_references(markdown: str) -> str:
+    """Post-process markdown and selectively inline mkdocstrings `:::` blocks."""
+
+    def _replace(match: re.Match[str]) -> str:
+        fully_qualified_name = match.group(1)
+        # Keep llms-full focused on compiler APIs; CLI mkdocs-click refs are noisy here.
+        if fully_qualified_name.startswith('mkdocs-click'):
+            return ''
+        rendered = _render_reference_block(fully_qualified_name)
+        if rendered is None:
+            return match.group(0)
+        return f'{rendered}\n'
+
+    return _DIRECTIVE_BLOCK_RE.sub(_replace, markdown)
+
+
+def _strip_llms_excluded_blocks(markdown: str) -> str:
+    """Remove explicit llms exclusion blocks/comments from markdown."""
+    markdown = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
+    markdown = _LLMS_EXCLUDE_INLINE_RE.sub('', markdown)
+    return markdown
+
+
+def _strip_known_low_value_sections(markdown: str) -> str:
+    """Remove sections that are useful for humans but noisy for llms-full."""
+    markdown = _POEM_SECTION_RE.sub('', markdown)
+    return markdown
 
 
 def on_post_build(config: MkDocsConfig) -> None:
-    """Generate llms-full.txt with processed content after build completes."""
+    """Generate llms-full.txt by post-processing markdown sources.
+
+    This is option 3 from issue #1234: selectively resolve mkdocstrings references
+    in a second pass instead of relying on full HTML conversion.
+    """
     docs_dir = Path(config.docs_dir)
     site_dir = Path(config.site_dir)
 
@@ -141,27 +208,18 @@ def on_post_build(config: MkDocsConfig) -> None:
 
     # Concatenate pages in navigation order
     pages_included = 0
-    included_paths: set[str] = set()
     for file_path in _nav_order:
-        if file_path not in _collected_pages:
-            log.warning(f'{file_path} not in collected pages, skipping...')
+        source_file = docs_dir / file_path
+        if not source_file.exists():
+            log.warning(f'{file_path} not found in docs dir, skipping...')
             continue
 
-        html_content = _collected_pages[file_path]
-
-        # Convert HTML to markdown
-        markdown_content = _convert_html_to_markdown(html_content)
+        markdown_content = source_file.read_text(encoding='utf-8')
+        markdown_content = _strip_llms_excluded_blocks(markdown_content)
+        markdown_content = _strip_known_low_value_sections(markdown_content)
+        markdown_content = _expand_mkdocstrings_references(markdown_content)
 
         # Add file separator and content
-        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
-        output.append(markdown_content)
-        pages_included += 1
-        included_paths.add(file_path)
-
-    # Include any collected pages not present in nav to avoid omissions
-    for file_path in sorted(path for path in _collected_pages if path not in included_paths):
-        log.warning(f'{file_path} not in nav order, appending at end')
-        markdown_content = _convert_html_to_markdown(_collected_pages[file_path])
         output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
         output.append(markdown_content)
         pages_included += 1
@@ -179,7 +237,6 @@ def on_post_build(config: MkDocsConfig) -> None:
     log.info(f'Generated llms-full.txt with {pages_included} pages ({len(content)} characters)')
 
     # Clear state for potential subsequent builds (e.g., during serve)
-    _collected_pages.clear()
     _nav_order.clear()
 
 
@@ -226,6 +283,5 @@ def generate_llms_txt_content(config: MkDocsConfig) -> str:
 
 ## Optional
 
-- [Kibana Architecture Reference]({site_url}/kibana-architecture/): Understanding Kibana's internal structure
 - [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
 """
