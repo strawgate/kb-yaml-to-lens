@@ -138,7 +138,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "da63e703-27eb-0cfd-ff42-874ce0ae69e4": {
+                    "d39411e8-af99-7344-817a-5fdc2a565090": {
                       "allColumns": [
                         {
                           "columnId": "e38dc4f7-44fa-b474-a79b-cce9d543e86d",
@@ -195,7 +195,7 @@
                 "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS node_count = COUNT_DISTINCT(aerospike.node.name)\n"
               },
               "visualization": {
-                "layerId": "da63e703-27eb-0cfd-ff42-874ce0ae69e4",
+                "layerId": "d39411e8-af99-7344-817a-5fdc2a565090",
                 "layerType": "data",
                 "metricAccessor": "e38dc4f7-44fa-b474-a79b-cce9d543e86d",
                 "showBar": false
@@ -238,7 +238,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "6ed936d8-55b4-58d2-6cf3-3bde383a3c0d": {
+                    "064dca21-c3f5-75df-9ff6-bcb837598198": {
                       "allColumns": [
                         {
                           "columnId": "f9f011d7-29d7-8141-d3e2-a7069001b4d3",
@@ -295,7 +295,7 @@
                 "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.namespace IS NOT NULL\n| STATS namespace_count = COUNT_DISTINCT(aerospike.namespace)\n"
               },
               "visualization": {
-                "layerId": "6ed936d8-55b4-58d2-6cf3-3bde383a3c0d",
+                "layerId": "064dca21-c3f5-75df-9ff6-bcb837598198",
                 "layerType": "data",
                 "metricAccessor": "f9f011d7-29d7-8141-d3e2-a7069001b4d3",
                 "showBar": false
@@ -338,7 +338,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "b4b93956-9d64-4c24-69c7-a36c915f63a2": {
+                    "103aeb5a-486b-aec0-9f23-c82bda3a66d8": {
                       "allColumns": [
                         {
                           "columnId": "6514d47b-f40f-724a-1470-c36e46303f99",
@@ -395,7 +395,7 @@
                 "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS avg_connections = AVG(aerospike.node.connection.open)\n"
               },
               "visualization": {
-                "layerId": "b4b93956-9d64-4c24-69c7-a36c915f63a2",
+                "layerId": "103aeb5a-486b-aec0-9f23-c82bda3a66d8",
                 "layerType": "data",
                 "metricAccessor": "6514d47b-f40f-724a-1470-c36e46303f99",
                 "showBar": false
@@ -438,7 +438,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "058785ce-49db-d1f2-5501-255a1e8f90d6": {
+                    "fc91650d-12a9-3a9a-8a2b-ccd336a2f2f6": {
                       "allColumns": [
                         {
                           "columnId": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
@@ -497,7 +497,7 @@
                 "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free)\n"
               },
               "visualization": {
-                "layerId": "058785ce-49db-d1f2-5501-255a1e8f90d6",
+                "layerId": "fc91650d-12a9-3a9a-8a2b-ccd336a2f2f6",
                 "layerType": "data",
                 "metricAccessor": "0ff9803a-7f65-48a9-5b2e-5a09f4a46856",
                 "showBar": false
