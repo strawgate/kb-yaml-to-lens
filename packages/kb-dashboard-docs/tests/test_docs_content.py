@@ -5,6 +5,11 @@ import pytest
 from kb_dashboard_docs import get_full_docs, get_guide, list_guides
 
 
+@pytest.fixture(autouse=True)
+def skip_without_vendored_content(requires_vendored_content_fixture: None) -> None:
+    """Auto-use fixture to skip all tests if vendored content is not available."""
+
+
 def test_get_full_docs_returns_string() -> None:
     """Test that get_full_docs returns non-empty documentation."""
     content = get_full_docs()
