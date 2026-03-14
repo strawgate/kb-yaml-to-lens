@@ -550,7 +550,12 @@ def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
 
 
 def test_compile_datatable_chart_with_range_colors_esql() -> None:
-    """Test ESQL datatable metric column with range color stops compiles correctly."""
+    """Test ESQL range colors compile to normalized Lens palette stops.
+
+    The compiler keeps input `stops` but also derives `colorStops` that start at
+    `range_min` and map each color to the lower-bound threshold used by Kibana.
+    This assertion intentionally snapshots that normalized structure.
+    """
     config = {
         'type': 'datatable',
         'metrics': [
@@ -647,13 +652,40 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
 
     result = compile_datatable_chart_snapshot(config, 'lens')
 
-    # Verify the palette is included in the column state
     column = result['columns'][0]
-    assert column['colorMode'] == 'text'
-    assert column['palette'] is not None
-    assert column['palette']['name'] == 'custom'
-    assert column['palette']['params']['rangeType'] == 'number'
-    assert len(column['palette']['params']['stops']) == 3
+    assert column == snapshot(
+        {
+            'columnId': 'cpu-metric',
+            'isMetric': True,
+            'isTransposed': False,
+            'colorMode': 'text',
+            'palette': {
+                'type': 'palette',
+                'name': 'custom',
+                'params': {
+                        'colorStops': [
+                            {'stop': 0.0, 'color': '#00BF6F'},
+                            {'stop': 0.5, 'color': '#FFA500'},
+                            {'stop': 0.8, 'color': '#BD271E'},
+                        ],
+                    'name': 'custom',
+                    'rangeType': 'number',
+                        'rangeMin': 0.0,
+                        'rangeMax': None,
+                    'continuity': 'all',
+                        'steps': 3,
+                        'maxSteps': 3,
+                        'progression': 'fixed',
+                        'reverse': False,
+                    'stops': [
+                        {'stop': 0.5, 'color': '#00BF6F'},
+                        {'stop': 0.8, 'color': '#FFA500'},
+                        {'stop': 1.0, 'color': '#BD271E'},
+                    ],
+                },
+            },
+        }
+    )
 
 
 def test_compile_datatable_chart_without_color_omits_palette() -> None:
