@@ -1,6 +1,9 @@
 """MkDocs hook to generate llms.txt and llms-full.txt files during build."""
 
+import importlib
+import inspect
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -9,24 +12,94 @@ from mkdocs.structure.files import File, Files
 
 log = logging.getLogger('mkdocs.plugins.llms_txt')
 
+# State to collect navigation order
+_nav_order: list[str] = []
+_LLMS_FULL_EXCLUDE_PREFIXES: tuple[str, ...] = ('api/',)
+
+
 def write_file(path: Path, content: str) -> None:
     """Write content to a file."""
     _ = path.write_text(data=content, encoding='utf-8')
     log.info(msg=f'Generated {path} ({len(content)} characters)')
 
+
+def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
+    """Recursively extract file paths from MkDocs navigation structure."""
+    if files is None:
+        files = []
+
+    if isinstance(nav_item, str):
+        files.append(nav_item)
+    elif isinstance(nav_item, dict):
+        for value in nav_item.values():  # pyright: ignore[reportAny]
+            _ = extract_files_from_nav(value, files)  # pyright: ignore[reportAny]
+    elif isinstance(nav_item, list):  # pyright: ignore[reportUnnecessaryIsInstance]
+        for item in nav_item:  # pyright: ignore[reportAny]
+            _ = extract_files_from_nav(item, files)  # pyright: ignore[reportAny]
+
+    return files
+
+
+def _normalize_doc_path(path: str) -> str:
+    """Convert mkdocs source path to site URL path."""
+    normalized = path.lstrip('/')
+    if normalized.endswith('index.md'):
+        return normalized[: -len('index.md')]
+    if normalized.endswith('.md'):
+        return normalized[: -len('.md')] + '/'
+    return normalized
+
+
+def _render_nav_links(
+    nav_item: str | dict[str, Any] | list[Any],
+    site_url: str,
+    lines: list[str],
+    depth: int = 0,
+) -> None:
+    """Render MkDocs nav structure as nested markdown links."""
+    indent = '  ' * depth
+    if isinstance(nav_item, str):
+        title = Path(nav_item).stem.replace('-', ' ').replace('_', ' ').title()
+        lines.append(f"{indent}- [{title}]({site_url}/{_normalize_doc_path(nav_item)})")
+        return
+
+    if isinstance(nav_item, dict):
+        for title, child in nav_item.items():
+            if isinstance(child, str):
+                lines.append(f"{indent}- [{title}]({site_url}/{_normalize_doc_path(child)})")
+            else:
+                lines.append(f'{indent}- **{title}**')
+                _render_nav_links(child, site_url, lines, depth + 1)
+        return
+
+    if isinstance(nav_item, list):
+        for child in nav_item:
+            _render_nav_links(child, site_url, lines, depth)
+
+
 def on_files(files: Files, config: MkDocsConfig) -> Files:
-    """Generate llms.txt files and add them to the build before link validation."""
+    """Generate llms.txt navigation file and add both txt files to the build.
+
+    Note: llms-full.txt content is generated in on_post_build after all pages are processed.
+    """
+    global _nav_order  # noqa: PLW0603
     docs_dir = Path(config.docs_dir)
 
-    # Generate llms.txt content
+    # Extract navigation order for later use
+    nav: list[Any] = config.nav or []  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    _nav_order = extract_files_from_nav(nav)  # pyright: ignore[reportUnknownArgumentType]
+    _nav_order = list(dict.fromkeys(_nav_order))  # Deduplicate while preserving order
+
+    log.info(f'Extracted {len(_nav_order)} files from navigation for llms-full.txt')
+
+    # Generate llms.txt content (navigation file - static content)
     llms_txt_content: str = generate_llms_txt_content(config)
     llms_txt_path: Path = docs_dir / 'llms.txt'
     write_file(path=llms_txt_path, content=llms_txt_content)
 
-    # Generate llms-full.txt content
-    llms_full_content: str = generate_llms_full_txt_content(config)
+    # Create empty llms-full.txt placeholder (will be populated in on_post_build)
     llms_full_path: Path = docs_dir / 'llms-full.txt'
-    write_file(path=llms_full_path, content=llms_full_content)
+    write_file(path=llms_full_path, content='# Placeholder - generated during build\n')
 
     # Add files to MkDocs file collection so they're included in the build
     # Remove existing files first to avoid deprecation warning
@@ -55,106 +128,187 @@ def on_files(files: Files, config: MkDocsConfig) -> Files:
     return files
 
 
+_DIRECTIVE_BLOCK_RE = re.compile(r'(?ms)^:::\s+([A-Za-z_][\w\.-]*)\s*\n((?:^[ ]{4}.*\n?)*)')
+_LLMS_EXCLUDE_BLOCK_RE = re.compile(
+    r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?'
+)
+_LLMS_EXCLUDE_INLINE_RE = re.compile(r'(?m)^.*<!--\s*llms:exclude\s*-->.*(?:\n|$)')
+_POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$)')
+
+
+def _format_annotation(annotation: Any) -> str:
+    """Format type annotation for concise markdown output."""
+    if annotation is inspect._empty:
+        return 'Any'
+    return str(annotation).replace('typing.', '').replace('types.', '')
+
+
+def _resolve_python_object(fully_qualified_name: str) -> Any | None:
+    """Resolve object path like package.module.Class.attr to a Python object."""
+    parts = fully_qualified_name.split('.')
+    for idx in range(len(parts), 0, -1):
+        module_name = '.'.join(parts[:idx])
+        try:
+            module = importlib.import_module(module_name)
+        except Exception:
+            continue
+
+        obj: Any = module
+        try:
+            for attr in parts[idx:]:
+                obj = getattr(obj, attr)
+            return obj
+        except Exception:
+            return None
+    return None
+
+
+def _render_reference_block(fully_qualified_name: str) -> str | None:
+    """Render selected mkdocstrings references into compact markdown.
+
+    We only expand in-project references so we can filter and keep output focused.
+    """
+    if not fully_qualified_name.startswith('kb_dashboard_'):
+        return None
+
+    obj = _resolve_python_object(fully_qualified_name)
+    if obj is None:
+        return None
+
+    lines: list[str] = [f'**{fully_qualified_name}**', '']
+
+    doc = inspect.getdoc(obj)
+    if doc:
+        lines.extend([doc, ''])
+
+    if inspect.isclass(obj):
+        model_fields = getattr(obj, 'model_fields', None)
+        if isinstance(model_fields, dict) and model_fields:
+            lines.append('Fields:')
+            for field_name, field in model_fields.items():
+                annotation = _format_annotation(getattr(field, 'annotation', inspect._empty))
+                description = getattr(field, 'description', None) or ''
+                suffix = f': {description}' if description else ''
+                lines.append(f"- `{field_name}` (`{annotation}`){suffix}")
+            lines.append('')
+    elif inspect.isfunction(obj) or inspect.ismethod(obj):
+        signature = str(inspect.signature(obj))
+        lines.append(f'Signature: `{obj.__name__}{signature}`')
+        lines.append('')
+
+    return '\n'.join(lines).strip()
+
+
+def _expand_mkdocstrings_references(markdown: str) -> str:
+    """Post-process markdown and selectively inline mkdocstrings `:::` blocks."""
+
+    def _replace(match: re.Match[str]) -> str:
+        fully_qualified_name = match.group(1)
+        # Keep llms-full focused on compiler APIs; CLI mkdocs-click refs are noisy here.
+        if fully_qualified_name.startswith('mkdocs-click'):
+            return ''
+        rendered = _render_reference_block(fully_qualified_name)
+        if rendered is None:
+            return match.group(0)
+        return f'{rendered}\n'
+
+    return _DIRECTIVE_BLOCK_RE.sub(_replace, markdown)
+
+
+def _strip_llms_excluded_blocks(markdown: str) -> str:
+    """Remove explicit llms exclusion blocks/comments from markdown."""
+    markdown = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
+    markdown = _LLMS_EXCLUDE_INLINE_RE.sub('', markdown)
+    return markdown
+
+
+def _strip_known_low_value_sections(markdown: str) -> str:
+    """Remove sections that are useful for humans but noisy for llms-full."""
+    markdown = _POEM_SECTION_RE.sub('', markdown)
+    return markdown
+
+
+def on_post_build(config: MkDocsConfig) -> None:
+    """Generate llms-full.txt by post-processing markdown sources.
+
+    This is option 3 from issue #1234: selectively resolve mkdocstrings references
+    in a second pass instead of relying on full HTML conversion.
+    """
+    try:
+        docs_dir = Path(config.docs_dir)
+        site_dir = Path(config.site_dir)
+
+        output: list[str] = []
+
+        # Add header
+        output.append('# Dashboard Compiler - Complete Documentation\n\n')
+        output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
+        output.append('---\n\n')
+
+        # Concatenate pages in navigation order
+        pages_included = 0
+        for file_path in _nav_order:
+            if file_path.startswith(_LLMS_FULL_EXCLUDE_PREFIXES):
+                continue
+
+            source_file = docs_dir / file_path
+            if not source_file.exists():
+                log.warning(f'{file_path} not found in docs dir, skipping...')
+                continue
+
+            markdown_content = source_file.read_text(encoding='utf-8')
+            markdown_content = _strip_llms_excluded_blocks(markdown_content)
+            markdown_content = _strip_known_low_value_sections(markdown_content)
+            markdown_content = _expand_mkdocstrings_references(markdown_content)
+
+            # Add file separator and content
+            output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
+            output.append(markdown_content)
+            pages_included += 1
+
+        content = ''.join(output)
+
+        # Write to docs dir (source)
+        llms_full_path = docs_dir / 'llms-full.txt'
+        write_file(path=llms_full_path, content=content)
+
+        # Also write directly to site dir (built output)
+        site_llms_full_path = site_dir / 'llms-full.txt'
+        write_file(path=site_llms_full_path, content=content)
+
+        log.info(f'Generated llms-full.txt with {pages_included} pages ({len(content)} characters)')
+    finally:
+        # Clear state for potential subsequent builds (e.g., during serve)
+        _nav_order.clear()
+
+
 def generate_llms_txt_content(config: MkDocsConfig) -> str:
-    """Generate the llms.txt navigation file content."""
+    """Generate llms.txt navigation content from MkDocs nav hierarchy."""
     if config.site_url is None:
         msg = 'site_url is required'
         raise ValueError(msg)
 
     site_url: str = config.site_url.rstrip('/')
-
-    return f"""# Dashboard Compiler
-
-> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format. Python compiler
-> and TypeScript VS Code extension for creating and managing Kibana dashboards.
-
-## Getting Started
-
-- [Installation and Quick Start]({site_url}/): Get up and running with your first dashboard
-- [CLI Reference]({site_url}/CLI/): Complete command-line documentation
-- [VS Code Extension]({site_url}/vscode-extension/): Live preview and visual editing
-
-## User Guide
-
-- [Dashboard Configuration]({site_url}/dashboard/dashboard/): Dashboard-level settings and options
-- [Panel Types Overview]({site_url}/panels/base/): Common configuration for all panel types
-- [Lens Panels]({site_url}/panels/lens/): Chart panels (metric, pie, XY, gauge, datatable, etc.)
-- [Dashboard Controls]({site_url}/controls/config/): Interactive filtering controls
-- [Filters and Queries]({site_url}/filters/config/): Data filtering and query configuration
-- [Complete Examples]({site_url}/examples/): Real-world YAML dashboard examples
-
-## LLM-Driven Workflows
-
-- [LLM Workflows Overview]({site_url}/llm-workflows/): Complete guide for using LLMs with kb-yaml-to-lens
-- [Dashboard Decompiling Guide]({site_url}/dashboard-decompiling-guide/): Convert Kibana JSON to YAML
-- [Dashboard Style Guide]({site_url}/dashboard-style-guide/): Best practices for dashboard design
-- [llms-full.txt]({site_url}/llms-full.txt): Complete documentation for LLM context
-
-## Developer Guide
-
-- [Programmatic Usage]({site_url}/programmatic-usage/): Python API for dynamic dashboard generation
-- [Architecture Overview]({site_url}/architecture/): Technical design and data flow
-- [API Reference]({site_url}/api/): Auto-generated Python API documentation
-
-## Optional
-
-- [Kibana Architecture Reference]({site_url}/kibana-architecture/): Understanding Kibana's internal structure
-- [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
-"""
-
-
-def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
-    """Recursively extract file paths from MkDocs navigation structure."""
-    if files is None:
-        files = []
-
-    if isinstance(nav_item, str):
-        files.append(nav_item)
-    elif isinstance(nav_item, dict):
-        for value in nav_item.values():  # pyright: ignore[reportAny]
-            _ = extract_files_from_nav(value, files)  # pyright: ignore[reportAny]
-    elif isinstance(nav_item, list):  # pyright: ignore[reportUnnecessaryIsInstance]
-        for item in nav_item:  # pyright: ignore[reportAny]
-            _ = extract_files_from_nav(item, files)  # pyright: ignore[reportAny]
-
-    return files
-
-
-def generate_llms_full_txt_content(config: MkDocsConfig) -> str:
-    """Generate the llms-full.txt file content with complete documentation."""
-    docs_dir: Path = Path(config.docs_dir)
-
-    # Extract files from navigation structure
+    lines: list[str] = [
+        '# Dashboard Compiler',
+        '',
+        '> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format.',
+        '> Navigation generated from MkDocs `nav` to avoid hardcoded drift.',
+        '',
+        '## Site Navigation',
+        '',
+    ]
     nav: list[Any] = config.nav or []  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-
-    # Extract all files from navigation (all sections)
-    all_files = extract_files_from_nav(nav)  # pyright: ignore[reportUnknownArgumentType]
-    # Deduplicate while preserving order
-    all_files = list(dict.fromkeys(all_files))
-
-    log.info(f'Extracted {len(all_files)} files from navigation')
-
-    output: list[str] = []
-
-    # Add header
-    output.append('# Dashboard Compiler - Complete Documentation\n\n')
-    output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
-    output.append('---\n\n')
-
-    # Concatenate all files
-    for file_path in all_files:
-        path = docs_dir / file_path
-        try:
-            content = path.read_text(encoding='utf-8')
-        except FileNotFoundError:
-            log.warning(f'{file_path} not found, skipping...')
-            continue
-        except OSError as e:
-            log.warning(f'Failed to read {file_path}: {e}, skipping...')
-            continue
-
-        # Add file separator
-        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
-        output.append(content)
-
-    return ''.join(output)
+    _render_nav_links(nav, site_url, lines)
+    lines.extend(
+        [
+            '',
+            '## Additional References',
+            '',
+            '- [llms-full.txt]({}/llms-full.txt): Complete docs corpus for LLM context'.format(site_url),
+            '- [Compiler Architecture](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md)',
+            '- [Release Process](https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md)',
+            '',
+        ]
+    )
+    return '\n'.join(lines)
