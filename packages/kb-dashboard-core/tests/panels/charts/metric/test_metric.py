@@ -425,6 +425,7 @@ def test_compile_metric_chart_color_mode_omitted(chart_type: str) -> None:
     result = compile_metric_chart_snapshot(config, chart_type)
     assert result['applyColorTo'] == 'background'
 
+
 def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
     """Test the compilation of a metric chart with primary, secondary, and maximum metrics (Lens)."""
     config = {
