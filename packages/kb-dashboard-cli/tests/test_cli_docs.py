@@ -128,6 +128,29 @@ class TestListGuidesCommand:
         assert result.exit_code == 0
         assert 'no guides' in result.output.lower()
 
+    def test_list_guides_handles_import_error(self) -> None:
+        """Test that list-guides handles missing package."""
+        runner = CliRunner()
+
+        # Create a mock that raises ImportError when list_guides is accessed
+        class MockModule:
+            def __getattr__(self, name: str) -> None:
+                msg = 'No module named kb_dashboard_docs'
+                raise ImportError(msg)
+
+        original = sys.modules.get('kb_dashboard_docs')
+        sys.modules['kb_dashboard_docs'] = MockModule()
+        try:
+            result = runner.invoke(docs, ['list-guides'])
+        finally:
+            if original is not None:
+                sys.modules['kb_dashboard_docs'] = original
+            else:
+                sys.modules.pop('kb_dashboard_docs', None)
+
+        assert result.exit_code == 1
+        assert 'not installed' in result.output.lower()
+
 
 class TestGetGuideCommand:
     """Tests for the guide command."""
@@ -176,3 +199,26 @@ class TestGetGuideCommand:
 
         assert result.exit_code == 1
         assert 'not found' in result.output.lower()
+
+    def test_guide_handles_import_error(self) -> None:
+        """Test that guide command handles missing package."""
+        runner = CliRunner()
+
+        # Create a mock that raises ImportError when get_guide is accessed
+        class MockModule:
+            def __getattr__(self, name: str) -> None:
+                msg = 'No module named kb_dashboard_docs'
+                raise ImportError(msg)
+
+        original = sys.modules.get('kb_dashboard_docs')
+        sys.modules['kb_dashboard_docs'] = MockModule()
+        try:
+            result = runner.invoke(docs, ['guide', 'any-guide'])
+        finally:
+            if original is not None:
+                sys.modules['kb_dashboard_docs'] = original
+            else:
+                sys.modules.pop('kb_dashboard_docs', None)
+
+        assert result.exit_code == 1
+        assert 'not installed' in result.output.lower()
