@@ -130,7 +130,7 @@ dashboards:
                     color: '#BD271E'  # Red for high usage
 ```
 
-For detailed `ColorRangeMapping` configuration options, see the [Color Assignments documentation](../advanced/color-assignments.md).
+For detailed `ColorRangeMapping` configuration options, see the [Color Assignments documentation](../guides/color-assignments.md).
 
 ## Datatable Appearance
 
