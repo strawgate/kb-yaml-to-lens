@@ -112,16 +112,17 @@ def _resolve_python_object(fully_qualified_name: str) -> Any | None:
         module_name = '.'.join(parts[:idx])
         try:
             module = importlib.import_module(module_name)
-        except Exception:
+        except ModuleNotFoundError:
             continue
 
         obj: Any = module
         try:
             for attr in parts[idx:]:
                 obj = getattr(obj, attr)
-            return obj
-        except Exception:
+        except (AttributeError, TypeError):
             return None
+        else:
+            return obj
     return None
 
 
@@ -151,7 +152,7 @@ def _render_reference_block(fully_qualified_name: str) -> str | None:
                 annotation = _format_annotation(getattr(field, 'annotation', inspect._empty))
                 description = getattr(field, 'description', None) or ''
                 suffix = f': {description}' if description else ''
-                lines.append(f"- `{field_name}` (`{annotation}`){suffix}")
+                lines.append(f'- `{field_name}` (`{annotation}`){suffix}')
             lines.append('')
     elif inspect.isfunction(obj) or inspect.ismethod(obj):
         signature = str(inspect.signature(obj))
@@ -179,15 +180,13 @@ def _expand_mkdocstrings_references(markdown: str) -> str:
 
 def _strip_llms_excluded_blocks(markdown: str) -> str:
     """Remove explicit llms exclusion blocks/comments from markdown."""
-    markdown = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
-    markdown = _LLMS_EXCLUDE_INLINE_RE.sub('', markdown)
-    return markdown
+    result = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
+    return _LLMS_EXCLUDE_INLINE_RE.sub('', result)
 
 
 def _strip_known_low_value_sections(markdown: str) -> str:
     """Remove sections that are useful for humans but noisy for llms-full."""
-    markdown = _POEM_SECTION_RE.sub('', markdown)
-    return markdown
+    return _POEM_SECTION_RE.sub('', markdown)
 
 
 def on_post_build(config: MkDocsConfig) -> None:
@@ -199,45 +198,64 @@ def on_post_build(config: MkDocsConfig) -> None:
     docs_dir = Path(config.docs_dir)
     site_dir = Path(config.site_dir)
 
-    output: list[str] = []
+    try:
+        output: list[str] = []
 
-    # Add header
-    output.append('# Dashboard Compiler - Complete Documentation\n\n')
-    output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
-    output.append('---\n\n')
+        # Add header
+        output.append('# Dashboard Compiler - Complete Documentation\n\n')
+        output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
+        output.append('---\n\n')
 
-    # Concatenate pages in navigation order
-    pages_included = 0
-    for file_path in _nav_order:
-        source_file = docs_dir / file_path
-        if not source_file.exists():
-            log.warning(f'{file_path} not found in docs dir, skipping...')
-            continue
+        # Concatenate pages in navigation order
+        pages_included = 0
+        included_paths: set[str] = set()
+        for file_path in _nav_order:
+            source_file = docs_dir / file_path
+            if not source_file.exists():
+                log.warning(f'{file_path} not found in docs dir, skipping...')
+                continue
 
-        markdown_content = source_file.read_text(encoding='utf-8')
-        markdown_content = _strip_llms_excluded_blocks(markdown_content)
-        markdown_content = _strip_known_low_value_sections(markdown_content)
-        markdown_content = _expand_mkdocstrings_references(markdown_content)
+            markdown_content = source_file.read_text(encoding='utf-8')
+            markdown_content = _strip_llms_excluded_blocks(markdown_content)
+            markdown_content = _strip_known_low_value_sections(markdown_content)
+            markdown_content = _expand_mkdocstrings_references(markdown_content)
 
-        # Add file separator and content
-        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
-        output.append(markdown_content)
-        pages_included += 1
+            # Add file separator and content
+            output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
+            output.append(markdown_content)
+            pages_included += 1
+            included_paths.add(file_path)
 
-    content = ''.join(output)
+        # Append markdown pages not present in nav
+        for source_file in sorted(docs_dir.rglob('*.md')):
+            rel_path = source_file.relative_to(docs_dir).as_posix()
+            if rel_path in included_paths:
+                continue
 
-    # Write to docs dir (source)
-    llms_full_path = docs_dir / 'llms-full.txt'
-    write_file(path=llms_full_path, content=content)
+            log.warning(f'{rel_path} not in nav order, appending at end')
+            markdown_content = source_file.read_text(encoding='utf-8')
+            markdown_content = _strip_llms_excluded_blocks(markdown_content)
+            markdown_content = _strip_known_low_value_sections(markdown_content)
+            markdown_content = _expand_mkdocstrings_references(markdown_content)
 
-    # Also write directly to site dir (built output)
-    site_llms_full_path = site_dir / 'llms-full.txt'
-    write_file(path=site_llms_full_path, content=content)
+            output.append(f'\n\n---\n# Source: {rel_path}\n---\n\n')
+            output.append(markdown_content)
+            pages_included += 1
 
-    log.info(f'Generated llms-full.txt with {pages_included} pages ({len(content)} characters)')
+        content = ''.join(output)
 
-    # Clear state for potential subsequent builds (e.g., during serve)
-    _nav_order.clear()
+        # Write to docs dir (source)
+        llms_full_path = docs_dir / 'llms-full.txt'
+        write_file(path=llms_full_path, content=content)
+
+        # Also write directly to site dir (built output)
+        site_llms_full_path = site_dir / 'llms-full.txt'
+        write_file(path=site_llms_full_path, content=content)
+
+        log.info(f'Generated llms-full.txt with {pages_included} pages ({len(content)} characters)')
+    finally:
+        # Clear state for potential subsequent builds (e.g., during serve)
+        _nav_order.clear()
 
 
 def generate_llms_txt_content(config: MkDocsConfig) -> str:
@@ -279,6 +297,9 @@ def generate_llms_txt_content(config: MkDocsConfig) -> str:
 
 - [Programmatic Usage]({site_url}/programmatic-usage/): Python API for dynamic dashboard generation
 - [API Reference]({site_url}/api/): Auto-generated Python API documentation
-- [Compiler Architecture](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md): Core compiler design and data flow
-- [Release Process](https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md): Tag-based release and publishing workflow
+- [Compiler Architecture][1]: Core compiler design and data flow
+- [Release Process][2]: Tag-based release and publishing workflow
+
+[1]: https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md
+[2]: https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md
 """
