@@ -22,12 +22,16 @@ from kb_dashboard_core.shared.defaults import default_false
 def _build_collapse_fns(
     dimension_id: str,
     dimension_collapse: str | None,
+    breakdown_id: str | None = None,
+    breakdown_collapse: str | None = None,
 ) -> dict[str, str] | None:
     """Build collapse functions mapping from dimension config.
 
     Args:
         dimension_id: The ID of the primary dimension.
         dimension_collapse: The collapse function for the dimension, or None.
+        breakdown_id: The ID of the breakdown dimension, if present.
+        breakdown_collapse: The collapse function for the breakdown dimension, or None.
 
     Returns:
         A dictionary mapping dimension IDs to collapse functions, or None if no collapse functions.
@@ -36,14 +40,19 @@ def _build_collapse_fns(
     collapse_fns: dict[str, str] | None = None
     if dimension_collapse is not None:
         collapse_fns = {dimension_id: str(dimension_collapse)}
+    if breakdown_id is not None and breakdown_collapse is not None:
+        if collapse_fns is None:
+            collapse_fns = {}
+        collapse_fns[breakdown_id] = str(breakdown_collapse)
     return collapse_fns
 
 
-def compile_waffle_chart_visualization_state(
+def compile_waffle_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: LensWaffleChart | ESQLWaffleChart,
     dimension_id: str,
+    breakdown_id: str | None,
     metric_id: str,
     collapse_fns: dict[str, str] | None,
 ) -> KbnWaffleVisualizationState:
@@ -53,6 +62,7 @@ def compile_waffle_chart_visualization_state(
         layer_id: The ID of the layer.
         chart: The WaffleChart config object.
         dimension_id: The ID of the primary dimension.
+        breakdown_id: The ID of the breakdown dimension, or None if not specified.
         metric_id: The ID of the metric.
         collapse_fns: Mapping of dimension ID to collapse function.
 
@@ -102,6 +112,7 @@ def compile_waffle_chart_visualization_state(
     kbn_layer_visualization = KbnWaffleStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=[dimension_id],
+        secondaryGroups=[breakdown_id] if breakdown_id is not None else None,
         metrics=[metric_id],
         allowMultipleMetrics=False,
         collapseFns=collapse_fns if collapse_fns is not None and len(collapse_fns) > 0 else None,
@@ -151,13 +162,25 @@ def compile_lens_waffle_chart(
     dimension_columns = compile_lens_dimensions(dimensions=[lens_waffle_chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
     dimension_id = next(iter(dimension_columns.keys()))
 
+    # Compile the breakdown (if present)
+    breakdown_id: str | None = None
+    breakdown_columns: dict[str, KbnLensColumnTypes] = {}
+    if lens_waffle_chart.breakdown is not None:
+        compiled_breakdown = compile_lens_dimensions(
+            dimensions=[lens_waffle_chart.breakdown], kbn_metric_column_by_id=kbn_metric_column_by_id
+        )
+        breakdown_id = next(iter(compiled_breakdown.keys()))
+        breakdown_columns = dict(compiled_breakdown)
+
     # Build collapse functions
     collapse_fns = _build_collapse_fns(
         dimension_id=dimension_id,
         dimension_collapse=lens_waffle_chart.dimension.collapse,
+        breakdown_id=breakdown_id,
+        breakdown_collapse=lens_waffle_chart.breakdown.collapse if lens_waffle_chart.breakdown is not None else None,
     )
 
-    kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(dimension_columns), **kbn_metric_column_by_id}
+    kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(dimension_columns), **breakdown_columns, **kbn_metric_column_by_id}
 
     return (
         layer_id,
@@ -166,6 +189,7 @@ def compile_lens_waffle_chart(
             layer_id=layer_id,
             chart=lens_waffle_chart,
             dimension_id=dimension_id,
+            breakdown_id=breakdown_id,
             metric_id=metric_id,
             collapse_fns=collapse_fns,
         ),
@@ -197,13 +221,23 @@ def compile_esql_waffle_chart(
     dimensions = compile_esql_dimensions(dimensions=[esql_waffle_chart.dimension])
     dimension_id = dimensions[0].columnId
 
+    # Compile the breakdown (if present)
+    breakdown_id: str | None = None
+    breakdown_columns: list[KbnESQLColumnTypes] = []
+    if esql_waffle_chart.breakdown is not None:
+        compiled_breakdown = compile_esql_dimensions(dimensions=[esql_waffle_chart.breakdown])
+        breakdown_id = compiled_breakdown[0].columnId
+        breakdown_columns = list(compiled_breakdown)
+
     # Build collapse functions
     collapse_fns = _build_collapse_fns(
         dimension_id=dimension_id,
         dimension_collapse=esql_waffle_chart.dimension.collapse,
+        breakdown_id=breakdown_id,
+        breakdown_collapse=esql_waffle_chart.breakdown.collapse if esql_waffle_chart.breakdown is not None else None,
     )
 
-    kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(dimensions)]
+    kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(dimensions), *breakdown_columns]
 
     return (
         layer_id,
@@ -212,6 +246,7 @@ def compile_esql_waffle_chart(
             layer_id=layer_id,
             chart=esql_waffle_chart,
             dimension_id=dimension_id,
+            breakdown_id=breakdown_id,
             metric_id=metric_id,
             collapse_fns=collapse_fns,
         ),
