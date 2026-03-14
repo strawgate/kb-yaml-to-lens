@@ -104,9 +104,20 @@ service:
 | `mysql.connection.count` | Sum | `1` | Connection attempts to the MySQL server | — |
 | `mysql.connection.errors` | Sum | `1` | Errors during client connection process | `error` |
 | `mysql.joins` | Sum | `1` | Joins that perform table scans | `kind` |
+| `mysql.max_used_connections` | Sum | `1` | Maximum connections used since server started | — |
+| `mysql.mysqlx_worker_threads` | Sum | `1` | MySQLx worker thread count | `kind` |
+| `mysql.query.client.count` | Sum | `1` | Number of client statements executed | — |
+| `mysql.query.count` | Sum | `1` | Number of queries executed | — |
 | `mysql.query.slow.count` | Sum | `1` | Number of slow queries | — |
+| `mysql.replica.sql_delay` | Sum | `s` | Configured replication delay in seconds | — |
+| `mysql.replica.time_behind_source` | Sum | `s` | Replication lag in seconds | — |
+| `mysql.statement_event.count` | Sum | `1` | Statement event count by schema | `schema`, `digest`, `digest_text`, `kind` |
+| `mysql.table.average_row_length` | Sum | `By` | Average row length per table | `table`, `schema` |
+| `mysql.table.lock_wait.read.count` | Sum | `1` | Table read lock wait count | `schema`, `table`, `kind` |
+| `mysql.table.lock_wait.write.count` | Sum | `1` | Table write lock wait count | `schema`, `table`, `kind` |
 | `mysql.table.rows` | Sum | `1` | Number of rows for a given table | `table`, `schema` |
 | `mysql.table.size` | Sum | `By` | Table size in bytes | `table`, `schema`, `kind` |
+| `mysql.table_open_cache` | Sum | `1` | Table open cache operations | `status` |
 
 ### Metric Attributes
 
@@ -125,6 +136,17 @@ service:
 | `operation` (page) | `created`, `read`, `written` | Page operation type |
 | `operation` (row) | `deleted`, `inserted`, `read`, `updated` | Row operation type |
 | `resource` | `disk_tables`, `files`, `tables` | Temporary resource type |
+| `kind` (mysqlx_threads) | `available`, `active` | MySQLx worker thread state |
+| `kind` (read_lock) | `normal`, `with_shared_locks`, `high_priority`, `no_insert`, `external` | Read lock type |
+| `kind` (write_lock) | `allow_write`, `concurrent_insert`, `low_priority`, `normal`, `external` | Write lock type |
+| `kind` (table_size) | `data`, `index` | Table size type |
+| `kind` (joins) | `full`, `full_range`, `range`, `range_check`, `scan` | Join type |
+| `kind` (event_state) | `errors`, `warnings`, `rows_affected`, `rows_sent`, `rows_examined`, `created_tmp_disk_tables`, `created_tmp_tables`, `sort_merge_passes`, `sort_rows`, `no_index_used` | Statement event state |
+| `status` (cache) | `hit`, `miss`, `overflow` | Cache access status |
+| `status` (connection) | `accepted`, `closed`, `rejected` | Connection status |
+| `error` | `accept`, `internal`, `max_connections`, `peer_address`, `select`, `tcpwrap`, `aborted`, `aborted_clients`, `locked` | Connection error type |
+| `command` | `delete`, `delete_multi`, `insert`, `select`, `update`, `update_multi` | Command type |
+| `command` (prepared) | `execute`, `close`, `fetch`, `prepare`, `reset`, `send_long_data` | Prepared statement command |
 
 ### Resource Attributes
 
