@@ -73,10 +73,13 @@ jobs:
         9. Add/update docs/examples if user-facing behavior changed.
 
         ## Deliverables
+
+        You cannot create a pull request or push code to a branch. Your only deliverable is a comment on the issue.
+        If asked to provide an implementation, provide a detailed plan with in-depth coverage of the impelmentation 
+        required to complete the task:
         - Working code + tests for the requested capability.
-        - Saved object artifact(s) committed under `artifacts/kibana-saved-objects/`.
+        - Saved object artifact(s) in code blocks.
         - Clear summary mapping: spec -> saved object fields -> compiler fields.
-        - A comment back on the triggering issue/PR summarizing results.
 
         ## Guardrails
         - Be surgical; avoid broad refactors.
