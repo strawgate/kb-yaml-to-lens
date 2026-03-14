@@ -36,8 +36,14 @@ jobs:
         ## Goal
         Implement support for a chart configuration by first generating a real Kibana saved object from UI configuration, then mapping that artifact into compiler/config/view code and tests.
 
-        ## Input
+        ## Mode detection
         - Trigger comment: `${{ github.event.comment.body }}`
+        - Issue number: `${{ github.event.issue.number }}`
+        - PR URL (present only for PR comments): `${{ github.event.issue.pull_request.url }}`
+        - If PR URL is present, run in **PR validation mode**.
+        - Otherwise, run in **feature exploration mode**.
+
+        ## Input
         - Treat text after `/explore` as the detailed specification.
         - If the comment is only `/explore`, infer a reasonable narrow spec from issue/PR context and state your assumption.
         - Kibana URL: `http://localhost:5601`
@@ -51,15 +57,26 @@ jobs:
         - Kibana comboboxes are NOT `<select>` elements. Use `browser_type` to search, then
           `browser_snapshot` + `browser_click` on the matching option.
         - After navigating, always `browser_wait_for` with `textGone: "Loading Elastic"`.
-        - The bootstrap seeds data with recent timestamps — the default "Last 15 minutes"
-          time range should show data. If the field list is empty, re-run the bootstrap.
+        - Elasticsearch and Kibana are pre-provisioned for this workflow run.
+        - Do NOT run bootstrap scripts (`just explore-bootstrap`, `scripts/bootstrap-explore-kibana.sh`,
+          Docker compose, or equivalent) from the agent task.
         - See `.github/agent-guides/kibana-lens-playwright.md` for the full reference.
 
         ## Required workflow
         1. Read `.github/agent-guides/kibana-lens-playwright.md` for detailed Playwright steps.
-        2. Use Playwright (Chromium) to automate Kibana and create the target visualization.
-        3. If no data view exists for the target index, create one (see guide).
-        4. Export the saved object via Kibana API and save the artifact:
+        2. If running in PR validation mode:
+           - Read the PR title/body and extract the claimed bug fix / feature scope.
+           - Check out and use the PR head branch for all compile/validation steps.
+           - Build a focused validation matrix that covers the claim + key edge cases.
+           - Author YAML examples that exercise the claimed behavior and compile them.
+           - Import compiled objects into Kibana and verify editor controls match expectations.
+           - Manually recreate equivalent panels in Kibana using the same behavior.
+           - Export both generated and manual saved objects and compare normalized payloads.
+           - Report whether the PR claim is truly implemented, partially implemented, or incorrect.
+        3. If running in feature exploration mode:
+           - Use Playwright (Chromium) to automate Kibana and create the target visualization.
+           - If no data view exists for the target index, create one (see guide).
+        4. Export saved objects via Kibana API and save artifacts:
            ```bash
            mkdir -p artifacts/kibana-saved-objects
            curl -fsS -X POST "http://localhost:5601/api/saved_objects/_export" \
@@ -67,19 +84,25 @@ jobs:
              -d '{"objects":[{"type":"lens","id":"<ID>"}],"includeReferencesDeep":true}' \
              -o "artifacts/kibana-saved-objects/<name>.ndjson"
            ```
-        6. Implement compiler support in this repo using existing patterns.
-        7. Add/update tests for config -> compiled Lens output mapping.
-        8. Run targeted validation for touched files and tests.
-        9. Add/update docs/examples if user-facing behavior changed.
+        5. Implement compiler support in this repo using existing patterns (feature exploration mode only).
+        6. Add/update tests for config -> compiled Lens output mapping.
+        7. Run targeted validation for touched files and tests.
+        8. Add/update docs/examples if user-facing behavior changed.
 
         ## Deliverables
 
         You cannot create a pull request or push code to a branch. Your only deliverable is a comment on the issue.
-        If asked to provide an implementation, provide a detailed plan with in-depth coverage of the impelmentation 
+        If asked to provide an implementation, provide a detailed plan with in-depth coverage of the implementation
         required to complete the task:
         - Working code + tests for the requested capability.
         - Saved object artifact(s) in code blocks.
         - Clear summary mapping: spec -> saved object fields -> compiler fields.
+
+        In PR validation mode, include:
+        - PR claim checklist with pass/fail per claim
+        - YAML reproductions used for validation
+        - Compiler output vs manual Kibana output diff summary
+        - Explicit verdict on whether the PR fully satisfies its stated goal
 
         ## Guardrails
         - Be surgical; avoid broad refactors.
