@@ -120,7 +120,7 @@ See component-specific DEVELOPING.md files for detailed workflows:
 
 | Resource | Location |
 | -------- | -------- |
-| Architecture | [packages/kb-dashboard-docs/content/architecture.md](packages/kb-dashboard-docs/content/architecture.md) |
+| Architecture | [packages/kb-dashboard-core/docs/compiler-architecture.md](packages/kb-dashboard-core/docs/compiler-architecture.md) |
 | Getting started | [packages/kb-dashboard-docs/content/index.md](packages/kb-dashboard-docs/content/index.md) |
 | CLI documentation | [packages/kb-dashboard-docs/content/CLI.md](packages/kb-dashboard-docs/content/CLI.md) |
 | Release process | [RELEASE.md](RELEASE.md) |
