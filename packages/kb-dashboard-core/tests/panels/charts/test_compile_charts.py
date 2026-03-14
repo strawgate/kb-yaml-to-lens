@@ -312,6 +312,7 @@ class TestCompileLensChartState:
                 'layerId': IsUUID,
                 'layerType': 'data',
                 'metricAccessor': 'metric1',
+                'applyColorTo': 'background',
                 'secondaryLabelPosition': 'before',
                 'secondaryTrend': {'type': 'none'},
             }
