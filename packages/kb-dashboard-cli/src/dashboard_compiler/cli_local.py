@@ -1,4 +1,4 @@
-"""CLI commands for local file operations (compile, disassemble, lsp)."""
+"""CLI commands for local file operations (compile, disassemble, decompile, lsp)."""
 
 import asyncio
 import io
@@ -12,7 +12,9 @@ import yaml
 from kb_dashboard_core.dashboard.view import KbnDashboard
 from kb_dashboard_core.dashboard_compiler import load, render
 from kb_dashboard_core.shared.error_formatter import format_validation_error, format_yaml_error
+from kb_dashboard_core.tools.decompile import decompile_dashboard
 from kb_dashboard_core.tools.disassemble import disassemble_dashboard, parse_ndjson
+from kb_dashboard_core.yaml_roundtrip import dump_roundtrip
 from kb_dashboard_tools.kibana_client import KibanaClient
 from pydantic import ValidationError
 
@@ -497,6 +499,58 @@ def disassemble(input_file: Path | None, output: Path) -> None:
 
     except (ValueError, OSError) as e:
         msg = f'Error disassembling dashboard: {e}'
+        raise click.ClickException(msg) from e
+
+
+@click.command('decompile')
+@click.argument('input_file', type=click.Path(exists=True, path_type=Path), required=False)
+@click.option(
+    '-o',
+    '--output',
+    type=click.Path(path_type=Path),
+    required=True,
+    help='Output YAML file path for decompiled dashboard stubs.',
+)
+def decompile(input_file: Path | None, output: Path) -> None:
+    r"""Decompile a Kibana dashboard NDJSON file into YAML stubs.
+
+    This command generates a YAML dashboard skeleton from a Kibana dashboard
+    NDJSON export. It preserves panel structure (types, size, position, title)
+    and adds TODO comments with original panel JSON where manual conversion is
+    still required.
+
+    \b
+    Examples:
+        # Decompile a dashboard NDJSON file to YAML
+        kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
+
+        # Read from stdin
+        cat dashboard.ndjson | kb-dashboard decompile -o dashboard.yaml
+    """
+    try:
+        if input_file is None:
+            # Use TextIOWrapper to ensure UTF-8 encoding when reading from stdin
+            # This avoids issues on Windows where the default encoding might not be UTF-8
+            content = (
+                io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8').read()
+                if hasattr(sys.stdin, 'buffer')
+                else sys.stdin.read()  # Fallback for environments where stdin.buffer is not available
+            )
+        else:
+            content = input_file.read_text(encoding='utf-8')
+
+        dashboard = parse_ndjson(content)
+        decompiled_document = decompile_dashboard(dashboard)
+
+        output.parent.mkdir(parents=True, exist_ok=True)
+        dump_roundtrip(decompiled_document, str(output))
+
+        print_success(f'Dashboard decompiled to: {output}')
+        print_dim_bullet('Generated YAML stubs for dashboard panels')
+        print_dim_bullet('Added TODO comments with original Kibana panel JSON')
+
+    except (ValueError, OSError, TypeError) as e:
+        msg = f'Error decompiling dashboard: {e}'
         raise click.ClickException(msg) from e
 
 

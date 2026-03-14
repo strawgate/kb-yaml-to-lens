@@ -61,13 +61,18 @@ echo "Test 9: Disassemble subcommand help"
 uv run kb-dashboard disassemble --help > /dev/null
 echo "✓ disassemble --help works"
 
-# Test 10: LSP subcommand help
-echo "Test 10: LSP subcommand help"
+# Test 10: Decompile subcommand help
+echo "Test 10: Decompile subcommand help"
+uv run kb-dashboard decompile --help > /dev/null
+echo "✓ decompile --help works"
+
+# Test 11: LSP subcommand help
+echo "Test 11: LSP subcommand help"
 uv run kb-dashboard lsp --help > /dev/null
 echo "✓ lsp --help works"
 
-# Test 11: Actual compilation test
-echo "Test 11: Actual compilation test"
+# Test 12: Actual compilation test
+echo "Test 12: Actual compilation test"
 TEMP_OUTPUT=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT"' EXIT
 
@@ -83,8 +88,8 @@ if [ ! -f "$TEMP_OUTPUT/examples.ndjson" ]; then
 fi
 echo "✓ Compilation works and generates output"
 
-# Test 12: Test --exit-non-zero-on-change flag
-echo "Test 12: Test --exit-non-zero-on-change flag"
+# Test 13: Test --exit-non-zero-on-change flag
+echo "Test 13: Test --exit-non-zero-on-change flag"
 TEMP_OUTPUT_FLAG=$(mktemp -d)
 trap 'rm -rf "$TEMP_OUTPUT" "$TEMP_OUTPUT_FLAG"' EXIT
 
@@ -109,8 +114,8 @@ fi
 
 echo "✓ --exit-non-zero-on-change flag works (exit code $compile_exit_code indicates $compile_exit_code changed files)"
 
-# Test 13: Verify NDJSON format
-echo "Test 13: Verify NDJSON output format"
+# Test 14: Verify NDJSON format
+echo "Test 14: Verify NDJSON output format"
 if ! grep -q '"type":"dashboard"' "$TEMP_OUTPUT/examples.ndjson"; then
   echo "✗ Output doesn't contain expected dashboard JSON"
   exit 1

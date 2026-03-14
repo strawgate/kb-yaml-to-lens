@@ -6,7 +6,7 @@ This guide provides instructions for converting Kibana dashboard JSON files into
 
 **Complete Documentation**: For full schema reference and examples, use [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt) which contains all project documentation.
 
-**Workflow**: `kb-dashboard fetch` → `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+**Workflow**: `kb-dashboard fetch` → `kb-dashboard decompile` → Complete panel configs → `kb-dashboard compile` → Validate
 
 ## Fetching Dashboard from Kibana
 
@@ -78,6 +78,22 @@ output_dir/
     ├── 001_panel-2_markdown.json
     └── ...
 ```
+
+## Simple Decompilation (MVP)
+
+Generate a YAML skeleton directly from NDJSON:
+
+```bash
+kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
+```
+
+The generated YAML includes:
+
+- Dashboard-level metadata (name/id/description where present)
+- Panel stubs with inferred panel type and grid layout (`size`/`position`)
+- `TODO(decompile)` comments next to panels with original panel JSON for manual completion
+
+This is intentionally conservative: the command does **not** attempt full semantic reconstruction of all panel-specific fields.
 
 ## Conversion Strategy
 
