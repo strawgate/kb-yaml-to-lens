@@ -19,7 +19,7 @@ set positional-arguments := true
 ROOT := justfile_directory()
 
 # Components for pass-through commands
-COMPONENTS := "packages/kb-dashboard-cli packages/kb-dashboard-core packages/kb-dashboard-lint packages/kb-dashboard-tools packages/vscode-extension"
+COMPONENTS := "packages/kb-dashboard-cli packages/kb-dashboard-core packages/kb-dashboard-lint packages/kb-dashboard-tools packages/kb-dashboard-docs-content packages/vscode-extension"
 
 # YAML linting exclusions
 YAMLFIX_EXCLUDE := '--exclude ".venv/**/*.yaml" --exclude ".venv/**/*.yml" --exclude "packages/kb-dashboard-cli/.venv/**/*.yaml" --exclude "packages/kb-dashboard-cli/.venv/**/*.yml" --exclude "packages/kb-dashboard-core/.venv/**/*.yaml" --exclude "packages/kb-dashboard-core/.venv/**/*.yml" --exclude "packages/kb-dashboard-lint/.venv/**/*.yaml" --exclude "packages/kb-dashboard-lint/.venv/**/*.yml" --exclude "packages/kb-dashboard-tools/.venv/**/*.yaml" --exclude "packages/kb-dashboard-tools/.venv/**/*.yml" --exclude "node_modules/**/*.yaml" --exclude "node_modules/**/*.yml" --exclude "packages/vscode-extension/node_modules/**/*.yaml" --exclude "packages/vscode-extension/node_modules/**/*.yml" --exclude "packages/vscode-extension/.vscode-test/**/*.yaml" --exclude "packages/vscode-extension/.vscode-test/**/*.yml"'

@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -13,6 +13,7 @@ members = [
     "kb-dashboard-compiler-root",
     "kb-dashboard-core",
     "kb-dashboard-docs",
+    "kb-dashboard-docs-content",
     "kb-dashboard-lint",
     "kb-dashboard-tools",
 ]
@@ -887,6 +888,7 @@ dependencies = [
     { name = "click" },
     { name = "elasticsearch" },
     { name = "kb-dashboard-core" },
+    { name = "kb-dashboard-docs-content" },
     { name = "kb-dashboard-tools" },
     { name = "lsprotocol" },
     { name = "pygls" },
@@ -910,6 +912,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.3" },
     { name = "elasticsearch", specifier = ">=8.16.2" },
     { name = "kb-dashboard-core", editable = "packages/kb-dashboard-core" },
+    { name = "kb-dashboard-docs-content", editable = "packages/kb-dashboard-docs-content" },
     { name = "kb-dashboard-tools", editable = "packages/kb-dashboard-tools" },
     { name = "lsprotocol", specifier = ">=2024.0.0" },
     { name = "pygls", specifier = ">=2.0.0" },
@@ -1042,6 +1045,21 @@ dev = [
     { name = "pytest", specifier = ">=9.0" },
     { name = "pytest-check-links", specifier = ">=0.9.0" },
 ]
+
+[[package]]
+name = "kb-dashboard-docs-content"
+version = "0.2.7"
+source = { editable = "packages/kb-dashboard-docs-content" }
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.0" }]
 
 [[package]]
 name = "kb-dashboard-lint"
