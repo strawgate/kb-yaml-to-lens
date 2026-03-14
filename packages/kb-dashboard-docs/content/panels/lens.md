@@ -110,21 +110,33 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `maximum` | `LensMetricTypes` object | An optional maximum metric, used for progress bar scale or context. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | `None` | No |
-| `subtitle` | `string` | Custom subtitle text displayed below the metric title. | `None` | No |
-| `secondary_label` | `string` | Custom label for the secondary metric. | `None` | No |
+| `appearance` | `MetricAppearance` object | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
+| `titles_and_text` | `MetricTitlesAndText` object | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
+
+### Metric Appearance
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
 | `icon` | `string` | Icon identifier to display alongside the metric value. | `None` | No |
-| `max_cols` | `int` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
+| `icon_align` | `Literal['left', 'right']` | Horizontal alignment of the icon. | `None` | No |
 | `show_bar` | `bool` | Whether to display a progress bar below the metric value. | `None` | No |
 | `progress_direction` | `Literal['horizontal', 'vertical']` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
-| `titles_text_align` | `Literal['left', 'center', 'right']` | Text alignment for the metric title and subtitle. | `None` | No |
+| `max_cols` | `int` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
 | `value_font_mode` | `Literal['default', 'fit', 'custom']` | Font size mode for the primary metric value. | `None` | No |
-| `icon_align` | `Literal['left', 'right']` | Horizontal alignment of the icon. | `None` | No |
+| `primary_position` | `Literal['top', 'bottom']` | Vertical position of the primary metric value. | `None` | No |
+
+### Metric Titles and Text
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `subtitle` | `string` | Custom subtitle text displayed below the metric title. | `None` | No |
+| `secondary_label` | `string` | Custom label for the secondary metric. | `None` | No |
+| `titles_text_align` | `Literal['left', 'center', 'right']` | Text alignment for the metric title and subtitle. | `None` | No |
 | `primary_align` | `Literal['left', 'center', 'right']` | Text alignment for the primary metric value. | `None` | No |
 | `secondary_align` | `Literal['left', 'center', 'right']` | Text alignment for the secondary metric value. | `None` | No |
 | `title_weight` | `Literal['bold', 'normal', 'lighter']` | Font weight for the metric title. | `None` | No |
-| `primary_position` | `Literal['top', 'bottom']` | Vertical position of the primary metric value. | `None` | No |
 
-**Example (Lens Metric Chart):**
+**Example (Lens Metric Chart with Styling):**
 
 ```yaml
 dashboards:
@@ -151,6 +163,15 @@ dashboards:
             field: "host.name"
             size: 3
             label: "Top Hosts"
+          appearance:
+            show_bar: true
+            progress_direction: horizontal
+            icon: sortUp
+            icon_align: right
+          titles_and_text:
+            subtitle: "Last 24 hours"
+            titles_text_align: center
+            title_weight: bold
 ```
 
 ---

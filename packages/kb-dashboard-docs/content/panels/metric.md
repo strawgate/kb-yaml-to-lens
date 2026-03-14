@@ -80,19 +80,31 @@ dashboards:
 | `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 | `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 | `color_mode` | `Literal['none', 'labels', 'background'] \| None` | Optional text/background color mode for metric values. | `None` | No |
-| `subtitle` | `string \| None` | Custom subtitle text displayed below the metric title. | `None` | No |
-| `secondary_label` | `string \| None` | Custom label for the secondary metric, overriding its default. | `None` | No |
+| `appearance` | `MetricAppearance \| None` | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
+| `titles_and_text` | `MetricTitlesAndText \| None` | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
+
+#### Metric Appearance
+
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
 | `icon` | `string \| None` | Icon identifier to display alongside the metric value. | `None` | No |
-| `max_cols` | `int \| None` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
+| `icon_align` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the metric value. | `None` | No |
 | `show_bar` | `bool \| None` | Whether to display a progress bar below the metric value. | `None` | No |
 | `progress_direction` | `Literal['horizontal', 'vertical'] \| None` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
-| `titles_text_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
+| `max_cols` | `int \| None` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
 | `value_font_mode` | `Literal['default', 'fit', 'custom'] \| None` | Font size mode for the primary metric value. | `None` | No |
-| `icon_align` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the metric value. | `None` | No |
+| `primary_position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
+
+#### Metric Titles and Text
+
+| YAML Key | Data Type | Description | Default | Required |
+| ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
+| `subtitle` | `string \| None` | Custom subtitle text displayed below the metric title. | `None` | No |
+| `secondary_label` | `string \| None` | Custom label for the secondary metric, overriding its default. | `None` | No |
+| `titles_text_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
 | `primary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
 | `secondary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
 | `title_weight` | `Literal['bold', 'normal', 'lighter'] \| None` | Font weight for the metric title. | `None` | No |
-| `primary_position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
 
 #### Lens Metric Types
 
@@ -158,19 +170,8 @@ primary:
 | `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 | `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 | `color_mode` | `Literal['none', 'labels', 'background'] \| None` | Optional text/background color mode for metric values. | `None` | No |
-| `subtitle` | `string \| None` | Custom subtitle text displayed below the metric title. | `None` | No |
-| `secondary_label` | `string \| None` | Custom label for the secondary metric, overriding its default. | `None` | No |
-| `icon` | `string \| None` | Icon identifier to display alongside the metric value. | `None` | No |
-| `max_cols` | `int \| None` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
-| `show_bar` | `bool \| None` | Whether to display a progress bar below the metric value. | `None` | No |
-| `progress_direction` | `Literal['horizontal', 'vertical'] \| None` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
-| `titles_text_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
-| `value_font_mode` | `Literal['default', 'fit', 'custom'] \| None` | Font size mode for the primary metric value. | `None` | No |
-| `icon_align` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the metric value. | `None` | No |
-| `primary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
-| `secondary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
-| `title_weight` | `Literal['bold', 'normal', 'lighter'] \| None` | Font weight for the metric title. | `None` | No |
-| `primary_position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
+| `appearance` | `MetricAppearance \| None` | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
+| `titles_and_text` | `MetricTitlesAndText \| None` | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
 
 #### ESQL Metric Types
 
@@ -260,8 +261,9 @@ dashboards:
         lens:
           type: metric
           data_view: "metrics-*"
-          subtitle: "Last 24 hours"
-          secondary_label: "vs. previous day"
+          titles_and_text:
+            subtitle: "Last 24 hours"
+            secondary_label: "vs. previous day"
           primary:
             aggregation: average
             field: system.cpu.total.norm.pct
@@ -287,8 +289,9 @@ dashboards:
         lens:
           type: metric
           data_view: "metrics-*"
-          show_bar: true
-          progress_direction: horizontal
+          appearance:
+            show_bar: true
+            progress_direction: horizontal
           primary:
             aggregation: average
             field: system.filesystem.used.pct
@@ -311,8 +314,9 @@ dashboards:
         lens:
           type: metric
           data_view: "metrics-*"
-          icon: sortUp
-          icon_align: right
+          appearance:
+            icon: sortUp
+            icon_align: right
           primary:
             aggregation: count
 ```
@@ -330,12 +334,14 @@ dashboards:
         lens:
           type: metric
           data_view: "metrics-*"
-          titles_text_align: center
-          primary_align: center
-          secondary_align: center
-          title_weight: bold
-          value_font_mode: fit
-          primary_position: top
+          appearance:
+            value_font_mode: fit
+            primary_position: top
+          titles_and_text:
+            titles_text_align: center
+            primary_align: center
+            secondary_align: center
+            title_weight: bold
           primary:
             aggregation: count
             label: "Total Events"
@@ -354,7 +360,8 @@ dashboards:
         lens:
           type: metric
           data_view: "metrics-*"
-          max_cols: 4
+          appearance:
+            max_cols: 4
           primary:
             aggregation: count
           breakdown:

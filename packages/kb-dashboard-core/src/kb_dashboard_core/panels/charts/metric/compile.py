@@ -49,6 +49,25 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         KbnMetricVisualizationState: The compiled visualization state.
 
     """
+    # Extract appearance settings
+    appearance = chart.appearance
+    icon = appearance.icon if appearance is not None else None
+    icon_align = appearance.icon_align if appearance is not None else None
+    show_bar = appearance.show_bar if appearance is not None else None
+    progress_direction = appearance.progress_direction if appearance is not None else None
+    max_cols = appearance.max_cols if appearance is not None else None
+    value_font_mode = appearance.value_font_mode if appearance is not None else None
+    primary_position = appearance.primary_position if appearance is not None else None
+
+    # Extract titles and text settings
+    titles_and_text = chart.titles_and_text
+    subtitle = titles_and_text.subtitle if titles_and_text is not None else None
+    secondary_label = titles_and_text.secondary_label if titles_and_text is not None else None
+    titles_text_align = titles_and_text.titles_text_align if titles_and_text is not None else None
+    primary_align = titles_and_text.primary_align if titles_and_text is not None else None
+    secondary_align = titles_and_text.secondary_align if titles_and_text is not None else None
+    title_weight = titles_and_text.title_weight if titles_and_text is not None else None
+
     return KbnMetricVisualizationState(
         layerId=layer_id,
         metricAccessor=primary_metric_id,
@@ -58,19 +77,19 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         maxAccessor=max_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
         colorMode=chart.color_mode,
-        subtitle=chart.subtitle,
-        secondaryLabel=chart.secondary_label,
-        icon=chart.icon,
-        maxCols=chart.max_cols,
-        showBar=chart.show_bar,
-        progressDirection=chart.progress_direction,
-        titlesTextAlign=chart.titles_text_align,
-        valueFontMode=chart.value_font_mode,
-        iconAlign=chart.icon_align,
-        primaryAlign=chart.primary_align,
-        secondaryAlign=chart.secondary_align,
-        titleWeight=chart.title_weight,
-        primaryPosition=chart.primary_position,
+        subtitle=subtitle,
+        secondaryLabel=secondary_label,
+        icon=icon,
+        maxCols=max_cols,
+        showBar=show_bar,
+        progressDirection=progress_direction,
+        titlesTextAlign=titles_text_align,
+        valueFontMode=value_font_mode,
+        iconAlign=icon_align,
+        primaryAlign=primary_align,
+        secondaryAlign=secondary_align,
+        titleWeight=title_weight,
+        primaryPosition=primary_position,
     )
 
 
@@ -192,28 +211,47 @@ def compile_esql_metric_chart(
 
     layer_id = esql_metric_chart.get_id()
 
+    # Extract appearance settings
+    appearance = esql_metric_chart.appearance
+    icon = appearance.icon if appearance is not None else None
+    icon_align = appearance.icon_align if appearance is not None else None
+    show_bar = appearance.show_bar if appearance is not None else None
+    progress_direction = appearance.progress_direction if appearance is not None else None
+    max_cols = appearance.max_cols if appearance is not None else None
+    value_font_mode = appearance.value_font_mode if appearance is not None else None
+    primary_position = appearance.primary_position if appearance is not None else None
+
+    # Extract titles and text settings
+    titles_and_text = esql_metric_chart.titles_and_text
+    subtitle = titles_and_text.subtitle if titles_and_text is not None else None
+    secondary_label = titles_and_text.secondary_label if titles_and_text is not None else None
+    titles_text_align = titles_and_text.titles_text_align if titles_and_text is not None else None
+    primary_align = titles_and_text.primary_align if titles_and_text is not None else None
+    secondary_align = titles_and_text.secondary_align if titles_and_text is not None else None
+    title_weight = titles_and_text.title_weight if titles_and_text is not None else None
+
     return (
         layer_id,
         kbn_columns,
         KbnESQLMetricVisualizationState(
             layerId=layer_id,
             metricAccessor=primary_metric_id,
-            showBar=esql_metric_chart.show_bar if esql_metric_chart.show_bar is not None else False,
+            showBar=show_bar if show_bar is not None else False,
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
             colorMode=esql_metric_chart.color_mode,
-            subtitle=esql_metric_chart.subtitle,
-            secondaryLabel=esql_metric_chart.secondary_label,
-            icon=esql_metric_chart.icon,
-            maxCols=esql_metric_chart.max_cols,
-            progressDirection=esql_metric_chart.progress_direction,
-            titlesTextAlign=esql_metric_chart.titles_text_align,
-            valueFontMode=esql_metric_chart.value_font_mode,
-            iconAlign=esql_metric_chart.icon_align,
-            primaryAlign=esql_metric_chart.primary_align,
-            secondaryAlign=esql_metric_chart.secondary_align,
-            titleWeight=esql_metric_chart.title_weight,
-            primaryPosition=esql_metric_chart.primary_position,
+            subtitle=subtitle,
+            secondaryLabel=secondary_label,
+            icon=icon,
+            maxCols=max_cols,
+            progressDirection=progress_direction,
+            titlesTextAlign=titles_text_align,
+            valueFontMode=value_font_mode,
+            iconAlign=icon_align,
+            primaryAlign=primary_align,
+            secondaryAlign=secondary_align,
+            titleWeight=title_weight,
+            primaryPosition=primary_position,
         ),
     )

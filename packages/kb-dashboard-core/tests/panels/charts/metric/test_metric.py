@@ -497,13 +497,13 @@ def test_compile_metric_chart_subtitle(chart_type: str) -> None:
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'subtitle': 'Last 24 hours',
+            'titles_and_text': {'subtitle': 'Last 24 hours'},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'subtitle': 'Last 24 hours',
+            'titles_and_text': {'subtitle': 'Last 24 hours'},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -538,14 +538,14 @@ def test_compile_metric_chart_secondary_label(chart_type: str) -> None:
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
-            'secondary_label': 'vs. previous period',
+            'titles_and_text': {'secondary_label': 'vs. previous period'},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
-            'secondary_label': 'vs. previous period',
+            'titles_and_text': {'secondary_label': 'vs. previous period'},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -560,13 +560,13 @@ def test_compile_metric_chart_icon(chart_type: str) -> None:
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'icon': 'sortUp',
+            'appearance': {'icon': 'sortUp'},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'icon': 'sortUp',
+            'appearance': {'icon': 'sortUp'},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -600,13 +600,13 @@ def test_compile_metric_chart_max_cols(chart_type: str) -> None:
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'max_cols': 3,
+            'appearance': {'max_cols': 3},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'max_cols': 3,
+            'appearance': {'max_cols': 3},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -621,13 +621,13 @@ def test_compile_metric_chart_show_bar(chart_type: str) -> None:
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'show_bar': True,
+            'appearance': {'show_bar': True},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'show_bar': True,
+            'appearance': {'show_bar': True},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -643,13 +643,13 @@ def test_compile_metric_chart_progress_direction(chart_type: str, direction: str
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'progress_direction': direction,
+            'appearance': {'progress_direction': direction},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'progress_direction': direction,
+            'appearance': {'progress_direction': direction},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -665,13 +665,13 @@ def test_compile_metric_chart_titles_text_align(chart_type: str, align: str) -> 
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'titles_text_align': align,
+            'titles_and_text': {'titles_text_align': align},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'titles_text_align': align,
+            'titles_and_text': {'titles_text_align': align},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -687,13 +687,13 @@ def test_compile_metric_chart_value_font_mode(chart_type: str, mode: str) -> Non
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'value_font_mode': mode,
+            'appearance': {'value_font_mode': mode},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'value_font_mode': mode,
+            'appearance': {'value_font_mode': mode},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -709,13 +709,13 @@ def test_compile_metric_chart_icon_align(chart_type: str, align: str) -> None:
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'icon_align': align,
+            'appearance': {'icon_align': align},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'icon_align': align,
+            'appearance': {'icon_align': align},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -731,13 +731,13 @@ def test_compile_metric_chart_primary_align(chart_type: str, align: str) -> None
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'primary_align': align,
+            'titles_and_text': {'primary_align': align},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'primary_align': align,
+            'titles_and_text': {'primary_align': align},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -753,13 +753,13 @@ def test_compile_metric_chart_secondary_align(chart_type: str, align: str) -> No
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'secondary_align': align,
+            'titles_and_text': {'secondary_align': align},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'secondary_align': align,
+            'titles_and_text': {'secondary_align': align},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -775,13 +775,13 @@ def test_compile_metric_chart_title_weight(chart_type: str, weight: str) -> None
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'title_weight': weight,
+            'titles_and_text': {'title_weight': weight},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'title_weight': weight,
+            'titles_and_text': {'title_weight': weight},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -797,13 +797,13 @@ def test_compile_metric_chart_primary_position(chart_type: str, position: str) -
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'primary_position': position,
+            'appearance': {'primary_position': position},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'primary_position': position,
+            'appearance': {'primary_position': position},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -820,20 +820,24 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
             'maximum': {'value': 100, 'id': 'max-metric'},
-            'subtitle': 'Overview',
-            'secondary_label': 'Change',
-            'icon': 'compute',
-            'max_cols': 5,
-            'show_bar': True,
-            'progress_direction': 'vertical',
-            'titles_text_align': 'center',
-            'value_font_mode': 'fit',
-            'icon_align': 'right',
-            'primary_align': 'center',
-            'secondary_align': 'right',
-            'title_weight': 'bold',
-            'primary_position': 'bottom',
             'color_mode': 'background',
+            'appearance': {
+                'icon': 'compute',
+                'max_cols': 5,
+                'show_bar': True,
+                'progress_direction': 'vertical',
+                'value_font_mode': 'fit',
+                'icon_align': 'right',
+                'primary_position': 'bottom',
+            },
+            'titles_and_text': {
+                'subtitle': 'Overview',
+                'secondary_label': 'Change',
+                'titles_text_align': 'center',
+                'primary_align': 'center',
+                'secondary_align': 'right',
+                'title_weight': 'bold',
+            },
         }
     else:
         config = {
@@ -841,20 +845,24 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
             'maximum': {'field': 'max_val', 'id': 'max-metric'},
-            'subtitle': 'Overview',
-            'secondary_label': 'Change',
-            'icon': 'compute',
-            'max_cols': 5,
-            'show_bar': True,
-            'progress_direction': 'vertical',
-            'titles_text_align': 'center',
-            'value_font_mode': 'fit',
-            'icon_align': 'right',
-            'primary_align': 'center',
-            'secondary_align': 'right',
-            'title_weight': 'bold',
-            'primary_position': 'bottom',
             'color_mode': 'background',
+            'appearance': {
+                'icon': 'compute',
+                'max_cols': 5,
+                'show_bar': True,
+                'progress_direction': 'vertical',
+                'value_font_mode': 'fit',
+                'icon_align': 'right',
+                'primary_position': 'bottom',
+            },
+            'titles_and_text': {
+                'subtitle': 'Overview',
+                'secondary_label': 'Change',
+                'titles_text_align': 'center',
+                'primary_align': 'center',
+                'secondary_align': 'right',
+                'title_weight': 'bold',
+            },
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
