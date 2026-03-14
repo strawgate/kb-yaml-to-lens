@@ -567,6 +567,147 @@ def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
     assert len(chart.dimensions) == 1
 
 
+def test_compile_datatable_chart_with_range_colors_esql() -> None:
+    """Test ESQL datatable metric column with range color stops compiles correctly."""
+    config = {
+        'type': 'datatable',
+        'metrics': [
+            {
+                'field': 'avg(cpu_usage)',
+                'id': 'cpu-metric',
+            }
+        ],
+        'metric_columns': [
+            {
+                'column_id': 'cpu-metric',
+                'color_mode': 'cell',
+                'color': {
+                    'range_type': 'percent',
+                    'range_min': 0,
+                    'range_max': 100,
+                    'continuity': 'above',
+                    'stops': [
+                        {'stop': 50, 'color': '#00BF6F'},
+                        {'stop': 80, 'color': '#FFA500'},
+                        {'stop': 100, 'color': '#BD271E'},
+                    ],
+                },
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'columns': [
+                {
+                    'colorMode': 'cell',
+                    'columnId': 'cpu-metric',
+                    'isMetric': True,
+                    'isTransposed': False,
+                    'palette': {
+                        'name': 'custom',
+                        'params': {
+                            'colorStops': [
+                                {'color': '#00BF6F', 'stop': 0},
+                                {'color': '#FFA500', 'stop': 50},
+                                {'color': '#BD271E', 'stop': 80},
+                            ],
+                            'continuity': 'above',
+                            'maxSteps': 3,
+                            'name': 'custom',
+                            'progression': 'fixed',
+                            'rangeMax': 100,
+                            'rangeMin': 0,
+                            'rangeType': 'percent',
+                            'reverse': False,
+                            'steps': 3,
+                            'stops': [
+                                {'color': '#00BF6F', 'stop': 50},
+                                {'color': '#FFA500', 'stop': 80},
+                                {'color': '#BD271E', 'stop': 100.0},
+                            ],
+                        },
+                        'type': 'palette',
+                    },
+                }
+            ],
+            'layerId': IsUUID,
+            'layerType': 'data',
+        }
+    )
+
+
+def test_compile_datatable_chart_with_range_colors_lens() -> None:
+    """Test Lens datatable metric column with range color stops compiles correctly."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'system.cpu.total.pct',
+                'id': 'cpu-metric',
+                'aggregation': 'average',
+            }
+        ],
+        'metric_columns': [
+            {
+                'column_id': 'cpu-metric',
+                'color_mode': 'text',
+                'color': {
+                    'range_type': 'number',
+                    'range_min': 0,
+                    'continuity': 'all',
+                    'stops': [
+                        {'stop': 0.5, 'color': '#00BF6F'},
+                        {'stop': 0.8, 'color': '#FFA500'},
+                        {'stop': 1.0, 'color': '#BD271E'},
+                    ],
+                },
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+
+    # Verify the palette is included in the column state
+    column = result['columns'][0]
+    assert column['colorMode'] == 'text'
+    assert column['palette'] is not None
+    assert column['palette']['name'] == 'custom'
+    assert column['palette']['params']['rangeType'] == 'number'
+    assert len(column['palette']['params']['stops']) == 3
+
+
+def test_compile_datatable_chart_without_color_omits_palette() -> None:
+    """Test that palette is omitted when no color config is provided."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'system.cpu.total.pct',
+                'id': 'cpu-metric',
+                'aggregation': 'average',
+            }
+        ],
+        'metric_columns': [
+            {
+                'column_id': 'cpu-metric',
+                'color_mode': 'cell',
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+
+    # Verify palette is not in the output when color is not configured
+    column = result['columns'][0]
+    assert column['colorMode'] == 'cell'
+    assert 'palette' not in column
+
+
 def test_datatable_chart_dashboard_references_bubble_up() -> None:
     """Test that datatable chart data view references bubble up to dashboard level correctly.
 

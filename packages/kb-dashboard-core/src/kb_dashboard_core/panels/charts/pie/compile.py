@@ -1,5 +1,8 @@
 """Compile Lens pie visualizations into their Kibana view models."""
 
+from dataclasses import dataclass
+from typing import Literal
+
 from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -11,13 +14,104 @@ from kb_dashboard_core.panels.charts.lens.dimensions.compile import (
     compile_lens_dimensions,
 )
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
-from kb_dashboard_core.panels.charts.pie.config import ESQLPieChart, LensPieChart
+from kb_dashboard_core.panels.charts.pie.config import ESQLPieChart, LensPieChart, PieLegend, PieTitlesAndText
 from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
 from kb_dashboard_core.shared.compile import split_dimensions
 from kb_dashboard_core.shared.defaults import default_false
+
+DONUT_SIZE_RATIOS: dict[str, float] = {'small': 0.3, 'medium': 0.5, 'large': 0.7}
+
+
+@dataclass
+class LegendOptions:
+    """Compiled legend options for pie chart visualization."""
+
+    display: str
+    """Legend display mode ('default', 'show', 'hide')."""
+
+    position: str | None
+    """Legend position ('top', 'right', 'bottom', 'left')."""
+
+    size: str | None
+    """Legend size/width."""
+
+    truncate: bool | None
+    """Whether to truncate legend labels."""
+
+    max_lines: int | None
+    """Maximum number of lines for legend labels."""
+
+    nested: bool | None
+    """Whether to nest legend entries."""
+
+    show_single_series: bool | None
+    """Whether to show legend for single series."""
+
+
+def _compile_number_display(titles_and_text: PieTitlesAndText | None) -> str:
+    """Compile number display setting from YAML config to Kibana format."""
+    if titles_and_text is None or titles_and_text.slice_values is None:
+        return 'percent'
+    slice_values = titles_and_text.slice_values
+    if slice_values == 'integer':
+        return 'value'
+    if slice_values == 'hide':
+        return 'hidden'
+    return slice_values
+
+
+def _compile_category_display(titles_and_text: PieTitlesAndText | None) -> str:
+    """Compile category display setting from YAML config to Kibana format."""
+    if titles_and_text is None or titles_and_text.slice_labels is None:
+        return 'default'
+    return 'default' if titles_and_text.slice_labels == 'auto' else titles_and_text.slice_labels
+
+
+def _compile_legend_options(legend: PieLegend | None) -> LegendOptions:
+    """Compile legend options from YAML config to Kibana format.
+
+    Args:
+        legend: The legend configuration from YAML.
+
+    Returns:
+        LegendOptions with compiled legend settings.
+
+    """
+    if legend is None:
+        return LegendOptions(
+            display='default',
+            position=None,
+            size=None,
+            truncate=None,
+            max_lines=None,
+            nested=None,
+            show_single_series=None,
+        )
+
+    legend_display = 'default'
+    if legend.visible is not None:
+        legend_display = 'default' if legend.visible == 'auto' else legend.visible
+
+    truncate_legend = None
+    legend_max_lines = None
+    if isinstance(legend.truncate_labels, int):
+        if legend.truncate_labels == 0:
+            truncate_legend = False
+        else:
+            legend_max_lines = legend.truncate_labels
+
+    return LegendOptions(
+        display=legend_display,
+        position=legend.position,
+        size=legend.width,
+        truncate=truncate_legend,
+        max_lines=legend_max_lines,
+        nested=legend.nested,
+        show_single_series=legend.show_single_series,
+    )
 
 
 def compile_pie_chart_visualization_state(  # noqa: PLR0913
@@ -43,49 +137,28 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         tuple[str, KbnPieVisualizationState]: The layer ID and the compiled visualization state.
 
     """
-    shape = 'pie'
-    if chart.appearance and chart.appearance.donut:
+    shape: Literal['pie', 'donut'] = 'pie'
+    empty_size_ratio: float | None = None
+
+    if chart.appearance is not None and chart.appearance.donut is not None:
         shape = 'donut'
+        donut_size = chart.appearance.donut
+        ratio = DONUT_SIZE_RATIOS.get(donut_size)
+        if ratio is None:
+            msg = f"Unsupported donut size: '{donut_size}'. Supported values: {list(DONUT_SIZE_RATIOS.keys())}"
+            raise ValueError(msg)
+        empty_size_ratio = ratio
 
-    number_display = 'percent'
-    if chart.titles_and_text and chart.titles_and_text.slice_values:
-        number_display = chart.titles_and_text.slice_values
+    number_display = _compile_number_display(chart.titles_and_text)
+    category_display = _compile_category_display(chart.titles_and_text)
 
-        if chart.titles_and_text.slice_values == 'integer':
-            number_display = 'value'
-
-    category_display = 'default'
-    if chart.titles_and_text and chart.titles_and_text.slice_labels:
-        category_display = chart.titles_and_text.slice_labels
-
-    legend_display = 'default'
-    if chart.legend and chart.legend.visible:
-        legend_display = chart.legend.visible
-
-    legend_size = None
-    if chart.legend and chart.legend.width:
-        legend_size = chart.legend.width
-
-    truncate_legend = None
-    legend_max_lines = None
-    if chart.legend and isinstance(chart.legend.truncate_labels, int):
-        if chart.legend.truncate_labels == 0:
-            truncate_legend = False
-        else:
-            legend_max_lines = chart.legend.truncate_labels
-
-    nested_legend = None
-    if chart.legend and chart.legend.nested is not None:
-        nested_legend = chart.legend.nested
-
-    show_single_series = None
-    if chart.legend and chart.legend.show_single_series is not None:
-        show_single_series = chart.legend.show_single_series
+    legend_options = _compile_legend_options(chart.legend)
 
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
-    empty_size_ratio = 0.0 if len(metric_ids) > 1 else None
+    if len(metric_ids) > 1 and empty_size_ratio is None:
+        empty_size_ratio = 0.0
 
     percent_decimals = None
     if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
@@ -100,15 +173,16 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         collapseFns=collapse_fns if collapse_fns else None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
-        legendDisplay=legend_display,
-        nestedLegend=default_false(nested_legend),
+        legendDisplay=legend_options.display,
+        legendPosition=legend_options.position,
+        nestedLegend=default_false(legend_options.nested),
         layerType='data',
         colorMapping=kbn_color_mapping,
         emptySizeRatio=empty_size_ratio,
-        legendSize=legend_size,
-        truncateLegend=False if truncate_legend is False else None,
-        legendMaxLines=legend_max_lines,
-        showSingleSeries=show_single_series,
+        legendSize=legend_options.size,
+        truncateLegend=False if legend_options.truncate is False else None,
+        legendMaxLines=legend_options.max_lines,
+        showSingleSeries=legend_options.show_single_series,
         percentDecimals=percent_decimals,
     )
 

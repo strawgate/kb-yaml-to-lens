@@ -261,7 +261,7 @@ dashboards:
 
 ## Legend Configuration
 
-For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../advanced/legend-configuration.md).
+For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../guides/legend-configuration.md).
 
 ::: kb_dashboard_core.panels.charts.xy.config.XYLegend
     options:

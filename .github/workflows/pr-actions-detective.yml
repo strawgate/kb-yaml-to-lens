@@ -1,15 +1,16 @@
+---
 name: PR Actions Detective
 on:
   workflow_run:
-    workflows: ["Checks"]
-    types: [completed]
-
+    workflows:
+      - Checks
+    types:
+      - completed
 permissions:
   actions: read
   contents: read
   issues: write
   pull-requests: write
-
 jobs:
   gate:
     if: >-
@@ -30,9 +31,8 @@ jobs:
               pull_number: prNumber,
             });
             const enabled = !(pr.data.labels || []).some((label) => label.name === "no-pr-actions-detective");
-            core.info(`PR #${prNumber} no-pr-actions-detective absent (enabled): ${enabled}`);
+            core.info(`PR  #${prNumber} no-pr-actions-detective absent (enabled): ${enabled}`);
             core.setOutput("enabled", enabled ? "true" : "false");
-
   run:
     needs: gate
     if: needs.gate.outputs.enabled == 'true'

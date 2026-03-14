@@ -15,6 +15,52 @@ log = logging.getLogger('mkdocs.plugins.llms_txt')
 # State to collect navigation order
 _nav_order: list[str] = []
 _LLMS_FULL_EXCLUDE_PREFIXES: tuple[str, ...] = ('api/',)
+_LLMS_FULL_EXCLUDE_FILES: tuple[str, ...] = ('vscode-extension.md', 'programmatic-usage.md')
+_LLMS_TXT_EXCLUDE_FILES: tuple[str, ...] = ('examples/index.md', 'programmatic-usage.md')
+_DEFAULT_LLMS_FULL_NAV: tuple[str, ...] = (
+    'index.md',
+    'CLI.md',
+    'examples/index.md',
+    'dashboard/dashboard.md',
+    'panels/base.md',
+    'panels/auto-layout.md',
+    'panels/drilldowns.md',
+    'panels/links.md',
+    'panels/markdown.md',
+    'panels/section.md',
+    'panels/lens.md',
+    'panels/esql.md',
+    'panels/datatable.md',
+    'panels/gauge.md',
+    'panels/heatmap.md',
+    'panels/metric.md',
+    'panels/mosaic.md',
+    'panels/pie.md',
+    'panels/tagcloud.md',
+    'panels/xy.md',
+    'panels/image.md',
+    'panels/search.md',
+    'controls/config.md',
+    'filters/config.md',
+    'queries/config.md',
+    'guides/index.md',
+    'guides/dashboard-decompiling-guide.md',
+    'guides/dashboard-style-guide.md',
+    'guides/esql-language-reference.md',
+    'guides/otel-dashboard-guide.md',
+    'guides/color-assignments.md',
+    'guides/legend-configuration.md',
+    'guides/esql-views.md',
+)
+_GUIDE_PATH_TO_NAME: dict[str, str] = {
+    'guides/color-assignments.md': 'color-assignments',
+    'guides/esql-views.md': 'esql-views',
+    'guides/legend-configuration.md': 'legend-configuration',
+    'guides/esql-language-reference.md': 'esql-language-reference',
+    'guides/otel-dashboard-guide.md': 'otel-dashboard-guide',
+    'guides/dashboard-decompiling-guide.md': 'dashboard-decompiling-guide',
+    'guides/dashboard-style-guide.md': 'dashboard-style-guide',
+}
 
 
 def write_file(path: Path, content: str) -> None:
@@ -59,14 +105,18 @@ def _render_nav_links(
     """Render MkDocs nav structure as nested markdown links."""
     indent = '  ' * depth
     if isinstance(nav_item, str):
+        if nav_item in _LLMS_TXT_EXCLUDE_FILES:
+            return
         title = Path(nav_item).stem.replace('-', ' ').replace('_', ' ').title()
-        lines.append(f"{indent}- [{title}]({site_url}/{_normalize_doc_path(nav_item)})")
+        lines.append(f'{indent}- [{title}]({site_url}/{_normalize_doc_path(nav_item)})')
         return
 
     if isinstance(nav_item, dict):
         for title, child in nav_item.items():
             if isinstance(child, str):
-                lines.append(f"{indent}- [{title}]({site_url}/{_normalize_doc_path(child)})")
+                if child in _LLMS_TXT_EXCLUDE_FILES:
+                    continue
+                lines.append(f'{indent}- [{title}]({site_url}/{_normalize_doc_path(child)})')
             else:
                 lines.append(f'{indent}- **{title}**')
                 _render_nav_links(child, site_url, lines, depth + 1)
@@ -75,6 +125,26 @@ def _render_nav_links(
     if isinstance(nav_item, list):
         for child in nav_item:
             _render_nav_links(child, site_url, lines, depth)
+
+
+def _render_guide_reference(file_path: str) -> str:
+    """Render llms-full placeholder text for guide content."""
+    guide_name = _GUIDE_PATH_TO_NAME[file_path]
+    return (
+        'Guide content is available via the CLI and intentionally excluded from llms-full.txt.\n\n'
+        'Use:\n'
+        '- `kb-dashboard docs list-guides`\n'
+        f'- `kb-dashboard docs guide {guide_name}`'
+    )
+
+
+def _get_llms_full_nav(config: MkDocsConfig) -> list[str]:
+    """Return llms-full page order from mkdocs extra.llms_nav or fallback default."""
+    extra: dict[str, Any] = config.extra or {}  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    llms_nav = extra.get('llms_nav')
+    if isinstance(llms_nav, list) and all(isinstance(item, str) for item in llms_nav):
+        return list(llms_nav)
+    return list(_DEFAULT_LLMS_FULL_NAV)
 
 
 def on_files(files: Files, config: MkDocsConfig) -> Files:
@@ -129,11 +199,11 @@ def on_files(files: Files, config: MkDocsConfig) -> Files:
 
 
 _DIRECTIVE_BLOCK_RE = re.compile(r'(?ms)^:::\s+([A-Za-z_][\w\.-]*)\s*\n((?:^[ ]{4}.*\n?)*)')
-_LLMS_EXCLUDE_BLOCK_RE = re.compile(
-    r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?'
-)
+_LLMS_EXCLUDE_BLOCK_RE = re.compile(r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?')
 _LLMS_EXCLUDE_INLINE_RE = re.compile(r'(?m)^.*<!--\s*llms:exclude\s*-->.*(?:\n|$)')
 _POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$)')
+_HTML_COMMENT_RE = re.compile(r'(?ms)<!--.*?-->')
+_MKDOCS_INCLUDE_DIRECTIVE_RE = re.compile(r'(?m)^\s*--8<--\s+["\'][^"\']+["\']\s*$\n?')
 
 
 def _format_annotation(annotation: Any) -> str:
@@ -150,16 +220,17 @@ def _resolve_python_object(fully_qualified_name: str) -> Any | None:
         module_name = '.'.join(parts[:idx])
         try:
             module = importlib.import_module(module_name)
-        except Exception:
+        except ModuleNotFoundError:
             continue
 
         obj: Any = module
         try:
             for attr in parts[idx:]:
                 obj = getattr(obj, attr)
-            return obj
-        except Exception:
+        except (AttributeError, TypeError):
             return None
+        else:
+            return obj
     return None
 
 
@@ -189,7 +260,7 @@ def _render_reference_block(fully_qualified_name: str) -> str | None:
                 annotation = _format_annotation(getattr(field, 'annotation', inspect._empty))
                 description = getattr(field, 'description', None) or ''
                 suffix = f': {description}' if description else ''
-                lines.append(f"- `{field_name}` (`{annotation}`){suffix}")
+                lines.append(f'- `{field_name}` (`{annotation}`){suffix}')
             lines.append('')
     elif inspect.isfunction(obj) or inspect.ismethod(obj):
         signature = str(inspect.signature(obj))
@@ -218,14 +289,18 @@ def _expand_mkdocstrings_references(markdown: str) -> str:
 def _strip_llms_excluded_blocks(markdown: str) -> str:
     """Remove explicit llms exclusion blocks/comments from markdown."""
     markdown = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
-    markdown = _LLMS_EXCLUDE_INLINE_RE.sub('', markdown)
-    return markdown
+    return _LLMS_EXCLUDE_INLINE_RE.sub('', markdown)
 
 
 def _strip_known_low_value_sections(markdown: str) -> str:
     """Remove sections that are useful for humans but noisy for llms-full."""
-    markdown = _POEM_SECTION_RE.sub('', markdown)
-    return markdown
+    return _POEM_SECTION_RE.sub('', markdown)
+
+
+def _strip_nonportable_markdown(markdown: str) -> str:
+    """Remove markdown constructs that don't render in plain text contexts."""
+    markdown = _HTML_COMMENT_RE.sub('', markdown)
+    return _MKDOCS_INCLUDE_DIRECTIVE_RE.sub('', markdown)
 
 
 def on_post_build(config: MkDocsConfig) -> None:
@@ -245,10 +320,20 @@ def on_post_build(config: MkDocsConfig) -> None:
         output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
         output.append('---\n\n')
 
-        # Concatenate pages in navigation order
+        llms_full_nav = _get_llms_full_nav(config)
+
+        # Concatenate pages in llms-specific navigation order
         pages_included = 0
-        for file_path in _nav_order:
+        for file_path in llms_full_nav:
             if file_path.startswith(_LLMS_FULL_EXCLUDE_PREFIXES):
+                continue
+            if file_path in _LLMS_FULL_EXCLUDE_FILES:
+                continue
+
+            if file_path in _GUIDE_PATH_TO_NAME:
+                output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
+                output.append(_render_guide_reference(file_path))
+                pages_included += 1
                 continue
 
             source_file = docs_dir / file_path
@@ -259,6 +344,7 @@ def on_post_build(config: MkDocsConfig) -> None:
             markdown_content = source_file.read_text(encoding='utf-8')
             markdown_content = _strip_llms_excluded_blocks(markdown_content)
             markdown_content = _strip_known_low_value_sections(markdown_content)
+            markdown_content = _strip_nonportable_markdown(markdown_content)
             markdown_content = _expand_mkdocstrings_references(markdown_content)
 
             # Add file separator and content
@@ -305,7 +391,7 @@ def generate_llms_txt_content(config: MkDocsConfig) -> str:
             '',
             '## Additional References',
             '',
-            '- [llms-full.txt]({}/llms-full.txt): Complete docs corpus for LLM context'.format(site_url),
+            f'- [llms-full.txt]({site_url}/llms-full.txt): Complete docs corpus for LLM context',
             '- [Compiler Architecture](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md)',
             '- [Release Process](https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md)',
             '',

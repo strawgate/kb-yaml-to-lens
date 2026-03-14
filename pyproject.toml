@@ -87,6 +87,7 @@ ignore = [
 "packages/kb-dashboard-core/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-lint/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-tools/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
+"packages/kb-dashboard-docs/**/__init__.py" = ["F401"]    # Ignore unused imports in __init__.py files
 "packages/kb-dashboard-cli/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
@@ -104,6 +105,11 @@ ignore = [
     "F401", # Allow side-effect imports for rule registration
 ]
 "packages/kb-dashboard-tools/tests/**/*.py" = [
+    "S101", # Allow assert usage in tests
+    "PLR2004", # Allow magic values in test assertions
+    "INP001", # Tests are not meant to be imported as packages
+]
+"packages/kb-dashboard-docs/tests/**/*.py" = [
     "S101", # Allow assert usage in tests
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
@@ -145,7 +151,7 @@ quote-style = "single"
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["dashboard_compiler", "kb_dashboard_core", "dashboard_lint", "kb_dashboard_tools"]
+known-first-party = ["dashboard_compiler", "kb_dashboard_core", "dashboard_lint", "kb_dashboard_tools", "kb_dashboard_docs"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -296,3 +302,27 @@ reportMissingTypeStubs = false
 # parses source code directly and doesn't support ClassVar annotations
 root = "packages/kb-dashboard-cli/scripts/export_lsp_schemas.py"
 reportUnannotatedClassAttribute = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-docs/src"
+extraPaths = ["packages/kb-dashboard-docs/src"]
+reportIncompatibleVariableOverride = false
+reportMissingTypeStubs = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "packages/kb-dashboard-docs/tests"
+extraPaths = ["packages/kb-dashboard-docs/src"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportAny = false
+reportArgumentType = false
+reportCallIssue = false
+reportMissingImports = false
+reportUninitializedInstanceVariable = false
+reportUnusedCallResult = false
+reportImplicitOverride = false
+reportPrivateUsage = false
+reportUnannotatedClassAttribute = false
+reportUntypedNamedTuple = false

@@ -55,6 +55,9 @@ class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     legendDisplay: str
     """Legend display mode ('default', 'show', 'hide')."""
 
+    legendPosition: Annotated[str | None, OmitIfNone()] = Field(None)
+    """Position of the legend ('top', 'right', 'bottom', 'left'). Defaults to 'right'."""
+
     nestedLegend: bool
     """Whether to show nested legend for multi-level grouping."""
 

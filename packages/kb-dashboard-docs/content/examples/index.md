@@ -56,7 +56,7 @@ Shows how to configure dimensions in Lens visualizations including multiple dime
 
 Demonstrates color customization for charts including custom palettes, manual color assignments, and per-chart configuration.
 
-**Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../advanced/color-assignments.md) guide.
+**Note:** Manual color assignments are an advanced topic. See the [Custom Color Assignments](../guides/color-assignments.md) guide.
 
 <!-- markdownlint-disable MD046 -->
 ??? example "Dashboard Definition (color-palette-examples.yaml)"

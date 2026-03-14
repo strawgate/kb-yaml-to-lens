@@ -360,6 +360,8 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
             params=KbnLensMetricFormatParams(
                 decimals=decimals,
                 pattern=metric_format.pattern,
+                suffix=metric_format.suffix,
+                compact=metric_format.compact,
             ),
         )
 
