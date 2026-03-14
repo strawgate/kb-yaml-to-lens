@@ -40,9 +40,6 @@ class KbnWaffleStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     primaryGroups: list[str]
     """List of field accessor IDs for the primary grouping dimension."""
 
-    secondaryGroups: Annotated[list[str] | None, OmitIfNone()] = Field(None)
-    """List of field accessor IDs for the secondary grouping (breakdown) dimension."""
-
     metrics: list[str]
     """List of field accessor IDs for metrics to display (square sizes)."""
 

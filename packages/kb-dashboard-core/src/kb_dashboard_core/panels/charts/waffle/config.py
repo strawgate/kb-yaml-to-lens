@@ -73,7 +73,7 @@ class LensWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     where each square represents a proportion of the whole.
-    Waffle charts support exactly one metric, one dimension, and an optional breakdown.
+    Waffle charts support exactly one metric and one dimension.
 
     Examples:
         Simple waffle chart showing request distribution:
@@ -83,21 +83,6 @@ class LensWaffleChart(BaseWaffleChart):
           data_view: "logs-*"
           dimension:
             field: "http.request.method"
-            type: values
-          metric:
-            aggregation: count
-        ```
-
-        Waffle chart with breakdown:
-        ```yaml
-        lens:
-          type: waffle
-          data_view: "logs-*"
-          dimension:
-            field: "http.request.method"
-            type: values
-          breakdown:
-            field: "service.name"
             type: values
           metric:
             aggregation: count
@@ -147,16 +132,13 @@ class LensWaffleChart(BaseWaffleChart):
     dimension: LensDimensionTypes = Field(default=...)
     """Primary dimension for grouping data. Waffle charts support only one dimension."""
 
-    breakdown: LensDimensionTypes | None = Field(default=None)
-    """Optional secondary dimension for breaking down the waffle into sub-groups."""
-
 
 class ESQLWaffleChart(BaseWaffleChart):
     """Represents a Waffle chart configuration within an ES|QL panel.
 
     Waffle charts visualize categorical data as a grid of colored squares,
     using ES|QL queries to aggregate and group the data.
-    Waffle charts support exactly one metric, one dimension, and an optional breakdown.
+    Waffle charts support exactly one metric and one dimension.
 
     Examples:
         ES|QL waffle chart with STATS query:
@@ -172,20 +154,6 @@ class ESQLWaffleChart(BaseWaffleChart):
             field: "http.request.method"
         ```
 
-        ES|QL waffle chart with breakdown:
-        ```yaml
-        esql:
-          type: waffle
-          query: |
-            FROM logs-*
-            | STATS count = COUNT(*) BY http.request.method, service.name
-          metric:
-            field: "count"
-          dimension:
-            field: "http.request.method"
-          breakdown:
-            field: "service.name"
-        ```
     """
 
     metric: ESQLMetricTypes = Field(default=...)
@@ -193,6 +161,3 @@ class ESQLWaffleChart(BaseWaffleChart):
 
     dimension: ESQLDimensionTypes = Field(default=...)
     """Primary dimension for grouping data. Waffle charts support only one dimension."""
-
-    breakdown: ESQLDimensionTypes | None = Field(default=None)
-    """Optional secondary dimension for breaking down the waffle into sub-groups."""
