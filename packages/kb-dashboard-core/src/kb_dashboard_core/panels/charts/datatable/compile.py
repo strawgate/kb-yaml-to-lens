@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
 if TYPE_CHECKING:
@@ -122,9 +123,11 @@ def _build_datatable_column_states(
 
         summary_row = None
         summary_label = None
+        palette = None
         if is_metric and isinstance(user_config, DatatableMetricColumnConfig):
             summary_row = user_config.summary_row
             summary_label = user_config.summary_label
+            palette = compile_color_range_mapping(user_config.color)
 
         column_state = KbnDatatableColumnState(
             columnId=column_id,
@@ -137,6 +140,7 @@ def _build_datatable_column_states(
             colorMode=user_config.color_mode if user_config is not None else None,
             summaryRow=summary_row,
             summaryLabel=summary_label,
+            palette=palette,
         )
         column_states.append(column_state)
 
