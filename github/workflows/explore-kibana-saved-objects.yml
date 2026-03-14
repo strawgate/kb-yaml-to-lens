@@ -1,0 +1,135 @@
+---
+name: 'Explore: Kibana Saved Objects from Spec'
+on:
+  issue_comment:
+    types:
+      - created
+permissions:
+  actions: read
+  contents: read
+  discussions: write
+  issues: write
+  pull-requests: write
+  id-token: write
+concurrency:
+  group: explore-kibana-saved-objects-${{ github.event.issue.number }}
+  cancel-in-progress: false
+jobs:
+  run:
+    if: startsWith(github.event.comment.body, '/explore') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-kibana-saved-objects]'
+      setup-commands: |
+        npx playwright install chromium
+        if command -v just >/dev/null 2>&1; then
+          just explore-bootstrap 9.3.0
+        else
+          bash scripts/bootstrap-explore-kibana.sh 9.3.0
+        fi
+      additional-instructions: |
+        You are running an exploration+implementation workflow for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST — it
+        contains validated step-by-step Playwright instructions for the Kibana Lens UI.
+
+        ## Goal
+        Implement support for a chart configuration by first generating a real Kibana saved object from UI configuration, then mapping that artifact into compiler/config/view code and tests.
+
+        ## Mode detection
+        - Trigger comment: `${{ github.event.comment.body }}`
+        - Issue number: `${{ github.event.issue.number }}`
+        - PR URL (present only for PR comments): `${{ github.event.issue.pull_request.url }}`
+        - If PR URL is present, run in **PR validation mode**.
+        - Otherwise, run in **feature exploration mode**.
+
+        ## Input
+        - Treat text after `/explore` as the detailed specification.
+        - If the comment is only `/explore`, infer a reasonable narrow spec from issue/PR context and state your assumption.
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Seeded indices: `logs-default-generic`, `metrics-default-generic`
+        - Data views: `logs-*`, `metrics-*`
+
+        ## Playwright automation rules
+        - ALWAYS use `browser_snapshot` (not screenshots) to get element refs for clicking.
+        - Element refs are invalidated after every interaction — re-snapshot before each click.
+        - Kibana comboboxes are NOT `<select>` elements. Use `browser_type` to search, then
+          `browser_snapshot` + `browser_click` on the matching option.
+        - After navigating, always `browser_wait_for` with `textGone: "Loading Elastic"`.
+        - Elasticsearch and Kibana are pre-provisioned for this workflow run.
+        - Do NOT run bootstrap scripts (`just explore-bootstrap`, `scripts/bootstrap-explore-kibana.sh`,
+          Docker compose, or equivalent) from the agent task.
+        - See `.github/agent-guides/kibana-lens-playwright.md` for the full reference.
+        - **Document each major step** you take in your GitHub comment using collapsible `<details>`
+          sections for detailed logs. This creates an audit trail and helps debug issues.
+
+        ## Required workflow
+        **Documentation requirement**: As you execute each step below, document your actions
+        in real-time using collapsible `<details>` sections in your final GitHub comment. Include:
+        - Commands executed
+        - Key observations and decisions
+        - Errors encountered and resolutions
+        - Artifacts created
+        1. Read `.github/agent-guides/kibana-lens-playwright.md` for detailed Playwright steps.
+        2. If running in PR validation mode:
+           - Read the PR title/body and extract the claimed bug fix / feature scope.
+           - Check out and use the PR head branch for all compile/validation steps.
+           - Build a focused validation matrix that covers the claim + key edge cases.
+           - Author YAML examples that exercise the claimed behavior and compile them.
+           - Import compiled objects into Kibana and verify editor controls match expectations.
+           - Manually recreate equivalent panels in Kibana using the same behavior.
+           - Export both generated and manual saved objects and compare normalized payloads.
+           - Report whether the PR claim is truly implemented, partially implemented, or incorrect.
+        3. If running in feature exploration mode:
+           - Use Playwright (Chromium) to automate Kibana and create the target visualization.
+           - If no data view exists for the target index, create one (see guide).
+        4. Export saved objects via Kibana API and save artifacts:
+           ```bash
+           mkdir -p artifacts/kibana-saved-objects
+           curl -fsS -X POST "http://localhost:5601/api/saved_objects/_export" \
+             -H "kbn-xsrf: true" -H "Content-Type: application/json" \
+             -d '{"objects":[{"type":"lens","id":"<ID>"}],"includeReferencesDeep":true}' \
+             -o "artifacts/kibana-saved-objects/<name>.ndjson"
+           ```
+        5. Implement compiler support in this repo using existing patterns (feature exploration mode only).
+        6. Add/update tests for config -> compiled Lens output mapping.
+        7. Run targeted validation for touched files and tests.
+        8. Add/update docs/examples if user-facing behavior changed.
+
+        ## Deliverables
+        You cannot create a pull request or push code to a branch. Your only deliverable is a comment on the issue.
+
+        ### Output Structure
+        Your comment MUST include these sections in order:
+        1. **Summary** - Brief overview of what was explored and key findings
+        2. **Execution Log** - Collapsible section documenting each major step with this format:
+           ```markdown
+           <details>
+           <summary>Execution steps</summary>
+
+           ### Step 1: [Description]
+           - **Commands**: `[command]`
+           - **Observations**: [what you found]
+           - **Artifacts**: [files created]
+           - **Issues**: [any problems and how you resolved them]
+
+           ### Step 2: [Description]
+           ...
+           </details>
+           ```
+        3. **Implementation Plan** (feature exploration mode) - Detailed plan with code + tests
+        4. **Artifacts** - Saved object JSON in code blocks
+        5. **Mapping Analysis** - Clear summary: spec → saved object fields → compiler fields
+        In PR validation mode, follow the same structure above and additionally include:
+        - **PR Claim Checklist** - Pass/fail per claim with supporting evidence
+        - **YAML Reproductions** - Test cases used for validation (in code blocks)
+        - **Diff Summary** - Compiler output vs manual Kibana output comparison
+        - **Validation Log** - Collapsible section documenting each validation scenario tested
+        - **Verdict** - Explicit conclusion on whether the PR fully satisfies its stated goal
+
+        ## Guardrails
+        - Be surgical; avoid broad refactors.
+        - Follow existing naming/style conventions.
+        - If blocked, report exact blocker and reproduction steps.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
