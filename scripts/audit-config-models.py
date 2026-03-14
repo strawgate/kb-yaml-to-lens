@@ -15,9 +15,8 @@ from __future__ import annotations
 import ast
 import sys
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 # Canonical settings from kb_dashboard_core.shared.model.BaseModel
 CANONICAL_SETTINGS: dict[str, object] = {
