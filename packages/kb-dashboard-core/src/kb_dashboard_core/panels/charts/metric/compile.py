@@ -32,7 +32,7 @@ def compile_metric_chart_visualization_state(
     primary_metric_id: str,
     secondary_metric_id: str | None,
     breakdown_dimension_id: str | None,
-    color_mode: Literal['none', 'labels', 'background'] | None,
+    color_mode: Literal['value', 'background'],
 ) -> KbnMetricVisualizationState:
     """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state.
 
@@ -41,7 +41,7 @@ def compile_metric_chart_visualization_state(
         primary_metric_id (str): The ID of the primary metric.
         secondary_metric_id (str | None): The ID of the secondary metric.
         breakdown_dimension_id (str | None): The ID of the breakdown dimension.
-        color_mode (Literal['none', 'labels', 'background'] | None): The metric color mode in Kibana.
+        color_mode (Literal['value', 'background']): Where Kibana applies metric color styling.
 
     Returns:
         KbnMetricVisualizationState: The compiled visualization state.
@@ -54,7 +54,7 @@ def compile_metric_chart_visualization_state(
         secondaryLabelPosition='before',
         secondaryMetricAccessor=secondary_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
-        colorMode=color_mode,
+        applyColorTo=color_mode,
     )
 
 
@@ -168,6 +168,6 @@ def compile_esql_metric_chart(
             showBar=False,
             secondaryMetricAccessor=secondary_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
-            colorMode=esql_metric_chart.color_mode,
+            applyColorTo=esql_metric_chart.color_mode,
         ),
     )
