@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
@@ -29,19 +29,21 @@ from kb_dashboard_core.panels.charts.metric.view import (
 def compile_metric_chart_visualization_state(
     *,
     layer_id: str,
+    chart: LensMetricChart,
     primary_metric_id: str,
     secondary_metric_id: str | None,
+    max_metric_id: str | None,
     breakdown_dimension_id: str | None,
-    color_mode: Literal['none', 'labels', 'background'] | None,
 ) -> KbnMetricVisualizationState:
     """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state.
 
     Args:
         layer_id (str): The ID of the layer.
+        chart (LensMetricChart): The source chart configuration.
         primary_metric_id (str): The ID of the primary metric.
         secondary_metric_id (str | None): The ID of the secondary metric.
+        max_metric_id (str | None): The ID of the maximum metric.
         breakdown_dimension_id (str | None): The ID of the breakdown dimension.
-        color_mode (Literal['none', 'labels', 'background'] | None): The metric color mode in Kibana.
 
     Returns:
         KbnMetricVisualizationState: The compiled visualization state.
@@ -53,8 +55,22 @@ def compile_metric_chart_visualization_state(
         secondaryTrend=KbnSecondaryTrendNone(),
         secondaryLabelPosition='before',
         secondaryMetricAccessor=secondary_metric_id,
+        maxAccessor=max_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
-        colorMode=color_mode,
+        colorMode=chart.color_mode,
+        subtitle=chart.subtitle,
+        secondaryLabel=chart.secondary_label,
+        icon=chart.icon,
+        maxCols=chart.max_cols,
+        showBar=chart.show_bar,
+        progressDirection=chart.progress_direction,
+        titlesTextAlign=chart.titles_text_align,
+        valueFontMode=chart.value_font_mode,
+        iconAlign=chart.icon_align,
+        primaryAlign=chart.primary_align,
+        secondaryAlign=chart.secondary_align,
+        titleWeight=chart.title_weight,
+        primaryPosition=chart.primary_position,
     )
 
 
@@ -75,6 +91,7 @@ def compile_lens_metric_chart(
     """
     primary_metric_id: str
     secondary_metric_id: str | None = None
+    max_metric_id: str | None = None
     breakdown_dimension_id: str | None = None
 
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
@@ -91,6 +108,13 @@ def compile_lens_metric_chart(
         secondary_metric = secondary_result.primary_column
         kbn_metric_columns_by_id[secondary_metric_id] = secondary_metric
         kbn_metric_columns_by_id.update(secondary_result.helper_columns)
+
+    if lens_metric_chart.maximum is not None:
+        max_result = compile_lens_metric(lens_metric_chart.maximum)
+        max_metric_id = max_result.primary_id
+        max_metric = max_result.primary_column
+        kbn_metric_columns_by_id[max_metric_id] = max_metric
+        kbn_metric_columns_by_id.update(max_result.helper_columns)
 
     # Initialize kbn_columns_by_id as empty dict
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
@@ -112,10 +136,11 @@ def compile_lens_metric_chart(
         kbn_columns_by_id,
         compile_metric_chart_visualization_state(
             layer_id=layer_id,
+            chart=lens_metric_chart,
             primary_metric_id=primary_metric_id,
             secondary_metric_id=secondary_metric_id,
+            max_metric_id=max_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
-            color_mode=lens_metric_chart.color_mode,
         ),
     )
 
@@ -149,6 +174,14 @@ def compile_esql_metric_chart(
         secondary_metric_id = secondary_metric.columnId
         kbn_columns.append(secondary_metric)
 
+    max_metric: KbnESQLMetricColumnTypes | None = None
+    max_metric_id: str | None = None
+
+    if esql_metric_chart.maximum is not None:
+        max_metric = compile_esql_metric(esql_metric_chart.maximum)
+        max_metric_id = max_metric.columnId
+        kbn_columns.append(max_metric)
+
     breakdown_dimension: KbnESQLFieldDimensionColumn | None = None
     breakdown_dimension_id: str | None = None
 
@@ -165,9 +198,22 @@ def compile_esql_metric_chart(
         KbnESQLMetricVisualizationState(
             layerId=layer_id,
             metricAccessor=primary_metric_id,
-            showBar=False,
+            showBar=esql_metric_chart.show_bar if esql_metric_chart.show_bar is not None else False,
             secondaryMetricAccessor=secondary_metric_id,
+            maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
             colorMode=esql_metric_chart.color_mode,
+            subtitle=esql_metric_chart.subtitle,
+            secondaryLabel=esql_metric_chart.secondary_label,
+            icon=esql_metric_chart.icon,
+            maxCols=esql_metric_chart.max_cols,
+            progressDirection=esql_metric_chart.progress_direction,
+            titlesTextAlign=esql_metric_chart.titles_text_align,
+            valueFontMode=esql_metric_chart.value_font_mode,
+            iconAlign=esql_metric_chart.icon_align,
+            primaryAlign=esql_metric_chart.primary_align,
+            secondaryAlign=esql_metric_chart.secondary_align,
+            titleWeight=esql_metric_chart.title_weight,
+            primaryPosition=esql_metric_chart.primary_position,
         ),
     )

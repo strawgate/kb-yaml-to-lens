@@ -62,6 +62,45 @@ class LensMetricChart(BaseChart):
     color_mode: Literal['none', 'labels', 'background'] | None = Field(default=None)
     """Color mode for metric value rendering."""
 
+    subtitle: str | None = Field(default=None)
+    """Custom subtitle text displayed below the metric title."""
+
+    secondary_label: str | None = Field(default=None)
+    """Custom label for the secondary metric, overriding its default label."""
+
+    icon: str | None = Field(default=None)
+    """Icon identifier to display alongside the metric value."""
+
+    max_cols: int | None = Field(default=None)
+    """Maximum number of columns when displaying broken-down metric values."""
+
+    show_bar: bool | None = Field(default=None)
+    """Whether to display a progress bar below the metric value."""
+
+    progress_direction: Literal['horizontal', 'vertical'] | None = Field(default=None)
+    """Direction of the progress bar when show_bar is enabled."""
+
+    titles_text_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the metric title and subtitle."""
+
+    value_font_mode: Literal['default', 'fit', 'custom'] | None = Field(default=None)
+    """Font size mode for the primary metric value."""
+
+    icon_align: Literal['left', 'right'] | None = Field(default=None)
+    """Horizontal alignment of the icon relative to the metric value."""
+
+    primary_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the primary metric value."""
+
+    secondary_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the secondary metric value."""
+
+    title_weight: Literal['bold', 'normal', 'lighter'] | None = Field(default=None)
+    """Font weight for the metric title."""
+
+    primary_position: Literal['top', 'bottom'] | None = Field(default=None)
+    """Vertical position of the primary metric value within the panel."""
+
 
 class ESQLMetricChart(BaseChart):
     """Represents a Metric chart configuration within an ESQL panel.
@@ -110,3 +149,42 @@ class ESQLMetricChart(BaseChart):
 
     color_mode: Literal['none', 'labels', 'background'] | None = Field(default=None)
     """Color mode for metric value rendering."""
+
+    subtitle: str | None = Field(default=None)
+    """Custom subtitle text displayed below the metric title."""
+
+    secondary_label: str | None = Field(default=None)
+    """Custom label for the secondary metric, overriding its default label."""
+
+    icon: str | None = Field(default=None)
+    """Icon identifier to display alongside the metric value."""
+
+    max_cols: int | None = Field(default=None)
+    """Maximum number of columns when displaying broken-down metric values."""
+
+    show_bar: bool | None = Field(default=None)
+    """Whether to display a progress bar below the metric value."""
+
+    progress_direction: Literal['horizontal', 'vertical'] | None = Field(default=None)
+    """Direction of the progress bar when show_bar is enabled."""
+
+    titles_text_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the metric title and subtitle."""
+
+    value_font_mode: Literal['default', 'fit', 'custom'] | None = Field(default=None)
+    """Font size mode for the primary metric value."""
+
+    icon_align: Literal['left', 'right'] | None = Field(default=None)
+    """Horizontal alignment of the icon relative to the metric value."""
+
+    primary_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the primary metric value."""
+
+    secondary_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the secondary metric value."""
+
+    title_weight: Literal['bold', 'normal', 'lighter'] | None = Field(default=None)
+    """Font weight for the metric title."""
+
+    primary_position: Literal['top', 'bottom'] | None = Field(default=None)
+    """Vertical position of the primary metric value within the panel."""
