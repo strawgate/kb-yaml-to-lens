@@ -52,7 +52,7 @@ dashboards:
 ```
 
 !!! tip "Advanced: Query Reuse with YAML Anchors"
-    ES|QL queries can also be defined as arrays, enabling reuse patterns with YAML anchors. This lets you define base queries once and extend them across multiple panels. See [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) for detailed patterns and examples.
+    ES|QL queries can also be defined as arrays, enabling reuse patterns with YAML anchors. This lets you define base queries once and extend them across multiple panels. See [ES|QL Query Reuse with YAML Anchors](../guides/esql-views.md) for detailed patterns and examples.
 
 **Minimal ESQL Pie Chart:**
 

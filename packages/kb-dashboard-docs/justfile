@@ -4,8 +4,8 @@
 # Import shared helpers
 import '../../shared.just'
 
-# Repository root (parent of packages directory)
-REPO_ROOT := justfile_directory() / "../.."
+# Repository root (works when invoked directly or via `just docs ...`)
+REPO_ROOT := `git rev-parse --show-toplevel`
 
 # Paths
 DOCS_CONTENT_DIR := justfile_directory() / "content"
@@ -150,20 +150,29 @@ _vendor-docs-copy:
     rm -f "{{RESOURCES_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/guides/"*.md 2>/dev/null || true
     @# Verify required source files exist
     @test -f "{{DOCS_CONTENT_DIR}}/llms-full.txt" || (echo "Error: llms-full.txt not found. Run mkdocs build first." && exit 1)
-    @test -f "{{DOCS_CONTENT_DIR}}/llm-workflows/esql-language-reference.md" || (echo "Error: esql-language-reference.md not found." && exit 1)
-    @test -f "{{DOCS_CONTENT_DIR}}/llm-workflows/otel-dashboard-guide.md" || (echo "Error: otel-dashboard-guide.md not found." && exit 1)
-    @test -f "{{DOCS_CONTENT_DIR}}/dashboard-decompiling-guide.md" || (echo "Error: dashboard-decompiling-guide.md not found." && exit 1)
-    @test -f "{{DOCS_CONTENT_DIR}}/dashboard-style-guide.md" || (echo "Error: dashboard-style-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/esql-language-reference.md" || (echo "Error: esql-language-reference.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/otel-dashboard-guide.md" || (echo "Error: otel-dashboard-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/color-assignments.md" || (echo "Error: color-assignments.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/esql-views.md" || (echo "Error: esql-views.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/legend-configuration.md" || (echo "Error: legend-configuration.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/dashboard-decompiling-guide.md" || (echo "Error: dashboard-decompiling-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/dashboard-style-guide.md" || (echo "Error: dashboard-style-guide.md not found." && exit 1)
     @printf "  Copying llms-full.txt...\n"
     cp "{{DOCS_CONTENT_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/llms-full.txt"
     @printf "  Copying workflow guides...\n"
-    cp "{{DOCS_CONTENT_DIR}}/llm-workflows/esql-language-reference.md" "{{RESOURCES_DIR}}/guides/"
-    cp "{{DOCS_CONTENT_DIR}}/llm-workflows/otel-dashboard-guide.md" "{{RESOURCES_DIR}}/guides/"
-    cp "{{DOCS_CONTENT_DIR}}/dashboard-decompiling-guide.md" "{{RESOURCES_DIR}}/guides/"
-    cp "{{DOCS_CONTENT_DIR}}/dashboard-style-guide.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/esql-language-reference.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/otel-dashboard-guide.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/color-assignments.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/esql-views.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/legend-configuration.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/dashboard-decompiling-guide.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/dashboard-style-guide.md" "{{RESOURCES_DIR}}/guides/"
     @printf "  • llms-full.txt\n"
     @printf "  • guides/esql-language-reference.md\n"
     @printf "  • guides/otel-dashboard-guide.md\n"
+    @printf "  • guides/color-assignments.md\n"
+    @printf "  • guides/esql-views.md\n"
+    @printf "  • guides/legend-configuration.md\n"
     @printf "  • guides/dashboard-decompiling-guide.md\n"
     @printf "  • guides/dashboard-style-guide.md\n"
 

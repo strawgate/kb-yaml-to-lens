@@ -14,29 +14,31 @@ from dashboard_compiler.cli_output import print_error, print_plain
 def docs(ctx: click.Context) -> None:
     r"""Access bundled LLM documentation.
 
-    When called without a subcommand, outputs the complete documentation
-    (llms-full.txt) suitable for piping to LLMs.
-
     \b
     Examples:
-        kb-dashboard docs                    # Output full documentation
-        kb-dashboard docs | pbcopy           # Copy to clipboard (macOS)
         kb-dashboard docs list-guides        # List available guides
+        kb-dashboard docs llms-full          # Output full documentation
+        kb-dashboard docs llms-full | pbcopy # Copy to clipboard (macOS)
         kb-dashboard docs guide otel         # Get specific guide
     """
     if ctx.invoked_subcommand is None:
-        # No subcommand - output full docs
-        try:
-            from kb_dashboard_docs import get_full_docs
+        print_plain(ctx.get_help())
 
-            content = get_full_docs()
-            print_plain(content)
-        except FileNotFoundError:
-            print_error('Documentation not bundled. This may indicate an installation issue.')
-            raise SystemExit(1) from None
-        except ImportError:
-            print_error('kb-dashboard-docs package not installed.')
-            raise SystemExit(1) from None
+
+@docs.command(name='llms-full')
+def llms_full() -> None:
+    """Output bundled llms-full documentation content."""
+    try:
+        from kb_dashboard_docs import get_full_docs
+
+        content = get_full_docs()
+        print_plain(content)
+    except FileNotFoundError:
+        print_error('Documentation not bundled. This may indicate an installation issue.')
+        raise SystemExit(1) from None
+    except ImportError:
+        print_error('kb-dashboard-docs package not installed.')
+        raise SystemExit(1) from None
 
 
 @docs.command(name='list-guides')

@@ -43,10 +43,10 @@ When using `kb-dashboard-cli`:
 
 ```bash
 # Output full documentation (for piping to LLMs)
-kb-dashboard docs
+kb-dashboard docs llms-full
 
 # Copy to clipboard (macOS)
-kb-dashboard docs | pbcopy
+kb-dashboard docs llms-full | pbcopy
 
 # List available guides
 kb-dashboard docs list-guides
@@ -61,6 +61,9 @@ kb-dashboard docs guide otel-dashboard-guide
 - **esql-language-reference** - ES|QL query language reference for dashboards
 - **dashboard-decompiling-guide** - Converting Kibana JSON dashboards to YAML
 - **dashboard-style-guide** - Layout, sizing, and design patterns
+- **color-assignments** - Advanced chart color assignment strategies
+- **esql-views** - Advanced ES|QL view patterns for chart panels
+- **legend-configuration** - Advanced legend configuration for supported charts
 
 ## Development
 

@@ -81,6 +81,41 @@ plugins:
                   strip_annotated: false
 hooks:
   - src/hooks/generate_llms_txt.py
+extra:
+  llms_nav:
+    - index.md
+    - CLI.md
+    - examples/index.md
+    - dashboard/dashboard.md
+    - panels/base.md
+    - panels/auto-layout.md
+    - panels/drilldowns.md
+    - panels/links.md
+    - panels/markdown.md
+    - panels/section.md
+    - panels/lens.md
+    - panels/esql.md
+    - panels/datatable.md
+    - panels/gauge.md
+    - panels/heatmap.md
+    - panels/metric.md
+    - panels/mosaic.md
+    - panels/pie.md
+    - panels/tagcloud.md
+    - panels/xy.md
+    - panels/image.md
+    - panels/search.md
+    - controls/config.md
+    - filters/config.md
+    - queries/config.md
+    - guides/index.md
+    - guides/dashboard-decompiling-guide.md
+    - guides/dashboard-style-guide.md
+    - guides/esql-language-reference.md
+    - guides/otel-dashboard-guide.md
+    - guides/color-assignments.md
+    - guides/legend-configuration.md
+    - guides/esql-views.md
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -109,42 +144,39 @@ nav:
       - VS Code Extension: vscode-extension.md
       - Complete Examples: examples/index.md
       - Dashboard Configuration: dashboard/dashboard.md
-      - Panel Types:
+      - Chart Panels:
           - Overview: panels/base.md
+          - Lens Panel: panels/lens.md
+          - ESQL Panel: panels/esql.md
+          - Datatable Chart: panels/datatable.md
+          - Gauge Chart: panels/gauge.md
+          - Heatmap Chart: panels/heatmap.md
+          - Metric Chart: panels/metric.md
+          - Mosaic Chart: panels/mosaic.md
+          - Pie Chart: panels/pie.md
+          - Tag Cloud Chart: panels/tagcloud.md
+          - XY Chart: panels/xy.md
+      - Other Panels:
           - Auto-Layout Guide: panels/auto-layout.md
           - Drilldowns: panels/drilldowns.md
-          - Links Panels: panels/links.md
-          - Markdown Panels: panels/markdown.md
-          - Section Panels: panels/section.md
-          - Chart Panels:
-              - Getting Started:
-                  - Lens Panels: panels/lens.md
-                  - ESQL Panels: panels/esql.md
-              - Chart Types:
-                  - Datatable Charts: panels/datatable.md
-                  - Gauge Charts: panels/gauge.md
-                  - Heatmap Charts: panels/heatmap.md
-                  - Metric Charts: panels/metric.md
-                  - Mosaic Charts: panels/mosaic.md
-                  - Pie Charts: panels/pie.md
-                  - Tag Cloud Charts: panels/tagcloud.md
-                  - XY Charts: panels/xy.md
-          - Image Panels: panels/image.md
-          - Search Panels: panels/search.md
+          - Links Panel: panels/links.md
+          - Markdown Panel: panels/markdown.md
+          - Section Panel: panels/section.md
+          - Image Panel: panels/image.md
+          - Search Panel: panels/search.md
       - Dashboard Controls: controls/config.md
       - Filters & Queries:
           - Filters: filters/config.md
           - Queries: queries/config.md
-      - Advanced Topics:
-          - LLM-Driven Workflows:
-              - Overview: llm-workflows/index.md
-              - Dashboard Decompiling Guide: dashboard-decompiling-guide.md
-              - Dashboard Style Guide: dashboard-style-guide.md
-              - ES|QL Language Reference: llm-workflows/esql-language-reference.md
-              - OTel Dashboard Guide: llm-workflows/otel-dashboard-guide.md
-          - Custom Color Assignments: advanced/color-assignments.md
-          - Legend Configuration: advanced/legend-configuration.md
-          - ES|QL "views": advanced/esql-views.md
+      - Advanced Guides:
+          - Overview: guides/index.md
+          - Dashboard Decompiling Guide: guides/dashboard-decompiling-guide.md
+          - Dashboard Style Guide: guides/dashboard-style-guide.md
+          - ES|QL Language Reference: guides/esql-language-reference.md
+          - OTel Dashboard Guide: guides/otel-dashboard-guide.md
+          - Custom Color Assignments: guides/color-assignments.md
+          - Legend Configuration: guides/legend-configuration.md
+          - ES|QL "views": guides/esql-views.md
   - Developer Guide:
       - Programmatic Usage: programmatic-usage.md
       - API Reference:

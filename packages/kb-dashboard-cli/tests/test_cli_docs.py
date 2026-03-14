@@ -21,15 +21,24 @@ class TestDocsCommandRegistration:
         """Test that docs command has the expected subcommands."""
         assert hasattr(docs, 'commands')
         subcommand_names = list(docs.commands.keys())
+        assert 'llms-full' in subcommand_names
         assert 'list-guides' in subcommand_names
         assert 'guide' in subcommand_names
 
 
 class TestDocsCommand:
-    """Tests for the main docs command."""
+    """Tests for docs command behavior and llms-full subcommand."""
 
-    def test_docs_outputs_full_content(self) -> None:
-        """Test that docs command outputs full documentation content."""
+    def test_docs_without_subcommand_shows_help(self) -> None:
+        """Test that docs command without subcommand displays help."""
+        runner = CliRunner()
+        result = runner.invoke(docs, [])
+        assert result.exit_code == 0
+        assert 'Usage:' in result.output
+        assert 'llms-full' in result.output
+
+    def test_llms_full_outputs_full_content(self) -> None:
+        """Test that llms-full outputs full documentation content."""
         runner = CliRunner()
         mock_content = 'Full documentation content here'
 
@@ -41,7 +50,7 @@ class TestDocsCommand:
         original = sys.modules.get('kb_dashboard_docs')
         sys.modules['kb_dashboard_docs'] = mock_module
         try:
-            result = runner.invoke(docs, [])
+            result = runner.invoke(docs, ['llms-full'])
         finally:
             if original is not None:
                 sys.modules['kb_dashboard_docs'] = original
@@ -51,8 +60,8 @@ class TestDocsCommand:
         assert result.exit_code == 0
         assert mock_content in result.output
 
-    def test_docs_handles_file_not_found(self) -> None:
-        """Test that docs command handles missing documentation file."""
+    def test_llms_full_handles_file_not_found(self) -> None:
+        """Test that llms-full handles missing documentation file."""
         runner = CliRunner()
 
         def raise_file_not_found() -> str:
@@ -65,7 +74,7 @@ class TestDocsCommand:
         original = sys.modules.get('kb_dashboard_docs')
         sys.modules['kb_dashboard_docs'] = mock_module
         try:
-            result = runner.invoke(docs, [])
+            result = runner.invoke(docs, ['llms-full'])
         finally:
             if original is not None:
                 sys.modules['kb_dashboard_docs'] = original
@@ -75,8 +84,8 @@ class TestDocsCommand:
         assert result.exit_code == 1
         assert 'not bundled' in result.output.lower() or 'installation issue' in result.output.lower()
 
-    def test_docs_handles_import_error(self) -> None:
-        """Test that docs command handles missing package."""
+    def test_llms_full_handles_import_error(self) -> None:
+        """Test that llms-full handles missing package."""
         runner = CliRunner()
 
         # Create a mock that raises ImportError when accessed
@@ -88,7 +97,7 @@ class TestDocsCommand:
         original = sys.modules.get('kb_dashboard_docs')
         sys.modules['kb_dashboard_docs'] = MockModule()
         try:
-            result = runner.invoke(docs, [])
+            result = runner.invoke(docs, ['llms-full'])
         finally:
             if original is not None:
                 sys.modules['kb_dashboard_docs'] = original
