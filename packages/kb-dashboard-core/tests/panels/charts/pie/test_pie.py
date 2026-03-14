@@ -86,7 +86,7 @@ async def test_basic_pie_chart() -> None:
 
 
 async def test_basic_donut_chart() -> None:
-    """Test basic donut chart."""
+    """Test basic donut chart with medium size."""
     lens_config = {
         'type': 'pie',
         'data_view': 'metrics-*',
@@ -107,6 +107,7 @@ async def test_basic_donut_chart() -> None:
     lens_chart = LensPieChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
     assert kbn_state_visualization is not None
+    assert kbn_state_visualization.shape == 'donut'
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
         {
@@ -124,12 +125,14 @@ async def test_basic_donut_chart() -> None:
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
             'nestedLegend': False,
+            'emptySizeRatio': 0.5,
         }
     )
 
     esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
+    assert kbn_state_visualization.shape == 'donut'
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
         {
@@ -147,8 +150,28 @@ async def test_basic_donut_chart() -> None:
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
             'nestedLegend': False,
+            'emptySizeRatio': 0.5,
         }
     )
+
+
+async def test_donut_chart_sizes() -> None:
+    """Test donut chart with different hole sizes (small, medium, large)."""
+    for donut_size, expected_ratio in [('small', 0.3), ('medium', 0.5), ('large', 0.7)]:
+        lens_config = {
+            'type': 'pie',
+            'data_view': 'metrics-*',
+            'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+            'appearance': {'donut': donut_size},
+        }
+
+        lens_chart = LensPieChart.model_validate(lens_config)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+        assert kbn_state_visualization is not None
+        assert kbn_state_visualization.shape == 'donut'
+        layer = kbn_state_visualization.layers[0]
+        assert layer.emptySizeRatio == expected_ratio, f'Expected {expected_ratio} for {donut_size}, got {layer.emptySizeRatio}'
 
 
 async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
@@ -215,6 +238,75 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
             'nestedLegend': False,
         }
     )
+
+
+async def test_pie_chart_with_legend_position() -> None:
+    """Test pie chart with custom legend position."""
+    for position in ['top', 'right', 'bottom', 'left']:
+        lens_config = {
+            'type': 'pie',
+            'data_view': 'metrics-*',
+            'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+            'legend': {'position': position},
+        }
+
+        lens_chart = LensPieChart.model_validate(lens_config)
+        _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+        assert kbn_state_visualization is not None
+        layer = kbn_state_visualization.layers[0]
+        assert layer.legendPosition == position, f'Expected {position}, got {layer.legendPosition}'
+
+
+async def test_pie_chart_legend_auto_maps_to_default() -> None:
+    """Test that legend.visible: auto maps to legendDisplay: default for Kibana."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'legend': {'visible': 'auto'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.legendDisplay == 'default'
+
+
+async def test_pie_chart_slice_labels_auto_maps_to_default() -> None:
+    """Test that slice_labels: auto maps to categoryDisplay: default for Kibana."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'slice_labels': 'auto'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.categoryDisplay == 'default'
+
+
+async def test_pie_chart_slice_values_hide_maps_to_hidden() -> None:
+    """Test that slice_values: hide maps to numberDisplay: hidden for Kibana."""
+    lens_config = {
+        'type': 'pie',
+        'data_view': 'metrics-*',
+        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'titles_and_text': {'slice_values': 'hide'},
+    }
+
+    lens_chart = LensPieChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_pie_chart(lens_pie_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.numberDisplay == 'hidden'
 
 
 async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
