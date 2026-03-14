@@ -30,7 +30,7 @@ class LegendOptions:
     """Compiled legend options for pie chart visualization."""
 
     display: str
-    """Legend display mode ('default', 'show', 'hidden')."""
+    """Legend display mode ('default', 'show', 'hide')."""
 
     position: str | None
     """Legend position ('top', 'right', 'bottom', 'left')."""
@@ -140,9 +140,14 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     shape: Literal['pie', 'donut'] = 'pie'
     empty_size_ratio: float | None = None
 
-    if chart.appearance and chart.appearance.donut:
+    if chart.appearance is not None and chart.appearance.donut is not None:
         shape = 'donut'
-        empty_size_ratio = DONUT_SIZE_RATIOS[chart.appearance.donut]
+        donut_size = chart.appearance.donut
+        ratio = DONUT_SIZE_RATIOS.get(donut_size)
+        if ratio is None:
+            msg = f"Unsupported donut size: '{donut_size}'. Supported values: {list(DONUT_SIZE_RATIOS.keys())}"
+            raise ValueError(msg)
+        empty_size_ratio = ratio
 
     number_display = _compile_number_display(chart.titles_and_text)
     category_display = _compile_category_display(chart.titles_and_text)
