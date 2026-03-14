@@ -160,5 +160,5 @@ Configure the color legend for your heatmap:
 
 - [Base Panel Configuration](./base.md)
 - [Dashboard Configuration](../dashboard/dashboard.md)
-- [Legend Configuration Guide](../advanced/legend-configuration.md)
+- [Legend Configuration Guide](../guides/legend-configuration.md)
 - [Heatmap Examples](../examples/heatmap-examples.yaml)

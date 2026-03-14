@@ -407,6 +407,6 @@ kb-dashboard compile --input-file ./my-dashboard.yaml
 ## Additional Resources
 
 - [ES|QL Language Reference](esql-language-reference.md) - Complete ES|QL syntax
-- [Dashboard Style Guide](../dashboard-style-guide.md) - Layout and design patterns
+- [Dashboard Style Guide](dashboard-style-guide.md) - Layout and design patterns
 - [Complete Examples](../examples/index.md) - Working OTel dashboard bundles
 - [OpenTelemetry Collector Contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) - Upstream receiver documentation

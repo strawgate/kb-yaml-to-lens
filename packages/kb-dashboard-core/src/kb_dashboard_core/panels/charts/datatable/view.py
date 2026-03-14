@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -48,6 +49,9 @@ class KbnDatatableColumnState(BaseVwModel):
 
     summaryLabel: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Custom label for the summary row."""
+
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Range-based color palette for numeric values."""
 
 
 class KbnDatatableSortingState(BaseVwModel):

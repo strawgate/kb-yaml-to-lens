@@ -963,7 +963,8 @@
                                         "numberDisplay": "percent",
                                         "categoryDisplay": "default",
                                         "legendDisplay": "default",
-                                        "nestedLegend": false
+                                        "nestedLegend": false,
+                                        "emptySizeRatio": 0.5
                                     }
                                 ],
                                 "shape": "donut"
@@ -1108,7 +1109,8 @@
                                         "numberDisplay": "percent",
                                         "categoryDisplay": "default",
                                         "legendDisplay": "default",
-                                        "nestedLegend": false
+                                        "nestedLegend": false,
+                                        "emptySizeRatio": 0.5
                                     }
                                 ],
                                 "shape": "donut"

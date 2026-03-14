@@ -253,3 +253,38 @@ def test_compile_lens_custom_metric_format_with_explicit_decimals() -> None:
             },
         }
     )
+
+
+def test_compile_lens_custom_metric_format_with_suffix() -> None:
+    """Test compilation of custom format with suffix."""
+    fmt = LensCustomMetricFormat(pattern='0,0.00', suffix=' USD')
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'custom',
+            'params': {
+                'decimals': 0,
+                'pattern': '0,0.00',
+                'suffix': ' USD',
+            },
+        }
+    )
+
+
+def test_compile_lens_custom_metric_format_with_suffix_and_compact() -> None:
+    """Test compilation of custom format with suffix and compact."""
+    fmt = LensCustomMetricFormat(pattern='0.0a', suffix=' txn', compact=True, decimals=0)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'custom',
+            'params': {
+                'decimals': 0,
+                'pattern': '0.0a',
+                'suffix': ' txn',
+                'compact': True,
+            },
+        }
+    )

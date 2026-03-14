@@ -27,7 +27,6 @@ jobs:
         fi
       additional-instructions: |
         You are running the daily Kibana Saved Object Patrol for kb-yaml-to-lens.
-
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
 
         ## Mission
@@ -74,10 +73,8 @@ jobs:
         - Bugs found with minimal YAML reproduction and expected vs actual behavior
         - Saved-object diff summaries for each failing scenario
         - Risk assessment for areas not covered
-
         If no bugs are found, still open the issue with full evidence and state "no regressions
         found in covered scenarios".
-
         Do not create branches or pull requests in this workflow.
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

@@ -157,7 +157,7 @@ This will extract the dashboard into separate files:
 - `references.json` - Data view references
 - `panels/` - Individual panel JSON files
 
-For a comprehensive guide on using this tool to convert dashboards from JSON to YAML, see the [Dashboard Decompiling Guide](dashboard-decompiling-guide.md).
+For a comprehensive guide on using this tool to convert dashboards from JSON to YAML, see the [Dashboard Decompiling Guide](guides/dashboard-decompiling-guide.md).
 
 ## Configuration
 
