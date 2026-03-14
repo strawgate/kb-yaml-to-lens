@@ -31,7 +31,7 @@ full_docs = get_full_docs()
 
 # List available workflow guides
 guides = list_guides()
-# ['dashboard-decompiling-guide', 'dashboard-style-guide', 'esql-language-reference', 'otel-dashboard-guide']
+# ['breaking-changes', 'color-assignments', 'dashboard-decompiling-guide', ...]
 
 # Get a specific guide
 otel_guide = get_guide('otel-dashboard-guide')
@@ -57,6 +57,7 @@ kb-dashboard docs guide otel-dashboard-guide
 
 ## Available Guides
 
+- **breaking-changes** - Release-to-release migration checklist and compatibility notes
 - **otel-dashboard-guide** - Creating dashboards from OpenTelemetry Collector data
 - **esql-language-reference** - ES|QL query language reference for dashboards
 - **dashboard-decompiling-guide** - Converting Kibana JSON dashboards to YAML
