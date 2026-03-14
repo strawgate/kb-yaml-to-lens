@@ -5,7 +5,24 @@ from unittest.mock import MagicMock
 
 from click.testing import CliRunner
 
+from dashboard_compiler.cli import cli
 from dashboard_compiler.cli_docs import docs
+
+
+class TestDocsCommandRegistration:
+    """Tests for docs command registration."""
+
+    def test_docs_command_is_registered(self) -> None:
+        """Test that docs command is registered with the main CLI."""
+        command_names = list(cli.commands)
+        assert 'docs' in command_names
+
+    def test_docs_command_has_subcommands(self) -> None:
+        """Test that docs command has the expected subcommands."""
+        assert hasattr(docs, 'commands')
+        subcommand_names = list(docs.commands.keys())
+        assert 'list-guides' in subcommand_names
+        assert 'guide' in subcommand_names
 
 
 class TestDocsCommand:
