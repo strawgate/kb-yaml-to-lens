@@ -83,9 +83,12 @@ class TestESQLTSMetricsMinVersionRule:
 
         assert len(violations) == 0
 
-    def test_passes_from_metrics(self, dashboard_with_from_metrics: Dashboard) -> None:
-        """Should not flag FROM metrics-* queries."""
+    def test_detects_from_metrics(self, dashboard_with_from_metrics: Dashboard) -> None:
+        """Should warn when FROM is used with metrics-*."""
         rule = ESQLTSMetricsMinVersionRule()
         violations = rule.check(dashboard_with_from_metrics, {})
 
-        assert len(violations) == 0
+        assert len(violations) == 1
+        assert violations[0].rule_id == 'esql-ts-metrics-min-version'
+        assert '9.2+' in violations[0].message
+        assert violations[0].severity == Severity.WARNING
