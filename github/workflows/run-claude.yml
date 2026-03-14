@@ -166,8 +166,7 @@ jobs:
               - Reasoning for conclusions drawn
 
             ## Your Role as Supervisor
-            You are ultimately responsible for making sure the specific request has been completed and that any issues encountered
-             during the workflow have been addressed or are communicated to the user.
+            You are ultimately responsible for making sure the specific request has been completed and that any issues encountered during the workflow have been addressed or are communicated to the user.
           track_progress: ${{ inputs.track-progress }}
           allowed_bots: ${{ inputs.allowed-bots }}
           claude_args: |-
