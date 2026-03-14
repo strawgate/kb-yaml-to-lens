@@ -112,6 +112,12 @@ _vendor-docs-build:
 
 [private]
 _vendor-docs-copy:
+    @# Verify required source files exist
+    @test -f "{{DOCS_CONTENT_DIR}}/llms-full.txt" || (echo "Error: llms-full.txt not found. Run mkdocs build first." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/llm-workflows/esql-language-reference.md" || (echo "Error: esql-language-reference.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/llm-workflows/otel-dashboard-guide.md" || (echo "Error: otel-dashboard-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/dashboard-decompiling-guide.md" || (echo "Error: dashboard-decompiling-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/dashboard-style-guide.md" || (echo "Error: dashboard-style-guide.md not found." && exit 1)
     @printf "  Copying llms-full.txt...\n"
     cp "{{DOCS_CONTENT_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/llms-full.txt"
     @printf "  Copying workflow guides...\n"
@@ -141,6 +147,7 @@ clean:
 # PyPI Publishing
 build: vendor-docs
     just _print-start "Building package"
+    rm -f "{{REPO_ROOT}}"/dist/kb_dashboard_docs_content-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_docs_content-*.whl 2>/dev/null || true
     uv build --out-dir "{{REPO_ROOT}}/dist"
     just _print-end "Package built successfully"
 

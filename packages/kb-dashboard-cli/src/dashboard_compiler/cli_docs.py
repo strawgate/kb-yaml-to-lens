@@ -4,8 +4,6 @@ This module provides CLI access to LLM documentation content bundled in the
 kb-dashboard-docs-content package.
 """
 
-from __future__ import annotations
-
 import rich_click as click
 
 from dashboard_compiler.cli_output import print_error, print_plain
@@ -35,10 +33,10 @@ def docs(ctx: click.Context) -> None:
             print_plain(content)
         except FileNotFoundError:
             print_error('Documentation not bundled. This may indicate an installation issue.')
-            ctx.exit(1)
+            raise SystemExit(1) from None
         except ImportError:
             print_error('kb-dashboard-docs-content package not installed.')
-            ctx.exit(1)
+            raise SystemExit(1) from None
 
 
 @docs.command(name='list-guides')
