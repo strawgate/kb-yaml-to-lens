@@ -1,0 +1,624 @@
+---
+# RabbitMQ OpenTelemetry Node Metrics Dashboard (ES|QL Version)
+# Node-level metrics for RabbitMQ using OpenTelemetry rabbitmq receiver
+# Uses ES|QL with TS command for time-series optimization
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/rabbitmqreceiver
+#
+# IMPORTANT: Node-level metrics are DISABLED by default in the rabbitmq receiver
+# Enable them in your collector configuration:
+#   receivers:
+#     rabbitmq:
+#       metrics:
+#         rabbitmq.node.mem_used:
+#           enabled: true
+#  # ... enable other node metrics as needed
+dashboards:
+  - id: rabbitmq-otel-node
+    name: '[Metrics RabbitMQ] Node Metrics'
+    description: RabbitMQ node-level metrics for OpenTelemetry rabbitmqreceiver (disabled by default)
+    controls:
+      - type: options
+        id: node-filter
+        label: Node
+        data_view: metrics-*
+        field: resource.attributes.rabbitmq.node.name
+    filters:
+      - field: data_stream.dataset
+        equals: rabbitmqreceiver.otel
+    panels:
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: rabbitmq-otel-overview
+            - label: Node Metrics
+              dashboard: rabbitmq-otel-node
+            - label: RabbitMQ Documentation
+              url: https://www.rabbitmq.com/docs
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Node Overview'
+
+      # KPI Metrics Row
+      - title: Total Nodes
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE resource.attributes.rabbitmq.node.name IS NOT NULL
+            | STATS nodes = COUNT_DISTINCT(resource.attributes.rabbitmq.node.name)
+          primary:
+            field: nodes
+            label: Nodes
+            format:
+              type: number
+              decimals: 0
+      - title: Memory Alarms
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.mem_alarm IS NOT NULL
+            | STATS alarms = SUM(LAST_OVER_TIME(rabbitmq.node.mem_alarm))
+          primary:
+            field: alarms
+            label: Mem Alarms
+            format:
+              type: number
+              decimals: 0
+      - title: Disk Alarms
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.disk_free_alarm IS NOT NULL
+            | STATS alarms = SUM(LAST_OVER_TIME(rabbitmq.node.disk_free_alarm))
+          primary:
+            field: alarms
+            label: Disk Alarms
+            format:
+              type: number
+              decimals: 0
+      - title: Total FD Used
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.fd_used IS NOT NULL
+            | STATS fd = SUM(LAST_OVER_TIME(rabbitmq.node.fd_used))
+          primary:
+            field: fd
+            label: FD Used
+            format:
+              type: number
+              decimals: 0
+      - title: Total Sockets Used
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.sockets_used IS NOT NULL
+            | STATS sockets = SUM(LAST_OVER_TIME(rabbitmq.node.sockets_used))
+          primary:
+            field: sockets
+            label: Sockets
+            format:
+              type: number
+              decimals: 0
+      - title: Total Processes Used
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.proc_used IS NOT NULL
+            | STATS procs = SUM(LAST_OVER_TIME(rabbitmq.node.proc_used))
+          primary:
+            field: procs
+            label: Processes
+            format:
+              type: number
+              decimals: 0
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Memory & Disk'
+
+      # Memory Usage (Gauge - use LAST_OVER_TIME)
+      - title: Memory Used by Node
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.mem_used IS NOT NULL
+            | STATS memory = MAX(LAST_OVER_TIME(rabbitmq.node.mem_used))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: memory
+              label: Memory Used
+              format:
+                type: bytes
+          breakdown:
+            field: node
+
+      # Disk Free (Gauge - use LAST_OVER_TIME)
+      - title: Disk Free by Node
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.disk_free IS NOT NULL
+            | STATS disk = MAX(LAST_OVER_TIME(rabbitmq.node.disk_free))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: disk
+              label: Disk Free
+              format:
+                type: bytes
+          breakdown:
+            field: node
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Resource Usage'
+
+      # File Descriptors (Gauge - use LAST_OVER_TIME)
+      - title: File Descriptors Used by Node
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.fd_used IS NOT NULL
+            | STATS fd = MAX(LAST_OVER_TIME(rabbitmq.node.fd_used))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: fd
+              label: FD Used
+              format:
+                type: number
+          breakdown:
+            field: node
+
+      # Sockets (Gauge - use LAST_OVER_TIME)
+      - title: Sockets Used by Node
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.sockets_used IS NOT NULL
+            | STATS sockets = MAX(LAST_OVER_TIME(rabbitmq.node.sockets_used))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: sockets
+              label: Sockets Used
+              format:
+                type: number
+          breakdown:
+            field: node
+
+      # Erlang Processes (Gauge - use LAST_OVER_TIME)
+      - title: Erlang Processes by Node
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.proc_used IS NOT NULL
+            | STATS procs = MAX(LAST_OVER_TIME(rabbitmq.node.proc_used))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: procs
+              label: Processes
+              format:
+                type: number
+          breakdown:
+            field: node
+
+      # Run Queue (Gauge - use LAST_OVER_TIME)
+      - title: Run Queue Length by Node
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.run_queue IS NOT NULL
+            | STATS queue = MAX(LAST_OVER_TIME(rabbitmq.node.run_queue))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: queue
+              label: Run Queue
+              format:
+                type: number
+          breakdown:
+            field: node
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Connections & Channels'
+
+      # Connection Created Rate (Counter - use RATE)
+      - title: Connection Created Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.connection_created IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.connection_created))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Connections/sec
+          breakdown:
+            field: node
+
+      # Connection Closed Rate (Counter - use RATE)
+      - title: Connection Closed Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.connection_closed IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.connection_closed))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Closed/sec
+          breakdown:
+            field: node
+
+      # Channel Created Rate (Counter - use RATE)
+      - title: Channel Created Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.channel_created IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.channel_created))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Channels/sec
+          breakdown:
+            field: node
+
+      # Channel Closed Rate (Counter - use RATE)
+      - title: Channel Closed Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.channel_closed IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.channel_closed))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Closed/sec
+          breakdown:
+            field: node
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Garbage Collection & System'
+
+      # GC Collections Rate (Counter - use RATE)
+      - title: GC Collections Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.gc_num IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.gc_num))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: GC/sec
+          breakdown:
+            field: node
+
+      # GC Bytes Reclaimed Rate (Counter - use RATE)
+      - title: GC Bytes Reclaimed Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.gc_bytes_reclaimed IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.gc_bytes_reclaimed))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Bytes/sec
+              format:
+                type: bytes
+          breakdown:
+            field: node
+
+      # Context Switches Rate (Counter - use RATE)
+      - title: Context Switches Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.context_switches IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.context_switches))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Switches/sec
+          breakdown:
+            field: node
+
+      # Mnesia Transactions (Counter - use RATE)
+      - title: Mnesia Transactions Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.mnesia_ram_tx_count IS NOT NULL OR rabbitmq.node.mnesia_disk_tx_count IS NOT NULL
+            | STATS ram = SUM(RATE(rabbitmq.node.mnesia_ram_tx_count)), disk = SUM(RATE(rabbitmq.node.mnesia_disk_tx_count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: ram
+              label: RAM TX/sec
+            - field: disk
+              label: Disk TX/sec
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## I/O Operations'
+
+      # I/O Read Rate (Counter - use RATE)
+      - title: I/O Read Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.io_read_bytes IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.io_read_bytes))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Read
+              format:
+                type: bytes
+          breakdown:
+            field: node
+
+      # I/O Write Rate (Counter - use RATE)
+      - title: I/O Write Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.node.io_write_bytes IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.node.io_write_bytes))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), node = resource.attributes.rabbitmq.node.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Write
+              format:
+                type: bytes
+          breakdown:
+            field: node
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Node Summary Table'
+
+      # Node Summary DataTable
+      - title: Node Metrics Summary
+        size: {w: 48, h: 20}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            - WHERE resource.attributes.rabbitmq.node.name IS NOT NULL
+            - STATS mem_used = MAX(LAST_OVER_TIME(rabbitmq.node.mem_used)), disk_free = MAX(LAST_OVER_TIME(rabbitmq.node.disk_free)), fd_used
+              = MAX(LAST_OVER_TIME(rabbitmq.node.fd_used)), sockets_used = MAX(LAST_OVER_TIME(rabbitmq.node.sockets_used)), proc_used = MAX(LAST_OVER_TIME(rabbitmq.node.proc_used)),
+              uptime = MAX(LAST_OVER_TIME(rabbitmq.node.uptime)) BY node = resource.attributes.rabbitmq.node.name
+            - KEEP node, mem_used, disk_free, fd_used, sockets_used, proc_used, uptime
+            - SORT node ASC
+            - LIMIT 100
+          dimensions:
+            - field: node
+              label: Node
+            - field: mem_used
+              label: Memory Used
+            - field: disk_free
+              label: Disk Free
+            - field: fd_used
+              label: FD Used
+            - field: sockets_used
+              label: Sockets
+            - field: proc_used
+              label: Processes
+            - field: uptime
+              label: Uptime (ms)

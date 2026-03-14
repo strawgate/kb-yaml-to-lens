@@ -1,0 +1,403 @@
+---
+# RabbitMQ OpenTelemetry Overview Dashboard (ES|QL Version)
+# Comprehensive RabbitMQ metrics dashboard using OpenTelemetry rabbitmq receiver
+# Uses ES|QL with TS command for time-series optimization
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/rabbitmqreceiver
+# Prerequisite: RabbitMQ Management Plugin must be enabled
+# Configuration: Connect to http://localhost:15672 with credentials
+#
+# Queue-level metrics are enabled by default
+# Node-level metrics require explicit enablement in receiver config
+dashboards:
+  - id: rabbitmq-otel-overview
+    name: '[Metrics RabbitMQ] Overview'
+    description: RabbitMQ monitoring dashboard for OpenTelemetry rabbitmqreceiver using ES|QL
+    controls:
+      - type: options
+        id: vhost-filter
+        label: vHost
+        data_view: metrics-*
+        field: resource.attributes.rabbitmq.vhost.name
+      - type: options
+        id: queue-filter
+        label: Queue
+        data_view: metrics-*
+        field: resource.attributes.rabbitmq.queue.name
+    filters:
+      - field: data_stream.dataset
+        equals: rabbitmqreceiver.otel
+    panels:
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: rabbitmq-otel-overview
+            - label: Node Metrics
+              dashboard: rabbitmq-otel-node
+            - label: RabbitMQ Documentation
+              url: https://www.rabbitmq.com/docs
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Queue Overview'
+
+      # KPI Metrics Row
+      - title: Total Queues
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE resource.attributes.rabbitmq.queue.name IS NOT NULL
+            | STATS queues = COUNT_DISTINCT(resource.attributes.rabbitmq.queue.name)
+          primary:
+            field: queues
+            label: Queues
+            format:
+              type: number
+              decimals: 0
+      - title: Total vHosts
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            FROM metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE resource.attributes.rabbitmq.vhost.name IS NOT NULL
+            | STATS vhosts = COUNT_DISTINCT(resource.attributes.rabbitmq.vhost.name)
+          primary:
+            field: vhosts
+            label: vHosts
+            format:
+              type: number
+              decimals: 0
+      - title: Total Messages
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.current IS NOT NULL
+            | STATS messages = SUM(LAST_OVER_TIME(rabbitmq.message.current))
+              BY queue = resource.attributes.rabbitmq.queue.name
+            | STATS messages = SUM(messages)
+          primary:
+            field: messages
+            label: Messages
+            format:
+              type: number
+              decimals: 0
+      - title: Ready Messages
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.current IS NOT NULL
+            | WHERE attributes.message.state == "ready"
+            | STATS messages = SUM(LAST_OVER_TIME(rabbitmq.message.current))
+              BY queue = resource.attributes.rabbitmq.queue.name
+            | STATS messages = SUM(messages)
+          primary:
+            field: messages
+            label: Ready
+            format:
+              type: number
+              decimals: 0
+      - title: Unacknowledged Messages
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.current IS NOT NULL
+            | WHERE attributes.message.state == "unacknowledged"
+            | STATS messages = SUM(LAST_OVER_TIME(rabbitmq.message.current))
+              BY queue = resource.attributes.rabbitmq.queue.name
+            | STATS messages = SUM(messages)
+          primary:
+            field: messages
+            label: Unacked
+            format:
+              type: number
+              decimals: 0
+      - title: Total Consumers
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.consumer.count IS NOT NULL
+            | STATS consumers = SUM(LAST_OVER_TIME(rabbitmq.consumer.count))
+              BY queue = resource.attributes.rabbitmq.queue.name
+            | STATS consumers = SUM(consumers)
+          primary:
+            field: consumers
+            label: Consumers
+            format:
+              type: number
+              decimals: 0
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Message Flow'
+
+      # Message Published Rate (Counter - use RATE)
+      - title: Messages Published Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.published IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.message.published))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), queue = resource.attributes.rabbitmq.queue.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Published/sec
+          breakdown:
+            field: queue
+
+      # Message Delivered Rate (Counter - use RATE)
+      - title: Messages Delivered Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.delivered IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.message.delivered))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), queue = resource.attributes.rabbitmq.queue.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Delivered/sec
+          breakdown:
+            field: queue
+
+      # Message Acknowledged Rate (Counter - use RATE)
+      - title: Messages Acknowledged Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.acknowledged IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.message.acknowledged))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), queue = resource.attributes.rabbitmq.queue.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Acknowledged/sec
+          breakdown:
+            field: queue
+
+      # Messages Dropped Rate (Counter - use RATE)
+      - title: Messages Dropped (Unroutable)
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.dropped IS NOT NULL
+            | STATS rate = SUM(RATE(rabbitmq.message.dropped))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), queue = resource.attributes.rabbitmq.queue.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: rate
+              label: Dropped/sec
+          breakdown:
+            field: queue
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Queue Health'
+
+      # Messages in Queue Over Time (Gauge - use LAST_OVER_TIME)
+      - title: Messages in Queue Over Time
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.current IS NOT NULL
+            | STATS messages = MAX(LAST_OVER_TIME(rabbitmq.message.current))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), queue = resource.attributes.rabbitmq.queue.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: messages
+              label: Messages
+              format:
+                type: number
+          breakdown:
+            field: queue
+
+      # Consumers Over Time (Gauge - use LAST_OVER_TIME)
+      - title: Consumers Over Time
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.consumer.count IS NOT NULL
+            | STATS consumers = MAX(LAST_OVER_TIME(rabbitmq.consumer.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), queue = resource.attributes.rabbitmq.queue.name
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: consumers
+              label: Consumers
+              format:
+                type: number
+                decimals: 0
+          breakdown:
+            field: queue
+
+      # Message State Distribution (Pie)
+      - title: Message State Distribution
+        size: {w: 24, h: 12}
+        esql:
+          type: pie
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.current IS NOT NULL
+            | STATS messages = SUM(LAST_OVER_TIME(rabbitmq.message.current))
+              BY state = attributes.message.state
+            | SORT messages DESC
+          metrics:
+            - field: messages
+              label: Messages
+              format:
+                type: number
+          dimensions:
+            - field: state
+              label: State
+          appearance:
+            donut: medium
+
+      # Messages by Queue Distribution (Pie)
+      - title: Messages by Queue
+        size: {w: 24, h: 12}
+        esql:
+          type: pie
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            | WHERE rabbitmq.message.current IS NOT NULL
+            | STATS messages = SUM(LAST_OVER_TIME(rabbitmq.message.current))
+              BY queue = resource.attributes.rabbitmq.queue.name
+            | SORT messages DESC
+            | LIMIT 10
+          metrics:
+            - field: messages
+              label: Messages
+              format:
+                type: number
+          dimensions:
+            - field: queue
+              label: Queue
+          appearance:
+            donut: medium
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Queue Summary Table'
+
+      # Queue Summary DataTable
+      - title: Queue Metrics Summary
+        size: {w: 48, h: 20}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "rabbitmqreceiver.otel"
+            - WHERE resource.attributes.rabbitmq.queue.name IS NOT NULL
+            - STATS messages = MAX(LAST_OVER_TIME(rabbitmq.message.current)), consumers = MAX(LAST_OVER_TIME(rabbitmq.consumer.count)), published
+              = SUM(RATE(rabbitmq.message.published)), delivered = SUM(RATE(rabbitmq.message.delivered)), acknowledged = SUM(RATE(rabbitmq.message.acknowledged))
+              BY queue = resource.attributes.rabbitmq.queue.name, vhost = resource.attributes.rabbitmq.vhost.name
+            - KEEP queue, vhost, messages, consumers, published, delivered, acknowledged
+            - SORT messages DESC
+            - LIMIT 100
+          dimensions:
+            - field: queue
+              label: Queue
+            - field: vhost
+              label: vHost
+            - field: messages
+              label: Messages
+            - field: consumers
+              label: Consumers
+            - field: published
+              label: Published/sec
+            - field: delivered
+              label: Delivered/sec
+            - field: acknowledged
+              label: Acknowledged/sec
