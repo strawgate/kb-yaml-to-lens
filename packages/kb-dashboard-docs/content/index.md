@@ -169,7 +169,6 @@ Advanced documentation for contributors and programmatic usage:
 - **[Programmatic Usage](programmatic-usage.md)** - Using the Python API directly to generate dashboards.
 - **[API Reference](api/index.md)** - Auto-generated Python API documentation.
 - **[Contributing Guide](https://github.com/strawgate/kb-yaml-to-lens/blob/main/CONTRIBUTING.md)** - How to contribute and add new capabilities.
-- **[Kibana Architecture Reference](kibana-architecture.md)** - Understanding Kibana's internal structure.
 
 ## How It Works
 

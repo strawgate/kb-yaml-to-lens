@@ -37,6 +37,10 @@ for dashboard in dashboards:
 dump(dashboards, 'path/to/output.yaml')
 ```
 
+## Developer Documentation
+
+- **[Kibana Architecture Reference](docs/kibana-architecture.md)** - Technical reference for Kibana's dashboard JSON schema and internal architecture. Essential reading for understanding the compiler's output format.
+
 ## Development
 
 See [DEVELOPING.md](../../DEVELOPING.md) for development setup and workflows.
