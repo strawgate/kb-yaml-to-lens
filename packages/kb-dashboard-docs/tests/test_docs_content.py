@@ -18,6 +18,7 @@ def test_list_guides_returns_list() -> None:
     guides = list_guides()
     assert isinstance(guides, list)
     assert len(guides) > 0
+    assert guides == sorted(guides)
     # Check that known guides exist
     assert 'otel-dashboard-guide' in guides
     assert 'esql-language-reference' in guides

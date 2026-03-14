@@ -145,6 +145,9 @@ _vendor-docs-build:
 
 [private]
 _vendor-docs-copy:
+    @# Clear existing vendored outputs to prevent stale files
+    mkdir -p "{{RESOURCES_DIR}}/guides"
+    rm -f "{{RESOURCES_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/guides/"*.md 2>/dev/null || true
     @# Verify required source files exist
     @test -f "{{DOCS_CONTENT_DIR}}/llms-full.txt" || (echo "Error: llms-full.txt not found. Run mkdocs build first." && exit 1)
     @test -f "{{DOCS_CONTENT_DIR}}/llm-workflows/esql-language-reference.md" || (echo "Error: esql-language-reference.md not found." && exit 1)
@@ -166,7 +169,7 @@ _vendor-docs-copy:
 
 clean:
     just _print-start "Cleaning documentation build artifacts"
-    rm -rf site/ llms.txt llms-full.txt 2>/dev/null || true
+    rm -rf site/ llms.txt llms-full.txt "{{DOCS_CONTENT_DIR}}/llms-full.txt" 2>/dev/null || true
     find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
     find . -type d -name '.pytest_cache' -exec rm -rf {} + 2>/dev/null || true
     find . -type d -name '.ruff_cache' -exec rm -rf {} + 2>/dev/null || true
