@@ -456,3 +456,171 @@ def test_metric_chart_dashboard_references_bubble_up() -> None:
             }
         ]
     )
+
+
+def test_compile_metric_chart_with_maximum_lens() -> None:
+    """Test the compilation of a metric chart with a maximum metric (Lens).
+
+    The maximum metric enables progress bar display in Kibana, showing the primary
+    metric value relative to a maximum.
+    """
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.total.pct',
+            'id': 'primary-cpu',
+            'aggregation': 'average',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'max-cpu',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-cpu',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
+            'maxAccessor': 'max-cpu',
+        }
+    )
+
+
+def test_compile_metric_chart_with_maximum_esql() -> None:
+    """Test the compilation of a metric chart with a maximum metric (ES|QL).
+
+    The maximum metric enables progress bar display in Kibana, showing the primary
+    metric value relative to a maximum.
+    """
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'avg_cpu',
+            'id': 'primary-cpu',
+        },
+        'maximum': {
+            'field': 'max_cpu',
+            'id': 'max-cpu',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-cpu',
+            'showBar': False,
+            'maxAccessor': 'max-cpu',
+        }
+    )
+
+
+def test_compile_metric_chart_with_maximum_columns_lens() -> None:
+    """Test that the maximum metric is included in compiled columns (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.total.pct',
+            'id': 'primary-cpu',
+            'aggregation': 'average',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'max-cpu',
+        },
+    }
+
+    lens_chart = LensMetricChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+
+    column_ids = list(kbn_columns_by_id.keys())
+    assert 'primary-cpu' in column_ids
+    assert 'max-cpu' in column_ids
+
+
+def test_compile_metric_chart_with_maximum_columns_esql() -> None:
+    """Test that the maximum metric is included in compiled columns (ES|QL)."""
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'avg_cpu',
+            'id': 'primary-cpu',
+        },
+        'maximum': {
+            'field': 'max_cpu',
+            'id': 'max-cpu',
+        },
+    }
+
+    esql_chart = ESQLMetricChart.model_validate(config)
+    _layer_id, kbn_columns, _kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
+
+    column_ids = [col.columnId for col in kbn_columns]
+    assert 'primary-cpu' in column_ids
+    assert 'max-cpu' in column_ids
+
+
+def test_compile_metric_chart_maximum_omitted_when_none() -> None:
+    """Test that maxAccessor is omitted when maximum metric is not configured."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'aggregation': 'count',
+            'id': 'primary-metric',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+    assert 'maxAccessor' not in result
+
+
+def test_compile_metric_chart_with_all_metrics_lens() -> None:
+    """Test compilation of a metric chart with primary, secondary, maximum, and breakdown (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.total.pct',
+            'id': 'primary-cpu',
+            'aggregation': 'average',
+        },
+        'secondary': {
+            'field': 'system.cpu.total.pct',
+            'id': 'secondary-cpu',
+            'aggregation': 'min',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'max-cpu',
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'host.name',
+            'id': 'breakdown-host',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-cpu',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
+            'secondaryMetricAccessor': 'secondary-cpu',
+            'maxAccessor': 'max-cpu',
+            'breakdownByAccessor': 'breakdown-host',
+        }
+    )
