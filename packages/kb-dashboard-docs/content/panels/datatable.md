@@ -111,7 +111,7 @@ dashboards:
           metrics:
             - id: "cpu-avg"
               field: "system.cpu.total.pct"
-              aggregation: avg
+              aggregation: average
               label: "CPU %"
           metric_columns:
             - column_id: "cpu-avg"
