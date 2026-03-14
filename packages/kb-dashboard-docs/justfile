@@ -1,11 +1,15 @@
 # Documentation justfile
-# Commands for documentation development and verification
+# Commands for documentation development, verification, and publishing
 
 # Import shared helpers
 import '../../shared.just'
 
-# Repository root (parent of packages directory)
-REPO_ROOT := justfile_directory() / "../.."
+# Repository root (works when invoked directly or via `just docs ...`)
+REPO_ROOT := `git rev-parse --show-toplevel`
+
+# Paths
+DOCS_CONTENT_DIR := justfile_directory() / "content"
+RESOURCES_DIR := justfile_directory() / "src/kb_dashboard_docs/resources"
 
 # Default recipe - show help
 default:
@@ -18,16 +22,36 @@ help:
     @echo "  install       - Install Python dependencies and markdownlint-cli (requires npm)"
     @echo ""
     @echo "CI and Verification:"
-    @echo "  ci            - Run all doc checks (markdown lint + link verification)"
+    @echo "  ci            - Run all checks (lint + typecheck + test + links)"
     @echo "  check         - Alias for ci"
     @echo "  test-links    - Check documentation links only"
+    @echo ""
+    @echo "Linting:"
+    @echo "  lint          - Auto-fix Python linting issues"
+    @echo "  lint-check    - Check Python linting without fixing"
+    @echo ""
+    @echo "Type Checking:"
+    @echo "  typecheck     - Run Python type checking"
+    @echo ""
+    @echo "Testing:"
+    @echo "  test          - Run tests"
+    @echo "  test-unit     - Run unit tests"
+    @echo "  test-e2e      - No E2E tests (documentation package)"
     @echo ""
     @echo "Development:"
     @echo "  serve         - Start local documentation server"
     @echo "  build         - Build documentation static site (strict mode, fails on warnings)"
     @echo ""
+    @echo "Vendoring:"
+    @echo "  vendor-docs   - Build documentation and copy bundled content"
+    @echo ""
+    @echo "PyPI Publishing:"
+    @echo "  build-package - Build package for PyPI (includes vendor-docs)"
+    @echo "  publish       - Publish package to PyPI"
+    @echo "  publish-test  - Publish package to TestPyPI"
+    @echo ""
     @echo "Cleaning:"
-    @echo "  clean         - Clean build artifacts"
+    @echo "  clean         - Clean build artifacts and vendored docs"
 
 install:
     #!/usr/bin/env bash
@@ -44,7 +68,7 @@ install:
     uv sync --package kb-dashboard-docs --group dev
     printf "✓ Documentation dependencies installed\n"
 
-ci:
+ci: lint-check typecheck test-unit
     just _print-start "Checking documentation (lint + links)"
     @echo ""
     just --justfile "{{REPO_ROOT}}/justfile" lint-markdown-check
@@ -54,6 +78,43 @@ ci:
     just _print-end "Documentation checks passed"
 
 check: ci
+
+fix: lint
+
+# Python linting
+lint:
+    just _print-start "Running ruff format"
+    uv run ruff format src/ tests/
+    just _print-end "ruff format complete"
+    just _print-start "Running ruff check --fix"
+    uv run ruff check src/ tests/ --fix
+    just _print-end "ruff check complete"
+
+lint-check:
+    just _print-start "Running ruff format --check"
+    uv run ruff format src/ tests/ --check --quiet
+    just _print-end "ruff format check passed"
+    just _print-start "Running ruff check"
+    uv run ruff check src/ tests/ --quiet
+    just _print-end "ruff check passed"
+    just _print-end "Python linting checks passed"
+
+# Type checking
+typecheck:
+    just _print-start "Running type checking"
+    cd "{{REPO_ROOT}}" && uv run --group dev basedpyright packages/kb-dashboard-docs/src packages/kb-dashboard-docs/tests
+    just _print-end "Type checking passed"
+
+# Testing
+test-unit:
+    just _print-start "Running pytest"
+    uv run pytest tests/ -o addopts="" --tb=line --no-header -q
+    just _print-end "Tests passed"
+
+test-e2e:
+    @echo "No E2E tests for kb-dashboard-docs (documentation package)"
+
+test: test-unit
 
 serve:
     just _print-start "Starting documentation server"
@@ -70,7 +131,77 @@ test-links:
     uv run --group dev pytest --check-links content/ -o addopts="" --tb=line --no-header -q --check-links-ignore='.*llms.*\.txt$'
     just _print-end "Documentation links checked"
 
+# Vendor documentation content (builds mkdocs then copies resources)
+vendor-docs:
+    just _print-start "Vendoring documentation content"
+    just _vendor-docs-build
+    just _vendor-docs-copy
+    just _print-end "Documentation vendored successfully"
+
+[private]
+_vendor-docs-build:
+    @printf "  Building documentation to generate llms-full.txt...\n"
+    NO_COLOR=1 uv run --group dev mkdocs build --strict
+
+[private]
+_vendor-docs-copy:
+    @# Clear existing vendored outputs to prevent stale files
+    mkdir -p "{{RESOURCES_DIR}}/guides"
+    rm -f "{{RESOURCES_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/guides/"*.md 2>/dev/null || true
+    @# Verify required source files exist
+    @test -f "{{DOCS_CONTENT_DIR}}/llms-full.txt" || (echo "Error: llms-full.txt not found. Run mkdocs build first." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/esql-language-reference.md" || (echo "Error: esql-language-reference.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/otel-dashboard-guide.md" || (echo "Error: otel-dashboard-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/color-assignments.md" || (echo "Error: color-assignments.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/esql-views.md" || (echo "Error: esql-views.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/legend-configuration.md" || (echo "Error: legend-configuration.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/dashboard-decompiling-guide.md" || (echo "Error: dashboard-decompiling-guide.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/dashboard-style-guide.md" || (echo "Error: dashboard-style-guide.md not found." && exit 1)
+    @printf "  Copying llms-full.txt...\n"
+    cp "{{DOCS_CONTENT_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/llms-full.txt"
+    @printf "  Copying workflow guides...\n"
+    cp "{{DOCS_CONTENT_DIR}}/guides/esql-language-reference.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/otel-dashboard-guide.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/color-assignments.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/esql-views.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/legend-configuration.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/dashboard-decompiling-guide.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/dashboard-style-guide.md" "{{RESOURCES_DIR}}/guides/"
+    @printf "  • llms-full.txt\n"
+    @printf "  • guides/esql-language-reference.md\n"
+    @printf "  • guides/otel-dashboard-guide.md\n"
+    @printf "  • guides/color-assignments.md\n"
+    @printf "  • guides/esql-views.md\n"
+    @printf "  • guides/legend-configuration.md\n"
+    @printf "  • guides/dashboard-decompiling-guide.md\n"
+    @printf "  • guides/dashboard-style-guide.md\n"
+
 clean:
     just _print-start "Cleaning documentation build artifacts"
-    rm -rf site/ llms.txt llms-full.txt 2>/dev/null || true
+    rm -rf site/ llms.txt llms-full.txt "{{DOCS_CONTENT_DIR}}/llms-full.txt" 2>/dev/null || true
+    find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name '.pytest_cache' -exec rm -rf {} + 2>/dev/null || true
+    find . -type d -name '.ruff_cache' -exec rm -rf {} + 2>/dev/null || true
+    find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete 2>/dev/null || true
+    rm -rf .venv 2>/dev/null || true
+    # Clean vendored docs (but keep __init__.py files)
+    rm -f "{{RESOURCES_DIR}}/llms-full.txt" 2>/dev/null || true
+    rm -f "{{RESOURCES_DIR}}/guides/"*.md 2>/dev/null || true
     just _print-end "Clean complete"
+
+# PyPI Publishing
+build-package: vendor-docs
+    just _print-start "Building package"
+    rm -f "{{REPO_ROOT}}"/dist/kb_dashboard_docs-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_docs-*.whl 2>/dev/null || true
+    uv build --out-dir "{{REPO_ROOT}}/dist"
+    just _print-end "Package built successfully"
+
+publish: build-package
+    just _print-start "Publishing to PyPI"
+    uv publish "{{REPO_ROOT}}"/dist/kb_dashboard_docs-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_docs-*.whl
+    just _print-end "Package published to PyPI"
+
+publish-test: build-package
+    just _print-start "Publishing to TestPyPI"
+    uv publish --publish-url https://test.pypi.org/legacy/ "{{REPO_ROOT}}"/dist/kb_dashboard_docs-*.tar.gz "{{REPO_ROOT}}"/dist/kb_dashboard_docs-*.whl
+    just _print-end "Package published to TestPyPI"

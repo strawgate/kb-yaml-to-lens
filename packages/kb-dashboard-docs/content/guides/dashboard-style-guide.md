@@ -109,7 +109,7 @@ Arrange charts in horizontal rows of 2-3 panels for easy comparison.
 
 ## Visualization Guidelines
 
-Complete configuration details are available in [Lens Panel Configuration](panels/lens.md).
+Complete configuration details are available in [Lens Panel Configuration](../panels/lens.md).
 
 ### Metric Cards
 
@@ -467,10 +467,10 @@ Reference the `packages/kb-dashboard-docs/content/examples/` directory for compl
 ### Related Documentation
 
 - [Dashboard Decompiling Guide](dashboard-decompiling-guide.md) - Converting Kibana JSON to YAML
-- [Panel Types Documentation](panels/base.md) - Detailed panel configuration
-- [Lens Panel Configuration](panels/lens.md) - Complete field descriptions and options
-- [Controls Documentation](controls/config.md) - Dashboard control configuration
-- [Filters Documentation](filters/config.md) - Filter and query configuration
+- [Panel Types Documentation](../panels/base.md) - Detailed panel configuration
+- [Lens Panel Configuration](../panels/lens.md) - Complete field descriptions and options
+- [Controls Documentation](../controls/config.md) - Dashboard control configuration
+- [Filters Documentation](../filters/config.md) - Filter and query configuration
 
 ### External Resources
 

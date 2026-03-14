@@ -844,6 +844,6 @@ FROM logs-*                              -- 1. Source command
 ## Additional Resources
 
 - [ESQL Panel Configuration](../panels/esql.md) - Dashboard panel setup
-- [ES|QL Query Reuse with YAML Anchors](../advanced/esql-views.md) - Query patterns
+- [ES|QL Query Reuse with YAML Anchors](esql-views.md) - Query patterns
 - [Queries Configuration](../queries/config.md#esql-query) - Query format options
 - [Elastic ES|QL Reference](https://www.elastic.co/docs/reference/query-languages/esql) - Official documentation

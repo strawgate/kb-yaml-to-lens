@@ -282,7 +282,7 @@ controls:
     field: namespace
 ```
 
-Reference [Dashboard Controls](controls/config.md) for complete options.
+Reference [Dashboard Controls](../controls/config.md) for complete options.
 
 ### Dashboard Filters
 
@@ -301,21 +301,21 @@ Reference [Dashboard Controls](controls/config.md) for complete options.
 ```
 
 **Output:**
-Reference [Filters & Queries](filters/config.md) for filter conversion.
+Reference [Filters & Queries](../filters/config.md) for filter conversion.
 
 ## Panel Type Reference
 
 | Kibana Type | YAML Type | Documentation |
 | ----------- | -------------------------- | ---------------------------------------- |
-| `lnsMetric` | `lens.type: metric` | [Metric Charts](panels/metric.md) |
-| `lnsPie` | `lens.type: pie` | [Pie Charts](panels/pie.md) |
-| `lnsXY` | `lens.type: line/bar/area` | [XY Charts](panels/xy.md) |
-| `lnsGauge` | `lens.type: gauge` | [Gauge Charts](panels/gauge.md) |
-| `lnsDatatable` | `lens.type: table` | [Datatable Charts](panels/datatable.md) |
-| `markdown` | `markdown` | [Markdown Panels](panels/markdown.md) |
-| `links` | `links` | [Links Panels](panels/links.md) |
+| `lnsMetric` | `lens.type: metric` | [Metric Charts](../panels/metric.md) |
+| `lnsPie` | `lens.type: pie` | [Pie Charts](../panels/pie.md) |
+| `lnsXY` | `lens.type: line/bar/area` | [XY Charts](../panels/xy.md) |
+| `lnsGauge` | `lens.type: gauge` | [Gauge Charts](../panels/gauge.md) |
+| `lnsDatatable` | `lens.type: table` | [Datatable Charts](../panels/datatable.md) |
+| `markdown` | `markdown` | [Markdown Panels](../panels/markdown.md) |
+| `links` | `links` | [Links Panels](../panels/links.md) |
 
-For ES|QL-based panels, see [ES|QL Panels](panels/esql.md).
+For ES|QL-based panels, see [ES|QL Panels](../panels/esql.md).
 
 ## Validation
 
@@ -523,7 +523,7 @@ TypeError: Expected string, got int
 Error: Panel type 'vega' is not supported
 ```
 
-**Solution:** See [supported panel types](panels/base.md). For unsupported panels, either:
+**Solution:** See [supported panel types](../panels/base.md). For unsupported panels, either:
 
 - Create placeholder markdown panel
 - Skip the panel and document it
@@ -595,9 +595,9 @@ kb-dashboard compile
 ## Additional Resources
 
 - **Complete Documentation**: [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt)
-- **Examples**: [Complete Examples](examples/index.md)
-- **Aerospike Examples**: [Complex real-world dashboards](examples/aerospike/overview.yaml)
-- **Panel Type Docs**: [Panel Types Overview](panels/base.md)
-- **Controls**: [Dashboard Controls](controls/config.md)
-- **Filters**: [Filters & Queries](filters/config.md)
-- **Advanced Topics**: [ES|QL Views](advanced/esql-views.md), [Color Assignments](advanced/color-assignments.md)
+- **Examples**: [Complete Examples](../examples/index.md)
+- **Aerospike Examples**: [Complex real-world dashboards](../examples/aerospike/overview.yaml)
+- **Panel Type Docs**: [Panel Types Overview](../panels/base.md)
+- **Controls**: [Dashboard Controls](../controls/config.md)
+- **Filters**: [Filters & Queries](../filters/config.md)
+- **Advanced Topics**: [ES|QL Views](esql-views.md), [Color Assignments](color-assignments.md)

@@ -41,6 +41,8 @@ COPY packages/kb-dashboard-lint/pyproject.toml packages/kb-dashboard-lint/README
 COPY packages/kb-dashboard-lint/src/ /app/packages/kb-dashboard-lint/src/
 COPY packages/kb-dashboard-tools/pyproject.toml packages/kb-dashboard-tools/README.md /app/packages/kb-dashboard-tools/
 COPY packages/kb-dashboard-tools/src/ /app/packages/kb-dashboard-tools/src/
+COPY packages/kb-dashboard-docs/pyproject.toml packages/kb-dashboard-docs/README.md /app/packages/kb-dashboard-docs/
+COPY packages/kb-dashboard-docs/src/ /app/packages/kb-dashboard-docs/src/
 
 # Sync dependencies using uv (uses lockfile for reproducible builds)
 RUN uv sync --frozen --no-dev && \

@@ -1,21 +1,27 @@
 [project]
 name = "kb-dashboard-docs"
 version = "0.2.7"
-description = "Documentation for kb-yaml-to-lens"
+description = "Documentation and bundled LLM content for kb-yaml-to-lens"
+readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
-
-dependencies = [
-    "kb-dashboard-cli==0.2.7",
-    "kb-dashboard-lint==0.2.7",
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
 ]
 
-[tool.uv.sources]
-kb-dashboard-cli = { workspace = true }
-kb-dashboard-lint = { workspace = true }
+# No runtime dependencies - this package only provides bundled content
+dependencies = []
 
 [dependency-groups]
+# MkDocs and CLI dependencies are dev-only (for building docs)
 dev = [
+    "kb-dashboard-cli==0.2.7",
+    "kb-dashboard-lint==0.2.7",
     "mkdocs>=1.6.0",
     "mkdocs-material>=9.5.32",
     "mkdocstrings[python]>=1.0.0",
@@ -25,5 +31,88 @@ dev = [
     "mkdocs-click>=0.8.0",
     "pytest>=9.0",
     "pytest-check-links>=0.9.0",
-    "html2text>=2025.4.15",
+]
+
+[tool.uv.sources]
+kb-dashboard-cli = { workspace = true }
+kb-dashboard-lint = { workspace = true }
+
+[tool.pytest.ini_options]
+addopts = "-vv"
+
+[build-system]
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "kb_dashboard_docs"
+
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "site",
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "A", "ARG", "B", "C4", "COM", "DTZ", "E", "EM", "F", "FURB", "I",
+    "LOG", "N", "PERF", "PIE", "PLR", "PLW", "PT", "PTH", "Q", "RET",
+    "RSE", "RUF", "S", "SIM", "TC", "TID", "TRY", "UP", "W",
+    "D",
+    "ANN",
+    "PLE",
+    "T10",
+    "ISC",
+    "FA",
+    "PGH",
+    "INP",
+]
+ignore = [
+    "COM812",
+    "D203",
+    "D213",
+    "D413",
+    "D100",
+    "A002",
+    "ANN401",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = [
+    "S101",
+    "PLR2004",
+    "INP001",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.isort]
+known-first-party = ["kb_dashboard_docs"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.basedpyright]
+pythonVersion = "3.12"
+typeCheckingMode = "recommended"
+reportImportCycles = "error"
+reportExplicitAny = false
+include = ["src/kb_dashboard_docs", "tests"]
+exclude = [
+    "**/.venv/**",
+    "**/output/**",
 ]
