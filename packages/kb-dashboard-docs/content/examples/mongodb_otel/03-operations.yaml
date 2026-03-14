@@ -1,0 +1,329 @@
+---
+# MongoDB OpenTelemetry Operations Dashboard (ES|QL Version)
+# Provides detailed operation metrics including lock analysis (when enabled)
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mongodbreceiver
+# Requires metrics-* with data_stream.dataset == "mongodbreceiver.otel"
+# Note: Lock metrics are disabled by default in the receiver and require explicit enabling
+dashboards:
+  - id: mongodb-operations
+    name: '[Metrics MongoDB] Operations'
+    description: OpenTelemetry MongoDB Receiver - Detailed operation metrics and lock analysis (ES|QL)
+    filters:
+      - field: data_stream.dataset
+        equals: mongodbreceiver.otel
+    controls:
+      - type: options
+        id: database-filter
+        label: Database
+        data_view: metrics-*
+        field: attributes.db.namespace
+    panels:
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: mongodb-overview
+            - label: Database Metrics
+              dashboard: mongodb-database-metrics
+            - label: Operations
+              dashboard: mongodb-operations
+            - label: MongoDB Documentation
+              url: https://www.mongodb.com/docs/manual/
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Operation Breakdown'
+
+      # Operations Distribution Pie Chart
+      - title: Operations by Type
+        size: {w: 16, h: 12}
+        esql:
+          type: pie
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.operation.count IS NOT NULL
+            | STATS ops = SUM(RATE(mongodb.operation.count))
+              BY operation = attributes.operation
+            | SORT ops DESC
+            | LIMIT 10
+          metrics:
+            - field: ops
+              label: Operations/sec
+          dimensions:
+            - field: operation
+              label: Operation Type
+          appearance:
+            donut: medium
+
+      # Document Operations Distribution
+      - title: Document Operations by Type
+        size: {w: 16, h: 12}
+        esql:
+          type: pie
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.document.operation.count IS NOT NULL
+            | STATS docs = SUM(RATE(mongodb.document.operation.count))
+              BY operation = attributes.operation
+            | SORT docs DESC
+            | LIMIT 10
+          metrics:
+            - field: docs
+              label: Documents/sec
+          dimensions:
+            - field: operation
+              label: Operation Type
+          appearance:
+            donut: medium
+
+      # Operation Time Distribution
+      - title: Operation Time by Type
+        size: {w: 16, h: 12}
+        esql:
+          type: pie
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.operation.time IS NOT NULL
+            | STATS op_time = SUM(RATE(mongodb.operation.time))
+              BY operation = attributes.operation
+            | SORT op_time DESC
+            | LIMIT 10
+          metrics:
+            - field: op_time
+              label: Time (ms/sec)
+          dimensions:
+            - field: operation
+              label: Operation Type
+          appearance:
+            donut: medium
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Operation Rate Trends'
+
+      # All Operations Rate
+      - title: Total Operations Rate
+        size: {w: 48, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.operation.count IS NOT NULL
+            | STATS ops_rate = SUM(RATE(mongodb.operation.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation = attributes.operation
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: ops_rate
+              label: Operations/sec
+          breakdown:
+            field: operation
+
+      # Document Operations by Database
+      - title: Document Operations by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.document.operation.count IS NOT NULL
+            | STATS docs_rate = SUM(RATE(mongodb.document.operation.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: docs_rate
+              label: Documents/sec
+          breakdown:
+            field: db
+
+      # Operation Time by Database
+      - title: Operation Time by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.operation.time IS NOT NULL
+            | STATS op_time = SUM(RATE(mongodb.operation.time))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: op_time
+              label: Time (ms/sec)
+          breakdown:
+            field: db
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Lock Metrics (When Enabled)'
+          font_size: 14
+
+      # Note about lock metrics
+      - size: {w: 48, h: 2}
+        markdown:
+          content: Lock metrics are disabled by default in the MongoDB receiver. Enable `metrics.mongodb.lock.*` in receiver configuration to
+            populate these charts.
+
+      # Lock Acquire Rate by Type
+      - title: Lock Acquire Rate by Lock Type
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.lock.acquire.count IS NOT NULL
+            | STATS acquire_rate = SUM(RATE(mongodb.lock.acquire.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), lock_type = attributes.lock_type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: acquire_rate
+              label: Acquisitions/sec
+          breakdown:
+            field: lock_type
+
+      # Lock Acquire Rate by Mode
+      - title: Lock Acquire Rate by Lock Mode
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.lock.acquire.count IS NOT NULL
+            | STATS acquire_rate = SUM(RATE(mongodb.lock.acquire.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), lock_mode = attributes.lock_mode
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: acquire_rate
+              label: Acquisitions/sec
+          breakdown:
+            field: lock_mode
+
+      # Lock Wait Time Rate
+      - title: Lock Wait Time Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.lock.acquire.time IS NOT NULL
+            | STATS wait_time = SUM(RATE(mongodb.lock.acquire.time))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), lock_type = attributes.lock_type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: wait_time
+              label: Wait Time (μs/sec)
+          breakdown:
+            field: lock_type
+
+      # Lock Wait Count Rate
+      - title: Lock Wait Count Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.lock.acquire.wait_count IS NOT NULL
+            | STATS wait_count = SUM(RATE(mongodb.lock.acquire.wait_count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), lock_type = attributes.lock_type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: wait_count
+              label: Waits/sec
+          breakdown:
+            field: lock_type
+
+      # Deadlock Count Rate
+      - title: Deadlock Rate
+        size: {w: 48, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.lock.deadlock.count IS NOT NULL
+            | STATS deadlock_rate = SUM(RATE(mongodb.lock.deadlock.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), lock_type = attributes.lock_type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: deadlock_rate
+              label: Deadlocks/sec
+          breakdown:
+            field: lock_type

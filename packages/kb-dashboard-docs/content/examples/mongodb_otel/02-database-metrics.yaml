@@ -1,0 +1,359 @@
+---
+# MongoDB OpenTelemetry Database Metrics Dashboard (ES|QL Version)
+# Provides per-database storage, index, and collection analysis
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mongodbreceiver
+# Requires metrics-* with data_stream.dataset == "mongodbreceiver.otel"
+dashboards:
+  - id: mongodb-database-metrics
+    name: '[Metrics MongoDB] Database Metrics'
+    description: OpenTelemetry MongoDB Receiver - Database-level storage, index, and collection metrics (ES|QL)
+    filters:
+      - field: data_stream.dataset
+        equals: mongodbreceiver.otel
+    controls:
+      - type: options
+        id: database-filter
+        label: Database
+        data_view: metrics-*
+        field: attributes.db.namespace
+    panels:
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: mongodb-overview
+            - label: Database Metrics
+              dashboard: mongodb-database-metrics
+            - label: Operations
+              dashboard: mongodb-operations
+            - label: MongoDB Documentation
+              url: https://www.mongodb.com/docs/manual/
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Database Storage Overview'
+
+      # KPI Metrics Row
+      - title: Total Data Size
+        hide_title: true
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.data.size IS NOT NULL
+            | STATS data_size = SUM(LAST_OVER_TIME(mongodb.data.size))
+              BY db = attributes.db.namespace
+            | STATS data_size = SUM(data_size)
+          primary:
+            field: data_size
+            label: Data Size
+            format:
+              type: bytes
+      - title: Total Storage Size
+        hide_title: true
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.storage.size IS NOT NULL
+            | STATS storage_size = SUM(LAST_OVER_TIME(mongodb.storage.size))
+              BY db = attributes.db.namespace
+            | STATS storage_size = SUM(storage_size)
+          primary:
+            field: storage_size
+            label: Storage Size
+            format:
+              type: bytes
+      - title: Total Index Size
+        hide_title: true
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.index.size IS NOT NULL
+            | STATS index_size = SUM(LAST_OVER_TIME(mongodb.index.size))
+              BY db = attributes.db.namespace
+            | STATS index_size = SUM(index_size)
+          primary:
+            field: index_size
+            label: Index Size
+            format:
+              type: bytes
+      - title: Total Objects
+        hide_title: true
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.object.count IS NOT NULL
+            | STATS objects = SUM(LAST_OVER_TIME(mongodb.object.count))
+              BY db = attributes.db.namespace
+            | STATS objects = SUM(objects)
+          primary:
+            field: objects
+            label: Objects
+            format:
+              type: number
+              decimals: 0
+              compact: true
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Storage by Database'
+
+      # Data Size by Database Over Time
+      - title: Data Size by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.data.size IS NOT NULL
+            | STATS data_size = MAX(LAST_OVER_TIME(mongodb.data.size))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: data_size
+              label: Data Size
+              format:
+                type: bytes
+          breakdown:
+            field: db
+
+      # Storage Size by Database Over Time
+      - title: Storage Size by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.storage.size IS NOT NULL
+            | STATS storage_size = MAX(LAST_OVER_TIME(mongodb.storage.size))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: storage_size
+              label: Storage Size
+              format:
+                type: bytes
+          breakdown:
+            field: db
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Index Analysis'
+
+      # Index Size by Database
+      - title: Index Size by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.index.size IS NOT NULL
+            | STATS index_size = MAX(LAST_OVER_TIME(mongodb.index.size))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: index_size
+              label: Index Size
+              format:
+                type: bytes
+          breakdown:
+            field: db
+
+      # Index Count by Database
+      - title: Index Count by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.index.count IS NOT NULL
+            | STATS index_count = MAX(LAST_OVER_TIME(mongodb.index.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: index_count
+              label: Indexes
+              format:
+                type: number
+                decimals: 0
+          breakdown:
+            field: db
+
+      # Index Access Rate by Collection
+      - title: Index Access Rate by Collection
+        size: {w: 48, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.index.access.count IS NOT NULL
+            | STATS access_rate = SUM(RATE(mongodb.index.access.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), collection = attributes.collection
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: access_rate
+              label: Accesses/sec
+          breakdown:
+            field: collection
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Collection & Object Metrics'
+
+      # Collection Count by Database
+      - title: Collection Count by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.collection.count IS NOT NULL
+            | STATS collections = MAX(LAST_OVER_TIME(mongodb.collection.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: collections
+              label: Collections
+              format:
+                type: number
+                decimals: 0
+          breakdown:
+            field: db
+
+      # Object Count by Database
+      - title: Object Count by Database
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.object.count IS NOT NULL
+            | STATS objects = MAX(LAST_OVER_TIME(mongodb.object.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), db = attributes.db.namespace
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: objects
+              label: Objects
+              format:
+                type: number
+                decimals: 0
+                compact: true
+          breakdown:
+            field: db
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Database Summary Table'
+
+      # Database Summary DataTable
+      - title: Database Metrics Summary
+        size: {w: 48, h: 20}
+        esql:
+          type: datatable
+          query:
+            - TS metrics-*
+            - WHERE data_stream.dataset == "mongodbreceiver.otel"
+            - WHERE attributes.db.namespace IS NOT NULL
+            - STATS data_size = MAX(LAST_OVER_TIME(mongodb.data.size)), storage_size = MAX(LAST_OVER_TIME(mongodb.storage.size)), index_size =
+              MAX(LAST_OVER_TIME(mongodb.index.size)), index_count = MAX(LAST_OVER_TIME(mongodb.index.count)), collection_count = MAX(LAST_OVER_TIME(mongodb.collection.count)),
+              object_count = MAX(LAST_OVER_TIME(mongodb.object.count)) BY db = attributes.db.namespace
+            - KEEP db, data_size, storage_size, index_size, index_count, collection_count, object_count
+            - SORT data_size DESC
+            - LIMIT 100
+          dimensions:
+            - field: db
+              label: Database
+            - field: data_size
+              label: Data Size
+            - field: storage_size
+              label: Storage Size
+            - field: index_size
+              label: Index Size
+            - field: index_count
+              label: Indexes
+            - field: collection_count
+              label: Collections
+            - field: object_count
+              label: Objects

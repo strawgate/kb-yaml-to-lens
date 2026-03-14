@@ -1,0 +1,496 @@
+---
+# MongoDB OpenTelemetry Overview Dashboard (ES|QL Version)
+# Provides cluster-level metrics and instance health monitoring
+#
+# Metrics reference: https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/mongodbreceiver
+# Requires metrics-* with data_stream.dataset == "mongodbreceiver.otel"
+dashboards:
+  - id: mongodb-overview
+    name: '[Metrics MongoDB] Overview'
+    description: OpenTelemetry MongoDB Receiver - Overview dashboard showing key metrics across all MongoDB instances (ES|QL)
+    filters:
+      - field: data_stream.dataset
+        equals: mongodbreceiver.otel
+    controls:
+      - type: options
+        id: database-filter
+        label: Database
+        data_view: metrics-*
+        field: attributes.db.namespace
+    panels:
+      # Navigation Links
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Overview
+              dashboard: mongodb-overview
+            - label: Database Metrics
+              dashboard: mongodb-database-metrics
+            - label: Operations
+              dashboard: mongodb-operations
+            - label: MongoDB Documentation
+              url: https://www.mongodb.com/docs/manual/
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## MongoDB Cluster Overview'
+
+      # KPI Metrics Row
+      - title: Total Databases
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.database.count IS NOT NULL
+            | STATS databases = MAX(LAST_OVER_TIME(mongodb.database.count))
+          primary:
+            field: databases
+            label: Databases
+            format:
+              type: number
+              decimals: 0
+      - title: Total Collections
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.collection.count IS NOT NULL
+            | STATS collections = SUM(LAST_OVER_TIME(mongodb.collection.count))
+              BY db = attributes.db.namespace
+            | STATS collections = SUM(collections)
+          primary:
+            field: collections
+            label: Collections
+            format:
+              type: number
+              decimals: 0
+      - title: Total Connections
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.connection.count IS NOT NULL
+            | STATS connections = SUM(LAST_OVER_TIME(mongodb.connection.count))
+          primary:
+            field: connections
+            label: Connections
+            format:
+              type: number
+              decimals: 0
+      - title: Active Sessions
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.session.count IS NOT NULL
+            | STATS sessions = MAX(LAST_OVER_TIME(mongodb.session.count))
+          primary:
+            field: sessions
+            label: Sessions
+            format:
+              type: number
+              decimals: 0
+      - title: Total Data Size
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.data.size IS NOT NULL
+            | STATS data_size = SUM(LAST_OVER_TIME(mongodb.data.size))
+              BY db = attributes.db.namespace
+            | STATS data_size = SUM(data_size)
+          primary:
+            field: data_size
+            label: Data Size
+            format:
+              type: bytes
+      - title: Open Cursors
+        hide_title: true
+        size: {w: 8, h: 5}
+        esql:
+          type: metric
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.cursor.count IS NOT NULL
+            | STATS cursors = MAX(LAST_OVER_TIME(mongodb.cursor.count))
+          primary:
+            field: cursors
+            label: Cursors
+            format:
+              type: number
+              decimals: 0
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Connection & Session Metrics'
+
+      # Connections by Type Over Time (Gauge - use LAST_OVER_TIME)
+      - title: Connections by Type
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.connection.count IS NOT NULL
+            | STATS connections = MAX(LAST_OVER_TIME(mongodb.connection.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), connection_type = attributes.connection_type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: connections
+              label: Connections
+              format:
+                type: number
+                decimals: 0
+          breakdown:
+            field: connection_type
+
+      # Sessions Over Time
+      - title: Active Sessions Over Time
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.session.count IS NOT NULL
+            | STATS sessions = MAX(LAST_OVER_TIME(mongodb.session.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: sessions
+              label: Active Sessions
+              format:
+                type: number
+                decimals: 0
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Operations & Performance'
+
+      # Operations Rate by Type (Counter - use RATE)
+      - title: Operations Rate by Type
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.operation.count IS NOT NULL
+            | STATS ops_rate = SUM(RATE(mongodb.operation.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation = attributes.operation
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: ops_rate
+              label: Operations/sec
+          breakdown:
+            field: operation
+
+      # Document Operations Rate
+      - title: Document Operations Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.document.operation.count IS NOT NULL
+            | STATS docs_rate = SUM(RATE(mongodb.document.operation.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation = attributes.operation
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: docs_rate
+              label: Documents/sec
+          breakdown:
+            field: operation
+
+      # Operation Time by Type
+      - title: Operation Time by Type
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.operation.time IS NOT NULL
+            | STATS op_time = SUM(RATE(mongodb.operation.time))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), operation = attributes.operation
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: op_time
+              label: Time (ms/sec)
+          breakdown:
+            field: operation
+
+      # Network Requests Rate
+      - title: Network Requests Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.network.request.count IS NOT NULL
+            | STATS requests_rate = SUM(RATE(mongodb.network.request.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: requests_rate
+              label: Requests/sec
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Memory & Cache'
+
+      # Memory Usage by Type
+      - title: Memory Usage by Type
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.memory.usage IS NOT NULL
+            | STATS memory = MAX(LAST_OVER_TIME(mongodb.memory.usage))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), memory_type = attributes.memory_type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: memory
+              label: Memory
+              format:
+                type: bytes
+          breakdown:
+            field: memory_type
+
+      # Cache Operations Rate
+      - title: Cache Operations Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          mode: stacked
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.cache.operations IS NOT NULL
+            | STATS cache_ops = SUM(RATE(mongodb.cache.operations))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend), type = attributes.type
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: cache_ops
+              label: Cache Operations/sec
+          breakdown:
+            field: type
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Network I/O'
+
+      # Network Receive Rate (Counter - use RATE)
+      - title: Network Receive Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.network.io.receive IS NOT NULL
+            | STATS receive_rate = SUM(RATE(mongodb.network.io.receive))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: receive_rate
+              label: Bytes Received/sec
+              format:
+                type: bytes
+
+      # Network Transmit Rate (Counter - use RATE)
+      - title: Network Transmit Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: area
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.network.io.transmit IS NOT NULL
+            | STATS transmit_rate = SUM(RATE(mongodb.network.io.transmit))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: transmit_rate
+              label: Bytes Transmitted/sec
+              format:
+                type: bytes
+
+      # Section Header
+      - size: {w: 48, h: 3}
+        markdown:
+          content: '## Cursor & Global Lock'
+
+      # Open Cursors Over Time
+      - title: Open Cursors Over Time
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.cursor.count IS NOT NULL
+            | STATS cursors = MAX(LAST_OVER_TIME(mongodb.cursor.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: cursors
+              label: Open Cursors
+              format:
+                type: number
+                decimals: 0
+
+      # Cursor Timeouts Rate
+      - title: Cursor Timeouts Rate
+        size: {w: 24, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.cursor.timeout.count IS NOT NULL
+            | STATS timeout_rate = SUM(RATE(mongodb.cursor.timeout.count))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: timeout_rate
+              label: Timeouts/sec
+
+      # Global Lock Time Rate
+      - title: Global Lock Time Rate
+        size: {w: 48, h: 12}
+        esql:
+          type: line
+          query: |
+            TS metrics-*
+            | WHERE data_stream.dataset == "mongodbreceiver.otel"
+            | WHERE mongodb.global_lock.time IS NOT NULL
+            | STATS lock_time = SUM(RATE(mongodb.global_lock.time))
+              BY time_bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)
+            | SORT time_bucket ASC
+          legend:
+            visible: show
+            position: right
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          metrics:
+            - field: lock_time
+              label: Lock Time (ms/sec)
