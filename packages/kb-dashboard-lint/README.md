@@ -88,6 +88,7 @@ for violation in violations:
 | `esql-group-by-syntax` | ES\|QL uses BY within STATS, not GROUP BY | warning |
 | `esql-missing-sort-after-bucket` | ES\|QL time series queries with BUCKET should end with SORT for proper ordering | warning |
 | `esql-sql-syntax` | ES\|QL queries should not use SQL syntax | warning |
+| `esql-ts-metrics-min-version` | `FROM metrics-*` should use `TS metrics-*` on Kibana/Elasticsearch 9.2+ | warning |
 | `datatable-row-density` | Large datatables should consider compact density | info |
 | `dimension-missing-label` | Dimensions should have explicit labels | info |
 | `esql-dimension-missing-label` | ES\|QL datatable dimensions should have explicit labels | info |

@@ -14,6 +14,7 @@ from dashboard_lint.rules.chart.esql_metric_missing_label import ESQLMetricMissi
 from dashboard_lint.rules.chart.esql_missing_limit import ESQLMissingLimitRule
 from dashboard_lint.rules.chart.esql_missing_sort_after_bucket import ESQLMissingSortAfterBucketRule
 from dashboard_lint.rules.chart.esql_sql_syntax import ESQLSqlSyntaxRule
+from dashboard_lint.rules.chart.esql_ts_metrics_min_version import ESQLTSMetricsMinVersionRule
 from dashboard_lint.rules.chart.esql_where_clause import ESQLWhereClauseRule
 from dashboard_lint.rules.chart.gauge_goal_without_max import GaugeGoalWithoutMaxRule
 from dashboard_lint.rules.chart.metric_multiple_metrics_width import MetricMultipleMetricsWidthRule
@@ -34,6 +35,7 @@ __all__ = [
     'ESQLMissingLimitRule',
     'ESQLMissingSortAfterBucketRule',
     'ESQLSqlSyntaxRule',
+    'ESQLTSMetricsMinVersionRule',
     'ESQLWhereClauseRule',
     'GaugeGoalWithoutMaxRule',
     'MetricMultipleMetricsWidthRule',
