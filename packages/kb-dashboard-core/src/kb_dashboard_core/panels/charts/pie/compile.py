@@ -94,10 +94,10 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=slice_by_ids,
-        secondaryGroups=secondary_slice_by_ids or None,
+        secondaryGroups=secondary_slice_by_ids if secondary_slice_by_ids else None,
         metrics=metric_ids,
         allowMultipleMetrics=allow_multiple_metrics,
-        collapseFns=collapse_fns or None,
+        collapseFns=collapse_fns if collapse_fns else None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_display,
