@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
@@ -34,16 +34,18 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
     secondary_metric_id: str | None,
     max_metric_id: str | None,
     breakdown_dimension_id: str | None,
+    color_mode: Literal['value', 'background'],
 ) -> KbnMetricVisualizationState:
     """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state.
 
     Args:
         layer_id (str): The ID of the layer.
-        chart (LensMetricChart): The source chart configuration.
+        chart (LensMetricChart): The source chart configuration containing optional style fields.
         primary_metric_id (str): The ID of the primary metric.
         secondary_metric_id (str | None): The ID of the secondary metric.
         max_metric_id (str | None): The ID of the maximum metric.
         breakdown_dimension_id (str | None): The ID of the breakdown dimension.
+        color_mode (Literal['value', 'background']): Where Kibana applies metric color styling.
 
     Returns:
         KbnMetricVisualizationState: The compiled visualization state.
@@ -76,7 +78,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         secondaryMetricAccessor=secondary_metric_id,
         maxAccessor=max_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
-        colorMode=chart.color_mode,
+        applyColorTo=color_mode,
         subtitle=subtitle,
         secondaryLabel=secondary_label,
         icon=icon,
@@ -160,6 +162,7 @@ def compile_lens_metric_chart(
             secondary_metric_id=secondary_metric_id,
             max_metric_id=max_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
+            color_mode=lens_metric_chart.color_mode,
         ),
     )
 
@@ -179,11 +182,9 @@ def compile_esql_metric_chart(
             - kbn_state_visualization (KbnESQLMetricVisualizationState): The compiled visualization state.
 
     """
-    kbn_columns: list[KbnESQLColumnTypes]
-
     primary_metric: KbnESQLMetricColumnTypes = compile_esql_metric(esql_metric_chart.primary)
     primary_metric_id: str = primary_metric.columnId
-    kbn_columns = [primary_metric]
+    kbn_metric_columns: list[KbnESQLColumnTypes] = [primary_metric]
 
     secondary_metric: KbnESQLMetricColumnTypes | None = None
     secondary_metric_id: str | None = None
@@ -191,7 +192,7 @@ def compile_esql_metric_chart(
     if esql_metric_chart.secondary is not None:
         secondary_metric = compile_esql_metric(esql_metric_chart.secondary)
         secondary_metric_id = secondary_metric.columnId
-        kbn_columns.append(secondary_metric)
+        kbn_metric_columns.append(secondary_metric)
 
     max_metric: KbnESQLMetricColumnTypes | None = None
     max_metric_id: str | None = None
@@ -199,15 +200,20 @@ def compile_esql_metric_chart(
     if esql_metric_chart.maximum is not None:
         max_metric = compile_esql_metric(esql_metric_chart.maximum)
         max_metric_id = max_metric.columnId
-        kbn_columns.append(max_metric)
+        kbn_metric_columns.append(max_metric)
 
     breakdown_dimension: KbnESQLFieldDimensionColumn | None = None
     breakdown_dimension_id: str | None = None
 
+    kbn_columns: list[KbnESQLColumnTypes] = []
+
+    # Keep breakdown dimensions ahead of metrics in column order.
     if esql_metric_chart.breakdown is not None:
         breakdown_dimension = compile_esql_dimension(esql_metric_chart.breakdown)
         breakdown_dimension_id = breakdown_dimension.columnId
         kbn_columns.append(breakdown_dimension)
+
+    kbn_columns.extend(kbn_metric_columns)
 
     layer_id = esql_metric_chart.get_id()
 
@@ -240,7 +246,7 @@ def compile_esql_metric_chart(
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
-            colorMode=esql_metric_chart.color_mode,
+            applyColorTo=esql_metric_chart.color_mode,
             subtitle=subtitle,
             secondaryLabel=secondary_label,
             icon=icon,

@@ -3,19 +3,13 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart
+from kb_dashboard_core.panels.charts.datatable.dimensions import ESQLDatatableDimensionTypes, LensDatatableDimensionTypes
+from kb_dashboard_core.panels.charts.datatable.metrics import ESQLDatatableMetricTypes, LensDatatableMetricTypes
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
-
-
-class DatatableAlignmentEnum(StrEnum):
-    """Alignment options for datatable columns."""
-
-    LEFT = 'left'
-    RIGHT = 'right'
-    CENTER = 'center'
 
 
 class DatatableRowHeightEnum(StrEnum):
@@ -32,70 +26,6 @@ class DatatableDensityEnum(StrEnum):
     COMPACT = 'compact'
     NORMAL = 'normal'
     EXPANDED = 'expanded'
-
-
-class DatatableColorModeEnum(StrEnum):
-    """Color mode options for datatable columns."""
-
-    NONE = 'none'
-    CELL = 'cell'
-    TEXT = 'text'
-
-
-class DatatableSummaryRowEnum(StrEnum):
-    """Summary row options for datatable columns."""
-
-    NONE = 'none'
-    SUM = 'sum'
-    AVG = 'avg'
-    COUNT = 'count'
-    MIN = 'min'
-    MAX = 'max'
-
-
-class DatatableColumnConfig(BaseCfgModel):
-    """Configuration for a single datatable column.
-
-    The column_id must reference the ID of a metric or row column.
-    """
-
-    column_id: str = Field(...)
-    """The ID of the column (must match a metric or row ID)."""
-
-    width: int | None = Field(default=None)
-    """Column width in pixels."""
-
-    hidden: bool = Field(default=False)
-    """Whether to hide this column."""
-
-    one_click_filter: bool = Field(default=False)
-    """Enable one-click filtering for this column."""
-
-    alignment: DatatableAlignmentEnum | None = Field(default=None, strict=False)
-    """Text alignment for the column."""
-
-    color_mode: DatatableColorModeEnum | None = Field(default=None, strict=False)
-    """How to apply colors to the column."""
-
-
-class DatatableMetricColumnConfig(DatatableColumnConfig):
-    """Configuration for a metric column in a datatable.
-
-    Extends DatatableColumnConfig with metric-specific options like summary rows.
-    """
-
-    summary_row: DatatableSummaryRowEnum | None = Field(default=None, strict=False)
-    """Summary function to display at the bottom of the column (only for metrics)."""
-
-    summary_label: str | None = Field(default=None)
-    """Custom label for the summary row."""
-
-    color: ColorRangeMapping | None = Field(default=None)
-    """Range-based color mapping for numeric metric values.
-
-    Enables gradient/threshold coloring for numeric values using defined stops.
-    Use with `color_mode` to control how colors are applied (cell background or text).
-    """
 
 
 class DatatableSortingConfig(BaseCfgModel):
@@ -188,20 +118,14 @@ class LensDatatableChart(BaseChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the datatable chart."""
 
-    metrics: list[LensMetricTypes] = Field(default_factory=list)
+    metrics: list[LensDatatableMetricTypes | LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    dimensions: list[LensDimensionTypes] = Field(default_factory=list)
+    dimensions: list[LensDatatableDimensionTypes | LensDimensionTypes] = Field(default_factory=list)
     """List of dimensions to use as row groupings."""
 
-    dimensions_by: list[LensDimensionTypes] | None = Field(default=None)
+    dimensions_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
     """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
-
-    columns: list[DatatableColumnConfig] | None = Field(default=None)
-    """Optional column configurations for customizing individual columns (for rows)."""
-
-    metric_columns: list[DatatableMetricColumnConfig] | None = Field(default=None)
-    """Optional column configurations for customizing metric columns."""
 
     appearance: DatatableAppearance | None = Field(default=None)
     """Appearance settings for the datatable."""
@@ -228,9 +152,6 @@ class LensDatatableChart(BaseChart):
 class ESQLDatatableChart(BaseChart):
     """Represents a Datatable chart configuration within an ESQL panel.
 
-    Note: ESQL datatables can have empty metrics and rows lists if they rely on
-    the ESQL query to define columns (e.g., STATS or KEEP commands).
-
     Examples:
         ES|QL datatable with STATS query:
         ```yaml
@@ -256,20 +177,14 @@ class ESQLDatatableChart(BaseChart):
     type: Literal['datatable'] = Field(default='datatable')
     """The type of chart, which is 'datatable' for this visualization."""
 
-    metrics: list[ESQLMetricTypes] = Field(default_factory=list)
+    metrics: list[ESQLDatatableMetricTypes | ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(default_factory=list)
+    dimensions: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] = Field(default_factory=list)
     """List of ESQL dimensions to use as row groupings."""
 
-    dimensions_by: list[ESQLDimensionTypes] | None = Field(default=None)
+    dimensions_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
     """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
-
-    columns: list[DatatableColumnConfig] | None = Field(default=None)
-    """Optional column configurations for customizing individual columns (for rows)."""
-
-    metric_columns: list[DatatableMetricColumnConfig] | None = Field(default=None)
-    """Optional column configurations for customizing metric columns."""
 
     appearance: DatatableAppearance | None = Field(default=None)
     """Appearance settings for the datatable."""
@@ -279,3 +194,11 @@ class ESQLDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
+
+    @model_validator(mode='after')
+    def validate_has_metrics_or_dimensions(self) -> Self:
+        """Validate that datatable has at least one metric or dimension."""
+        if len(self.metrics) == 0 and len(self.dimensions) == 0:
+            msg = 'Datatable must have at least one metric or one dimension'
+            raise ValueError(msg)
+        return self

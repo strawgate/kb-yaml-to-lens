@@ -6,16 +6,26 @@ from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_di
 if TYPE_CHECKING:
     from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn
 
+from kb_dashboard_core.panels.charts.datatable.appearance import (
+    DatatableColumnAppearanceMixin,
+    DatatableMetricAppearanceMixin,
+)
 from kb_dashboard_core.panels.charts.datatable.config import (
     DatatableAppearance,
-    DatatableColumnConfig,
     DatatableDensityEnum,
-    DatatableMetricColumnConfig,
     DatatablePagingConfig,
     DatatableRowHeightEnum,
     DatatableSortingConfig,
     ESQLDatatableChart,
     LensDatatableChart,
+)
+from kb_dashboard_core.panels.charts.datatable.dimensions import (
+    ESQLDatatableDimensionTypes,
+    LensDatatableDimensionTypes,
+)
+from kb_dashboard_core.panels.charts.datatable.metrics import (
+    ESQLDatatableMetricTypes,
+    LensDatatableMetricTypes,
 )
 from kb_dashboard_core.panels.charts.datatable.view import (
     KbnDatatableColumnState,
@@ -23,13 +33,16 @@ from kb_dashboard_core.panels.charts.datatable.view import (
     KbnDatatableSortingState,
     KbnDatatableVisualizationState,
 )
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
 )
 from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimension
+from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 
 
 def _build_datatable_visualization_state(
@@ -93,58 +106,49 @@ def _build_datatable_visualization_state(
     )
 
 
-def _build_datatable_column_states(
-    column_order: list[str],
-    metric_columns_ids: set[str],
-    metric_columns_config: list[DatatableMetricColumnConfig] | None,
-    row_columns_config: list[DatatableColumnConfig] | None,
-) -> list[KbnDatatableColumnState]:
-    """Build column states for a datatable visualization.
+def _build_datatable_column_state(
+    column_id: str,
+    is_metric: bool,
+    config: (
+        LensDatatableDimensionTypes
+        | LensDimensionTypes
+        | ESQLDatatableDimensionTypes
+        | ESQLDimensionTypes
+        | LensDatatableMetricTypes
+        | LensMetricTypes
+        | ESQLDatatableMetricTypes
+        | ESQLMetricTypes
+    ),
+) -> KbnDatatableColumnState:
+    metric_appearance = config.appearance if is_metric and isinstance(config, DatatableMetricAppearanceMixin) else None
+    if metric_appearance is not None:
+        column_appearance = metric_appearance
+    elif isinstance(config, DatatableColumnAppearanceMixin):
+        column_appearance = config.appearance
+    else:
+        column_appearance = None
 
-    Args:
-        column_order: Ordered list of column IDs
-        metric_columns_ids: Set of metric column IDs
-        metric_columns_config: User configuration for metric columns
-        row_columns_config: User configuration for row columns
+    summary_row = metric_appearance.summary_row if metric_appearance is not None else None
+    summary_label = metric_appearance.summary_label if metric_appearance is not None else None
+    metric_color = metric_appearance.color if metric_appearance is not None else None
+    palette = compile_color_range_mapping(metric_color.to_range_mapping()) if metric_color is not None else None
+    hidden = column_appearance.hidden if column_appearance is not None else False
+    one_click_filter = column_appearance.one_click_filter if column_appearance is not None else False
+    color_mode = metric_color.apply_to if metric_color is not None else None
 
-    Returns:
-        List of compiled column states
-
-    """
-    column_states: list[KbnDatatableColumnState] = []
-    for column_id in column_order:
-        is_metric = column_id in metric_columns_ids
-
-        user_config = None
-        if is_metric and metric_columns_config is not None:
-            user_config = next((c for c in metric_columns_config if c.column_id == column_id), None)
-        elif not is_metric and row_columns_config is not None:
-            user_config = next((c for c in row_columns_config if c.column_id == column_id), None)
-
-        summary_row = None
-        summary_label = None
-        palette = None
-        if is_metric and isinstance(user_config, DatatableMetricColumnConfig):
-            summary_row = user_config.summary_row
-            summary_label = user_config.summary_label
-            palette = compile_color_range_mapping(user_config.color)
-
-        column_state = KbnDatatableColumnState(
-            columnId=column_id,
-            width=user_config.width if user_config is not None else None,
-            hidden=user_config.hidden if user_config is not None and user_config.hidden is True else None,
-            isTransposed=False,
-            isMetric=is_metric,
-            oneClickFilter=user_config.one_click_filter if user_config is not None and user_config.one_click_filter is True else None,
-            alignment=user_config.alignment if user_config is not None else None,
-            colorMode=user_config.color_mode if user_config is not None else None,
-            summaryRow=summary_row,
-            summaryLabel=summary_label,
-            palette=palette,
-        )
-        column_states.append(column_state)
-
-    return column_states
+    return KbnDatatableColumnState(
+        columnId=column_id,
+        width=column_appearance.width if column_appearance is not None else None,
+        hidden=hidden if hidden is True else None,
+        isTransposed=False,
+        isMetric=is_metric,
+        oneClickFilter=one_click_filter if one_click_filter is True else None,
+        alignment=column_appearance.alignment if column_appearance is not None else None,
+        colorMode=color_mode,
+        summaryRow=summary_row,
+        summaryLabel=summary_label,
+        palette=palette,
+    )
 
 
 def compile_lens_datatable_chart(
@@ -164,7 +168,9 @@ def compile_lens_datatable_chart(
     """
     layer_id = lens_datatable_chart.get_id()
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
-    column_order: list[str] = []
+    datatable_columns: list[
+        tuple[str, bool, LensDatatableDimensionTypes | LensDimensionTypes | LensDatatableMetricTypes | LensMetricTypes]
+    ] = []
 
     # Compile metrics first (for dimension compilation to reference)
     kbn_metric_columns_by_id: dict[str, KbnLensMetricColumnTypes] = {}
@@ -184,7 +190,7 @@ def compile_lens_datatable_chart(
             kbn_metric_column_by_id=kbn_metric_columns_by_id,
         )
         kbn_columns_by_id[dimension_id] = compiled_dimension
-        column_order.append(dimension_id)
+        datatable_columns.append((dimension_id, False, dimension))
 
     # Compile dimensions_by (split metrics by)
     if lens_datatable_chart.dimensions_by is not None:
@@ -194,20 +200,16 @@ def compile_lens_datatable_chart(
                 kbn_metric_column_by_id=kbn_metric_columns_by_id,
             )
             kbn_columns_by_id[dimensions_by_id] = compiled_dimensions_by
-            column_order.append(dimensions_by_id)
+            datatable_columns.append((dimensions_by_id, False, dimensions_by_dim))
 
     # Add all metric columns (including helper columns) to kbn_columns_by_id
-    # but only add primary metric IDs to column_order (helper columns are not visible)
+    # but only add primary metric IDs to datatable columns (helper columns are not visible)
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
-    column_order.extend(primary_metric_ids)
-
-    # Build column states (only primary metric IDs, not helper columns)
-    column_states = _build_datatable_column_states(
-        column_order=column_order,
-        metric_columns_ids=set(primary_metric_ids),
-        metric_columns_config=lens_datatable_chart.metric_columns,
-        row_columns_config=lens_datatable_chart.columns,
-    )
+    datatable_columns.extend(zip(primary_metric_ids, [True] * len(lens_datatable_chart.metrics), lens_datatable_chart.metrics, strict=True))
+    column_states = [
+        _build_datatable_column_state(column_id=column_id, is_metric=is_metric, config=config)
+        for column_id, is_metric, config in datatable_columns
+    ]
 
     visualization_state = _build_datatable_visualization_state(
         column_states=column_states,
@@ -237,7 +239,9 @@ def compile_esql_datatable_chart(
     """
     layer_id = esql_datatable_chart.get_id()
     kbn_columns: list[KbnESQLColumnTypes] = []
-    column_order: list[str] = []
+    datatable_columns: list[
+        tuple[str, bool, ESQLDatatableDimensionTypes | ESQLDimensionTypes | ESQLDatatableMetricTypes | ESQLMetricTypes]
+    ] = []
 
     # Compile metrics first (to store for later, but don't add to kbn_columns yet)
     compiled_metrics: list[KbnESQLColumnTypes] = []
@@ -251,26 +255,22 @@ def compile_esql_datatable_chart(
     for dimension in esql_datatable_chart.dimensions:
         compiled_dimension: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimension)
         kbn_columns.append(compiled_dimension)
-        column_order.append(compiled_dimension.columnId)
+        datatable_columns.append((compiled_dimension.columnId, False, dimension))
 
     # Compile dimensions_by (split metrics by)
     if esql_datatable_chart.dimensions_by is not None:
         for dimensions_by_dim in esql_datatable_chart.dimensions_by:
             compiled_dimensions_by: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimensions_by_dim)
             kbn_columns.append(compiled_dimensions_by)
-            column_order.append(compiled_dimensions_by.columnId)
+            datatable_columns.append((compiled_dimensions_by.columnId, False, dimensions_by_dim))
 
     # Add metrics to kbn_columns AFTER dimensions
     kbn_columns.extend(compiled_metrics)
-    column_order.extend(metric_column_ids)
-
-    # Build column states
-    column_states = _build_datatable_column_states(
-        column_order=column_order,
-        metric_columns_ids=set(metric_column_ids),
-        metric_columns_config=esql_datatable_chart.metric_columns,
-        row_columns_config=esql_datatable_chart.columns,
-    )
+    datatable_columns.extend(zip(metric_column_ids, [True] * len(esql_datatable_chart.metrics), esql_datatable_chart.metrics, strict=True))
+    column_states = [
+        _build_datatable_column_state(column_id=column_id, is_metric=is_metric, config=config)
+        for column_id, is_metric, config in datatable_columns
+    ]
 
     visualization_state = _build_datatable_visualization_state(
         column_states=column_states,

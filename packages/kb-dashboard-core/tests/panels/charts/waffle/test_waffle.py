@@ -1,0 +1,376 @@
+"""Test the compilation of Lens waffle charts from config models to view models."""
+
+from dirty_equals import IsUUID
+from inline_snapshot import snapshot
+
+from kb_dashboard_core.panels.charts.config import ESQLWafflePanelConfig
+from kb_dashboard_core.panels.charts.waffle.compile import compile_esql_waffle_chart, compile_lens_waffle_chart
+from kb_dashboard_core.panels.charts.waffle.config import LensWaffleChart
+
+
+async def test_basic_waffle_chart() -> None:
+    """Test basic waffle chart."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+    esql_config = {
+        'type': 'waffle',
+        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
+        'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.shape == 'waffle'
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+        }
+    )
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    assert kbn_state_visualization.shape == 'waffle'
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+        }
+    )
+
+
+async def test_waffle_chart_supports_breakdown() -> None:
+    """Test waffle chart supports an optional breakdown dimension."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    layer = kbn_state_visualization.layers[0]
+    assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
+
+
+async def test_waffle_chart_with_legend_options() -> None:
+    """Test waffle chart with legend configuration."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'legend': {'visible': 'show', 'width': 'medium', 'nested': True},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'show',
+            'legendPosition': 'right',
+            'nestedLegend': True,
+            'legendSize': 'medium',
+        }
+    )
+
+
+async def test_waffle_chart_with_value_display() -> None:
+    """Test waffle chart with value display options."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_format': 'value'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'value',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+        }
+    )
+
+
+async def test_waffle_chart_with_hidden_values() -> None:
+    """Test waffle chart with hidden values."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_format': 'hidden'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.numberDisplay == 'hidden'
+
+
+async def test_waffle_chart_with_collapse_functions() -> None:
+    """Test waffle chart with collapse functions."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'collapseFns': {'6e73286b-85cf-4343-9676-b7ee2ed0a3df': 'sum'},
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+        }
+    )
+
+
+async def test_waffle_chart_with_custom_colors() -> None:
+    """Test waffle chart with custom color assignments."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'color': {
+            'palette': 'eui_amsterdam_color_blind',
+            'assignments': [
+                {'values': ['api-gateway'], 'color': '#00BF6F'},
+                {'values': ['database'], 'color': '#006BB4'},
+            ],
+        },
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.colorMapping is not None
+    assert layer.colorMapping.paletteId == 'eui_amsterdam_color_blind'
+    assert len(layer.colorMapping.assignments) == 2
+
+
+async def test_waffle_chart_with_legend_position() -> None:
+    """Test waffle chart with legend position configuration."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'legend': {'visible': 'show', 'position': 'bottom'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.legendPosition == 'bottom'
+    assert layer.legendDisplay == 'show'
+
+
+async def test_esql_waffle_chart_supports_breakdown() -> None:
+    """Test ES|QL waffle chart supports an optional breakdown dimension."""
+    esql_config = {
+        'type': 'waffle',
+        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method, service.name',
+        'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'field': 'service.name', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
+    layer = kbn_state_visualization.layers[0]
+    assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
+
+
+async def test_waffle_chart_with_value_decimal_places() -> None:
+    """Test waffle chart with value_decimal_places specified at layer level."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+    esql_config = {
+        'type': 'waffle',
+        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
+        'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'titles_and_text': {'value_decimal_places': 5},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+            'percentDecimals': 5,
+        }
+    )
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.model_dump() == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'colorMapping': {
+                'assignments': [],
+                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'paletteId': 'eui_amsterdam_color_blind',
+                'colorMode': {'type': 'categorical'},
+            },
+            'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
+            'allowMultipleMetrics': False,
+            'numberDisplay': 'percent',
+            'categoryDisplay': 'default',
+            'legendDisplay': 'default',
+            'legendPosition': 'right',
+            'nestedLegend': False,
+            'percentDecimals': 5,
+        }
+    )
+
+
+async def test_waffle_chart_without_value_decimal_places() -> None:
+    """Test that waffle chart omits percentDecimals when not specified."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    dumped = layer.model_dump()
+    assert 'percentDecimals' not in dumped

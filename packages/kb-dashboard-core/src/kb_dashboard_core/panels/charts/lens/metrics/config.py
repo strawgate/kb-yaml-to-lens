@@ -135,8 +135,8 @@ class LensSumAggregatedMetric(BaseLensMetric):
 class LensOtherAggregatedMetric(BaseLensMetric):
     """Represents various aggregated metric configurations within a Lens chart."""
 
-    aggregation: Literal['min', 'max', 'median', 'average'] = Field(...)
-    """The aggregation type for the metric (e.g., 'min', 'max', 'median', 'average')."""
+    aggregation: Literal['min', 'max', 'median', 'average', 'standard_deviation'] = Field(...)
+    """The aggregation type for the metric (e.g., 'min', 'max', 'median', 'average', 'standard_deviation')."""
 
     field: str = Field(...)
 

@@ -65,6 +65,7 @@ AGG_TO_FRIENDLY_TITLE = {
     'percentile': 'percentile',
     'last_value': 'Last value',
     'unique_count': 'Unique count',
+    'standard_deviation': 'Standard deviation',
 }
 
 AGG_TO_DEFAULT_EXCLUDE_ZEROS = {

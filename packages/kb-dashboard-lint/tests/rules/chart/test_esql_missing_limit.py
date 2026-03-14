@@ -20,6 +20,8 @@ def dashboard_with_sort_desc_no_limit() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM logs-* | STATS count = COUNT(*) BY host.name | SORT count DESC',
+                    metrics=[ESQLMetric(field='count')],
+                    dimensions=[{'field': 'host.name'}],
                 ),
             ),
         ],
@@ -37,6 +39,8 @@ def dashboard_with_sort_desc_and_limit() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM logs-* | STATS count = COUNT(*) BY host.name | SORT count DESC | LIMIT 10',
+                    metrics=[ESQLMetric(field='count')],
+                    dimensions=[{'field': 'host.name'}],
                 ),
             ),
         ],

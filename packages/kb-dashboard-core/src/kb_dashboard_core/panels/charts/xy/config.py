@@ -206,6 +206,13 @@ class AreaChartAppearance(LineChartAppearance):
 class XYTitlesAndText(BaseCfgModel):
     """Represents titles and text formatting options for XY charts."""
 
+    value_labels: Literal['hide', 'show'] | None = Field(
+        default=None,
+        description=(
+            "Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to 'hide' if not specified."
+        ),
+    )
+
 
 class BaseXYChart(BaseChart):
     """Base model for defining XY chart objects."""

@@ -1541,3 +1541,80 @@ def test_xy_chart_dashboard_references_bubble_up() -> None:
             }
         ]
     )
+
+
+def test_value_labels_show_lens() -> None:
+    """Test that value_labels='show' is compiled through to the visualization state (Lens)."""
+    lens_config = {
+        'type': 'bar',
+        'mode': 'stacked',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'titles_and_text': {'value_labels': 'show'},
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization.valueLabels == 'show'
+
+
+def test_value_labels_hide_lens() -> None:
+    """Test that value_labels='hide' is compiled through to the visualization state (Lens)."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'titles_and_text': {'value_labels': 'hide'},
+    }
+
+    lens_chart = LensLineChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization.valueLabels == 'hide'
+
+
+def test_value_labels_default_hide() -> None:
+    """Test that value_labels defaults to 'hide' when titles_and_text is not specified."""
+    lens_config = {
+        'type': 'bar',
+        'mode': 'stacked',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+    }
+
+    lens_chart = LensBarChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization.valueLabels == 'hide'
+
+
+def test_value_labels_show_esql() -> None:
+    """Test that value_labels='show' is compiled through to the visualization state (ESQL)."""
+    esql_config = {
+        'type': 'bar',
+        'mode': 'stacked',
+        'dimension': {'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+        'titles_and_text': {'value_labels': 'show'},
+    }
+
+    esql_chart = ESQLBarChart(**esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_xy_chart(esql_xy_chart=esql_chart)
+    assert kbn_state_visualization.valueLabels == 'show'
+
+
+def test_value_labels_default_none_in_titles_and_text() -> None:
+    """Test that value_labels defaults to 'hide' when titles_and_text exists but value_labels is not set."""
+    lens_config = {
+        'type': 'area',
+        'mode': 'stacked',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'titles_and_text': {},
+    }
+
+    lens_chart = LensAreaChart(**lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+    assert kbn_state_visualization.valueLabels == 'hide'

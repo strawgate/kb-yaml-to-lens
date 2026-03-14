@@ -64,14 +64,14 @@ class KbnMetricVisualizationState(BaseVwModel):
     secondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for a secondary comparison metric."""
 
+    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Field accessor ID for the maximum value metric (used for progress bar display)."""
+
     breakdownByAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for breaking down the metric into multiple values."""
 
-    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """Field accessor ID for the maximum value metric (used for sparkline scale)."""
-
-    colorMode: Annotated[Literal['none', 'labels', 'background'] | None, OmitIfNone()] = Field(default=None)
-    """Color mode for metric value rendering."""
+    applyColorTo: Literal['value', 'background'] = Field(default='background')
+    """Apply metric color to value text or background."""
 
     subtitle: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Custom subtitle text displayed below the metric title."""
@@ -138,14 +138,14 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
     secondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for a secondary comparison metric."""
 
+    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Field accessor ID for the maximum value metric (used for progress bar display)."""
+
     breakdownByAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for breaking down the metric into multiple values."""
 
-    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
-    """Field accessor ID for the maximum value metric (used for progress bar scale)."""
-
-    colorMode: Annotated[Literal['none', 'labels', 'background'] | None, OmitIfNone()] = Field(default=None)
-    """Color mode for metric value rendering."""
+    applyColorTo: Literal['value', 'background'] = Field(default='background')
+    """Apply metric color to value text or background."""
 
     subtitle: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Custom subtitle text displayed below the metric title."""
