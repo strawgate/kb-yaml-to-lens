@@ -39,6 +39,7 @@ dump(dashboards, 'path/to/output.yaml')
 
 ## Developer Documentation
 
+- **[Compiler Architecture](docs/compiler-architecture.md)** - High-level architecture and data flow for the YAML-to-Kibana compiler.
 - **[Kibana Architecture Reference](docs/kibana-architecture.md)** - Technical reference for Kibana's dashboard JSON schema and internal architecture. Essential reading for understanding the compiler's output format.
 
 ## Development

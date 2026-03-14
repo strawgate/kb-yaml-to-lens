@@ -278,10 +278,7 @@ def generate_llms_txt_content(config: MkDocsConfig) -> str:
 ## Developer Guide
 
 - [Programmatic Usage]({site_url}/programmatic-usage/): Python API for dynamic dashboard generation
-- [Architecture Overview]({site_url}/architecture/): Technical design and data flow
 - [API Reference]({site_url}/api/): Auto-generated Python API documentation
-
-## Optional
-
-- [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
+- [Compiler Architecture](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md): Core compiler design and data flow
+- [Release Process](https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md): Tag-based release and publishing workflow
 """
