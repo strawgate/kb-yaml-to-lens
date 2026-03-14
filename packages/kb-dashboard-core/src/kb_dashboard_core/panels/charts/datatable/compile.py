@@ -6,6 +6,10 @@ from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_di
 if TYPE_CHECKING:
     from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLFieldDimensionColumn
 
+from kb_dashboard_core.panels.charts.datatable.appearance import (
+    DatatableColumnAppearanceMixin,
+    DatatableMetricAppearanceMixin,
+)
 from kb_dashboard_core.panels.charts.datatable.config import (
     DatatableAppearance,
     DatatableDensityEnum,
@@ -14,10 +18,6 @@ from kb_dashboard_core.panels.charts.datatable.config import (
     DatatableSortingConfig,
     ESQLDatatableChart,
     LensDatatableChart,
-)
-from kb_dashboard_core.panels.charts.datatable.appearance import (
-    DatatableColumnAppearanceMixin,
-    DatatableMetricAppearanceMixin,
 )
 from kb_dashboard_core.panels.charts.datatable.dimensions import (
     ESQLDatatableDimensionTypes,
