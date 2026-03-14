@@ -1,0 +1,254 @@
+---
+# PR #1219 Verification Dashboard
+# Tests two bug fixes:
+# 1. Maximum metric compilation (previously silently ignored)
+# 2. Custom format with pattern, suffix, compact (pattern was incorrectly on standard formats)
+
+dashboards:
+  - id: pr-1219-verification
+    name: "[Test] PR 1219 - Metric Bug Fixes Verification"
+    description: |
+      Verifies the fixes in PR #1219:
+      - Maximum metric now compiles to maxAccessor
+      - Custom formats correctly support pattern, suffix, and compact
+    panels:
+      # ===========================================================
+      # TEST 1: Maximum Metric (Static Value)
+      # ===========================================================
+      - title: "CPU Usage with Maximum (Static)"
+        description: "Tests static maximum value compilation"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 0
+          y: 0
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          primary:
+            aggregation: average
+            field: system.cpu.total.pct
+            label: "CPU Usage"
+            format:
+              type: percent
+          maximum:
+            value: 1
+            label: "Max CPU"
+
+      # ===========================================================
+      # TEST 2: Maximum Metric (Aggregated)
+      # ===========================================================
+      - title: "Memory with Maximum (Aggregated)"
+        description: "Tests aggregated maximum metric compilation"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 12
+          y: 0
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          primary:
+            aggregation: average
+            field: system.memory.used.pct
+            label: "Memory Usage"
+            format:
+              type: percent
+          maximum:
+            aggregation: max
+            field: system.memory.total
+            label: "Total Memory"
+
+      # ===========================================================
+      # TEST 3: Custom Format with Pattern Only
+      # ===========================================================
+      - title: "Revenue (Custom Pattern)"
+        description: "Tests custom format with pattern only"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 24
+          y: 0
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: sum
+            field: transaction.amount
+            label: "Total Revenue"
+            format:
+              type: custom
+              pattern: "0,0.00"
+
+      # ===========================================================
+      # TEST 4: Custom Format with Pattern + Suffix
+      # ===========================================================
+      - title: "Revenue (Custom + Suffix)"
+        description: "Tests custom format with pattern and suffix"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 36
+          y: 0
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: sum
+            field: transaction.amount
+            label: "Revenue USD"
+            format:
+              type: custom
+              pattern: "0,0.00"
+              suffix: " USD"
+
+      # ===========================================================
+      # TEST 5: Custom Format with All Options
+      # ===========================================================
+      - title: "Transaction Volume (All Options)"
+        description: "Tests custom format with pattern, suffix, decimals, and compact"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 0
+          y: 8
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Transactions"
+            format:
+              type: custom
+              pattern: "0.0a"
+              suffix: " txn"
+              decimals: 1
+              compact: true
+
+      # ===========================================================
+      # TEST 6: Standard Format with Suffix (Not Pattern!)
+      # ===========================================================
+      - title: "Requests (Standard Number)"
+        description: "Tests standard number format with suffix (no pattern)"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 12
+          y: 8
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            aggregation: count
+            label: "Requests"
+            format:
+              type: number
+              decimals: 0
+              suffix: " req/sec"
+
+      # ===========================================================
+      # TEST 7: Standard Bytes with Compact
+      # ===========================================================
+      - title: "Data Transfer (Bytes Compact)"
+        description: "Tests bytes format with compact notation"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 24
+          y: 8
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          primary:
+            aggregation: sum
+            field: network.bytes
+            label: "Data Transferred"
+            format:
+              type: bytes
+              compact: true
+              suffix: "/day"
+
+      # ===========================================================
+      # TEST 8: Combined - Maximum + Custom Format
+      # ===========================================================
+      - title: "Progress Indicator"
+        description: "Tests maximum with custom formatted primary"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 36
+          y: 8
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          primary:
+            aggregation: average
+            field: task.completion_pct
+            label: "Progress"
+            format:
+              type: custom
+              pattern: "0.0"
+              suffix: "%"
+          maximum:
+            value: 100
+            label: "Goal"
+
+      # ===========================================================
+      # TEST 9: Formula with Custom Format
+      # ===========================================================
+      - title: "Error Rate (Formula)"
+        description: "Tests formula metric with custom format"
+        size:
+          w: 12
+          h: 8
+        position:
+          x: 0
+          y: 16
+        lens:
+          type: metric
+          data_view: "logs-*"
+          primary:
+            formula: "count(kql='log.level:error') / count() * 100"
+            label: "Error Rate"
+            format:
+              type: custom
+              pattern: "0.00"
+              suffix: "%"
+
+      # ===========================================================
+      # TEST 10: Full Feature Combination
+      # ===========================================================
+      - title: "CPU with Secondary and Maximum"
+        description: "Tests primary + secondary + maximum metrics"
+        size:
+          w: 24
+          h: 8
+        position:
+          x: 12
+          y: 16
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          primary:
+            aggregation: average
+            field: system.cpu.user.pct
+            label: "User CPU"
+            format:
+              type: percent
+          secondary:
+            aggregation: average
+            field: system.cpu.system.pct
+            label: "System CPU"
+            format:
+              type: percent
+          maximum:
+            value: 1
+            label: "Max"
