@@ -108,8 +108,21 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
-| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
+| `maximum` | `LensMetricTypes` object | An optional maximum metric, used for progress bar scale or context. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | `None` | No |
+| `subtitle` | `string` | Custom subtitle text displayed below the metric title. | `None` | No |
+| `secondary_label` | `string` | Custom label for the secondary metric. | `None` | No |
+| `icon` | `string` | Icon identifier to display alongside the metric value. | `None` | No |
+| `max_cols` | `int` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
+| `show_bar` | `bool` | Whether to display a progress bar below the metric value. | `None` | No |
+| `progress_direction` | `Literal['horizontal', 'vertical']` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
+| `titles_text_align` | `Literal['left', 'center', 'right']` | Text alignment for the metric title and subtitle. | `None` | No |
+| `value_font_mode` | `Literal['default', 'fit', 'custom']` | Font size mode for the primary metric value. | `None` | No |
+| `icon_align` | `Literal['left', 'right']` | Horizontal alignment of the icon. | `None` | No |
+| `primary_align` | `Literal['left', 'center', 'right']` | Text alignment for the primary metric value. | `None` | No |
+| `secondary_align` | `Literal['left', 'center', 'right']` | Text alignment for the secondary metric value. | `None` | No |
+| `title_weight` | `Literal['bold', 'normal', 'lighter']` | Font weight for the metric title. | `None` | No |
+| `primary_position` | `Literal['top', 'bottom']` | Vertical position of the primary metric value. | `None` | No |
 
 **Example (Lens Metric Chart):**
 

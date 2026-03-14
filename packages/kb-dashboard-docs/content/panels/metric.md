@@ -76,10 +76,23 @@ dashboards:
 | `data_view` | `string` | The data view that determines the data for the metric chart. | N/A | Yes |
 | `primary` | `LensMetricTypes` | The primary metric to display (main value). | N/A | Yes |
 | `secondary` | `LensMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
-| `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
+| `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or progress bar scale. | `None` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 | `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 | `color_mode` | `Literal['none', 'labels', 'background'] \| None` | Optional text/background color mode for metric values. | `None` | No |
+| `subtitle` | `string \| None` | Custom subtitle text displayed below the metric title. | `None` | No |
+| `secondary_label` | `string \| None` | Custom label for the secondary metric, overriding its default. | `None` | No |
+| `icon` | `string \| None` | Icon identifier to display alongside the metric value. | `None` | No |
+| `max_cols` | `int \| None` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
+| `show_bar` | `bool \| None` | Whether to display a progress bar below the metric value. | `None` | No |
+| `progress_direction` | `Literal['horizontal', 'vertical'] \| None` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
+| `titles_text_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
+| `value_font_mode` | `Literal['default', 'fit', 'custom'] \| None` | Font size mode for the primary metric value. | `None` | No |
+| `icon_align` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the metric value. | `None` | No |
+| `primary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
+| `secondary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
+| `title_weight` | `Literal['bold', 'normal', 'lighter'] \| None` | Font weight for the metric title. | `None` | No |
+| `primary_position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
 
 #### Lens Metric Types
 
@@ -141,10 +154,23 @@ primary:
 | `type` | `Literal['metric']` | Specifies the chart type as metric. | `'metric'` | No |
 | `primary` | `ESQLMetricTypes` | The primary metric to display (main value). | N/A | Yes |
 | `secondary` | `ESQLMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
-| `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or thresholds. | `None` | No |
+| `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or progress bar scale. | `None` | No |
 | `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
 | `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
 | `color_mode` | `Literal['none', 'labels', 'background'] \| None` | Optional text/background color mode for metric values. | `None` | No |
+| `subtitle` | `string \| None` | Custom subtitle text displayed below the metric title. | `None` | No |
+| `secondary_label` | `string \| None` | Custom label for the secondary metric, overriding its default. | `None` | No |
+| `icon` | `string \| None` | Icon identifier to display alongside the metric value. | `None` | No |
+| `max_cols` | `int \| None` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
+| `show_bar` | `bool \| None` | Whether to display a progress bar below the metric value. | `None` | No |
+| `progress_direction` | `Literal['horizontal', 'vertical'] \| None` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
+| `titles_text_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
+| `value_font_mode` | `Literal['default', 'fit', 'custom'] \| None` | Font size mode for the primary metric value. | `None` | No |
+| `icon_align` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the metric value. | `None` | No |
+| `primary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
+| `secondary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
+| `title_weight` | `Literal['bold', 'normal', 'lighter'] \| None` | Font weight for the metric title. | `None` | No |
+| `primary_position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
 
 #### ESQL Metric Types
 
@@ -215,6 +241,125 @@ dashboards:
             label: "Availability"
             format:
               type: percent
+```
+
+## Styling Options
+
+Metric panels support a variety of styling options to control layout, alignment, and typography.
+
+### Subtitle and Secondary Label
+
+Add contextual information with custom subtitles and secondary metric labels:
+
+```yaml
+dashboards:
+  - name: "Styled Metrics"
+    panels:
+      - title: "CPU Usage"
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          subtitle: "Last 24 hours"
+          secondary_label: "vs. previous day"
+          primary:
+            aggregation: average
+            field: system.cpu.total.norm.pct
+            format:
+              type: percent
+          secondary:
+            aggregation: average
+            field: system.cpu.total.norm.pct
+            filter:
+              kql: "@timestamp < now-1d"
+```
+
+### Progress Bar
+
+Display a progress bar below the metric value to show progress toward a maximum:
+
+```yaml
+dashboards:
+  - name: "Progress Metrics"
+    panels:
+      - title: "Disk Usage"
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          show_bar: true
+          progress_direction: horizontal
+          primary:
+            aggregation: average
+            field: system.filesystem.used.pct
+            format:
+              type: percent
+          maximum:
+            value: 1
+```
+
+### Icon
+
+Add an icon alongside the metric value:
+
+```yaml
+dashboards:
+  - name: "Icon Metrics"
+    panels:
+      - title: "Uptrend Indicator"
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          icon: sortUp
+          icon_align: right
+          primary:
+            aggregation: count
+```
+
+### Text Alignment and Typography
+
+Control alignment and font properties for different parts of the metric:
+
+```yaml
+dashboards:
+  - name: "Aligned Metrics"
+    panels:
+      - title: "Centered KPI"
+        size: {w: 12, h: 4}
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          titles_text_align: center
+          primary_align: center
+          secondary_align: center
+          title_weight: bold
+          value_font_mode: fit
+          primary_position: top
+          primary:
+            aggregation: count
+            label: "Total Events"
+```
+
+### Breakdown Columns
+
+Control the number of columns when using breakdown dimensions:
+
+```yaml
+dashboards:
+  - name: "Multi-Column Metrics"
+    panels:
+      - title: "Events by Host"
+        size: {w: 24, h: 8}
+        lens:
+          type: metric
+          data_view: "metrics-*"
+          max_cols: 4
+          primary:
+            aggregation: count
+          breakdown:
+            type: values
+            field: host.name
 ```
 
 ## Programmatic Usage (Python)

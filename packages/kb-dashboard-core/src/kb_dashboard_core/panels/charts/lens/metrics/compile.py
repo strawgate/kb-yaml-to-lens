@@ -472,7 +472,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> CompiledMetricResult:
     elif isinstance(metric, LensOtherAggregatedMetric):  # pyright: ignore[reportUnnecessaryIsInstance]
         metric_column_params = KbnLensMetricColumnParams(
             format=metric_format,
-            emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation, None),
+            emptyAsNull=AGG_TO_DEFAULT_EXCLUDE_ZEROS.get(metric.aggregation),
         )
     else:
         # All LensMetricTypes have been handled above, this is unreachable

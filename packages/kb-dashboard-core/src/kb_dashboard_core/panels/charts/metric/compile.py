@@ -26,7 +26,7 @@ from kb_dashboard_core.panels.charts.metric.view import (
 )
 
 
-def compile_metric_chart_visualization_state(
+def compile_metric_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: LensMetricChart,
