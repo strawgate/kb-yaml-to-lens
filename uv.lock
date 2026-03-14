@@ -13,7 +13,6 @@ members = [
     "kb-dashboard-compiler-root",
     "kb-dashboard-core",
     "kb-dashboard-docs",
-    "kb-dashboard-docs-content",
     "kb-dashboard-lint",
     "kb-dashboard-tools",
 ]
@@ -888,7 +887,7 @@ dependencies = [
     { name = "click" },
     { name = "elasticsearch" },
     { name = "kb-dashboard-core" },
-    { name = "kb-dashboard-docs-content" },
+    { name = "kb-dashboard-docs" },
     { name = "kb-dashboard-tools" },
     { name = "lsprotocol" },
     { name = "pygls" },
@@ -912,7 +911,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.3" },
     { name = "elasticsearch", specifier = ">=8.16.2" },
     { name = "kb-dashboard-core", editable = "packages/kb-dashboard-core" },
-    { name = "kb-dashboard-docs-content", editable = "packages/kb-dashboard-docs-content" },
+    { name = "kb-dashboard-docs", editable = "packages/kb-dashboard-docs" },
     { name = "kb-dashboard-tools", editable = "packages/kb-dashboard-tools" },
     { name = "lsprotocol", specifier = ">=2024.0.0" },
     { name = "pygls", specifier = ">=2.0.0" },
@@ -1008,16 +1007,14 @@ dev = [
 [[package]]
 name = "kb-dashboard-docs"
 version = "0.2.7"
-source = { virtual = "packages/kb-dashboard-docs" }
-dependencies = [
-    { name = "kb-dashboard-cli" },
-    { name = "kb-dashboard-lint" },
-]
+source = { editable = "packages/kb-dashboard-docs" }
 
 [package.dev-dependencies]
 dev = [
     { name = "griffe-fieldz" },
     { name = "griffe-pydantic" },
+    { name = "kb-dashboard-cli" },
+    { name = "kb-dashboard-lint" },
     { name = "mkdocs" },
     { name = "mkdocs-click" },
     { name = "mkdocs-material" },
@@ -1028,15 +1025,13 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "kb-dashboard-cli", editable = "packages/kb-dashboard-cli" },
-    { name = "kb-dashboard-lint", editable = "packages/kb-dashboard-lint" },
-]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "griffe-fieldz", specifier = ">=0.4.0" },
     { name = "griffe-pydantic", specifier = ">=1.1.8" },
+    { name = "kb-dashboard-cli", editable = "packages/kb-dashboard-cli" },
+    { name = "kb-dashboard-lint", editable = "packages/kb-dashboard-lint" },
     { name = "mkdocs", specifier = ">=1.6.0" },
     { name = "mkdocs-click", specifier = ">=0.8.0" },
     { name = "mkdocs-material", specifier = ">=9.5.32" },
@@ -1045,21 +1040,6 @@ dev = [
     { name = "pytest", specifier = ">=9.0" },
     { name = "pytest-check-links", specifier = ">=0.9.0" },
 ]
-
-[[package]]
-name = "kb-dashboard-docs-content"
-version = "0.2.7"
-source = { editable = "packages/kb-dashboard-docs-content" }
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-]
-
-[package.metadata]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.0" }]
 
 [[package]]
 name = "kb-dashboard-lint"

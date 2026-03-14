@@ -5,8 +5,6 @@ This module provides access to the bundled documentation resources:
 - guides/: Workflow guides for dashboard creation
 """
 
-from __future__ import annotations
-
 from importlib.resources import as_file, files
 
 
@@ -20,7 +18,7 @@ def get_full_docs() -> str:
     Raises:
         FileNotFoundError: If llms-full.txt is not bundled in the package.
     """
-    resources = files('kb_dashboard_docs_content.resources')
+    resources = files('kb_dashboard_docs.resources')
     llms_full = resources.joinpath('llms-full.txt')
     return llms_full.read_text(encoding='utf-8')
 
@@ -31,7 +29,7 @@ def list_guides() -> list[str]:
     Returns:
         List of guide names (without the .md extension).
     """
-    resources = files('kb_dashboard_docs_content.resources')
+    resources = files('kb_dashboard_docs.resources')
     guides_dir = resources.joinpath('guides')
 
     guides: list[str] = []
@@ -62,14 +60,14 @@ def get_guide(name: str) -> str:
     # Normalize name (remove .md if present)
     name = name.removesuffix('.md')
 
-    resources = files('kb_dashboard_docs_content.resources')
+    resources = files('kb_dashboard_docs.resources')
     guide_file = resources.joinpath('guides', f'{name}.md')
 
     try:
         return guide_file.read_text(encoding='utf-8')
     except FileNotFoundError:
         available = list_guides()
-        available_str = ', '.join(available) if available else '(none bundled)'
+        available_str = ', '.join(available) if len(available) > 0 else '(none bundled)'
         msg = f"Guide '{name}' not found. Available guides: {available_str}"
         raise FileNotFoundError(msg) from None
 

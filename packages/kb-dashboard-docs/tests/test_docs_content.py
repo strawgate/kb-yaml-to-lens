@@ -1,8 +1,8 @@
-"""Tests for kb_dashboard_docs_content module."""
+"""Tests for kb_dashboard_docs module."""
 
 import pytest
 
-from kb_dashboard_docs_content import get_full_docs, get_guide, list_guides
+from kb_dashboard_docs import get_full_docs, get_guide, list_guides
 
 
 def test_get_full_docs_returns_string() -> None:

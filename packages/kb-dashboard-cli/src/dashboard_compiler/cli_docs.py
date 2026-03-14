@@ -1,7 +1,7 @@
 """CLI commands for accessing bundled documentation.
 
 This module provides CLI access to LLM documentation content bundled in the
-kb-dashboard-docs-content package.
+kb-dashboard-docs package.
 """
 
 import rich_click as click
@@ -27,7 +27,7 @@ def docs(ctx: click.Context) -> None:
     if ctx.invoked_subcommand is None:
         # No subcommand - output full docs
         try:
-            from kb_dashboard_docs_content import get_full_docs
+            from kb_dashboard_docs import get_full_docs
 
             content = get_full_docs()
             print_plain(content)
@@ -35,7 +35,7 @@ def docs(ctx: click.Context) -> None:
             print_error('Documentation not bundled. This may indicate an installation issue.')
             raise SystemExit(1) from None
         except ImportError:
-            print_error('kb-dashboard-docs-content package not installed.')
+            print_error('kb-dashboard-docs package not installed.')
             raise SystemExit(1) from None
 
 
@@ -47,7 +47,7 @@ def list_guides() -> None:
     'guide' subcommand.
     """
     try:
-        from kb_dashboard_docs_content import list_guides as do_list_guides
+        from kb_dashboard_docs import list_guides as do_list_guides
 
         guides = do_list_guides()
         if len(guides) == 0:
@@ -58,7 +58,7 @@ def list_guides() -> None:
         for guide in guides:
             print_plain(f'  {guide}')
     except ImportError:
-        print_error('kb-dashboard-docs-content package not installed.')
+        print_error('kb-dashboard-docs package not installed.')
         raise SystemExit(1) from None
 
 
@@ -76,7 +76,7 @@ def get_guide(name: str) -> None:
         kb-dashboard docs guide dashboard-style-guide
     """
     try:
-        from kb_dashboard_docs_content import get_guide as do_get_guide
+        from kb_dashboard_docs import get_guide as do_get_guide
 
         content = do_get_guide(name)
         print_plain(content)
@@ -84,5 +84,5 @@ def get_guide(name: str) -> None:
         print_error(str(e))
         raise SystemExit(1) from None
     except ImportError:
-        print_error('kb-dashboard-docs-content package not installed.')
+        print_error('kb-dashboard-docs package not installed.')
         raise SystemExit(1) from None

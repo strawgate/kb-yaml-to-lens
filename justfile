@@ -11,7 +11,6 @@ mod lint 'packages/kb-dashboard-lint'
 mod tools 'packages/kb-dashboard-tools'
 mod vscode 'packages/vscode-extension'
 mod docs 'packages/kb-dashboard-docs'
-mod docs-content 'packages/kb-dashboard-docs-content'
 mod gh '.github/scripts'
 
 # Default recipe - show help
@@ -34,7 +33,6 @@ help:
     @echo "  just tools <target>        - Run in packages/kb-dashboard-tools/"
     @echo "  just vscode <target>       - Run in packages/vscode-extension/"
     @echo "  just docs <target>         - Run in packages/kb-dashboard-docs/"
-    @echo "  just docs-content <target> - Run in packages/kb-dashboard-docs-content/"
     @echo "  just gh <target>           - Run in .github/scripts/"
     @echo ""
     @echo "Common Examples:"
