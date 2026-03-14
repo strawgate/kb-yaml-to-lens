@@ -253,3 +253,37 @@ def test_compile_lens_custom_metric_format_with_explicit_decimals() -> None:
             },
         }
     )
+
+
+def test_compile_lens_metric_format_with_pattern() -> None:
+    """Test compilation of standard format with custom numeral.js pattern."""
+    fmt = LensMetricFormat(type='number', pattern='0,0')
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'number',
+            'params': {
+                'decimals': 2,
+                'pattern': '0,0',
+            },
+        }
+    )
+
+
+def test_compile_lens_metric_format_with_pattern_suffix_and_compact() -> None:
+    """Test compilation of standard format with pattern, suffix, and compact."""
+    fmt = LensMetricFormat(type='bytes', pattern='0.0a', suffix=' /s', compact=True, decimals=1)
+    result = compile_lens_metric_format(fmt)
+
+    assert result.model_dump() == snapshot(
+        {
+            'id': 'bytes',
+            'params': {
+                'decimals': 1,
+                'suffix': ' /s',
+                'compact': True,
+                'pattern': '0.0a',
+            },
+        }
+    )

@@ -418,6 +418,122 @@ def test_compile_metric_chart_color_mode_omitted(chart_type: str) -> None:
     assert 'colorMode' not in result
 
 
+def test_compile_metric_chart_with_maximum_lens() -> None:
+    """Test the compilation of a metric chart with maximum metric (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.user.pct',
+            'id': 'primary-metric-1',
+            'aggregation': 'average',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'maximum-metric-1',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-metric-1',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
+            'maxAccessor': 'maximum-metric-1',
+        }
+    )
+
+
+def test_compile_metric_chart_with_maximum_esql() -> None:
+    """Test the compilation of a metric chart with maximum metric (ESQL)."""
+    config = {
+        'type': 'metric',
+        'primary': {
+            'field': 'avg_cpu',
+            'id': 'primary-metric-1',
+        },
+        'maximum': {
+            'field': 'max_cpu',
+            'id': 'maximum-metric-1',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'esql')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-metric-1',
+            'showBar': False,
+            'maxAccessor': 'maximum-metric-1',
+        }
+    )
+
+
+def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
+    """Test the compilation of a metric chart with primary, secondary, and maximum metrics (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.user.pct',
+            'id': 'primary-metric-1',
+            'aggregation': 'average',
+        },
+        'secondary': {
+            'field': 'system.cpu.system.pct',
+            'id': 'secondary-metric-1',
+            'aggregation': 'average',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'maximum-metric-1',
+        },
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'primary-metric-1',
+            'secondaryTrend': {'type': 'none'},
+            'secondaryLabelPosition': 'before',
+            'secondaryMetricAccessor': 'secondary-metric-1',
+            'maxAccessor': 'maximum-metric-1',
+        }
+    )
+
+
+def test_compile_metric_chart_column_order_with_maximum() -> None:
+    """Test that kbn_columns_by_id contains maximum metric column when present (Lens)."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'field': 'system.cpu.user.pct',
+            'id': 'primary-metric-1',
+            'aggregation': 'average',
+        },
+        'maximum': {
+            'value': 100,
+            'id': 'maximum-metric-1',
+        },
+    }
+
+    lens_chart = LensMetricChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+
+    column_ids = list(kbn_columns_by_id.keys())
+    assert column_ids == ['primary-metric-1', 'maximum-metric-1']
+
+
 def test_metric_chart_dashboard_references_bubble_up() -> None:
     """Test that metric chart data view references bubble up to dashboard level correctly.
 

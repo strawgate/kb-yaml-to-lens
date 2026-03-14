@@ -373,6 +373,7 @@ def compile_lens_metric_format(metric_format: LensMetricFormatTypes) -> KbnLensM
                 decimals=decimals,
                 suffix=metric_format.suffix,
                 compact=metric_format.compact,
+                pattern=metric_format.pattern,
             ),
         )
 
