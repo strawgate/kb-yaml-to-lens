@@ -91,16 +91,14 @@ def on_files(files: Files, config: MkDocsConfig) -> Files:
 
 
 _DIRECTIVE_BLOCK_RE = re.compile(r'(?ms)^:::\s+([A-Za-z_][\w\.-]*)\s*\n((?:^[ ]{4}.*\n?)*)')
-_LLMS_EXCLUDE_BLOCK_RE = re.compile(
-    r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?'
-)
+_LLMS_EXCLUDE_BLOCK_RE = re.compile(r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?')
 _LLMS_EXCLUDE_INLINE_RE = re.compile(r'(?m)^.*<!--\s*llms:exclude\s*-->.*(?:\n|$)')
-_POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$)')
+_POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$|\Z)')
 
 
 def _format_annotation(annotation: Any) -> str:
     """Format type annotation for concise markdown output."""
-    if annotation is inspect._empty:
+    if annotation is inspect.Parameter.empty:
         return 'Any'
     return str(annotation).replace('typing.', '').replace('types.', '')
 
@@ -149,7 +147,7 @@ def _render_reference_block(fully_qualified_name: str) -> str | None:
         if isinstance(model_fields, dict) and model_fields:
             lines.append('Fields:')
             for field_name, field in model_fields.items():
-                annotation = _format_annotation(getattr(field, 'annotation', inspect._empty))
+                annotation = _format_annotation(getattr(field, 'annotation', inspect.Parameter.empty))
                 description = getattr(field, 'description', None) or ''
                 suffix = f': {description}' if description else ''
                 lines.append(f'- `{field_name}` (`{annotation}`){suffix}')
