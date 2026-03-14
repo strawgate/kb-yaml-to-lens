@@ -80,6 +80,12 @@ def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLa
     )
 
 
+def build_collapse_fns(dimension_collapses: list[tuple[str, str | None]]) -> dict[str, str] | None:
+    """Build a collapse function mapping for chart dimensions."""
+    collapse_fns = {dimension_id: str(collapse) for dimension_id, collapse in dimension_collapses if collapse is not None}
+    return collapse_fns or None
+
+
 def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRangePalette | None:
     """Compile a range-based color config into Kibana range palette format.
 
