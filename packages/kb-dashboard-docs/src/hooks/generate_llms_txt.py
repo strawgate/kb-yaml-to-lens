@@ -1,32 +1,68 @@
 """MkDocs hook to generate llms.txt and llms-full.txt files during build."""
 
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
+import html2text
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.structure.files import File, Files
+from mkdocs.structure.pages import Page
 
 log = logging.getLogger('mkdocs.plugins.llms_txt')
+
+# State to collect processed page content in navigation order
+_collected_pages: dict[str, str] = {}
+_nav_order: list[str] = []
+
 
 def write_file(path: Path, content: str) -> None:
     """Write content to a file."""
     _ = path.write_text(data=content, encoding='utf-8')
     log.info(msg=f'Generated {path} ({len(content)} characters)')
 
+
+def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
+    """Recursively extract file paths from MkDocs navigation structure."""
+    if files is None:
+        files = []
+
+    if isinstance(nav_item, str):
+        files.append(nav_item)
+    elif isinstance(nav_item, dict):
+        for value in nav_item.values():  # pyright: ignore[reportAny]
+            _ = extract_files_from_nav(value, files)  # pyright: ignore[reportAny]
+    elif isinstance(nav_item, list):  # pyright: ignore[reportUnnecessaryIsInstance]
+        for item in nav_item:  # pyright: ignore[reportAny]
+            _ = extract_files_from_nav(item, files)  # pyright: ignore[reportAny]
+
+    return files
+
+
 def on_files(files: Files, config: MkDocsConfig) -> Files:
-    """Generate llms.txt files and add them to the build before link validation."""
+    """Generate llms.txt navigation file and add both txt files to the build.
+
+    Note: llms-full.txt content is generated in on_post_build after all pages are processed.
+    """
+    global _nav_order  # noqa: PLW0603
     docs_dir = Path(config.docs_dir)
 
-    # Generate llms.txt content
+    # Extract navigation order for later use
+    nav: list[Any] = config.nav or []  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    _nav_order = extract_files_from_nav(nav)  # pyright: ignore[reportUnknownArgumentType]
+    _nav_order = list(dict.fromkeys(_nav_order))  # Deduplicate while preserving order
+
+    log.info(f'Extracted {len(_nav_order)} files from navigation for llms-full.txt')
+
+    # Generate llms.txt content (navigation file - static content)
     llms_txt_content: str = generate_llms_txt_content(config)
     llms_txt_path: Path = docs_dir / 'llms.txt'
     write_file(path=llms_txt_path, content=llms_txt_content)
 
-    # Generate llms-full.txt content
-    llms_full_content: str = generate_llms_full_txt_content(config)
+    # Create empty llms-full.txt placeholder (will be populated in on_post_build)
     llms_full_path: Path = docs_dir / 'llms-full.txt'
-    write_file(path=llms_full_path, content=llms_full_content)
+    write_file(path=llms_full_path, content='# Placeholder - generated during build\n')
 
     # Add files to MkDocs file collection so they're included in the build
     # Remove existing files first to avoid deprecation warning
@@ -53,6 +89,87 @@ def on_files(files: Files, config: MkDocsConfig) -> Files:
 
     log.info('Added llms.txt and llms-full.txt to build files')
     return files
+
+
+def on_page_content(html: str, page: Page, config: MkDocsConfig, files: Files) -> str:  # noqa: ARG001
+    """Collect processed HTML content for each page after mkdocstrings expansion."""
+    src_path = page.file.src_path
+    _collected_pages[src_path] = html
+    log.debug(f'Collected content for {src_path} ({len(html)} chars)')
+    return html
+
+
+def _convert_html_to_markdown(html_content: str) -> str:
+    """Convert HTML to clean markdown suitable for LLMs."""
+    h = html2text.HTML2Text()
+    h.body_width = 0  # Don't wrap lines
+    h.ignore_links = False
+    h.ignore_images = True
+    h.ignore_emphasis = False
+    h.mark_code = True
+    h.wrap_links = False
+    h.wrap_list_items = False
+    h.pad_tables = True  # Better table formatting
+    h.default_image_alt = ''
+    h.ignore_tables = False
+
+    markdown = h.handle(html_content)
+
+    # Clean up excessive whitespace
+    markdown = re.sub(r'\n{4,}', '\n\n\n', markdown)
+
+    # Remove anchor links like [¶](#section)
+    markdown = re.sub(r'\[¶\]\([^)]*\)', '', markdown)
+
+    # Clean up empty links
+    markdown = re.sub(r'\[\]\([^)]*\)', '', markdown)
+
+    return markdown.strip()
+
+
+def on_post_build(config: MkDocsConfig) -> None:
+    """Generate llms-full.txt with processed content after build completes."""
+    docs_dir = Path(config.docs_dir)
+    site_dir = Path(config.site_dir)
+
+    output: list[str] = []
+
+    # Add header
+    output.append('# Dashboard Compiler - Complete Documentation\n\n')
+    output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
+    output.append('---\n\n')
+
+    # Concatenate pages in navigation order
+    pages_included = 0
+    for file_path in _nav_order:
+        if file_path not in _collected_pages:
+            log.warning(f'{file_path} not in collected pages, skipping...')
+            continue
+
+        html_content = _collected_pages[file_path]
+
+        # Convert HTML to markdown
+        markdown_content = _convert_html_to_markdown(html_content)
+
+        # Add file separator and content
+        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
+        output.append(markdown_content)
+        pages_included += 1
+
+    content = ''.join(output)
+
+    # Write to docs dir (source)
+    llms_full_path = docs_dir / 'llms-full.txt'
+    write_file(path=llms_full_path, content=content)
+
+    # Also write directly to site dir (built output)
+    site_llms_full_path = site_dir / 'llms-full.txt'
+    write_file(path=site_llms_full_path, content=content)
+
+    log.info(f'Generated llms-full.txt with {pages_included} pages ({len(content)} characters)')
+
+    # Clear state for potential subsequent builds (e.g., during serve)
+    _collected_pages.clear()
 
 
 def generate_llms_txt_content(config: MkDocsConfig) -> str:
@@ -101,60 +218,3 @@ def generate_llms_txt_content(config: MkDocsConfig) -> str:
 - [Kibana Architecture Reference]({site_url}/kibana-architecture/): Understanding Kibana's internal structure
 - [PyPI Publishing]({site_url}/pypi-publishing/): Package release process
 """
-
-
-def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: list[str] | None = None) -> list[str]:
-    """Recursively extract file paths from MkDocs navigation structure."""
-    if files is None:
-        files = []
-
-    if isinstance(nav_item, str):
-        files.append(nav_item)
-    elif isinstance(nav_item, dict):
-        for value in nav_item.values():  # pyright: ignore[reportAny]
-            _ = extract_files_from_nav(value, files)  # pyright: ignore[reportAny]
-    elif isinstance(nav_item, list):  # pyright: ignore[reportUnnecessaryIsInstance]
-        for item in nav_item:  # pyright: ignore[reportAny]
-            _ = extract_files_from_nav(item, files)  # pyright: ignore[reportAny]
-
-    return files
-
-
-def generate_llms_full_txt_content(config: MkDocsConfig) -> str:
-    """Generate the llms-full.txt file content with complete documentation."""
-    docs_dir: Path = Path(config.docs_dir)
-
-    # Extract files from navigation structure
-    nav: list[Any] = config.nav or []  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
-
-    # Extract all files from navigation (all sections)
-    all_files = extract_files_from_nav(nav)  # pyright: ignore[reportUnknownArgumentType]
-    # Deduplicate while preserving order
-    all_files = list(dict.fromkeys(all_files))
-
-    log.info(f'Extracted {len(all_files)} files from navigation')
-
-    output: list[str] = []
-
-    # Add header
-    output.append('# Dashboard Compiler - Complete Documentation\n\n')
-    output.append('> This file contains all documentation for the Dashboard Compiler project.\n\n')
-    output.append('---\n\n')
-
-    # Concatenate all files
-    for file_path in all_files:
-        path = docs_dir / file_path
-        try:
-            content = path.read_text(encoding='utf-8')
-        except FileNotFoundError:
-            log.warning(f'{file_path} not found, skipping...')
-            continue
-        except OSError as e:
-            log.warning(f'Failed to read {file_path}: {e}, skipping...')
-            continue
-
-        # Add file separator
-        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
-        output.append(content)
-
-    return ''.join(output)
