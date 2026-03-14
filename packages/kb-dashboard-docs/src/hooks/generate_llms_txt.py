@@ -14,6 +14,7 @@ log = logging.getLogger('mkdocs.plugins.llms_txt')
 
 # State to collect navigation order
 _nav_order: list[str] = []
+_LLMS_FULL_EXCLUDE_PREFIXES: tuple[str, ...] = ('api/',)
 
 
 def write_file(path: Path, content: str) -> None:
@@ -37,6 +38,43 @@ def extract_files_from_nav(nav_item: str | dict[str, Any] | list[Any], files: li
             _ = extract_files_from_nav(item, files)  # pyright: ignore[reportAny]
 
     return files
+
+
+def _normalize_doc_path(path: str) -> str:
+    """Convert mkdocs source path to site URL path."""
+    normalized = path.lstrip('/')
+    if normalized.endswith('index.md'):
+        return normalized[: -len('index.md')]
+    if normalized.endswith('.md'):
+        return normalized[: -len('.md')] + '/'
+    return normalized
+
+
+def _render_nav_links(
+    nav_item: str | dict[str, Any] | list[Any],
+    site_url: str,
+    lines: list[str],
+    depth: int = 0,
+) -> None:
+    """Render MkDocs nav structure as nested markdown links."""
+    indent = '  ' * depth
+    if isinstance(nav_item, str):
+        title = Path(nav_item).stem.replace('-', ' ').replace('_', ' ').title()
+        lines.append(f"{indent}- [{title}]({site_url}/{_normalize_doc_path(nav_item)})")
+        return
+
+    if isinstance(nav_item, dict):
+        for title, child in nav_item.items():
+            if isinstance(child, str):
+                lines.append(f"{indent}- [{title}]({site_url}/{_normalize_doc_path(child)})")
+            else:
+                lines.append(f'{indent}- **{title}**')
+                _render_nav_links(child, site_url, lines, depth + 1)
+        return
+
+    if isinstance(nav_item, list):
+        for child in nav_item:
+            _render_nav_links(child, site_url, lines, depth)
 
 
 def on_files(files: Files, config: MkDocsConfig) -> Files:
@@ -91,14 +129,16 @@ def on_files(files: Files, config: MkDocsConfig) -> Files:
 
 
 _DIRECTIVE_BLOCK_RE = re.compile(r'(?ms)^:::\s+([A-Za-z_][\w\.-]*)\s*\n((?:^[ ]{4}.*\n?)*)')
-_LLMS_EXCLUDE_BLOCK_RE = re.compile(r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?')
+_LLMS_EXCLUDE_BLOCK_RE = re.compile(
+    r'(?ms)<!--\s*llms:exclude:start\s*-->[\s\S]*?<!--\s*llms:exclude:end\s*-->\n?'
+)
 _LLMS_EXCLUDE_INLINE_RE = re.compile(r'(?m)^.*<!--\s*llms:exclude\s*-->.*(?:\n|$)')
-_POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$|\Z)')
+_POEM_SECTION_RE = re.compile(r'(?ms)^##\s+A Poem[^\n]*\n[\s\S]*?(?=^\s*---\s*$)')
 
 
 def _format_annotation(annotation: Any) -> str:
     """Format type annotation for concise markdown output."""
-    if annotation is inspect.Parameter.empty:
+    if annotation is inspect._empty:
         return 'Any'
     return str(annotation).replace('typing.', '').replace('types.', '')
 
@@ -110,17 +150,16 @@ def _resolve_python_object(fully_qualified_name: str) -> Any | None:
         module_name = '.'.join(parts[:idx])
         try:
             module = importlib.import_module(module_name)
-        except ModuleNotFoundError:
+        except Exception:
             continue
 
         obj: Any = module
         try:
             for attr in parts[idx:]:
                 obj = getattr(obj, attr)
-        except (AttributeError, TypeError):
-            return None
-        else:
             return obj
+        except Exception:
+            return None
     return None
 
 
@@ -147,10 +186,10 @@ def _render_reference_block(fully_qualified_name: str) -> str | None:
         if isinstance(model_fields, dict) and model_fields:
             lines.append('Fields:')
             for field_name, field in model_fields.items():
-                annotation = _format_annotation(getattr(field, 'annotation', inspect.Parameter.empty))
+                annotation = _format_annotation(getattr(field, 'annotation', inspect._empty))
                 description = getattr(field, 'description', None) or ''
                 suffix = f': {description}' if description else ''
-                lines.append(f'- `{field_name}` (`{annotation}`){suffix}')
+                lines.append(f"- `{field_name}` (`{annotation}`){suffix}")
             lines.append('')
     elif inspect.isfunction(obj) or inspect.ismethod(obj):
         signature = str(inspect.signature(obj))
@@ -178,13 +217,15 @@ def _expand_mkdocstrings_references(markdown: str) -> str:
 
 def _strip_llms_excluded_blocks(markdown: str) -> str:
     """Remove explicit llms exclusion blocks/comments from markdown."""
-    result = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
-    return _LLMS_EXCLUDE_INLINE_RE.sub('', result)
+    markdown = _LLMS_EXCLUDE_BLOCK_RE.sub('', markdown)
+    markdown = _LLMS_EXCLUDE_INLINE_RE.sub('', markdown)
+    return markdown
 
 
 def _strip_known_low_value_sections(markdown: str) -> str:
     """Remove sections that are useful for humans but noisy for llms-full."""
-    return _POEM_SECTION_RE.sub('', markdown)
+    markdown = _POEM_SECTION_RE.sub('', markdown)
+    return markdown
 
 
 def on_post_build(config: MkDocsConfig) -> None:
@@ -193,10 +234,10 @@ def on_post_build(config: MkDocsConfig) -> None:
     This is option 3 from issue #1234: selectively resolve mkdocstrings references
     in a second pass instead of relying on full HTML conversion.
     """
-    docs_dir = Path(config.docs_dir)
-    site_dir = Path(config.site_dir)
-
     try:
+        docs_dir = Path(config.docs_dir)
+        site_dir = Path(config.site_dir)
+
         output: list[str] = []
 
         # Add header
@@ -206,8 +247,10 @@ def on_post_build(config: MkDocsConfig) -> None:
 
         # Concatenate pages in navigation order
         pages_included = 0
-        included_paths: set[str] = set()
         for file_path in _nav_order:
+            if file_path.startswith(_LLMS_FULL_EXCLUDE_PREFIXES):
+                continue
+
             source_file = docs_dir / file_path
             if not source_file.exists():
                 log.warning(f'{file_path} not found in docs dir, skipping...')
@@ -220,23 +263,6 @@ def on_post_build(config: MkDocsConfig) -> None:
 
             # Add file separator and content
             output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
-            output.append(markdown_content)
-            pages_included += 1
-            included_paths.add(file_path)
-
-        # Append markdown pages not present in nav
-        for source_file in sorted(docs_dir.rglob('*.md')):
-            rel_path = source_file.relative_to(docs_dir).as_posix()
-            if rel_path in included_paths:
-                continue
-
-            log.warning(f'{rel_path} not in nav order, appending at end')
-            markdown_content = source_file.read_text(encoding='utf-8')
-            markdown_content = _strip_llms_excluded_blocks(markdown_content)
-            markdown_content = _strip_known_low_value_sections(markdown_content)
-            markdown_content = _expand_mkdocstrings_references(markdown_content)
-
-            output.append(f'\n\n---\n# Source: {rel_path}\n---\n\n')
             output.append(markdown_content)
             pages_included += 1
 
@@ -257,47 +283,32 @@ def on_post_build(config: MkDocsConfig) -> None:
 
 
 def generate_llms_txt_content(config: MkDocsConfig) -> str:
-    """Generate the llms.txt navigation file content."""
+    """Generate llms.txt navigation content from MkDocs nav hierarchy."""
     if config.site_url is None:
         msg = 'site_url is required'
         raise ValueError(msg)
 
     site_url: str = config.site_url.rstrip('/')
-
-    return f"""# Dashboard Compiler
-
-> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format. Python compiler
-> and TypeScript VS Code extension for creating and managing Kibana dashboards.
-
-## Getting Started
-
-- [Installation and Quick Start]({site_url}/): Get up and running with your first dashboard
-- [CLI Reference]({site_url}/CLI/): Complete command-line documentation
-- [VS Code Extension]({site_url}/vscode-extension/): Live preview and visual editing
-
-## User Guide
-
-- [Dashboard Configuration]({site_url}/dashboard/dashboard/): Dashboard-level settings and options
-- [Panel Types Overview]({site_url}/panels/base/): Common configuration for all panel types
-- [Lens Panels]({site_url}/panels/lens/): Chart panels (metric, pie, XY, gauge, datatable, etc.)
-- [Dashboard Controls]({site_url}/controls/config/): Interactive filtering controls
-- [Filters and Queries]({site_url}/filters/config/): Data filtering and query configuration
-- [Complete Examples]({site_url}/examples/): Real-world YAML dashboard examples
-
-## LLM-Driven Workflows
-
-- [LLM Workflows Overview]({site_url}/llm-workflows/): Complete guide for using LLMs with kb-yaml-to-lens
-- [Dashboard Decompiling Guide]({site_url}/dashboard-decompiling-guide/): Convert Kibana JSON to YAML
-- [Dashboard Style Guide]({site_url}/dashboard-style-guide/): Best practices for dashboard design
-- [llms-full.txt]({site_url}/llms-full.txt): Complete documentation for LLM context
-
-## Developer Guide
-
-- [Programmatic Usage]({site_url}/programmatic-usage/): Python API for dynamic dashboard generation
-- [API Reference]({site_url}/api/): Auto-generated Python API documentation
-- [Compiler Architecture][1]: Core compiler design and data flow
-- [Release Process][2]: Tag-based release and publishing workflow
-
-[1]: https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md
-[2]: https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md
-"""
+    lines: list[str] = [
+        '# Dashboard Compiler',
+        '',
+        '> Convert human-friendly YAML dashboard definitions into Kibana NDJSON format.',
+        '> Navigation generated from MkDocs `nav` to avoid hardcoded drift.',
+        '',
+        '## Site Navigation',
+        '',
+    ]
+    nav: list[Any] = config.nav or []  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    _render_nav_links(nav, site_url, lines)
+    lines.extend(
+        [
+            '',
+            '## Additional References',
+            '',
+            '- [llms-full.txt]({}/llms-full.txt): Complete docs corpus for LLM context'.format(site_url),
+            '- [Compiler Architecture](https://github.com/strawgate/kb-yaml-to-lens/blob/main/packages/kb-dashboard-core/docs/compiler-architecture.md)',
+            '- [Release Process](https://github.com/strawgate/kb-yaml-to-lens/blob/main/RELEASE.md)',
+            '',
+        ]
+    )
+    return '\n'.join(lines)
