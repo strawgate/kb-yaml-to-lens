@@ -105,5 +105,8 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
     breakdownByAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """Field accessor ID for breaking down the metric into multiple values."""
 
+    maxAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Field accessor ID for the maximum value metric (used for sparkline scale)."""
+
     colorMode: Annotated[Literal['none', 'labels', 'background'] | None, OmitIfNone()] = Field(default=None)
     """Color mode for metric value rendering."""

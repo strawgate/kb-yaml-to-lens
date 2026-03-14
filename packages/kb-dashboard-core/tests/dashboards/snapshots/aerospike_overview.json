@@ -1096,6 +1096,7 @@
                         }
                       ]
                     },
+                    "emptySizeRatio": 0.5,
                     "layerId": "78b04a3d-2f28-2de9-b39b-c5c7a03ca0a2",
                     "layerType": "data",
                     "legendDisplay": "default",
@@ -1239,6 +1240,7 @@
                         }
                       ]
                     },
+                    "emptySizeRatio": 0.5,
                     "layerId": "3643872f-3ecf-78d6-b1a7-937f21b84311",
                     "layerType": "data",
                     "legendDisplay": "default",

@@ -149,7 +149,7 @@ See the [Programmatic Usage Guide](programmatic-usage.md) for examples and patte
 
 - **[VS Code Extension Features](vscode-extension.md)** - Visual grid editor, code snippets, keyboard shortcuts
 - **[CLI Advanced Usage](CLI.md)** - Environment variables, API keys, CI/CD integration
-- **[Dashboard Decompiling Guide](dashboard-decompiling-guide.md)** - Convert existing Kibana JSON dashboards to YAML
+- **[Dashboard Decompiling Guide](guides/dashboard-decompiling-guide.md)** - Convert existing Kibana JSON dashboards to YAML
 - **[Complete Examples](examples/index.md)** - Production-ready dashboard templates
 
 ### User Guide

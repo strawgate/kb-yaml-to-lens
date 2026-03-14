@@ -3,7 +3,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -89,6 +89,13 @@ class DatatableMetricColumnConfig(DatatableColumnConfig):
 
     summary_label: str | None = Field(default=None)
     """Custom label for the summary row."""
+
+    color: ColorRangeMapping | None = Field(default=None)
+    """Range-based color mapping for numeric metric values.
+
+    Enables gradient/threshold coloring for numeric values using defined stops.
+    Use with `color_mode` to control how colors are applied (cell background or text).
+    """
 
 
 class DatatableSortingConfig(BaseCfgModel):

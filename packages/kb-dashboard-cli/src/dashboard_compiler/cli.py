@@ -18,6 +18,7 @@ from importlib.metadata import PackageNotFoundError, version
 import rich_click as click
 
 from dashboard_compiler.cli_context import CliContext
+from dashboard_compiler.cli_docs import docs
 from dashboard_compiler.cli_local import compile_dashboards, disassemble, lsp
 from dashboard_compiler.cli_remote import (
     export_for_issue,
@@ -98,6 +99,9 @@ cli.add_command(fetch)
 cli.add_command(export_for_issue, name='export-for-issue')
 cli.add_command(load_sample_data_command, name='load-sample-data')
 cli.add_command(extract_sample_data_command, name='extract-sample-data')
+
+# Register documentation commands
+cli.add_command(docs)
 
 
 if __name__ == '__main__':

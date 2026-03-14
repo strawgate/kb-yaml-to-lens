@@ -16,6 +16,7 @@ classifiers = [
 dependencies = [
     "kb-dashboard-core==0.2.7",
     "kb-dashboard-tools==0.2.7",
+    "kb-dashboard-docs==0.2.7",
     "click>=8.3",
     "rich-click>=1.9.0",
     "elasticsearch>=8.16.2",
@@ -57,6 +58,7 @@ module-name = "dashboard_compiler"
 [tool.uv.sources]
 kb-dashboard-core = { workspace = true }
 kb-dashboard-tools = { workspace = true }
+kb-dashboard-docs = { workspace = true }
 
 [tool.ruff]
 line-length = 140

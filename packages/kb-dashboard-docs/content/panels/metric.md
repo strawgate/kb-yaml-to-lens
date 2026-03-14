@@ -388,7 +388,7 @@ dashboards:
             field: "transaction.amount"
             label: "Total Revenue"
             format:
-              type: number
+              type: custom
               pattern: "0,0.00"  # Comma separators, 2 decimals
 
       - title: "Success Rate"
@@ -401,7 +401,7 @@ dashboards:
             formula: "count(kql='status:success') / count() * 100"
             label: "Success Rate"
             format:
-              type: number
+              type: custom
               pattern: "0.0a"    # 1 decimal + suffix (K, M, etc.)
               suffix: "%"
 ```

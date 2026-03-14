@@ -82,6 +82,56 @@ dashboards:
               label: "Request Count"
 ```
 
+## Column Colors
+
+Datatable metric columns support range-based coloring to highlight values based on numeric thresholds. Use the `color_mode` field to control how colors are applied (cell background or text), and the `color` field to define the color thresholds.
+
+### Color Configuration Fields
+
+| Field | Description |
+| ----- | ----------- |
+| `color_mode` | How colors are applied: `cell` (background color) or `text` (text color) |
+| `color` | A `ColorRangeMapping` object defining numeric thresholds and colors |
+
+### Example: CPU Usage Thresholds
+
+```yaml
+dashboards:
+  - name: "System Metrics"
+    panels:
+      - title: "CPU Usage by Host"
+        size: {w: 24, h: 15}
+        lens:
+          type: datatable
+          data_view: "metrics-*"
+          dimensions:
+            - id: "host"
+              field: "host.name"
+              type: values
+          metrics:
+            - id: "cpu-avg"
+              field: "system.cpu.total.pct"
+              aggregation: average
+              label: "CPU %"
+          metric_columns:
+            - column_id: "cpu-avg"
+              color_mode: cell
+              color:
+                range_type: percent
+                range_min: 0
+                range_max: 100
+                continuity: above
+                stops:
+                  - stop: 50
+                    color: '#00BF6F'  # Green for low usage
+                  - stop: 80
+                    color: '#FFA500'  # Orange for moderate
+                  - stop: 100
+                    color: '#BD271E'  # Red for high usage
+```
+
+For detailed `ColorRangeMapping` configuration options, see the [Color Assignments documentation](../advanced/color-assignments.md).
+
 ## Datatable Appearance
 
 ::: kb_dashboard_core.panels.charts.datatable.config.DatatableAppearance

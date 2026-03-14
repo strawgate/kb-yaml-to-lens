@@ -1,15 +1,15 @@
+---
 name: Duplicate Issue Detector
 on:
   issues:
-    types: [opened]
-  workflow_dispatch:
-
+    types:
+      - opened
+  workflow_dispatch: null
 permissions:
   contents: read
   discussions: write
   issues: write
   pull-requests: read
-
 jobs:
   run:
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-duplicate-issue-detector.lock.yml@main

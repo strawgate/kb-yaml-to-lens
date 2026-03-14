@@ -46,7 +46,7 @@ Every slice helps reach your goal!
 
 ## Pie Chart Legend
 
-For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../advanced/legend-configuration.md).
+For comprehensive guidance on legend configuration, see the [Legend Configuration Guide](../guides/legend-configuration.md).
 
 ::: kb_dashboard_core.panels.charts.pie.config.PieLegend
     options:

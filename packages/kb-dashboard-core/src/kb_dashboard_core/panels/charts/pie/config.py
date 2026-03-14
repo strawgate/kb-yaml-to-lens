@@ -16,6 +16,9 @@ class PieLegend(BaseCfgModel):
     visible: LegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
     """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified."""
 
+    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
+    """Position of the legend. Kibana defaults to 'right' if not specified."""
+
     width: LegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
     """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified."""
 
