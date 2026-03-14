@@ -711,6 +711,30 @@ def test_compile_datatable_chart_without_color_omits_palette() -> None:
     assert 'palette' not in column
 
 
+def test_datatable_metric_color_stops_empty_list_is_invalid() -> None:
+    """Test that empty range color stops are rejected."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'id': 'cpu-metric',
+                'field': 'system.cpu.total.pct',
+                'aggregation': 'average',
+                'appearance': {
+                    'color': {
+                        'apply_to': 'text',
+                        'stops': [],
+                    }
+                },
+            }
+        ],
+    }
+
+    with pytest.raises(ValidationError, match='at least 1 item'):
+        LensDatatableChart.model_validate(config)
+
+
 def test_datatable_chart_dashboard_references_bubble_up() -> None:
     """Test that datatable chart data view references bubble up to dashboard level correctly.
 

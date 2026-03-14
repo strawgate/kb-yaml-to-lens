@@ -84,12 +84,13 @@ dashboards:
 ## Column Colors
 
 Datatable metric columns support range-based coloring to highlight values based on numeric thresholds. Configure `appearance.color.apply_to` and optional range settings under `appearance.color`.
+Range palettes are emitted only when `appearance.color.stops` is configured; without `stops`, no range palette is generated even if other range fields are set.
 
 ### Color Configuration Fields
 
 | Field | Description |
 | ----- | ----------- |
-| `appearance.color.apply_to` | How colors are applied: `cell` (background color) or `text` (text color) |
+| `appearance.color.apply_to` | How generated range colors are applied: `cell` (background color) or `text` (text color) |
 | `appearance.color` | Optional range settings (`range_type`, `range_min`, `range_max`, `continuity`, `stops`) |
 
 ### Example: CPU Usage Thresholds

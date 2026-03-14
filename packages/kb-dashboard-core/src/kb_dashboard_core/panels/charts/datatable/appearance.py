@@ -68,12 +68,12 @@ class DatatableMetricColor(BaseCfgModel):
     continuity: Literal['above', 'below', 'all', 'none'] = Field(default='above')
     """How colors extend beyond the configured range."""
 
-    stops: list[ColorRangeStop] | None = Field(default=None)
+    stops: list[ColorRangeStop] | None = Field(default=None, min_length=1)
     """Ordered range stops used to build datatable palettes."""
 
     def to_range_mapping(self) -> ColorRangeMapping | None:
         """Convert to ColorRangeMapping when range stops are provided."""
-        if self.stops is None or len(self.stops) == 0:
+        if self.stops is None:
             return None
         return ColorRangeMapping(
             range_type=self.range_type,
