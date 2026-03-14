@@ -6,7 +6,26 @@ This guide provides instructions for converting Kibana dashboard JSON files into
 
 **Complete Documentation**: For full schema reference and examples, use [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt) which contains all project documentation.
 
-**Workflow**: `kb-dashboard fetch` → `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+**Workflow**: `kb-dashboard fetch` → `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Round-trip validate
+
+## JSON-to-YAML Conversion Prompt Scaffold
+
+Use this prompt pattern when asking an LLM to convert a disassembled dashboard. Keep the request scoped to one dashboard at a time.
+
+```text
+Convert the disassembled dashboard in <disassembled_dir> into kb-yaml-to-lens YAML.
+
+Requirements:
+1. Use metadata.json for dashboard name/description.
+2. Convert every panel in panels/ and preserve panel layout (x, y, w, h).
+3. Use exported data-view references from references.json.
+4. Omit fields that are default values.
+5. After conversion, run:
+   - kb-dashboard compile --input-dir <yaml_dir> --output-dir <compiled_dir>
+   - kb-dashboard disassemble <compiled_dir>/output.ndjson -o <compiled_disassembled_dir>
+   - python3 packages/kb-dashboard-cli/scripts/compare_dashboards.py <disassembled_dir> <compiled_disassembled_dir>
+6. Summarize any mismatches found during validation.
+```
 
 ## Fetching Dashboard from Kibana
 
@@ -327,13 +346,28 @@ kb-dashboard compile --input-dir my-yaml/ --output-dir compiled/
 
 ### Compare Structure
 
-Use the comparison helper script to quickly check panel counts and types:
+Use the comparison helper script to quickly check panel counts and panel types after disassembly:
 
 ```bash
-scripts/compare_panel_counts.sh original.ndjson compiled/output.ndjson
+python3 packages/kb-dashboard-cli/scripts/compare_dashboards.py \
+  /tmp/original_disassembled \
+  /tmp/compiled_disassembled
+```
+
+### CI Drift Check
+
+For repositories that store compiled JSON artifacts, use a compile check that fails when generated output changes:
+
+```bash
+uvx kb-dashboard-cli compile \
+  --input-dir my-yaml/ \
+  --format json \
+  --output-dir compiled/ \
+  --exit-non-zero-on-change
 ```
 
 ### Verification Workflow (Round-Trip Testing)
+
 
 For thorough validation, use this round-trip workflow to verify the compiled output matches the original:
 
@@ -360,7 +394,7 @@ For thorough validation, use this round-trip workflow to verify the compiled out
    Use the comparison helper script to analyze differences:
 
    ```bash
-   python3 scripts/compare_dashboards.py /tmp/original_disassembled /tmp/compiled_disassembled
+   python3 packages/kb-dashboard-cli/scripts/compare_dashboards.py /tmp/original_disassembled /tmp/compiled_disassembled
    ```
 
    This will show panel counts, types, and identify any mismatches.
