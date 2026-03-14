@@ -11,7 +11,6 @@ mod lint 'packages/kb-dashboard-lint'
 mod tools 'packages/kb-dashboard-tools'
 mod vscode 'packages/vscode-extension'
 mod docs 'packages/kb-dashboard-docs'
-mod gh '.github/scripts'
 
 # Default recipe - show help
 default:
@@ -27,13 +26,12 @@ help:
     @echo "  just all <target>       - Run in cli + core + lint + tools + vscode"
     @echo ""
     @echo "Run target in single component:"
-    @echo "  just cli <target>          - Run in packages/kb-dashboard-cli/"
-    @echo "  just core <target>         - Run in packages/kb-dashboard-core/"
-    @echo "  just lint <target>         - Run in packages/kb-dashboard-lint/"
-    @echo "  just tools <target>        - Run in packages/kb-dashboard-tools/"
-    @echo "  just vscode <target>       - Run in packages/vscode-extension/"
-    @echo "  just docs <target>         - Run in packages/kb-dashboard-docs/"
-    @echo "  just gh <target>           - Run in .github/scripts/"
+    @echo "  just cli <target>       - Run in packages/kb-dashboard-cli/"
+    @echo "  just core <target>      - Run in packages/kb-dashboard-core/"
+    @echo "  just lint <target>      - Run in packages/kb-dashboard-lint/"
+    @echo "  just tools <target>     - Run in packages/kb-dashboard-tools/"
+    @echo "  just vscode <target>    - Run in packages/vscode-extension/"
+    @echo "  just docs <target>      - Run in packages/kb-dashboard-docs/"
     @echo ""
     @echo "Common Examples:"
     @echo "  just all install          - Install root + all component dependencies"
@@ -47,7 +45,6 @@ help:
     @echo "  just vscode test-e2e      - Run VS Code E2E tests"
     @echo "  just docs ci              - Check docs (markdown lint + links)"
     @echo "  just docs serve           - Start docs server"
-    @echo "  just gh help              - Show GitHub helper commands"
     @echo ""
     @echo "=== Global Linting ==="
     @echo ""

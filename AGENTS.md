@@ -82,7 +82,7 @@ Specialized guides for LLM-driven dashboard creation tasks:
 
 | Resource | Location |
 | -------- | -------- |
-| Architecture | `packages/kb-dashboard-docs/content/architecture.md` |
+| Architecture | `packages/kb-dashboard-core/docs/compiler-architecture.md` |
 | Getting started | `packages/kb-dashboard-docs/content/index.md` |
 | Contributing | `CONTRIBUTING.md` |
 | CLI docs | `packages/kb-dashboard-docs/content/CLI.md` |
