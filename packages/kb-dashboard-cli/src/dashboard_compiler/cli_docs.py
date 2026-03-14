@@ -50,7 +50,7 @@ def list_guides() -> None:
         from kb_dashboard_docs_content import list_guides as do_list_guides
 
         guides = do_list_guides()
-        if not guides:
+        if len(guides) == 0:
             print_plain('No guides bundled.')
             return
 
