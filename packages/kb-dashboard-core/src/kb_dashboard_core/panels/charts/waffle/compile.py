@@ -19,6 +19,34 @@ from kb_dashboard_core.panels.charts.waffle.view import (
 from kb_dashboard_core.shared.defaults import default_false
 
 
+def _build_collapse_fns(
+    dimension_id: str,
+    dimension_collapse: str | None,
+    breakdown_id: str | None,
+    breakdown_collapse: str | None,
+) -> dict[str, str] | None:
+    """Build collapse functions mapping from dimension and breakdown configs.
+
+    Args:
+        dimension_id: The ID of the primary dimension.
+        dimension_collapse: The collapse function for the dimension, or None.
+        breakdown_id: The ID of the breakdown dimension, or None.
+        breakdown_collapse: The collapse function for the breakdown, or None.
+
+    Returns:
+        A dictionary mapping dimension IDs to collapse functions, or None if no collapse functions.
+
+    """
+    collapse_fns: dict[str, str] | None = None
+    if dimension_collapse is not None:
+        collapse_fns = {dimension_id: str(dimension_collapse)}
+    if breakdown_collapse is not None and breakdown_id is not None:
+        if collapse_fns is None:
+            collapse_fns = {}
+        collapse_fns[breakdown_id] = str(breakdown_collapse)
+    return collapse_fns
+
+
 def compile_waffle_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
@@ -62,6 +90,8 @@ def compile_waffle_chart_visualization_state(  # noqa: PLR0913
         if chart.legend.width is not None:
             legend_size = chart.legend.width
         if chart.legend.truncate_labels is not None:
+            # Kibana mapping: 0 explicitly disables truncation (truncateLegend=False),
+            # otherwise set legendMaxLines and let Kibana use its default truncation behavior
             if chart.legend.truncate_labels == 0:
                 truncate_legend = False
             else:
@@ -143,13 +173,12 @@ def compile_lens_waffle_chart(
         breakdown_columns = dict(compiled_breakdown)
 
     # Build collapse functions
-    collapse_fns: dict[str, str] | None = None
-    if lens_waffle_chart.dimension.collapse is not None:
-        collapse_fns = {dimension_id: str(lens_waffle_chart.dimension.collapse)}
-    if lens_waffle_chart.breakdown is not None and lens_waffle_chart.breakdown.collapse is not None and breakdown_id is not None:
-        if collapse_fns is None:
-            collapse_fns = {}
-        collapse_fns[breakdown_id] = str(lens_waffle_chart.breakdown.collapse)
+    collapse_fns = _build_collapse_fns(
+        dimension_id=dimension_id,
+        dimension_collapse=lens_waffle_chart.dimension.collapse,
+        breakdown_id=breakdown_id,
+        breakdown_collapse=lens_waffle_chart.breakdown.collapse if lens_waffle_chart.breakdown is not None else None,
+    )
 
     kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(dimension_columns), **breakdown_columns, **kbn_metric_column_by_id}
 
@@ -201,13 +230,12 @@ def compile_esql_waffle_chart(
         breakdown_columns = list(compiled_breakdown)
 
     # Build collapse functions
-    collapse_fns: dict[str, str] | None = None
-    if esql_waffle_chart.dimension.collapse is not None:
-        collapse_fns = {dimension_id: str(esql_waffle_chart.dimension.collapse)}
-    if esql_waffle_chart.breakdown is not None and esql_waffle_chart.breakdown.collapse is not None and breakdown_id is not None:
-        if collapse_fns is None:
-            collapse_fns = {}
-        collapse_fns[breakdown_id] = str(esql_waffle_chart.breakdown.collapse)
+    collapse_fns = _build_collapse_fns(
+        dimension_id=dimension_id,
+        dimension_collapse=esql_waffle_chart.dimension.collapse,
+        breakdown_id=breakdown_id,
+        breakdown_collapse=esql_waffle_chart.breakdown.collapse if esql_waffle_chart.breakdown is not None else None,
+    )
 
     kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(dimensions), *breakdown_columns]
 

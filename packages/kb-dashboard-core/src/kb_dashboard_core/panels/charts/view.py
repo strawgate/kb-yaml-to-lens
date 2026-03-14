@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from .mosaic.view import KbnMosaicVisualizationState
     from .pie.view import KbnPieVisualizationState
     from .tagcloud.view import KbnTagcloudVisualizationState
+    from .waffle.view import KbnWaffleVisualizationState
     from .xy.view import KbnXYVisualizationState
 
     KbnVisualizationStateTypes = (
@@ -30,6 +31,7 @@ if TYPE_CHECKING:
         | KbnDatatableVisualizationState
         | KbnTagcloudVisualizationState
         | KbnMosaicVisualizationState
+        | KbnWaffleVisualizationState
     )
 
 # region Form Data Source
