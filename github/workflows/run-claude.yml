@@ -2,7 +2,10 @@
 # Reusable workflow for running Claude Code Action
 #
 # Required Secrets:
-#   CONTEXT7_API_KEY - API key for Context7 MCP server (provides library documentation)
+#   claude-oauth-token - OAuth token for Claude Code Action
+#
+# Optional Secrets:
+#   context7-api-key - API key for Context7 MCP server (provides library documentation)
 #                      Configure in: Settings → Secrets → Actions → Repository secrets
 #
 name: Run Claude Code Action
@@ -71,7 +74,8 @@ jobs:
           CONTEXT7_API_KEY: ${{ secrets.context7-api-key }}
         run: |
           mkdir -p /tmp/mcp-config
-          cat > /tmp/mcp-config/mcp-servers.json << EOF
+          if [ -n "$CONTEXT7_API_KEY" ]; then
+            cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
           {
             "mcpServers": {
               "repository-summary": {
@@ -86,12 +90,30 @@ jobs:
                 "type": "http",
                 "url": "https://mcp.context7.com/mcp",
                 "headers": {
-                  "CONTEXT7_API_KEY": "$CONTEXT7_API_KEY"
+                  "CONTEXT7_API_KEY": "PLACEHOLDER"
                 }
               }
             }
           }
           EOF
+            # Replace placeholder with actual key (avoids heredoc variable expansion issues)
+            sed -i "s/PLACEHOLDER/$CONTEXT7_API_KEY/" /tmp/mcp-config/mcp-servers.json
+          else
+            cat > /tmp/mcp-config/mcp-servers.json << 'EOF'
+          {
+            "mcpServers": {
+              "repository-summary": {
+                "type": "http",
+                "url": "https://agents-md-generator.fastmcp.app/mcp"
+              },
+              "code-search": {
+                "type": "http",
+                "url": "https://public-code-search.fastmcp.app/mcp"
+              }
+            }
+          }
+          EOF
+          fi
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1.0.23
