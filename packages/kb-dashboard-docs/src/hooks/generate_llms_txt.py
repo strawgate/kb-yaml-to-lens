@@ -141,6 +141,7 @@ def on_post_build(config: MkDocsConfig) -> None:
 
     # Concatenate pages in navigation order
     pages_included = 0
+    included_paths: set[str] = set()
     for file_path in _nav_order:
         if file_path not in _collected_pages:
             log.warning(f'{file_path} not in collected pages, skipping...')
@@ -152,6 +153,15 @@ def on_post_build(config: MkDocsConfig) -> None:
         markdown_content = _convert_html_to_markdown(html_content)
 
         # Add file separator and content
+        output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
+        output.append(markdown_content)
+        pages_included += 1
+        included_paths.add(file_path)
+
+    # Include any collected pages not present in nav to avoid omissions
+    for file_path in sorted(path for path in _collected_pages if path not in included_paths):
+        log.warning(f'{file_path} not in nav order, appending at end')
+        markdown_content = _convert_html_to_markdown(_collected_pages[file_path])
         output.append(f'\n\n---\n# Source: {file_path}\n---\n\n')
         output.append(markdown_content)
         pages_included += 1
@@ -170,6 +180,7 @@ def on_post_build(config: MkDocsConfig) -> None:
 
     # Clear state for potential subsequent builds (e.g., during serve)
     _collected_pages.clear()
+    _nav_order.clear()
 
 
 def generate_llms_txt_content(config: MkDocsConfig) -> str:

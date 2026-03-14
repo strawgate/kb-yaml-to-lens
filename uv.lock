@@ -1044,7 +1044,7 @@ requires-dist = [
 dev = [
     { name = "griffe-fieldz", specifier = ">=0.4.0" },
     { name = "griffe-pydantic", specifier = ">=1.1.8" },
-    { name = "html2text", specifier = ">=2025.0.0" },
+    { name = "html2text", specifier = ">=2025.4.15" },
     { name = "mkdocs", specifier = ">=1.6.0" },
     { name = "mkdocs-click", specifier = ">=0.8.0" },
     { name = "mkdocs-material", specifier = ">=9.5.32" },
