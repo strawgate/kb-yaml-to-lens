@@ -255,35 +255,36 @@ def test_compile_lens_custom_metric_format_with_explicit_decimals() -> None:
     )
 
 
-def test_compile_lens_metric_format_with_pattern() -> None:
-    """Test compilation of standard format with custom numeral.js pattern."""
-    fmt = LensMetricFormat(type='number', pattern='0,0')
+def test_compile_lens_custom_metric_format_with_suffix() -> None:
+    """Test compilation of custom format with suffix."""
+    fmt = LensCustomMetricFormat(pattern='0,0.00', suffix=' USD')
     result = compile_lens_metric_format(fmt)
 
     assert result.model_dump() == snapshot(
         {
-            'id': 'number',
+            'id': 'custom',
             'params': {
-                'decimals': 2,
-                'pattern': '0,0',
+                'decimals': 0,
+                'pattern': '0,0.00',
+                'suffix': ' USD',
             },
         }
     )
 
 
-def test_compile_lens_metric_format_with_pattern_suffix_and_compact() -> None:
-    """Test compilation of standard format with pattern, suffix, and compact."""
-    fmt = LensMetricFormat(type='bytes', pattern='0.0a', suffix=' /s', compact=True, decimals=1)
+def test_compile_lens_custom_metric_format_with_suffix_and_compact() -> None:
+    """Test compilation of custom format with suffix and compact."""
+    fmt = LensCustomMetricFormat(pattern='0.0a', suffix=' txn', compact=True, decimals=0)
     result = compile_lens_metric_format(fmt)
 
     assert result.model_dump() == snapshot(
         {
-            'id': 'bytes',
+            'id': 'custom',
             'params': {
-                'decimals': 1,
-                'suffix': ' /s',
-                'compact': True,
+                'decimals': 0,
                 'pattern': '0.0a',
+                'suffix': ' txn',
+                'compact': True,
             },
         }
     )
