@@ -5,7 +5,6 @@ from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensDatatablePanelConfig, LensPanel
 from kb_dashboard_core.panels.charts.datatable.config import (
     DatatableAppearance,
-    DatatableColumnConfig,
     DatatableDensityEnum,
 )
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
@@ -27,20 +26,13 @@ class TestDatatableRowDensityRule:
                     lens=LensDatatablePanelConfig(
                         type='datatable',
                         data_view='logs-*',
-                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        metrics=[],
                         dimensions=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
                             LensTermsDimension(id='dim3', field='field3', type='values'),
                             LensTermsDimension(id='dim4', field='field4', type='values'),
                             LensTermsDimension(id='dim5', field='field5', type='values'),
-                        ],
-                        columns=[
-                            DatatableColumnConfig(column_id='dim1'),
-                            DatatableColumnConfig(column_id='dim2'),
-                            DatatableColumnConfig(column_id='dim3'),
-                            DatatableColumnConfig(column_id='dim4'),
-                            DatatableColumnConfig(column_id='dim5'),
                         ],
                     ),
                 ),
@@ -66,20 +58,13 @@ class TestDatatableRowDensityRule:
                     lens=LensDatatablePanelConfig(
                         type='datatable',
                         data_view='logs-*',
-                        metrics=[LensCountAggregatedMetric(aggregation='count')],
+                        metrics=[],
                         dimensions=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
                             LensTermsDimension(id='dim3', field='field3', type='values'),
                             LensTermsDimension(id='dim4', field='field4', type='values'),
                             LensTermsDimension(id='dim5', field='field5', type='values'),
-                        ],
-                        columns=[
-                            DatatableColumnConfig(column_id='dim1'),
-                            DatatableColumnConfig(column_id='dim2'),
-                            DatatableColumnConfig(column_id='dim3'),
-                            DatatableColumnConfig(column_id='dim4'),
-                            DatatableColumnConfig(column_id='dim5'),
                         ],
                         appearance=DatatableAppearance(
                             density=DatatableDensityEnum.COMPACT,
@@ -109,10 +94,6 @@ class TestDatatableRowDensityRule:
                         dimensions=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
-                        ],
-                        columns=[
-                            DatatableColumnConfig(column_id='dim1'),
-                            DatatableColumnConfig(column_id='dim2'),
                         ],
                     ),
                 ),
@@ -164,11 +145,6 @@ class TestDatatableRowDensityRule:
                         dimensions=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
-                        ],
-                        columns=[
-                            DatatableColumnConfig(column_id='dim1'),
-                            DatatableColumnConfig(column_id='dim2'),
-                            DatatableColumnConfig(column_id='count'),
                         ],
                     ),
                 ),

@@ -540,28 +540,28 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "8a823f75-de16-837d-2a18-30bcbdbe31a5": {
+                    "b0747a8f-d8e8-57e2-16b5-4578ece5b82b": {
                       "allColumns": [
                         {
-                          "columnId": "ff5e8919-edfd-57d0-406e-ea532c9d0115",
+                          "columnId": "e35ce2ee-be91-c952-d158-30dee5dcd1a9",
                           "customLabel": true,
                           "fieldName": "node",
                           "label": "Node"
                         },
                         {
-                          "columnId": "0c88f9f4-bdb8-26a6-a96b-d401738f38b7",
+                          "columnId": "2ff739b6-b395-65fa-6c9a-867937c351aa",
                           "customLabel": true,
                           "fieldName": "namespaces",
                           "label": "Namespaces"
                         },
                         {
-                          "columnId": "6099b3ca-8002-95a7-ead7-15abf08feb29",
+                          "columnId": "c5d0a704-22e0-9cfd-218f-09d4de446e36",
                           "customLabel": true,
                           "fieldName": "memory_free",
                           "label": "Memory Free %"
                         },
                         {
-                          "columnId": "67a6fe77-b508-752e-0f6e-6a7e2f23c99e",
+                          "columnId": "9e62d8db-1faf-8007-1f86-36613dffb9da",
                           "customLabel": true,
                           "fieldName": "connections",
                           "label": "Connections"
@@ -569,25 +569,25 @@
                       ],
                       "columns": [
                         {
-                          "columnId": "ff5e8919-edfd-57d0-406e-ea532c9d0115",
+                          "columnId": "e35ce2ee-be91-c952-d158-30dee5dcd1a9",
                           "customLabel": true,
                           "fieldName": "node",
                           "label": "Node"
                         },
                         {
-                          "columnId": "0c88f9f4-bdb8-26a6-a96b-d401738f38b7",
+                          "columnId": "2ff739b6-b395-65fa-6c9a-867937c351aa",
                           "customLabel": true,
                           "fieldName": "namespaces",
                           "label": "Namespaces"
                         },
                         {
-                          "columnId": "6099b3ca-8002-95a7-ead7-15abf08feb29",
+                          "columnId": "c5d0a704-22e0-9cfd-218f-09d4de446e36",
                           "customLabel": true,
                           "fieldName": "memory_free",
                           "label": "Memory Free %"
                         },
                         {
-                          "columnId": "67a6fe77-b508-752e-0f6e-6a7e2f23c99e",
+                          "columnId": "9e62d8db-1faf-8007-1f86-36613dffb9da",
                           "customLabel": true,
                           "fieldName": "connections",
                           "label": "Connections"
@@ -609,27 +609,27 @@
               "visualization": {
                 "columns": [
                   {
-                    "columnId": "ff5e8919-edfd-57d0-406e-ea532c9d0115",
+                    "columnId": "e35ce2ee-be91-c952-d158-30dee5dcd1a9",
                     "isMetric": false,
                     "isTransposed": false
                   },
                   {
-                    "columnId": "0c88f9f4-bdb8-26a6-a96b-d401738f38b7",
+                    "columnId": "2ff739b6-b395-65fa-6c9a-867937c351aa",
                     "isMetric": false,
                     "isTransposed": false
                   },
                   {
-                    "columnId": "6099b3ca-8002-95a7-ead7-15abf08feb29",
+                    "columnId": "c5d0a704-22e0-9cfd-218f-09d4de446e36",
                     "isMetric": false,
                     "isTransposed": false
                   },
                   {
-                    "columnId": "67a6fe77-b508-752e-0f6e-6a7e2f23c99e",
+                    "columnId": "9e62d8db-1faf-8007-1f86-36613dffb9da",
                     "isMetric": false,
                     "isTransposed": false
                   }
                 ],
-                "layerId": "8a823f75-de16-837d-2a18-30bcbdbe31a5",
+                "layerId": "b0747a8f-d8e8-57e2-16b5-4578ece5b82b",
                 "layerType": "data"
               }
             },
