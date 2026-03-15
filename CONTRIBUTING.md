@@ -35,11 +35,29 @@ See [CODE_STYLE.md](CODE_STYLE.md) for project-wide conventions, and component-s
 
 ### For Config/Compilation Changes
 
-When modifying how YAML is parsed or compiled:
+When modifying how YAML is parsed or compiled, PRs **MUST** meet all of the
+following requirements. PRs that do not meet these requirements will be sent back
+for revision.
 
-1. Include sample YAML that demonstrates the change
-2. Describe the expected compilation outcome
-3. Explain how to verify the changes work
+1. **YAML samples MUST compile successfully.** Every sample YAML included in the
+   PR must compile without errors against the current schema. Run
+   `just cli compile <file>` and confirm it succeeds before submitting. Never
+   submit YAML that has not been verified to compile.
+2. **Include both sample YAML AND verification instructions.** The PR must
+   contain a complete, self-contained YAML configuration that exercises the
+   change, along with detailed step-by-step instructions for reviewers to verify
+   the behavior.
+3. **Verification instructions must include exact commands and expected
+   outcomes.** Provide the specific bash commands a reviewer should run (e.g.,
+   `just cli compile examples/my-change.yaml`) and describe what the compiled
+   output should contain or how the resulting dashboard should behave in Kibana.
+4. **Describe the expected compilation outcome.** Explain what the compiled
+   NDJSON should look like, what Kibana UI elements should reflect, or what
+   behavioral differences the change introduces.
+
+See [PR #1220](https://github.com/strawgate/kb-yaml-to-lens/pull/1220) for an
+example of a well-structured config/compilation PR that includes a test sample
+config, expected outcome, and verification commands.
 
 ### For Chart Type Modifications
 

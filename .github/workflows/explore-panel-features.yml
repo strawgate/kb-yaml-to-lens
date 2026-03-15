@@ -1,0 +1,270 @@
+---
+name: 'Explore: Panel Features Matrix'
+on:
+  schedule:
+    - cron: 0 11 * * *
+  workflow_dispatch:
+    inputs:
+      panel_type:
+        description: >-
+          Panel group to test (leave empty for all).
+          Options: lens-xy, lens-metric, lens-partition, lens-other, esql, content
+        required: false
+        type: string
+        default: ''
+      kibana_version:
+        description: >-
+          Kibana version to test (leave empty for all).
+          Options: 8.19.0, 9.3.0
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-panel-features-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          ALL_PANEL_TYPES='["lens-xy","lens-metric","lens-partition","lens-other","esql","content"]'
+          ALL_KIBANA_VERSIONS='["8.19.0","9.3.0"]'
+
+          INPUT_PANEL="${{ inputs.panel_type }}"
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+
+          if [ -n "$INPUT_PANEL" ]; then
+            PANEL_TYPES="[\"$INPUT_PANEL\"]"
+          else
+            PANEL_TYPES="$ALL_PANEL_TYPES"
+          fi
+
+          if [ -n "$INPUT_VERSION" ]; then
+            KIBANA_VERSIONS="[\"$INPUT_VERSION\"]"
+          else
+            KIBANA_VERSIONS="$ALL_KIBANA_VERSIONS"
+          fi
+
+          echo "matrix={\"panel_type\":$PANEL_TYPES,\"kibana_version\":$KIBANA_VERSIONS}" >> "$GITHUB_OUTPUT"
+
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[panel-explorer-${{ matrix.panel_type }}-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        uv sync
+        npx playwright install chromium
+        if command -v just >/dev/null 2>&1; then
+          just explore-bootstrap ${{ matrix.kibana_version }}
+        else
+          bash scripts/bootstrap-explore-kibana.sh ${{ matrix.kibana_version }}
+        fi
+      additional-instructions: |
+        You are running the Panel Features Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option and feature for the **${{ matrix.panel_type }}**
+        panel group against **Kibana ${{ matrix.kibana_version }}**. Produce a comprehensive
+        feature coverage matrix with pass/fail status for each option.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Seeded indices: `logs-default-generic`, `metrics-default-generic`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version under test: `${{ matrix.kibana_version }}`
+        - Panel group under test: `${{ matrix.panel_type }}`
+        - Elasticsearch and Kibana are pre-provisioned for this workflow run.
+        - Do NOT run bootstrap scripts (`just explore-bootstrap`,
+          `scripts/bootstrap-explore-kibana.sh`, Docker compose, or equivalent)
+          from the agent task.
+
+        ## Panel group feature catalogue
+
+        Identify which features to test based on the panel group value.
+
+        ### lens-xy (bar, line, area)
+        Chart subtypes: bar, bar_horizontal, bar_stacked, bar_horizontal_stacked,
+        bar_percentage_stacked, line, area, area_stacked, area_percentage_stacked.
+        Features to test for each applicable subtype:
+        - Basic metric (count, average, sum, min, max, median, unique_count,
+          percentile, last_value)
+        - Date histogram, terms, filters breakdown
+        - Multiple layers (metrics + reference lines + annotations)
+        - Reference lines (static value, dynamic percentile)
+        - Axis configuration (title, bounds, orientation, scale type)
+        - Legend position, sizing, truncation
+        - Series colors and palette overrides
+        - Curve type (for line/area)
+        - Missing value treatment (zero, none, linear, nearest)
+        - Value labels (on/off)
+        - Gridlines configuration
+        - Formula-based metrics
+        - Breakdown by top values with "other" bucket
+        - Moving average, cumulative sum, differences, counter rate
+        - Time shift
+
+        ### lens-metric (metric, gauge)
+        Features to test:
+        - Primary metric (count, average, sum, unique_count, last_value, formula)
+        - Secondary metric
+        - Maximum value (static and dynamic)
+        - Trend line (metric)
+        - Color by value (palette, stops, continuity)
+        - Prefix and suffix
+        - Number format (percent, bytes, duration, currency, number)
+        - Subtitle / title override
+        - Breakdown (top values dimension for multi-metric tiles)
+        - Gauge: arc, circle, horizontal bullet, vertical bullet shapes
+        - Gauge: bands / color stops
+        - Gauge: min / max (static and field-based)
+
+        ### lens-partition (pie, waffle, treemap, mosaic)
+        Features to test:
+        - Chart subtypes: pie, donut, waffle, treemap, mosaic
+        - Primary metric (count, sum, average, unique_count, formula)
+        - Slice-by / group-by dimensions (single and multiple)
+        - Legend position and truncation
+        - Labels (show/hide, show values, percent vs value)
+        - Color palette selection
+        - Empty rows treatment
+        - Top values with "other" bucket
+        - Number of rings/levels
+        - Mosaic: row and column dimensions
+        - Minimum slice percentage (pie/donut)
+
+        ### lens-other (datatable, heatmap, tagcloud)
+        Features to test:
+        - Datatable:
+          - Multiple metrics and dimensions
+          - Sorting (column, direction)
+          - Summary row (sum, average, min, max, count)
+          - Column alignment (left, center, right)
+          - Column width
+          - Pagination / row height
+          - Transpose
+          - Color by value for cells
+          - Number formatting per column
+        - Heatmap:
+          - X and Y axes (date histogram, terms)
+          - Metric (count, average, sum)
+          - Color palette / stops
+          - Legend position
+          - Shape (rectangle, circle)
+          - Cell labels (show/hide)
+          - Axis title and labels
+        - Tagcloud:
+          - Metric (count, sum, unique_count)
+          - Tag dimension (terms)
+          - Max number of tags
+          - Orientation (single, right-angled, multiple)
+          - Font size range
+          - Color palette / show label
+
+        ### esql (ES|QL panels - all chart types)
+        Features to test:
+        - ES|QL query syntax (FROM, WHERE, STATS, SORT, LIMIT, EVAL)
+        - Chart type selection (bar, line, area, pie, metric, datatable, gauge,
+          heatmap, tagcloud, mosaic, waffle)
+        - Column mapping (x-axis, y-axis, breakdown)
+        - Multiple metrics via STATS
+        - Time-based queries with date histogram via EVAL + BUCKET
+        - EVAL constants for computed fields
+        - Annotation layers on ES|QL XY charts
+        - Reference lines on ES|QL XY charts
+        - All axis / legend / color options that apply to the selected chart type
+        - Interaction with data views vs inline query
+
+        ### content (markdown, search, links, image, vega, section)
+        Features to test:
+        - Markdown:
+          - Static text rendering
+          - Markdown formatting (headers, bold, italic, lists, code blocks, links)
+          - Custom CSS (font size, alignment)
+        - Search (saved search panel):
+          - Data view selection
+          - Column selection
+          - Sort order
+          - Row count
+          - Filters
+        - Links:
+          - Dashboard links (link to another dashboard)
+          - External URL links
+          - Link label and tooltip
+          - Link ordering
+        - Image:
+          - URL-based image
+          - Alt text
+          - Sizing options
+        - Vega:
+          - Vega-Lite spec embedding
+          - Data source configuration (Elasticsearch query)
+          - Mark types (bar, line, point, area)
+          - Encoding channels
+        - Section (collapsible panels):
+          - Title
+          - Collapsed / expanded default state
+          - Panels nested within section
+          - Section ordering within dashboard
+
+        ## Required process
+        1. Read the compiler source for the panel group to discover all supported
+           config options. Start from `packages/kb-dashboard-core/src/` and trace
+           the relevant panel type modules.
+        2. For EACH feature listed above (and any additional ones found in source):
+           a. Author minimal YAML that exercises the feature.
+           b. Compile with `just cli compile <file>`.
+           c. Import the compiled NDJSON into Kibana via the saved objects API.
+           d. Open the panel in Kibana editor and verify all settings match.
+           e. Manually create the same panel in Kibana.
+           f. Export both and compare normalized JSON payloads.
+           g. Record: feature name, status (pass / fail / not-supported), notes.
+        3. If a feature compiles but produces incorrect Kibana output, mark it FAIL
+           and include the diff.
+        4. If a feature is listed in the catalogue above but not found in compiler
+           source, mark it NOT-SUPPORTED and note the gap.
+        5. Note any behavioral differences between Kibana ${{ matrix.kibana_version }}
+           and expectations (features missing, renamed, or behaving differently).
+
+        ## Playwright requirements
+        - Use `browser_snapshot` before interactions; refresh snapshot after each
+          click/type.
+        - Do not rely on export-then-reexport of imported objects as validation.
+        - Validate through Kibana editor controls and manual side-by-side recreation.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[panel-explorer-${{ matrix.panel_type }}-${{ matrix.kibana_version }}] Feature coverage report`
+
+        The issue must include:
+        1. **Panel group**: ${{ matrix.panel_type }}
+        2. **Kibana version**: ${{ matrix.kibana_version }}
+        3. **Feature coverage matrix**: A markdown table with columns:
+           | Feature | Sub-feature | Status | Notes |
+        4. **Summary statistics**: Total tested, passed, failed, not-supported
+        5. **Bugs found**: For each failure, include:
+           - Minimal YAML reproduction
+           - Expected vs actual behavior
+           - Saved-object diff summary
+        6. **Version-specific notes**: Anything unique to this Kibana version
+        7. **Gaps**: Features from the catalogue not found in compiler source
+
+        Do not create branches or pull requests in this workflow.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
