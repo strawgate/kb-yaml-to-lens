@@ -197,14 +197,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-1e356b63-60c0-e0ab-a466-687ec2972603"
+                "name": "indexpattern-datasource-layer-dc27dcd5-5ba4-3405-57a9-22c4dbd043f9"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "1e356b63-60c0-e0ab-a466-687ec2972603",
+                    "layerId": "dc27dcd5-5ba4-3405-57a9-22c4dbd043f9",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -246,7 +246,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "1e356b63-60c0-e0ab-a466-687ec2972603": {
+                    "dc27dcd5-5ba4-3405-57a9-22c4dbd043f9": {
                       "columns": {
                         "843d42bd-036a-8e6d-4c4c-dc6d77b4e6c3": {
                           "label": "Top 10 values of log.level",
@@ -925,7 +925,7 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "ade4429d-dc5c-f89f-e494-5acb4bc5563b:indexpattern-datasource-layer-1e356b63-60c0-e0ab-a466-687ec2972603"
+      "name": "ade4429d-dc5c-f89f-e494-5acb4bc5563b:indexpattern-datasource-layer-dc27dcd5-5ba4-3405-57a9-22c4dbd043f9"
     },
     {
       "type": "index-pattern",

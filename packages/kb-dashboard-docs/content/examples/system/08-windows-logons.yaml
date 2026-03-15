@@ -106,7 +106,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: winlog.logon.type
               size: 10
@@ -133,7 +133,7 @@ dashboards:
         lens:
           type: datatable
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - id: source-ip
               type: values
               field: source.ip
@@ -150,7 +150,7 @@ dashboards:
         lens:
           type: datatable
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - id: timestamp
               field: '@timestamp'
               type: date_histogram

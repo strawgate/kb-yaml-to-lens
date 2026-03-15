@@ -34,7 +34,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: event.category
               type: values
               size: 10
@@ -59,7 +59,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.event.SeverityName
               type: values
               size: 10
@@ -81,7 +81,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: threat.technique.name
               type: values
               size: 10
@@ -103,7 +103,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: threat.tactic.name
               type: values
               size: 10

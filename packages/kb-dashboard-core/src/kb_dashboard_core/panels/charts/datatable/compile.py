@@ -183,8 +183,8 @@ def compile_lens_datatable_chart(
         kbn_metric_columns_by_id.update(result.helper_columns)
         primary_metric_ids.append(metric_id)
 
-    # Compile dimensions (these come FIRST in column order for datatables)
-    for dimension in lens_datatable_chart.dimensions:
+    # Compile breakdowns (these come FIRST in column order for datatables)
+    for dimension in lens_datatable_chart.breakdowns:
         dimension_id, compiled_dimension = compile_lens_dimension(
             dimension=dimension,
             kbn_metric_column_by_id=kbn_metric_columns_by_id,
@@ -192,9 +192,9 @@ def compile_lens_datatable_chart(
         kbn_columns_by_id[dimension_id] = compiled_dimension
         datatable_columns.append((dimension_id, False, dimension))
 
-    # Compile dimensions_by (split metrics by)
-    if lens_datatable_chart.dimensions_by is not None:
-        for dimensions_by_dim in lens_datatable_chart.dimensions_by:
+    # Compile dimensions (split metrics by)
+    if lens_datatable_chart.dimensions is not None:
+        for dimensions_by_dim in lens_datatable_chart.dimensions:
             dimensions_by_id, compiled_dimensions_by = compile_lens_dimension(
                 dimension=dimensions_by_dim,
                 kbn_metric_column_by_id=kbn_metric_columns_by_id,
@@ -251,15 +251,15 @@ def compile_esql_datatable_chart(
         compiled_metrics.append(compiled_metric)
         metric_column_ids.append(compiled_metric.columnId)
 
-    # Compile dimensions (these come FIRST in column order for datatables)
-    for dimension in esql_datatable_chart.dimensions:
+    # Compile breakdowns (these come FIRST in column order for datatables)
+    for dimension in esql_datatable_chart.breakdowns:
         compiled_dimension: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimension)
         kbn_columns.append(compiled_dimension)
         datatable_columns.append((compiled_dimension.columnId, False, dimension))
 
-    # Compile dimensions_by (split metrics by)
-    if esql_datatable_chart.dimensions_by is not None:
-        for dimensions_by_dim in esql_datatable_chart.dimensions_by:
+    # Compile dimensions (split metrics by)
+    if esql_datatable_chart.dimensions is not None:
+        for dimensions_by_dim in esql_datatable_chart.dimensions:
             compiled_dimensions_by: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimensions_by_dim)
             kbn_columns.append(compiled_dimensions_by)
             datatable_columns.append((compiled_dimensions_by.columnId, False, dimensions_by_dim))

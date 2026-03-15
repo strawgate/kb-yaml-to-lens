@@ -125,7 +125,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: winlog.event_id
               size: 10
@@ -137,7 +137,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: winlog.event_data.ObjectType
               size: 10
@@ -149,7 +149,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: host.hostname
               size: 10
@@ -183,7 +183,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: winlog.event_data.ObjectType
               size: 10
@@ -200,7 +200,7 @@ dashboards:
         lens:
           type: datatable
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - id: timestamp
               field: '@timestamp'
               type: date_histogram

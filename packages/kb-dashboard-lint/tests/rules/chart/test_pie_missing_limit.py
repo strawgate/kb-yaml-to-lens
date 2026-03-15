@@ -23,7 +23,7 @@ def dashboard_with_lens_pie_no_size() -> Dashboard:
                     type='pie',
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
-                    dimensions=[
+                    breakdowns=[
                         LensTermsDimension(field='status'),  # No size set
                     ],
                 ),
@@ -44,7 +44,7 @@ def dashboard_with_lens_pie_good_size() -> Dashboard:
                     type='pie',
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
-                    dimensions=[
+                    breakdowns=[
                         LensTermsDimension(field='status', size=5),
                     ],
                 ),
@@ -65,7 +65,7 @@ def dashboard_with_lens_pie_excessive_size() -> Dashboard:
                     type='pie',
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
-                    dimensions=[
+                    breakdowns=[
                         LensTermsDimension(field='status', size=20),
                     ],
                 ),
@@ -86,7 +86,7 @@ def dashboard_with_esql_pie_no_limit() -> Dashboard:
                     type='pie',
                     query='FROM logs-* | STATS count = COUNT(*) BY status',
                     metrics=[ESQLMetric(field='count')],
-                    dimensions=[ESQLDimension(field='status')],
+                    breakdowns=[ESQLDimension(field='status')],
                 ),
             ),
         ],
@@ -105,7 +105,7 @@ def dashboard_with_esql_pie_good_limit() -> Dashboard:
                     type='pie',
                     query='FROM logs-* | STATS count = COUNT(*) BY status | LIMIT 5',
                     metrics=[ESQLMetric(field='count')],
-                    dimensions=[ESQLDimension(field='status')],
+                    breakdowns=[ESQLDimension(field='status')],
                 ),
             ),
         ],

@@ -19,7 +19,7 @@ def dashboard_esql_dimension_no_label() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM metrics-* | STATS count = COUNT(*) BY server_name',
-                    dimensions=[
+                    breakdowns=[
                         ESQLDimension(field='server_name'),  # No label
                         ESQLDimension(field='server_port'),  # No label
                     ],
@@ -43,7 +43,7 @@ def dashboard_esql_dimension_with_label() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM metrics-* | STATS count = COUNT(*) BY server_name',
-                    dimensions=[
+                    breakdowns=[
                         ESQLDimension(field='server_name', label='Server Name'),
                         ESQLDimension(field='server_port', label='Port'),
                     ],
@@ -67,7 +67,7 @@ def dashboard_esql_dimension_empty_label() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM metrics-* | STATS count = COUNT(*) BY server_name',
-                    dimensions=[
+                    breakdowns=[
                         ESQLDimension(field='server_name', label=''),  # Empty label
                     ],
                     metrics=[

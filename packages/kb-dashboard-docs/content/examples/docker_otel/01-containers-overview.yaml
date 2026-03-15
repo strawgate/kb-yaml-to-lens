@@ -189,7 +189,7 @@ dashboards:
             - STATS Containers = COUNT_DISTINCT(container.id) BY Runtime = container.runtime
             - SORT Containers DESC
             - LIMIT 10
-          dimensions:
+          breakdowns:
             - field: Runtime
           metrics:
             - field: Containers
@@ -207,7 +207,7 @@ dashboards:
             - STATS Containers = COUNT_DISTINCT(container.id) BY `Image Name`, `Image Version`
             - SORT Containers DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: Image Name
             - field: Image Version
           metrics:
@@ -223,7 +223,7 @@ dashboards:
             - STATS Containers = COUNT_DISTINCT(container.id) BY Name = container.name
             - SORT Containers DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: Name
           metrics:
             - field: Containers
@@ -248,7 +248,7 @@ dashboards:
             - STATS `CPU Usage` = AVG(container.cpu.utilization) / 100 BY `Container Name` = container.name, `Container ID` = container.id
             - SORT `CPU Usage` DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: Container Name
             - field: Container ID
           metrics:
@@ -267,7 +267,7 @@ dashboards:
             - STATS `Memory Usage` = AVG(container.memory.percent) / 100 BY `Container Name` = container.name, `Container ID` = container.id
             - SORT `Memory Usage` DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: Container Name
             - field: Container ID
           metrics:
@@ -286,7 +286,7 @@ dashboards:
             - STATS `Memory (Bytes)` = AVG(container.memory.usage.total) BY `Container Name` = container.name, `Container ID` = container.id
             - SORT `Memory (Bytes)` DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: Container Name
             - field: Container ID
           metrics:

@@ -47,7 +47,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - id: node
               type: values
               field: elasticsearch.node.name
@@ -248,7 +248,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - id: node
               type: values
               field: elasticsearch.node.name

@@ -281,7 +281,7 @@ dashboards:
               label: Memory Usage
               format:
                 type: bytes
-          dimensions:
+          breakdowns:
             - field: namespace
               label: Namespace
           appearance:
@@ -304,7 +304,7 @@ dashboards:
               format:
                 type: number
                 suffix: '%'
-          dimensions:
+          breakdowns:
             - field: namespace
               label: Namespace
           appearance:
@@ -326,7 +326,7 @@ dashboards:
             - KEEP namespace, node, memory_usage, memory_free, disk_available
             - SORT namespace ASC, node ASC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: namespace
               label: Namespace
             - field: node

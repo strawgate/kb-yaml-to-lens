@@ -3,7 +3,7 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -64,8 +64,17 @@ class LensTreemapChart(BaseTreemapChart):
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the rectangle sizes."""
 
-    dimensions: list[LensDimensionTypes] = Field(default=...)
-    """Dimensions that determine treemap grouping levels."""
+    breakdowns: list[LensDimensionTypes] = Field(default=..., max_length=2)
+    """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
+
+    @field_validator('breakdowns')
+    @classmethod
+    def validate_breakdowns_count(cls, v: list[LensDimensionTypes]) -> list[LensDimensionTypes]:
+        """Validate that treemap has at least one breakdown."""
+        if len(v) == 0:
+            msg = 'Treemap must have at least one breakdown'
+            raise ValueError(msg)
+        return v
 
 
 class ESQLTreemapChart(BaseTreemapChart):
@@ -74,5 +83,14 @@ class ESQLTreemapChart(BaseTreemapChart):
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the rectangle sizes."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(default=...)
-    """Dimensions that determine treemap grouping levels."""
+    breakdowns: list[ESQLDimensionTypes] = Field(default=..., max_length=2)
+    """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
+
+    @field_validator('breakdowns')
+    @classmethod
+    def validate_breakdowns_count(cls, v: list[ESQLDimensionTypes]) -> list[ESQLDimensionTypes]:
+        """Validate that treemap has at least one breakdown."""
+        if len(v) == 0:
+            msg = 'Treemap must have at least one breakdown'
+            raise ValueError(msg)
+        return v

@@ -32,7 +32,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: host.os.platform
               type: values
               size: 5

@@ -27,14 +27,14 @@ async def test_basic_pie_chart() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -91,7 +91,7 @@ async def test_basic_donut_chart() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'appearance': {'donut': 'medium'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -99,7 +99,7 @@ async def test_basic_donut_chart() -> None:
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'appearance': {'donut': 'medium'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -162,7 +162,7 @@ async def test_donut_chart_sizes() -> None:
             'type': 'pie',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+            'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
             'appearance': {'donut': donut_size},
         }
 
@@ -180,7 +180,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -188,7 +188,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -247,7 +247,7 @@ async def test_pie_chart_with_legend_position() -> None:
             'type': 'pie',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+            'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
             'legend': {'position': position},
         }
 
@@ -264,7 +264,7 @@ async def test_pie_chart_legend_auto_maps_to_default() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'visible': 'auto'},
     }
 
@@ -281,7 +281,7 @@ async def test_pie_chart_slice_labels_auto_maps_to_default() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_labels': 'auto'},
     }
 
@@ -298,7 +298,7 @@ async def test_pie_chart_slice_values_hide_maps_to_hidden() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'slice_values': 'hide'},
     }
 
@@ -315,7 +315,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'visible': 'show', 'width': 'extra_large', 'truncate_labels': 0},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -323,7 +323,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'visible': 'show', 'width': 'extra_large', 'truncate_labels': 0},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -385,7 +385,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
             {'type': 'values', 'field': 'region', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
         ],
@@ -395,7 +395,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace, region',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
             {'field': 'region', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
         ],
@@ -460,7 +460,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
             {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
             {'aggregation': 'sum', 'field': 'bytes', 'id': '9g131718-490f-5c65-cd0f-f6661g95g6f7'},
         ],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -470,7 +470,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
             {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
             {'field': 'sum(bytes)', 'id': '9g131718-490f-5c65-cd0f-f6661g95g6f7'},
         ],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -531,7 +531,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
         ],
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -540,7 +540,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
         ],
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -601,7 +601,7 @@ async def test_pie_chart_with_nested_legend() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
             {'type': 'values', 'field': 'host.name', 'id': '7f456789-abcd-1234-5678-90abcdef1234'},
         ],
@@ -621,7 +621,7 @@ async def test_pie_chart_with_show_single_series() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -659,7 +659,7 @@ async def test_pie_chart_with_show_single_series_false() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -697,7 +697,7 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [
+        'breakdowns': [
             {'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -733,7 +733,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'value_decimal_places': 5},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -741,7 +741,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'titles_and_text': {'value_decimal_places': 5},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -801,14 +801,14 @@ async def test_pie_chart_without_value_decimal_places() -> None:
         'type': 'pie',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
         'type': 'pie',
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -845,7 +845,7 @@ def test_pie_chart_dashboard_references_bubble_up() -> None:
                     'type': 'pie',
                     'data_view': 'metrics-*',
                     'metrics': [{'aggregation': 'count', 'id': 'count-metric'}],
-                    'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'host-dimension'}],
+                    'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': 'host-dimension'}],
                 },
             }
         ],

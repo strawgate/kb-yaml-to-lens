@@ -65,12 +65,12 @@ class PieChartDimensionCountRule(ChartRule[PieConfig, PieChartDimensionCountOpti
             Violation if dimension count exceeds max, None otherwise.
 
         """
-        dimension_count = len(config.dimensions)
+        dimension_count = len(config.breakdowns)
 
         if dimension_count > options.max_dimensions:
             return Violation(
                 rule_id=self.id,
-                message=f'Pie chart has {dimension_count} dimensions; multi-level pies can be hard to read',
+                message=f'Pie chart has {dimension_count} breakdowns; multi-level pies can be hard to read',
                 severity=self.default_severity,
                 dashboard_name=context.dashboard_name,
                 panel_title=context.panel_title,

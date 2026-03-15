@@ -150,13 +150,13 @@ def compile_lens_treemap_chart(
         kbn_metric_column_by_id.update(result.helper_columns)
         metric_ids.append(metric_id)
 
-    slices_by_ids = compile_lens_dimensions(dimensions=lens_treemap_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)
+    slices_by_ids = compile_lens_dimensions(dimensions=lens_treemap_chart.breakdowns, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
 
     collapse_fns = build_collapse_fns(
         [
             (compiled_dim_id, dim_config.collapse)
-            for dim_config, compiled_dim_id in zip(lens_treemap_chart.dimensions, all_dimension_ids, strict=True)
+            for dim_config, compiled_dim_id in zip(lens_treemap_chart.breakdowns, all_dimension_ids, strict=True)
         ]
     )
 
@@ -184,13 +184,13 @@ def compile_esql_treemap_chart(
     metrics = [compile_esql_metric(m) for m in esql_treemap_chart.metrics]
     metric_ids = [m.columnId for m in metrics]
 
-    dimensions = compile_esql_dimensions(dimensions=esql_treemap_chart.dimensions)
+    dimensions = compile_esql_dimensions(dimensions=esql_treemap_chart.breakdowns)
     all_dimension_ids = [d.columnId for d in dimensions]
 
     collapse_fns = build_collapse_fns(
         [
             (compiled_dim.columnId, dim_config.collapse)
-            for dim_config, compiled_dim in zip(esql_treemap_chart.dimensions, dimensions, strict=True)
+            for dim_config, compiled_dim in zip(esql_treemap_chart.breakdowns, dimensions, strict=True)
         ]
     )
 

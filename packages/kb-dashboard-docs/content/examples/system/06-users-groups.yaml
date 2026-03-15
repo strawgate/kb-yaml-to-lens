@@ -41,7 +41,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: event.action
               size: 10
@@ -52,7 +52,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: host.hostname
               size: 10
@@ -63,7 +63,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - type: values
               field: user.name
               size: 10
@@ -74,7 +74,7 @@ dashboards:
         lens:
           type: datatable
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - id: timestamp
               field: '@timestamp'
               type: date_histogram

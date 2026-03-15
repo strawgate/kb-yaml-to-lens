@@ -386,7 +386,7 @@ dashboards:
             - KEEP instance, memory, clients, commands, fragmentation
             - SORT memory DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: instance
               label: Instance
             - field: memory

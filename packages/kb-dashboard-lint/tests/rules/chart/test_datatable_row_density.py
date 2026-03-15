@@ -27,7 +27,7 @@ class TestDatatableRowDensityRule:
                         type='datatable',
                         data_view='logs-*',
                         metrics=[],
-                        dimensions=[
+                        breakdowns=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
                             LensTermsDimension(id='dim3', field='field3', type='values'),
@@ -59,7 +59,7 @@ class TestDatatableRowDensityRule:
                         type='datatable',
                         data_view='logs-*',
                         metrics=[],
-                        dimensions=[
+                        breakdowns=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
                             LensTermsDimension(id='dim3', field='field3', type='values'),
@@ -91,7 +91,7 @@ class TestDatatableRowDensityRule:
                         type='datatable',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        dimensions=[
+                        breakdowns=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
                         ],
@@ -117,7 +117,7 @@ class TestDatatableRowDensityRule:
                         type='datatable',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        dimensions=[
+                        breakdowns=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                         ],
                     ),
@@ -142,7 +142,7 @@ class TestDatatableRowDensityRule:
                         type='datatable',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        dimensions=[
+                        breakdowns=[
                             LensTermsDimension(id='dim1', field='field1', type='values'),
                             LensTermsDimension(id='dim2', field='field2', type='values'),
                         ],

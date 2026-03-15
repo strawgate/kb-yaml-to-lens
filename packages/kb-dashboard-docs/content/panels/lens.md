@@ -68,7 +68,7 @@ dashboards:
           metrics:
             - aggregation: "count"
               label: "Sessions"
-          dimensions:
+          breakdowns:
             - type: values
               field: "source.medium"
               label: "Traffic Source"
@@ -211,7 +211,7 @@ dashboards:
             - aggregation: "average"
               field: "metrics.system.disk.operations"
               label: "Avg Disk Operations"
-          dimensions:
+          breakdowns:
             - type: values
               field: "resource.attributes.device"
               size: 5

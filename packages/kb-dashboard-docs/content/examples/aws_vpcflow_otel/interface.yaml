@@ -284,7 +284,7 @@ dashboards:
             - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: cloud.account.id
               label: Cloud Account ID
           metrics:

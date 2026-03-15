@@ -51,7 +51,7 @@ dashboards:
             - STATS count = COUNT() BY http.response.status_code
           metrics:
             - field: count
-          dimensions:
+          breakdowns:
             - field: http.response.status_code
 
       - title: "Average Response Time"
@@ -160,7 +160,7 @@ dashboards:
             - LIMIT 10
           metrics:
             - field: count
-          dimensions:
+          breakdowns:
             - field: url.path
 ```
 
@@ -192,7 +192,7 @@ dashboards:
             - SORT avg_cpu DESC
           metrics:
             - field: avg_cpu
-          dimensions:
+          breakdowns:
             - field: host.name
 
       - title: "Memory by Host"
@@ -208,7 +208,7 @@ dashboards:
             - SORT avg_mem DESC
           metrics:
             - field: avg_mem
-          dimensions:
+          breakdowns:
             - field: host.name
 ```
 

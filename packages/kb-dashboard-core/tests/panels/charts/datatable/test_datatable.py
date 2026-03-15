@@ -70,7 +70,7 @@ def test_compile_datatable_chart_with_rows_lens() -> None:
                 'aggregation': 'count',
             }
         ],
-        'dimensions': [
+        'breakdowns': [
             {
                 'type': 'values',
                 'field': 'agent.name',
@@ -271,7 +271,7 @@ def test_compile_datatable_chart_with_rows_esql() -> None:
                 'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             }
         ],
-        'dimensions': [
+        'breakdowns': [
             {
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
@@ -306,14 +306,14 @@ def test_compile_datatable_chart_with_rows_by_lens() -> None:
                 'aggregation': 'count',
             }
         ],
-        'dimensions': [
+        'breakdowns': [
             {
                 'type': 'values',
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
             }
         ],
-        'dimensions_by': [
+        'dimensions': [
             {
                 'type': 'values',
                 'field': 'host.name',
@@ -347,13 +347,13 @@ def test_compile_datatable_chart_with_rows_by_esql() -> None:
                 'id': '156e3e91-7bb6-406f-8ae5-cb409747953b',
             }
         ],
-        'dimensions': [
+        'breakdowns': [
             {
                 'field': 'agent.name',
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
             }
         ],
-        'dimensions_by': [
+        'dimensions': [
             {
                 'field': 'host.name',
                 'id': 'split-by-host',
@@ -388,7 +388,7 @@ def test_compile_datatable_chart_with_row_column_config_lens() -> None:
                 'aggregation': 'count',
             }
         ],
-        'dimensions': [
+        'breakdowns': [
             {
                 'type': 'values',
                 'field': 'agent.name',
@@ -444,7 +444,7 @@ def test_compile_datatable_chart_with_formula_metrics_lens() -> None:
                 'id': 'mem-util',
             },
         ],
-        'dimensions': [
+        'breakdowns': [
             {
                 'type': 'values',
                 'field': 'host.name',
@@ -472,10 +472,10 @@ def test_lens_datatable_validation_requires_metrics_or_rows() -> None:
         'type': 'datatable',
         'data_view': 'metrics-*',
         'metrics': [],
-        'dimensions': [],
+        'breakdowns': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric or one dimension'):
+    with pytest.raises(ValidationError, match='at least one metric or one breakdown'):
         LensDatatableChart.model_validate(config)
 
 
@@ -485,28 +485,28 @@ def test_lens_datatable_validation_with_only_metrics_succeeds() -> None:
         'type': 'datatable',
         'data_view': 'metrics-*',
         'metrics': [{'field': 'test', 'id': 'test-id', 'aggregation': 'count'}],
-        'dimensions': [],
+        'breakdowns': [],
     }
 
     chart = LensDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 1
-    assert len(chart.dimensions) == 0
+    assert len(chart.breakdowns) == 0
 
 
-def test_lens_datatable_validation_with_only_dimensions_succeeds() -> None:
-    """Test that Lens datatable with only dimensions passes validation."""
+def test_lens_datatable_validation_with_only_breakdowns_succeeds() -> None:
+    """Test that Lens datatable with only breakdowns passes validation."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
         'metrics': [],
-        'dimensions': [{'field': 'test', 'id': 'test-id', 'type': 'values'}],
+        'breakdowns': [{'field': 'test', 'id': 'test-id', 'type': 'values'}],
     }
 
     chart = LensDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 0
-    assert len(chart.dimensions) == 1
+    assert len(chart.breakdowns) == 1
 
 
 def test_esql_datatable_validation_requires_metrics_or_rows() -> None:
@@ -514,10 +514,10 @@ def test_esql_datatable_validation_requires_metrics_or_rows() -> None:
     config = {
         'type': 'datatable',
         'metrics': [],
-        'dimensions': [],
+        'breakdowns': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric or one dimension'):
+    with pytest.raises(ValidationError, match='at least one metric or one breakdown'):
         ESQLDatatableChart.model_validate(config)
 
 
@@ -526,27 +526,27 @@ def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:
     config = {
         'type': 'datatable',
         'metrics': [{'field': 'count(*)', 'id': 'test-id'}],
-        'dimensions': [],
+        'breakdowns': [],
     }
 
     chart = ESQLDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 1
-    assert len(chart.dimensions) == 0
+    assert len(chart.breakdowns) == 0
 
 
-def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
-    """Test that ESQL datatable with only dimensions passes validation."""
+def test_esql_datatable_validation_with_only_breakdowns_succeeds() -> None:
+    """Test that ESQL datatable with only breakdowns passes validation."""
     config = {
         'type': 'datatable',
         'metrics': [],
-        'dimensions': [{'field': 'test', 'id': 'test-id'}],
+        'breakdowns': [{'field': 'test', 'id': 'test-id'}],
     }
 
     chart = ESQLDatatableChart.model_validate(config)
     assert chart is not None
     assert len(chart.metrics) == 0
-    assert len(chart.dimensions) == 1
+    assert len(chart.breakdowns) == 1
 
 
 def test_compile_datatable_chart_with_range_colors_esql() -> None:
@@ -853,7 +853,7 @@ def test_datatable_chart_dashboard_references_bubble_up() -> None:
                     'type': 'datatable',
                     'data_view': 'logs-*',
                     'metrics': [{'aggregation': 'count', 'id': 'count-metric'}],
-                    'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'host-dim'}],
+                    'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': 'host-dim'}],
                 },
             }
         ],

@@ -102,7 +102,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: service.name
               type: values
               size: 8

@@ -361,7 +361,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - id: process-name
               type: values
               field: system.process.name
@@ -390,7 +390,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - id: process-name
               type: values
               field: system.process.name
