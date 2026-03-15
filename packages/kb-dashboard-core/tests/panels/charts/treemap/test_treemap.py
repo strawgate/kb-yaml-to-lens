@@ -97,3 +97,38 @@ async def test_treemap_show_hide_label_mapping() -> None:
     )
     _layer_id, _kbn_columns, hide_state = compile_lens_treemap_chart(lens_treemap_chart=lens_hide)
     assert hide_state.layers[0].categoryDisplay == 'hide'
+
+
+async def test_treemap_with_two_dimensions_uses_primary_groups_only() -> None:
+    """Treemap should keep all grouping levels in primaryGroups for Kibana compatibility."""
+    lens_chart = LensTreemapChart.model_validate(
+        {
+            'type': 'treemap',
+            'data_view': 'metrics-*',
+            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            'dimensions': [
+                {'type': 'values', 'field': 'service.name', 'id': 'group1'},
+                {'type': 'values', 'field': 'service.environment', 'id': 'group2'},
+            ],
+        }
+    )
+    _layer_id, _kbn_columns, lens_state = compile_lens_treemap_chart(lens_treemap_chart=lens_chart)
+    lens_layer = lens_state.layers[0]
+    assert lens_layer.primaryGroups == ['group1', 'group2']
+    assert lens_layer.secondaryGroups is None
+
+    esql_chart = ESQLTreemapPanelConfig.model_validate(
+        {
+            'type': 'treemap',
+            'query': 'FROM metrics-* | STATS c = count(*) by service.name, service.environment',
+            'metrics': [{'field': 'c', 'id': 'metric1'}],
+            'dimensions': [
+                {'field': 'service.name', 'id': 'group1'},
+                {'field': 'service.environment', 'id': 'group2'},
+            ],
+        }
+    )
+    _layer_id, _kbn_columns, esql_state = compile_esql_treemap_chart(esql_treemap_chart=esql_chart)
+    esql_layer = esql_state.layers[0]
+    assert esql_layer.primaryGroups == ['group1', 'group2']
+    assert esql_layer.secondaryGroups is None

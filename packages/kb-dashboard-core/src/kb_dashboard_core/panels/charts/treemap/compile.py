@@ -19,7 +19,6 @@ from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieVisualizationState,
 )
 from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreemapTitlesAndText
-from kb_dashboard_core.shared.compile import split_dimensions
 from kb_dashboard_core.shared.defaults import default_false
 
 
@@ -91,12 +90,11 @@ def _compile_legend_options(legend: PieLegend | None) -> LegendOptions:
     )
 
 
-def compile_treemap_chart_visualization_state(  # noqa: PLR0913
+def compile_treemap_chart_visualization_state(
     *,
     layer_id: str,
     chart: LensTreemapChart | ESQLTreemapChart,
     slice_by_ids: list[str],
-    secondary_slice_by_ids: list[str] | None,
     metric_ids: list[str],
     collapse_fns: dict[str, str] | None,
 ) -> KbnPieVisualizationState:
@@ -114,7 +112,7 @@ def compile_treemap_chart_visualization_state(  # noqa: PLR0913
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=slice_by_ids,
-        secondaryGroups=secondary_slice_by_ids if secondary_slice_by_ids else None,
+        secondaryGroups=None,
         metrics=metric_ids,
         allowMultipleMetrics=allow_multiple_metrics,
         collapseFns=collapse_fns if collapse_fns else None,
@@ -154,7 +152,6 @@ def compile_lens_treemap_chart(
 
     slices_by_ids = compile_lens_dimensions(dimensions=lens_treemap_chart.dimensions, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
-    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
     collapse_fns = build_collapse_fns(
         [
@@ -171,8 +168,7 @@ def compile_lens_treemap_chart(
         compile_treemap_chart_visualization_state(
             layer_id=layer_id,
             chart=lens_treemap_chart,
-            slice_by_ids=primary_dimension_ids,
-            secondary_slice_by_ids=secondary_dimension_ids,
+            slice_by_ids=all_dimension_ids,
             metric_ids=metric_ids,
             collapse_fns=collapse_fns,
         ),
@@ -190,7 +186,6 @@ def compile_esql_treemap_chart(
 
     dimensions = compile_esql_dimensions(dimensions=esql_treemap_chart.dimensions)
     all_dimension_ids = [d.columnId for d in dimensions]
-    primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
     collapse_fns = build_collapse_fns(
         [
@@ -207,8 +202,7 @@ def compile_esql_treemap_chart(
         compile_treemap_chart_visualization_state(
             layer_id=layer_id,
             chart=esql_treemap_chart,
-            slice_by_ids=primary_dimension_ids,
-            secondary_slice_by_ids=secondary_dimension_ids,
+            slice_by_ids=all_dimension_ids,
             metric_ids=metric_ids,
             collapse_fns=collapse_fns,
         ),
