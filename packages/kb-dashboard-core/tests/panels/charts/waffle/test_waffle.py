@@ -1,7 +1,9 @@
 """Test the compilation of Lens waffle charts from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.config import ESQLWafflePanelConfig
 from kb_dashboard_core.panels.charts.waffle.compile import compile_esql_waffle_chart, compile_lens_waffle_chart
@@ -78,8 +80,8 @@ async def test_basic_waffle_chart() -> None:
     )
 
 
-async def test_waffle_chart_supports_breakdown() -> None:
-    """Test waffle chart supports an optional breakdown dimension."""
+async def test_waffle_chart_rejects_breakdown() -> None:
+    """Test waffle chart rejects breakdown because Kibana only supports one dimension."""
     lens_config = {
         'type': 'waffle',
         'data_view': 'logs-*',
@@ -89,10 +91,8 @@ async def test_waffle_chart_supports_breakdown() -> None:
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
-    lens_chart = LensWaffleChart.model_validate(lens_config)
-    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
-    layer = kbn_state_visualization.layers[0]
-    assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
+    with pytest.raises(ValidationError, match='breakdown'):
+        LensWaffleChart.model_validate(lens_config)
 
 
 async def test_waffle_chart_with_legend_options() -> None:
@@ -269,8 +269,8 @@ async def test_waffle_chart_with_legend_position() -> None:
     assert layer.legendDisplay == 'show'
 
 
-async def test_esql_waffle_chart_supports_breakdown() -> None:
-    """Test ES|QL waffle chart supports an optional breakdown dimension."""
+async def test_esql_waffle_chart_rejects_breakdown() -> None:
+    """Test ES|QL waffle chart rejects breakdown because Kibana only supports one dimension."""
     esql_config = {
         'type': 'waffle',
         'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method, service.name',
@@ -280,10 +280,8 @@ async def test_esql_waffle_chart_supports_breakdown() -> None:
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
-    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
-    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
-    layer = kbn_state_visualization.layers[0]
-    assert layer.secondaryGroups == ['7f84397c-95f0-5454-bd88-c8ff3fe1b4eg']
+    with pytest.raises(ValidationError, match='breakdown'):
+        ESQLWafflePanelConfig.model_validate(esql_config)
 
 
 async def test_waffle_chart_with_value_decimal_places() -> None:

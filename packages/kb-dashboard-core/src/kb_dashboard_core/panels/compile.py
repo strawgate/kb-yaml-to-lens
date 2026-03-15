@@ -112,8 +112,13 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
             references, embeddable_config = compile_image_panel_config(panel)
             return references, KbnImagePanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case SearchPanel():
-            references, embeddable_config = compile_search_panel_config(panel)
-            return references, KbnSearchPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
+            references, embeddable_config, panel_ref_name = compile_search_panel_config(panel, panel_index)
+            return references, KbnSearchPanel(
+                panelIndex=panel_index,
+                gridData=grid_data,
+                panelRefName=panel_ref_name,
+                embeddableConfig=embeddable_config,
+            )
         case VegaPanel():
             references, embeddable_config = compile_vega_panel_config(panel)
             return references, KbnVegaPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)

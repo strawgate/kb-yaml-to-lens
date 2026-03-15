@@ -5,9 +5,9 @@ square represents a proportion of the whole. They are part of the Kibana Lens
 partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -73,7 +73,7 @@ class LensWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     where each square represents a proportion of the whole.
-    Waffle charts support exactly one metric, one dimension, and an optional breakdown.
+    Waffle charts support exactly one metric and one dimension.
 
     Examples:
         Simple waffle chart showing request distribution:
@@ -133,7 +133,15 @@ class LensWaffleChart(BaseWaffleChart):
     """Primary dimension for grouping data. Waffle charts support only one dimension."""
 
     breakdown: LensDimensionTypes | None = Field(default=None)
-    """Optional secondary dimension for breaking down the waffle into sub-groups."""
+    """Deprecated/unsupported for waffle. Use only `dimension` and `metric`."""
+
+    @model_validator(mode='after')
+    def validate_breakdown_not_supported(self) -> Self:
+        """Reject breakdown until Kibana supports two dimensions for waffle charts."""
+        if self.breakdown is not None:
+            msg = "Waffle chart does not support 'breakdown'."
+            raise ValueError(msg)
+        return self
 
 
 class ESQLWaffleChart(BaseWaffleChart):
@@ -141,7 +149,7 @@ class ESQLWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     using ES|QL queries to aggregate and group the data.
-    Waffle charts support exactly one metric, one dimension, and an optional breakdown.
+    Waffle charts support exactly one metric and one dimension.
 
     Examples:
         ES|QL waffle chart with STATS query:
@@ -166,4 +174,12 @@ class ESQLWaffleChart(BaseWaffleChart):
     """Primary dimension for grouping data. Waffle charts support only one dimension."""
 
     breakdown: ESQLDimensionTypes | None = Field(default=None)
-    """Optional secondary dimension for breaking down the waffle into sub-groups."""
+    """Deprecated/unsupported for waffle. Use only `dimension` and `metric`."""
+
+    @model_validator(mode='after')
+    def validate_breakdown_not_supported(self) -> Self:
+        """Reject breakdown until Kibana supports two dimensions for waffle charts."""
+        if self.breakdown is not None:
+            msg = "Waffle chart does not support 'breakdown'."
+            raise ValueError(msg)
+        return self
