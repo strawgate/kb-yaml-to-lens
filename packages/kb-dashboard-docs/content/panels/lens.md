@@ -108,10 +108,36 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
-| `maximum` | `LensMetricTypes` object | An optional maximum metric, often used for context (e.g., showing a value out of a total). See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
+| `maximum` | `LensMetricTypes` object | An optional maximum metric, used for progress bar scale or context. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | `None` | No |
+| `appearance` | `MetricAppearance` object | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
+| `titles_and_text` | `MetricTitlesAndText` object | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
 
-**Example (Lens Metric Chart):**
+### Metric Appearance
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `primary.icon` | `string` | Icon identifier to display alongside the primary metric value. | `None` | No |
+| `primary.icon_position` | `Literal['left', 'right']` | Horizontal alignment of the icon. | `None` | No |
+| `primary.background_chart.type` | `Literal['line', 'bar', 'none']` | Background chart mode for the primary metric. | `None` | No |
+| `primary.background_chart.direction` | `Literal['horizontal', 'vertical']` | Direction for bar background charts (`type: bar`). | `None` | No |
+| `primary.font_size` | `Literal['default', 'fit', 'custom']` | Font size mode for the primary metric value. | `None` | No |
+| `primary.position` | `Literal['top', 'bottom']` | Vertical position of the primary metric value. | `None` | No |
+| `primary.alignment` | `Literal['left', 'center', 'right']` | Text alignment for the primary metric value. | `None` | No |
+| `secondary.alignment` | `Literal['left', 'center', 'right']` | Text alignment for the secondary metric value. | `None` | No |
+| `secondary.label` | `string` | Custom label for the secondary metric. | `None` | No |
+| `secondary.label_position` | `Literal['before', 'after']` | Position for the secondary label. | `None` | No |
+| `breakdown.column_count` | `int` | Maximum breakdown columns (minimum `1`). | `None` | No |
+
+### Metric Titles and Text
+
+| YAML Key | Data Type | Description | Kibana Default | Required |
+| ----------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
+| `subtitle` | `string` | Custom subtitle text displayed below the metric title. | `None` | No |
+| `alignment` | `Literal['left', 'center', 'right']` | Text alignment for the metric title and subtitle. | `None` | No |
+| `weight` | `Literal['bold', 'normal', 'lighter']` | Font weight for the metric title. | `None` | No |
+
+**Example (Lens Metric Chart with Styling):**
 
 ```yaml
 dashboards:
@@ -138,6 +164,17 @@ dashboards:
             field: "host.name"
             size: 3
             label: "Top Hosts"
+          appearance:
+            primary:
+              background_chart:
+                type: bar
+                direction: horizontal
+              icon: sortUp
+              icon_position: right
+          titles_and_text:
+            subtitle: "Last 24 hours"
+            alignment: center
+            weight: bold
 ```
 
 ---

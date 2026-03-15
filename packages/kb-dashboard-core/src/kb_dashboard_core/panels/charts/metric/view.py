@@ -73,6 +73,42 @@ class KbnMetricVisualizationState(BaseVwModel):
     applyColorTo: Literal['value', 'background'] = Field(default='background')
     """Apply metric color to value text or background."""
 
+    subtitle: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Custom subtitle text displayed below the metric title."""
+
+    secondaryLabel: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Custom label for the secondary metric, overriding its default label."""
+
+    icon: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Icon identifier to display alongside the metric value."""
+
+    maxCols: Annotated[int | None, OmitIfNone()] = Field(default=None)
+    """Maximum number of columns when displaying broken-down metric values."""
+
+    progressDirection: Annotated[Literal['horizontal', 'vertical'] | None, OmitIfNone()] = Field(default=None)
+    """Direction of the progress bar when showBar is enabled."""
+
+    titlesTextAlign: Annotated[Literal['left', 'center', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Text alignment for the metric title and subtitle."""
+
+    valueFontMode: Annotated[Literal['default', 'fit', 'custom'] | None, OmitIfNone()] = Field(default=None)
+    """Font size mode for the primary metric value."""
+
+    iconAlign: Annotated[Literal['left', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Horizontal alignment of the icon relative to the metric value."""
+
+    primaryAlign: Annotated[Literal['left', 'center', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Text alignment for the primary metric value."""
+
+    secondaryAlign: Annotated[Literal['left', 'center', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Text alignment for the secondary metric value."""
+
+    titleWeight: Annotated[Literal['bold', 'normal', 'lighter'] | None, OmitIfNone()] = Field(default=None)
+    """Font weight for the metric title."""
+
+    primaryPosition: Annotated[Literal['top', 'bottom'] | None, OmitIfNone()] = Field(default=None)
+    """Vertical position of the primary metric value within the panel."""
+
 
 class KbnESQLMetricVisualizationState(BaseVwModel):
     """View model for ES|QL metric visualization state.
@@ -96,6 +132,9 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
     metricAccessor: str = Field(...)
     """Field accessor ID for the primary metric value to display."""
 
+    secondaryLabelPosition: Annotated[Literal['before', 'after'] | None, OmitIfNone()] = Field(default=None)
+    """Position of secondary label relative to the metric value."""
+
     showBar: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether to display a sparkline bar chart below the metric."""
 
@@ -110,3 +149,39 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
 
     applyColorTo: Literal['value', 'background'] = Field(default='background')
     """Apply metric color to value text or background."""
+
+    subtitle: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Custom subtitle text displayed below the metric title."""
+
+    secondaryLabel: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Custom label for the secondary metric, overriding its default label."""
+
+    icon: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Icon identifier to display alongside the metric value."""
+
+    maxCols: Annotated[int | None, OmitIfNone()] = Field(default=None)
+    """Maximum number of columns when displaying broken-down metric values."""
+
+    progressDirection: Annotated[Literal['horizontal', 'vertical'] | None, OmitIfNone()] = Field(default=None)
+    """Direction of the progress bar when showBar is enabled."""
+
+    titlesTextAlign: Annotated[Literal['left', 'center', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Text alignment for the metric title and subtitle."""
+
+    valueFontMode: Annotated[Literal['default', 'fit', 'custom'] | None, OmitIfNone()] = Field(default=None)
+    """Font size mode for the primary metric value."""
+
+    iconAlign: Annotated[Literal['left', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Horizontal alignment of the icon relative to the metric value."""
+
+    primaryAlign: Annotated[Literal['left', 'center', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Text alignment for the primary metric value."""
+
+    secondaryAlign: Annotated[Literal['left', 'center', 'right'] | None, OmitIfNone()] = Field(default=None)
+    """Text alignment for the secondary metric value."""
+
+    titleWeight: Annotated[Literal['bold', 'normal', 'lighter'] | None, OmitIfNone()] = Field(default=None)
+    """Font weight for the metric title."""
+
+    primaryPosition: Annotated[Literal['top', 'bottom'] | None, OmitIfNone()] = Field(default=None)
+    """Vertical position of the primary metric value within the panel."""

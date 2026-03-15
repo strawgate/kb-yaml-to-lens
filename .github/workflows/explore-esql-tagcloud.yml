@@ -1,8 +1,8 @@
 ---
-name: 'Explore: Lens Pie/Donut'
+name: 'Explore: ES|QL Tag Cloud'
 on:
   schedule:
-    - cron: 30 11 * * 1-5
+    - cron: 30 13 * * 1-5
   workflow_dispatch:
     inputs:
       kibana_version:
@@ -18,7 +18,7 @@ permissions:
   discussions: write
   id-token: write
 concurrency:
-  group: explore-lens-pie-${{ github.ref }}
+  group: explore-esql-tagcloud-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   generate-matrix:
@@ -42,18 +42,18 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: '[explore-lens-pie-${{ matrix.kibana_version }}]'
+      title-prefix: '[explore-esql-tagcloud-${{ matrix.kibana_version }}]'
       setup-commands: |
-        make install-just
+        command -v just >/dev/null 2>&1 || make install-just
         uv sync
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |
-        You are running the Lens Pie/Donut Explorer for kb-yaml-to-lens.
+        You are running the ES|QL Tag Cloud Explorer for kb-yaml-to-lens.
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
 
         ## Mission
-        Systematically test every config option for **pie and donut** Lens charts
+        Systematically test every config option for ES|QL **tag cloud** charts
         against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
 
@@ -64,60 +64,52 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string or list of strings (joined with pipes)
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+        - Example: `FROM logs-* | STATS count = COUNT() BY host.name | SORT count DESC | LIMIT 50`
+
+        ## ES|QL column configuration
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+        - `format` (optional for metrics) — `number`, `bytes`, `bits`, `percent`,
+          `duration` with `decimals`, `suffix`, `compact`; or custom `pattern`
+
         ## Compiler-supported features to test
 
-        ### Config slots (Kibana editor drop zones)
-        - **Slice by** (required) — one or more dimensions (primary + secondary groups)
-        - **Metric** (required) — one or more metrics for slice sizes
+        ### Config slots
+        - **dimension** (required) — tags/grouping column from query result
+        - **metric** (required) — determines tag size
 
-        ### Shape (`appearance:`)
-        - Pie (default) — no donut setting or `appearance.donut` omitted
-        - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
-
-        ### Dimension types (`dimensions:`)
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude`
-        - `type: date_histogram` — with `field`, `minimum_interval`
-        - `type: intervals` — numeric ranges
-        - `type: filters` — KQL filter-based
-        - Multiple dimensions create nested rings (primaryGroups + secondaryGroups)
-
-        ### Metric types (`metrics:`)
-        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
-        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
-        `standard_deviation`, `formula`
-
-        ### Slice labels and values (`titles_and_text:`)
-        - `slice_labels` — `hide`, `inside`, `auto` (default: auto)
-        - `slice_values` — `hide`, `integer`, `percent` (default: percent)
-        - `value_decimal_places` — 0-10 (default: 2)
-
-        ### Legend (`legend:`)
-        - `visible` — `show`, `hide`, `auto`
-        - `position` — `top`, `right` (default), `bottom`, `left`
-        - `width` — `small`, `medium`, `large`, `extra_large`
-        - `truncate_labels` — 0-5 lines
-        - `nested` — boolean for hierarchical legend
-        - `show_single_series` — boolean
+        ### Appearance (`appearance:`)
+        - `min_font_size` — minimum font size in pixels (1-100, default: 12)
+        - `max_font_size` — maximum font size in pixels (1-200, default: 72)
+        - `orientation` — `single` (default, all horizontal), `right angled`
+          (mix of 0° and 90°), `multiple` (multiple angles)
+        - `show_label` — boolean (default: true)
 
         ### Color (`color:`)
-        - `palette` — EUI color scheme
+        - `palette` — categorical color scheme (e.g. `eui_amsterdam_color_blind`,
+          `default`, `kibana_palette`, `elastic_brand`, `gray`)
         - `assignments` — manual value-to-color hex mappings
 
-        ## NOT implemented in compiler (do NOT flag as bugs)
+        ## NOT implemented for ES|QL (do NOT flag as bugs)
+        - **Formula metrics** — ES|QL uses query-computed columns, not formulas
+        - **Panel-level filters** — all filtering must be in the ES|QL query
+        - Legend — tag clouds do not have a legend option
         - Tooltip configuration — no compiler option
-        - Minimum slice percentage — not explicitly supported (use Terms `size`
-          and `other_bucket` instead)
 
         ## Creative exploration
-        After covering the feature matrix, try interesting combinations:
-        - Donut with 2 nested ring dimensions + custom color assignments
-        - Pie with filters dimension (e.g. error vs warning vs info)
-        - Large donut with `slice_labels: inside` + `slice_values: percent`
-        - Pie with `other_bucket: true` + small `size` to show grouping
-        - Multiple metrics on a single pie (test emptySizeRatio behavior)
-        - Formula-based metric as pie slice size
-        - Pie chart inside a collapsible section
+        - ES|QL tag cloud with `STATS count = COUNT() BY host.name`
+        - ES|QL tag cloud with `right angled` orientation + large font range
+        - ES|QL tag cloud with `multiple` orientation
+        - ES|QL tag cloud with custom color assignments per tag value
+        - ES|QL tag cloud with `show_label: false`
+        - ES|QL tag cloud with bytes format on metric
+        - Compare ES|QL tag cloud vs equivalent Lens tag cloud side-by-side
 
         ## Required process
 
@@ -166,7 +158,7 @@ jobs:
         **If no bugs are found**, do not create an issue. No-op.
 
         **If bugs or significant findings exist**, create one GitHub issue titled:
-        `[explore-lens-pie-${{ matrix.kibana_version }}] Round-trip verification report`
+        `[explore-esql-tagcloud-${{ matrix.kibana_version }}] Round-trip verification report`
 
         Structure the issue body with these **collapsed sections** (`<details>`):
 

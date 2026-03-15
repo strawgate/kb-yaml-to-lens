@@ -44,7 +44,7 @@ jobs:
       - name: Wait 5 minutes
         run: sleep 300
 
-      - name: Trigger Lens Partition (waffle, treemap, mosaic)
+      - name: Trigger Lens Partition (waffle, mosaic)
         run: gh workflow run explore-lens-partition.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,8 +80,71 @@ jobs:
       - name: Wait 5 minutes
         run: sleep 300
 
-      - name: Trigger ES|QL
-        run: gh workflow run explore-esql.yml
+      - name: Trigger ES|QL XY (bar, line, area)
+        run: gh workflow run explore-esql-xy.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Metric
+        run: gh workflow run explore-esql-metric.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Gauge
+        run: gh workflow run explore-esql-gauge.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Pie/Donut
+        run: gh workflow run explore-esql-pie.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Partition (waffle, mosaic)
+        run: gh workflow run explore-esql-partition.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Datatable
+        run: gh workflow run explore-esql-datatable.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Heatmap
+        run: gh workflow run explore-esql-heatmap.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL Tag Cloud
+        run: gh workflow run explore-esql-tagcloud.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
