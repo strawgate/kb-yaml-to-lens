@@ -105,3 +105,29 @@ Top-level summary: total features tested, passed, bugs found, gaps
 identified, version-specific notes.
 
 Do not create branches or pull requests.
+
+## Fix-and-verify workflow (when investigating known bugs)
+
+When asked to validate or fix specific compiler bugs (e.g., from a triage
+issue), follow this process for **each** bug:
+
+1. **Reproduce** — Write a minimal YAML config that triggers the bug.
+   Compile it with `just cli compile --input-file <file> --output-dir /tmp/compiled/`,
+   import into Kibana, and confirm the bug exists.
+2. **Show the diff** — Show the specific JSON fields the compiler produces
+   vs what Kibana produces for the same panel. Create the panel manually in
+   Kibana, export it, and compare the relevant fields only (ignore fields
+   listed in "Fields to ignore" above).
+3. **Fix it** — Find the exact file and line in
+   `packages/kb-dashboard-core/src/` that causes the problem. Make the
+   smallest possible change.
+4. **Verify the fix** — Recompile the same YAML with your fix applied,
+   reimport into Kibana, and confirm the panel now works correctly.
+5. **Run tests** — Run `just core test` and `just core lint`. If tests
+   fail because of your fix, update them to match the corrected behavior.
+6. **Report** — For each bug, provide:
+   - The YAML config that reproduces the bug
+   - The compiler file and line you changed
+   - What the change was (before → after)
+   - Confirmation that Kibana accepts the fixed output
+   - Any test changes made
