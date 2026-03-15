@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping, map_legend_size
 from kb_dashboard_core.panels.charts.base.config import LegendVisibleEnum
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metrics
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -298,7 +298,7 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
         if chart.legend.show_single_series is not None:
             legend_show_single_series = chart.legend.show_single_series
         if chart.legend.size is not None:
-            legend_size = chart.legend.size
+            legend_size = map_legend_size(chart.legend.size)
         if chart.legend.truncate_labels is not None:
             if chart.legend.truncate_labels == 0:
                 legend_should_truncate = False

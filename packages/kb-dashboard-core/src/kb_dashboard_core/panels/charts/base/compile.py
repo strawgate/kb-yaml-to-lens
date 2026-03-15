@@ -20,6 +20,13 @@ from kb_dashboard_core.panels.charts.base.view import (
 )
 
 
+def map_legend_size(size: str | None) -> str | None:
+    """Map YAML legend sizes to Kibana legend sizes."""
+    if size == 'extra_large':
+        return 'xlarge'
+    return size
+
+
 def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLayerColorMapping:
     """Compile a ColorValueMapping config object into a Kibana color mapping view model.
 

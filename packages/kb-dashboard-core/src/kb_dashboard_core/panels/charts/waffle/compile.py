@@ -1,6 +1,6 @@
 """Compile Lens waffle visualizations into their Kibana view models."""
 
-from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping, map_legend_size
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -58,7 +58,7 @@ def compile_waffle_chart_visualization_state(
         if chart.legend.visible is not None:
             legend_display = chart.legend.visible
         if chart.legend.width is not None:
-            legend_size = chart.legend.width
+            legend_size = map_legend_size(chart.legend.width)
         if chart.legend.truncate_labels is not None:
             # Kibana mapping: 0 explicitly disables truncation (truncateLegend=False),
             # otherwise set legendMaxLines and let Kibana use its default truncation behavior

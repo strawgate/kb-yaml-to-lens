@@ -334,7 +334,7 @@ class XYLegendConfig(BaseVwModel):
     """Whether to show legend when there is only one series."""
 
     legendSize: Annotated[str | None, OmitIfNone()] = None
-    """Size of the legend ('auto', 'small', 'medium', 'large', 'extra_large')."""
+    """Size of the legend ('small', 'medium', 'large', 'xlarge')."""
 
     shouldTruncate: Annotated[bool | None, OmitIfNone()] = None
     """Whether to truncate long legend labels."""

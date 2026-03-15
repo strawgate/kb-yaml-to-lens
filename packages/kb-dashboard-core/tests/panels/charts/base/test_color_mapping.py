@@ -8,6 +8,7 @@ from kb_dashboard_core.panels.charts.base.compile import (
     build_collapse_fns,
     compile_color_range_mapping,
     compile_color_value_mapping,
+    map_legend_size,
 )
 from kb_dashboard_core.panels.charts.base.config import (
     ColorRangeMapping,
@@ -296,6 +297,24 @@ class TestColorRangeMappingValidation:
                 range_max=10,
                 stops=[ColorRangeStop(stop=20, color='#00BF6F')],
             )
+
+
+class TestMapLegendSize:
+    """Tests for map_legend_size helper."""
+
+    @pytest.mark.parametrize(
+        ('size', 'expected'),
+        [
+            (None, None),
+            ('small', 'small'),
+            ('medium', 'medium'),
+            ('large', 'large'),
+            ('extra_large', 'xlarge'),
+        ],
+    )
+    def test_maps_legend_sizes(self, size: str | None, expected: str | None) -> None:
+        """Test YAML legend size mapping to Kibana-compatible values."""
+        assert map_legend_size(size) == expected
 
 
 class TestCompileColorRangeMapping:

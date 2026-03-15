@@ -789,14 +789,14 @@ async def test_xy_chart_with_legend_size() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'legend': {'size': 'large'},
+        'legend': {'size': 'extra_large'},
     }
 
     lens_chart = LensLineChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
     assert kbn_state_visualization.legend == snapshot(
-        XYLegendConfig(isVisible=None, position='right', showSingleSeries=None, legendSize='large', shouldTruncate=None, maxLines=None)
+        XYLegendConfig(isVisible=None, position='right', showSingleSeries=None, legendSize='xlarge', shouldTruncate=None, maxLines=None)
     )
 
 
