@@ -131,3 +131,17 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
             maxSteps=n,
         ),
     )
+
+
+def mirror_palette_thresholds_to_color_stops(palette: KbnRangePalette | None) -> KbnRangePalette | None:
+    """Mirror palette thresholds from ``stops`` into ``colorStops``.
+
+    Some Lens visualizations interpret ``colorStops`` as threshold boundaries.
+    For those visualizations, the configured boundaries must be preserved
+    exactly in both arrays.
+    """
+    if palette is None:
+        return None
+
+    color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in palette.params.stops]
+    return palette.model_copy(update={'params': palette.params.model_copy(update={'colorStops': color_stops})})

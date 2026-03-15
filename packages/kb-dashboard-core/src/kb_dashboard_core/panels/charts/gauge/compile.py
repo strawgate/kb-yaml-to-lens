@@ -2,8 +2,10 @@
 
 from typing import TYPE_CHECKING, Final, Literal
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
-from kb_dashboard_core.panels.charts.base.view import KbnRangePaletteStop
+from kb_dashboard_core.panels.charts.base.compile import (
+    compile_color_range_mapping,
+    mirror_palette_thresholds_to_color_stops,
+)
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
@@ -56,11 +58,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     ticks_position = appearance.ticks_position if appearance is not None and appearance.ticks_position is not None else 'auto'
     label_major = appearance.label_major if appearance is not None else None
     label_minor = appearance.label_minor if appearance is not None else None
-    palette = compile_color_range_mapping(appearance.palette) if appearance is not None else None
-    if palette is not None:
-        # Kibana gauge thresholds read from colorStops; mirror configured boundaries.
-        color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in palette.params.stops]
-        palette = palette.model_copy(update={'params': palette.params.model_copy(update={'colorStops': color_stops})})
+    palette = mirror_palette_thresholds_to_color_stops(compile_color_range_mapping(appearance.palette) if appearance is not None else None)
 
     # Infer color_mode from palette presence
     color_mode = 'palette' if palette is not None else None

@@ -4,7 +4,12 @@ import pytest
 from inline_snapshot import snapshot
 from pydantic import ValidationError
 
-from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_range_mapping, compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import (
+    build_collapse_fns,
+    compile_color_range_mapping,
+    compile_color_value_mapping,
+    mirror_palette_thresholds_to_color_stops,
+)
 from kb_dashboard_core.panels.charts.base.config import (
     ColorRangeMapping,
     ColorRangeStop,
@@ -449,3 +454,28 @@ class TestBuildCollapseFns:
         """Only dimensions with collapse values should be included."""
         result = build_collapse_fns([('dim-1', 'sum'), ('dim-2', None), ('dim-3', 'avg')])
         assert result == {'dim-1': 'sum', 'dim-3': 'avg'}
+
+
+class TestMirrorPaletteThresholdsToColorStops:
+    """Tests for threshold mirroring helper used by visualization-specific compilers."""
+
+    def test_returns_none_when_palette_is_none(self) -> None:
+        """None palettes should remain None."""
+        assert mirror_palette_thresholds_to_color_stops(None) is None
+
+    def test_mirrors_threshold_boundaries_into_color_stops(self) -> None:
+        """Stops should be copied one-to-one into colorStops."""
+        color_config = ColorRangeMapping(
+            range_type='percent',
+            stops=[
+                ColorRangeStop(stop=0, color='#00BF6F'),
+                ColorRangeStop(stop=100, color='#BD271E'),
+            ],
+        )
+        palette = compile_color_range_mapping(color_config)
+        assert palette is not None
+
+        mirrored = mirror_palette_thresholds_to_color_stops(palette)
+        assert mirrored is not None
+        assert [entry.stop for entry in mirrored.params.colorStops] == [0.0, 100.0]
+        assert [entry.stop for entry in mirrored.params.stops] == [0.0, 100.0]
