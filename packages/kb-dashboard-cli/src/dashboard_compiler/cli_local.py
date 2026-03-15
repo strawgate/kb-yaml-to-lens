@@ -534,9 +534,11 @@ def compare_disassembled(original_dir: Path, compiled_dir: Path) -> None:
             if not panel.types_match:
                 print_dim_bullet(f'Original: {panel.original.panel_type}, Compiled: {panel.compiled.panel_type}')
         elif panel.original is not None:
-            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title} (MISSING in compiled)')
+            orig = panel.original
+            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {orig.panel_type:15s} | {orig.title} (MISSING in compiled)')
         elif panel.compiled is not None:
-            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {panel.compiled.panel_type:15s} | {panel.compiled.title} (EXTRA in compiled)')
+            comp = panel.compiled
+            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {comp.panel_type:15s} | {comp.title} (EXTRA in compiled)')
 
     print_plain('')
     if comparison.all_panels_match:
