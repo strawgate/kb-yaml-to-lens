@@ -9,8 +9,8 @@ Use the CLI to access bundled guide content:
 
 | Guide | Use it for |
 | ----- | ---------- |
-| [Dashboard Decompiling Guide](dashboard-decompiling-guide.md) | Converting Kibana JSON dashboards into YAML with round-trip validation |
-| [Creating Dashboards from OpenTelemetry Receivers](otel-dashboard-guide.md) | Building receiver-focused dashboards with accurate metric/query patterns |
+| [Dashboard Decompiling Guide](dashboard-decompiling-guide.md) | Converting existing Kibana JSON dashboards into YAML |
+| [Creating Dashboards from OpenTelemetry Receivers](otel-dashboard-guide.md) | Building new dashboards for OpenTelemetry receivers from scratch |
 | [ES\|QL Language Reference](esql-language-reference.md) | Writing production-ready ES\|QL for dashboard panels |
 | [Kibana Dashboard Style Guide](dashboard-style-guide.md) | Applying layout, hierarchy, and readability patterns across dashboards |
 | [Breaking Changes](breaking-changes.md) | Migration checklist for version upgrades |

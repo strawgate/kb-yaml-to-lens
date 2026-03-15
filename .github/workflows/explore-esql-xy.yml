@@ -1,8 +1,8 @@
 ---
-name: 'Explore: Lens XY Charts (Bar/Line/Area)'
+name: 'Explore: ES|QL XY Charts (Bar/Line/Area)'
 on:
   schedule:
-    - cron: 0 11 * * 1-5
+    - cron: 20 12 * * 1-5
   workflow_dispatch:
     inputs:
       kibana_version:
@@ -18,7 +18,7 @@ permissions:
   discussions: write
   id-token: write
 concurrency:
-  group: explore-lens-xy-${{ github.ref }}
+  group: explore-esql-xy-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   generate-matrix:
@@ -42,9 +42,9 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: '[explore-lens-xy-${{ matrix.kibana_version }}]'
+      title-prefix: '[explore-esql-xy-${{ matrix.kibana_version }}]'
       setup-commands: |
-        make install-just
+        command -v just >/dev/null 2>&1 || make install-just
         uv sync
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
@@ -53,53 +53,52 @@ jobs:
         and all instruction files it references BEFORE starting any work.
 
         ## Mission
-        Systematically test every config option for **bar, line, and area** Lens
+        Systematically test every config option for ES|QL **bar, line, and area**
         charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string: `query: "FROM logs-* | STATS count = COUNT()"`
+        - A list of strings (joined with pipes):
+          ```yaml
+          query:
+            - FROM logs-*
+            - WHERE @timestamp > NOW() - 1h
+            - STATS count = COUNT(), avg_bytes = AVG(bytes)
+          ```
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+
+        ### Dimensions
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+
+        ### Metrics
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `format` (optional) — `number`, `bytes`, `bits`, `percent`, `duration`
+          with `decimals`, `suffix`, `compact` params; or custom `pattern`
+
         ## Compiler-supported features to test
 
-        ### Config slots (Kibana editor drop zones)
-        - **Horizontal axis** (optional) — dimension (x-axis)
-        - **Vertical axis** (required) — one or more metrics (y-axis)
-        - **Breakdown** (optional) — series split dimension
+        ### Config slots
+        - **dimension** (optional) — x-axis (0 or 1 dimension)
+        - **metrics** (required) — y-axis (1 or more)
+        - **breakdown** (optional) — series split dimension
 
-        ### Chart types
+        ### Chart types and modes
         - `type: bar` with `mode: stacked` (default), `unstacked`, `percentage`
         - `type: line`
         - `type: area` with `mode: stacked` (default), `unstacked`, `percentage`
 
-        ### Dimension types (`dimension:` and `breakdown:`)
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude` (regex support), `collapse`
-        - `type: date_histogram` — with `field`, `minimum_interval`,
-          `partial_intervals`
-        - `type: intervals` — numeric ranges with `granularity`, `empty_bucket`
-        - `type: filters` — KQL filter-based with `filters: [{query, label}]`
-        - Multi-field terms via `fields: [field1, field2]` (min 2)
-
-        ### Metric types (`metrics:`)
-        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
-        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
-        `standard_deviation`
-        - `formula` — tinymath expressions including `counter_rate()`,
-          `cumulative_sum()`, `differences()`, `moving_average(window=N)`,
-          `overall_sum()`, `overall_avg()`, etc.
-        - Static values via `value: N`
-        - Per-metric `axis: left | right` for dual-axis
-        - Per-metric `color` for custom series color
-
-        ### Reference lines (Lens-only multi-layer feature)
-        Added via `layers:` with `type: reference_line`:
-        - `value` — static float
-        - `label` — display text
-        - `axis` — `left` or `right`
-        - `color` — hex color
-        - `line_width` — 1-10
-        - `line_style` — `solid`, `dashed`, `dotted`
-        - `fill` — `above`, `below`, `none`
-        - `icon` and `icon_position`
+        ### Per-metric options
+        - `axis: left | right` — for dual-axis charts
+        - `color` — custom series color (hex)
 
         ### Axis configuration (`appearance:`)
         - `x_axis`, `y_left_axis`, `y_right_axis`:
@@ -141,17 +140,14 @@ jobs:
         - `assignments` — manual value-to-color mappings
 
         ## Creative exploration
-        After covering the feature matrix, try interesting combinations:
-        - Dual-axis line chart: bytes on left, count on right
-        - Bar chart with reference line at percentile threshold + fill above
-        - Area chart with `step-after` curve + `fill_opacity: 0.3`
-        - Line chart with `missing_values: Linear` + `show_as_dotted: true`
-        - Stacked bar with filters dimension + custom color assignments
-        - Formula metric: `moving_average(count(), window=7)` as line overlay
-        - Percentage stacked area with 3 breakdown terms
-        - XY chart with `log` scale y-axis + custom extent
-        - Multiple reference lines (warning threshold + critical threshold)
-        - Bar chart inside a collapsible section panel
+        - ES|QL bar chart with `STATS count = COUNT() BY host.name`
+        - ES|QL line chart with `EVAL bucket = BUCKET(@timestamp, 1 hour)`
+          for date histogram, with `data_type: date` on dimension
+        - ES|QL area chart with percentage mode + 3 breakdown categories
+        - Dual-axis: bytes on left, count on right from same query
+        - ES|QL bar with `step-after` line style overlay
+        - Stacked bar with custom color assignments per breakdown value
+        - Compare ES|QL XY panel vs equivalent Lens XY panel side-by-side
 
         ## Issue title
         The workflow automatically prefixes your title. Just provide the

@@ -78,6 +78,26 @@ Specialized guides for LLM-driven dashboard creation tasks:
 
 ---
 
+## Kibana Features that seem like they should exist but don't
+
+These Kibana features are intentionally not supported by the compiler.
+Do NOT flag them as bugs in explore workflow reports or triage issues:
+
+- **ES|QL Annotation layers** — Lens-only feature, not available
+  for ES|QL charts
+- **ES|QL reference line layers** — Lens-only feature, not available
+  for ES|QL charts
+- **ES|QL formula metrics** — ES|QL uses query-computed columns, not
+  Lens formula syntax
+- **Nested collapsible sections** — sections cannot contain sections
+
+## Saved Object content that seems like it matters but doesn't
+
+- We do not need adhocdataviews and we do not need to parse ES|QL queries
+  to get an index name that we can stringify.
+
+---
+
 ## Additional Resources
 
 | Resource | Location |

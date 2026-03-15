@@ -1,8 +1,8 @@
 ---
-name: 'Explore: Lens Tag Cloud'
+name: 'Explore: ES|QL Tag Cloud'
 on:
   schedule:
-    - cron: 10 12 * * 1-5
+    - cron: 30 13 * * 1-5
   workflow_dispatch:
     inputs:
       kibana_version:
@@ -18,7 +18,7 @@ permissions:
   discussions: write
   id-token: write
 concurrency:
-  group: explore-lens-tagcloud-${{ github.ref }}
+  group: explore-esql-tagcloud-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   generate-matrix:
@@ -42,9 +42,9 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: '[explore-lens-tagcloud-${{ matrix.kibana_version }}]'
+      title-prefix: '[explore-esql-tagcloud-${{ matrix.kibana_version }}]'
       setup-commands: |
-        make install-just
+        command -v just >/dev/null 2>&1 || make install-just
         uv sync
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
@@ -53,55 +53,51 @@ jobs:
         and all instruction files it references BEFORE starting any work.
 
         ## Mission
-        Systematically test every config option for **tag cloud** Lens charts
+        Systematically test every config option for ES|QL **tag cloud** charts
         against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string or list of strings (joined with pipes)
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+        - Example: `FROM logs-* | STATS count = COUNT() BY host.name | SORT count DESC | LIMIT 50`
+
+        ## ES|QL column configuration
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+        - `format` (optional for metrics) — `number`, `bytes`, `bits`, `percent`,
+          `duration` with `decimals`, `suffix`, `compact`; or custom `pattern`
+
         ## Compiler-supported features to test
 
         ### Config slots
-        - **dimension** (required) — tags/grouping dimension
+        - **dimension** (required) — tags/grouping column from query result
         - **metric** (required) — determines tag size
-
-        ### Dimension types
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude` (regex support), `collapse`
-        - `type: date_histogram` — with `field`, `minimum_interval`,
-          `partial_intervals`
-        - `type: intervals` — numeric ranges with `granularity`
-        - `type: filters` — KQL filter-based with `filters: [{query, label}]`
-        - Multi-field terms via `fields: [field1, field2]` (min 2)
-
-        ### Metric types
-        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
-        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
-        `standard_deviation`, `formula`
-        - Static values via `value: N`
 
         ### Appearance (`appearance:`)
         - `min_font_size` — minimum font size in pixels (1-100, default: 12)
         - `max_font_size` — maximum font size in pixels (1-200, default: 72)
         - `orientation` — `single` (default, all horizontal), `right angled`
-          (mix of 0° and 90°), `multiple` (multiple angles including diagonal)
+          (mix of 0° and 90°), `multiple` (multiple angles)
         - `show_label` — boolean (default: true)
 
         ### Color (`color:`)
         - `palette` — categorical color scheme (e.g. `eui_amsterdam_color_blind`,
           `default`, `kibana_palette`, `elastic_brand`, `gray`)
         - `assignments` — manual value-to-color hex mappings
-          `[{value: "term", color: "#hex"}]`
 
         ## Creative exploration
-        After covering the feature matrix, try interesting combinations:
-        - Tag cloud with top 20 terms + custom color assignments per value
-        - Tag cloud with `right angled` orientation + large font range (8-120)
-        - Tag cloud with `multiple` orientation + formula metric
-        - Tag cloud with filters dimension (error vs warning vs info)
-        - Tag cloud with `show_label: false` + `min_font_size: 24`
-        - Tag cloud with multi-field terms dimension
-        - Tag cloud with unique_count metric
-        - Tag cloud inside a collapsible section
+        - ES|QL tag cloud with `STATS count = COUNT() BY host.name`
+        - ES|QL tag cloud with `right angled` orientation + large font range
+        - ES|QL tag cloud with `multiple` orientation
+        - ES|QL tag cloud with custom color assignments per tag value
+        - ES|QL tag cloud with `show_label: false`
+        - ES|QL tag cloud with bytes format on metric
+        - Compare ES|QL tag cloud vs equivalent Lens tag cloud side-by-side
 
         ## Issue title
         The workflow automatically prefixes your title. Just provide the
