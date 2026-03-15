@@ -341,6 +341,33 @@ def _extract_metric_format(params: dict[str, Any] | None) -> CommentedMap | None
     return format_stub
 
 
+def _dedupe_accessor_ids(ordered_ids: list[str]) -> list[str]:
+    """Remove duplicate accessor IDs while preserving order."""
+    deduped_order: list[str] = []
+    seen_ids: set[str] = set()
+    for accessor_id in ordered_ids:
+        if accessor_id in seen_ids:
+            continue
+        deduped_order.append(accessor_id)
+        seen_ids.add(accessor_id)
+    return deduped_order
+
+
+def _collect_ordered_accessor_ids(source: dict[str, Any], scalar_keys: tuple[str, ...]) -> list[str]:
+    """Collect ordered accessor IDs from scalar keys plus the accessors list."""
+    ordered_ids: list[str] = []
+    for key in scalar_keys:
+        value = source.get(key)
+        if isinstance(value, str):
+            ordered_ids.append(value)
+
+    list_accessors = source.get('accessors')
+    if isinstance(list_accessors, list):
+        ordered_ids.extend([accessor_id for accessor_id in list_accessors if isinstance(accessor_id, str)])
+
+    return _dedupe_accessor_ids(ordered_ids)
+
+
 def _extract_visualization_layer_accessors(embeddable_attributes: dict[str, Any]) -> dict[str, list[str]]:
     """Extract ordered accessor IDs for each visualization layer."""
     visualization_layer_accessors: dict[str, list[str]] = {}
@@ -354,7 +381,7 @@ def _extract_visualization_layer_accessors(embeddable_attributes: dict[str, Any]
 
     visualization_layers = visualization.get('layers')
     if not isinstance(visualization_layers, list):
-        return visualization_layer_accessors
+        visualization_layers = []
 
     for vis_layer_item in visualization_layers:  # pyright: ignore[reportUnknownVariableType]
         vis_layer = _as_dict(vis_layer_item)  # pyright: ignore[reportUnknownArgumentType]
@@ -364,27 +391,18 @@ def _extract_visualization_layer_accessors(embeddable_attributes: dict[str, Any]
         if not isinstance(layer_id, str):
             continue
 
-        ordered_ids: list[str] = []
-        x_accessor = vis_layer.get('xAccessor')
-        if isinstance(x_accessor, str):
-            ordered_ids.append(x_accessor)
-        split_accessor = vis_layer.get('splitAccessor')
-        if isinstance(split_accessor, str):
-            ordered_ids.append(split_accessor)
-        accessors = vis_layer.get('accessors')
-        if isinstance(accessors, list):
-            ordered_ids.extend([accessor for accessor in accessors if isinstance(accessor, str)])
+        accessor_ids = _collect_ordered_accessor_ids(vis_layer, ('xAccessor', 'splitAccessor'))
+        if len(accessor_ids) > 0:
+            visualization_layer_accessors[layer_id] = accessor_ids
 
-        deduped_order: list[str] = []
-        seen_ids: set[str] = set()
-        for accessor_id in ordered_ids:
-            if accessor_id in seen_ids:
-                continue
-            deduped_order.append(accessor_id)
-            seen_ids.add(accessor_id)
-
-        if len(deduped_order) > 0:
-            visualization_layer_accessors[layer_id] = deduped_order
+    single_layer_id = visualization.get('layerId')
+    if isinstance(single_layer_id, str) and single_layer_id not in visualization_layer_accessors:
+        accessor_ids = _collect_ordered_accessor_ids(
+            visualization,
+            ('xAccessor', 'metricAccessor', 'splitAccessor', 'secondaryAccessor', 'accessor'),
+        )
+        if len(accessor_ids) > 0:
+            visualization_layer_accessors[single_layer_id] = accessor_ids
     return visualization_layer_accessors
 
 

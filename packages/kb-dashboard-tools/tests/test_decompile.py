@@ -1512,3 +1512,49 @@ def test_decompile_form_based_uses_visualization_accessors() -> None:
     assert lens['dimension']['field'] == '@timestamp'
     assert lens['dimension']['minimum_interval'] == '1h'
     assert lens['breakdown']['field'] == 'host.name'
+
+
+def test_decompile_form_based_uses_top_level_visualization_accessors() -> None:
+    """Column extraction honors metric/gauge top-level visualization accessors."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'visualization': {
+                'layerId': 'layer1',
+                'metricAccessor': 'col_primary',
+                'secondaryAccessor': 'col_secondary',
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_ignored': {
+                                    'operationType': 'sum',
+                                    'isBucketed': False,
+                                    'sourceField': 'ignored.bytes',
+                                },
+                                'col_secondary': {
+                                    'operationType': 'avg',
+                                    'isBucketed': False,
+                                    'sourceField': 'cpu.usage',
+                                },
+                                'col_primary': {
+                                    'operationType': 'sum',
+                                    'isBucketed': False,
+                                    'sourceField': 'bytes',
+                                },
+                            }
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+
+    assert lens['primary']['aggregation'] == 'sum'
+    assert lens['primary']['field'] == 'bytes'
+    assert lens['secondary']['aggregation'] == 'average'
+    assert lens['secondary']['field'] == 'cpu.usage'
