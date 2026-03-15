@@ -65,11 +65,16 @@ jobs:
         2. If running in PR validation mode:
            - Read the PR title/body and extract the claimed bug fix / feature scope.
            - Check out and use the PR head branch for all compile/validation steps.
-           - Build a focused validation matrix that covers the claim + key edge cases.
-           - Author YAML examples that exercise the claimed behavior and compile them.
-           - Import compiled objects into Kibana and verify editor controls match expectations.
-           - Manually recreate equivalent panels in Kibana using the same behavior.
-           - Export both generated and manual saved objects and compare normalized payloads.
+           - Read the compiler source for the relevant chart type to understand every config option.
+           - Follow `.github/agent-guides/explore-verification.md` — both Part 1 and Part 2.
+           - Part 1 (compile → import → verify UI): Author YAML configs that exercise every
+             setting the PR claims to support. Compile, import into Kibana, open in the editor,
+             and confirm each setting is visible in the UI controls. This is the most important
+             check — if a setting doesn't appear in the Kibana editor, it's broken.
+           - Part 2 (create in Kibana → export → compare to compiler): Create fresh panels in
+             Kibana using a variety of settings, export the dashboard, and compare the JSON
+             against the compiler's view models and defaults. Look for fields the compiler gets
+             wrong or doesn't know about.
            - Report whether the PR claim is truly implemented, partially implemented, or incorrect.
         3. If running in feature exploration mode:
            - Use Playwright (Chromium) to automate Kibana and create the target visualization.
@@ -96,13 +101,14 @@ jobs:
         - Clear summary mapping: spec -> saved object fields -> compiler fields.
         In PR validation mode, include:
         - PR claim checklist with pass/fail per claim
-        - YAML reproductions used for validation
-        - Compiler output vs manual Kibana output diff summary
+        - YAML configs used for each test (so bugs can be reproduced)
+        - For any failures: what the compiler produces vs what Kibana expects
         - Explicit verdict on whether the PR fully satisfies its stated goal
 
         ## Verification guidance
-        Read `.github/agent-guides/explore-verification.md` for fields to
-        ignore in exported JSON diffs and classification rules.
+        Read `.github/agent-guides/explore-verification.md` for the full
+        verification process, fields to ignore in JSON comparisons, and
+        classification rules (bug vs gap vs pass).
 
         ## Guardrails
         - Be surgical; avoid broad refactors.
