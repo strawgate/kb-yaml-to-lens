@@ -1,6 +1,7 @@
 """Shared utilities for Kibana operations, authentication, and workflows."""
 
 from kb_dashboard_tools.auth import normalize_credentials, redact_url
+from kb_dashboard_tools.compare import compare_disassembled_dashboards, get_panel_info
 from kb_dashboard_tools.decompile import decompile_dashboard
 from kb_dashboard_tools.kibana_client import KibanaClient
 from kb_dashboard_tools.models import EsqlColumn, EsqlResponse
@@ -11,7 +12,9 @@ __all__ = [
     'EsqlResponse',
     'KibanaClient',
     'Result',
+    'compare_disassembled_dashboards',
     'decompile_dashboard',
+    'get_panel_info',
     'normalize_credentials',
     'redact_url',
 ]

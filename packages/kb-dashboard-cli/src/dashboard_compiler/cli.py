@@ -19,7 +19,7 @@ import rich_click as click
 
 from dashboard_compiler.cli_context import CliContext
 from dashboard_compiler.cli_docs import docs
-from dashboard_compiler.cli_local import compile_dashboards, decompile, disassemble, lsp
+from dashboard_compiler.cli_local import compare_disassembled, compile_dashboards, decompile, disassemble, lsp
 from dashboard_compiler.cli_remote import (
     export_for_issue,
     extract_sample_data_command,
@@ -70,6 +70,7 @@ def cli(ctx: click.Context, loglevel: str) -> None:
         4. Export for issue:       kb-dashboard export-for-issue --dashboard-id ID
         5. Disassemble dashboard:  kb-dashboard disassemble dashboard.ndjson -o output_dir
         6. Decompile dashboard:    kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
+        7. Compare disassembly:    kb-dashboard compare original_disassembled compiled_disassembled
 
     \b
     Authentication:
@@ -93,6 +94,7 @@ def cli(ctx: click.Context, loglevel: str) -> None:
 cli.add_command(compile_dashboards)
 cli.add_command(disassemble)
 cli.add_command(decompile)
+cli.add_command(compare_disassembled, name='compare')
 cli.add_command(lsp)
 
 # Register remote Kibana/Elasticsearch commands

@@ -2,6 +2,7 @@
 
 import asyncio
 import io
+import json
 import logging
 import sys
 import webbrowser
@@ -13,14 +14,20 @@ from kb_dashboard_core.dashboard.view import KbnDashboard
 from kb_dashboard_core.dashboard_compiler import load, render
 from kb_dashboard_core.shared.error_formatter import format_validation_error, format_yaml_error
 from kb_dashboard_core.tools.disassemble import disassemble_dashboard, parse_ndjson
+
 from kb_dashboard_core.yaml_roundtrip import dump_roundtrip
 from kb_dashboard_tools.decompile import decompile_dashboard
+
+from kb_dashboard_tools.compare import compare_disassembled_dashboards
+
 from kb_dashboard_tools.kibana_client import KibanaClient
 from pydantic import ValidationError
 
 from dashboard_compiler.cli_context import CliContext
 from dashboard_compiler.cli_options import kibana_options
 from dashboard_compiler.cli_output import (
+    ICON_ERROR,
+    ICON_SUCCESS,
     console,
     create_error_table,
     create_progress,
@@ -502,6 +509,7 @@ def disassemble(input_file: Path | None, output: Path) -> None:
         raise click.ClickException(msg) from e
 
 
+
 @click.command('decompile')
 @click.argument('input_file', type=click.Path(exists=True, path_type=Path), required=False)
 @click.option(
@@ -552,6 +560,51 @@ def decompile(input_file: Path | None, output: Path) -> None:
     except (ValueError, OSError, TypeError) as e:
         msg = f'Error decompiling dashboard: {e}'
         raise click.ClickException(msg) from e
+
+
+@click.command('compare')
+@click.argument('original_dir', type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.argument('compiled_dir', type=click.Path(exists=True, file_okay=False, path_type=Path))
+def compare_disassembled(original_dir: Path, compiled_dir: Path) -> None:
+    """Compare two disassembled dashboard directories for panel count/type mismatches.
+
+    ORIGINAL_DIR and COMPILED_DIR should each be output from `kb-dashboard disassemble`.
+    """
+    try:
+        comparison = compare_disassembled_dashboards(original_dir, compiled_dir)
+    except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
+        msg = f'Error comparing disassembled dashboards: {e}'
+        raise click.ClickException(msg) from e
+
+    print_plain(f'Original panels: {comparison.original_count}')
+    print_plain(f'Compiled panels: {comparison.compiled_count}')
+    print_plain('')
+
+    if comparison.original_count != comparison.compiled_count:
+        print_warning(f'Panel count mismatch: {comparison.original_count} original vs {comparison.compiled_count} compiled')
+        print_plain('')
+
+    print_plain('Panel comparison:')
+    for panel in comparison.panels:
+        if panel.original is not None and panel.compiled is not None:
+            marker = ICON_SUCCESS if panel.types_match else ICON_ERROR
+            print_plain(f'  {marker} Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title}')
+            if not panel.types_match:
+                print_dim_bullet(f'Original: {panel.original.panel_type}, Compiled: {panel.compiled.panel_type}')
+        elif panel.original is not None:
+            orig = panel.original
+            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {orig.panel_type:15s} | {orig.title} (MISSING in compiled)')
+        elif panel.compiled is not None:
+            comp = panel.compiled
+            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {comp.panel_type:15s} | {comp.title} (EXTRA in compiled)')
+
+    print_plain('')
+    if comparison.all_panels_match:
+        print_success('All panels match!')
+    else:
+        total = max(comparison.original_count, comparison.compiled_count)
+        print_warning(f'{comparison.matching_panel_types}/{total} panels match')
+
 
 
 @click.command()

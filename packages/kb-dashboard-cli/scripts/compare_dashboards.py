@@ -12,7 +12,8 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+
+from kb_dashboard_tools.compare import compare_disassembled_dashboards  # pyright: ignore[reportMissingTypeStubs]
 
 # Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
 _USE_ASCII = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
@@ -21,38 +22,6 @@ _ICON_CHECK = '[OK]' if _USE_ASCII else '✓'
 _ICON_CROSS = '[X]' if _USE_ASCII else '✗'
 _ICON_WARNING = '[!]' if _USE_ASCII else '⚠'
 _ICON_SUCCESS = '[OK]' if _USE_ASCII else '✅'
-
-
-def get_panel_info(dir_path: Path) -> list[tuple[str, str, str]]:
-    """Extract panel information from a disassembled dashboard directory.
-
-    Args:
-        dir_path: Path to the disassembled dashboard directory
-
-    Returns:
-        List of tuples containing (filename, panel_type, panel_title)
-    """
-    panels: list[tuple[str, str, str]] = []
-    panels_dir = dir_path / 'panels'
-
-    if not panels_dir.exists():
-        print(f'Error: Panels directory not found at {panels_dir}', file=sys.stderr)
-        return panels
-
-    for fname in sorted(panels_dir.iterdir()):
-        if not fname.is_file():
-            continue
-
-        try:
-            with fname.open() as f:
-                panel: dict[str, Any] = json.load(f)  # pyright: ignore[reportAny]
-                ptype: str = panel.get('type', 'unknown')  # pyright: ignore[reportAny]
-                title: str = panel.get('title', panel.get('panelConfig', {}).get('title', '(no title)'))  # pyright: ignore[reportAny]
-                panels.append((fname.name, ptype, title))
-        except (json.JSONDecodeError, OSError) as e:
-            print(f'Warning: Could not read {fname}: {e}', file=sys.stderr)
-
-    return panels
 
 
 REQUIRED_ARGS = 3
@@ -75,42 +44,39 @@ def main() -> None:
         print(f'Error: Compiled directory not found: {compiled_dir}', file=sys.stderr)
         sys.exit(1)
 
-    orig = get_panel_info(original_dir)
-    comp = get_panel_info(compiled_dir)
+    try:
+        comparison = compare_disassembled_dashboards(original_dir, compiled_dir)
+    except (FileNotFoundError, json.JSONDecodeError, ValueError, OSError) as e:
+        print(f'Error: {e}', file=sys.stderr)
+        sys.exit(1)
 
-    print(f'Original panels: {len(orig)}')
-    print(f'Compiled panels: {len(comp)}')
+    print(f'Original panels: {comparison.original_count}')
+    print(f'Compiled panels: {comparison.compiled_count}')
     print()
 
-    if len(orig) != len(comp):
-        print(f'{_ICON_WARNING}  Panel count mismatch: {len(orig)} original vs {len(comp)} compiled')
+    if comparison.original_count != comparison.compiled_count:
+        print(f'{_ICON_WARNING}  Panel count mismatch: {comparison.original_count} original vs {comparison.compiled_count} compiled')
         print()
 
     print('Panel comparison:')
-    max_panels = max(len(orig), len(comp))
-
-    for i in range(max_panels):
-        if i < len(orig) and i < len(comp):
-            _of, ot, otitle = orig[i]
-            _cf, ct, ctitle = comp[i]
-            match = _ICON_CHECK if ot == ct else _ICON_CROSS
-            print(f'  {match} Panel {i}: {ot:15s} | {otitle}')
-            if ot != ct:
-                print(f'      Original: {ot}, Compiled: {ct}')
-        elif i < len(orig):
-            _of, ot, otitle = orig[i]
-            print(f'  {_ICON_CROSS} Panel {i}: {ot:15s} | {otitle} (MISSING in compiled)')
-        else:
-            _cf, ct, ctitle = comp[i]
-            print(f'  {_ICON_CROSS} Panel {i}: {ct:15s} | {ctitle} (EXTRA in compiled)')
+    for panel in comparison.panels:
+        if panel.original is not None and panel.compiled is not None:
+            match = _ICON_CHECK if panel.types_match else _ICON_CROSS
+            print(f'  {match} Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title}')
+            if not panel.types_match:
+                print(f'      Original: {panel.original.panel_type}, Compiled: {panel.compiled.panel_type}')
+        elif panel.original is not None:
+            print(f'  {_ICON_CROSS} Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title} (MISSING in compiled)')
+        elif panel.compiled is not None:
+            print(f'  {_ICON_CROSS} Panel {panel.index}: {panel.compiled.panel_type:15s} | {panel.compiled.title} (EXTRA in compiled)')
 
     # Summary
     print()
-    matches = sum(1 for i in range(min(len(orig), len(comp))) if orig[i][1] == comp[i][1])
-    if len(orig) == len(comp) and matches == len(orig):
+    total = max(comparison.original_count, comparison.compiled_count)
+    if comparison.all_panels_match:
         print(f'{_ICON_SUCCESS} All panels match!')
     else:
-        print(f'{_ICON_WARNING}  {matches}/{max_panels} panels match')
+        print(f'{_ICON_WARNING}  {comparison.matching_panel_types}/{total} panels match')
 
 
 if __name__ == '__main__':
