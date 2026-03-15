@@ -21,6 +21,8 @@ from pydantic import ValidationError
 from dashboard_compiler.cli_context import CliContext
 from dashboard_compiler.cli_options import kibana_options
 from dashboard_compiler.cli_output import (
+    ICON_ERROR,
+    ICON_SUCCESS,
     console,
     create_error_table,
     create_progress,
@@ -527,14 +529,14 @@ def compare_disassembled(original_dir: Path, compiled_dir: Path) -> None:
     print_plain('Panel comparison:')
     for panel in comparison.panels:
         if panel.original is not None and panel.compiled is not None:
-            marker = '✓' if panel.types_match else '✗'
+            marker = ICON_SUCCESS if panel.types_match else ICON_ERROR
             print_plain(f'  {marker} Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title}')
             if not panel.types_match:
                 print_dim_bullet(f'Original: {panel.original.panel_type}, Compiled: {panel.compiled.panel_type}')
         elif panel.original is not None:
-            print_plain(f'  ✗ Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title} (MISSING in compiled)')
+            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {panel.original.panel_type:15s} | {panel.original.title} (MISSING in compiled)')
         elif panel.compiled is not None:
-            print_plain(f'  ✗ Panel {panel.index}: {panel.compiled.panel_type:15s} | {panel.compiled.title} (EXTRA in compiled)')
+            print_plain(f'  {ICON_ERROR} Panel {panel.index}: {panel.compiled.panel_type:15s} | {panel.compiled.title} (EXTRA in compiled)')
 
     print_plain('')
     if comparison.all_panels_match:
