@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   run:
-    if: startsWith(github.event.comment.body, '/explore8') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    if: (startsWith(github.event.comment.body, '/explore8') || startsWith(github.event.comment.body, '/explore ') || github.event.comment.body == '/explore') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
       title-prefix: '[explore-kibana-saved-objects-8.19]'
