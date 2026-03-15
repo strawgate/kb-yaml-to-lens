@@ -142,7 +142,7 @@ With `decompile`, you get all panels at once as stubs. The recommended workflow 
 
 1. Run `kb-dashboard decompile` to get the full YAML skeleton with all panel stubs.
 2. Fill in one panel at a time, starting with the simplest (markdown panels, metric panels).
-3. Compile after each panel to catch errors early: `kb-dashboard compile`.
+3. Compile incrementally to catch errors early: finish required fields in remaining stubs, or temporarily comment/remove unfinished panel entries before running `kb-dashboard compile`.
 4. Move on to more complex panels (XY charts, datatables) once simpler ones validate.
 5. Run the full round-trip validation when all panels are complete.
 
