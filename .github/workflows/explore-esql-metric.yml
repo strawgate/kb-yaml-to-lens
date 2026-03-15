@@ -1,0 +1,147 @@
+---
+name: 'Explore: ES|QL Metric'
+on:
+  schedule:
+    - cron: 30 12 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: 'Kibana version to test (leave empty for all)'
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-esql-metric-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-esql-metric-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You are running the ES|QL Metric Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option for ES|QL **metric** panels
+        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version: `${{ matrix.kibana_version }}`
+        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string: `query: "FROM logs-* | STATS count = COUNT()"`
+        - A list of strings (joined with pipes):
+          ```yaml
+          query:
+            - FROM logs-*
+            - STATS count = COUNT(), avg_bytes = AVG(bytes)
+          ```
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `format` (optional) — `number`, `bytes`, `bits`, `percent`, `duration`
+          with `decimals`, `suffix`, `compact` params; or custom `pattern`
+
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **primary** (required) — main metric to display
+        - **secondary** (optional) — companion metric (trend/comparison)
+        - **maximum** (optional) — for progress bar display
+        - **breakdown** (optional) — dimension to split metrics by
+
+        ### Appearance (`appearance:`)
+        - `apply_to` — color target: `value` or `background` (default: `background`)
+        - `title_position` — `top` or `bottom`
+        - `value_font_size` — `default`, `xs`, `s`, `m`, `l`, `xl`, `xxl`
+
+        ### Color (`color:`)
+        - `palette` — categorical or range color palette
+        - `range_type` — `number` or `percent`
+        - `range_min`, `range_max` — custom range bounds
+        - `continuity` — `above`, `below`, `all`, `none`
+        - `stops` — list of `{stop, color}` for threshold coloring
+
+        ### Titles and text (`titles_and_text:`)
+        - `prefix` — text before the value
+        - `suffix` — text after the value
+        - `secondary_prefix` — text before secondary metric
+        - `secondary_suffix` — text after secondary metric
+
+        ## NOT implemented for ES|QL (do NOT flag as bugs)
+        - **Formula metrics** — ES|QL uses query-computed columns, not formulas
+        - **Aggregation functions in metrics** — aggregations must be done in
+          the query via STATS
+        - **Panel-level filters** — all filtering must be in the ES|QL query
+        - **Normalize by unit** — not supported in compiler
+        - Tooltip configuration — no compiler option
+
+        ## Creative exploration
+        - ES|QL metric with `STATS count = COUNT()` as primary
+        - ES|QL metric with primary + secondary from same query
+        - ES|QL metric with maximum value for progress bar
+        - ES|QL metric with breakdown by `host.name`
+        - ES|QL metric with color stops (green/yellow/red thresholds)
+        - ES|QL metric with prefix/suffix text
+        - ES|QL metric with `apply_to: value` vs `apply_to: background`
+        - ES|QL metric with bytes format + compact notation
+        - Compare ES|QL metric vs equivalent Lens metric side-by-side
+
+        ## Required process
+        1. Read compiler source for ES|QL metric configs.
+        2. For EACH feature: author YAML, compile, import, verify in editor,
+           manually recreate, export both, compare, record status.
+        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+        4. Document ES|QL vs Lens parity gaps.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[explore-esql-metric-${{ matrix.kibana_version }}] Feature coverage report`
+
+        Use **collapsed sections** (`<details>`) for: Feature Coverage Table,
+        Creative Exploration Results, Bugs Found, ES|QL vs Lens Parity Notes,
+        Features Not Tested.
+        Top-level: summary stats and version-specific notes.
+
+        Do not create branches or pull requests.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

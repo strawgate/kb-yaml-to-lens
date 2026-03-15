@@ -1,0 +1,147 @@
+---
+name: 'Explore: ES|QL Pie/Donut'
+on:
+  schedule:
+    - cron: 50 12 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: 'Kibana version to test (leave empty for all)'
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-esql-pie-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-esql-pie-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You are running the ES|QL Pie/Donut Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option for ES|QL **pie and donut**
+        charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version: `${{ matrix.kibana_version }}`
+        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string: `query: "FROM logs-* | STATS count = COUNT() BY status"`
+        - A list of strings (joined with pipes):
+          ```yaml
+          query:
+            - FROM logs-*
+            - STATS count = COUNT() BY host.name
+          ```
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+        - `format` (optional for metrics) — `number`, `bytes`, `bits`, `percent`,
+          `duration` with `decimals`, `suffix`, `compact`; or custom `pattern`
+
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **dimensions** (required) — slice-by columns (1 or more for nested rings)
+        - **metrics** (required) — slice size metrics
+
+        ### Shape (`appearance:`)
+        - Pie (default) — no donut setting
+        - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
+
+        ### Slice labels and values (`titles_and_text:`)
+        - `slice_labels` — `hide`, `inside`, `auto` (default: auto)
+        - `slice_values` — `hide`, `integer`, `percent` (default: percent)
+        - `value_decimal_places` — 0-10 (default: 2)
+
+        ### Legend (`legend:`)
+        - `visible` — `show`, `hide`, `auto`
+        - `position` — `top`, `right` (default), `bottom`, `left`
+        - `width` — `small`, `medium`, `large`, `extra_large`
+        - `truncate_labels` — 0-5 lines
+        - `nested` — boolean for hierarchical legend
+        - `show_single_series` — boolean
+
+        ### Color (`color:`)
+        - `palette` — categorical color scheme
+        - `assignments` — manual value-to-color hex mappings
+
+        ## NOT implemented for ES|QL (do NOT flag as bugs)
+        - **Formula metrics** — ES|QL uses query-computed columns, not formulas
+        - **Aggregation functions in metrics** — aggregations must be done in
+          the query via STATS
+        - **Panel-level filters** — all filtering must be in the ES|QL query
+        - Tooltip configuration — no compiler option
+        - Minimum slice percentage — not supported
+
+        ## Creative exploration
+        - ES|QL pie with `STATS count = COUNT() BY status` (simple grouping)
+        - ES|QL donut (large) with nested rings from 2 grouping columns
+        - ES|QL pie with `slice_labels: inside` + `slice_values: percent`
+        - ES|QL pie with custom color assignments per slice value
+        - ES|QL pie with nested legend
+        - Compare ES|QL pie vs equivalent Lens pie side-by-side
+
+        ## Required process
+        1. Read compiler source for ES|QL pie configs.
+        2. For EACH feature: author YAML, compile, import, verify in editor,
+           manually recreate, export both, compare, record status.
+        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+        4. Document ES|QL vs Lens parity gaps.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[explore-esql-pie-${{ matrix.kibana_version }}] Feature coverage report`
+
+        Use **collapsed sections** (`<details>`) for: Feature Coverage Table,
+        Creative Exploration Results, Bugs Found, ES|QL vs Lens Parity Notes,
+        Features Not Tested.
+        Top-level: summary stats and version-specific notes.
+
+        Do not create branches or pull requests.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

@@ -2,7 +2,7 @@
 name: 'Explore: Content Panels (Markdown/Search/Links/Image/Vega/Section)'
 on:
   schedule:
-    - cron: 30 12 * * 1-5
+    - cron: 40 13 * * 1-5
   workflow_dispatch:
     inputs:
       kibana_version:

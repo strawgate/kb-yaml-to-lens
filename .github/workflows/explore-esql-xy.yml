@@ -1,0 +1,187 @@
+---
+name: 'Explore: ES|QL XY Charts (Bar/Line/Area)'
+on:
+  schedule:
+    - cron: 20 12 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: 'Kibana version to test (leave empty for all)'
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-esql-xy-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-esql-xy-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You are running the ES|QL XY Charts Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option for ES|QL **bar, line, and area**
+        charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version: `${{ matrix.kibana_version }}`
+        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string: `query: "FROM logs-* | STATS count = COUNT()"`
+        - A list of strings (joined with pipes):
+          ```yaml
+          query:
+            - FROM logs-*
+            - WHERE @timestamp > NOW() - 1h
+            - STATS count = COUNT(), avg_bytes = AVG(bytes)
+          ```
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+
+        ### Dimensions
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+
+        ### Metrics
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `format` (optional) — `number`, `bytes`, `bits`, `percent`, `duration`
+          with `decimals`, `suffix`, `compact` params; or custom `pattern`
+
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **dimension** (optional) — x-axis (0 or 1 dimension)
+        - **metrics** (required) — y-axis (1 or more)
+        - **breakdown** (optional) — series split dimension
+
+        ### Chart types and modes
+        - `type: bar` with `mode: stacked` (default), `unstacked`, `percentage`
+        - `type: line`
+        - `type: area` with `mode: stacked` (default), `unstacked`, `percentage`
+
+        ### Per-metric options
+        - `axis: left | right` — for dual-axis charts
+        - `color` — custom series color (hex)
+
+        ### Axis configuration (`appearance:`)
+        - `x_axis`, `y_left_axis`, `y_right_axis`:
+          - `title` — axis label text
+          - `show_title` — boolean
+          - `scale` — `linear`, `log`, `sqrt`, `time`
+          - `extent.mode` — `full`, `custom`, `data_bounds`
+          - `extent.min`, `extent.max` — custom bounds
+          - `extent.enforce` — strict enforcement
+          - `extent.nice_values` — rounded values
+
+        ### Line/Area-specific appearance
+        - `missing_values` — `None`, `Linear`, `Carry`, `Lookahead`,
+          `Average`, `Nearest`
+        - `show_as_dotted` — distinguish interpolated data
+        - `end_values` — `None`, `Zero`, `Nearest`
+        - `line_style` — `linear`, `monotone-x`, `step-after`
+        - `fill_opacity` — 0.0-1.0 (area charts)
+
+        ### Bar-specific appearance
+        - `min_bar_height` — minimum bar pixel height
+
+        ### Other appearance
+        - `show_current_time_marker` — boolean
+        - `hide_endzones` — boolean
+
+        ### Legend (`legend:`)
+        - `visible` — `show`, `hide`, `auto`
+        - `position` — `top`, `bottom`, `left`, `right`
+        - `show_single_series` — boolean
+        - `size` — `small`, `medium`, `large`, `extra_large`
+        - `truncate_labels` — 0-5 lines
+
+        ### Value labels (`titles_and_text:`)
+        - `value_labels` — `hide` or `show`
+
+        ### Color (`color:`)
+        - `palette` — categorical color scheme
+        - `assignments` — manual value-to-color mappings
+
+        ## NOT implemented for ES|QL (do NOT flag as bugs)
+        - **Reference lines** — ES|QL panels do NOT support `layers` or
+          `reference_line` layer types. This is Lens-only.
+        - **Annotation layers** — not supported for ES|QL
+        - **Multi-layer composition** — ES|QL panels are single-chart only
+        - **Panel-level filters** — all filtering must be in the ES|QL query
+        - **Formula metrics** — ES|QL uses query-computed columns, not formulas
+        - **Aggregation functions in metrics** — ES|QL metrics reference query
+          result columns; aggregations must be done in the query via STATS
+        - Tooltip configuration — no compiler option
+
+        ## Creative exploration
+        - ES|QL bar chart with `STATS count = COUNT() BY host.name`
+        - ES|QL line chart with `EVAL bucket = BUCKET(@timestamp, 1 hour)`
+          for date histogram, with `data_type: date` on dimension
+        - ES|QL area chart with percentage mode + 3 breakdown categories
+        - Dual-axis: bytes on left, count on right from same query
+        - ES|QL bar with `step-after` line style overlay
+        - Stacked bar with custom color assignments per breakdown value
+        - Compare ES|QL XY panel vs equivalent Lens XY panel side-by-side
+
+        ## Required process
+        1. Read compiler source for ES|QL XY chart configs.
+        2. For EACH feature: author YAML, compile, import, verify in editor,
+           manually recreate, export both, compare, record status.
+        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+        4. Document ES|QL vs Lens parity gaps.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[explore-esql-xy-${{ matrix.kibana_version }}] Feature coverage report`
+
+        Use **collapsed sections** (`<details>`) for: Feature Coverage Table,
+        Creative Exploration Results, Bugs Found, ES|QL vs Lens Parity Notes,
+        Features Not Tested.
+        Top-level: summary stats and version-specific notes.
+
+        Do not create branches or pull requests.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
