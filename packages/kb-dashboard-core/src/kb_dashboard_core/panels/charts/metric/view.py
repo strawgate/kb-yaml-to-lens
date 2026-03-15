@@ -132,6 +132,9 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
     metricAccessor: str = Field(...)
     """Field accessor ID for the primary metric value to display."""
 
+    secondaryLabelPosition: Annotated[Literal['before', 'after'] | None, OmitIfNone()] = Field(default=None)
+    """Position of secondary label relative to the metric value."""
+
     showBar: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether to display a sparkline bar chart below the metric."""
 

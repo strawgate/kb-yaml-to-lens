@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -24,97 +25,16 @@ if TYPE_CHECKING:
     from kb_dashboard_core.dashboard.view import KbnDashboard
 
 
-def _normalize_metric_config(config: dict[str, Any]) -> dict[str, Any]:  # noqa: PLR0912, PLR0915
-    """Normalize legacy flat metric style keys to the nested schema used by metric config."""
-    normalized = dict(config)
-    had_appearance = 'appearance' in normalized
-    had_titles_and_text = 'titles_and_text' in normalized
-    appearance = dict(normalized.get('appearance', {}))
-    titles_and_text = dict(normalized.get('titles_and_text', {}))
-
-    primary = dict(appearance.get('primary', {}))
-    secondary = dict(appearance.get('secondary', {}))
-    breakdown = dict(appearance.get('breakdown', {}))
-
-    if 'icon' in appearance and 'icon' not in primary:
-        primary['icon'] = appearance.pop('icon')
-    if 'icon_align' in appearance and 'icon_position' not in primary:
-        primary['icon_position'] = appearance.pop('icon_align')
-    if 'value_font_mode' in appearance and 'font_size' not in primary:
-        primary['font_size'] = appearance.pop('value_font_mode')
-    if 'primary_position' in appearance and 'position' not in primary:
-        primary['position'] = appearance.pop('primary_position')
-    if 'primary_align' in appearance and 'alignment' not in primary:
-        primary['alignment'] = appearance.pop('primary_align')
-    if 'secondary_align' in appearance and 'alignment' not in secondary:
-        secondary['alignment'] = appearance.pop('secondary_align')
-    if 'max_cols' in appearance and 'column_count' not in breakdown:
-        breakdown['column_count'] = appearance.pop('max_cols')
-    if 'show_bar' in appearance or 'progress_direction' in appearance:
-        show_bar = appearance.pop('show_bar', None)
-        progress_direction = appearance.pop('progress_direction', None)
-        if show_bar is True:
-            background_type = 'bar'
-        elif show_bar is False:
-            background_type = 'line'
-        elif progress_direction is not None:
-            background_type = 'bar'
-        else:
-            background_type = 'none'
-        primary.setdefault('background_chart', {'type': background_type})
-        if progress_direction is not None:
-            primary['background_chart']['direction'] = progress_direction
-
-    if 'secondary_label' in titles_and_text:
-        secondary_label = titles_and_text.pop('secondary_label')
-        if 'label' not in secondary:
-            secondary['label'] = secondary_label
-    if 'secondary_label_position' in titles_and_text:
-        secondary_label_position = titles_and_text.pop('secondary_label_position')
-        if 'label_position' not in secondary:
-            secondary['label_position'] = secondary_label_position
-    if 'titles_text_align' in titles_and_text and 'alignment' not in titles_and_text:
-        titles_and_text['alignment'] = titles_and_text.pop('titles_text_align')
-    if 'primary_align' in titles_and_text and 'alignment' not in primary:
-        primary['alignment'] = titles_and_text.pop('primary_align')
-    else:
-        titles_and_text.pop('primary_align', None)
-    if 'secondary_align' in titles_and_text and 'alignment' not in secondary:
-        secondary['alignment'] = titles_and_text.pop('secondary_align')
-    else:
-        titles_and_text.pop('secondary_align', None)
-    if 'title_weight' in titles_and_text and 'weight' not in titles_and_text:
-        titles_and_text['weight'] = titles_and_text.pop('title_weight')
-
-    if primary:
-        appearance['primary'] = primary
-    if secondary:
-        appearance['secondary'] = secondary
-    if breakdown:
-        appearance['breakdown'] = breakdown
-
-    if appearance:
-        normalized['appearance'] = appearance
-    elif had_appearance:
-        normalized.pop('appearance', None)
-    if titles_and_text:
-        normalized['titles_and_text'] = titles_and_text
-    elif had_titles_and_text:
-        normalized.pop('titles_and_text', None)
-    return normalized
-
-
 def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
     """Compile metric chart config and return dict for snapshot testing."""
-    normalized_config = _normalize_metric_config(config)
     if chart_type == 'lens':
-        lens_chart = LensMetricChart.model_validate(normalized_config)
+        lens_chart = LensMetricChart.model_validate(config)
         _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
         assert kbn_state_visualization is not None
         return kbn_state_visualization.model_dump()
 
     # esql
-    esql_chart = ESQLMetricChart.model_validate(normalized_config)
+    esql_chart = ESQLMetricChart.model_validate(config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
     assert kbn_state_visualization is not None
     return kbn_state_visualization.model_dump()
@@ -656,26 +576,49 @@ def test_compile_metric_chart_subtitle_omitted(chart_type: str) -> None:
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-def test_compile_metric_chart_secondary_label(chart_type: str) -> None:
-    """Test metric secondary_label compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_secondary_label_appearance(chart_type: str) -> None:
+    """Test metric secondary label compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
-            'titles_and_text': {'secondary_label': 'vs. previous period'},
+            'appearance': {'secondary': {'label': 'vs. previous period'}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
-            'titles_and_text': {'secondary_label': 'vs. previous period'},
+            'appearance': {'secondary': {'label': 'vs. previous period'}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
     assert result['secondaryLabel'] == 'vs. previous period'
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_compile_metric_chart_secondary_label_position_after(chart_type: str) -> None:
+    """Test secondary label position can be explicitly set to after."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
+            'appearance': {'secondary': {'label_position': 'after'}},
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
+            'appearance': {'secondary': {'label_position': 'after'}},
+        }
+
+    result = compile_metric_chart_snapshot(config, chart_type)
+    assert result['secondaryLabelPosition'] == 'after'
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
@@ -686,13 +629,13 @@ def test_compile_metric_chart_icon(chart_type: str) -> None:
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'icon': 'sortUp'},
+            'appearance': {'primary': {'icon': 'sortUp'}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'icon': 'sortUp'},
+            'appearance': {'primary': {'icon': 'sortUp'}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -719,20 +662,20 @@ def test_compile_metric_chart_icon_omitted(chart_type: str) -> None:
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-def test_compile_metric_chart_max_cols(chart_type: str) -> None:
-    """Test metric max_cols compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_breakdown_column_count(chart_type: str) -> None:
+    """Test metric breakdown column_count compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'max_cols': 3},
+            'appearance': {'breakdown': {'column_count': 3}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'max_cols': 3},
+            'appearance': {'breakdown': {'column_count': 3}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -740,42 +683,72 @@ def test_compile_metric_chart_max_cols(chart_type: str) -> None:
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-def test_compile_metric_chart_show_bar(chart_type: str) -> None:
-    """Test metric show_bar compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_background_chart_bar_type(chart_type: str) -> None:
+    """Test metric background_chart bar compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'show_bar': True},
+            'appearance': {'primary': {'background_chart': {'type': 'bar'}}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'show_bar': True},
+            'appearance': {'primary': {'background_chart': {'type': 'bar'}}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
     assert result['showBar'] is True
 
 
+@pytest.mark.parametrize(
+    ('background_type', 'expected_show_bar'),
+    [('line', False), ('bar', True), ('none', None)],
+)
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-@pytest.mark.parametrize('direction', ['horizontal', 'vertical'])
-def test_compile_metric_chart_progress_direction(chart_type: str, direction: str) -> None:
-    """Test metric progress_direction compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_background_chart_type_mapping(
+    chart_type: str, background_type: str, expected_show_bar: bool | None
+) -> None:
+    """Test background_chart.type mapping to Kibana showBar semantics."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'progress_direction': direction},
+            'appearance': {'primary': {'background_chart': {'type': background_type}}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'progress_direction': direction},
+            'appearance': {'primary': {'background_chart': {'type': background_type}}},
+        }
+
+    result = compile_metric_chart_snapshot(config, chart_type)
+    if expected_show_bar is None:
+        assert 'showBar' not in result
+    else:
+        assert result['showBar'] is expected_show_bar
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+@pytest.mark.parametrize('direction', ['horizontal', 'vertical'])
+def test_compile_metric_chart_background_chart_bar_direction(chart_type: str, direction: str) -> None:
+    """Test metric background_chart direction compilation for Lens and ES|QL charts."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'appearance': {'primary': {'background_chart': {'type': 'bar', 'direction': direction}}},
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'appearance': {'primary': {'background_chart': {'type': 'bar', 'direction': direction}}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -783,21 +756,66 @@ def test_compile_metric_chart_progress_direction(chart_type: str, direction: str
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+@pytest.mark.parametrize('background_type', ['line', 'none'])
+def test_metric_background_chart_direction_requires_bar(chart_type: str, background_type: str) -> None:
+    """Test background_chart.direction is rejected unless type is bar."""
+    if chart_type == 'lens':
+        config: dict[str, Any] = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'appearance': {'primary': {'background_chart': {'type': background_type, 'direction': 'horizontal'}}},
+        }
+        with pytest.raises(ValidationError):
+            LensMetricChart.model_validate(config)
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'appearance': {'primary': {'background_chart': {'type': background_type, 'direction': 'horizontal'}}},
+        }
+        with pytest.raises(ValidationError):
+            ESQLMetricChart.model_validate(config)
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_metric_breakdown_column_count_minimum(chart_type: str) -> None:
+    """Test breakdown.column_count enforces minimum value of 1."""
+    if chart_type == 'lens':
+        config: dict[str, Any] = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'appearance': {'breakdown': {'column_count': 0}},
+        }
+        with pytest.raises(ValidationError):
+            LensMetricChart.model_validate(config)
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'appearance': {'breakdown': {'column_count': 0}},
+        }
+        with pytest.raises(ValidationError):
+            ESQLMetricChart.model_validate(config)
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('align', ['left', 'center', 'right'])
-def test_compile_metric_chart_titles_text_align(chart_type: str, align: str) -> None:
-    """Test metric titles_text_align compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_titles_and_text_alignment(chart_type: str, align: str) -> None:
+    """Test metric titles_and_text.alignment compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'titles_and_text': {'titles_text_align': align},
+            'titles_and_text': {'alignment': align},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'titles_and_text': {'titles_text_align': align},
+            'titles_and_text': {'alignment': align},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -807,19 +825,19 @@ def test_compile_metric_chart_titles_text_align(chart_type: str, align: str) -> 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('mode', ['default', 'fit', 'custom'])
 def test_compile_metric_chart_value_font_mode(chart_type: str, mode: str) -> None:
-    """Test metric value_font_mode compilation for Lens and ES|QL charts."""
+    """Test metric appearance.primary.font_size compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'value_font_mode': mode},
+            'appearance': {'primary': {'font_size': mode}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'value_font_mode': mode},
+            'appearance': {'primary': {'font_size': mode}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -828,20 +846,20 @@ def test_compile_metric_chart_value_font_mode(chart_type: str, mode: str) -> Non
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('align', ['left', 'right'])
-def test_compile_metric_chart_icon_align(chart_type: str, align: str) -> None:
-    """Test metric icon_align compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_primary_icon_position(chart_type: str, align: str) -> None:
+    """Test metric appearance.primary.icon_position compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'icon_align': align},
+            'appearance': {'primary': {'icon_position': align}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'icon_align': align},
+            'appearance': {'primary': {'icon_position': align}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -850,20 +868,20 @@ def test_compile_metric_chart_icon_align(chart_type: str, align: str) -> None:
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('align', ['left', 'center', 'right'])
-def test_compile_metric_chart_primary_align(chart_type: str, align: str) -> None:
-    """Test metric primary_align compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_primary_alignment(chart_type: str, align: str) -> None:
+    """Test metric appearance.primary.alignment compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'titles_and_text': {'primary_align': align},
+            'appearance': {'primary': {'alignment': align}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'titles_and_text': {'primary_align': align},
+            'appearance': {'primary': {'alignment': align}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -872,20 +890,20 @@ def test_compile_metric_chart_primary_align(chart_type: str, align: str) -> None
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('align', ['left', 'center', 'right'])
-def test_compile_metric_chart_secondary_align(chart_type: str, align: str) -> None:
-    """Test metric secondary_align compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_secondary_alignment(chart_type: str, align: str) -> None:
+    """Test metric appearance.secondary.alignment compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'titles_and_text': {'secondary_align': align},
+            'appearance': {'secondary': {'alignment': align}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'titles_and_text': {'secondary_align': align},
+            'appearance': {'secondary': {'alignment': align}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -894,20 +912,20 @@ def test_compile_metric_chart_secondary_align(chart_type: str, align: str) -> No
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('weight', ['bold', 'normal', 'lighter'])
-def test_compile_metric_chart_title_weight(chart_type: str, weight: str) -> None:
-    """Test metric title_weight compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_title_text_weight(chart_type: str, weight: str) -> None:
+    """Test metric titles_and_text.weight compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'titles_and_text': {'title_weight': weight},
+            'titles_and_text': {'weight': weight},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'titles_and_text': {'title_weight': weight},
+            'titles_and_text': {'weight': weight},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -916,20 +934,20 @@ def test_compile_metric_chart_title_weight(chart_type: str, weight: str) -> None
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('position', ['top', 'bottom'])
-def test_compile_metric_chart_primary_position(chart_type: str, position: str) -> None:
-    """Test metric primary_position compilation for Lens and ES|QL charts."""
+def test_compile_metric_chart_primary_value_position(chart_type: str, position: str) -> None:
+    """Test metric appearance.primary.position compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'appearance': {'primary_position': position},
+            'appearance': {'primary': {'position': position}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'appearance': {'primary_position': position},
+            'appearance': {'primary': {'position': position}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -948,21 +966,21 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
             'maximum': {'value': 100, 'id': 'max-metric'},
             'apply_to': 'background',
             'appearance': {
-                'icon': 'compute',
-                'max_cols': 5,
-                'show_bar': True,
-                'progress_direction': 'vertical',
-                'value_font_mode': 'fit',
-                'icon_align': 'right',
-                'primary_position': 'bottom',
+                'primary': {
+                    'icon': 'compute',
+                    'background_chart': {'type': 'bar', 'direction': 'vertical'},
+                    'font_size': 'fit',
+                    'icon_position': 'right',
+                    'position': 'bottom',
+                    'alignment': 'center',
+                },
+                'secondary': {'alignment': 'right', 'label': 'Change'},
+                'breakdown': {'column_count': 5},
             },
             'titles_and_text': {
                 'subtitle': 'Overview',
-                'secondary_label': 'Change',
-                'titles_text_align': 'center',
-                'primary_align': 'center',
-                'secondary_align': 'right',
-                'title_weight': 'bold',
+                'alignment': 'center',
+                'weight': 'bold',
             },
         }
     else:
@@ -973,21 +991,21 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
             'maximum': {'field': 'max_val', 'id': 'max-metric'},
             'apply_to': 'background',
             'appearance': {
-                'icon': 'compute',
-                'max_cols': 5,
-                'show_bar': True,
-                'progress_direction': 'vertical',
-                'value_font_mode': 'fit',
-                'icon_align': 'right',
-                'primary_position': 'bottom',
+                'primary': {
+                    'icon': 'compute',
+                    'background_chart': {'type': 'bar', 'direction': 'vertical'},
+                    'font_size': 'fit',
+                    'icon_position': 'right',
+                    'position': 'bottom',
+                    'alignment': 'center',
+                },
+                'secondary': {'alignment': 'right', 'label': 'Change'},
+                'breakdown': {'column_count': 5},
             },
             'titles_and_text': {
                 'subtitle': 'Overview',
-                'secondary_label': 'Change',
-                'titles_text_align': 'center',
-                'primary_align': 'center',
-                'secondary_align': 'right',
-                'title_weight': 'bold',
+                'alignment': 'center',
+                'weight': 'bold',
             },
         }
 

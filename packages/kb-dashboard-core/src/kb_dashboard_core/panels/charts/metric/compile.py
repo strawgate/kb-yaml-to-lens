@@ -243,12 +243,17 @@ def compile_esql_metric_chart(
     else:
         show_bar = False
 
+    secondary_label_position = (
+        secondary.label_position if secondary is not None and secondary.label_position is not None else None
+    )
+
     return (
         layer_id,
         kbn_columns,
         KbnESQLMetricVisualizationState(
             layerId=layer_id,
             metricAccessor=primary_metric_id,
+            secondaryLabelPosition=secondary_label_position,
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
