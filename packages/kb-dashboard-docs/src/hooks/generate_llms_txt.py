@@ -44,6 +44,7 @@ _DEFAULT_LLMS_FULL_NAV: tuple[str, ...] = (
     'filters/config.md',
     'queries/config.md',
     'guides/index.md',
+    'guides/breaking-changes.md',
     'guides/dashboard-decompiling-guide.md',
     'guides/dashboard-style-guide.md',
     'guides/esql-language-reference.md',
@@ -53,6 +54,7 @@ _DEFAULT_LLMS_FULL_NAV: tuple[str, ...] = (
     'guides/esql-views.md',
 )
 _GUIDE_PATH_TO_NAME: dict[str, str] = {
+    'guides/breaking-changes.md': 'breaking-changes',
     'guides/color-assignments.md': 'color-assignments',
     'guides/esql-views.md': 'esql-views',
     'guides/legend-configuration.md': 'legend-configuration',

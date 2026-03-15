@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -216,12 +216,12 @@ def compile_lens_pie_chart(lens_pie_chart: LensPieChart) -> tuple[str, dict[str,
 
     primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
-    collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim_id in zip(lens_pie_chart.dimensions, all_dimension_ids, strict=True):
-        if dim_config.collapse is not None:
-            if collapse_fns is None:
-                collapse_fns = {}
-            collapse_fns[compiled_dim_id] = str(dim_config.collapse)
+    collapse_fns = build_collapse_fns(
+        [
+            (compiled_dim_id, dim_config.collapse)
+            for dim_config, compiled_dim_id in zip(lens_pie_chart.dimensions, all_dimension_ids, strict=True)
+        ]
+    )
 
     kbn_columns: dict[str, KbnLensColumnTypes] = {**slices_by_ids, **kbn_metric_column_by_id}
 
@@ -261,12 +261,12 @@ def compile_esql_pie_chart(
 
     primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
-    collapse_fns: dict[str, str] | None = None
-    for dim_config, compiled_dim in zip(esql_pie_chart.dimensions, dimensions, strict=True):
-        if dim_config.collapse is not None:
-            if collapse_fns is None:
-                collapse_fns = {}
-            collapse_fns[compiled_dim.columnId] = str(dim_config.collapse)
+    collapse_fns = build_collapse_fns(
+        [
+            (compiled_dim.columnId, dim_config.collapse)
+            for dim_config, compiled_dim in zip(esql_pie_chart.dimensions, dimensions, strict=True)
+        ]
+    )
 
     kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions]
 

@@ -94,7 +94,7 @@ uvx kb-dashboard-cli compile --format json --output-dir ./output
 This will:
 
 - Create one pretty-printed JSON file per dashboard
-- Name files based on the dashboard title (sanitized for filesystem safety)
+- Name files based on the dashboard ID (sanitized for filesystem safety)
 
 ### CI Sync Detection
 

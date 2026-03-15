@@ -74,6 +74,7 @@ def get_guide(name: str) -> None:
     \b
     Examples:
         kb-dashboard docs guide otel-dashboard-guide
+        kb-dashboard docs guide breaking-changes
         kb-dashboard docs guide esql-language-reference
         kb-dashboard docs guide dashboard-style-guide
     """
