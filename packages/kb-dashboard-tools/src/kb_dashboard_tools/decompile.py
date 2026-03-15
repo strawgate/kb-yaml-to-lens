@@ -1,7 +1,7 @@
 """Decompile a Kibana dashboard JSON object into a YAML dashboard stub."""
 
 import json
-from typing import Any
+from typing import Any, cast
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
@@ -28,26 +28,31 @@ _LENS_VISUALIZATION_TYPES = {
 }
 
 
+def _as_dict(value: object) -> dict[str, Any] | None:
+    """Narrow an unknown value to a typed dict, or return None."""
+    if isinstance(value, dict):
+        return cast('dict[str, Any]', value)
+    return None
+
+
 def _parse_json_field(field: str | dict[str, Any] | list[Any] | None) -> dict[str, Any] | list[Any] | None:
     """Parse a JSON field that may be a string, dict, list, or None."""
     if field is None:
         return None
     if isinstance(field, str):
-        return json.loads(field)
-    if isinstance(field, (dict, list)):
-        return field
-    msg = f'Unsupported field type in _parse_json_field: {type(field).__name__}'
-    raise TypeError(msg)
+        parsed: dict[str, Any] | list[Any] = json.loads(field)  # pyright: ignore[reportAny]
+        return parsed
+    return field
 
 
-def _to_int(value: Any) -> int | None:
+def _to_int(value: object) -> int | None:
     """Convert an unknown value to int only when it is already an integer."""
     if isinstance(value, int):
         return value
     return None
 
 
-def _normalize_lens_type(value: Any) -> str | None:
+def _normalize_lens_type(value: object) -> str | None:
     """Normalize Lens visualization type values from Kibana."""
     if not isinstance(value, str):
         return None
@@ -60,8 +65,8 @@ def _extract_panel_title(panel: dict[str, Any]) -> str:
     if isinstance(direct_title, str):
         return direct_title
 
-    embeddable_config = panel.get('embeddableConfig')
-    if isinstance(embeddable_config, dict):
+    embeddable_config = _as_dict(panel.get('embeddableConfig'))
+    if embeddable_config is not None:
         embedded_title = embeddable_config.get('title')
         if isinstance(embedded_title, str):
             return embedded_title
@@ -71,13 +76,13 @@ def _extract_panel_title(panel: dict[str, Any]) -> str:
 
 def _extract_embeddable_attributes(panel: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     """Extract embeddable config and nested attributes dictionaries."""
-    embeddable_config = panel.get('embeddableConfig')
-    if not isinstance(embeddable_config, dict):
+    embeddable_config = _as_dict(panel.get('embeddableConfig'))
+    if embeddable_config is None:
         return {}, {}
 
     embeddable_attributes: dict[str, Any] = {}
-    attributes = embeddable_config.get('attributes')
-    if isinstance(attributes, dict):
+    attributes = _as_dict(embeddable_config.get('attributes'))
+    if attributes is not None:
         embeddable_attributes = attributes
     return embeddable_config, embeddable_attributes
 
@@ -89,10 +94,10 @@ def _build_markdown_stub(panel: dict[str, Any], _reference_lookup: dict[str, str
 
     markdown_content = embeddable_config.get('markdown')
     if not isinstance(markdown_content, str):
-        saved_vis = embeddable_config.get('savedVis')
-        if isinstance(saved_vis, dict):
-            params = saved_vis.get('params')
-            if isinstance(params, dict):
+        saved_vis = _as_dict(embeddable_config.get('savedVis'))
+        if saved_vis is not None:
+            params = _as_dict(saved_vis.get('params'))
+            if params is not None:
                 markdown_content = params.get('markdown')
 
     if isinstance(markdown_content, str):
@@ -100,10 +105,10 @@ def _build_markdown_stub(panel: dict[str, Any], _reference_lookup: dict[str, str
     else:
         markdown['content'] = 'TODO(decompile): provide markdown content'
 
-    saved_vis = embeddable_config.get('savedVis')
-    if isinstance(saved_vis, dict):
-        params = saved_vis.get('params')
-        if isinstance(params, dict):
+    saved_vis = _as_dict(embeddable_config.get('savedVis'))
+    if saved_vis is not None:
+        params = _as_dict(saved_vis.get('params'))
+        if params is not None:
             font_size = _to_int(params.get('fontSize'))
             if font_size is not None:
                 markdown['font_size'] = font_size
@@ -123,8 +128,8 @@ def _build_search_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) 
         search['saved_search_id'] = saved_search_id
         return search
 
-    embeddable_config = panel.get('embeddableConfig')
-    if isinstance(embeddable_config, dict):
+    embeddable_config = _as_dict(panel.get('embeddableConfig'))
+    if embeddable_config is not None:
         saved_search_ref_name = embeddable_config.get('savedSearchRefName')
         if isinstance(saved_search_ref_name, str):
             resolved_saved_search_id = reference_lookup.get(saved_search_ref_name)
@@ -139,9 +144,9 @@ def _build_search_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) 
 def _extract_links_attributes(panel: dict[str, Any]) -> dict[str, Any]:
     """Extract links panel attributes from embeddable config."""
     embeddable_config, embeddable_attributes = _extract_embeddable_attributes(panel)
-    if len(embeddable_attributes) == 0 and isinstance(embeddable_config, dict):
-        attributes = embeddable_config.get('attributes')
-        if isinstance(attributes, dict):
+    if len(embeddable_attributes) == 0:
+        attributes = _as_dict(embeddable_config.get('attributes'))
+        if attributes is not None:
             embeddable_attributes = attributes
     return embeddable_attributes
 
@@ -220,12 +225,13 @@ def _build_links_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -
     if not isinstance(raw_links, list):
         return links
 
-    for raw_link in raw_links:
-        if not isinstance(raw_link, dict):
+    for raw_link_item in raw_links:  # pyright: ignore[reportUnknownVariableType]
+        raw_link = _as_dict(raw_link_item)  # pyright: ignore[reportUnknownArgumentType]
+        if raw_link is None:
             continue
 
-        options = raw_link.get('options')
-        if not isinstance(options, dict):
+        options = _as_dict(raw_link.get('options'))
+        if options is None:
             options = {}
 
         link_type = raw_link.get('type')
@@ -237,7 +243,7 @@ def _build_links_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -
             link_item = None
 
         if link_item is not None:
-            links['items'].append(link_item)
+            links['items'].append(link_item)  # pyright: ignore[reportUnknownMemberType]
 
     return links
 
@@ -245,20 +251,20 @@ def _build_links_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -
 def _build_image_stub(panel: dict[str, Any]) -> CommentedMap:
     """Build image panel stub."""
     image = CommentedMap()
-    embeddable_config = panel.get('embeddableConfig')
-    if not isinstance(embeddable_config, dict):
+    embeddable_config = _as_dict(panel.get('embeddableConfig'))
+    if embeddable_config is None:
         embeddable_config = {}
 
-    image_config = embeddable_config.get('imageConfig')
-    if isinstance(image_config, dict):
-        src = image_config.get('src')
-        if isinstance(src, dict):
+    image_config = _as_dict(embeddable_config.get('imageConfig'))
+    if image_config is not None:
+        src = _as_dict(image_config.get('src'))
+        if src is not None:
             url = src.get('url')
             if isinstance(url, str):
                 image['from_url'] = url
 
-        sizing = image_config.get('sizing')
-        if isinstance(sizing, dict):
+        sizing = _as_dict(image_config.get('sizing'))
+        if sizing is not None:
             object_fit = sizing.get('objectFit')
             if isinstance(object_fit, str) and object_fit in {'contain', 'cover', 'fill', 'none'}:
                 image['fit'] = object_fit
@@ -299,6 +305,9 @@ def _build_vega_stub_from_panel(_panel: dict[str, Any], _reference_lookup: dict[
     return _build_vega_stub()
 
 
+_BuilderFn = Any  # Callable[[dict[str, Any], dict[str, str]], CommentedMap]
+
+
 def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:
     """Build lens/esql panel stub with optional chart type."""
     _, embeddable_attributes = _extract_embeddable_attributes(panel)
@@ -312,7 +321,7 @@ def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:
 def _panel_type_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -> tuple[str, CommentedMap]:
     """Build a minimal YAML panel type stub from a Kibana panel object."""
     panel_type = panel.get('type')
-    simple_builders: dict[str, tuple[str, Any]] = {
+    simple_builders: dict[str, tuple[str, _BuilderFn]] = {
         'markdown': ('markdown', _build_markdown_stub),
         'search': ('search', _build_search_stub),
         'links': ('links', _build_links_stub_from_panel),
@@ -321,8 +330,9 @@ def _panel_type_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) ->
     }
 
     if isinstance(panel_type, str) and panel_type in simple_builders:
-        yaml_type, builder = simple_builders[panel_type]
-        return yaml_type, builder(panel, reference_lookup)
+        yaml_type, builder = simple_builders[panel_type]  # pyright: ignore[reportAny]
+        result: CommentedMap = builder(panel, reference_lookup)  # pyright: ignore[reportAny]
+        return yaml_type, result
 
     if panel_type in {'lens', 'esql'}:
         return str(panel_type), _build_lens_like_stub(panel)
@@ -348,8 +358,8 @@ def _build_panel_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -
 
     panel_yaml['title'] = _extract_panel_title(panel)
 
-    grid_data = panel.get('gridData')
-    if isinstance(grid_data, dict):
+    grid_data = _as_dict(panel.get('gridData'))
+    if grid_data is not None:
         width = _to_int(grid_data.get('w'))
         height = _to_int(grid_data.get('h'))
         if width is not None or height is not None:
@@ -359,7 +369,7 @@ def _build_panel_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -
             if height is not None:
                 size['h'] = height
             if hasattr(size, 'fa'):
-                size.fa.set_flow_style()
+                size.fa.set_flow_style()  # pyright: ignore[reportUnknownMemberType]
             panel_yaml['size'] = size
 
         x_pos = _to_int(grid_data.get('x'))
@@ -371,7 +381,7 @@ def _build_panel_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -
             if y_pos is not None:
                 position['y'] = y_pos
             if hasattr(position, 'fa'):
-                position.fa.set_flow_style()
+                position.fa.set_flow_style()  # pyright: ignore[reportUnknownMemberType]
             panel_yaml['position'] = position
 
     panel_type, panel_config = _panel_type_stub(panel, reference_lookup)
@@ -387,8 +397,9 @@ def _extract_reference_lookup(dashboard: dict[str, Any]) -> dict[str, str]:
     if not isinstance(references, list):
         return reference_lookup
 
-    for reference in references:
-        if not isinstance(reference, dict):
+    for ref_item in references:  # pyright: ignore[reportUnknownVariableType]
+        reference = _as_dict(ref_item)  # pyright: ignore[reportUnknownArgumentType]
+        if reference is None:
             continue
         name = reference.get('name')
         target_id = reference.get('id')
@@ -453,8 +464,8 @@ def _extract_time_range(attributes: dict[str, Any]) -> CommentedMap | None:
 
 def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     """Convert a Kibana dashboard object into a YAML stub document."""
-    attributes = dashboard.get('attributes')
-    if not isinstance(attributes, dict):
+    attributes = _as_dict(dashboard.get('attributes'))
+    if attributes is None:
         attributes = {}
 
     document = CommentedMap()
@@ -462,7 +473,7 @@ def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     document['dashboards'] = dashboards
 
     dashboard_yaml = CommentedMap()
-    dashboards.append(dashboard_yaml)
+    dashboards.append(dashboard_yaml)  # pyright: ignore[reportUnknownMemberType]
 
     title = attributes.get('title')
     if isinstance(title, str):
@@ -490,13 +501,14 @@ def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     reference_lookup = _extract_reference_lookup(dashboard)
     panels_json = _parse_json_field(attributes.get('panelsJSON'))
     if isinstance(panels_json, list):
-        for panel in panels_json:
-            if not isinstance(panel, dict):
+        for panel_item in panels_json:  # pyright: ignore[reportAny]
+            panel = _as_dict(panel_item)  # pyright: ignore[reportAny]
+            if panel is None:
                 continue
             panel_stub, panel_comment = _build_panel_stub(panel, reference_lookup)
-            panels.append(panel_stub)
+            panels.append(panel_stub)  # pyright: ignore[reportUnknownMemberType]
             panel_index = len(panels) - 1
-            panels.yaml_set_comment_before_after_key(panel_index, before=panel_comment)
+            panels.yaml_set_comment_before_after_key(panel_index, before=panel_comment)  # pyright: ignore[reportUnknownMemberType]
     dashboard_yaml['panels'] = panels
 
     return document
