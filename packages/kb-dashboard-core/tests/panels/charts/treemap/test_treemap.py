@@ -1,5 +1,6 @@
 """Test the compilation of Lens treemap charts from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -140,24 +141,26 @@ async def test_treemap_with_two_dimensions_uses_primary_groups_only() -> None:
 
 def test_treemap_deprecated_dimensions_does_not_override_explicit_breakdowns() -> None:
     """Explicit breakdowns should win over deprecated dimensions."""
-    lens_chart = LensTreemapChart.model_validate(
-        {
-            'type': 'treemap',
-            'data_view': 'logs-*',
-            'metrics': [{'aggregation': 'count'}],
-            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
-            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
-        }
-    )
+    with pytest.warns(DeprecationWarning, match="ignored because 'breakdowns' is already set"):
+        lens_chart = LensTreemapChart.model_validate(
+            {
+                'type': 'treemap',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
+            }
+        )
     assert [breakdown.id for breakdown in lens_chart.breakdowns] == ['new-breakdown']
 
-    esql_chart = ESQLTreemapPanelConfig.model_validate(
-        {
-            'type': 'treemap',
-            'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
-            'metrics': [{'field': 'c'}],
-            'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
-            'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
-        }
-    )
+    with pytest.warns(DeprecationWarning, match="ignored because 'breakdowns' is already set"):
+        esql_chart = ESQLTreemapPanelConfig.model_validate(
+            {
+                'type': 'treemap',
+                'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+                'metrics': [{'field': 'c'}],
+                'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
+            }
+        )
     assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']
