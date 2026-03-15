@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from kb_dashboard_core.tools.compare import compare_disassembled_dashboards
+from kb_dashboard_tools.compare import compare_disassembled_dashboards
 
 
 def _write_panel(output_dir: Path, filename: str, panel_type: str, title: str) -> None:

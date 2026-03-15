@@ -13,8 +13,8 @@ import yaml
 from kb_dashboard_core.dashboard.view import KbnDashboard
 from kb_dashboard_core.dashboard_compiler import load, render
 from kb_dashboard_core.shared.error_formatter import format_validation_error, format_yaml_error
-from kb_dashboard_core.tools.compare import compare_disassembled_dashboards
 from kb_dashboard_core.tools.disassemble import disassemble_dashboard, parse_ndjson
+from kb_dashboard_tools.compare import compare_disassembled_dashboards
 from kb_dashboard_tools.kibana_client import KibanaClient
 from pydantic import ValidationError
 

@@ -12,7 +12,7 @@ import os
 import sys
 from pathlib import Path
 
-from kb_dashboard_core.tools.compare import compare_disassembled_dashboards  # pyright: ignore[reportMissingTypeStubs]
+from kb_dashboard_tools.compare import compare_disassembled_dashboards  # pyright: ignore[reportMissingTypeStubs]
 
 # Use ASCII fallbacks on Windows to avoid encoding errors with cp1252
 _USE_ASCII = sys.platform == 'win32' and os.environ.get('PYTHONUTF8') != '1'
