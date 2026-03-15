@@ -11,27 +11,33 @@
 set -euo pipefail
 
 KIBANA_VERSION="${1:-9.3.0}"
+NETWORK_NAME="explore-net"
 ES_CONTAINER="es-explore"
 KIBANA_CONTAINER="kibana-explore"
 
 echo "Bootstrapping Elasticsearch + Kibana (version: ${KIBANA_VERSION})"
 
 docker rm -f "${ES_CONTAINER}" "${KIBANA_CONTAINER}" >/dev/null 2>&1 || true
+docker network rm "${NETWORK_NAME}" >/dev/null 2>&1 || true
+docker network create "${NETWORK_NAME}" >/dev/null
 
-# Use host networking so ES and Kibana bind directly to the host's interfaces.
-# This is required for the AWF sandbox — the agent container can only reach the
-# host via host.docker.internal, and the AWF firewall blocks non-standard ports
-# when containers use bridge networking with -p port mappings.
 docker run -d --name "${ES_CONTAINER}" \
-  --network host \
+  --network "${NETWORK_NAME}" \
+  -p 9200:9200 \
   -e "discovery.type=single-node" \
   -e "xpack.security.enabled=false" \
   -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+  -e "network.host=0.0.0.0" \
   "docker.elastic.co/elasticsearch/elasticsearch:${KIBANA_VERSION}" >/dev/null
 
+# Map Kibana to host port 443 so the AWF sandbox agent can reach it.
+# The AWF firewall only DNAT-redirects ports 80 and 443 through its Squid proxy;
+# all other ports are dropped by the filter chain's default deny rule.
+# Port 80 is already used by the MCP gateway, so we use 443.
 docker run -d --name "${KIBANA_CONTAINER}" \
-  --network host \
-  -e "ELASTICSEARCH_HOSTS=http://localhost:9200" \
+  --network "${NETWORK_NAME}" \
+  -p 443:5601 \
+  -e "ELASTICSEARCH_HOSTS=http://${ES_CONTAINER}:9200" \
   -e "XPACK_SECURITY_ENABLED=false" \
   -e "SERVER_HOST=0.0.0.0" \
   "docker.elastic.co/kibana/kibana:${KIBANA_VERSION}" >/dev/null
@@ -44,10 +50,10 @@ for i in $(seq 1 90); do
   sleep 2
 done
 
-echo "Waiting for Kibana on http://localhost:5601 ..."
+echo "Waiting for Kibana on http://localhost:443 ..."
 KIBANA_READY=0
 for _ in $(seq 1 180); do
-  if curl -fsS "http://localhost:5601/api/status" >/dev/null; then
+  if curl -fsS "http://localhost:443/api/status" >/dev/null; then
     KIBANA_READY=1
     break
   fi
@@ -104,7 +110,7 @@ fi
 # Create data views so Lens is immediately usable (Kibana never auto-creates these)
 echo "Creating data views ..."
 for DV in "logs-*" "metrics-*"; do
-  curl -fsS -X POST "http://localhost:5601/api/data_views/data_view" \
+  curl -fsS -X POST "http://localhost:443/api/data_views/data_view" \
     -H "kbn-xsrf: true" \
     -H "Content-Type: application/json" \
     -d "{\"data_view\":{\"title\":\"${DV}\",\"name\":\"${DV}\",\"timeFieldName\":\"@timestamp\"}}" \
@@ -114,5 +120,5 @@ done
 
 echo "Bootstrap complete."
 echo "- Elasticsearch: http://localhost:9200"
-echo "- Kibana:        http://localhost:5601"
+echo "- Kibana:        http://localhost:443"
 echo "- Data views:    logs-*, metrics-*"

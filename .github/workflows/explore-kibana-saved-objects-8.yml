@@ -70,9 +70,9 @@ jobs:
         4. Export saved objects using the CLI:
            ```bash
            uv run kb-dashboard fetch <dashboard-id> --output artifacts/<name>.ndjson \
-             --kibana-url http://host.docker.internal:5601
+             --kibana-url http://host.docker.internal:443
            ```
-           Use `uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ --upload --kibana-url http://host.docker.internal:5601` to compile and upload in one step (do NOT use curl or the Kibana import UI).
+           Use `uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ --upload --kibana-url http://host.docker.internal:443` to compile and upload in one step (do NOT use curl or the Kibana import UI).
         5. Implement compiler support in this repo using existing patterns (feature exploration mode only).
         6. Add/update tests for config -> compiled Lens output mapping.
         7. Run targeted validation for touched files and tests.

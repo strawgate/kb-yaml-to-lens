@@ -2,7 +2,7 @@
 
 Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explore-kibana.sh`.
 
-**Prerequisites:** Kibana at `http://localhost:5601` (no auth), Elasticsearch at `http://localhost:9200`, seeded indices `logs-default-generic` / `metrics-default-generic`, data views `logs-*` / `metrics-*`.
+**Prerequisites:** Kibana at `http://localhost:443` (no auth), Elasticsearch at `http://localhost:9200`, seeded indices `logs-default-generic` / `metrics-default-generic`, data views `logs-*` / `metrics-*`.
 
 ## Essential Patterns
 
@@ -14,7 +14,7 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
 
 ## Create a Lens Visualization
 
-1. **Navigate:** `browser_navigate` to `http://localhost:5601/app/lens`, wait for load.
+1. **Navigate:** `browser_navigate` to `http://localhost:443/app/lens`, wait for load.
 2. **Verify data:** Field list should show available fields. Bootstrap seeds relative timestamps within "Last 15 minutes". If empty, re-run `scripts/bootstrap-explore-kibana.sh`.
 3. **Choose chart type:** Click the chart type button, select from dropdown (Bar, Line, Area, Metric, Table, Pie, Gauge, Heat map, Waffle, Treemap, Tag cloud, Mosaic).
 4. **Configure slots:** Click "Add or drag-and-drop a field" for each slot. Select a function, then a field via the combobox pattern. Click "Close" when done.
@@ -85,7 +85,7 @@ After typing: Escape (dismiss autocomplete) → click "Run query". The config pa
 ```bash
 mkdir -p artifacts/kibana-saved-objects
 SAVED_OBJECT_ID="<id-from-url>"
-curl -fsS -X POST "http://localhost:5601/api/saved_objects/_export" \
+curl -fsS -X POST "http://localhost:443/api/saved_objects/_export" \
   -H "kbn-xsrf: true" \
   -H "Content-Type: application/json" \
   -d "{\"objects\":[{\"type\":\"lens\",\"id\":\"${SAVED_OBJECT_ID}\"}],\"includeReferencesDeep\":true}" \
