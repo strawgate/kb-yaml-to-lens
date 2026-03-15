@@ -92,12 +92,9 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     """Compile a range-based color config into Kibana range palette format.
 
     Kibana uses two parallel arrays in the palette params:
-    - ``colorStops``: each entry marks the START of a color band
     - ``stops``: each entry marks the END of a color band
-
-    User-provided stops are interpreted as band END points. START points are
-    derived by shifting endpoints down by one and anchoring the first band to
-    ``range_min``.
+    - ``colorStops``: mirrored from ``stops`` so threshold boundaries are
+      preserved in both arrays (required by gauge and datatable visualizations)
     """
     if color_config is None:
         return None
@@ -113,11 +110,8 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     if color_config.range_type == 'percent':
         stops[-1] = KbnRangePaletteStop(color=stops[-1].color, stop=100.0)
 
-    # Build colorStops (START of each band) by shifting endpoints down by one.
-    color_stops: list[KbnRangePaletteStop] = []
-    for i, entry in enumerate(user_stops):
-        start = range_min if i == 0 else user_stops[i - 1].stop
-        color_stops.append(KbnRangePaletteStop(color=entry.color, stop=start))
+    # colorStops mirrors stops so threshold boundaries are preserved in both arrays.
+    color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in stops]
 
     return KbnRangePalette(
         params=KbnRangePaletteParams(
@@ -131,17 +125,3 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
             maxSteps=n,
         ),
     )
-
-
-def mirror_palette_thresholds_to_color_stops(palette: KbnRangePalette | None) -> KbnRangePalette | None:
-    """Mirror palette thresholds from ``stops`` into ``colorStops``.
-
-    Some Lens visualizations interpret ``colorStops`` as threshold boundaries.
-    For those visualizations, the configured boundaries must be preserved
-    exactly in both arrays.
-    """
-    if palette is None:
-        return None
-
-    color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in palette.params.stops]
-    return palette.model_copy(update={'params': palette.params.model_copy(update={'colorStops': color_stops})})
