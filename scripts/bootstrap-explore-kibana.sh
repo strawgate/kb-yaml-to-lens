@@ -83,17 +83,23 @@ TS5="$(epoch_to_iso $((NOW_EPOCH - 300)))"   # 5 min ago
 
 cat > /tmp/explore-seed.ndjson <<EOF
 {"create":{"_index":"logs-default-generic"}}
-{"@timestamp":"${TS0}","service":{"name":"api"},"host":{"name":"host-a"},"event":{"dataset":"app.logs"},"log":{"level":"info"},"env":"prod","status":"ok","value":12.5}
+{"@timestamp":"${TS0}","message":"GET /api/v1/users 200 12ms","log":{"level":"info"},"service":{"name":"api","version":"1.2.0","environment":"production"},"host":{"name":"host-a","ip":"10.0.0.1"},"event":{"dataset":"app.logs","module":"api"},"http":{"request":{"method":"GET"},"response":{"status_code":200,"bytes":1024}},"url":{"path":"/api/v1/users"},"user_agent":{"name":"curl"}}
 {"create":{"_index":"logs-default-generic"}}
-{"@timestamp":"${TS1}","service":{"name":"api"},"host":{"name":"host-b"},"event":{"dataset":"app.logs"},"log":{"level":"error"},"env":"prod","status":"error","value":41.1}
+{"@timestamp":"${TS1}","message":"POST /api/v1/orders 500 292ms","log":{"level":"error"},"service":{"name":"api","version":"1.2.0","environment":"production"},"host":{"name":"host-b","ip":"10.0.0.2"},"event":{"dataset":"app.logs","module":"api"},"http":{"request":{"method":"POST"},"response":{"status_code":500,"bytes":256}},"url":{"path":"/api/v1/orders"},"user_agent":{"name":"python-requests"},"error":{"message":"Connection refused"}}
 {"create":{"_index":"logs-default-generic"}}
-{"@timestamp":"${TS2}","service":{"name":"worker"},"host":{"name":"host-c"},"event":{"dataset":"app.logs"},"log":{"level":"warn"},"env":"staging","status":"warn","value":22.0}
+{"@timestamp":"${TS2}","message":"Processing batch job","log":{"level":"warn"},"service":{"name":"worker","version":"2.0.1","environment":"staging"},"host":{"name":"host-c","ip":"10.0.0.3"},"event":{"dataset":"app.logs","module":"worker"}}
+{"create":{"_index":"logs-default-generic"}}
+{"@timestamp":"${TS3}","message":"GET /api/v1/health 200 5ms","log":{"level":"info"},"service":{"name":"api","version":"1.2.0","environment":"production"},"host":{"name":"host-a","ip":"10.0.0.1"},"event":{"dataset":"app.logs","module":"api"},"http":{"request":{"method":"GET"},"response":{"status_code":200,"bytes":64}},"url":{"path":"/api/v1/health"},"user_agent":{"name":"ELB-HealthChecker"}}
+{"create":{"_index":"logs-default-generic"}}
+{"@timestamp":"${TS4}","message":"DELETE /api/v1/sessions 401 3ms","log":{"level":"warn"},"service":{"name":"api","version":"1.2.0","environment":"production"},"host":{"name":"host-b","ip":"10.0.0.2"},"event":{"dataset":"app.logs","module":"api"},"http":{"request":{"method":"DELETE"},"response":{"status_code":401,"bytes":128}},"url":{"path":"/api/v1/sessions"},"user_agent":{"name":"Mozilla/5.0"}}
+{"create":{"_index":"logs-default-generic"}}
+{"@timestamp":"${TS5}","message":"Batch job completed successfully","log":{"level":"info"},"service":{"name":"worker","version":"2.0.1","environment":"staging"},"host":{"name":"host-c","ip":"10.0.0.3"},"event":{"dataset":"app.logs","module":"worker"}}
 {"create":{"_index":"metrics-default-generic"}}
-{"@timestamp":"${TS3}","service.name":"api","host.name":"host-a","env":"prod","cpu.pct":0.43,"latency_ms":121,"requests":240}
+{"@timestamp":"${TS0}","service":{"name":"api"},"host":{"name":"host-a","ip":"10.0.0.1"},"event":{"dataset":"system.cpu","module":"system"},"system":{"cpu":{"user":{"pct":0.43},"system":{"pct":0.12},"total":{"pct":0.55}},"memory":{"used":{"pct":0.72,"bytes":3087007744},"total":{"bytes":4294967296}},"load":{"1":1.2,"5":0.8,"15":0.6}},"metricset":{"name":"cpu"}}
 {"create":{"_index":"metrics-default-generic"}}
-{"@timestamp":"${TS4}","service.name":"api","host.name":"host-b","env":"prod","cpu.pct":0.88,"latency_ms":292,"requests":310}
+{"@timestamp":"${TS2}","service":{"name":"api"},"host":{"name":"host-b","ip":"10.0.0.2"},"event":{"dataset":"system.cpu","module":"system"},"system":{"cpu":{"user":{"pct":0.88},"system":{"pct":0.05},"total":{"pct":0.93}},"memory":{"used":{"pct":0.91,"bytes":3909091328},"total":{"bytes":4294967296}},"load":{"1":3.5,"5":2.1,"15":1.8}},"metricset":{"name":"cpu"}}
 {"create":{"_index":"metrics-default-generic"}}
-{"@timestamp":"${TS5}","service.name":"worker","host.name":"host-c","env":"staging","cpu.pct":0.36,"latency_ms":95,"requests":125}
+{"@timestamp":"${TS4}","service":{"name":"worker"},"host":{"name":"host-c","ip":"10.0.0.3"},"event":{"dataset":"system.cpu","module":"system"},"system":{"cpu":{"user":{"pct":0.36},"system":{"pct":0.08},"total":{"pct":0.44}},"memory":{"used":{"pct":0.58,"bytes":2490859520},"total":{"bytes":4294967296}},"load":{"1":0.5,"5":0.4,"15":0.3}},"metricset":{"name":"cpu"}}
 EOF
 
 echo "Seeding indices logs-default-generic + metrics-default-generic ..."

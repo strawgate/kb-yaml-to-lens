@@ -38,11 +38,12 @@ dashboards:
   specify the function (count, average, sum, min, max, unique_count, etc.)
 - Use `data_view: logs-*` or `data_view: metrics-*` (the data view **name**),
   NOT the data view UUID
-- Seeded data views are `logs-*` and `metrics-*` — seeded fields currently
-  include `@timestamp`, `service.name`, `host.name`, `env`, `status`, `value`
-  (logs) and `cpu.pct`, `latency_ms`, `requests` (metrics). Verify this list
-  against the active Kibana data view field list (or the canonical seed fixture,
-  when available) before writing YAML.
+- Seeded data views are `logs-*` and `metrics-*` with ECS-compatible fields:
+  - **Both:** `@timestamp`, `service.name`, `host.name`, `host.ip`, `event.dataset`, `event.module`
+  - **Logs:** `message`, `log.level`, `http.response.status_code`, `http.response.bytes`,
+    `http.request.method`, `url.path`, `user_agent.name`, `service.environment`
+  - **Metrics:** `system.cpu.user.pct`, `system.cpu.system.pct`, `system.cpu.total.pct`,
+    `system.memory.used.pct`, `system.memory.used.bytes`, `system.load.1`
 - Gauge uses `metric:` not `primary:` for its metric slot
 
 ### Panel documentation by chart type
