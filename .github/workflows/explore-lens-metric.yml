@@ -1,0 +1,94 @@
+---
+name: 'Explore: Lens Metric'
+on:
+  schedule:
+    - cron: 10 11 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: 'Kibana version to test (leave empty for all)'
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-lens-metric-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-lens-metric-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You are running the Lens Metric Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option for **metric** Lens charts
+        against **Kibana ${{ matrix.kibana_version }}**.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version: `${{ matrix.kibana_version }}`
+        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+
+        ## Features to test
+        - Primary metric (count, average, sum, min, max, unique_count, last_value, formula)
+        - Secondary metric
+        - Maximum value (static number and field-based) — enables progress bar
+        - Trend line / sparkline
+        - Color by value (palette, custom stops, continuity)
+        - Prefix and suffix text
+        - Number format (percent, bytes, duration, currency, number, custom)
+        - Subtitle and title override
+        - Break down by (top values dimension for multi-metric tiles)
+        - Icon display
+        - Dynamic coloring thresholds
+        - Formula-based metrics with math expressions
+
+        ## Required process
+        1. Read compiler source for metric chart config to discover all options.
+        2. For EACH feature: author YAML, compile, import, verify in editor,
+           manually recreate, export both, compare, record status.
+        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[explore-lens-metric-${{ matrix.kibana_version }}] Feature coverage report`
+
+        Include: feature coverage table, summary stats, bugs with YAML repro,
+        version-specific notes, compiler gaps.
+        Do not create branches or pull requests.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

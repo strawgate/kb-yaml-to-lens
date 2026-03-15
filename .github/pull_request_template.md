@@ -46,3 +46,4 @@ Relates to #
 - [ ] Documentation updated (if API changed)
 - [ ] Breaking changes documented with migration path
 - [ ] Self-review completed
+- [ ] **Config/compilation changes:** Sample YAML compiles successfully (`just cli compile`), verification instructions with exact commands and expected outcomes are included (see [PR #1220](https://github.com/strawgate/kb-yaml-to-lens/pull/1220) for reference)
