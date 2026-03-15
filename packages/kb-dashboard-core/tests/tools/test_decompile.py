@@ -110,3 +110,100 @@ def test_decompile_dashboard_adds_todo_comment_with_original_json() -> None:
     assert 'Original panel JSON:' in yaml_text
     assert '"panelIndex": "panel-1"' in yaml_text
 
+
+def test_decompile_dashboard_extracts_additional_easy_panel_fields() -> None:
+    """Decompile extracts additional trivially reversible panel fields."""
+    dashboard = {
+        'type': 'dashboard',
+        'references': [
+            {'name': 'search_0', 'type': 'search', 'id': 'saved-search-123'},
+            {'name': 'link_0_dashboard', 'type': 'dashboard', 'id': 'destination-dashboard-456'},
+        ],
+        'attributes': {
+            'title': 'Additional fields',
+            'panelsJSON': json.dumps(
+                [
+                    {
+                        'panelIndex': 'search-panel',
+                        'type': 'search',
+                        'embeddableConfig': {'savedSearchRefName': 'search_0'},
+                    },
+                    {
+                        'panelIndex': 'markdown-panel',
+                        'type': 'markdown',
+                        'embeddableConfig': {
+                            'savedVis': {
+                                'params': {
+                                    'markdown': '# Hello',
+                                    'fontSize': 16,
+                                    'openLinksInNewTab': True,
+                                }
+                            }
+                        },
+                    },
+                    {
+                        'panelIndex': 'image-panel',
+                        'type': 'image',
+                        'embeddableConfig': {
+                            'imageConfig': {
+                                'src': {'type': 'url', 'url': 'https://example.com/image.png'},
+                                'sizing': {'objectFit': 'cover'},
+                                'altText': 'Diagram',
+                                'backgroundColor': '#ffffff',
+                            }
+                        },
+                    },
+                    {
+                        'panelIndex': 'links-panel',
+                        'type': 'links',
+                        'embeddableConfig': {
+                            'attributes': {
+                                'layout': 'vertical',
+                                'links': [
+                                    {
+                                        'type': 'externalLink',
+                                        'id': 'external-1',
+                                        'label': 'Docs',
+                                        'destination': 'https://example.com/docs',
+                                        'options': {'openInNewTab': True, 'encodeUrl': False},
+                                    },
+                                    {
+                                        'type': 'dashboardLink',
+                                        'id': 'dashboard-1',
+                                        'label': 'Operations',
+                                        'destinationRefName': 'link_0_dashboard',
+                                        'options': {
+                                            'openInNewTab': False,
+                                            'useCurrentDateRange': True,
+                                            'useCurrentFilters': False,
+                                        },
+                                    },
+                                ],
+                            }
+                        },
+                    },
+                ]
+            ),
+        },
+    }
+
+    result = decompile_dashboard(dashboard)
+    panels = result['dashboards'][0]['panels']
+
+    assert panels[0]['search']['saved_search_id'] == 'saved-search-123'
+    assert panels[1]['markdown']['content'] == '# Hello'
+    assert panels[1]['markdown']['font_size'] == 16
+    assert panels[1]['markdown']['links_in_new_tab'] is True
+
+    assert panels[2]['image']['from_url'] == 'https://example.com/image.png'
+    assert panels[2]['image']['fit'] == 'cover'
+    assert panels[2]['image']['description'] == 'Diagram'
+    assert panels[2]['image']['background_color'] == '#ffffff'
+
+    assert panels[3]['links']['layout'] == 'vertical'
+    assert panels[3]['links']['items'][0]['url'] == 'https://example.com/docs'
+    assert panels[3]['links']['items'][0]['new_tab'] is True
+    assert panels[3]['links']['items'][0]['encode'] is False
+    assert panels[3]['links']['items'][1]['dashboard'] == 'destination-dashboard-456'
+    assert panels[3]['links']['items'][1]['with_time'] is True
+    assert panels[3]['links']['items'][1]['with_filters'] is False
