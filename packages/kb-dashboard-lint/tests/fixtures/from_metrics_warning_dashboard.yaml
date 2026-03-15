@@ -3,6 +3,7 @@ dashboards:
   - id: from-metrics-warning
     name: "[Test] FROM metrics warning"
     description: Dashboard fixture to verify FROM metrics-* lint warning output.
+    minimum_kibana_version: "9.2.0"
     panels:
       - title: CPU by host
         size: {w: 24, h: 15}

@@ -212,6 +212,9 @@ class ChartContext(PanelContext):
     panel_type: Literal['lens', 'esql']
     """Whether this is a 'lens' or 'esql' panel."""
 
+    dashboard_minimum_kibana_version: str | None
+    """Optional dashboard minimum Kibana version from dashboard config."""
+
     def location(self, suffix: str = '') -> str:  # pyright: ignore[reportImplicitOverride]
         """Generate a location string including panel type.
 
@@ -503,6 +506,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig), OptionsT: BaseMode
                 panel_title=panel.title if len(panel.title) > 0 else None,
                 chart_type=chart_type,
                 panel_type=panel_type,
+                dashboard_minimum_kibana_version=dashboard.minimum_kibana_version,
             )
 
             result = self.check_chart(panel, config, context, validated_options)  # pyright: ignore[reportArgumentType]

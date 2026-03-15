@@ -111,6 +111,9 @@ class Dashboard(BaseCfgModel):
     description: str | None = Field(default=None)
     """A brief description of the dashboard's purpose or content."""
 
+    minimum_kibana_version: str | None = Field(default=None)
+    """Optional minimum Kibana version required for this dashboard (e.g., '9.2.0')."""
+
     time_range: TimeRange | None = Field(default=None)
     """A default time range to apply when opening the dashboard."""
 
