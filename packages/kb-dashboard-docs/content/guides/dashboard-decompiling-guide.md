@@ -113,7 +113,7 @@ The `disassemble` command breaks dashboard NDJSON into individual JSON files. It
 1. **Inspecting individual panels** — When you need to read the raw Kibana JSON for a specific panel in isolation (e.g., to understand a complex configuration).
 2. **Round-trip validation** — Disassemble both the original and compiled NDJSON, then use `compare` to check they match.
 
-Disassemble is **not** the primary conversion path. Use `decompile` to get your YAML skeleton, then fill in the stubs.
+Disassembly is **not** the primary conversion path. Use `decompile` to get your YAML skeleton, then fill in the stubs.
 
 ```bash
 kb-dashboard disassemble dashboard.ndjson -o output_dir/
