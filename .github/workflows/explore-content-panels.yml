@@ -2,7 +2,7 @@
 name: 'Explore: Content Panels (Markdown/Search/Links/Image/Vega/Section)'
 on:
   schedule:
-    - cron: 30 12 * * 1-5
+    - cron: 40 13 * * 1-5
   workflow_dispatch:
     inputs:
       kibana_version:
@@ -64,56 +64,171 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
-        ## Features to test
-        ### Markdown
-        - Static text rendering
-        - Markdown formatting (headers, bold, italic, lists, code blocks, links)
-        - Custom CSS (font size, alignment)
+        ## Compiler-supported features to test
 
-        ### Search (saved search panel)
-        - Data view selection
-        - Column selection
-        - Sort order
-        - Row count
-        - Filters
+        ### Markdown (`type: markdown`)
+        - `content` (required) — Markdown text content
+        - `font_size` (optional) — font size in pixels (default: 12)
+        - `links_in_new_tab` (optional) — open links in new tab (boolean)
+        - Markdown formatting: headers, bold, italic, lists, code blocks,
+          links, tables, blockquotes, images
+        - Base panel properties: `title`, `hide_title`, `description`,
+          `size` (w/h), `position` (x/y)
 
-        ### Links
-        - Dashboard links (link to another dashboard)
-        - External URL links
-        - Link label and tooltip
-        - Link ordering
-        - Layout (horizontal/vertical)
+        ### Search (`type: search`)
+        - `saved_search_id` (required) — ID of saved Kibana search object
+        - Base panel properties: `title`, `hide_title`, `description`,
+          `size`, `position`
+        - NOTE: The compiler references an existing saved search by ID.
+          It does NOT create saved searches. You must create one in Kibana
+          first, then reference its ID.
 
-        ### Image
-        - URL-based image
-        - Alt text
-        - Sizing options
+        ### Links (`type: links`)
+        - `layout` (optional) — `horizontal` (default) or `vertical`
+        - `items` — list of link objects:
+          - **Dashboard link**: `dashboard` (required, dashboard ID),
+            `label`, `new_tab`, `with_time` (default: true),
+            `with_filters` (default: true)
+          - **URL link**: `url` (required), `label`, `new_tab`,
+            `encode` (default: true)
+        - Base panel properties
 
-        ### Vega
-        - Vega-Lite spec embedding
-        - Data source configuration
-        - Mark types (bar, line, point, area)
-        - Encoding channels
+        ### Image (`type: image`)
+        - `from_url` (required) — URL of image to display
+        - `fit` (optional) — sizing mode:
+          - `contain` (default) — fit within panel, maintain aspect ratio
+          - `cover` — fill panel, maintain ratio, may crop
+          - `fill` — stretch to fill, may distort
+          - `none` — original size, crop if larger
+        - `description` (optional) — alt text for accessibility
+        - `background_color` (optional) — hex color for panel background
+        - Base panel properties
 
-        ### Section (collapsible panels)
-        - Title
-        - Collapsed / expanded default state
-        - Panels nested within section
-        - Section ordering and layout within dashboard
-        - Multiple sections
+        ### Vega (`type: vega`)
+        - `spec` (required) — Vega or Vega-Lite specification as YAML object
+        - The spec is passed directly to Kibana's Vega renderer
+        - Supports all Vega-Lite mark types, encodings, and data sources
+        - Base panel properties
+
+        ### Collapsible Section (`type: section`)
+        - `collapsed` (optional) — default collapsed state (boolean)
+        - `panels` — list of child panels nested within the section
+          - Inner panels use RELATIVE coordinates starting at (0, 0)
+          - All panel types are valid inside sections EXCEPT nested sections
+        - `title` — section header label
+        - `hide_title` — hide section header
+        - Default size: full width (48), height 1
+
+        ### Common base panel properties
+        All panel types inherit:
+        - `id` — unique panel identifier
+        - `title` — panel title (empty string default)
+        - `hide_title` — hide the title bar (boolean)
+        - `description` — brief panel description
+        - `size` — `{w: int | semantic, h: int}` where semantic is one of:
+          `whole` (48), `half` (24), `third` (16), `quarter` (12),
+          `sixth` (8), `eighth` (6)
+        - `position` — `{x: int, y: int}` (auto-placed if omitted)
+        - `drilldowns` — optional drilldown actions
+
+        ## NOT implemented in compiler (do NOT flag as bugs)
+        - Search panel column selection, sort order, row count, or filter
+          configuration — compiler only references saved search by ID
+        - Vega data source helpers — compiler passes spec as-is
+        - Nested collapsible sections — explicitly not supported
+        - Controls panel (input controls) — not implemented
+        - Saved visualization embedding — not implemented
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Markdown with complex formatting: headers, code blocks, tables,
+          links (both same-tab and new-tab)
+        - Markdown with large font_size (24+) for dashboard headers
+        - Links panel with mix of dashboard links and URL links
+        - Links panel in vertical layout with 5+ links
+        - Image panel with each fit mode (contain, cover, fill, none)
+        - Image with custom background_color
+        - Vega-Lite bar chart with inline data
+        - Vega-Lite line chart pulling from Elasticsearch
+        - Collapsible section containing multiple chart panels
+        - Collapsible section with `collapsed: true` default state
+        - Multiple collapsible sections organizing a full dashboard
+        - Dashboard mixing content panels with chart panels
+        - Semantic width sizes: whole, half, third, quarter, sixth, eighth
 
         ## Required process
-        1. Read compiler source for each panel type to discover all options.
-        2. For EACH feature: author YAML, compile, import, verify in Kibana,
-           manually recreate, export both, compare, record status.
-        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ### Prereq: Read compiler source
+        Read the relevant compiler source in `packages/kb-dashboard-core/src/`
+        to understand every supported config option and the view model defaults.
+
+        ### Part 1: Compile YAML → Import → Verify in Kibana
+        For each supported feature:
+        a. **Author** a minimal YAML config exercising the feature.
+        b. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
+        c. **Import** the compiled NDJSON into Kibana:
+           `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
+             -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
+        d. **Open** the imported panel in the Kibana editor and verify:
+           - Every setting you specified in YAML is reflected in the UI
+           - No settings are lost or silently dropped
+           - The panel renders without errors
+           - Kibana does not show warnings or "invalid" states
+        e. **Record** the result: feature name, YAML used, pass/fail, notes.
+
+        ### Part 2: Create fresh panels in Kibana → Export → Compare to compiler
+        a. **Manually create** many fresh panels in Kibana from scratch, using
+           a wide variety of settings. Cover edge cases, unusual combinations,
+           and settings you haven't seen exercised in the YAML configs.
+        b. **Export** the dashboard:
+           `curl "http://localhost:5601/api/saved_objects/_export" \
+             -H "kbn-xsrf: true" -H "Content-Type: application/json" \
+             -d '{"type":"dashboard","includeReferencesDeep":true}'`
+        c. **Inspect** the exported JSON and compare it against the compiler's
+           view models and defaults. Look for:
+           - Fields or settings Kibana produces that the compiler doesn't know about
+           - Default values that differ from what the compiler sets
+           - Structural patterns the compiler gets wrong
+        d. **Record** any discrepancies as potential compiler bugs or feature gaps.
+
+        ### Classify findings
+        - **Bug**: The compiler produces incorrect JSON for a setting it claims
+          to support — wrong field name, wrong value, wrong structure.
+        - **Gap**: Kibana supports a setting or field that the compiler has no
+          config option for. Note it, but do NOT treat it as a bug.
+        - **Pass**: Compiled output works correctly in Kibana.
 
         ## Deliverable
-        Create one GitHub issue titled:
-        `[explore-content-${{ matrix.kibana_version }}] Feature coverage report`
 
-        Include: feature coverage table (grouped by panel type), summary stats,
-        bugs with YAML repro, version-specific notes, compiler gaps.
+        **If no bugs are found**, do not create an issue. No-op.
+
+        **If bugs or significant findings exist**, create one GitHub issue titled:
+        `[explore-content-${{ matrix.kibana_version }}] Round-trip verification report`
+
+        Structure the issue body with these **collapsed sections** (`<details>`):
+
+        <details><summary>Compiler Bugs</summary>
+        For each bug: feature name, YAML config or exported JSON showing the
+        problem, what the compiler produces vs what Kibana expects.
+        </details>
+
+        <details><summary>Features Verified (passed)</summary>
+        | Feature | YAML Config | Status | Notes |
+        | --- | --- | --- | --- |
+        </details>
+
+        <details><summary>Feature Gaps (not in compiler)</summary>
+        Settings or fields found in Kibana exports that the compiler doesn't
+        support. Include the relevant JSON snippet.
+        </details>
+
+        <details><summary>Creative Exploration Results</summary>
+        Document each interesting combination attempted and outcome.
+        </details>
+
+        Top-level summary: total features tested, passed, bugs found,
+        gaps identified, version-specific notes.
+
         Do not create branches or pull requests.
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

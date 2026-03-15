@@ -1,8 +1,8 @@
 ---
-name: 'Explore: Lens Pie/Donut'
+name: 'Explore: ES|QL Partition (Waffle/Mosaic)'
 on:
   schedule:
-    - cron: 30 11 * * 1-5
+    - cron: 0 13 * * 1-5
   workflow_dispatch:
     inputs:
       kibana_version:
@@ -18,7 +18,7 @@ permissions:
   discussions: write
   id-token: write
 concurrency:
-  group: explore-lens-pie-${{ github.ref }}
+  group: explore-esql-partition-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   generate-matrix:
@@ -42,19 +42,19 @@ jobs:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: '[explore-lens-pie-${{ matrix.kibana_version }}]'
+      title-prefix: '[explore-esql-partition-${{ matrix.kibana_version }}]'
       setup-commands: |
-        make install-just
+        command -v just >/dev/null 2>&1 || make install-just
         uv sync
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |
-        You are running the Lens Pie/Donut Explorer for kb-yaml-to-lens.
+        You are running the ES|QL Partition Explorer for kb-yaml-to-lens.
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
 
         ## Mission
-        Systematically test every config option for **pie and donut** Lens charts
-        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        Systematically test every config option for ES|QL **waffle and mosaic**
+        charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
 
         ## Inputs
@@ -64,60 +64,59 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string or list of strings (joined with pipes)
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+        - `format` (optional for metrics) — `number`, `bytes`, `bits`, `percent`,
+          `duration` with `decimals`, `suffix`, `compact`; or custom `pattern`
+
         ## Compiler-supported features to test
 
-        ### Config slots (Kibana editor drop zones)
-        - **Slice by** (required) — one or more dimensions (primary + secondary groups)
-        - **Metric** (required) — one or more metrics for slice sizes
+        ### Waffle chart (`type: waffle`)
+        - `dimension` — primary grouping dimension
+        - `metric` — single metric for cell proportions
+        - `color.palette` — categorical color palette
+        - `color.assignments` — manual value-to-color mappings
+        - `legend` — `visible`, `position`, `width`, `truncate_labels`, `nested`,
+          `show_single_series`
+        - `titles_and_text.value_format` — `percent`, `value`, `hidden`
+        - `titles_and_text.value_decimal_places` — 0-10
 
-        ### Shape (`appearance:`)
-        - Pie (default) — no donut setting or `appearance.donut` omitted
-        - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
+        **Known Kibana limitations for Waffle:**
+        - Waffle does NOT have a Maximum value slot (unlike Metric)
+        - Waffle does NOT have a Breakdown slot — using `breakdown` may
+          cause "too many dimensions" error
 
-        ### Dimension types (`dimensions:`)
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude`
-        - `type: date_histogram` — with `field`, `minimum_interval`
-        - `type: intervals` — numeric ranges
-        - `type: filters` — KQL filter-based
-        - Multiple dimensions create nested rings (primaryGroups + secondaryGroups)
+        ### Mosaic chart (`type: mosaic`)
+        - `dimension` — horizontal axis dimension
+        - `breakdown` — vertical axis dimension
+        - `metric` — single metric for rectangle proportions
+        - `color.palette` — categorical color palette
+        - `color.assignments` — manual value-to-color mappings
+        - `legend` — same options as waffle
+        - `titles_and_text.value_format` — `percent`, `value`, `hidden`
+        - `titles_and_text.value_decimal_places` — 0-10
 
-        ### Metric types (`metrics:`)
-        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
-        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
-        `standard_deviation`, `formula`
-
-        ### Slice labels and values (`titles_and_text:`)
-        - `slice_labels` — `hide`, `inside`, `auto` (default: auto)
-        - `slice_values` — `hide`, `integer`, `percent` (default: percent)
-        - `value_decimal_places` — 0-10 (default: 2)
-
-        ### Legend (`legend:`)
-        - `visible` — `show`, `hide`, `auto`
-        - `position` — `top`, `right` (default), `bottom`, `left`
-        - `width` — `small`, `medium`, `large`, `extra_large`
-        - `truncate_labels` — 0-5 lines
-        - `nested` — boolean for hierarchical legend
-        - `show_single_series` — boolean
-
-        ### Color (`color:`)
-        - `palette` — EUI color scheme
-        - `assignments` — manual value-to-color hex mappings
-
-        ## NOT implemented in compiler (do NOT flag as bugs)
+        ## NOT implemented for ES|QL (do NOT flag as bugs)
+        - **Treemap** — Kibana supports treemap but compiler does NOT
+        - **Formula metrics** — ES|QL uses query-computed columns, not formulas
+        - **Panel-level filters** — all filtering must be in the ES|QL query
         - Tooltip configuration — no compiler option
-        - Minimum slice percentage — not explicitly supported (use Terms `size`
-          and `other_bucket` instead)
 
         ## Creative exploration
-        After covering the feature matrix, try interesting combinations:
-        - Donut with 2 nested ring dimensions + custom color assignments
-        - Pie with filters dimension (e.g. error vs warning vs info)
-        - Large donut with `slice_labels: inside` + `slice_values: percent`
-        - Pie with `other_bucket: true` + small `size` to show grouping
-        - Multiple metrics on a single pie (test emptySizeRatio behavior)
-        - Formula-based metric as pie slice size
-        - Pie chart inside a collapsible section
+        - ES|QL waffle with `STATS count = COUNT() BY status`
+        - ES|QL mosaic with two grouping columns + count metric
+        - ES|QL waffle with custom color assignments per value
+        - ES|QL mosaic with `value_format: percent` + 2 decimal places
+        - Both chart types with `legend.nested: true`
+        - Compare ES|QL partition vs equivalent Lens partition side-by-side
 
         ## Required process
 
@@ -166,7 +165,7 @@ jobs:
         **If no bugs are found**, do not create an issue. No-op.
 
         **If bugs or significant findings exist**, create one GitHub issue titled:
-        `[explore-lens-pie-${{ matrix.kibana_version }}] Round-trip verification report`
+        `[explore-esql-partition-${{ matrix.kibana_version }}] Round-trip verification report`
 
         Structure the issue body with these **collapsed sections** (`<details>`):
 

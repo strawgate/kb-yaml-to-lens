@@ -54,7 +54,8 @@ jobs:
 
         ## Mission
         Systematically test every config option for **tag cloud** Lens charts
-        against **Kibana ${{ matrix.kibana_version }}**.
+        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
 
         ## Inputs
         - Kibana URL: `http://localhost:5601`
@@ -63,28 +64,129 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
-        ## Features to test
-        - Metric (count, sum, unique_count)
-        - Tag dimension (terms, top values)
-        - Max number of tags
-        - Orientation (single, right-angled, multiple)
-        - Font size range
-        - Color palette
-        - Show label
-        - Number format
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **dimension** (required) — tags/grouping dimension
+        - **metric** (required) — determines tag size
+
+        ### Dimension types
+        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
+          `missing_bucket`, `include`/`exclude` (regex support), `collapse`
+        - `type: date_histogram` — with `field`, `minimum_interval`,
+          `partial_intervals`
+        - `type: intervals` — numeric ranges with `granularity`
+        - `type: filters` — KQL filter-based with `filters: [{query, label}]`
+        - Multi-field terms via `fields: [field1, field2]` (min 2)
+
+        ### Metric types
+        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
+        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
+        `standard_deviation`, `formula`
+        - Static values via `value: N`
+
+        ### Appearance (`appearance:`)
+        - `min_font_size` — minimum font size in pixels (1-100, default: 12)
+        - `max_font_size` — maximum font size in pixels (1-200, default: 72)
+        - `orientation` — `single` (default, all horizontal), `right angled`
+          (mix of 0° and 90°), `multiple` (multiple angles including diagonal)
+        - `show_label` — boolean (default: true)
+
+        ### Color (`color:`)
+        - `palette` — categorical color scheme (e.g. `eui_amsterdam_color_blind`,
+          `default`, `kibana_palette`, `elastic_brand`, `gray`)
+        - `assignments` — manual value-to-color hex mappings
+          `[{value: "term", color: "#hex"}]`
+
+        ## NOT implemented in compiler (do NOT flag as bugs)
+        - Legend — tag clouds do not have a legend option in the compiler
+        - Tooltip configuration — no compiler option
+        - Custom word spacing or layout algorithm control
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Tag cloud with top 20 terms + custom color assignments per value
+        - Tag cloud with `right angled` orientation + large font range (8-120)
+        - Tag cloud with `multiple` orientation + formula metric
+        - Tag cloud with filters dimension (error vs warning vs info)
+        - Tag cloud with `show_label: false` + `min_font_size: 24`
+        - Tag cloud with multi-field terms dimension
+        - Tag cloud with unique_count metric
+        - Tag cloud inside a collapsible section
 
         ## Required process
-        1. Read compiler source for tagcloud config to discover all options.
-        2. For EACH feature: author YAML, compile, import, verify in editor,
-           manually recreate, export both, compare, record status.
-        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ### Prereq: Read compiler source
+        Read the relevant compiler source in `packages/kb-dashboard-core/src/`
+        to understand every supported config option and the view model defaults.
+
+        ### Part 1: Compile YAML → Import → Verify in Kibana
+        For each supported feature:
+        a. **Author** a minimal YAML config exercising the feature.
+        b. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
+        c. **Import** the compiled NDJSON into Kibana:
+           `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
+             -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
+        d. **Open** the imported panel in the Kibana editor and verify:
+           - Every setting you specified in YAML is reflected in the UI
+           - No settings are lost or silently dropped
+           - The panel renders without errors
+           - Kibana does not show warnings or "invalid" states
+        e. **Record** the result: feature name, YAML used, pass/fail, notes.
+
+        ### Part 2: Create fresh panels in Kibana → Export → Compare to compiler
+        a. **Manually create** many fresh panels in Kibana from scratch, using
+           a wide variety of settings. Cover edge cases, unusual combinations,
+           and settings you haven't seen exercised in the YAML configs.
+        b. **Export** the dashboard:
+           `curl "http://localhost:5601/api/saved_objects/_export" \
+             -H "kbn-xsrf: true" -H "Content-Type: application/json" \
+             -d '{"type":"dashboard","includeReferencesDeep":true}'`
+        c. **Inspect** the exported JSON and compare it against the compiler's
+           view models and defaults. Look for:
+           - Fields or settings Kibana produces that the compiler doesn't know about
+           - Default values that differ from what the compiler sets
+           - Structural patterns the compiler gets wrong
+        d. **Record** any discrepancies as potential compiler bugs or feature gaps.
+
+        ### Classify findings
+        - **Bug**: The compiler produces incorrect JSON for a setting it claims
+          to support — wrong field name, wrong value, wrong structure.
+        - **Gap**: Kibana supports a setting or field that the compiler has no
+          config option for. Note it, but do NOT treat it as a bug.
+        - **Pass**: Compiled output works correctly in Kibana.
 
         ## Deliverable
-        Create one GitHub issue titled:
-        `[explore-lens-tagcloud-${{ matrix.kibana_version }}] Feature coverage report`
 
-        Include: feature coverage table, summary stats, bugs with YAML repro,
-        version-specific notes, compiler gaps.
+        **If no bugs are found**, do not create an issue. No-op.
+
+        **If bugs or significant findings exist**, create one GitHub issue titled:
+        `[explore-lens-tagcloud-${{ matrix.kibana_version }}] Round-trip verification report`
+
+        Structure the issue body with these **collapsed sections** (`<details>`):
+
+        <details><summary>Compiler Bugs</summary>
+        For each bug: feature name, YAML config or exported JSON showing the
+        problem, what the compiler produces vs what Kibana expects.
+        </details>
+
+        <details><summary>Features Verified (passed)</summary>
+        | Feature | YAML Config | Status | Notes |
+        | --- | --- | --- | --- |
+        </details>
+
+        <details><summary>Feature Gaps (not in compiler)</summary>
+        Settings or fields found in Kibana exports that the compiler doesn't
+        support. Include the relevant JSON snippet.
+        </details>
+
+        <details><summary>Creative Exploration Results</summary>
+        Document each interesting combination attempted and outcome.
+        </details>
+
+        Top-level summary: total features tested, passed, bugs found,
+        gaps identified, version-specific notes.
+
         Do not create branches or pull requests.
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

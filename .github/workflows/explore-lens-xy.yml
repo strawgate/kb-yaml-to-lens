@@ -53,9 +53,9 @@ jobs:
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
 
         ## Mission
-        Systematically test every config option for **bar, line, and area** Lens charts
-        against **Kibana ${{ matrix.kibana_version }}**. Produce a comprehensive feature
-        coverage report.
+        Systematically test every config option for **bar, line, and area** Lens
+        charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
 
         ## Inputs
         - Kibana URL: `http://localhost:5601`
@@ -64,52 +64,179 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
-        ## Features to test
-        Chart subtypes: bar, bar_horizontal, bar_stacked, bar_horizontal_stacked,
-        bar_percentage_stacked, line, area, area_stacked, area_percentage_stacked.
+        ## Compiler-supported features to test
 
-        For each applicable subtype test:
-        - Basic metrics (count, average, sum, min, max, median, unique_count,
-          percentile, last_value)
-        - Date histogram dimension
-        - Terms / top values breakdown (with "other" bucket)
-        - Filters breakdown
-        - Multiple layers (metrics + reference lines)
-        - Reference lines (static value, dynamic percentile)
-        - Axis configuration (title, bounds, orientation, scale type)
-        - Legend position, sizing, truncation
-        - Series colors and palette overrides
-        - Curve type (line/area)
-        - Missing value treatment (zero, none, linear, nearest)
-        - Value labels (show/hide)
-        - Stacking modes
-        - Formula-based metrics
-        - Moving average, cumulative sum, differences, counter rate
-        - Time shift
+        ### Config slots (Kibana editor drop zones)
+        - **Horizontal axis** (optional) — dimension (x-axis)
+        - **Vertical axis** (required) — one or more metrics (y-axis)
+        - **Breakdown** (optional) — series split dimension
+
+        ### Chart types
+        - `type: bar` with `mode: stacked` (default), `unstacked`, `percentage`
+        - `type: line`
+        - `type: area` with `mode: stacked` (default), `unstacked`, `percentage`
+
+        ### Dimension types (`dimension:` and `breakdown:`)
+        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
+          `missing_bucket`, `include`/`exclude` (regex support), `collapse`
+        - `type: date_histogram` — with `field`, `minimum_interval`,
+          `partial_intervals`
+        - `type: intervals` — numeric ranges with `granularity`, `empty_bucket`
+        - `type: filters` — KQL filter-based with `filters: [{query, label}]`
+        - Multi-field terms via `fields: [field1, field2]` (min 2)
+
+        ### Metric types (`metrics:`)
+        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
+        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
+        `standard_deviation`
+        - `formula` — tinymath expressions including `counter_rate()`,
+          `cumulative_sum()`, `differences()`, `moving_average(window=N)`,
+          `overall_sum()`, `overall_avg()`, etc.
+        - Static values via `value: N`
+        - Per-metric `axis: left | right` for dual-axis
+        - Per-metric `color` for custom series color
+
+        ### Reference lines (Lens-only multi-layer feature)
+        Added via `layers:` with `type: reference_line`:
+        - `value` — static float
+        - `label` — display text
+        - `axis` — `left` or `right`
+        - `color` — hex color
+        - `line_width` — 1-10
+        - `line_style` — `solid`, `dashed`, `dotted`
+        - `fill` — `above`, `below`, `none`
+        - `icon` and `icon_position`
+
+        ### Axis configuration (`appearance:`)
+        - `x_axis`, `y_left_axis`, `y_right_axis`:
+          - `title` — axis label text
+          - `show_title` — boolean
+          - `scale` — `linear`, `log`, `sqrt`, `time`
+          - `extent.mode` — `full`, `custom`, `data_bounds`
+          - `extent.min`, `extent.max` — custom bounds
+          - `extent.enforce` — strict enforcement
+          - `extent.nice_values` — rounded values
+
+        ### Line/Area-specific appearance
+        - `missing_values` — `None`, `Linear`, `Carry`, `Lookahead`,
+          `Average`, `Nearest`
+        - `show_as_dotted` — distinguish interpolated data
+        - `end_values` — `None`, `Zero`, `Nearest`
+        - `line_style` — `linear`, `monotone-x`, `step-after`
+        - `fill_opacity` — 0.0-1.0 (area charts)
+
+        ### Bar-specific appearance
+        - `min_bar_height` — minimum bar pixel height
+
+        ### Other appearance
+        - `show_current_time_marker` — boolean
+        - `hide_endzones` — boolean
+
+        ### Legend (`legend:`)
+        - `visible` — `show`, `hide`, `auto`
+        - `position` — `top`, `bottom`, `left`, `right`
+        - `show_single_series` — boolean
+        - `size` — `small`, `medium`, `large`, `extra_large`
+        - `truncate_labels` — 0-5 lines
+
+        ### Value labels (`titles_and_text:`)
+        - `value_labels` — `hide` or `show`
+
+        ### Color (`color:`)
+        - `palette` — categorical color scheme
+        - `assignments` — manual value-to-color mappings
+
+        ## NOT implemented in compiler (do NOT flag as bugs)
+        - Annotation layers — view models exist but no user config API
+        - ES|QL charts do NOT support reference line layers
+        - Tooltip configuration — no compiler option
+        - Normalize by unit as standalone option (use formulas instead)
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Dual-axis line chart: bytes on left, count on right
+        - Bar chart with reference line at percentile threshold + fill above
+        - Area chart with `step-after` curve + `fill_opacity: 0.3`
+        - Line chart with `missing_values: Linear` + `show_as_dotted: true`
+        - Stacked bar with filters dimension + custom color assignments
+        - Formula metric: `moving_average(count(), window=7)` as line overlay
+        - Percentage stacked area with 3 breakdown terms
+        - XY chart with `log` scale y-axis + custom extent
+        - Multiple reference lines (warning threshold + critical threshold)
+        - Bar chart inside a collapsible section panel
 
         ## Required process
-        1. Read compiler source in `packages/kb-dashboard-core/src/` for XY chart
-           config to discover all supported options.
-        2. For EACH feature:
-           a. Author minimal YAML exercising the feature.
-           b. Compile with `just cli compile <file>`.
-           c. Import compiled NDJSON into Kibana via saved objects API.
-           d. Open panel in editor and verify settings match.
-           e. Manually create equivalent panel in Kibana.
-           f. Export both and compare normalized JSON.
-           g. Record: feature name, status (pass/fail/not-supported), notes.
-        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ### Prereq: Read compiler source
+        Read the relevant compiler source in `packages/kb-dashboard-core/src/`
+        to understand every supported config option and the view model defaults.
+
+        ### Part 1: Compile YAML → Import → Verify in Kibana
+        For each supported feature:
+        a. **Author** a minimal YAML config exercising the feature.
+        b. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
+        c. **Import** the compiled NDJSON into Kibana:
+           `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
+             -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
+        d. **Open** the imported panel in the Kibana editor and verify:
+           - Every setting you specified in YAML is reflected in the UI
+           - No settings are lost or silently dropped
+           - The panel renders without errors
+           - Kibana does not show warnings or "invalid" states
+        e. **Record** the result: feature name, YAML used, pass/fail, notes.
+
+        ### Part 2: Create fresh panels in Kibana → Export → Compare to compiler
+        a. **Manually create** many fresh panels in Kibana from scratch, using
+           a wide variety of settings. Cover edge cases, unusual combinations,
+           and settings you haven't seen exercised in the YAML configs.
+        b. **Export** the dashboard:
+           `curl "http://localhost:5601/api/saved_objects/_export" \
+             -H "kbn-xsrf: true" -H "Content-Type: application/json" \
+             -d '{"type":"dashboard","includeReferencesDeep":true}'`
+        c. **Inspect** the exported JSON and compare it against the compiler's
+           view models and defaults. Look for:
+           - Fields or settings Kibana produces that the compiler doesn't know about
+           - Default values that differ from what the compiler sets
+           - Structural patterns the compiler gets wrong
+        d. **Record** any discrepancies as potential compiler bugs or feature gaps.
+
+        ### Classify findings
+        - **Bug**: The compiler produces incorrect JSON for a setting it claims
+          to support — wrong field name, wrong value, wrong structure.
+        - **Gap**: Kibana supports a setting or field that the compiler has no
+          config option for. Note it, but do NOT treat it as a bug.
+        - **Pass**: Compiled output works correctly in Kibana.
 
         ## Deliverable
-        Create one GitHub issue titled:
-        `[explore-lens-xy-${{ matrix.kibana_version }}] Feature coverage report`
 
-        Include:
-        1. Feature coverage table: | Feature | Status | Notes |
-        2. Summary: total tested, passed, failed, not-supported
-        3. Bugs: minimal YAML reproduction + expected vs actual + diff
-        4. Version-specific notes
-        5. Gaps: features not found in compiler source
+        **If no bugs are found**, do not create an issue. No-op.
+
+        **If bugs or significant findings exist**, create one GitHub issue titled:
+        `[explore-lens-xy-${{ matrix.kibana_version }}] Round-trip verification report`
+
+        Structure the issue body with these **collapsed sections** (`<details>`):
+
+        <details><summary>Compiler Bugs</summary>
+        For each bug: feature name, YAML config or exported JSON showing the
+        problem, what the compiler produces vs what Kibana expects.
+        </details>
+
+        <details><summary>Features Verified (passed)</summary>
+        | Feature | YAML Config | Status | Notes |
+        | --- | --- | --- | --- |
+        </details>
+
+        <details><summary>Feature Gaps (not in compiler)</summary>
+        Settings or fields found in Kibana exports that the compiler doesn't
+        support. Include the relevant JSON snippet.
+        </details>
+
+        <details><summary>Creative Exploration Results</summary>
+        Document each interesting combination attempted and outcome.
+        </details>
+
+        Top-level summary: total features tested, passed, bugs found,
+        gaps identified, version-specific notes.
 
         Do not create branches or pull requests.
     secrets:
