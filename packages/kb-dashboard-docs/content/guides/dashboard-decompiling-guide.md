@@ -368,7 +368,6 @@ uvx kb-dashboard-cli compile \
 
 ### Verification Workflow (Round-Trip Testing)
 
-
 For thorough validation, use this round-trip workflow to verify the compiled output matches the original:
 
 1. **Compile YAML to JSON:**
