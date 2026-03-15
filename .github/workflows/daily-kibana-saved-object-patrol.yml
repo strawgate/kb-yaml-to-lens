@@ -20,13 +20,10 @@ jobs:
     with:
       title-prefix: '[kibana-saved-object-patrol]'
       setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
         uv sync
         npx playwright install chromium
-        if command -v just >/dev/null 2>&1; then
-          just explore-bootstrap 9.3.0
-        else
-          bash scripts/bootstrap-explore-kibana.sh 9.3.0
-        fi
+        just explore-bootstrap 9.3.0
       additional-instructions: |
         You are running the daily Kibana Saved Object Patrol for kb-yaml-to-lens.
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
@@ -39,7 +36,7 @@ jobs:
         ## Inputs
         - Kibana URL: `http://localhost:5601`
         - Elasticsearch URL: `http://localhost:9200`
-        - Seeded indices: `logs-default-generic`, `metrics-default-generic`
+        - Seeded indices: `logs-*`, `metrics-*`
         - Data views: `logs-*`, `metrics-*`
         - Elasticsearch and Kibana are pre-provisioned for this workflow run.
         - Do NOT run bootstrap scripts (`just explore-bootstrap`, `scripts/bootstrap-explore-kibana.sh`,
