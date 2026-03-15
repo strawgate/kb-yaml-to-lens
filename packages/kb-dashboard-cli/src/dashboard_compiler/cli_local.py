@@ -14,12 +14,9 @@ from kb_dashboard_core.dashboard.view import KbnDashboard
 from kb_dashboard_core.dashboard_compiler import load, render
 from kb_dashboard_core.shared.error_formatter import format_validation_error, format_yaml_error
 from kb_dashboard_core.tools.disassemble import disassemble_dashboard, parse_ndjson
-
 from kb_dashboard_core.yaml_roundtrip import dump_roundtrip
-from kb_dashboard_tools.decompile import decompile_dashboard
-
 from kb_dashboard_tools.compare import compare_disassembled_dashboards
-
+from kb_dashboard_tools.decompile import decompile_dashboard
 from kb_dashboard_tools.kibana_client import KibanaClient
 from pydantic import ValidationError
 
@@ -509,7 +506,6 @@ def disassemble(input_file: Path | None, output: Path) -> None:
         raise click.ClickException(msg) from e
 
 
-
 @click.command('decompile')
 @click.argument('input_file', type=click.Path(exists=True, path_type=Path), required=False)
 @click.option(
@@ -604,7 +600,6 @@ def compare_disassembled(original_dir: Path, compiled_dir: Path) -> None:
     else:
         total = max(comparison.original_count, comparison.compiled_count)
         print_warning(f'{comparison.matching_panel_types}/{total} panels match')
-
 
 
 @click.command()

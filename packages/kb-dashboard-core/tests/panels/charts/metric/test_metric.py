@@ -708,9 +708,7 @@ def test_compile_metric_chart_background_chart_bar_type(chart_type: str) -> None
     [('line', False), ('bar', True), ('none', None)],
 )
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-def test_compile_metric_chart_background_chart_type_mapping(
-    chart_type: str, background_type: str, expected_show_bar: bool | None
-) -> None:
+def test_compile_metric_chart_background_chart_type_mapping(chart_type: str, background_type: str, expected_show_bar: bool | None) -> None:
     """Test background_chart.type mapping to Kibana showBar semantics."""
     if chart_type == 'lens':
         config = {

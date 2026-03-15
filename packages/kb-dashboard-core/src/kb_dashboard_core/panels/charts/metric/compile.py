@@ -70,9 +70,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         elif background_chart.type == 'none':
             show_bar = None
 
-    secondary_label_position = (
-        secondary.label_position if secondary is not None and secondary.label_position is not None else None
-    )
+    secondary_label_position = secondary.label_position if secondary is not None and secondary.label_position is not None else None
     if secondary_label_position is None:
         secondary_label_position = 'before'
 
@@ -243,9 +241,7 @@ def compile_esql_metric_chart(
     else:
         show_bar = False
 
-    secondary_label_position = (
-        secondary.label_position if secondary is not None and secondary.label_position is not None else None
-    )
+    secondary_label_position = secondary.label_position if secondary is not None and secondary.label_position is not None else None
 
     return (
         layer_id,
