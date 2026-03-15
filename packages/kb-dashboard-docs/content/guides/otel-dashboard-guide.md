@@ -2,6 +2,15 @@
 
 This guide provides a systematic approach for creating Kibana dashboards that visualize data from OpenTelemetry Collector receivers. Following these guidelines helps avoid common pitfalls discovered through extensive dashboard development and review.
 
+## Quick Workflow
+
+1. Read `documentation.md` and `metadata.yaml` for the receiver.
+2. Confirm metric type semantics (Gauge vs Sum vs Histogram).
+3. Draft ES|QL with dynamic bucketing: `BUCKET(@timestamp, 20, ?_tstart, ?_tend)`.
+4. Build dashboard YAML incrementally (key metrics → trends → details).
+5. Compile and fix schema/query errors.
+6. Validate metric names, attribute paths, and labels with the checklist below.
+
 ## Before You Start
 
 ### 1. Locate the Receiver Documentation
@@ -401,6 +410,22 @@ kb-dashboard compile --input-dir ./my-dashboards
 # Compile a single dashboard file
 kb-dashboard compile --input-file ./my-dashboard.yaml
 ```
+
+### 2. Run a Lint Pass
+
+```bash
+# Check dashboard best-practice rules
+uvx kb-dashboard-lint check --input-file ./my-dashboard.yaml
+```
+
+### 3. Pre-Review Quality Gate
+
+Before sharing for review, verify:
+
+- [ ] Panel titles and labels match query semantics (for example, "Rate" when using `RATE()`)
+- [ ] Each panel query has explicit null checks for optional metrics
+- [ ] All `attributes.*` and `resource.attributes.*` fields match receiver docs exactly
+- [ ] Division formulas guard against zero denominators
 
 ---
 
