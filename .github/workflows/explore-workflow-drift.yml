@@ -1,0 +1,79 @@
+---
+name: 'Audit: Explore Workflow Drift'
+on:
+  schedule:
+    - cron: 0 14 * * 1-5
+  workflow_dispatch: null
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+jobs:
+  run:
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[explore-workflow-drift]'
+      additional-instructions: |
+        You are auditing whether the explore agent workflow prompts have
+        drifted out of sync with the compiler's actual capabilities. When new
+        features are added or config options change, the workflow prompts need
+        to be updated so agents test the right things.
+
+        ## Process
+
+        1. **Find recent compiler changes.** Use `gh api` or `git log` to
+           review commits merged to `main` in the last 14 days. Focus on
+           changes in `packages/kb-dashboard-core/src/` — specifically:
+           - New or renamed config fields in `config.py` files
+           - New chart types or panel types
+           - New aggregation types or dimension types
+           - Changes to view model defaults
+           - New appearance/color/legend options
+
+        2. **Read the current workflow prompts.** Check each file in
+           `.github/workflows/explore-*.yml` and read the `additional-instructions`
+           section. Also read the shared guide files in
+           `.github/agent-guides/explore-agents/`.
+
+        3. **Compare.** For each compiler change found in step 1, check
+           whether the relevant explore workflow prompt already covers it.
+           Look for:
+           - New config options not listed in any workflow's
+             "Compiler-supported features to test" section
+           - Renamed options still using old names in prompts
+           - New chart types with no corresponding explore workflow
+           - Default value changes not reflected in prompts
+           - Features added to AGENTS.md "NOT implemented" list that are
+             now actually implemented
+
+        4. **Check shared guide files.** Verify that:
+           - `.github/agent-guides/explore-agents/networking.md` matches
+             the actual bootstrap script (`scripts/bootstrap-explore-kibana.sh`)
+           - CLI command examples in guides use correct syntax
+           - The "NOT implemented" list in `AGENTS.md` is still accurate
+             (no items that have since been implemented)
+
+        ## Deliverable
+
+        Create one GitHub issue:
+
+        **Title:** `N drifts found` (or `no drift detected`)
+
+        **Body:**
+        - List of commits reviewed (hash, title, date)
+        - For each drift found:
+          - The commit that introduced the change
+          - The file and config option affected
+          - Which workflow prompt needs updating
+          - Suggested addition or change (exact text)
+        - Confirmation that shared guide files are up to date
+        - Any "NOT implemented" items in AGENTS.md that appear to now be
+          implemented (based on new config parsers or view models)
+
+        If no drift is found, still create the issue confirming the review.
+        Do not create branches or pull requests.
+
+        Closes https://github.com/strawgate/kb-yaml-to-lens/issues/1323
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}

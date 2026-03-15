@@ -14,11 +14,12 @@ from kb_dashboard_core.panels.view import KbnBasePanel
 # Define nested models for Search panel embeddableConfig based on samples
 class KbnSearchEmbeddableConfig(BaseModel):
     enhancements: dict[str, Any] = Field(default_factory=dict)
-    savedSearchRefName: str
+    savedObjectId: str
 
 
 class KbnSearchPanel(KbnBasePanel):
     """Represents a Search panel in the Kibana JSON structure."""
 
     type: Literal['search'] = 'search'
+    panelRefName: str
     embeddableConfig: KbnSearchEmbeddableConfig

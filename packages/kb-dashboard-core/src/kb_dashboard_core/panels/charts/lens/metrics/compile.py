@@ -409,7 +409,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> CompiledMetricResult:
                 dataType='number',
                 operationType='static_value',
                 scale='ratio',
-                params=KbnLensStaticValueColumnParams(value=metric.value),
+                params=KbnLensStaticValueColumnParams(value=str(metric.value)),
             ),
         )
 

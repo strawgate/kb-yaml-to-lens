@@ -26,7 +26,7 @@ jobs:
         just explore-bootstrap 9.3.0
       additional-instructions: |
         You are running the daily Kibana Saved Object Patrol for kb-yaml-to-lens.
-        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+        **IMPORTANT**: You MUST read `.github/agent-guides/explore-agents/getting-started.md` along with all instruction files referenced in it BEFORE starting any work.
 
         ## Mission
         Detect compiler regressions and missing feature coverage that affect generated Kibana
@@ -34,8 +34,6 @@ jobs:
         support), not docs/help-only changes.
 
         ## Inputs
-        - Kibana URL: `http://localhost:5601`
-        - Elasticsearch URL: `http://localhost:9200`
         - Seeded indices: `logs-*`, `metrics-*`
         - Data views: `logs-*`, `metrics-*`
         - Elasticsearch and Kibana are pre-provisioned for this workflow run.

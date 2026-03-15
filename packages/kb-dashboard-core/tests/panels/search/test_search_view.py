@@ -15,18 +15,18 @@ class TestKbnSearchEmbeddableConfig:
 
     def test_creates_with_default_enhancements(self) -> None:
         """Test that KbnSearchEmbeddableConfig creates with default empty enhancements."""
-        config = KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id')
-        assert config.model_dump() == snapshot({'enhancements': {}, 'savedSearchRefName': 'search:test-id'})
+        config = KbnSearchEmbeddableConfig(savedObjectId='test-id')
+        assert config.model_dump() == snapshot({'enhancements': {}, 'savedObjectId': 'test-id'})
 
     def test_creates_with_custom_enhancements(self) -> None:
         """Test that KbnSearchEmbeddableConfig creates with custom enhancements."""
         enhancements = {'dynamicActions': {'events': []}}
-        config = KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id', enhancements=enhancements)
-        assert config.model_dump() == snapshot({'enhancements': {'dynamicActions': {'events': []}}, 'savedSearchRefName': 'search:test-id'})
+        config = KbnSearchEmbeddableConfig(savedObjectId='test-id', enhancements=enhancements)
+        assert config.model_dump() == snapshot({'enhancements': {'dynamicActions': {'events': []}}, 'savedObjectId': 'test-id'})
 
-    def test_requires_saved_search_ref_name(self) -> None:
-        """Test that savedSearchRefName is required."""
-        with pytest.raises(ValidationError, match='savedSearchRefName'):
+    def test_requires_saved_object_id(self) -> None:
+        """Test that savedObjectId is required."""
+        with pytest.raises(ValidationError, match='savedObjectId'):
             KbnSearchEmbeddableConfig()  # type: ignore[call-arg]
 
 
@@ -38,14 +38,16 @@ class TestKbnSearchPanel:
         panel = KbnSearchPanel(
             gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
             panelIndex='panel-1',
-            embeddableConfig=KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id'),
+            panelRefName='panel_panel-1',
+            embeddableConfig=KbnSearchEmbeddableConfig(savedObjectId='test-id'),
         )
         assert panel.model_dump() == snapshot(
             {
                 'type': 'search',
                 'gridData': {'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
                 'panelIndex': 'panel-1',
-                'embeddableConfig': {'enhancements': {}, 'savedSearchRefName': 'search:test-id'},
+                'panelRefName': 'panel_panel-1',
+                'embeddableConfig': {'enhancements': {}, 'savedObjectId': 'test-id'},
             }
         )
 
@@ -55,6 +57,7 @@ class TestKbnSearchPanel:
             KbnSearchPanel(
                 gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
                 panelIndex='panel-1',
+                panelRefName='panel_panel-1',
             )  # type: ignore[call-arg]
 
     def test_requires_grid_data(self) -> None:
@@ -62,7 +65,8 @@ class TestKbnSearchPanel:
         with pytest.raises(ValidationError, match='gridData'):
             KbnSearchPanel(
                 panelIndex='panel-1',
-                embeddableConfig=KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id'),
+                panelRefName='panel_panel-1',
+                embeddableConfig=KbnSearchEmbeddableConfig(savedObjectId='test-id'),
             )  # type: ignore[call-arg]
 
     def test_requires_panel_index(self) -> None:
@@ -70,5 +74,15 @@ class TestKbnSearchPanel:
         with pytest.raises(ValidationError, match='panelIndex'):
             KbnSearchPanel(
                 gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
-                embeddableConfig=KbnSearchEmbeddableConfig(savedSearchRefName='search:test-id'),
+                panelRefName='panel_panel-1',
+                embeddableConfig=KbnSearchEmbeddableConfig(savedObjectId='test-id'),
+            )  # type: ignore[call-arg]
+
+    def test_requires_panel_ref_name(self) -> None:
+        """Test that panelRefName is required."""
+        with pytest.raises(ValidationError, match='panelRefName'):
+            KbnSearchPanel(
+                gridData={'x': 0, 'y': 0, 'w': 24, 'h': 15, 'i': 'panel-1'},
+                panelIndex='panel-1',
+                embeddableConfig=KbnSearchEmbeddableConfig(savedObjectId='test-id'),
             )  # type: ignore[call-arg]

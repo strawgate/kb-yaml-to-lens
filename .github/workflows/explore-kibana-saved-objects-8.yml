@@ -1,5 +1,5 @@
 ---
-name: 'Explore: Kibana Saved Objects from Spec'
+name: 'Explore: Kibana Saved Objects from Spec (8.19)'
 on:
   issue_comment:
     types:
@@ -12,19 +12,19 @@ permissions:
   pull-requests: write
   id-token: write
 concurrency:
-  group: explore-kibana-saved-objects-${{ github.event.issue.number }}
+  group: explore-kibana-saved-objects-8-${{ github.event.issue.number }}
   cancel-in-progress: false
 jobs:
   run:
-    if: (startsWith(github.event.comment.body, '/explore9') || startsWith(github.event.comment.body, '/explore ') || github.event.comment.body == '/explore') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    if: (startsWith(github.event.comment.body, '/explore8') || startsWith(github.event.comment.body, '/explore ') || github.event.comment.body == '/explore') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
-      title-prefix: '[explore-kibana-saved-objects]'
+      title-prefix: '[explore-kibana-saved-objects-8.19]'
       setup-commands: |
         make install-just
         uv sync
         npx playwright install chromium
-        just explore-bootstrap 9.3.0
+        just explore-bootstrap 8.19.0
       additional-instructions: |
         You MUST read `.github/agent-guides/explore-agents/getting-started.md`
         and all instruction files it references BEFORE starting any work.
@@ -42,9 +42,9 @@ jobs:
         - Otherwise, run in **feature exploration mode**.
 
         ## Input
-        - Treat text after the trigger command (`/explore`, `/explore9`) as the detailed specification.
-        - If the comment is only the trigger command, infer a reasonable narrow spec from issue/PR context and state your assumption.
-        - Kibana version: **9.3.0**
+        - Treat text after `/explore8` as the detailed specification.
+        - If the comment is only `/explore8`, infer a reasonable narrow spec from issue/PR context and state your assumption.
+        - Kibana version: **8.19.0**
         - Seeded indices: `logs-default-generic`, `metrics-default-generic`
         - Data views: `logs-*`, `metrics-*`
 

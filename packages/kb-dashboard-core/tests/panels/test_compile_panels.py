@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from dirty_equals import IsUUID
+from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
 from kb_dashboard_core.dashboard.config import Dashboard
@@ -124,8 +124,9 @@ class TestCompileDashboardPanel:
                 'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
                 'embeddableConfig': {
                     'enhancements': {},
-                    'savedSearchRefName': 'search:search-id',
+                    'savedObjectId': 'search-id',
                 },
+                'panelRefName': IsStr(regex=r'panel_[a-f0-9-]+'),
                 'panelIndex': IsUUID,
                 'type': 'search',
             }
@@ -133,7 +134,7 @@ class TestCompileDashboardPanel:
 
         assert len(references) == 1
         assert references[0].model_dump() == {
-            'name': 'search:search-id',
+            'name': f'panel_{kbn_panel.panelIndex}',
             'type': 'search',
             'id': 'search-id',
         }
@@ -165,7 +166,7 @@ class TestDashboardReferenceBubbleUp:
         kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
         references = [ref.model_dump() for ref in kbn_dashboard.references]
 
-        assert references == snapshot([{'id': 'my-saved-search', 'name': 'search-panel-1:search:my-saved-search', 'type': 'search'}])
+        assert references == snapshot([{'id': 'my-saved-search', 'name': 'search-panel-1:panel_search-panel-1', 'type': 'search'}])
 
     def test_image_panel_references_bubble_up(self) -> None:
         """Test that image panel references bubble up to dashboard level correctly.

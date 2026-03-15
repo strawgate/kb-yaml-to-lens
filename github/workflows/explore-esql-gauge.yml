@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       kibana_version:
-        description: 'Kibana version to test (leave empty for all)'
+        description: Kibana version to test (leave empty for all)
         required: false
         type: string
         default: ''
@@ -56,7 +56,7 @@ jobs:
         Systematically test every config option for ES|QL **gauge** charts
         against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
-        Data views: `logs-*`, `metrics-*`.
+        Example ES|QL sources: `FROM logs-*`, `FROM metrics-*`.
 
         ## ES|QL query configuration
         Queries can be specified as:
