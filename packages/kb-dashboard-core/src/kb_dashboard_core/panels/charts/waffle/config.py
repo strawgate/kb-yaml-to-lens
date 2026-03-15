@@ -5,13 +5,14 @@ square represents a proportion of the whole. They are part of the Kibana Lens
 partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
+import warnings
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -129,8 +130,20 @@ class LensWaffleChart(BaseWaffleChart):
     metric: LensMetricTypes = Field(default=...)
     """Metric that determines the size of squares. Waffle charts support only one metric."""
 
-    breakdown: LensDimensionTypes = Field(default=...)
+    breakdown: LensBreakdownTypes = Field(default=...)
     """Breakdown for grouping data. Waffle charts support only one breakdown."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and 'dimension' in data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data = {**data, 'breakdown': data.pop('dimension')}
+        return data
 
 
 class ESQLWaffleChart(BaseWaffleChart):
@@ -161,3 +174,15 @@ class ESQLWaffleChart(BaseWaffleChart):
 
     breakdown: ESQLDimensionTypes = Field(default=...)
     """Breakdown for grouping data. Waffle charts support only one breakdown."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and 'dimension' in data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data = {**data, 'breakdown': data.pop('dimension')}
+        return data

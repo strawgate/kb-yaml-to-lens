@@ -1,11 +1,12 @@
+import warnings
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -141,8 +142,20 @@ class LensPieChart(BasePieChart):
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
-    breakdowns: list[LensDimensionTypes] = Field(default=...)
+    breakdowns: list[LensBreakdownTypes] = Field(default=...)
     """The breakdowns that determine the slices of the pie chart. First breakdown is primary, additional breakdowns are secondary."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and 'dimensions' in data:
+            warnings.warn(
+                "Pie chart field 'dimensions' is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data = {**data, 'breakdowns': data.pop('dimensions')}
+        return data
 
 
 class ESQLPieChart(BasePieChart):

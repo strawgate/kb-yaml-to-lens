@@ -7,7 +7,7 @@ from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLPanel, ESQLPiePanelConfig, LensPanel, LensPiePanelConfig
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimension, ESQLMetric
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 
 
@@ -24,7 +24,7 @@ def dashboard_with_lens_pie_no_size() -> Dashboard:
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
                     breakdowns=[
-                        LensTermsDimension(field='status'),  # No size set
+                        LensTermsBreakdown(field='status'),  # No size set
                     ],
                 ),
             ),
@@ -45,7 +45,7 @@ def dashboard_with_lens_pie_good_size() -> Dashboard:
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
                     breakdowns=[
-                        LensTermsDimension(field='status', size=5),
+                        LensTermsBreakdown(field='status', size=5),
                     ],
                 ),
             ),
@@ -66,7 +66,7 @@ def dashboard_with_lens_pie_excessive_size() -> Dashboard:
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
                     breakdowns=[
-                        LensTermsDimension(field='status', size=20),
+                        LensTermsBreakdown(field='status', size=20),
                     ],
                 ),
             ),

@@ -210,12 +210,13 @@ async def test_mosaic_chart_with_hidden_values() -> None:
 
 
 async def test_mosaic_chart_with_collapse_functions() -> None:
-    """Test mosaic chart with collapse functions."""
+    """Test mosaic chart with collapse function on the breakdown."""
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'http.request.method', 'id': 'bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33', 'collapse': 'sum'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -234,9 +235,10 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
                 'colorMode': {'type': 'categorical'},
             },
             'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
+            'secondaryGroups': ['bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33'],
             'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
             'allowMultipleMetrics': False,
-            'collapseFns': {'6e73286b-85cf-4343-9676-b7ee2ed0a3df': 'sum'},
+            'collapseFns': {'bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33': 'sum'},
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',

@@ -1,12 +1,15 @@
+import warnings
 from enum import StrEnum
 from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart
+from kb_dashboard_core.panels.charts.datatable.breakdowns import ESQLDatatableBreakdownTypes, LensDatatableBreakdownTypes
 from kb_dashboard_core.panels.charts.datatable.dimensions import ESQLDatatableDimensionTypes, LensDatatableDimensionTypes
 from kb_dashboard_core.panels.charts.datatable.metrics import ESQLDatatableMetricTypes, LensDatatableMetricTypes
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -121,11 +124,11 @@ class LensDatatableChart(BaseChart):
     metrics: list[LensDatatableMetricTypes | LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    breakdowns: list[LensDatatableDimensionTypes | LensDimensionTypes] = Field(default_factory=list)
+    breakdowns: list[LensDatatableBreakdownTypes | LensBreakdownTypes] = Field(default_factory=list)
     """List of breakdowns to use as row groupings."""
 
-    dimensions: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
-    """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
+    metrics_split_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
+    """Optional split-metrics-by dimensions (creates separate metric columns for each dimension value)."""
 
     appearance: DatatableAppearance | None = Field(default=None)
     """Appearance settings for the datatable."""
@@ -135,6 +138,35 @@ class LensDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        data = dict(data)
+        if 'dimensions' in data and 'breakdowns' not in data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data['breakdowns'] = data.pop('dimensions')
+        if 'dimensions_by' in data:
+            warnings.warn(
+                "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data['metrics_split_by'] = data.pop('dimensions_by')
+        elif 'dimensions' in data:
+            warnings.warn(
+                "Datatable field 'dimensions' (split-by) is deprecated, use 'metrics_split_by' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data['metrics_split_by'] = data.pop('dimensions')
+        return data
 
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:
@@ -180,11 +212,11 @@ class ESQLDatatableChart(BaseChart):
     metrics: list[ESQLDatatableMetricTypes | ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    breakdowns: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] = Field(default_factory=list)
+    breakdowns: list[ESQLDatatableBreakdownTypes | ESQLDimensionTypes] = Field(default_factory=list)
     """List of ESQL breakdowns to use as row groupings."""
 
-    dimensions: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
-    """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
+    metrics_split_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
+    """Optional split-metrics-by dimensions (creates separate metric columns for each dimension value)."""
 
     appearance: DatatableAppearance | None = Field(default=None)
     """Appearance settings for the datatable."""
@@ -194,6 +226,35 @@ class ESQLDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        data = dict(data)
+        if 'dimensions' in data and 'breakdowns' not in data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data['breakdowns'] = data.pop('dimensions')
+        if 'dimensions_by' in data:
+            warnings.warn(
+                "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data['metrics_split_by'] = data.pop('dimensions_by')
+        elif 'dimensions' in data:
+            warnings.warn(
+                "Datatable field 'dimensions' (split-by) is deprecated, use 'metrics_split_by' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data['metrics_split_by'] = data.pop('dimensions')
+        return data
 
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:
