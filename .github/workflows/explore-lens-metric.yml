@@ -70,7 +70,7 @@ jobs:
 
         ## Compiler-supported features to test
         Each feature below is implemented in the compiler. Author YAML for each,
-        compile with `just cli compile`, import, and verify in Kibana.
+        compile and upload with `uv run kb-dashboard compile --upload --kibana-url http://localhost:5601`, and verify in Kibana.
 
         ### Config slots (Kibana editor drop zones)
         - **Primary metric** (required) — the main displayed value

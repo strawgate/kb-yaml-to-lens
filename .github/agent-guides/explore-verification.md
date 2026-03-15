@@ -36,13 +36,15 @@ understand every supported config option and the view model defaults.
 For each supported feature:
 
 1. **Author** a minimal YAML config exercising the feature.
-2. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
-3. **Import** the compiled NDJSON into Kibana:
+2. **Compile and upload** in one step:
    ```bash
-   curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
-     -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson
+   uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
+     --upload --kibana-url http://localhost:5601
    ```
-4. **Open** the imported panel in the Kibana editor and verify:
+   This compiles the YAML to NDJSON and uploads it to Kibana via the
+   saved objects API. Do NOT use curl or the Kibana UI to import — the
+   CLI handles it reliably.
+3. **Open** the imported panel in the Kibana editor and verify:
    - Every setting you specified in YAML is reflected in the UI
    - No settings are lost or silently dropped
    - The panel renders without errors
@@ -54,11 +56,10 @@ For each supported feature:
 1. **Manually create** many fresh panels in Kibana from scratch, using a wide
    variety of settings. Cover edge cases, unusual combinations, and settings
    you haven't seen exercised in the YAML configs.
-2. **Export** the dashboard:
+2. **Export** the dashboard using the CLI:
    ```bash
-   curl "http://localhost:5601/api/saved_objects/_export" \
-     -H "kbn-xsrf: true" -H "Content-Type: application/json" \
-     -d '{"type":"dashboard","includeReferencesDeep":true}'
+   uv run kb-dashboard fetch <dashboard-id> --output /tmp/exported.ndjson \
+     --kibana-url http://localhost:5601
    ```
 3. **Inspect** the exported JSON and compare it against the compiler's view
    models and defaults. Look for:
@@ -133,8 +134,12 @@ When asked to validate or fix specific compiler bugs (e.g., from a triage
 issue), follow this process for **each** bug:
 
 1. **Reproduce** — Write a minimal YAML config that triggers the bug.
-   Compile it with `just cli compile --input-file <file> --output-dir /tmp/compiled/`,
-   import into Kibana, and confirm the bug exists.
+   Compile and upload it:
+   ```bash
+   uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
+     --upload --kibana-url http://localhost:5601
+   ```
+   Open the dashboard in Kibana and confirm the bug exists.
 2. **Show the diff** — Show the specific JSON fields the compiler produces
    vs what Kibana produces for the same panel. Create the panel manually in
    Kibana, export it, and compare the relevant fields only (ignore fields
@@ -142,8 +147,12 @@ issue), follow this process for **each** bug:
 3. **Fix it** — Find the exact file and line in
    `packages/kb-dashboard-core/src/` that causes the problem. Make the
    smallest possible change.
-4. **Verify the fix** — Recompile the same YAML with your fix applied,
-   reimport into Kibana, and confirm the panel now works correctly.
+4. **Verify the fix** — Recompile and re-upload with your fix applied:
+   ```bash
+   uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
+     --upload --kibana-url http://localhost:5601
+   ```
+   Open in Kibana and confirm the panel now works correctly.
 5. **Run tests** — Run `just core test` and `just core lint`. If tests
    fail because of your fix, update them to match the corrected behavior.
 6. **Report** — For each bug, provide:
