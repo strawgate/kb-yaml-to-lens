@@ -6,14 +6,15 @@ critical — getting this wrong means your CLI commands silently time out.
 ## Tool paths
 
 `uv` and `just` are pre-installed but may not be on your default PATH.
-If `uv` or `just` gives "command not found", use the absolute path:
+If either gives "command not found", use absolute paths:
 
 ```bash
 .gh-aw-tools/bin/uv run kb-dashboard compile ...
+.gh-aw-tools/bin/just <target>
 ```
 
 Do NOT waste time debugging PATH issues with `which`, `ps aux`, `env`,
-or similar commands — just use the absolute path above.
+or similar commands — just use the absolute paths above.
 
 ## URL rules
 
