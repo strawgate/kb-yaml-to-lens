@@ -118,78 +118,13 @@ jobs:
         - Both chart types with `legend.nested: true`
         - Compare ES|QL partition vs equivalent Lens partition side-by-side
 
-        ## Required process
+        ## Verification process
+        Read `.github/agent-guides/explore-verification.md` for the full
+        verification process, fields to ignore in diffs, classification
+        rules, and deliverable format.
 
-        ### Prereq: Read compiler source
-        Read the relevant compiler source in `packages/kb-dashboard-core/src/`
-        to understand every supported config option and the view model defaults.
-
-        ### Part 1: Compile YAML → Import → Verify in Kibana
-        For each supported feature:
-        a. **Author** a minimal YAML config exercising the feature.
-        b. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
-        c. **Import** the compiled NDJSON into Kibana:
-           `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
-             -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
-        d. **Open** the imported panel in the Kibana editor and verify:
-           - Every setting you specified in YAML is reflected in the UI
-           - No settings are lost or silently dropped
-           - The panel renders without errors
-           - Kibana does not show warnings or "invalid" states
-        e. **Record** the result: feature name, YAML used, pass/fail, notes.
-
-        ### Part 2: Create fresh panels in Kibana → Export → Compare to compiler
-        a. **Manually create** many fresh panels in Kibana from scratch, using
-           a wide variety of settings. Cover edge cases, unusual combinations,
-           and settings you haven't seen exercised in the YAML configs.
-        b. **Export** the dashboard:
-           `curl "http://localhost:5601/api/saved_objects/_export" \
-             -H "kbn-xsrf: true" -H "Content-Type: application/json" \
-             -d '{"type":"dashboard","includeReferencesDeep":true}'`
-        c. **Inspect** the exported JSON and compare it against the compiler's
-           view models and defaults. Look for:
-           - Fields or settings Kibana produces that the compiler doesn't know about
-           - Default values that differ from what the compiler sets
-           - Structural patterns the compiler gets wrong
-        d. **Record** any discrepancies as potential compiler bugs or feature gaps.
-
-        ### Classify findings
-        - **Bug**: The compiler produces incorrect JSON for a setting it claims
-          to support — wrong field name, wrong value, wrong structure.
-        - **Gap**: Kibana supports a setting or field that the compiler has no
-          config option for. Note it, but do NOT treat it as a bug.
-        - **Pass**: Compiled output works correctly in Kibana.
-
-        ## Deliverable
-
-        **If no bugs are found**, do not create an issue. No-op.
-
-        **If bugs or significant findings exist**, create one GitHub issue titled:
-        `[explore-esql-partition-${{ matrix.kibana_version }}] Round-trip verification report`
-
-        Structure the issue body with these **collapsed sections** (`<details>`):
-
-        <details><summary>Compiler Bugs</summary>
-        For each bug: feature name, YAML config or exported JSON showing the
-        problem, what the compiler produces vs what Kibana expects.
-        </details>
-
-        <details><summary>Features Verified (passed)</summary>
-        | Feature | YAML Config | Status | Notes |
-        | --- | --- | --- | --- |
-        </details>
-
-        <details><summary>Feature Gaps (not in compiler)</summary>
-        Settings or fields found in Kibana exports that the compiler doesn't
-        support. Include the relevant JSON snippet.
-        </details>
-
-        <details><summary>Creative Exploration Results</summary>
-        Document each interesting combination attempted and outcome.
-        </details>
-
-        Top-level summary: total features tested, passed, bugs found,
-        gaps identified, version-specific notes.
+        The issue title MUST follow this format:
+        `[explore-esql-partition-${{ matrix.kibana_version }}] N bugs, M gaps`
 
         Do not create branches or pull requests.
     secrets:
