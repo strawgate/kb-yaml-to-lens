@@ -1,37 +1,11 @@
-# Explore Verification Guide
+# Explore Agent: Verification Process
 
-## Why this workflow exists
-
-You are the only agent in our system with access to a live Kibana instance
-and Playwright browser automation. Any agent can read code and suggest fixes.
-**Your unique value is that you can actually open Kibana, interact with the
-UI, and verify that things work.** If you skip the Kibana steps and only
-analyze code, your output is no more useful than what a code-review agent
-could produce — and we already have those.
-
-**You cannot push code, create branches, or open pull requests.** Your code
-edits are lost when the workflow ends — your only lasting output is the
-GitHub issue or comment you post. You should still edit code to test fixes
-(edit → recompile → reimport → verify in Kibana), but include the fix as a
-code snippet in your report since the file changes themselves won't survive.
-
-**Every finding you report MUST be backed by Kibana evidence:**
-- For bugs: show what happens in the Kibana UI when you import compiled output
-- For fixes: show that Kibana accepts the fixed output and the UI reflects it
-- For gaps: show the Kibana-exported JSON that reveals the missing field
-
-If you cannot reproduce something in Kibana, say so — do not guess.
-Code-only analysis without Kibana validation is not acceptable output
-from this workflow.
-
-## Verification process
-
-### Prereq: Read compiler source
+## Prereq: Read compiler source
 
 Read the relevant compiler source in `packages/kb-dashboard-core/src/` to
 understand every supported config option and the view model defaults.
 
-### Part 1: Compile YAML → Import → Verify in Kibana
+## Part 1: Compile YAML → Import → Verify in Kibana
 
 For each supported feature:
 
@@ -39,7 +13,7 @@ For each supported feature:
 2. **Compile and upload** in one step:
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://localhost:5601
+     --upload --kibana-url http://host.docker.internal:5601
    ```
    This compiles the YAML to NDJSON and uploads it to Kibana via the
    saved objects API. Do NOT use curl or the Kibana UI to import — the
@@ -49,9 +23,9 @@ For each supported feature:
    - No settings are lost or silently dropped
    - The panel renders without errors
    - Kibana does not show warnings or "invalid" states
-5. **Record** the result: feature name, YAML used, pass/fail, notes.
+4. **Record** the result: feature name, YAML used, pass/fail, notes.
 
-### Part 2: Create fresh panels in Kibana → Export → Compare to compiler
+## Part 2: Create fresh panels in Kibana → Export → Compare to compiler
 
 1. **Manually create** many fresh panels in Kibana from scratch, using a wide
    variety of settings. Cover edge cases, unusual combinations, and settings
@@ -59,7 +33,7 @@ For each supported feature:
 2. **Export** the dashboard using the CLI:
    ```bash
    uv run kb-dashboard fetch <dashboard-id> --output /tmp/exported.ndjson \
-     --kibana-url http://localhost:5601
+     --kibana-url http://host.docker.internal:5601
    ```
 3. **Inspect** the exported JSON and compare it against the compiler's view
    models and defaults. Look for:
@@ -88,46 +62,6 @@ non-deterministic values that will always differ and are **never** bugs:
 Only flag a difference as a bug if it affects a **functional setting** —
 something that changes how the panel looks or behaves.
 
-## Classifying findings
-
-- **Bug**: The compiler produces incorrect JSON for a setting it claims to
-  support — wrong field name, wrong value, wrong structure. The panel
-  misbehaves or Kibana rejects it.
-- **Gap**: Kibana supports a setting or field that the compiler has no config
-  option for. Note it, but do NOT treat it as a bug.
-- **Pass**: Compiled output works correctly in Kibana.
-
-## Deliverable
-
-**If no bugs are found**, do not create an issue. No-op.
-
-**If bugs or significant findings exist**, create one GitHub issue.
-
-**Issue title format:**
-`[WORKFLOW_TAG-KIBANA_VERSION] N bugs, M gaps`
-
-For example: `[explore-lens-xy-8.19.0] 3 bugs, 2 gaps`
-
-If there are only bugs: `[explore-lens-xy-8.19.0] 3 bugs`
-If there are only gaps: `[explore-lens-xy-8.19.0] 2 gaps`
-
-**Issue body** — use **collapsed sections** (`<details>`) for:
-
-- **Compiler Bugs** — for each bug you MUST include:
-  - The exact YAML config that reproduces the bug
-  - What the compiler produces (relevant JSON snippet)
-  - What Kibana expects (from manual panel export)
-  - What happens (error message, wrong rendering, etc.)
-- **Features Verified (passed)** — table of features tested with status
-- **Feature Gaps (not in compiler)** — settings found in Kibana exports that
-  the compiler doesn't support, with JSON snippets
-- **Creative Exploration Results** — interesting combinations attempted
-
-Top-level summary: total features tested, passed, bugs found, gaps
-identified, version-specific notes.
-
-Do not create branches or pull requests.
-
 ## Fix-and-verify workflow (when investigating known bugs)
 
 When asked to validate or fix specific compiler bugs (e.g., from a triage
@@ -137,7 +71,7 @@ issue), follow this process for **each** bug:
    Compile and upload it:
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://localhost:5601
+     --upload --kibana-url http://host.docker.internal:5601
    ```
    Open the dashboard in Kibana and confirm the bug exists.
 2. **Show the diff** — Show the specific JSON fields the compiler produces
@@ -150,7 +84,7 @@ issue), follow this process for **each** bug:
 4. **Verify the fix** — Recompile and re-upload with your fix applied:
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://localhost:5601
+     --upload --kibana-url http://host.docker.internal:5601
    ```
    Open in Kibana and confirm the panel now works correctly.
 5. **Run tests** — Run `just core test` and `just core lint`. If tests

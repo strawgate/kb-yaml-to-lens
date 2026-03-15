@@ -26,18 +26,8 @@ jobs:
         npx playwright install chromium
         just explore-bootstrap 8.19.0
       additional-instructions: |
-        You are running an exploration+implementation workflow for kb-yaml-to-lens.
-
-        ## Why you exist
-        You are the ONLY agent in our system with access to a live Kibana instance
-        and Playwright. Any agent can read code and grep for patterns — your unique
-        value is that you can open Kibana, create panels, import compiled output,
-        and verify things actually work in the UI. If you skip Playwright and only
-        do code analysis, your output is no better than a code-review bot.
-        **You MUST use Playwright and Kibana for every finding you report.**
-
-        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST — it
-        contains validated step-by-step Playwright instructions for the Kibana Lens UI.
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
 
         ## Goal
         Validate compiler behavior by interacting with a live Kibana instance — compile
@@ -55,29 +45,16 @@ jobs:
         - Treat text after `/explore8` as the detailed specification.
         - If the comment is only `/explore8`, infer a reasonable narrow spec from issue/PR context and state your assumption.
         - Kibana version: **8.19.0**
-        - Kibana URL: `http://localhost:5601`
-        - Elasticsearch URL: `http://localhost:9200`
         - Seeded indices: `logs-default-generic`, `metrics-default-generic`
         - Data views: `logs-*`, `metrics-*`
 
-        ## Playwright automation rules
-        - ALWAYS use `browser_snapshot` (not screenshots) to get element refs for clicking.
-        - Element refs are invalidated after every interaction — re-snapshot before each click.
-        - Kibana comboboxes are NOT `<select>` elements. Use `browser_type` to search, then
-          `browser_snapshot` + `browser_click` on the matching option.
-        - After navigating, always `browser_wait_for` with `textGone: "Loading Elastic"`.
-        - Elasticsearch and Kibana are pre-provisioned for this workflow run.
-        - Do NOT run bootstrap scripts (`just explore-bootstrap`, `scripts/bootstrap-explore-kibana.sh`,
-          Docker compose, or equivalent) from the agent task.
-        - See `.github/agent-guides/kibana-lens-playwright.md` for the full reference.
-
         ## Required workflow
-        1. Read `.github/agent-guides/kibana-lens-playwright.md` for detailed Playwright steps.
+        1. Read `.github/agent-guides/explore-agents/getting-started.md` and all files it references.
         2. If running in PR validation mode:
            - Read the PR title/body and extract the claimed bug fix / feature scope.
            - Check out and use the PR head branch for all compile/validation steps.
            - Read the compiler source for the relevant chart type to understand every config option.
-           - Follow `.github/agent-guides/explore-verification.md` — both Part 1 and Part 2.
+           - Follow `.github/agent-guides/explore-agents/verification.md` — both Part 1 and Part 2.
            - Part 1 (compile → import → verify UI): Author YAML configs that exercise every
              setting the PR claims to support. Compile, import into Kibana, open in the editor,
              and confirm each setting is visible in the UI controls. This is the most important
@@ -93,31 +70,13 @@ jobs:
         4. Export saved objects using the CLI:
            ```bash
            uv run kb-dashboard fetch <dashboard-id> --output artifacts/<name>.ndjson \
-             --kibana-url http://localhost:5601
+             --kibana-url http://host.docker.internal:5601
            ```
-           Use `uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ --upload --kibana-url http://localhost:5601` to compile and upload in one step (do NOT use curl or the Kibana import UI).
+           Use `uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ --upload --kibana-url http://host.docker.internal:5601` to compile and upload in one step (do NOT use curl or the Kibana import UI).
         5. Implement compiler support in this repo using existing patterns (feature exploration mode only).
         6. Add/update tests for config -> compiled Lens output mapping.
         7. Run targeted validation for touched files and tests.
         8. Add/update docs/examples if user-facing behavior changed.
-
-        ## Deliverables
-        You cannot create a pull request or push code to a branch. Your only deliverable is a comment on the issue.
-        If asked to provide an implementation, provide a detailed plan with in-depth coverage of the implementation
-        required to complete the task:
-        - Working code + tests for the requested capability.
-        - Saved object artifact(s) in code blocks.
-        - Clear summary mapping: spec -> saved object fields -> compiler fields.
-        In PR validation mode, include:
-        - PR claim checklist with pass/fail per claim
-        - YAML configs used for each test (so bugs can be reproduced)
-        - For any failures: what the compiler produces vs what Kibana expects
-        - Explicit verdict on whether the PR fully satisfies its stated goal
-
-        ## Verification guidance
-        Read `.github/agent-guides/explore-verification.md` for the full
-        verification process, fields to ignore in JSON comparisons, and
-        classification rules (bug vs gap vs pass).
 
         ## Guardrails
         - Be surgical; avoid broad refactors.

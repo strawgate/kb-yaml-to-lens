@@ -49,23 +49,14 @@ jobs:
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |
-        You are running the Lens Pie/Donut Explorer for kb-yaml-to-lens.
-        You are the ONLY agent with access to a live Kibana instance and Playwright.
-        Any agent can read code — your unique value is verifying things in the actual UI.
-        **You MUST use Playwright and Kibana. Code-only analysis is not acceptable.**
-        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
 
         ## Mission
         Systematically test every config option for **pie and donut** Lens charts
         against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
-
-        ## Inputs
-        - Kibana URL: `http://localhost:5601`
-        - Elasticsearch URL: `http://localhost:9200`
-        - Data views: `logs-*`, `metrics-*`
-        - Kibana version: `${{ matrix.kibana_version }}`
-        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+        Data views: `logs-*`, `metrics-*`.
 
         ## Compiler-supported features to test
 
@@ -107,11 +98,6 @@ jobs:
         - `palette` — EUI color scheme
         - `assignments` — manual value-to-color hex mappings
 
-        ## NOT implemented in compiler (do NOT flag as bugs)
-        - Tooltip configuration — no compiler option
-        - Minimum slice percentage — not explicitly supported (use Terms `size`
-          and `other_bucket` instead)
-
         ## Creative exploration
         After covering the feature matrix, try interesting combinations:
         - Donut with 2 nested ring dimensions + custom color assignments
@@ -122,14 +108,8 @@ jobs:
         - Formula-based metric as pie slice size
         - Pie chart inside a collapsible section
 
-        ## Verification process
-        Read `.github/agent-guides/explore-verification.md` for the full
-        verification process, fields to ignore in diffs, classification
-        rules, and deliverable format.
-
-        The issue title MUST follow this format:
-        `[explore-lens-pie-${{ matrix.kibana_version }}] N bugs, M gaps`
-
-        Do not create branches or pull requests.
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

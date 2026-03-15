@@ -78,6 +78,29 @@ Specialized guides for LLM-driven dashboard creation tasks:
 
 ---
 
+## Kibana Features NOT Implemented in Compiler
+
+These Kibana features are intentionally not supported by the compiler.
+Do NOT flag them as bugs in explore workflow reports or triage issues:
+
+- **Annotation layers** — view models exist but no user config API
+- **Tooltip configuration** — no compiler option for any chart type
+- **Normalize by unit** (per second/minute/hour/day) — available in
+  formulas but not as a standalone aggregation option
+- **Region map** chart type — not supported
+- **Legacy Metric** visualization — deprecated, not supported
+- **ES|QL reference line layers** — Lens-only feature, not available
+  for ES|QL charts
+- **ES|QL formula metrics** — ES|QL uses query-computed columns, not
+  Lens formula syntax
+- **Saved search column selection** — not configurable
+- **Vega data source helpers** — not supported
+- **Nested collapsible sections** — sections cannot contain sections
+- **Controls panel** — not supported
+- **Saved visualization embedding** — not supported
+
+---
+
 ## Additional Resources
 
 | Resource | Location |
