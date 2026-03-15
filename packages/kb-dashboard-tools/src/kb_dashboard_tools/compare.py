@@ -62,11 +62,11 @@ def get_panel_info(disassembled_dir: Path) -> list[PanelInfo]:
         if not panel_file.is_file():
             continue
         with panel_file.open(encoding='utf-8') as f:
-            panel: dict[str, Any] = json.load(f)
-        panel_type: str = panel.get('type', 'unknown')
-        panel_config: Any = panel.get('panelConfig')
+            panel: dict[str, Any] = json.load(f)  # pyright: ignore[reportAny]
+        panel_type: str = panel.get('type', 'unknown')  # pyright: ignore[reportAny]
+        panel_config: dict[str, Any] | None = panel.get('panelConfig')
         fallback_title: str = panel_config.get('title', '(no title)') if panel_config is not None else '(no title)'
-        title: str = panel.get('title', fallback_title)
+        title: str = panel.get('title', fallback_title)  # pyright: ignore[reportAny]
         panels.append(PanelInfo(filename=panel_file.name, panel_type=panel_type, title=title))
     return panels
 
