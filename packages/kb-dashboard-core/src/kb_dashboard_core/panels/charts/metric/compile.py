@@ -33,7 +33,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
     secondary_metric_id: str | None,
     maximum_metric_id: str | None,
     breakdown_dimension_id: str | None,
-    color_mode: Literal['value', 'background'],
+    apply_to: Literal['value', 'background'],
 ) -> KbnMetricVisualizationState:
     """Compile a LensMetricChart config object into a Kibana Lens Metric visualization state.
 
@@ -43,7 +43,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         secondary_metric_id (str | None): The ID of the secondary metric.
         maximum_metric_id (str | None): The ID of the maximum metric used for progress bar display.
         breakdown_dimension_id (str | None): The ID of the breakdown dimension.
-        color_mode (Literal['value', 'background']): Where Kibana applies metric color styling.
+        apply_to (Literal['value', 'background']): Where Kibana applies metric color styling.
 
     Returns:
         KbnMetricVisualizationState: The compiled visualization state.
@@ -57,7 +57,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         secondaryMetricAccessor=secondary_metric_id,
         maxAccessor=maximum_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
-        applyColorTo=color_mode,
+        applyColorTo=apply_to,
     )
 
 
@@ -127,7 +127,7 @@ def compile_lens_metric_chart(
             secondary_metric_id=secondary_metric_id,
             maximum_metric_id=maximum_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
-            color_mode=lens_metric_chart.color_mode,
+            apply_to=lens_metric_chart.apply_to,
         ),
     )
 
@@ -189,6 +189,6 @@ def compile_esql_metric_chart(
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=maximum_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
-            applyColorTo=esql_metric_chart.color_mode,
+            applyColorTo=esql_metric_chart.apply_to,
         ),
     )

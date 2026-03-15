@@ -1,0 +1,116 @@
+---
+name: 'Explore: Lens XY Charts (Bar/Line/Area)'
+on:
+  schedule:
+    - cron: 0 11 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: 'Kibana version to test (leave empty for all)'
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-lens-xy-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-lens-xy-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You are running the Lens XY Charts Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option for **bar, line, and area** Lens charts
+        against **Kibana ${{ matrix.kibana_version }}**. Produce a comprehensive feature
+        coverage report.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version: `${{ matrix.kibana_version }}`
+        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+
+        ## Features to test
+        Chart subtypes: bar, bar_horizontal, bar_stacked, bar_horizontal_stacked,
+        bar_percentage_stacked, line, area, area_stacked, area_percentage_stacked.
+
+        For each applicable subtype test:
+        - Basic metrics (count, average, sum, min, max, median, unique_count,
+          percentile, last_value)
+        - Date histogram dimension
+        - Terms / top values breakdown (with "other" bucket)
+        - Filters breakdown
+        - Multiple layers (metrics + reference lines)
+        - Reference lines (static value, dynamic percentile)
+        - Axis configuration (title, bounds, orientation, scale type)
+        - Legend position, sizing, truncation
+        - Series colors and palette overrides
+        - Curve type (line/area)
+        - Missing value treatment (zero, none, linear, nearest)
+        - Value labels (show/hide)
+        - Stacking modes
+        - Formula-based metrics
+        - Moving average, cumulative sum, differences, counter rate
+        - Time shift
+
+        ## Required process
+        1. Read compiler source in `packages/kb-dashboard-core/src/` for XY chart
+           config to discover all supported options.
+        2. For EACH feature:
+           a. Author minimal YAML exercising the feature.
+           b. Compile with `just cli compile <file>`.
+           c. Import compiled NDJSON into Kibana via saved objects API.
+           d. Open panel in editor and verify settings match.
+           e. Manually create equivalent panel in Kibana.
+           f. Export both and compare normalized JSON.
+           g. Record: feature name, status (pass/fail/not-supported), notes.
+        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[explore-lens-xy-${{ matrix.kibana_version }}] Feature coverage report`
+
+        Include:
+        1. Feature coverage table: | Feature | Status | Notes |
+        2. Summary: total tested, passed, failed, not-supported
+        3. Bugs: minimal YAML reproduction + expected vs actual + diff
+        4. Version-specific notes
+        5. Gaps: features not found in compiler source
+
+        Do not create branches or pull requests.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
