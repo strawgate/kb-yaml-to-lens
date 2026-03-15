@@ -26,6 +26,8 @@ from kb_dashboard_core.panels.charts.pie.compile import compile_esql_pie_chart, 
 from kb_dashboard_core.panels.charts.pie.config import ESQLPieChart, LensPieChart
 from kb_dashboard_core.panels.charts.tagcloud.compile import compile_esql_tagcloud_chart, compile_lens_tagcloud_chart
 from kb_dashboard_core.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
+from kb_dashboard_core.panels.charts.treemap.compile import compile_esql_treemap_chart, compile_lens_treemap_chart
+from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart
 from kb_dashboard_core.panels.charts.view import (
     KbnDataSourceState,
     KbnFormBasedDataSourceState,
@@ -70,7 +72,16 @@ if TYPE_CHECKING:
 def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnum:  # noqa: PLR0911
     """Convert a LensChartTypes type to its corresponding Kibana visualization type."""
     match chart:
-        case LensPieChart() | ESQLPieChart() | LensMosaicChart() | ESQLMosaicChart() | LensWaffleChart() | ESQLWaffleChart():
+        case (
+            LensPieChart()
+            | ESQLPieChart()
+            | LensMosaicChart()
+            | ESQLMosaicChart()
+            | LensTreemapChart()
+            | ESQLTreemapChart()
+            | LensWaffleChart()
+            | ESQLWaffleChart()
+        ):
             return KbnVisualizationTypeEnum.PIE
         case (
             LensLineChart()
@@ -136,6 +147,8 @@ def compile_lens_chart_state(  # noqa: PLR0912
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_tagcloud_chart(chart)
             case LensMosaicChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_mosaic_chart(chart)
+            case LensTreemapChart():
+                layer_id, lens_columns_by_id, visualization_state = compile_lens_treemap_chart(chart)
             case LensWaffleChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_waffle_chart(chart)
             case LensReferenceLineLayer():
@@ -227,6 +240,8 @@ def compile_esql_chart_state(panel: ESQLPanel) -> tuple[KbnLensPanelState, str]:
             layer_id, esql_columns, visualization_state = compile_esql_tagcloud_chart(chart)
         case ESQLMosaicChart():
             layer_id, esql_columns, visualization_state = compile_esql_mosaic_chart(chart)
+        case ESQLTreemapChart():
+            layer_id, esql_columns, visualization_state = compile_esql_treemap_chart(chart)
         case ESQLWaffleChart():
             layer_id, esql_columns, visualization_state = compile_esql_waffle_chart(chart)
         case ESQLBarChart() | ESQLLineChart() | ESQLAreaChart():

@@ -18,6 +18,7 @@ from kb_dashboard_core.panels.charts.heatmap.config import ESQLHeatmapChart, Len
 from kb_dashboard_core.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from kb_dashboard_core.panels.charts.pie.config import ESQLPieChart, LensPieChart
 from kb_dashboard_core.panels.charts.tagcloud.config import ESQLTagcloudChart, LensTagcloudChart
+from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart
 from kb_dashboard_core.panels.charts.view import KbnVisualizationTypeEnum
 from kb_dashboard_core.panels.charts.xy.config import (
     ESQLAreaChart,
@@ -62,6 +63,31 @@ class TestChartTypeToKbnTypeLens:
         chart = ESQLPieChart.model_validate(
             {
                 'type': 'pie',
+                'dimensions': [{'field': 'status', 'id': 'group1'}],
+                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+            }
+        )
+        result = chart_type_to_kbn_type_lens(chart)
+        assert result == KbnVisualizationTypeEnum.PIE
+
+    def test_identifies_lens_treemap_chart(self) -> None:
+        """Test that LensTreemapChart is identified correctly."""
+        chart = LensTreemapChart.model_validate(
+            {
+                'type': 'treemap',
+                'data_view': 'metrics-*',
+                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            }
+        )
+        result = chart_type_to_kbn_type_lens(chart)
+        assert result == KbnVisualizationTypeEnum.PIE
+
+    def test_identifies_esql_treemap_chart(self) -> None:
+        """Test that ESQLTreemapChart is identified correctly."""
+        chart = ESQLTreemapChart.model_validate(
+            {
+                'type': 'treemap',
                 'dimensions': [{'field': 'status', 'id': 'group1'}],
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
@@ -631,6 +657,47 @@ class TestCompileLensChartState:
                     }
                 ],
                 'shape': 'pie',
+            }
+        )
+
+        assert len(references) == 1
+        assert references[0].model_dump() == snapshot(
+            {'id': 'metrics-*', 'name': IsStr(regex=r'indexpattern-datasource-layer-[a-f0-9-]+'), 'type': 'index-pattern'}
+        )
+
+    def test_compiles_treemap_chart(self) -> None:
+        """Test that compile_lens_chart_state correctly compiles a treemap chart."""
+        treemap_chart = LensTreemapChart.model_validate(
+            {
+                'type': 'treemap',
+                'data_view': 'metrics-*',
+                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            }
+        )
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[treemap_chart])
+
+        assert state.visualization.model_dump() == snapshot(
+            {
+                'layers': [
+                    {
+                        'categoryDisplay': 'default',
+                        'colorMapping': {
+                            'assignments': [],
+                            'colorMode': {'type': 'categorical'},
+                            'paletteId': 'eui_amsterdam_color_blind',
+                            'specialAssignments': [{'color': {'type': 'loop'}, 'rule': {'type': 'other'}, 'touched': False}],
+                        },
+                        'layerId': IsUUID,
+                        'layerType': 'data',
+                        'legendDisplay': 'default',
+                        'metrics': ['metric1'],
+                        'nestedLegend': False,
+                        'numberDisplay': 'percent',
+                        'primaryGroups': ['group1'],
+                    }
+                ],
+                'shape': 'treemap',
             }
         )
 
