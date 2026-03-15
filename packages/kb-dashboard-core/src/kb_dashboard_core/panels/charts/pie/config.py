@@ -154,7 +154,8 @@ class LensPieChart(BasePieChart):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = {**data, 'breakdowns': data.pop('dimensions')}
+            data = dict(data)
+            data['breakdowns'] = data.pop('dimensions')
         return data
 
 

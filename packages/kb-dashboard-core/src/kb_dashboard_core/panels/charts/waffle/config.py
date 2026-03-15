@@ -142,7 +142,8 @@ class LensWaffleChart(BaseWaffleChart):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = {**data, 'breakdown': data.pop('dimension')}
+            data = dict(data)
+            data['breakdown'] = data.pop('dimension')
         return data
 
 
@@ -184,5 +185,6 @@ class ESQLWaffleChart(BaseWaffleChart):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = {**data, 'breakdown': data.pop('dimension')}
+            data = dict(data)
+            data['breakdown'] = data.pop('dimension')
         return data
