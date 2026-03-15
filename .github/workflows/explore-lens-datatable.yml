@@ -54,7 +54,8 @@ jobs:
 
         ## Mission
         Systematically test every config option for **datatable** Lens charts
-        against **Kibana ${{ matrix.kibana_version }}**.
+        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
 
         ## Inputs
         - Kibana URL: `http://localhost:5601`
@@ -63,23 +64,59 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
-        ## Features to test
-        - Multiple metrics (count, average, sum, min, max, unique_count, percentile)
-        - Multiple dimensions (terms, date histogram, filters)
-        - Sorting (column, direction)
-        - Summary row (sum, average, min, max, count)
-        - Column alignment (left, center, right)
-        - Column width
-        - Pagination / row height
-        - Transpose
-        - Color by value for cells (None, Cell, Text)
-        - Number formatting per column
-        - Hide column
-        - Directly filter on click
-        - Formula-based metrics
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **Metrics** — one or more aggregation columns
+        - **Dimensions** — row grouping columns
+        - At least one metric OR dimension is required
+
+        ### Per-column appearance (metrics and dimensions)
+        - `appearance.width` — column width in pixels
+        - `appearance.hidden` — hide column (boolean)
+        - `appearance.one_click_filter` — click-to-filter (boolean)
+        - `appearance.alignment` — `left`, `right`, `center`
+
+        ### Metric column extras
+        - `appearance.summary_row` — `none`, `sum`, `avg`, `count`, `min`, `max`
+        - `appearance.summary_label` — custom label for summary row
+        - `appearance.color` — cell/text coloring:
+          - `apply_to` — `none`, `cell`, `text`
+          - `range_type` — `number` or `percent`
+          - `range_min`, `range_max`, `continuity`
+          - `stops` — color range `[{stop, color}]`
+
+        ### Table layout (`appearance:`)
+        - `row_height` — `auto`, `single`, `custom`
+        - `row_height_lines` — lines for custom
+        - `header_row_height` — `auto`, `single`, `custom`
+        - `header_row_height_lines`
+        - `density` — `compact`, `normal`, `expanded`
+
+        ### Sorting and pagination
+        - `sorting.column_id`, `sorting.direction` (`asc`/`desc`)
+        - `paging.enabled` (boolean), `paging.page_size` (number)
+
+        ### Metric and dimension types
+        All standard aggregations and dimension types. See XY workflow for
+        full list.
+
+        ## NOT implemented in compiler (do NOT flag as bugs)
+        - Transpose — Kibana supports this but compiler does not
+        - Tooltip configuration
+
+        ## Creative exploration
+        - Table with 3 dimensions + 2 metrics + summary rows
+        - Cell color gradient (green/yellow/red) on a percent metric
+        - Mixed alignment: left dimensions, right metrics
+        - Hidden column for sorting only
+        - Compact density + custom row height
+        - Formula metric in summary row
+        - date_histogram + multiple aggregation columns
+        - Pagination with page_size: 25
 
         ## Required process
-        1. Read compiler source for datatable config to discover all options.
+        1. Read compiler source for datatable config.
         2. For EACH feature: author YAML, compile, import, verify in editor,
            manually recreate, export both, compare, record status.
         3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
@@ -88,8 +125,10 @@ jobs:
         Create one GitHub issue titled:
         `[explore-lens-datatable-${{ matrix.kibana_version }}] Feature coverage report`
 
-        Include: feature coverage table, summary stats, bugs with YAML repro,
-        version-specific notes, compiler gaps.
+        Use **collapsed sections** (`<details>`) for: Feature Coverage Table,
+        Creative Exploration Results, Bugs Found, Features Not Tested.
+        Top-level: summary stats and version-specific notes.
+
         Do not create branches or pull requests.
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

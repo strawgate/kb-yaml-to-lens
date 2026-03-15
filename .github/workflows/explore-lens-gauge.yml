@@ -54,7 +54,9 @@ jobs:
 
         ## Mission
         Systematically test every config option for **gauge** Lens charts
-        against **Kibana ${{ matrix.kibana_version }}**.
+        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders
+        correctly.
 
         ## Inputs
         - Kibana URL: `http://localhost:5601`
@@ -63,32 +65,99 @@ jobs:
         - Kibana version: `${{ matrix.kibana_version }}`
         - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
 
-        ## Features to test
-        - Gauge shapes: arc, circle, horizontal bullet, vertical bullet
-        - Metric (count, average, sum, last_value, formula)
-        - Goal value (static and field-based)
-        - Minimum value (static and field-based)
-        - Maximum value (static and field-based)
-        - Color bands / stops (custom palette ranges)
-        - Band colors and labels
-        - Number format (percent, bytes, number, custom)
-        - Tick marks and labels
-        - Tooltip configuration
-        - Open bounds (range_min: null / range_max: null)
-        - Dynamic coloring with continuity settings
+        ## Compiler-supported features to test
+
+        ### Config slots (Kibana editor drop zones)
+        - **Metric** (required) — the gauge value
+        - **Minimum value** (optional) — static number OR field-based metric
+        - **Maximum value** (optional) — static number OR field-based metric
+        - **Goal value** (optional) — static number OR field-based metric
+
+        ### Gauge shapes (`appearance.shape`)
+        - `horizontal_bullet` — horizontal linear gauge (default)
+        - `vertical_bullet` — vertical linear gauge
+        - `arc` — partial arc
+        - `circle` — full circle
+        - `semi_circle` — half circle
+
+        ### Titles and text
+        - `label_major` — main title text (maps to Kibana Title: Auto/Custom/None)
+        - `label_minor` — subtitle text (maps to Kibana Subtitle: Custom/None)
+
+        ### Tick marks (`appearance.ticks_position`)
+        - `auto` — Kibana default
+        - `bands` — show at color band boundaries
+        - `hidden` — no tick marks
+
+        ### Color palette (`appearance.palette`)
+        Color range-based mapping for gauge bands:
+        - `range_type` — `number` or `percent`
+        - `range_min`, `range_max` — bounds (null for open)
+        - `continuity` — `above`, `below`, `all`, `none`
+        - `stops` — list of `{stop, color}` objects (must be ascending)
+
+        ### Metric aggregation types
+        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
+        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
+        `standard_deviation`, `formula`
+
+        ### Number format
+        - `format` on metric: `number`, `bytes`, `bits`, `percent`, `duration`,
+          or custom numeral.js pattern
+
+        ## NOT implemented in compiler (do NOT flag as bugs)
+        - Tooltip configuration — Kibana may show tooltips but compiler has no
+          tooltip config option
+        - Normalize by unit — not a standalone option
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Arc gauge with 3-color bands (green/yellow/red) + percent format
+        - Circle gauge with goal line + field-based maximum
+        - Horizontal bullet with open upper bound (`range_max: null`)
+        - Semi-circle with formula metric `average(field='cpu.pct') * 100`
+        - Gauge with static minimum=0, static maximum=100, dynamic goal
+        - All 5 shapes side-by-side on one dashboard
+        - Color bands with `continuity: none` vs `continuity: all`
 
         ## Required process
-        1. Read compiler source for gauge chart config to discover all options.
-        2. For EACH feature: author YAML, compile, import, verify in editor,
-           manually recreate, export both, compare, record status.
+        1. Read compiler source in `packages/kb-dashboard-core/src/` for gauge
+           chart config to discover all supported options.
+        2. For EACH feature:
+           a. Author minimal YAML exercising the feature.
+           b. Compile: `just cli compile --input <file> --output /tmp/out/`
+           c. Import compiled NDJSON into Kibana via saved objects API.
+           d. Open panel in editor and verify settings match.
+           e. Manually create equivalent panel in Kibana.
+           f. Export both and compare normalized JSON.
+           g. Record: feature name, status (pass/fail/gap), notes.
         3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
 
         ## Deliverable
         Create one GitHub issue titled:
         `[explore-lens-gauge-${{ matrix.kibana_version }}] Feature coverage report`
 
-        Include: feature coverage table, summary stats, bugs with YAML repro,
-        version-specific notes, compiler gaps.
+        Structure the issue body with these **collapsed sections** (`<details>`):
+
+        <details><summary>Feature Coverage Table</summary>
+        | Feature | YAML Config | Status | Notes |
+        </details>
+
+        <details><summary>Creative Exploration Results</summary>
+        Document each interesting combination attempted and outcome.
+        </details>
+
+        <details><summary>Bugs Found</summary>
+        Minimal YAML repro + expected vs actual + JSON diff for each bug.
+        </details>
+
+        <details><summary>Features Not Tested</summary>
+        List any features you skipped and why.
+        </details>
+
+        Top-level summary: total tested, passed, failed, compiler gaps,
+        version-specific notes.
+
         Do not create branches or pull requests.
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

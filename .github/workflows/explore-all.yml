@@ -44,7 +44,7 @@ jobs:
       - name: Wait 5 minutes
         run: sleep 300
 
-      - name: Trigger Lens Partition (waffle, treemap, mosaic)
+      - name: Trigger Lens Partition (waffle, mosaic)
         run: gh workflow run explore-lens-partition.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
