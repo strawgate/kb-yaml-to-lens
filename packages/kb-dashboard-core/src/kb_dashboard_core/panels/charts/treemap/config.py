@@ -70,7 +70,7 @@ class LensTreemapChart(BaseTreemapChart):
     @model_validator(mode='before')
     @classmethod
     def _warn_deprecated_fields(cls, data: object) -> object:
-        if isinstance(data, dict) and 'dimensions' in data:
+        if isinstance(data, dict) and 'dimensions' in data and 'breakdowns' not in data:
             warnings.warn(
                 "Treemap field 'dimensions' is deprecated, use 'breakdowns' instead.",
                 DeprecationWarning,
@@ -102,7 +102,7 @@ class ESQLTreemapChart(BaseTreemapChart):
     @model_validator(mode='before')
     @classmethod
     def _warn_deprecated_fields(cls, data: object) -> object:
-        if isinstance(data, dict) and 'dimensions' in data:
+        if isinstance(data, dict) and 'dimensions' in data and 'breakdowns' not in data:
             warnings.warn(
                 "Treemap field 'dimensions' is deprecated, use 'breakdowns' instead.",
                 DeprecationWarning,

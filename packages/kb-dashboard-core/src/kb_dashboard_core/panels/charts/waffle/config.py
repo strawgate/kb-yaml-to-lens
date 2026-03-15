@@ -136,7 +136,7 @@ class LensWaffleChart(BaseWaffleChart):
     @model_validator(mode='before')
     @classmethod
     def _warn_deprecated_fields(cls, data: object) -> object:
-        if isinstance(data, dict) and 'dimension' in data:
+        if isinstance(data, dict) and 'dimension' in data and 'breakdown' not in data:
             warnings.warn(
                 "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
                 DeprecationWarning,
@@ -179,7 +179,7 @@ class ESQLWaffleChart(BaseWaffleChart):
     @model_validator(mode='before')
     @classmethod
     def _warn_deprecated_fields(cls, data: object) -> object:
-        if isinstance(data, dict) and 'dimension' in data:
+        if isinstance(data, dict) and 'dimension' in data and 'breakdown' not in data:
             warnings.warn(
                 "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
                 DeprecationWarning,
