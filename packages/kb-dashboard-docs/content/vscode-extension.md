@@ -51,7 +51,7 @@ The VS Code extension is the **easiest way to get started** with the Kibana Dash
 #### For Extension Developers Only
 
 - Python 3.12+ with `dashboard_compiler` package
-- Node.js 18+ for building the extension
+- Node.js 20+ for building the extension
 - VS Code 1.85.0 or higher
 
 ### Installing the Extension

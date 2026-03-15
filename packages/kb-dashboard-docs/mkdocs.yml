@@ -109,6 +109,7 @@ extra:
     - filters/config.md
     - queries/config.md
     - guides/index.md
+    - guides/breaking-changes.md
     - guides/dashboard-decompiling-guide.md
     - guides/dashboard-style-guide.md
     - guides/esql-language-reference.md
@@ -170,6 +171,7 @@ nav:
           - Queries: queries/config.md
       - Advanced Guides:
           - Overview: guides/index.md
+          - Breaking Changes: guides/breaking-changes.md
           - Dashboard Decompiling Guide: guides/dashboard-decompiling-guide.md
           - Dashboard Style Guide: guides/dashboard-style-guide.md
           - ES|QL Language Reference: guides/esql-language-reference.md

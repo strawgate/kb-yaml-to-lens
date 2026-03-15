@@ -1,6 +1,6 @@
 """Compile Lens mosaic visualizations into their Kibana view models."""
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -143,13 +143,10 @@ def compile_lens_mosaic_chart(
         breakdown_columns = dict(compiled_breakdown)
 
     # Build collapse functions
-    collapse_fns: dict[str, str] | None = None
-    if lens_mosaic_chart.dimension.collapse is not None:
-        collapse_fns = {dimension_id: str(lens_mosaic_chart.dimension.collapse)}
-    if lens_mosaic_chart.breakdown is not None and lens_mosaic_chart.breakdown.collapse is not None and breakdown_id is not None:
-        if collapse_fns is None:
-            collapse_fns = {}
-        collapse_fns[breakdown_id] = str(lens_mosaic_chart.breakdown.collapse)
+    collapse_dimensions = [(dimension_id, lens_mosaic_chart.dimension.collapse)]
+    if lens_mosaic_chart.breakdown is not None and breakdown_id is not None:
+        collapse_dimensions.append((breakdown_id, lens_mosaic_chart.breakdown.collapse))
+    collapse_fns = build_collapse_fns(collapse_dimensions)
 
     kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(dimension_columns), **breakdown_columns, **kbn_metric_column_by_id}
 
@@ -201,13 +198,10 @@ def compile_esql_mosaic_chart(
         breakdown_columns = list(compiled_breakdown)
 
     # Build collapse functions
-    collapse_fns: dict[str, str] | None = None
-    if esql_mosaic_chart.dimension.collapse is not None:
-        collapse_fns = {dimension_id: str(esql_mosaic_chart.dimension.collapse)}
-    if esql_mosaic_chart.breakdown is not None and esql_mosaic_chart.breakdown.collapse is not None and breakdown_id is not None:
-        if collapse_fns is None:
-            collapse_fns = {}
-        collapse_fns[breakdown_id] = str(esql_mosaic_chart.breakdown.collapse)
+    collapse_dimensions = [(dimension_id, esql_mosaic_chart.dimension.collapse)]
+    if esql_mosaic_chart.breakdown is not None and breakdown_id is not None:
+        collapse_dimensions.append((breakdown_id, esql_mosaic_chart.breakdown.collapse))
+    collapse_fns = build_collapse_fns(collapse_dimensions)
 
     kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(dimensions), *breakdown_columns]
 

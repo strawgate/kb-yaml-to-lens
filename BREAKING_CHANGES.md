@@ -1,15 +1,8 @@
 # Breaking Changes
 
-## 0.2.7 -> main
+Breaking changes are now maintained as a first-class guide:
 
-At release time, update this header to `0.2.7 -> 0.3.0`.
+- Docs site: `packages/kb-dashboard-docs/content/guides/breaking-changes.md`
+- CLI access: `kb-dashboard docs guide breaking-changes`
 
-### Migration Checklist
-
-- Datatable: remove `columns` and `metric_columns`.
-- Datatable: move per-metric and per-dimension display settings under `appearance`.
-- Datatable: replace metric `color_mode` with `appearance.color.apply_to`.
-- Datatable: replace metric top-level `color` with `appearance.color`.
-- Metric charts (Lens + ES|QL): move top-level `color_mode` to `appearance.color.apply_to`.
-- Metric charts (Lens + ES|QL): move top-level `color` to `appearance.color`.
-- Datatable validation: ensure each datatable has at least one metric or one dimension.
+Release maintainers should update that guide as part of release prep.

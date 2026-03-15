@@ -74,6 +74,45 @@ That show exactly where things are.
       show_root_heading: false
       heading_level: 4
 
+## Titles and Text
+
+::: kb_dashboard_core.panels.charts.xy.config.XYTitlesAndText
+    options:
+      show_root_heading: false
+      heading_level: 3
+
+### Value Labels (`titles_and_text.value_labels`)
+
+Use `titles_and_text.value_labels` to control whether values are rendered on chart marks (for example, labels above bars).
+
+| Value | Behavior |
+| ----- | -------- |
+| `hide` | Hide value labels. |
+| `show` | Show value labels on chart marks. |
+
+If `value_labels` is omitted, Kibana defaults to `hide`.
+
+#### Example: Enable value labels on a Lens bar chart
+
+```yaml
+dashboards:
+  - name: "Bar Chart with Value Labels"
+    panels:
+      - title: "Top Services by Request Count"
+        size: {w: 24, h: 15}
+        lens:
+          type: bar
+          data_view: "logs-*"
+          dimension:
+            field: "service.name"
+            type: values
+          metrics:
+            - aggregation: count
+              label: "Requests"
+          titles_and_text:
+            value_labels: show
+```
+
 ## Axis Configuration
 
 ::: kb_dashboard_core.panels.charts.xy.config.AxisConfig

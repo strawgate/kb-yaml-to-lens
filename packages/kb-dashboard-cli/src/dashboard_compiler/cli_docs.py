@@ -19,7 +19,7 @@ def docs(ctx: click.Context) -> None:
         kb-dashboard docs list-guides        # List available guides
         kb-dashboard docs llms-full          # Output full documentation
         kb-dashboard docs llms-full | pbcopy # Copy to clipboard (macOS)
-        kb-dashboard docs guide otel         # Get specific guide
+        kb-dashboard docs guide otel-dashboard-guide  # Get specific guide
     """
     if ctx.invoked_subcommand is None:
         print_plain(ctx.get_help())
@@ -74,6 +74,7 @@ def get_guide(name: str) -> None:
     \b
     Examples:
         kb-dashboard docs guide otel-dashboard-guide
+        kb-dashboard docs guide breaking-changes
         kb-dashboard docs guide esql-language-reference
         kb-dashboard docs guide dashboard-style-guide
     """

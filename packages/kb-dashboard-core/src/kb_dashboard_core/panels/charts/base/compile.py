@@ -1,5 +1,7 @@
 """Compilation utilities for base chart components."""
 
+from collections.abc import Sequence
+
 from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorValueMapping
 from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
@@ -78,6 +80,12 @@ def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLa
         assignments=kbn_assignments,
         specialAssignments=special_assignments,
     )
+
+
+def build_collapse_fns(dimension_collapses: Sequence[tuple[str, str | None]]) -> dict[str, str] | None:
+    """Build a collapse function mapping for chart dimensions."""
+    collapse_fns = {dimension_id: str(collapse) for dimension_id, collapse in dimension_collapses if collapse is not None}
+    return collapse_fns or None
 
 
 def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRangePalette | None:

@@ -72,8 +72,8 @@ class BaseMetricChart(BaseChart):
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
-    color_mode: Literal['value', 'background'] = Field(default='background')
-    """Apply metric color to value text or background."""
+    apply_to: Literal['value', 'background'] = Field(default='background')
+    """Controls where metric colors are applied: value text or background."""
 
     appearance: MetricAppearance | None = Field(default=None)
     """Visual appearance configuration for the metric."""
