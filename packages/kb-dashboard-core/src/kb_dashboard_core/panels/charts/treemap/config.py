@@ -43,6 +43,7 @@ class BaseTreemapChart(BaseChart):
     """Base model for defining Treemap chart objects."""
 
     type: Literal['treemap'] = Field(default='treemap')
+    """The type of chart, which is 'treemap' for this visualization."""
 
     titles_and_text: TreemapTitlesAndText | None = Field(default=None)
     """Formatting options for chart labels and values."""
@@ -75,7 +76,8 @@ class LensTreemapChart(BaseTreemapChart):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = {**data, 'breakdowns': data.pop('dimensions')}
+            data = dict(data)
+            data['breakdowns'] = data.pop('dimensions')
         return data
 
     @field_validator('breakdowns')
@@ -106,7 +108,8 @@ class ESQLTreemapChart(BaseTreemapChart):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = {**data, 'breakdowns': data.pop('dimensions')}
+            data = dict(data)
+            data['breakdowns'] = data.pop('dimensions')
         return data
 
     @field_validator('breakdowns')
