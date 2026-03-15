@@ -265,13 +265,13 @@
                 }
             },
             {
-                "panelIndex": "5185a1ab-c6be-109e-3f1e-17d25a46d985",
+                "panelIndex": "f38b5312-8362-50e3-eacd-ebf24d4ad907",
                 "gridData": {
                     "x": 24,
                     "y": 5,
                     "w": 12,
                     "h": 6,
-                    "i": "5185a1ab-c6be-109e-3f1e-17d25a46d985"
+                    "i": "f38b5312-8362-50e3-eacd-ebf24d4ad907"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -281,7 +281,7 @@
                         }
                     },
                     "attributes": {
-                        "title": "Error Rate",
+                        "title": "Error Events",
                         "visualizationType": "lnsMetric",
                         "type": "lens",
                         "references": [
@@ -377,13 +377,13 @@
                 }
             },
             {
-                "panelIndex": "fa4ab6ba-c9e7-8a34-36e8-46e96750d61b",
+                "panelIndex": "d7b3b107-c397-1c0c-6aec-21f72cbddc86",
                 "gridData": {
                     "x": 36,
                     "y": 5,
                     "w": 12,
                     "h": 6,
-                    "i": "fa4ab6ba-c9e7-8a34-36e8-46e96750d61b"
+                    "i": "d7b3b107-c397-1c0c-6aec-21f72cbddc86"
                 },
                 "type": "lens",
                 "embeddableConfig": {
@@ -393,7 +393,7 @@
                         }
                     },
                     "attributes": {
-                        "title": "Warning Rate",
+                        "title": "Warning Events",
                         "visualizationType": "lnsMetric",
                         "type": "lens",
                         "references": [
@@ -714,12 +714,12 @@
         {
             "type": "index-pattern",
             "id": "logs-*",
-            "name": "5185a1ab-c6be-109e-3f1e-17d25a46d985:indexpattern-datasource-layer-5532efcf-dc4a-d2e6-b379-3f7ef0592194"
+            "name": "f38b5312-8362-50e3-eacd-ebf24d4ad907:indexpattern-datasource-layer-5532efcf-dc4a-d2e6-b379-3f7ef0592194"
         },
         {
             "type": "index-pattern",
             "id": "logs-*",
-            "name": "fa4ab6ba-c9e7-8a34-36e8-46e96750d61b:indexpattern-datasource-layer-cdab3fe9-b94d-ff7b-3fe7-25edb4c2dc76"
+            "name": "d7b3b107-c397-1c0c-6aec-21f72cbddc86:indexpattern-datasource-layer-cdab3fe9-b94d-ff7b-3fe7-25edb4c2dc76"
         },
         {
             "type": "index-pattern",

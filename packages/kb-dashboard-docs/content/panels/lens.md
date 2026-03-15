@@ -189,7 +189,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `data_view` | `string` | The ID or title of the data view (index pattern) for this pie chart. | N/A | Yes |
 | `metrics` | `LensMetricTypes \| list[LensMetricTypes]` object | A single metric or list of metrics that determine the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
-| `breakdowns` | `list of LensBreakdownTypes` objects | One or more breakdowns that determine how the pie is sliced. See [Lens Breakdowns](#lens-breakdowns-breakdown-for-metric-breakdowns-for-pie). | N/A | Yes |
+| `breakdowns` | `list of LensBreakdownTypes` objects | One or more breakdowns that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-breakdowns-for-pie). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field). | `None` | No |

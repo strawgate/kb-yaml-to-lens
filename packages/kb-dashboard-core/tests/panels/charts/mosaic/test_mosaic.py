@@ -248,6 +248,21 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
     )
 
 
+async def test_esql_mosaic_ignores_primary_dimension_collapse() -> None:
+    """ES|QL mosaic should only emit collapseFns for breakdowns, not primary dimension."""
+    esql_config = {
+        'type': 'mosaic',
+        'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+        'metric': {'field': 'c', 'id': 'metric-id'},
+        'dimension': {'field': 'service.name', 'id': 'primary-dimension', 'collapse': 'sum'},
+    }
+
+    esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_mosaic_chart(esql_mosaic_chart=esql_chart)
+    layer = kbn_state_visualization.layers[0]
+    assert layer.collapseFns is None
+
+
 async def test_mosaic_chart_with_custom_colors() -> None:
     """Test mosaic chart with custom color assignments."""
     lens_config = {
