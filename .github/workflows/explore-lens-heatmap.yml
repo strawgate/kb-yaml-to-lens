@@ -115,7 +115,7 @@ jobs:
         ### Part 1: Compile YAML → Import → Verify in Kibana
         For each supported feature:
         a. **Author** a minimal YAML config exercising the feature.
-        b. **Compile** it: `just cli compile --input <file> --output /tmp/compiled/`
+        b. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
         c. **Import** the compiled NDJSON into Kibana:
            `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
              -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
@@ -164,6 +164,7 @@ jobs:
 
         <details><summary>Features Verified (passed)</summary>
         | Feature | YAML Config | Status | Notes |
+        | --- | --- | --- | --- |
         </details>
 
         <details><summary>Feature Gaps (not in compiler)</summary>
