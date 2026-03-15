@@ -8,8 +8,8 @@ import '../../shared.just'
 REPO_ROOT := `git rev-parse --show-toplevel`
 
 # Paths
-DOCS_CONTENT_DIR := justfile_directory() / "content"
-RESOURCES_DIR := justfile_directory() / "src/kb_dashboard_docs/resources"
+DOCS_CONTENT_DIR := source_directory() / "content"
+RESOURCES_DIR := source_directory() / "src/kb_dashboard_docs/resources"
 
 # Default recipe - show help
 default:

@@ -4,8 +4,9 @@
 # Import shared helpers
 import '../../shared.just'
 
-# Repository root (parent of packages directory)
-REPO_ROOT := justfile_directory() / "../.."
+# Repository root — use source_directory() so this resolves correctly both
+# when invoked directly (just typecheck) and via root mod (just core typecheck).
+REPO_ROOT := source_directory() / "../.."
 
 # Docker configuration
 DOCKER_IMAGE_NAME := "kb-dashboard-compiler"
@@ -199,7 +200,7 @@ docker-run:
     @mkdir -p inputs ../output
     @echo "Note: Mount your inputs directory with -v /path/to/inputs:/inputs"
     just _print-start "Running Docker container"
-    docker run --rm -v "{{justfile_directory()}}/inputs:/inputs" -v "{{justfile_directory()}}/../output:/output" {{DOCKER_IMAGE}} compile --input-dir /inputs --output-dir /output
+    docker run --rm -v "{{source_directory()}}/inputs:/inputs" -v "{{source_directory()}}/../output:/output" {{DOCKER_IMAGE}} compile --input-dir /inputs --output-dir /output
     just _print-end "Docker container completed"
 
 docker-test:
