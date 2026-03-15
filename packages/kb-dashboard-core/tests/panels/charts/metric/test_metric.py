@@ -1234,3 +1234,55 @@ def test_compile_metric_chart_with_all_metrics_lens() -> None:
             'breakdownByAccessor': 'breakdown-host',
         }
     )
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
+    """Metrics should compile threshold color ranges into visualization.palette."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'all',
+                'stops': [
+                    {'stop': 50, 'color': '#24c292'},
+                    {'stop': 80, 'color': '#fcd883'},
+                    {'stop': 100, 'color': '#f6726a'},
+                ],
+            },
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'all',
+                'stops': [
+                    {'stop': 50, 'color': '#24c292'},
+                    {'stop': 80, 'color': '#fcd883'},
+                    {'stop': 100, 'color': '#f6726a'},
+                ],
+            },
+        }
+
+    result = compile_metric_chart_snapshot(config, chart_type)
+
+    assert result['palette']['name'] == 'custom'
+    assert result['palette']['type'] == 'palette'
+    assert result['palette']['params']['rangeType'] == 'number'
+    assert result['palette']['params']['rangeMin'] == 0.0
+    assert result['palette']['params']['rangeMax'] == 100.0
+    assert result['palette']['params']['continuity'] == 'all'
+    assert result['palette']['params']['stops'] == [
+        {'color': '#24c292', 'stop': 50.0},
+        {'color': '#fcd883', 'stop': 80.0},
+        {'color': '#f6726a', 'stop': 100.0},
+    ]

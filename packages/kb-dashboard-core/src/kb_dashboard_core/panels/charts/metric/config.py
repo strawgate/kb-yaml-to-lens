@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -107,7 +107,7 @@ class BaseMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    color: ColorValueMapping | None = Field(default=None)
+    color: ColorRangeMapping | ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
     apply_to: Literal['value', 'background'] = Field(default='background')
