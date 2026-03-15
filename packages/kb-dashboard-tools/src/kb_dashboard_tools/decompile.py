@@ -601,7 +601,7 @@ def _list_to_seq(items: list[CommentedMap]) -> CommentedSeq:
     return seq
 
 
-def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:
+def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:  # noqa: PLR0912
     """Build lens/esql panel stub with chart type, data view, metrics, and dimensions."""
     _, embeddable_attributes = _extract_embeddable_attributes(panel)
     chart = CommentedMap()
@@ -618,7 +618,7 @@ def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:
     if esql_query is not None:
         chart['query'] = esql_query
 
-    metrics, dimensions, breakdowns, skipped = _extract_form_based_columns(embeddable_attributes)
+    metrics, dimensions, breakdowns, _skipped = _extract_form_based_columns(embeddable_attributes)
 
     is_xy = visualization_type in {'line', 'bar', 'area'}
     is_metric = visualization_type == 'metric'
@@ -970,6 +970,7 @@ def _extract_filters(attributes: dict[str, Any]) -> CommentedSeq | None:
         if filter_meta.get('type') == 'exists':
             f_exists = CommentedMap()
             f_exists['exists'] = filter_key
+            _apply_filter_metadata(f_exists, filter_meta)
             filters.append(f_exists)  # pyright: ignore[reportUnknownMemberType]
             continue
 

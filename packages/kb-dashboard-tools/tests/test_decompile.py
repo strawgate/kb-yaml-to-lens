@@ -2,6 +2,7 @@
 
 import io
 import json
+from typing import Any
 
 from ruamel.yaml import YAML
 
@@ -786,7 +787,7 @@ def _make_lens_panel(
     }
 
 
-def _decompile_single_panel(panel: dict[str, object]) -> dict[str, object]:
+def _decompile_single_panel(panel: dict[str, object]) -> Any:
     """Decompile a dashboard with a single panel and return that panel dict."""
     dashboard: dict[str, object] = {
         'attributes': {
