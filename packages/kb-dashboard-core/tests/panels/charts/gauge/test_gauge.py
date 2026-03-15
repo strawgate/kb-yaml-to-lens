@@ -284,9 +284,9 @@ def test_compile_gauge_chart_with_range_palette() -> None:
                         {'color': '#BD271E', 'stop': 100.0},
                     ],
                     'colorStops': [
-                        {'color': '#00BF6F', 'stop': 0.0},
-                        {'color': '#FFA500', 'stop': 80.0},
-                        {'color': '#BD271E', 'stop': 95.0},
+                        {'color': '#00BF6F', 'stop': 80.0},
+                        {'color': '#FFA500', 'stop': 95.0},
+                        {'color': '#BD271E', 'stop': 100.0},
                     ],
                     'continuity': 'above',
                     'maxSteps': 3,
@@ -294,6 +294,40 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             },
         }
     )
+
+
+@pytest.mark.parametrize(
+    ('range_type', 'expected_stops'),
+    [
+        ('number', [0.0, 50.0]),
+        ('percent', [0.0, 100.0]),
+    ],
+)
+def test_compile_gauge_chart_preserves_thresholds_in_color_stops(range_type: str, expected_stops: list[float]) -> None:
+    """Test gauge colorStops mirror user thresholds, including zero-based starts."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'appearance': {
+            'palette': {
+                'range_type': range_type,
+                'stops': [
+                    {'stop': 0, 'color': '#000000'},
+                    {'stop': expected_stops[-1], 'color': '#ffffff'},
+                ],
+            },
+        },
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+    color_stops = result['palette']['params']['colorStops']
+    assert [entry['stop'] for entry in color_stops] == expected_stops
+    assert [entry['stop'] for entry in result['palette']['params']['stops']] == expected_stops
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
