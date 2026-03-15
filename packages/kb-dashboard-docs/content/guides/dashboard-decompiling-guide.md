@@ -595,7 +595,7 @@ Error: Data view reference 'logs-*' not found
 
 **Decompiled YAML stub (before filling in):**
 
-```yaml
+```yaml skip
 ---
 dashboards:
   - name: Application Monitoring
