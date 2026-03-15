@@ -1,0 +1,83 @@
+---
+name: 'Daily: Kibana Saved Object Patrol'
+on:
+  schedule:
+    - cron: 0 9 * * *
+  workflow_dispatch: null
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: daily-kibana-saved-object-patrol-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  run:
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[kibana-saved-object-patrol]'
+      setup-commands: |
+        make install-just
+        uv sync
+        npx playwright install chromium
+        if command -v just >/dev/null 2>&1; then
+          just explore-bootstrap 9.3.0
+        else
+          bash scripts/bootstrap-explore-kibana.sh 9.3.0
+        fi
+      additional-instructions: |
+        You are running the daily Kibana Saved Object Patrol for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Detect compiler regressions and missing feature coverage that affect generated Kibana
+        saved objects. Focus only on actual compiler behavior (bug fixes and new feature
+        support), not docs/help-only changes.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Seeded indices: `logs-default-generic`, `metrics-default-generic`
+        - Data views: `logs-*`, `metrics-*`
+        - Elasticsearch and Kibana are pre-provisioned for this workflow run.
+        - Do NOT run bootstrap scripts (`just explore-bootstrap`, `scripts/bootstrap-explore-kibana.sh`,
+          Docker compose, or equivalent) from the agent task.
+
+        ## Required process (thorough)
+        1. Review merged PRs and commits from the last 7 days, identify compiler-relevant
+           changes that can impact Lens saved object generation.
+        2. Build a test matrix with at least 8 scenarios covering changed behavior and edge
+           cases (new features + likely regression boundaries).
+        3. For each scenario:
+           - Author YAML and compile with local CLI.
+           - Import compiled output into Kibana.
+           - Open panel editor and verify UI controls reflect expected values.
+           - Manually create equivalent panel/dashboard in Kibana.
+           - Export both generated and manual saved objects.
+           - Compare normalized JSON payloads and identify meaningful diffs.
+        4. Treat as a bug when compiler-generated objects are incorrect, incomplete, or
+           behaviorally different from manual Kibana output.
+        5. Include edge conditions such as range bounds/open bounds, color stop boundaries,
+           gauge/metric/xy chart shape and config variants, formulas, sorting/breakdowns,
+           and section layout interactions where relevant.
+
+        ## Playwright requirements
+        - Use `browser_snapshot` before interactions; refresh snapshot after each click/type.
+        - Do not rely on export-then-reexport of imported objects as validation.
+        - Validate through Kibana editor controls and manual side-by-side recreation.
+
+        ## Deliverable
+        Create one GitHub issue that includes:
+        - Scope reviewed (PRs/commits considered)
+        - Scenario matrix and outcomes
+        - Bugs found with minimal YAML reproduction and expected vs actual behavior
+        - Saved-object diff summaries for each failing scenario
+        - Risk assessment for areas not covered
+        If no bugs are found, still open the issue with full evidence and state "no regressions
+        found in covered scenarios".
+        Do not create branches or pull requests in this workflow.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
