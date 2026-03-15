@@ -550,12 +550,7 @@ def test_esql_datatable_validation_with_only_dimensions_succeeds() -> None:
 
 
 def test_compile_datatable_chart_with_range_colors_esql() -> None:
-    """Test ESQL range colors compile to normalized Lens palette stops.
-
-    The compiler keeps input `stops` but also derives `colorStops` that start at
-    `range_min` and map each color to the lower-bound threshold used by Kibana.
-    This assertion intentionally snapshots that normalized structure.
-    """
+    """Test ESQL range colors preserve thresholds in both stops arrays."""
     config = {
         'type': 'datatable',
         'metrics': [
@@ -594,9 +589,9 @@ def test_compile_datatable_chart_with_range_colors_esql() -> None:
                         'name': 'custom',
                         'params': {
                             'colorStops': [
-                                {'color': '#00BF6F', 'stop': 0},
-                                {'color': '#FFA500', 'stop': 50},
-                                {'color': '#BD271E', 'stop': 80},
+                                {'color': '#00BF6F', 'stop': 50},
+                                {'color': '#FFA500', 'stop': 80},
+                                {'color': '#BD271E', 'stop': 100.0},
                             ],
                             'continuity': 'above',
                             'maxSteps': 3,
@@ -664,9 +659,9 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
                 'name': 'custom',
                 'params': {
                     'colorStops': [
-                        {'stop': 0.0, 'color': '#00BF6F'},
-                        {'stop': 0.5, 'color': '#FFA500'},
-                        {'stop': 0.8, 'color': '#BD271E'},
+                        {'stop': 0.5, 'color': '#00BF6F'},
+                        {'stop': 0.8, 'color': '#FFA500'},
+                        {'stop': 1.0, 'color': '#BD271E'},
                     ],
                     'name': 'custom',
                     'rangeType': 'number',
@@ -686,6 +681,43 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
             },
         }
     )
+
+
+@pytest.mark.parametrize(
+    ('range_type', 'expected_stops'),
+    [
+        ('number', [0.0, 50.0]),
+        ('percent', [0.0, 100.0]),
+    ],
+)
+def test_compile_datatable_chart_preserves_thresholds_in_color_stops(range_type: str, expected_stops: list[float]) -> None:
+    """Test datatable colorStops mirror user thresholds, including zero-based starts."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'system.cpu.total.pct',
+                'id': 'cpu-metric',
+                'aggregation': 'average',
+                'appearance': {
+                    'color': {
+                        'apply_to': 'text',
+                        'range_type': range_type,
+                        'stops': [
+                            {'stop': 0, 'color': '#000000'},
+                            {'stop': expected_stops[-1], 'color': '#ffffff'},
+                        ],
+                    }
+                },
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+    color_stops = result['columns'][0]['palette']['params']['colorStops']
+    assert [entry['stop'] for entry in color_stops] == expected_stops
+    assert [entry['stop'] for entry in result['columns'][0]['palette']['params']['stops']] == expected_stops
 
 
 def test_compile_datatable_chart_without_color_omits_palette() -> None:

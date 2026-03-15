@@ -121,6 +121,17 @@ def test_dashboard_with_time_range_from_only() -> None:
     assert attributes.timeTo == 'now'
 
 
+def test_dashboard_minimum_kibana_version_round_trips() -> None:
+    """Test minimum_kibana_version is accepted and serialized."""
+    dashboard = Dashboard(
+        name='Test Dashboard',
+        minimum_kibana_version='9.2.0',
+    )
+
+    serialized = dashboard.model_dump(exclude_none=True)
+    assert serialized['minimum_kibana_version'] == '9.2.0'
+
+
 def test_time_range_serialization_omits_none_values() -> None:
     """Test that timeFrom and timeTo are omitted from serialization when None."""
     dashboard = Dashboard(name='Test Dashboard')

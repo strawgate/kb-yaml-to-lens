@@ -159,6 +159,20 @@ This will extract the dashboard into separate files:
 
 For a comprehensive guide on using this tool to convert dashboards from JSON to YAML, see the [Dashboard Decompiling Guide](guides/dashboard-decompiling-guide.md).
 
+### Decompile Dashboards
+
+Generate a YAML dashboard stub from Kibana NDJSON output:
+
+```bash
+uvx kb-dashboard-cli decompile dashboard.ndjson -o dashboard.yaml
+```
+
+This command emits:
+
+- Dashboard metadata (name/id/description where available)
+- Panel stubs with `id`, `title`, `size`, and `position`
+- TODO comments containing original panel JSON for non-trivial manual conversion
+
 ## Configuration
 
 ### Environment Variables

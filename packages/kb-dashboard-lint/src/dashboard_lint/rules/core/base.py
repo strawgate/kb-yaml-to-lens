@@ -21,6 +21,7 @@ Example:
 import types
 import typing
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, get_args, get_origin
 
@@ -35,6 +36,7 @@ from kb_dashboard_core.panels.charts.config import (
     LensPanel,
     LensPanelConfig,
 )
+from kb_dashboard_core.panels.collapsible import CollapsiblePanel
 
 
 class EmptyOptions(BaseModel):
@@ -58,6 +60,23 @@ type ViolationResult = Violation | list[Violation] | None
 # Using class-level dicts because rule instances are frozen dataclasses
 _panel_types_cache: dict[type, tuple[type, ...] | None] = {}
 _config_types_cache: dict[type, tuple[type, ...] | None] = {}
+
+
+def _iter_panels(
+    panels: Sequence[BasePanel],
+    *,
+    base_path: str = 'panels',
+) -> list[tuple[int, str, BasePanel]]:
+    """Flatten dashboard panels, including panels nested inside sections."""
+    flattened: list[tuple[int, str, BasePanel]] = []
+
+    for idx, panel in enumerate(panels):
+        panel_path = f'{base_path}[{idx}]'
+        flattened.append((idx, panel_path, panel))
+        if isinstance(panel, CollapsiblePanel):
+            flattened.extend(_iter_panels(panel.section.panels, base_path=f'{panel_path}.section.panels'))
+
+    return flattened
 
 
 def normalize_result(result: ViolationResult) -> list[Violation]:
@@ -179,6 +198,9 @@ class PanelContext:
     panel_index: int
     """0-based index of the panel in the dashboard.panels list."""
 
+    panel_path: str
+    """Path to the panel in the dashboard model (supports nested section panels)."""
+
     panel_title: str | None
     """Title of the panel, or None if empty/untitled."""
 
@@ -192,7 +214,7 @@ class PanelContext:
             Location string like 'panels[2]' or 'panels[2].size'.
 
         """
-        base = f'panels[{self.panel_index}]'
+        base = self.panel_path
         if len(suffix) > 0:
             return f'{base}.{suffix}'
         return base
@@ -212,6 +234,9 @@ class ChartContext(PanelContext):
     panel_type: Literal['lens', 'esql']
     """Whether this is a 'lens' or 'esql' panel."""
 
+    dashboard_minimum_kibana_version: str | None
+    """Optional dashboard minimum Kibana version from dashboard config."""
+
     def location(self, suffix: str = '') -> str:  # pyright: ignore[reportImplicitOverride]
         """Generate a location string including panel type.
 
@@ -222,7 +247,7 @@ class ChartContext(PanelContext):
             Location string like 'panels[2].lens' or 'panels[2].esql.query'.
 
         """
-        base = f'panels[{self.panel_index}].{self.panel_type}'
+        base = f'{self.panel_path}.{self.panel_type}'
         if len(suffix) > 0:
             return f'{base}.{suffix}'
         return base
@@ -369,7 +394,7 @@ class PanelRule[PanelT: BasePanel, OptionsT: BaseModel](ABC):
         violations: list[Violation] = []
         panel_types = self.get_panel_types()
 
-        for idx, panel in enumerate(dashboard.panels):
+        for idx, panel_path, panel in _iter_panels(dashboard.panels):
             # Filter by panel type if specified
             if panel_types is not None and not isinstance(panel, panel_types):
                 continue
@@ -377,6 +402,7 @@ class PanelRule[PanelT: BasePanel, OptionsT: BaseModel](ABC):
             context = PanelContext(
                 dashboard_name=dashboard.name,
                 panel_index=idx,
+                panel_path=panel_path,
                 panel_title=panel.title if len(panel.title) > 0 else None,
             )
 
@@ -476,7 +502,7 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig), OptionsT: BaseMode
         violations: list[Violation] = []
         config_types = self.get_config_types()
 
-        for idx, panel in enumerate(dashboard.panels):
+        for idx, panel_path, panel in _iter_panels(dashboard.panels):
             panel_type: Literal['lens', 'esql'] | None = None
             config: LensPanelConfig | ESQLPanelConfig | None = None
             chart_type: str | None = None
@@ -500,9 +526,11 @@ class ChartRule[ConfigT: (LensPanelConfig | ESQLPanelConfig), OptionsT: BaseMode
             context = ChartContext(
                 dashboard_name=dashboard.name,
                 panel_index=idx,
+                panel_path=panel_path,
                 panel_title=panel.title if len(panel.title) > 0 else None,
                 chart_type=chart_type,
                 panel_type=panel_type,
+                dashboard_minimum_kibana_version=dashboard.minimum_kibana_version,
             )
 
             result = self.check_chart(panel, config, context, validated_options)  # pyright: ignore[reportArgumentType]

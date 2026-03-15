@@ -6,7 +6,26 @@ This guide provides instructions for converting Kibana dashboard JSON files into
 
 **Complete Documentation**: For full schema reference and examples, use [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt) which contains all project documentation.
 
-**Workflow**: `kb-dashboard fetch` → `kb-dashboard disassemble` → Convert to YAML → `kb-dashboard compile` → Validate
+**Workflow**: `kb-dashboard fetch` → `kb-dashboard decompile` → Complete panel configs → `kb-dashboard compile` → Validate
+
+## JSON-to-YAML Conversion Prompt Scaffold
+
+Use this prompt pattern when asking an LLM to convert a disassembled dashboard. Keep the request scoped to one dashboard at a time.
+
+```text
+Convert the disassembled dashboard in <disassembled_dir> into kb-yaml-to-lens YAML.
+
+Requirements:
+1. Use metadata.json for dashboard name/description.
+2. Convert every panel in panels/ and preserve panel layout (x, y, w, h).
+3. Use exported data-view references from references.json.
+4. Omit fields that are default values.
+5. After conversion, run:
+   - kb-dashboard compile --input-dir <yaml_dir> --output-dir <compiled_dir>
+   - kb-dashboard disassemble <compiled_dir>/output.ndjson -o <compiled_disassembled_dir>
+   - kb-dashboard compare <disassembled_dir> <compiled_disassembled_dir>
+6. Summarize any mismatches found during validation.
+```
 
 ## Fetching Dashboard from Kibana
 
@@ -78,6 +97,22 @@ output_dir/
     ├── 001_panel-2_markdown.json
     └── ...
 ```
+
+## Simple Decompilation (MVP)
+
+Generate a YAML skeleton directly from NDJSON:
+
+```bash
+kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
+```
+
+The generated YAML includes:
+
+- Dashboard-level metadata (name/id/description where present)
+- Panel stubs with inferred panel type and grid layout (`size`/`position`)
+- `TODO(decompile)` comments next to panels with original panel JSON for manual completion
+
+This is intentionally conservative: the command does **not** attempt full semantic reconstruction of all panel-specific fields.
 
 ## Conversion Strategy
 
@@ -327,10 +362,10 @@ kb-dashboard compile --input-dir my-yaml/ --output-dir compiled/
 
 ### Compare Structure
 
-Use the comparison helper script to quickly check panel counts and types:
+Use the compare command to quickly check panel counts and types:
 
 ```bash
-scripts/compare_panel_counts.sh original.ndjson compiled/output.ndjson
+kb-dashboard compare original_disassembled/ compiled_disassembled/
 ```
 
 ### Verification Workflow (Round-Trip Testing)
@@ -357,10 +392,10 @@ For thorough validation, use this round-trip workflow to verify the compiled out
 
 3. **Compare panel structures:**
 
-   Use the comparison helper script to analyze differences:
+   Use the compare command to analyze differences:
 
    ```bash
-   python3 scripts/compare_dashboards.py /tmp/original_disassembled /tmp/compiled_disassembled
+   kb-dashboard compare /tmp/original_disassembled /tmp/compiled_disassembled
    ```
 
    This will show panel counts, types, and identify any mismatches.
