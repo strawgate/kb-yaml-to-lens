@@ -61,6 +61,17 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
     )
 
 
+def _resolve_apply_color_to(chart: LensMetricChart | ESQLMetricChart) -> Literal['value', 'background']:
+    """Resolve metric color application target from the standardized appearance API.
+
+    The new API uses `appearance.color.apply_to`. The legacy `color_mode` key remains
+    supported for backward compatibility.
+    """
+    if chart.appearance is not None and chart.appearance.color is not None:
+        return chart.appearance.color.apply_to
+    return chart.color_mode
+
+
 def compile_lens_metric_chart(
     lens_metric_chart: LensMetricChart,
 ) -> tuple[str, dict[str, KbnLensColumnTypes], KbnMetricVisualizationState]:
@@ -127,7 +138,7 @@ def compile_lens_metric_chart(
             secondary_metric_id=secondary_metric_id,
             maximum_metric_id=maximum_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
-            color_mode=lens_metric_chart.color_mode,
+            color_mode=_resolve_apply_color_to(lens_metric_chart),
         ),
     )
 
@@ -189,6 +200,6 @@ def compile_esql_metric_chart(
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=maximum_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
-            applyColorTo=esql_metric_chart.color_mode,
+            applyColorTo=_resolve_apply_color_to(esql_metric_chart),
         ),
     )

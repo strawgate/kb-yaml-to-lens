@@ -57,8 +57,9 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     label_minor = appearance.label_minor if appearance is not None else None
     palette = compile_color_range_mapping(appearance.palette) if appearance is not None else None
 
-    # Infer color_mode from palette presence
-    color_mode = 'palette' if palette is not None else None
+    strategy = appearance.strategy if appearance is not None else None
+    use_range_palette = strategy == 'range_palette' or (strategy is None and palette is not None)
+    color_mode = 'palette' if use_range_palette and palette is not None else None
 
     label_major_mode = 'custom' if label_major is not None else 'auto'
 

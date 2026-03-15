@@ -711,6 +711,39 @@ def test_compile_datatable_chart_without_color_omits_palette() -> None:
     assert 'palette' not in column
 
 
+def test_compile_datatable_chart_strategy_none_omits_palette_even_with_stops() -> None:
+    """Test strategy=none suppresses range palette generation while preserving apply_to."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'system.cpu.total.pct',
+                'id': 'cpu-metric',
+                'aggregation': 'average',
+                'appearance': {
+                    'color': {
+                        'apply_to': 'cell',
+                        'strategy': 'none',
+                        'range_type': 'percent',
+                        'range_min': 0,
+                        'range_max': 100,
+                        'stops': [
+                            {'stop': 50, 'color': '#00BF6F'},
+                            {'stop': 100, 'color': '#BD271E'},
+                        ],
+                    }
+                },
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+    column = result['columns'][0]
+    assert column['colorMode'] == 'cell'
+    assert 'palette' not in column
+
+
 def test_datatable_metric_color_stops_empty_list_is_invalid() -> None:
     """Test that empty range color stops are rejected."""
     config = {

@@ -131,7 +131,12 @@ def _build_datatable_column_state(
     summary_row = metric_appearance.summary_row if metric_appearance is not None else None
     summary_label = metric_appearance.summary_label if metric_appearance is not None else None
     metric_color = metric_appearance.color if metric_appearance is not None else None
-    palette = compile_color_range_mapping(metric_color.to_range_mapping()) if metric_color is not None else None
+    range_mapping = metric_color.to_range_mapping() if metric_color is not None else None
+    use_range_palette = (
+        metric_color is not None
+        and (metric_color.strategy == 'range_palette' or (metric_color.strategy is None and range_mapping is not None))
+    )
+    palette = compile_color_range_mapping(range_mapping) if use_range_palette and range_mapping is not None else None
     hidden = column_appearance.hidden if column_appearance is not None else False
     one_click_filter = column_appearance.one_click_filter if column_appearance is not None else False
     color_mode = metric_color.apply_to if metric_color is not None else None

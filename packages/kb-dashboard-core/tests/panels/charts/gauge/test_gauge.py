@@ -245,6 +245,7 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             'aggregation': 'average',
         },
         'appearance': {
+            'strategy': 'range_palette',
             'palette': {
                 'range_type': 'percent',
                 'stops': [
@@ -294,6 +295,32 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             },
         }
     )
+
+
+def test_gauge_chart_strategy_none_with_palette_is_invalid() -> None:
+    """Test strategy=none rejects palette configuration for gauge appearance."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'appearance': {
+            'strategy': 'none',
+            'palette': {
+                'range_type': 'percent',
+                'stops': [
+                    {'stop': 50, 'color': '#00BF6F'},
+                    {'stop': 100, 'color': '#BD271E'},
+                ],
+            },
+        },
+    }
+
+    with pytest.raises(ValidationError, match='strategy'):
+        LensGaugeChart.model_validate(config)
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:

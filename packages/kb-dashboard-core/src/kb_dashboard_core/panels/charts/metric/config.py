@@ -6,6 +6,24 @@ from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMap
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.shared.config import BaseCfgModel
+
+
+class MetricColor(BaseCfgModel):
+    """Color settings for metric chart appearance."""
+
+    apply_to: Literal['value', 'background'] = Field(default='background')
+    """How Kibana applies metric colors."""
+
+    strategy: Literal['none', 'value_mapping'] | None = Field(default=None)
+    """How metric colors are selected. When omitted, strategy is inferred from `color` mapping presence."""
+
+
+class MetricAppearance(BaseCfgModel):
+    """Appearance settings for metric chart visualization."""
+
+    color: MetricColor | None = Field(default=None)
+    """Color placement and strategy settings."""
 
 
 class LensMetricChart(BaseChart):
@@ -59,8 +77,11 @@ class LensMetricChart(BaseChart):
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
+    appearance: MetricAppearance | None = Field(default=None)
+    """Appearance settings for metric chart color behavior."""
+
     color_mode: Literal['value', 'background'] = Field(default='background')
-    """Apply metric color to value text or background. Defaults to background."""
+    """Legacy color placement setting. Prefer `appearance.color.apply_to`."""
 
 
 class ESQLMetricChart(BaseChart):
@@ -108,5 +129,8 @@ class ESQLMetricChart(BaseChart):
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
+    appearance: MetricAppearance | None = Field(default=None)
+    """Appearance settings for metric chart color behavior."""
+
     color_mode: Literal['value', 'background'] = Field(default='background')
-    """Apply metric color to value text or background. Defaults to background."""
+    """Legacy color placement setting. Prefer `appearance.color.apply_to`."""

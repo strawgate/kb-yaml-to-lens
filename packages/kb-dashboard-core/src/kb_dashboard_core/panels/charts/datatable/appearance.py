@@ -23,6 +23,13 @@ class DatatableColorModeEnum(StrEnum):
     TEXT = 'text'
 
 
+class DatatableColorStrategyEnum(StrEnum):
+    """Color strategy options for datatable metric columns."""
+
+    NONE = 'none'
+    RANGE_PALETTE = 'range_palette'
+
+
 class DatatableSummaryRowEnum(StrEnum):
     """Summary row options for datatable columns."""
 
@@ -55,6 +62,9 @@ class DatatableMetricColor(BaseCfgModel):
 
     apply_to: DatatableColorModeEnum | None = Field(default=None, strict=False)
     """How to apply colors to the metric column."""
+
+    strategy: DatatableColorStrategyEnum | None = Field(default=None, strict=False)
+    """How metric colors are selected. Defaults to inferring from range stops."""
 
     range_type: Literal['number', 'percent'] = Field(default='number')
     """How stop values are interpreted by Kibana."""

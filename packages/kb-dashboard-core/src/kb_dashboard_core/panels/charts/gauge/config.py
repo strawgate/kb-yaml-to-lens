@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
@@ -31,6 +31,20 @@ class GaugeAppearance(BaseCfgModel):
 
     palette: ColorRangeMapping | None = Field(default=None)
     """Range-based palette configuration for gauge thresholds. When set, enables palette color mode."""
+
+    strategy: Literal['none', 'range_palette'] | None = Field(default=None)
+    """Color strategy. `range_palette` requires `palette`; `none` disables gauge color mode."""
+
+    @model_validator(mode='after')
+    def validate_color_strategy(self) -> 'GaugeAppearance':
+        """Validate color strategy and palette pairing."""
+        if self.strategy == 'range_palette' and self.palette is None:
+            msg = "'appearance.strategy' set to 'range_palette' requires 'appearance.palette'"
+            raise ValueError(msg)
+        if self.strategy == 'none' and self.palette is not None:
+            msg = "'appearance.strategy' set to 'none' cannot be used with 'appearance.palette'"
+            raise ValueError(msg)
+        return self
 
 
 class BaseGaugeChart(BaseCfgModel):

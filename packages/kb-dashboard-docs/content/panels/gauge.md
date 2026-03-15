@@ -44,6 +44,14 @@ The gauge tracks progress throughout the year.
       show_root_heading: false
       heading_level: 3
 
+## Gauge Color Strategy
+
+Gauge color behavior is configured in `appearance`:
+
+- `appearance.strategy: range_palette` enables threshold palette mode (requires `appearance.palette`)
+- `appearance.strategy: none` disables gauge color mode
+- If `strategy` is omitted, palette behavior is inferred from whether `appearance.palette` is present
+
 ## ES|QL Gauge Charts
 
 ::: kb_dashboard_core.panels.charts.gauge.config.ESQLGaugeChart
