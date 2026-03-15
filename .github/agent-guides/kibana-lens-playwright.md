@@ -138,7 +138,7 @@ Some palette parameters (for example `continuity`) may not be exposed in the cur
 
 ## Common Pitfalls
 
-1. **Stale refs** — always re-snapshot before clicking.
+1. **Stale refs** — `browser_click`/`browser_wait_for` already include inline changed refs, so skip an extra `browser_snapshot()` for small element changes; re-snapshot before clicking only when you need a full-page baseline (for example, structural or large layout changes).
 2. **Monaco editor** — must use `browser_run_code` with `force: true` (see above).
 3. **Combobox errors** — `browser_fill_form` with `combobox` type fails; use type + click.
 4. **Multiple "Close" buttons** — use the specific ref from the latest snapshot.
