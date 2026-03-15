@@ -44,7 +44,7 @@ jobs:
     with:
       title-prefix: '[explore-lens-pie-${{ matrix.kibana_version }}]'
       setup-commands: |
-        command -v just >/dev/null 2>&1 || make install-just
+        make install-just
         uv sync
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
