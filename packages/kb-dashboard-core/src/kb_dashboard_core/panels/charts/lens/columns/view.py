@@ -97,6 +97,9 @@ class KbnLensMetricColumnParams(BaseVwModel):
 class KbnLensFieldMetricColumn(KbnLensBaseColumn):
     """Represents a field-sourced Lens metric column."""
 
+    scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
+    """Scale for metric values. Gauge charts may omit this field."""
+
     sourceField: str
     """The field that this column is based on."""
 
@@ -107,7 +110,7 @@ class KbnLensFieldMetricColumn(KbnLensBaseColumn):
 class KbnLensStaticValueColumnParams(BaseVwModel):
     """Parameters for static value columns."""
 
-    value: int | float | str
+    value: str
     """The static value - can be numeric (for gauge charts) or string (for reference lines)."""
 
 
@@ -131,8 +134,8 @@ class KbnLensStaticValueColumn(KbnLensBaseColumn):
     isStaticValue: Literal[True] = True
     """Marker to indicate this is a static value column."""
 
-    scale: Literal['ratio']
-    """Scale is always 'ratio' for numeric static values."""
+    scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
+    """Scale for static values. Gauge charts may omit this field."""
 
     params: KbnLensStaticValueColumnParams
     """Parameters containing the static value."""
@@ -170,8 +173,8 @@ class KbnLensFormulaColumn(KbnLensBaseColumn):
     isBucketed: Literal[False] = False
     """Formulas are never bucketed."""
 
-    scale: Literal['ratio']
-    """Scale is always 'ratio' for formula results."""
+    scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
+    """Scale for formula results. Gauge charts may omit this field."""
 
     params: KbnLensFormulaColumnParams
     """Parameters containing the formula string."""
@@ -203,8 +206,8 @@ class KbnLensMathColumn(KbnLensBaseColumn):
     isBucketed: Literal[False] = False
     """Math columns are never bucketed."""
 
-    scale: Literal['ratio']
-    """Scale is always 'ratio' for math results."""
+    scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
+    """Scale for math results. Gauge charts may omit this field."""
 
     params: KbnLensMathColumnParams
     """Parameters containing the tinymathAst."""
@@ -242,8 +245,8 @@ class KbnLensFormulaAggColumn(KbnLensBaseColumn):
     isBucketed: Literal[False] = False
     """Aggregation columns are never bucketed."""
 
-    scale: Literal['ratio']
-    """Scale is always 'ratio' for aggregation results."""
+    scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
+    """Scale for aggregation results. Gauge charts may omit this field."""
 
     params: KbnLensFormulaAggColumnParams
     """Parameters for the aggregation column."""
@@ -273,8 +276,8 @@ class KbnLensFullReferenceColumn(KbnLensBaseColumn):
     isBucketed: Literal[False] = False
     """FullReference columns are never bucketed."""
 
-    scale: Literal['ratio']
-    """Scale is always 'ratio' for fullReference results."""
+    scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
+    """Scale for fullReference results. Gauge charts may omit this field."""
 
     params: KbnLensFullReferenceColumnParams
     """Parameters for the fullReference column."""

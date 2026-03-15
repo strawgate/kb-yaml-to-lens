@@ -425,7 +425,6 @@ class TestCompileLensChartState:
                         'label': 'Count of records',
                         'operationType': 'count',
                         'params': {'emptyAsNull': True},
-                        'scale': 'ratio',
                         'sourceField': '___records___',
                     }
                 },

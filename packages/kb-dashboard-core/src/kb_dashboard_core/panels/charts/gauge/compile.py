@@ -132,6 +132,11 @@ def compile_lens_gauge_chart(
         kbn_columns_by_id[goal_id] = goal_column
         kbn_columns_by_id.update(goal_result.helper_columns)
 
+    # Kibana gauge exports omit metric "scale" fields for accessor columns.
+    for column_id, column in list(kbn_columns_by_id.items()):
+        if hasattr(column, 'scale'):
+            kbn_columns_by_id[column_id] = column.model_copy(update={'scale': None})
+
     layer_id = lens_gauge_chart.get_id()
 
     return (

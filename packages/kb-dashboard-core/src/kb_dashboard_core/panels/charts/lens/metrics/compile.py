@@ -398,7 +398,7 @@ def compile_lens_metric(metric: LensMetricTypes) -> CompiledMetricResult:
     # Handle static values
     if isinstance(metric, LensStaticValue):
         metric_id = metric.get_id()
-        label = metric.label if metric.label is not None else str(metric.value)
+        label = metric.label if metric.label is not None else f'Static value: {metric.value}'
         custom_label = metric.label is not None
 
         return CompiledMetricResult(

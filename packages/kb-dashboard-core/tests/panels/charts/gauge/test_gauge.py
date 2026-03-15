@@ -462,6 +462,8 @@ def test_compile_gauge_chart_with_static_values_lens() -> None:
 
     static_columns = [column for column in kbn_columns.values() if isinstance(column, KbnLensStaticValueColumn)]
     assert [column.params.value for column in static_columns] == ['0', '1', '0.8']
+    assert [column.label for column in static_columns] == ['Static value: 0', 'Static value: 1', 'Static value: 0.8']
+    assert all('scale' not in column.model_dump() for column in static_columns)
 
 
 def test_compile_gauge_chart_with_static_values_esql() -> None:
