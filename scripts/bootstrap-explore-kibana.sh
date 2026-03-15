@@ -27,6 +27,7 @@ docker run -d --name "${ES_CONTAINER}" \
   -e "discovery.type=single-node" \
   -e "xpack.security.enabled=false" \
   -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+  -e "network.host=0.0.0.0" \
   "docker.elastic.co/elasticsearch/elasticsearch:${KIBANA_VERSION}" >/dev/null
 
 docker run -d --name "${KIBANA_CONTAINER}" \
@@ -34,6 +35,7 @@ docker run -d --name "${KIBANA_CONTAINER}" \
   -p 5601:5601 \
   -e "ELASTICSEARCH_HOSTS=http://${ES_CONTAINER}:9200" \
   -e "XPACK_SECURITY_ENABLED=false" \
+  -e "SERVER_HOST=0.0.0.0" \
   "docker.elastic.co/kibana/kibana:${KIBANA_VERSION}" >/dev/null
 
 echo "Waiting for Elasticsearch on http://localhost:9200 ..."

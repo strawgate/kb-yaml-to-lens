@@ -1,29 +1,50 @@
 # Dashboard Decompiling Guide: Converting Kibana JSON to YAML
 
-This guide provides instructions for converting Kibana dashboard JSON files into YAML format for kb-yaml-to-lens. It is designed to be consumed by LLMs (Large Language Models) to perform conversions efficiently.
+This guide covers converting existing Kibana dashboards into kb-yaml-to-lens YAML. It is designed to be consumed by both humans and LLMs performing conversions.
 
 ## Quick Reference
 
 **Complete Documentation**: For full schema reference and examples, use [llms-full.txt](https://strawgate.com/kb-yaml-to-lens/llms-full.txt) which contains all project documentation.
 
-**Workflow**: `kb-dashboard fetch` → `kb-dashboard decompile` → Complete panel configs → `kb-dashboard compile` → Validate
+**Workflow**:
+
+1. **Fetch** the dashboard NDJSON (`kb-dashboard fetch`) or download it from a repository.
+2. **Decompile** into a YAML skeleton: `kb-dashboard decompile dashboard.ndjson -o dashboard.yaml`. This gives you panel stubs with layout, titles, and panel types pre-filled. Each stub includes `TODO(decompile)` comments containing the original Kibana panel JSON.
+3. **Fill in panel configs** using the TODO comments as reference. Translate the original Kibana JSON into the YAML schema (type, data_view, metrics, dimensions, breakdowns, etc.). Use the [Component Mapping](#component-mapping) section below and the panel type documentation as guides.
+4. **Compile** to verify the YAML is valid: `kb-dashboard compile`.
+5. **Round-trip validate**: disassemble both the original and compiled NDJSON, then compare them.
+
+## What Decompile Produces
+
+The `decompile` command generates a YAML skeleton, not a complete dashboard. Specifically:
+
+- Dashboard-level metadata (name, id, description) is extracted.
+- Every panel gets a stub with the correct `size` and `position` from the grid layout.
+- Panel titles are preserved where present.
+- Panel types are detected (lens, markdown, links, etc.), but for lens panels the inner configuration is left empty (`lens: {}`). This means the decompiled YAML will **not** compile as-is.
+- Each panel stub includes `TODO(decompile)` comments containing the original Kibana panel JSON. These comments are your primary reference for filling in the lens configuration.
+
+You (or an LLM) need to translate the Kibana JSON from the TODO comments into the YAML schema. The [Component Mapping](#component-mapping) section below shows how each Kibana construct maps to YAML.
 
 ## JSON-to-YAML Conversion Prompt Scaffold
 
-Use this prompt pattern when asking an LLM to convert a disassembled dashboard. Keep the request scoped to one dashboard at a time.
+Use this prompt pattern when asking an LLM to complete a decompiled dashboard. Keep the request scoped to one dashboard at a time.
 
 ```text
-Convert the disassembled dashboard in <disassembled_dir> into kb-yaml-to-lens YAML.
+Complete the decompiled YAML stubs in <yaml_file>. Each panel has TODO comments
+containing the original Kibana panel JSON — use these to fill in the lens
+configuration (type, data_view, metrics, dimensions, breakdowns).
 
 Requirements:
-1. Use metadata.json for dashboard name/description.
-2. Convert every panel in panels/ and preserve panel layout (x, y, w, h).
-3. Use exported data-view references from references.json.
-4. Omit fields that are default values.
-5. After conversion, run:
+1. Preserve panel layout (size and position are already set).
+2. Translate every panel's original JSON into the correct YAML schema.
+3. Use the panel type reference and component mapping from the decompiling guide.
+4. Omit fields that match default values.
+5. After conversion, validate:
    - kb-dashboard compile --input-dir <yaml_dir> --output-dir <compiled_dir>
    - kb-dashboard disassemble <compiled_dir>/output.ndjson -o <compiled_disassembled_dir>
-   - kb-dashboard compare <disassembled_dir> <compiled_disassembled_dir>
+   - kb-dashboard disassemble original.ndjson -o <original_disassembled_dir>
+   - kb-dashboard compare <original_disassembled_dir> <compiled_disassembled_dir>
 6. Summarize any mismatches found during validation.
 ```
 
@@ -75,9 +96,24 @@ kb-dashboard fetch my-dashboard-id --output dashboard.ndjson \
 - **URL (with query params):** `https://kibana.example.com/app/dashboards#/view/{id}?_g=...`
 - **Plain dashboard ID:** `my-dashboard-id` or `dashboard-123`
 
+## Decompilation
+
+Generate a YAML skeleton directly from NDJSON:
+
+```bash
+kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
+```
+
+The output is a starting point, not a finished dashboard. See [What Decompile Produces](#what-decompile-produces) above for details on what you get and what still needs to be filled in.
+
 ## Disassembly
 
-Break dashboard JSON into components:
+The `disassemble` command breaks dashboard NDJSON into individual JSON files. It serves two purposes:
+
+1. **Inspecting individual panels** — When you need to read the raw Kibana JSON for a specific panel in isolation (e.g., to understand a complex configuration).
+2. **Round-trip validation** — Disassemble both the original and compiled NDJSON, then use `compare` to check they match.
+
+Disassembly is **not** the primary conversion path. Use `decompile` to get your YAML skeleton, then fill in the stubs.
 
 ```bash
 kb-dashboard disassemble dashboard.ndjson -o output_dir/
@@ -98,33 +134,17 @@ output_dir/
     └── ...
 ```
 
-## Simple Decompilation (MVP)
-
-Generate a YAML skeleton directly from NDJSON:
-
-```bash
-kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
-```
-
-The generated YAML includes:
-
-- Dashboard-level metadata (name/id/description where present)
-- Panel stubs with inferred panel type and grid layout (`size`/`position`)
-- `TODO(decompile)` comments next to panels with original panel JSON for manual completion
-
-This is intentionally conservative: the command does **not** attempt full semantic reconstruction of all panel-specific fields.
-
 ## Conversion Strategy
 
-### Incremental Approach
+### Recommended Approach
 
-Convert one panel at a time and validate after each addition:
+With `decompile`, you get all panels at once as stubs. The recommended workflow is:
 
-1. Create minimal dashboard structure
-2. Add first panel
-3. Compile: `kb-dashboard compile`
-4. Fix errors if any
-5. Repeat for remaining panels
+1. Run `kb-dashboard decompile` to get the full YAML skeleton with all panel stubs.
+2. Fill in one panel at a time, starting with the simplest (markdown panels, metric panels).
+3. Compile incrementally to catch errors early: finish required fields in remaining stubs, or temporarily comment/remove unfinished panel entries before running `kb-dashboard compile`.
+4. Move on to more complex panels (XY charts, datatables) once simpler ones validate.
+5. Run the full round-trip validation when all panels are complete.
 
 ### Minimal YAML
 
@@ -414,7 +434,7 @@ For thorough validation, use this round-trip workflow to verify the compiled out
    **What to verify for each panel type:**
 
    **XY Charts (line, bar, area):**
-   - Chart type matches (`seriesType` in original → `type` in YAML)
+   - Chart type matches (`seriesType` in original -> `type` in YAML)
    - Stacking mode preserved (if `yConfig[].axisMode: stacked` exists)
    - Legend configuration matches (`legend.isVisible`, `legend.position`)
    - Dimensions properly mapped (count columns by `isBucketed: true`)
@@ -434,8 +454,8 @@ For thorough validation, use this round-trip workflow to verify the compiled out
 
 When comparing original and compiled dashboards, some differences are expected:
 
-- ✅ **Expected (safe):** Panel IDs differ, minor query formatting, panel order variations
-- ⚠️ **Needs investigation:** Panel count mismatch, visualization type changes, missing dimensions/metrics, field name differences
+- **Expected (safe):** Panel IDs differ, minor query formatting, panel order variations
+- **Needs investigation:** Panel count mismatch, visualization type changes, missing dimensions/metrics, field name differences
 
 **Verification checklist:**
 
@@ -573,36 +593,22 @@ Error: Data view reference 'logs-*' not found
 
 ## Complete Example
 
-**Disassembled Panel (001_panel-2_lens.json):**
+**Decompiled YAML stub (before filling in):**
 
-```json
-{
-  "type": "lens",
-  "gridData": {"x": 0, "y": 3, "w": 24, "h": 15},
-  "embeddableConfig": {
-    "attributes": {
-      "title": "Total Documents",
-      "visualizationType": "lnsMetric",
-      "state": {
-        "datasourceStates": {
-          "formBased": {
-            "layers": {
-              "layer1": {
-                "columns": {
-                  "col1": {"operationType": "count", "label": "Count"}
-                }
-              }
-            }
-          }
-        }
-      },
-      "references": [{"type": "index-pattern", "id": "logs-*"}]
-    }
-  }
-}
+```yaml skip
+---
+dashboards:
+  - name: Application Monitoring
+    description: Real-time application metrics
+    panels:
+      - title: Total Documents
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 3}
+        lens: {}
+        # TODO(decompile): {"type":"lens","embeddableConfig":{"attributes":{"title":"Total Documents","visualizationType":"lnsMetric","state":{"datasourceStates":{"formBased":{"layers":{"layer1":{"columns":{"col1":{"operationType":"count","label":"Count"}}}}}}}},"references":[{"type":"index-pattern","id":"logs-*"}]}}
 ```
 
-**Converted YAML:**
+**Completed YAML (after translating the TODO comment):**
 
 ```yaml
 ---

@@ -49,20 +49,14 @@ jobs:
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |
-        You are running the ES|QL Metric Explorer for kb-yaml-to-lens.
-        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
 
         ## Mission
         Systematically test every config option for ES|QL **metric** panels
         against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
-
-        ## Inputs
-        - Kibana URL: `http://localhost:5601`
-        - Elasticsearch URL: `http://localhost:9200`
-        - Data views: `logs-*`, `metrics-*`
-        - Kibana version: `${{ matrix.kibana_version }}`
-        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+        Data views: `logs-*`, `metrics-*`.
 
         ## ES|QL query configuration
         Queries can be specified as:
@@ -107,14 +101,6 @@ jobs:
         - `secondary_prefix` — text before secondary metric
         - `secondary_suffix` — text after secondary metric
 
-        ## NOT implemented for ES|QL (do NOT flag as bugs)
-        - **Formula metrics** — ES|QL uses query-computed columns, not formulas
-        - **Aggregation functions in metrics** — aggregations must be done in
-          the query via STATS
-        - **Panel-level filters** — all filtering must be in the ES|QL query
-        - **Normalize by unit** — not supported in compiler
-        - Tooltip configuration — no compiler option
-
         ## Creative exploration
         - ES|QL metric with `STATS count = COUNT()` as primary
         - ES|QL metric with primary + secondary from same query
@@ -126,79 +112,8 @@ jobs:
         - ES|QL metric with bytes format + compact notation
         - Compare ES|QL metric vs equivalent Lens metric side-by-side
 
-        ## Required process
-
-        ### Prereq: Read compiler source
-        Read the relevant compiler source in `packages/kb-dashboard-core/src/`
-        to understand every supported config option and the view model defaults.
-
-        ### Part 1: Compile YAML → Import → Verify in Kibana
-        For each supported feature:
-        a. **Author** a minimal YAML config exercising the feature.
-        b. **Compile** it: `just cli compile --input-file <file> --output-dir /tmp/compiled/`
-        c. **Import** the compiled NDJSON into Kibana:
-           `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" \
-             -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
-        d. **Open** the imported panel in the Kibana editor and verify:
-           - Every setting you specified in YAML is reflected in the UI
-           - No settings are lost or silently dropped
-           - The panel renders without errors
-           - Kibana does not show warnings or "invalid" states
-        e. **Record** the result: feature name, YAML used, pass/fail, notes.
-
-        ### Part 2: Create fresh panels in Kibana → Export → Compare to compiler
-        a. **Manually create** many fresh panels in Kibana from scratch, using
-           a wide variety of settings. Cover edge cases, unusual combinations,
-           and settings you haven't seen exercised in the YAML configs.
-        b. **Export** the dashboard:
-           `curl "http://localhost:5601/api/saved_objects/_export" \
-             -H "kbn-xsrf: true" -H "Content-Type: application/json" \
-             -d '{"type":"dashboard","includeReferencesDeep":true}'`
-        c. **Inspect** the exported JSON and compare it against the compiler's
-           view models and defaults. Look for:
-           - Fields or settings Kibana produces that the compiler doesn't know about
-           - Default values that differ from what the compiler sets
-           - Structural patterns the compiler gets wrong
-        d. **Record** any discrepancies as potential compiler bugs or feature gaps.
-
-        ### Classify findings
-        - **Bug**: The compiler produces incorrect JSON for a setting it claims
-          to support — wrong field name, wrong value, wrong structure.
-        - **Gap**: Kibana supports a setting or field that the compiler has no
-          config option for. Note it, but do NOT treat it as a bug.
-        - **Pass**: Compiled output works correctly in Kibana.
-
-        ## Deliverable
-
-        **If no bugs are found**, do not create an issue. No-op.
-
-        **If bugs or significant findings exist**, create one GitHub issue titled:
-        `[explore-esql-metric-${{ matrix.kibana_version }}] Round-trip verification report`
-
-        Structure the issue body with these **collapsed sections** (`<details>`):
-
-        <details><summary>Compiler Bugs</summary>
-        For each bug: feature name, YAML config or exported JSON showing the
-        problem, what the compiler produces vs what Kibana expects.
-        </details>
-
-        <details><summary>Features Verified (passed)</summary>
-        | Feature | YAML Config | Status | Notes |
-        | --- | --- | --- | --- |
-        </details>
-
-        <details><summary>Feature Gaps (not in compiler)</summary>
-        Settings or fields found in Kibana exports that the compiler doesn't
-        support. Include the relevant JSON snippet.
-        </details>
-
-        <details><summary>Creative Exploration Results</summary>
-        Document each interesting combination attempted and outcome.
-        </details>
-
-        Top-level summary: total features tested, passed, bugs found,
-        gaps identified, version-specific notes.
-
-        Do not create branches or pull requests.
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
