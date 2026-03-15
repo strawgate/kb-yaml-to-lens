@@ -87,24 +87,25 @@ dashboards:
 
 | YAML Key | Data Type | Description | Default | Required |
 | ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
-| `icon` | `string \| None` | Icon identifier to display alongside the metric value. | `None` | No |
-| `icon_align` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the metric value. | `None` | No |
-| `show_bar` | `bool \| None` | Whether to display a progress bar below the metric value. | `None` | No |
-| `progress_direction` | `Literal['horizontal', 'vertical'] \| None` | Direction of the progress bar when `show_bar` is enabled. | `None` | No |
-| `max_cols` | `int \| None` | Maximum number of columns when displaying broken-down metrics. | `None` | No |
-| `value_font_mode` | `Literal['default', 'fit', 'custom'] \| None` | Font size mode for the primary metric value. | `None` | No |
-| `primary_position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
+| `primary.icon` | `string \| None` | Icon identifier to display alongside the primary metric value. | `None` | No |
+| `primary.icon_position` | `Literal['left', 'right'] \| None` | Horizontal alignment of the icon relative to the primary metric value. | `None` | No |
+| `primary.background_chart.type` | `Literal['line', 'bar', 'none'] \| None` | Background chart mode for the primary metric. | `None` | No |
+| `primary.background_chart.direction` | `Literal['horizontal', 'vertical'] \| None` | Direction for bar background charts. Only valid when type is `bar`. | `None` | No |
+| `primary.font_size` | `Literal['default', 'fit', 'custom'] \| None` | Font size mode for the primary metric value. | `None` | No |
+| `primary.position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
+| `primary.alignment` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
+| `secondary.alignment` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
+| `secondary.label` | `string \| None` | Custom label for the secondary metric. | `None` | No |
+| `secondary.label_position` | `Literal['before', 'after'] \| None` | Position of the secondary label relative to the value. | `None` | No |
+| `breakdown.column_count` | `int \| None` | Maximum number of columns when displaying broken-down metrics. Minimum value is `1`. | `None` | No |
 
 #### Metric Titles and Text
 
 | YAML Key | Data Type | Description | Default | Required |
 | ----------- | -------------------------------- | ------------------------------------------------------------- | ---------- | -------- |
 | `subtitle` | `string \| None` | Custom subtitle text displayed below the metric title. | `None` | No |
-| `secondary_label` | `string \| None` | Custom label for the secondary metric, overriding its default. | `None` | No |
-| `titles_text_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
-| `primary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
-| `secondary_align` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
-| `title_weight` | `Literal['bold', 'normal', 'lighter'] \| None` | Font weight for the metric title. | `None` | No |
+| `alignment` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the metric title and subtitle. | `None` | No |
+| `weight` | `Literal['bold', 'normal', 'lighter'] \| None` | Font weight for the metric title. | `None` | No |
 
 #### Lens Metric Types
 
@@ -260,9 +261,12 @@ dashboards:
         lens:
           type: metric
           data_view: "metrics-*"
+          appearance:
+            secondary:
+              label: "vs. previous day"
+              label_position: after
           titles_and_text:
             subtitle: "Last 24 hours"
-            secondary_label: "vs. previous day"
           primary:
             aggregation: average
             field: system.cpu.total.norm.pct
@@ -289,8 +293,10 @@ dashboards:
           type: metric
           data_view: "metrics-*"
           appearance:
-            show_bar: true
-            progress_direction: horizontal
+            primary:
+              background_chart:
+                type: bar
+                direction: horizontal
           primary:
             aggregation: average
             field: system.filesystem.used.pct
@@ -314,8 +320,9 @@ dashboards:
           type: metric
           data_view: "metrics-*"
           appearance:
-            icon: sortUp
-            icon_align: right
+            primary:
+              icon: sortUp
+              icon_position: right
           primary:
             aggregation: count
 ```
@@ -334,13 +341,15 @@ dashboards:
           type: metric
           data_view: "metrics-*"
           appearance:
-            value_font_mode: fit
-            primary_position: top
+            primary:
+              font_size: fit
+              position: top
+              alignment: center
+            secondary:
+              alignment: center
           titles_and_text:
-            titles_text_align: center
-            primary_align: center
-            secondary_align: center
-            title_weight: bold
+            alignment: center
+            weight: bold
           primary:
             aggregation: count
             label: "Total Events"
@@ -360,7 +369,8 @@ dashboards:
           type: metric
           data_view: "metrics-*"
           appearance:
-            max_cols: 4
+            breakdown:
+              column_count: 4
           primary:
             aggregation: count
           breakdown:

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
@@ -26,39 +26,6 @@ from kb_dashboard_core.panels.charts.metric.view import (
 )
 
 
-def _extract_metric_style_kwargs(chart: BaseMetricChart) -> dict[str, Any]:
-    """Extract appearance and titles_and_text fields from a metric chart config.
-
-    Returns a dict of keyword arguments suitable for passing to both
-    ``KbnMetricVisualizationState`` and ``KbnESQLMetricVisualizationState``.
-
-    Args:
-        chart (BaseMetricChart): The source chart configuration containing optional style fields.
-
-    Returns:
-        dict[str, Any]: Keyword arguments for metric visualization state constructors.
-
-    """
-    appearance = chart.appearance
-    titles_and_text = chart.titles_and_text
-
-    return {
-        'icon': appearance.icon if appearance is not None else None,
-        'iconAlign': appearance.icon_align if appearance is not None else None,
-        'showBar': appearance.show_bar if appearance is not None else None,
-        'progressDirection': appearance.progress_direction if appearance is not None else None,
-        'maxCols': appearance.max_cols if appearance is not None else None,
-        'valueFontMode': appearance.value_font_mode if appearance is not None else None,
-        'primaryPosition': appearance.primary_position if appearance is not None else None,
-        'subtitle': titles_and_text.subtitle if titles_and_text is not None else None,
-        'secondaryLabel': titles_and_text.secondary_label if titles_and_text is not None else None,
-        'titlesTextAlign': titles_and_text.titles_text_align if titles_and_text is not None else None,
-        'primaryAlign': titles_and_text.primary_align if titles_and_text is not None else None,
-        'secondaryAlign': titles_and_text.secondary_align if titles_and_text is not None else None,
-        'titleWeight': titles_and_text.title_weight if titles_and_text is not None else None,
-    }
-
-
 def compile_metric_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
@@ -84,16 +51,53 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         KbnMetricVisualizationState: The compiled visualization state.
 
     """
+    appearance = chart.appearance
+    titles_and_text = chart.titles_and_text
+
+    primary = appearance.primary if appearance is not None else None
+    secondary = appearance.secondary if appearance is not None else None
+    breakdown = appearance.breakdown if appearance is not None else None
+
+    background_chart = primary.background_chart if primary is not None else None
+    show_bar: bool | None = None
+    progress_direction: Literal['horizontal', 'vertical'] | None = None
+    if background_chart is not None:
+        if background_chart.type == 'bar':
+            show_bar = True
+            progress_direction = background_chart.direction
+        elif background_chart.type == 'line':
+            show_bar = False
+        elif background_chart.type == 'none':
+            show_bar = None
+
+    secondary_label_position = (
+        secondary.label_position if secondary is not None and secondary.label_position is not None else None
+    )
+    if secondary_label_position is None:
+        secondary_label_position = 'before'
+
     return KbnMetricVisualizationState(
         layerId=layer_id,
         metricAccessor=primary_metric_id,
         secondaryTrend=KbnSecondaryTrendNone(),
-        secondaryLabelPosition='before',
+        secondaryLabelPosition=secondary_label_position,
         secondaryMetricAccessor=secondary_metric_id,
         maxAccessor=max_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
         applyColorTo=apply_to,
-        **_extract_metric_style_kwargs(chart),
+        icon=primary.icon if primary is not None else None,
+        iconAlign=primary.icon_position if primary is not None else None,
+        showBar=show_bar,
+        progressDirection=progress_direction,
+        maxCols=breakdown.column_count if breakdown is not None else None,
+        valueFontMode=primary.font_size if primary is not None else None,
+        primaryPosition=primary.position if primary is not None else None,
+        subtitle=titles_and_text.subtitle if titles_and_text is not None else None,
+        secondaryLabel=secondary.label if secondary is not None else None,
+        titlesTextAlign=titles_and_text.alignment if titles_and_text is not None else None,
+        primaryAlign=primary.alignment if primary is not None else None,
+        secondaryAlign=secondary.alignment if secondary is not None else None,
+        titleWeight=titles_and_text.weight if titles_and_text is not None else None,
     )
 
 
@@ -219,10 +223,25 @@ def compile_esql_metric_chart(
 
     layer_id = esql_metric_chart.get_id()
 
-    style_kwargs = _extract_metric_style_kwargs(esql_metric_chart)
-    # ESQL metrics default showBar to False when not explicitly set
-    if style_kwargs['showBar'] is None:
-        style_kwargs['showBar'] = False
+    appearance = esql_metric_chart.appearance
+    titles_and_text = esql_metric_chart.titles_and_text
+    primary = appearance.primary if appearance is not None else None
+    secondary = appearance.secondary if appearance is not None else None
+    breakdown = appearance.breakdown if appearance is not None else None
+
+    background_chart = primary.background_chart if primary is not None else None
+    show_bar: bool | None = None
+    progress_direction: Literal['horizontal', 'vertical'] | None = None
+    if background_chart is not None:
+        if background_chart.type == 'bar':
+            show_bar = True
+            progress_direction = background_chart.direction
+        elif background_chart.type == 'line':
+            show_bar = False
+        elif background_chart.type == 'none':
+            show_bar = None
+    else:
+        show_bar = False
 
     return (
         layer_id,
@@ -234,6 +253,18 @@ def compile_esql_metric_chart(
             maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
             applyColorTo=esql_metric_chart.apply_to,
-            **style_kwargs,
+            icon=primary.icon if primary is not None else None,
+            iconAlign=primary.icon_position if primary is not None else None,
+            showBar=show_bar,
+            progressDirection=progress_direction,
+            maxCols=breakdown.column_count if breakdown is not None else None,
+            valueFontMode=primary.font_size if primary is not None else None,
+            primaryPosition=primary.position if primary is not None else None,
+            subtitle=titles_and_text.subtitle if titles_and_text is not None else None,
+            secondaryLabel=secondary.label if secondary is not None else None,
+            titlesTextAlign=titles_and_text.alignment if titles_and_text is not None else None,
+            primaryAlign=primary.alignment if primary is not None else None,
+            secondaryAlign=secondary.alignment if secondary is not None else None,
+            titleWeight=titles_and_text.weight if titles_and_text is not None else None,
         ),
     )

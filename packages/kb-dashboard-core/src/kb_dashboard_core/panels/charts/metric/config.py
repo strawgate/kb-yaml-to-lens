@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -15,49 +15,87 @@ class MetricTitlesAndText(BaseCfgModel):
     subtitle: str | None = Field(default=None)
     """Custom subtitle text displayed below the metric title."""
 
-    secondary_label: str | None = Field(default=None)
-    """Custom label for the secondary metric, overriding its default label."""
-
-    titles_text_align: Literal['left', 'center', 'right'] | None = Field(default=None)
+    alignment: Literal['left', 'center', 'right'] | None = Field(default=None)
     """Text alignment for the metric title and subtitle."""
 
-    primary_align: Literal['left', 'center', 'right'] | None = Field(default=None)
-    """Text alignment for the primary metric value."""
-
-    secondary_align: Literal['left', 'center', 'right'] | None = Field(default=None)
-    """Text alignment for the secondary metric value."""
-
-    title_weight: Literal['bold', 'normal', 'lighter'] | None = Field(default=None)
+    weight: Literal['bold', 'normal', 'lighter'] | None = Field(default=None)
     """Font weight for the metric title."""
 
 
+class MetricBackgroundChart(BaseCfgModel):
+    """Background chart options for the primary metric value."""
+
+    type: Literal['line', 'bar', 'none'] = Field(default='line')
+    """Background chart mode. `none` hides the background chart."""
+
+    direction: Literal['horizontal', 'vertical'] | None = Field(default=None)
+    """Bar direction. Only valid when `type` is `bar`."""
+
+    @model_validator(mode='after')
+    def validate_direction(self) -> 'MetricBackgroundChart':
+        """Only allow direction when using a bar background chart."""
+        if self.type != 'bar' and self.direction is not None:
+            raise ValueError
+        return self
+
+
+class MetricPrimaryAppearance(BaseCfgModel):
+    """Primary metric appearance options."""
+
+    icon: str | None = Field(default=None)
+    """Icon identifier to display alongside the primary metric value."""
+
+    icon_position: Literal['left', 'right'] | None = Field(default=None)
+    """Horizontal icon alignment relative to the primary metric value."""
+
+    background_chart: MetricBackgroundChart | None = Field(default=None)
+    """Background chart options for the primary metric value."""
+
+    font_size: Literal['default', 'fit', 'custom'] | None = Field(default=None)
+    """Font size mode for the primary metric value."""
+
+    position: Literal['top', 'bottom'] | None = Field(default=None)
+    """Vertical position of the primary metric value within the panel."""
+
+    alignment: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the primary metric value."""
+
+
+class MetricSecondaryAppearance(BaseCfgModel):
+    """Secondary metric appearance options."""
+
+    alignment: Literal['left', 'center', 'right'] | None = Field(default=None)
+    """Text alignment for the secondary metric value."""
+
+    label: str | None = Field(default=None)
+    """Custom label for the secondary metric, overriding its default label."""
+
+    label_position: Literal['before', 'after'] | None = Field(default=None)
+    """Position of secondary label relative to the metric value."""
+
+
+class MetricBreakdownAppearance(BaseCfgModel):
+    """Breakdown layout options."""
+
+    column_count: int | None = Field(default=None, ge=1)
+    """Maximum number of columns when displaying broken-down metric values."""
+
+
 class MetricAppearance(BaseCfgModel):
-    """Appearance configuration for metric chart visualizations.
+    """Grouped appearance configuration for metric chart visualizations.
 
     Groups all visual styling options for metric charts including icons, progress bars,
     layout, and font configuration.
     """
 
-    icon: str | None = Field(default=None)
-    """Icon identifier to display alongside the metric value."""
+    primary: MetricPrimaryAppearance | None = Field(default=None)
+    """Primary metric appearance options."""
 
-    icon_align: Literal['left', 'right'] | None = Field(default=None)
-    """Horizontal alignment of the icon relative to the metric value."""
+    secondary: MetricSecondaryAppearance | None = Field(default=None)
+    """Secondary metric appearance options."""
 
-    show_bar: bool | None = Field(default=None)
-    """Whether to display a progress bar below the metric value."""
-
-    progress_direction: Literal['horizontal', 'vertical'] | None = Field(default=None)
-    """Direction of the progress bar when show_bar is enabled."""
-
-    max_cols: int | None = Field(default=None)
-    """Maximum number of columns when displaying broken-down metric values."""
-
-    value_font_mode: Literal['default', 'fit', 'custom'] | None = Field(default=None)
-    """Font size mode for the primary metric value."""
-
-    primary_position: Literal['top', 'bottom'] | None = Field(default=None)
-    """Vertical position of the primary metric value within the panel."""
+    breakdown: MetricBreakdownAppearance | None = Field(default=None)
+    """Breakdown layout options."""
 
 
 class BaseMetricChart(BaseChart):
@@ -122,14 +160,21 @@ class LensMetricChart(BaseMetricChart):
           maximum:
             value: 1
           appearance:
-            show_bar: true
-            progress_direction: horizontal
-            icon: sortUp
-            icon_align: right
+            primary:
+              background_chart:
+                type: bar
+                direction: horizontal
+              icon: sortUp
+              icon_position: right
+            breakdown:
+              column_count: 3
+            secondary:
+              label: "vs. previous day"
+              label_position: after
           titles_and_text:
             subtitle: "Last 24 hours"
-            titles_text_align: center
-            title_weight: bold
+            alignment: center
+            weight: bold
         ```
     """
 
@@ -185,8 +230,10 @@ class ESQLMetricChart(BaseMetricChart):
           primary:
             field: "avg_cpu"
           appearance:
-            show_bar: true
-            progress_direction: horizontal
+            primary:
+              background_chart:
+                type: bar
+                direction: horizontal
           titles_and_text:
             subtitle: "System Overview"
         ```

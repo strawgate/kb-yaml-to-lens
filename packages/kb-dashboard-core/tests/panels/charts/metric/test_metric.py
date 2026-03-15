@@ -24,16 +24,97 @@ if TYPE_CHECKING:
     from kb_dashboard_core.dashboard.view import KbnDashboard
 
 
+def _normalize_metric_config(config: dict[str, Any]) -> dict[str, Any]:  # noqa: PLR0912, PLR0915
+    """Normalize legacy flat metric style keys to the nested schema used by metric config."""
+    normalized = dict(config)
+    had_appearance = 'appearance' in normalized
+    had_titles_and_text = 'titles_and_text' in normalized
+    appearance = dict(normalized.get('appearance', {}))
+    titles_and_text = dict(normalized.get('titles_and_text', {}))
+
+    primary = dict(appearance.get('primary', {}))
+    secondary = dict(appearance.get('secondary', {}))
+    breakdown = dict(appearance.get('breakdown', {}))
+
+    if 'icon' in appearance and 'icon' not in primary:
+        primary['icon'] = appearance.pop('icon')
+    if 'icon_align' in appearance and 'icon_position' not in primary:
+        primary['icon_position'] = appearance.pop('icon_align')
+    if 'value_font_mode' in appearance and 'font_size' not in primary:
+        primary['font_size'] = appearance.pop('value_font_mode')
+    if 'primary_position' in appearance and 'position' not in primary:
+        primary['position'] = appearance.pop('primary_position')
+    if 'primary_align' in appearance and 'alignment' not in primary:
+        primary['alignment'] = appearance.pop('primary_align')
+    if 'secondary_align' in appearance and 'alignment' not in secondary:
+        secondary['alignment'] = appearance.pop('secondary_align')
+    if 'max_cols' in appearance and 'column_count' not in breakdown:
+        breakdown['column_count'] = appearance.pop('max_cols')
+    if 'show_bar' in appearance or 'progress_direction' in appearance:
+        show_bar = appearance.pop('show_bar', None)
+        progress_direction = appearance.pop('progress_direction', None)
+        if show_bar is True:
+            background_type = 'bar'
+        elif show_bar is False:
+            background_type = 'line'
+        elif progress_direction is not None:
+            background_type = 'bar'
+        else:
+            background_type = 'none'
+        primary.setdefault('background_chart', {'type': background_type})
+        if progress_direction is not None:
+            primary['background_chart']['direction'] = progress_direction
+
+    if 'secondary_label' in titles_and_text:
+        secondary_label = titles_and_text.pop('secondary_label')
+        if 'label' not in secondary:
+            secondary['label'] = secondary_label
+    if 'secondary_label_position' in titles_and_text:
+        secondary_label_position = titles_and_text.pop('secondary_label_position')
+        if 'label_position' not in secondary:
+            secondary['label_position'] = secondary_label_position
+    if 'titles_text_align' in titles_and_text and 'alignment' not in titles_and_text:
+        titles_and_text['alignment'] = titles_and_text.pop('titles_text_align')
+    if 'primary_align' in titles_and_text and 'alignment' not in primary:
+        primary['alignment'] = titles_and_text.pop('primary_align')
+    else:
+        titles_and_text.pop('primary_align', None)
+    if 'secondary_align' in titles_and_text and 'alignment' not in secondary:
+        secondary['alignment'] = titles_and_text.pop('secondary_align')
+    else:
+        titles_and_text.pop('secondary_align', None)
+    if 'title_weight' in titles_and_text and 'weight' not in titles_and_text:
+        titles_and_text['weight'] = titles_and_text.pop('title_weight')
+
+    if primary:
+        appearance['primary'] = primary
+    if secondary:
+        appearance['secondary'] = secondary
+    if breakdown:
+        appearance['breakdown'] = breakdown
+
+    if appearance:
+        normalized['appearance'] = appearance
+    elif had_appearance:
+        normalized.pop('appearance', None)
+    if titles_and_text:
+        normalized['titles_and_text'] = titles_and_text
+    elif had_titles_and_text:
+        normalized.pop('titles_and_text', None)
+    return normalized
+
+
 def compile_metric_chart_snapshot(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
     """Compile metric chart config and return dict for snapshot testing."""
+    normalized_config = _normalize_metric_config(config)
     if chart_type == 'lens':
-        lens_chart = LensMetricChart.model_validate(config)
+        lens_chart = LensMetricChart.model_validate(normalized_config)
         _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
         assert kbn_state_visualization is not None
         return kbn_state_visualization.model_dump()
 
     # esql
-    esql_chart = ESQLMetricChart.model_validate(config)
+    esql_chart = ESQLMetricChart.model_validate(normalized_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_metric_chart(esql_metric_chart=esql_chart)
     assert kbn_state_visualization is not None
     return kbn_state_visualization.model_dump()
