@@ -23,7 +23,7 @@ Requirements:
 5. After conversion, run:
    - kb-dashboard compile --input-dir <yaml_dir> --output-dir <compiled_dir>
    - kb-dashboard disassemble <compiled_dir>/output.ndjson -o <compiled_disassembled_dir>
-   - kb-dashboard compare <disassembled_dir> <compiled_disassembled_dir>
+   - python3 scripts/compare_dashboards.py <disassembled_dir> <compiled_disassembled_dir>
 6. Summarize any mismatches found during validation.
 ```
 
@@ -346,12 +346,10 @@ kb-dashboard compile --input-dir my-yaml/ --output-dir compiled/
 
 ### Compare Structure
 
-Use the comparison helper command to quickly check panel counts and panel types after disassembly:
+Use the comparison helper script to quickly check panel counts and types:
 
 ```bash
-kb-dashboard compare \
-  /tmp/original_disassembled \
-  /tmp/compiled_disassembled
+scripts/compare_panel_counts.sh original.ndjson compiled/output.ndjson
 ```
 
 ### CI Drift Check
@@ -390,10 +388,10 @@ For thorough validation, use this round-trip workflow to verify the compiled out
 
 3. **Compare panel structures:**
 
-   Use the comparison helper command to analyze differences:
+   Use the comparison helper script to analyze differences:
 
    ```bash
-   kb-dashboard compare /tmp/original_disassembled /tmp/compiled_disassembled
+   python3 scripts/compare_dashboards.py /tmp/original_disassembled /tmp/compiled_disassembled
    ```
 
    This will show panel counts, types, and identify any mismatches.
