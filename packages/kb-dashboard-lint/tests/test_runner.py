@@ -112,6 +112,7 @@ class TestRegistry:
         """
         expected_rules = {
             # Dashboard rules
+            'collapsible-minimum-kibana-version',
             'dashboard-dataset-filter',
             'dashboard-missing-description',
             'datatable-at-bottom',

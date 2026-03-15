@@ -37,6 +37,7 @@ from dashboard_lint.rules.core import (
     panel_rule,
 )
 from dashboard_lint.rules.dashboard import (
+    CollapsibleMinimumKibanaVersionRule,
     DashboardDatasetFilterRule,
     DashboardMissingDescriptionRule,
     DatatableAtBottomRule,
@@ -53,6 +54,7 @@ from dashboard_lint.rules.panel import (
 __all__ = [
     'ChartContext',
     'ChartRule',
+    'CollapsibleMinimumKibanaVersionRule',
     'DashboardDatasetFilterRule',
     'DashboardMissingDescriptionRule',
     'DashboardRule',
