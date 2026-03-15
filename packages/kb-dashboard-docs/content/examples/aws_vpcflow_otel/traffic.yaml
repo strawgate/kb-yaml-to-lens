@@ -181,7 +181,7 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-          dimensions:
+          breakdowns:
             - field: network.protocol.name
               label: Protocol
       - title: Top Destination Ports
@@ -226,7 +226,7 @@ dashboards:
             - EVAL rejection_rate = CASE(total_flows > 0, rejected_flows::double / total_flows::double, 0)
             - SORT total_flows DESC
             - LIMIT 20
-          dimensions:
+          breakdowns:
             - field: source.address
               label: Source IP
           metrics:
@@ -330,7 +330,7 @@ dashboards:
               aws.vpc.flow.packets
             - SORT @timestamp DESC
             - LIMIT 1000
-          dimensions:
+          breakdowns:
             - field: '@timestamp'
               label: Timestamp
             - field: source.address

@@ -82,7 +82,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: event.category
               type: values
               size: 10
@@ -107,7 +107,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: event.kind
               type: values
               size: 8
@@ -132,7 +132,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.event.Category
               type: values
               size: 10
@@ -160,7 +160,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.status
               type: values
               size: 8
@@ -188,7 +188,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.event.Status
               type: values
               size: 8
@@ -216,7 +216,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: host.os.platform
               type: values
               size: 8

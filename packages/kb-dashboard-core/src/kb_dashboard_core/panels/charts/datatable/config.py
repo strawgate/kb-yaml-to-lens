@@ -74,7 +74,7 @@ class LensDatatableChart(BaseChart):
     pagination, and formatting options.
 
     Examples:
-        Simple datatable with metrics and dimensions:
+        Simple datatable with metrics and breakdowns:
         ```yaml
         lens:
           type: datatable
@@ -83,7 +83,7 @@ class LensDatatableChart(BaseChart):
             - id: "service-count"
               field: "service.name"
               aggregation: count
-          dimensions:
+          breakdowns:
             - id: "service-breakdown"
               type: values
               field: "service.name"
@@ -99,7 +99,7 @@ class LensDatatableChart(BaseChart):
               aggregation: count
               filter:
                 kql: "log.level:error"
-          dimensions:
+          breakdowns:
             - id: "service"
               type: values
               field: "service.name"
@@ -121,10 +121,10 @@ class LensDatatableChart(BaseChart):
     metrics: list[LensDatatableMetricTypes | LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    dimensions: list[LensDatatableDimensionTypes | LensDimensionTypes] = Field(default_factory=list)
-    """List of dimensions to use as row groupings."""
+    breakdowns: list[LensDatatableDimensionTypes | LensDimensionTypes] = Field(default_factory=list)
+    """List of breakdowns to use as row groupings."""
 
-    dimensions_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
+    dimensions: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
     """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
 
     appearance: DatatableAppearance | None = Field(default=None)
@@ -137,14 +137,14 @@ class LensDatatableChart(BaseChart):
     """Optional pagination configuration."""
 
     @model_validator(mode='after')
-    def validate_has_metrics_or_dimensions(self) -> Self:
-        """Validate that datatable has at least one metric or dimension.
+    def validate_has_metrics_or_breakdowns(self) -> Self:
+        """Validate that datatable has at least one metric or breakdown.
 
-        Kibana requires datatables to have either metrics or dimensions (or both).
+        Kibana requires datatables to have either metrics or breakdowns (or both).
         An empty datatable with neither will render as a blank panel.
         """
-        if len(self.metrics) == 0 and len(self.dimensions) == 0:
-            msg = 'Datatable must have at least one metric or one dimension'
+        if len(self.metrics) == 0 and len(self.breakdowns) == 0:
+            msg = 'Datatable must have at least one metric or one breakdown'
             raise ValueError(msg)
         return self
 
@@ -165,7 +165,7 @@ class ESQLDatatableChart(BaseChart):
               field: "count"
             - id: "avg-cpu"
               field: "avg_cpu"
-          dimensions:
+          breakdowns:
             - id: "service"
               field: "service.name"
           sorting:
@@ -180,10 +180,10 @@ class ESQLDatatableChart(BaseChart):
     metrics: list[ESQLDatatableMetricTypes | ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    dimensions: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] = Field(default_factory=list)
-    """List of ESQL dimensions to use as row groupings."""
+    breakdowns: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] = Field(default_factory=list)
+    """List of ESQL breakdowns to use as row groupings."""
 
-    dimensions_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
+    dimensions: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
     """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
 
     appearance: DatatableAppearance | None = Field(default=None)
@@ -196,9 +196,9 @@ class ESQLDatatableChart(BaseChart):
     """Optional pagination configuration."""
 
     @model_validator(mode='after')
-    def validate_has_metrics_or_dimensions(self) -> Self:
-        """Validate that datatable has at least one metric or dimension."""
-        if len(self.metrics) == 0 and len(self.dimensions) == 0:
-            msg = 'Datatable must have at least one metric or one dimension'
+    def validate_has_metrics_or_breakdowns(self) -> Self:
+        """Validate that datatable has at least one metric or breakdown."""
+        if len(self.metrics) == 0 and len(self.breakdowns) == 0:
+            msg = 'Datatable must have at least one metric or one breakdown'
             raise ValueError(msg)
         return self

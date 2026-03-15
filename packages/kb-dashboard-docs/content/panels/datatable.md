@@ -69,7 +69,7 @@ dashboards:
         lens:
           type: datatable
           data_view: "logs-*"
-          dimensions:
+          breakdowns:
             - id: "service"
               field: "service.name"
               type: values
@@ -104,7 +104,7 @@ dashboards:
         lens:
           type: datatable
           data_view: "metrics-*"
-          dimensions:
+          breakdowns:
             - id: "host"
               field: "host.name"
               type: values

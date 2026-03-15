@@ -87,11 +87,11 @@ class PieMissingLimitRule(ChartRule[PieConfig, PieMissingLimitOptions]):
         context: ChartContext,
         options: PieMissingLimitOptions,
     ) -> ViolationResult:
-        """Check Lens pie chart for size limits on dimensions."""
+        """Check Lens pie chart for size limits on breakdowns."""
         if not isinstance(config, LensPiePanelConfig):
             return None
 
-        for dim in config.dimensions:
+        for dim in config.breakdowns:
             # Only terms dimensions have a size parameter
             if isinstance(dim, BaseLensTermsDimension):
                 # size=None means Kibana default (often 5, but can be higher)
@@ -99,20 +99,20 @@ class PieMissingLimitRule(ChartRule[PieConfig, PieMissingLimitOptions]):
                 if dim.size is None:
                     return Violation(
                         rule_id=self.id,
-                        message=f'Pie chart dimension lacks explicit size; consider setting size to {options.recommended_max} or less',
+                        message=f'Pie chart breakdown lacks explicit size; consider setting size to {options.recommended_max} or less',
                         severity=self.default_severity,
                         dashboard_name=context.dashboard_name,
                         panel_title=context.panel_title,
-                        location=context.location('dimensions'),
+                        location=context.location('breakdowns'),
                     )
                 if dim.size > options.recommended_max:
                     return Violation(
                         rule_id=self.id,
-                        message=f'Pie chart dimension shows {dim.size} values; consider {options.recommended_max} or fewer for readability',
+                        message=f'Pie chart breakdown shows {dim.size} values; consider {options.recommended_max} or fewer for readability',
                         severity=self.default_severity,
                         dashboard_name=context.dashboard_name,
                         panel_title=context.panel_title,
-                        location=context.location('dimensions'),
+                        location=context.location('breakdowns'),
                     )
 
         return None

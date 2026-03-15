@@ -52,7 +52,7 @@ dashboards:
             - EVAL data_nodes_int = TO_INTEGER(data_nodes)
             - KEEP cluster, nodes_int, data_nodes_int
             - RENAME nodes_int AS `Total Nodes`, data_nodes_int AS `Data Nodes`
-          dimensions:
+          breakdowns:
             - field: cluster
               label: Cluster
             - field: Total Nodes
@@ -74,7 +74,7 @@ dashboards:
             - EVAL state_queue_int = TO_INTEGER(state_queue)
             - KEEP cluster, health, pending_tasks_int, in_flight_int, state_queue_int
             - RENAME pending_tasks_int AS `Pending Tasks`, in_flight_int AS `In-Flight Fetches`, state_queue_int AS `State Queue`
-          dimensions:
+          breakdowns:
             - field: cluster
               label: Cluster
             - field: health
@@ -99,7 +99,7 @@ dashboards:
             - WHERE elasticsearch.node.name IS NOT NULL
             - STATS count = COUNT(*) BY node = elasticsearch.node.name, cluster = elasticsearch.cluster.name
             - KEEP node, cluster
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: cluster
@@ -121,7 +121,7 @@ dashboards:
             - EVAL mem_gb = ROUND(mem_used / 1073741824, 2)
             - KEEP node, cpu_percent, mem_gb
             - RENAME cpu_percent AS `CPU %`, mem_gb AS `Memory Used (GB)`
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: CPU %
@@ -142,7 +142,7 @@ dashboards:
             - EVAL disk_used_pct = CASE(disk_total IS NULL OR disk_total == 0, null, ROUND((1 - (disk_avail / disk_total)) * 100, 1))
             - KEEP node, disk_avail_gb, disk_total_gb, disk_used_pct
             - RENAME disk_avail_gb AS `Disk Available (GB)`, disk_total_gb AS `Disk Total (GB)`, disk_used_pct AS `Disk Used %`
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: Disk Available (GB)
@@ -172,7 +172,7 @@ dashboards:
             - RENAME size_mb AS `Size (MB)`, segments_int AS `Segment Count`, segment_size_mb AS `Segment Size (MB)`
             - SORT `Size (MB)` DESC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: index_name
               label: Index Name
             - field: Size (MB)
@@ -200,7 +200,7 @@ dashboards:
             - KEEP node, pool, threads_int, queue_int
             - RENAME threads_int AS Threads, queue_int AS `Queue Size`
             - WHERE Threads > 0 OR `Queue Size` > 0
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: pool
@@ -226,7 +226,7 @@ dashboards:
             - KEEP node, cache, mem_usage_mb
             - RENAME mem_usage_mb AS `Memory Usage (MB)`
             - WHERE `Memory Usage (MB)` > 0
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: cache
@@ -252,7 +252,7 @@ dashboards:
             - EVAL nonheap_used_mb = ROUND(nonheap_used / 1048576, 2)
             - KEEP node, heap_max_gb, heap_used_gb, nonheap_used_mb
             - RENAME heap_max_gb AS `Heap Max (GB)`, heap_used_gb AS `Heap Used (GB)`, nonheap_used_mb AS `Non-Heap Used (MB)`
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: Heap Max (GB)
@@ -274,7 +274,7 @@ dashboards:
             - EVAL classes_int = TO_INTEGER(classes)
             - KEEP node, threads_int, classes_int
             - RENAME threads_int AS `Thread Count`, classes_int AS `Classes Loaded`
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: Thread Count
@@ -300,7 +300,7 @@ dashboards:
             - EVAL utilization_pct = CASE(limit == 0 OR limit IS NULL, null, ROUND((estimated / limit) * 100, 1))
             - KEEP node, breaker, estimated_mb, limit_mb, utilization_pct
             - RENAME estimated_mb AS `Estimated (MB)`, limit_mb AS `Limit (MB)`, utilization_pct AS `Utilization %`
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: breaker

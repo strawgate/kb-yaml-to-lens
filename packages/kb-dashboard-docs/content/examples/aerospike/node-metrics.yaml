@@ -210,7 +210,7 @@ dashboards:
             - KEEP node, memory_free, connections_open
             - SORT node ASC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: memory_free

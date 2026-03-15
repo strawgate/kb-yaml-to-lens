@@ -75,7 +75,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: log.level
               type: values
               label: Level
@@ -104,7 +104,7 @@ dashboards:
             - SORT @timestamp DESC
             - LIMIT 1000
             - KEEP @timestamp, log.level, log.logger, message
-          dimensions:
+          breakdowns:
             - field: '@timestamp'
               label: Timestamp
             - field: log.level

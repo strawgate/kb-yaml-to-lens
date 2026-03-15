@@ -149,7 +149,7 @@ dashboards:
               Hostname = container.hostname
             - KEEP `Container Name`, Image, Runtime, `Container ID`, Hostname, `CPU Usage`, `Memory (Bytes)`, `Memory %`
             - LIMIT 10
-          dimensions:
+          breakdowns:
             - field: Container Name
               label: Container Name
             - field: Image

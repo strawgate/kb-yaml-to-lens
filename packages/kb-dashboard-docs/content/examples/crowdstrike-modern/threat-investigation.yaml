@@ -81,7 +81,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: threat.technique.name
               type: values
               size: 10
@@ -108,7 +108,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: threat.tactic.name
               type: values
               size: 10
@@ -135,7 +135,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.event.SeverityName
               type: values
               size: 5
@@ -164,7 +164,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.ioc_source
               type: values
               size: 10
@@ -192,7 +192,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.ioc_type
               type: values
               size: 10
@@ -220,7 +220,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: event.action
               type: values
               size: 10

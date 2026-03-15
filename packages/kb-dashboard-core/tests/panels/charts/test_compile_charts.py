@@ -51,7 +51,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'pie',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'breakdowns': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -63,7 +63,7 @@ class TestChartTypeToKbnTypeLens:
         chart = ESQLPieChart.model_validate(
             {
                 'type': 'pie',
-                'dimensions': [{'field': 'status', 'id': 'group1'}],
+                'breakdowns': [{'field': 'status', 'id': 'group1'}],
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
         )
@@ -76,7 +76,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'treemap',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'breakdowns': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -88,7 +88,7 @@ class TestChartTypeToKbnTypeLens:
         chart = ESQLTreemapChart.model_validate(
             {
                 'type': 'treemap',
-                'dimensions': [{'field': 'status', 'id': 'group1'}],
+                'breakdowns': [{'field': 'status', 'id': 'group1'}],
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             }
         )
@@ -595,7 +595,7 @@ class TestCompileLensChartState:
             {
                 'type': 'pie',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'breakdowns': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -676,7 +676,7 @@ class TestCompileLensChartState:
             {
                 'type': 'treemap',
                 'data_view': 'metrics-*',
-                'dimensions': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
+                'breakdowns': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
                 'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             }
         )
@@ -880,7 +880,7 @@ class TestCompileESQLChartState:
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
                     'time_field': 'timestamp',
-                    'dimensions': [{'field': 'status', 'id': 'group1'}],
+                    'breakdowns': [{'field': 'status', 'id': 'group1'}],
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },
             }
@@ -951,7 +951,7 @@ class TestCompileESQLChartState:
             {
                 'type': 'pie',
                 'query': 'FROM logs-* | STATS count() BY status',
-                'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                'breakdowns': [{'field': 'status', 'id': 'dim1'}],
                 'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
             },
             # Datatable
@@ -1034,7 +1034,7 @@ class TestCompileESQLChartState:
                 {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count_by_status = COUNT(*) BY status',
-                    'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                    'breakdowns': [{'field': 'status', 'id': 'dim1'}],
                     'metrics': [10],
                 },
                 r'metrics\.0',
@@ -1109,7 +1109,7 @@ class TestESQLDataTypeDate:
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY status',
-                    'dimensions': [{'field': 'status', 'id': 'dim1'}],
+                    'breakdowns': [{'field': 'status', 'id': 'dim1'}],
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },
             }
@@ -1174,7 +1174,7 @@ class TestESQLDataTypeDate:
                 'esql': {
                     'type': 'pie',
                     'query': 'FROM logs-* | STATS count() BY date_bucket',
-                    'dimensions': [{'field': 'date_bucket', 'id': 'dim1', 'data_type': 'date'}],
+                    'breakdowns': [{'field': 'date_bucket', 'id': 'dim1', 'data_type': 'date'}],
                     'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
                 },
             }

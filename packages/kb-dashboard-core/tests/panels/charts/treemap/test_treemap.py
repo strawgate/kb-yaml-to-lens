@@ -14,7 +14,7 @@ async def test_basic_treemap_chart() -> None:
         'type': 'treemap',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -22,7 +22,7 @@ async def test_basic_treemap_chart() -> None:
         'type': 'treemap',
         'query': 'FROM metrics-* | STATS count(*) by service.name',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -83,7 +83,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
             'type': 'treemap',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'dimensions': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
+            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
             'titles_and_text': {'slice_labels': 'show'},
         }
     )
@@ -95,7 +95,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
             'type': 'treemap',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'dimensions': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
+            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
             'titles_and_text': {'slice_labels': 'hide'},
         }
     )

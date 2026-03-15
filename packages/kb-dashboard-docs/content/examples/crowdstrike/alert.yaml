@@ -32,7 +32,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.status
               type: values
               size: 5
@@ -52,7 +52,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: host.os.platform
               type: values
               size: 5
@@ -115,7 +115,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.severity
               type: values
               size: 10
@@ -219,7 +219,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.ioc_source
               type: values
               size: 10
@@ -239,7 +239,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: crowdstrike.alert.ioc_type
               type: values
               size: 10
@@ -259,7 +259,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: host.os.full
               type: values
               size: 10

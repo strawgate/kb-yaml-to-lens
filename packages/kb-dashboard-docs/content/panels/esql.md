@@ -72,7 +72,7 @@ dashboards:
             | LIMIT 5
           metrics:
             - field: "event_count"
-          dimensions:
+          breakdowns:
             - field: "event.category"
 ```
 
@@ -199,7 +199,7 @@ dashboards:
             | LIMIT 10
           metrics:
             - field: "error_count"
-          dimensions:
+          breakdowns:
             - field: "error_type"
           appearance:
             donut: "small"

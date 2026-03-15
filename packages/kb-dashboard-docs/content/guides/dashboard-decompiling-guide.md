@@ -308,7 +308,7 @@ dashboards:
   lens:
     type: pie
     data_view: logs-*
-    dimensions:
+    breakdowns:
       - field: status
         type: values
         size: 5

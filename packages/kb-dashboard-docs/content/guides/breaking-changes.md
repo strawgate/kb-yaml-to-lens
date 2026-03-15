@@ -19,6 +19,10 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Metric charts (Lens + ES|QL): rename `color_mode` to `apply_to`.
 - Datatable validation: ensure each datatable has at least one metric or one dimension.
 - Range color mappings: rename `stops` to `thresholds` and nested `stop` to `up_to`.
+- Pie charts (Lens + ES|QL): rename `dimensions` to `breakdowns`.
+- Treemap charts (Lens + ES|QL): rename `dimensions` to `breakdowns`. Maximum 2 breakdowns are now enforced.
+- Waffle charts (Lens + ES|QL): rename `dimension` to `breakdown`. The secondary `breakdown` field has been removed; waffle charts support exactly one breakdown.
+- Datatable charts (Lens + ES|QL): rename `dimensions` (row groupings) to `breakdowns`, and rename `dimensions_by` (split metrics by) to `dimensions`.
 
 ### Range Color Mapping Threshold Rename
 
