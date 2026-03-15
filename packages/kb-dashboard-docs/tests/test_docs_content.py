@@ -25,6 +25,7 @@ def test_list_guides_returns_list() -> None:
     assert len(guides) > 0
     assert guides == sorted(guides)
     # Check that known guides exist
+    assert 'breaking-changes' in guides
     assert 'otel-dashboard-guide' in guides
     assert 'esql-language-reference' in guides
 

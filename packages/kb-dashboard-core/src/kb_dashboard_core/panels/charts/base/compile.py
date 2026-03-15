@@ -1,5 +1,7 @@
 """Compilation utilities for base chart components."""
 
+from collections.abc import Sequence
+
 from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorValueMapping
 from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
@@ -80,16 +82,19 @@ def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLa
     )
 
 
+def build_collapse_fns(dimension_collapses: Sequence[tuple[str, str | None]]) -> dict[str, str] | None:
+    """Build a collapse function mapping for chart dimensions."""
+    collapse_fns = {dimension_id: str(collapse) for dimension_id, collapse in dimension_collapses if collapse is not None}
+    return collapse_fns or None
+
+
 def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRangePalette | None:
     """Compile a range-based color config into Kibana range palette format.
 
     Kibana uses two parallel arrays in the palette params:
-    - ``colorStops``: each entry marks the START of a color band
     - ``stops``: each entry marks the END of a color band
-
-    User-provided stops are interpreted as band END points. START points are
-    derived by shifting endpoints down by one and anchoring the first band to
-    ``range_min``.
+    - ``colorStops``: mirrored from ``stops`` so threshold boundaries are
+      preserved in both arrays (required by gauge and datatable visualizations)
     """
     if color_config is None:
         return None
@@ -105,11 +110,8 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     if color_config.range_type == 'percent':
         stops[-1] = KbnRangePaletteStop(color=stops[-1].color, stop=100.0)
 
-    # Build colorStops (START of each band) by shifting endpoints down by one.
-    color_stops: list[KbnRangePaletteStop] = []
-    for i, entry in enumerate(user_stops):
-        start = range_min if i == 0 else user_stops[i - 1].stop
-        color_stops.append(KbnRangePaletteStop(color=entry.color, stop=start))
+    # colorStops mirrors stops so threshold boundaries are preserved in both arrays.
+    color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in stops]
 
     return KbnRangePalette(
         params=KbnRangePaletteParams(

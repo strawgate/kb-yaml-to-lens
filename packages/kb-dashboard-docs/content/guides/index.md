@@ -13,3 +13,7 @@ Use the CLI to access bundled guide content:
 | [Creating Dashboards from OpenTelemetry Receivers](otel-dashboard-guide.md) | Building receiver-focused dashboards with accurate metric/query patterns |
 | [ES\|QL Language Reference](esql-language-reference.md) | Writing production-ready ES\|QL for dashboard panels |
 | [Kibana Dashboard Style Guide](dashboard-style-guide.md) | Applying layout, hierarchy, and readability patterns across dashboards |
+| [Breaking Changes](breaking-changes.md) | Migration checklist for version upgrades |
+| [Color Assignments](../advanced/color-assignments.md) | Configuring chart color assignments |
+| [Legend Configuration](../advanced/legend-configuration.md) | Legend placement and sizing |
+| [ES\|QL Views](../advanced/esql-views.md) | Reusable ES\|QL view definitions |

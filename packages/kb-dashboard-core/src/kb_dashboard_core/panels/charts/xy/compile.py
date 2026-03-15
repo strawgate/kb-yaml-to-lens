@@ -361,6 +361,100 @@ def compile_series_type(chart: LensXYChartTypes | ESQLXYChartTypes) -> str:
     return series_type
 
 
+def _compile_metric_y_config(*, metric_ids: list[str], chart: LensXYChartTypes | ESQLXYChartTypes) -> list[YConfig] | None:
+    """Compile metric-level Y axis and color overrides into Kibana yConfig entries.
+
+    Args:
+        metric_ids: Accessor IDs aligned with chart.metrics.
+        chart: The XY chart configuration.
+
+    Returns:
+        list[YConfig] | None: yConfig entries, or None when no metric overrides are set.
+    """
+    y_config_list: list[YConfig] = []
+    for metric_id, metric in zip(metric_ids, chart.metrics, strict=True):
+        if metric.axis is not None or metric.color is not None:
+            y_config_list.append(
+                YConfig(
+                    forAccessor=metric_id,
+                    axisMode=metric.axis,
+                    color=metric.color,
+                )
+            )
+
+    return y_config_list if y_config_list else None
+
+
+def _compile_axis_settings(
+    chart: LensXYChartTypes | ESQLXYChartTypes,
+) -> tuple[
+    str | None,
+    str | None,
+    str | None,
+    Literal['linear', 'log', 'sqrt', 'time'] | None,
+    Literal['linear', 'log', 'sqrt', 'time'] | None,
+    Literal['linear', 'log', 'sqrt', 'time'] | None,
+    AxisExtentConfig | None,
+    AxisExtentConfig | None,
+    AxisExtentConfig | None,
+    AxisTitlesVisibilitySettings | None,
+]:
+    """Compile axis titles, scales, extents, and title visibility settings."""
+    x_title = None
+    x_show_title = True
+    x_scale = None
+    y_left_title = None
+    y_left_show_title = True
+    y_right_title = None
+    y_right_show_title = True
+    y_left_scale = None
+    y_right_scale = None
+    y_left_extent = None
+    y_right_extent = None
+    x_extent = None
+
+    if chart.appearance is not None:
+        x_title, x_show_title, x_scale, x_extent = _extract_axis_config(chart.appearance.x_axis)
+        y_left_title, y_left_show_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
+        y_right_title, y_right_show_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
+
+    axis_titles_visibility = None
+    if (
+        x_title is not None
+        or y_left_title is not None
+        or y_right_title is not None
+        or x_show_title is False
+        or y_left_show_title is False
+        or y_right_show_title is False
+    ):
+        axis_titles_visibility = AxisTitlesVisibilitySettings(
+            x=x_show_title,
+            yLeft=y_left_show_title,
+            yRight=y_right_show_title,
+        )
+
+    return (
+        x_title,
+        y_left_title,
+        y_right_title,
+        x_scale,
+        y_left_scale,
+        y_right_scale,
+        x_extent,
+        y_left_extent,
+        y_right_extent,
+        axis_titles_visibility,
+    )
+
+
+def _resolve_value_labels(chart: LensXYChartTypes | ESQLXYChartTypes) -> Literal['hide', 'show']:
+    """Resolve the value labels mode, defaulting to Kibana's hidden state."""
+    value_labels: Literal['hide', 'show'] = 'hide'
+    if chart.titles_and_text is not None and chart.titles_and_text.value_labels is not None:
+        value_labels = chart.titles_and_text.value_labels
+    return value_labels
+
+
 def compile_xy_chart_visualization_state(
     *,
     layer_id: str,
@@ -385,56 +479,19 @@ def compile_xy_chart_visualization_state(
 
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
-    # Build yConfig from metric appearance properties
-    y_config: list[YConfig] | None = None
-    y_config_list: list[YConfig] = []
-
-    for metric_id, metric in zip(metric_ids, chart.metrics, strict=True):
-        if metric.axis is not None or metric.color is not None:
-            y_config_list.append(
-                YConfig(
-                    forAccessor=metric_id,
-                    axisMode=metric.axis,
-                    color=metric.color,
-                )
-            )
-
-    y_config = y_config_list if len(y_config_list) > 0 else None
-
-    # Build axis configuration from appearance settings
-    x_title = None
-    x_show_title = True
-    x_scale = None
-    y_left_title = None
-    y_left_show_title = True
-    y_right_title = None
-    y_right_show_title = True
-    y_left_scale = None
-    y_right_scale = None
-    y_left_extent = None
-    y_right_extent = None
-    x_extent = None
-
-    if chart.appearance is not None:
-        x_title, x_show_title, x_scale, x_extent = _extract_axis_config(chart.appearance.x_axis)
-        y_left_title, y_left_show_title, y_left_scale, y_left_extent = _extract_axis_config(chart.appearance.y_left_axis)
-        y_right_title, y_right_show_title, y_right_scale, y_right_extent = _extract_axis_config(chart.appearance.y_right_axis)
-
-    # Build axisTitlesVisibilitySettings if any titles are set or visibility is explicitly disabled
-    axis_titles_visibility = None
-    if (
-        x_title is not None
-        or y_left_title is not None
-        or y_right_title is not None
-        or x_show_title is False
-        or y_left_show_title is False
-        or y_right_show_title is False
-    ):
-        axis_titles_visibility = AxisTitlesVisibilitySettings(
-            x=x_show_title,
-            yLeft=y_left_show_title,
-            yRight=y_right_show_title,
-        )
+    y_config = _compile_metric_y_config(metric_ids=metric_ids, chart=chart)
+    (
+        x_title,
+        y_left_title,
+        y_right_title,
+        x_scale,
+        y_left_scale,
+        y_right_scale,
+        x_extent,
+        y_left_extent,
+        y_right_extent,
+        axis_titles_visibility,
+    ) = _compile_axis_settings(chart)
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
@@ -465,10 +522,7 @@ def compile_xy_chart_visualization_state(
         hide_endzones,
     ) = _extract_chart_type_specific_appearance(chart)
 
-    # Determine value labels setting
-    value_labels: Literal['hide', 'show'] = 'hide'
-    if chart.titles_and_text is not None and chart.titles_and_text.value_labels is not None:
-        value_labels = chart.titles_and_text.value_labels
+    value_labels = _resolve_value_labels(chart)
 
     return KbnXYVisualizationState(
         preferredSeriesType=series_type,

@@ -151,6 +151,7 @@ _vendor-docs-copy:
     @# Verify required source files exist
     @test -f "{{DOCS_CONTENT_DIR}}/llms-full.txt" || (echo "Error: llms-full.txt not found. Run mkdocs build first." && exit 1)
     @test -f "{{DOCS_CONTENT_DIR}}/guides/esql-language-reference.md" || (echo "Error: esql-language-reference.md not found." && exit 1)
+    @test -f "{{DOCS_CONTENT_DIR}}/guides/breaking-changes.md" || (echo "Error: breaking-changes.md not found." && exit 1)
     @test -f "{{DOCS_CONTENT_DIR}}/guides/otel-dashboard-guide.md" || (echo "Error: otel-dashboard-guide.md not found." && exit 1)
     @test -f "{{DOCS_CONTENT_DIR}}/guides/color-assignments.md" || (echo "Error: color-assignments.md not found." && exit 1)
     @test -f "{{DOCS_CONTENT_DIR}}/guides/esql-views.md" || (echo "Error: esql-views.md not found." && exit 1)
@@ -161,6 +162,7 @@ _vendor-docs-copy:
     cp "{{DOCS_CONTENT_DIR}}/llms-full.txt" "{{RESOURCES_DIR}}/llms-full.txt"
     @printf "  Copying workflow guides...\n"
     cp "{{DOCS_CONTENT_DIR}}/guides/esql-language-reference.md" "{{RESOURCES_DIR}}/guides/"
+    cp "{{DOCS_CONTENT_DIR}}/guides/breaking-changes.md" "{{RESOURCES_DIR}}/guides/"
     cp "{{DOCS_CONTENT_DIR}}/guides/otel-dashboard-guide.md" "{{RESOURCES_DIR}}/guides/"
     cp "{{DOCS_CONTENT_DIR}}/guides/color-assignments.md" "{{RESOURCES_DIR}}/guides/"
     cp "{{DOCS_CONTENT_DIR}}/guides/esql-views.md" "{{RESOURCES_DIR}}/guides/"
@@ -169,6 +171,7 @@ _vendor-docs-copy:
     cp "{{DOCS_CONTENT_DIR}}/guides/dashboard-style-guide.md" "{{RESOURCES_DIR}}/guides/"
     @printf "  • llms-full.txt\n"
     @printf "  • guides/esql-language-reference.md\n"
+    @printf "  • guides/breaking-changes.md\n"
     @printf "  • guides/otel-dashboard-guide.md\n"
     @printf "  • guides/color-assignments.md\n"
     @printf "  • guides/esql-views.md\n"

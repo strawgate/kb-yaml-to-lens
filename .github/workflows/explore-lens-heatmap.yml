@@ -1,0 +1,92 @@
+---
+name: 'Explore: Lens Heatmap'
+on:
+  schedule:
+    - cron: 0 12 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: 'Kibana version to test (leave empty for all)'
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: explore-lens-heatmap-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[explore-lens-heatmap-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You are running the Lens Heatmap Explorer for kb-yaml-to-lens.
+        **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
+
+        ## Mission
+        Systematically test every config option for **heatmap** Lens charts
+        against **Kibana ${{ matrix.kibana_version }}**.
+
+        ## Inputs
+        - Kibana URL: `http://localhost:5601`
+        - Elasticsearch URL: `http://localhost:9200`
+        - Data views: `logs-*`, `metrics-*`
+        - Kibana version: `${{ matrix.kibana_version }}`
+        - Elasticsearch and Kibana are pre-provisioned. Do NOT run bootstrap scripts.
+
+        ## Features to test
+        - X axis (date histogram, terms)
+        - Y axis (terms)
+        - Metric (count, average, sum)
+        - Color palette and custom stops
+        - Legend position
+        - Cell labels (show/hide)
+        - Axis title and labels
+        - Grid configuration
+        - Shape (rectangle, circle)
+        - Number format
+
+        ## Required process
+        1. Read compiler source for heatmap config to discover all options.
+        2. For EACH feature: author YAML, compile, import, verify in editor,
+           manually recreate, export both, compare, record status.
+        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ## Deliverable
+        Create one GitHub issue titled:
+        `[explore-lens-heatmap-${{ matrix.kibana_version }}] Feature coverage report`
+
+        Include: feature coverage table, summary stats, bugs with YAML repro,
+        version-specific notes, compiler gaps.
+        Do not create branches or pull requests.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

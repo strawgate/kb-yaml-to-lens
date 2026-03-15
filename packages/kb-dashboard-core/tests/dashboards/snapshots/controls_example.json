@@ -67,12 +67,12 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-3291b1c9-79cb-461a-b4c1-430cccc118fc"
+                "name": "indexpattern-datasource-layer-7ef0405e-19db-63af-62bd-0a476d9da0a4"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "3291b1c9-79cb-461a-b4c1-430cccc118fc",
+                "layerId": "7ef0405e-19db-63af-62bd-0a476d9da0a4",
                 "layerType": "data",
                 "metricAccessor": "01277afe-417d-009a-a4b3-ec14061a870e",
                 "secondaryTrend": {
@@ -89,7 +89,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "3291b1c9-79cb-461a-b4c1-430cccc118fc": {
+                    "7ef0405e-19db-63af-62bd-0a476d9da0a4": {
                       "columns": {
                         "01277afe-417d-009a-a4b3-ec14061a870e": {
                           "label": "Filtered Events",
@@ -157,12 +157,12 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-8f10287d-303a-8752-d1f9-fdba43563a60"
+                "name": "indexpattern-datasource-layer-f4df8fe4-89c4-eb30-615a-3293657bb317"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "8f10287d-303a-8752-d1f9-fdba43563a60",
+                "layerId": "f4df8fe4-89c4-eb30-615a-3293657bb317",
                 "layerType": "data",
                 "metricAccessor": "37332a63-6e60-0320-4c23-76b81060c0b8",
                 "secondaryTrend": {
@@ -179,7 +179,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "8f10287d-303a-8752-d1f9-fdba43563a60": {
+                    "f4df8fe4-89c4-eb30-615a-3293657bb317": {
                       "columns": {
                         "37332a63-6e60-0320-4c23-76b81060c0b8": {
                           "label": "Hosts",
@@ -247,12 +247,12 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-834a13dc-5cdc-22dc-7db7-a61147412115"
+                "name": "indexpattern-datasource-layer-c71f138b-c781-0d48-c308-739b88d98865"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "834a13dc-5cdc-22dc-7db7-a61147412115",
+                "layerId": "c71f138b-c781-0d48-c308-739b88d98865",
                 "layerType": "data",
                 "metricAccessor": "995b7492-b8f8-db73-67e1-bcb1b69207ea",
                 "secondaryTrend": {
@@ -288,7 +288,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "834a13dc-5cdc-22dc-7db7-a61147412115": {
+                    "c71f138b-c781-0d48-c308-739b88d98865": {
                       "columns": {
                         "995b7492-b8f8-db73-67e1-bcb1b69207ea": {
                           "label": "Avg Response (ms)",
@@ -846,17 +846,17 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "b3040adc-4522-ef84-ce1a-f68a9755fc66:indexpattern-datasource-layer-3291b1c9-79cb-461a-b4c1-430cccc118fc"
+      "name": "b3040adc-4522-ef84-ce1a-f68a9755fc66:indexpattern-datasource-layer-7ef0405e-19db-63af-62bd-0a476d9da0a4"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "45dbe035-2479-247c-9d13-442ecf737198:indexpattern-datasource-layer-8f10287d-303a-8752-d1f9-fdba43563a60"
+      "name": "45dbe035-2479-247c-9d13-442ecf737198:indexpattern-datasource-layer-f4df8fe4-89c4-eb30-615a-3293657bb317"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "61cdb623-3088-fe6d-0b1e-5797cb923468:indexpattern-datasource-layer-834a13dc-5cdc-22dc-7db7-a61147412115"
+      "name": "61cdb623-3088-fe6d-0b1e-5797cb923468:indexpattern-datasource-layer-c71f138b-c781-0d48-c308-739b88d98865"
     },
     {
       "type": "index-pattern",
