@@ -1,11 +1,14 @@
 """Tests for compare command registration and behavior."""
 
 import json
+import re
 from pathlib import Path
 
 from click.testing import CliRunner
 
 from dashboard_compiler.cli import cli
+
+ANSI_ESCAPE_PATTERN = re.compile(r'\x1b\[[0-9;]*m')
 
 
 def _write_panel(output_dir: Path, filename: str, panel_type: str, title: str) -> None:
@@ -39,11 +42,12 @@ class TestCompareCommand:
 
         runner = CliRunner()
         result = runner.invoke(cli, ['compare', str(original_dir), str(compiled_dir)])
+        output = ANSI_ESCAPE_PATTERN.sub('', result.output)
 
         assert result.exit_code == 0
-        assert 'Original panels: 1' in result.output
-        assert 'Compiled panels: 1' in result.output
-        assert 'All panels match!' in result.output
+        assert 'Original panels: 1' in output
+        assert 'Compiled panels: 1' in output
+        assert 'All panels match!' in output
 
     def test_compare_fails_when_panels_dir_missing(self, tmp_path: Path) -> None:
         """Compare returns a non-zero exit code when panels directory is missing."""
