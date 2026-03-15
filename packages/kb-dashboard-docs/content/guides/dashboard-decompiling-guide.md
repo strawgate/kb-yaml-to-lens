@@ -352,18 +352,6 @@ Use the comparison helper script to quickly check panel counts and types:
 scripts/compare_panel_counts.sh original.ndjson compiled/output.ndjson
 ```
 
-### CI Drift Check
-
-For repositories that store compiled JSON artifacts, use a compile check that fails when generated output changes:
-
-```bash
-uvx kb-dashboard-cli compile \
-  --input-dir my-yaml/ \
-  --format json \
-  --output-dir compiled/ \
-  --exit-non-zero-on-change
-```
-
 ### Verification Workflow (Round-Trip Testing)
 
 For thorough validation, use this round-trip workflow to verify the compiled output matches the original:
