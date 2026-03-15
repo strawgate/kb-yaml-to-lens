@@ -924,10 +924,9 @@ def test_decompile_count_metric() -> None:
         },
     )
     result = _decompile_single_panel(panel)
-    metrics = result['lens']['metrics']
-    assert len(metrics) == 1
-    assert metrics[0]['aggregation'] == 'count'
-    assert 'field' not in metrics[0]
+    primary = result['lens']['primary']
+    assert primary['aggregation'] == 'count'
+    assert 'field' not in primary
 
 
 def test_decompile_sum_metric() -> None:
@@ -953,10 +952,9 @@ def test_decompile_sum_metric() -> None:
         },
     )
     result = _decompile_single_panel(panel)
-    metrics = result['lens']['metrics']
-    assert len(metrics) == 1
-    assert metrics[0]['aggregation'] == 'sum'
-    assert metrics[0]['field'] == 'bytes'
+    primary = result['lens']['primary']
+    assert primary['aggregation'] == 'sum'
+    assert primary['field'] == 'bytes'
 
 
 def test_decompile_average_metric() -> None:
@@ -982,10 +980,9 @@ def test_decompile_average_metric() -> None:
         },
     )
     result = _decompile_single_panel(panel)
-    metrics = result['lens']['metrics']
-    assert len(metrics) == 1
-    assert metrics[0]['aggregation'] == 'average'
-    assert metrics[0]['field'] == 'response.time'
+    primary = result['lens']['primary']
+    assert primary['aggregation'] == 'average'
+    assert primary['field'] == 'response.time'
 
 
 # --- Dimension and breakdown extraction ---
@@ -1022,11 +1019,10 @@ def test_decompile_date_histogram_dimension() -> None:
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['type'] == 'line'
-    dims = result['lens']['dimensions']
-    assert len(dims) == 1
-    assert dims[0]['type'] == 'date_histogram'
-    assert dims[0]['field'] == '@timestamp'
-    assert dims[0]['interval'] == 'auto'
+    dim = result['lens']['dimension']
+    assert dim['type'] == 'date_histogram'
+    assert dim['field'] == '@timestamp'
+    assert 'minimum_interval' not in dim  # auto is omitted
 
 
 def test_decompile_terms_breakdown() -> None:
@@ -1060,10 +1056,9 @@ def test_decompile_terms_breakdown() -> None:
     )
     result = _decompile_single_panel(panel)
     bd = result['lens']['breakdown']
-    assert len(bd) == 1
-    assert bd[0]['type'] == 'terms'
-    assert bd[0]['field'] == 'host.name'
-    assert bd[0]['size'] == 10
+    assert bd['type'] == 'values'
+    assert bd['field'] == 'host.name'
+    assert bd['size'] == 10
 
 
 # --- Formula panels should have TODO ---
@@ -1092,7 +1087,7 @@ def test_decompile_formula_panel_has_todo() -> None:
         },
     )
     result = _decompile_single_panel(panel)
-    assert 'formula' in result['lens']['_todo']
+    assert 'primary' not in result['lens']
     assert 'metrics' not in result['lens']
 
 
@@ -1298,5 +1293,5 @@ def test_decompile_metric_with_label() -> None:
         },
     )
     result = _decompile_single_panel(panel)
-    metrics = result['lens']['metrics']
-    assert metrics[0]['label'] == 'Total Requests'
+    primary = result['lens']['primary']
+    assert primary['label'] == 'Total Requests'

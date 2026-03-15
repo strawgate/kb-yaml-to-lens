@@ -197,13 +197,13 @@ def _build_bucketed_column(col: dict[str, Any], op_type: str) -> tuple[str, Comm
         params = _as_dict(col.get('params'))
         if params is not None:
             interval = params.get('interval')
-            if isinstance(interval, str):
-                dim['interval'] = interval
+            if isinstance(interval, str) and interval != 'auto':
+                dim['minimum_interval'] = interval
         return 'dimension', dim
 
     if op_type == 'terms':
         bd = CommentedMap()
-        bd['type'] = 'terms'
+        bd['type'] = 'values'
         source_field = col.get('sourceField')
         if isinstance(source_field, str):
             bd['field'] = source_field
@@ -620,15 +620,30 @@ def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:
 
     metrics, dimensions, breakdowns, skipped = _extract_form_based_columns(embeddable_attributes)
 
-    if len(metrics) > 0:
+    is_xy = visualization_type in {'line', 'bar', 'area'}
+    is_metric = visualization_type == 'metric'
+
+    if is_metric:
+        # Metric charts use primary/secondary, not metrics list
+        if len(metrics) > 0:
+            chart['primary'] = metrics[0]
+        if len(metrics) > 1:
+            chart['secondary'] = metrics[1]
+    elif len(metrics) > 0:
         chart['metrics'] = _list_to_seq(metrics)
-    if len(dimensions) > 0:
-        chart['dimensions'] = _list_to_seq(dimensions)
-    if len(breakdowns) > 0:
-        chart['breakdown'] = _list_to_seq(breakdowns)
-    if len(skipped) > 0:
-        unique_skipped = sorted(set(skipped))
-        chart['_todo'] = f'TODO(decompile): complex operations skipped: {", ".join(unique_skipped)}'
+
+    if is_xy:
+        # XY charts use singular dimension/breakdown, not lists
+        if len(dimensions) > 0:
+            chart['dimension'] = dimensions[0]
+        if len(breakdowns) > 0:
+            chart['breakdown'] = breakdowns[0]
+    else:
+        # Pie, table, etc. use plural dimensions
+        if len(dimensions) > 0:
+            chart['dimensions'] = _list_to_seq(dimensions)
+        if len(breakdowns) > 0:
+            chart['breakdown'] = _list_to_seq(breakdowns)
 
     return chart
 
