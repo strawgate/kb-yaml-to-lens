@@ -868,13 +868,11 @@ def _build_phrase_filter(filter_meta: dict[str, Any], filter_key: str) -> Commen
     params = filter_meta.get('params')
     if isinstance(params, dict):
         query = params.get('query')  # pyright: ignore[reportUnknownMemberType]
-        if isinstance(query, str):
+        if isinstance(query, (str, int, float, bool)):
             f['equals'] = query
-        elif query is not None:
-            f['equals'] = str(query)  # pyright: ignore[reportUnknownArgumentType]
     else:
         value = filter_meta.get('value')
-        if isinstance(value, str):
+        if isinstance(value, (str, int, float, bool)):
             f['equals'] = value
     return f
 
@@ -887,10 +885,8 @@ def _build_phrases_filter(filter_meta: dict[str, Any], filter_key: str) -> Comme
     if isinstance(params, list):
         in_list = CommentedSeq()
         for p in params:  # pyright: ignore[reportUnknownVariableType]
-            if isinstance(p, str):
+            if isinstance(p, (str, int, float, bool)):
                 in_list.append(p)  # pyright: ignore[reportUnknownMemberType]
-            elif p is not None:  # pyright: ignore[reportUnknownArgumentType]
-                in_list.append(str(p))  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
         f['in'] = in_list
     return f
 
@@ -905,8 +901,8 @@ def _build_range_filter(raw_filter: dict[str, Any], filter_key: str) -> Commente
         if field_range is not None:
             for bound in ('gte', 'gt', 'lte', 'lt'):
                 val = field_range.get(bound)
-                if val is not None:
-                    f[bound] = str(val)
+                if isinstance(val, (str, int, float, bool)):
+                    f[bound] = val
     return f
 
 

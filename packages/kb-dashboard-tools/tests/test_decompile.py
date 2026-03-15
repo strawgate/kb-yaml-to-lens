@@ -1062,11 +1062,11 @@ def test_decompile_terms_breakdown() -> None:
     assert bd['size'] == 10
 
 
-# --- Formula panels should have TODO ---
+# --- Formula panels are skipped ---
 
 
 def test_decompile_formula_panel_has_todo() -> None:
-    """Formula operations emit TODO comment in _todo field."""
+    """Formula operations are skipped and do not produce metric fields."""
     panel = _make_lens_panel(
         'lnsMetric',
         state={
@@ -1088,6 +1088,7 @@ def test_decompile_formula_panel_has_todo() -> None:
         },
     )
     result = _decompile_single_panel(panel)
+    assert '_todo' not in result['lens']
     assert 'primary' not in result['lens']
     assert 'metrics' not in result['lens']
 
@@ -1197,6 +1198,110 @@ def test_decompile_filters_phrase() -> None:
     assert len(filters) == 1
     assert filters[0]['field'] == 'status'
     assert filters[0]['equals'] == 'error'
+
+
+def test_decompile_filters_phrase_preserves_scalar_type() -> None:
+    """Phrase filters preserve scalar value types."""
+    dashboard = {
+        'attributes': {
+            'title': 'Filters scalar phrase test',
+            'panelsJSON': json.dumps([]),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                'meta': {
+                                    'type': 'phrase',
+                                    'key': 'response.status_code',
+                                    'params': {'query': 200},
+                                },
+                            },
+                        ],
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    filters = decompiled['filters']
+    assert len(filters) == 1
+    assert filters[0]['field'] == 'response.status_code'
+    assert filters[0]['equals'] == 200
+    assert isinstance(filters[0]['equals'], int)
+
+
+def test_decompile_filters_phrases_preserves_scalar_types() -> None:
+    """Phrases filters preserve scalar value types."""
+    dashboard = {
+        'attributes': {
+            'title': 'Filters scalar phrases test',
+            'panelsJSON': json.dumps([]),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                'meta': {
+                                    'type': 'phrases',
+                                    'key': 'status',
+                                    'params': ['error', 500, True],
+                                },
+                            },
+                        ],
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    filters = decompiled['filters']
+    assert len(filters) == 1
+    assert filters[0]['field'] == 'status'
+    assert filters[0]['in'] == ['error', 500, True]
+    assert isinstance(filters[0]['in'][1], int)
+    assert isinstance(filters[0]['in'][2], bool)
+
+
+def test_decompile_filters_range_preserves_scalar_types() -> None:
+    """Range filters preserve scalar bound types."""
+    dashboard = {
+        'attributes': {
+            'title': 'Filters scalar range test',
+            'panelsJSON': json.dumps([]),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                'meta': {
+                                    'type': 'range',
+                                    'key': 'response.status_code',
+                                },
+                                'range': {
+                                    'response.status_code': {
+                                        'gte': 200,
+                                        'lt': 500,
+                                    },
+                                },
+                            },
+                        ],
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    filters = decompiled['filters']
+    assert len(filters) == 1
+    assert filters[0]['field'] == 'response.status_code'
+    assert filters[0]['gte'] == 200
+    assert filters[0]['lt'] == 500
+    assert isinstance(filters[0]['gte'], int)
+    assert isinstance(filters[0]['lt'], int)
 
 
 def test_decompile_filters_exists() -> None:
