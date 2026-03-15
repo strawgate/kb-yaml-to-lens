@@ -415,8 +415,7 @@ kb-dashboard compile --input-file ./my-dashboard.yaml
 
 ```bash
 # Check dashboard best-practice rules
-# Install first: pip install kb-dashboard-lint  (or use: uvx kb-dashboard-lint check ...)
-kb-dashboard-lint check --input-file ./my-dashboard.yaml
+uvx kb-dashboard-lint check --input-file ./my-dashboard.yaml
 ```
 
 ### 3. Pre-Review Quality Gate
