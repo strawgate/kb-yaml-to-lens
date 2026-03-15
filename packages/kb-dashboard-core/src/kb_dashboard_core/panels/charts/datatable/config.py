@@ -159,13 +159,6 @@ class LensDatatableChart(BaseChart):
                 stacklevel=2,
             )
             data['metrics_split_by'] = data.pop('dimensions_by')
-        elif 'dimensions' in data:
-            warnings.warn(
-                "Datatable field 'dimensions' (split-by) is deprecated, use 'metrics_split_by' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            data['metrics_split_by'] = data.pop('dimensions')
         return data
 
     @model_validator(mode='after')
@@ -247,13 +240,6 @@ class ESQLDatatableChart(BaseChart):
                 stacklevel=2,
             )
             data['metrics_split_by'] = data.pop('dimensions_by')
-        elif 'dimensions' in data:
-            warnings.warn(
-                "Datatable field 'dimensions' (split-by) is deprecated, use 'metrics_split_by' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            data['metrics_split_by'] = data.pop('dimensions')
         return data
 
     @model_validator(mode='after')
