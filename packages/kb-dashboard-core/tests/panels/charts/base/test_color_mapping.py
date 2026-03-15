@@ -4,7 +4,7 @@ import pytest
 from inline_snapshot import snapshot
 from pydantic import ValidationError
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping, compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_range_mapping, compile_color_value_mapping
 from kb_dashboard_core.panels.charts.base.config import (
     ColorRangeMapping,
     ColorRangeStop,
@@ -435,3 +435,17 @@ class TestCompileColorRangeMapping:
         assert result.params.continuity == 'all'
         assert [entry.stop for entry in result.params.colorStops] == [None, 4.25]
         assert [entry.stop for entry in result.params.stops] == [4.25, 5.0]
+
+
+class TestBuildCollapseFns:
+    """Tests for build_collapse_fns function."""
+
+    def test_returns_none_when_no_collapse_values(self) -> None:
+        """None or empty collapse values should produce no mapping."""
+        result = build_collapse_fns([('dim-1', None), ('dim-2', None)])
+        assert result is None
+
+    def test_builds_mapping_for_non_none_collapse_values(self) -> None:
+        """Only dimensions with collapse values should be included."""
+        result = build_collapse_fns([('dim-1', 'sum'), ('dim-2', None), ('dim-3', 'avg')])
+        assert result == {'dim-1': 'sum', 'dim-3': 'avg'}

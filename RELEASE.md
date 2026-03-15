@@ -81,7 +81,7 @@ Follow [SemVer](https://semver.org/): `v{major}.{minor}.{patch}`
 # PyPI (uses justfile targets - publish in dependency order)
 # The publish target depends on build, so build is automatic
 just core publish    # Core first (no dependencies)
-just tools publish   # Tools depends on core
+just tools publish   # Tools depend on core
 just lint publish    # Lint depends on core
 just cli publish     # CLI depends on core + tools
 

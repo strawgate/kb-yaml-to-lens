@@ -85,7 +85,6 @@ Run any component-specific target from the repository root:
 | `just tools <target>` | Run target in `packages/kb-dashboard-tools/` |
 | `just vscode <target>` | Run target in `packages/vscode-extension/` |
 | `just docs <target>` | Run target in `packages/kb-dashboard-docs/` |
-| `just gh <target>` | Run target in `.github/scripts/` |
 
 **Examples:**
 

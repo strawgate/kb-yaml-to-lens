@@ -67,12 +67,12 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-2d83e492-8c8b-338e-c3b9-7e07e31caaa8"
+                "name": "indexpattern-datasource-layer-359d3126-1989-4788-0c62-70e8c8dd74cb"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "2d83e492-8c8b-338e-c3b9-7e07e31caaa8",
+                "layerId": "359d3126-1989-4788-0c62-70e8c8dd74cb",
                 "layerType": "data",
                 "metricAccessor": "46bcb9b7-ce04-cb83-3e88-a8bd30462b38",
                 "secondaryTrend": {
@@ -111,7 +111,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "2d83e492-8c8b-338e-c3b9-7e07e31caaa8": {
+                    "359d3126-1989-4788-0c62-70e8c8dd74cb": {
                       "columns": {
                         "46bcb9b7-ce04-cb83-3e88-a8bd30462b38": {
                           "label": "Error Count",
@@ -179,12 +179,12 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-31bce98b-20c9-58ae-80bf-dfb8a2c59658"
+                "name": "indexpattern-datasource-layer-fe5c8f79-d357-9f98-0c8c-6df8c240e552"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "31bce98b-20c9-58ae-80bf-dfb8a2c59658",
+                "layerId": "fe5c8f79-d357-9f98-0c8c-6df8c240e552",
                 "layerType": "data",
                 "metricAccessor": "dd34459f-6db9-271a-37b1-86f05b6db511",
                 "secondaryTrend": {
@@ -220,7 +220,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "31bce98b-20c9-58ae-80bf-dfb8a2c59658": {
+                    "fe5c8f79-d357-9f98-0c8c-6df8c240e552": {
                       "columns": {
                         "dd34459f-6db9-271a-37b1-86f05b6db511": {
                           "label": "HTTP Events",
@@ -281,19 +281,19 @@
             }
           },
           "attributes": {
-            "title": "Slow Requests (≥500ms)",
+            "title": "Slow Requests (\u2265500ms)",
             "visualizationType": "lnsMetric",
             "type": "lens",
             "references": [
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-c8a6e528-445d-765a-e9f2-8bb4d2b5624f"
+                "name": "indexpattern-datasource-layer-84cdffd9-54b6-2dc8-c295-64acc42fd440"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "c8a6e528-445d-765a-e9f2-8bb4d2b5624f",
+                "layerId": "84cdffd9-54b6-2dc8-c295-64acc42fd440",
                 "layerType": "data",
                 "metricAccessor": "67c13b34-aded-dc04-5281-e66cccac9ca8",
                 "secondaryTrend": {
@@ -334,7 +334,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "c8a6e528-445d-765a-e9f2-8bb4d2b5624f": {
+                    "84cdffd9-54b6-2dc8-c295-64acc42fd440": {
                       "columns": {
                         "67c13b34-aded-dc04-5281-e66cccac9ca8": {
                           "label": "Slow Requests",
@@ -402,12 +402,12 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-b5bed8e3-c4b1-58d0-6a70-cc591c7d67fe"
+                "name": "indexpattern-datasource-layer-3cdf5b1b-d0ab-5572-b843-f7522ec756ba"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "b5bed8e3-c4b1-58d0-6a70-cc591c7d67fe",
+                "layerId": "3cdf5b1b-d0ab-5572-b843-f7522ec756ba",
                 "layerType": "data",
                 "metricAccessor": "ffb074eb-f7f0-4dec-75f2-4e17744f54ec",
                 "secondaryTrend": {
@@ -464,7 +464,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "b5bed8e3-c4b1-58d0-6a70-cc591c7d67fe": {
+                    "3cdf5b1b-d0ab-5572-b843-f7522ec756ba": {
                       "columns": {
                         "ffb074eb-f7f0-4dec-75f2-4e17744f54ec": {
                           "label": "Non-200 Responses",
@@ -1335,22 +1335,22 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "67cb9db5-4c2a-56b7-8f28-ca2415121de1:indexpattern-datasource-layer-2d83e492-8c8b-338e-c3b9-7e07e31caaa8"
+      "name": "67cb9db5-4c2a-56b7-8f28-ca2415121de1:indexpattern-datasource-layer-359d3126-1989-4788-0c62-70e8c8dd74cb"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "682de8c1-e5e6-e50f-db1f-4772547dbcd8:indexpattern-datasource-layer-31bce98b-20c9-58ae-80bf-dfb8a2c59658"
+      "name": "682de8c1-e5e6-e50f-db1f-4772547dbcd8:indexpattern-datasource-layer-fe5c8f79-d357-9f98-0c8c-6df8c240e552"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "e303105a-7632-83ad-1c3c-e0fb9451fd5c:indexpattern-datasource-layer-c8a6e528-445d-765a-e9f2-8bb4d2b5624f"
+      "name": "e303105a-7632-83ad-1c3c-e0fb9451fd5c:indexpattern-datasource-layer-84cdffd9-54b6-2dc8-c295-64acc42fd440"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "c832eb10-b83f-27ed-8b33-8630496cc5b6:indexpattern-datasource-layer-b5bed8e3-c4b1-58d0-6a70-cc591c7d67fe"
+      "name": "c832eb10-b83f-27ed-8b33-8630496cc5b6:indexpattern-datasource-layer-3cdf5b1b-d0ab-5572-b843-f7522ec756ba"
     },
     {
       "type": "index-pattern",

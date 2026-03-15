@@ -1,0 +1,96 @@
+---
+name: 'Explore: Run All Explorers'
+on:
+  workflow_dispatch: null
+permissions:
+  actions: write
+jobs:
+  trigger-all:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Lens XY (bar, line, area)
+        run: gh workflow run explore-lens-xy.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Metric
+        run: gh workflow run explore-lens-metric.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Gauge
+        run: gh workflow run explore-lens-gauge.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Pie
+        run: gh workflow run explore-lens-pie.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Partition (waffle, treemap, mosaic)
+        run: gh workflow run explore-lens-partition.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Datatable
+        run: gh workflow run explore-lens-datatable.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Heatmap
+        run: gh workflow run explore-lens-heatmap.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Lens Tag Cloud
+        run: gh workflow run explore-lens-tagcloud.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger ES|QL
+        run: gh workflow run explore-esql.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait 5 minutes
+        run: sleep 300
+
+      - name: Trigger Content Panels (markdown, search, links, image, vega, section)
+        run: gh workflow run explore-content-panels.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}

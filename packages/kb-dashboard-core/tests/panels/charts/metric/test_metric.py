@@ -374,9 +374,9 @@ def test_compile_metric_chart_column_order_with_breakdown_primary_only() -> None
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-@pytest.mark.parametrize('color_mode', ['value', 'background'])
-def test_compile_metric_chart_color_mode(chart_type: str, color_mode: str) -> None:
-    """Test metric color_mode compilation for Lens and ES|QL charts."""
+@pytest.mark.parametrize('apply_to', ['value', 'background'])
+def test_compile_metric_chart_apply_to(chart_type: str, apply_to: str) -> None:
+    """Test metric apply_to compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
@@ -385,7 +385,7 @@ def test_compile_metric_chart_color_mode(chart_type: str, color_mode: str) -> No
                 'aggregation': 'count',
                 'id': 'primary-metric',
             },
-            'color_mode': color_mode,
+            'apply_to': apply_to,
         }
     else:
         config = {
@@ -394,16 +394,16 @@ def test_compile_metric_chart_color_mode(chart_type: str, color_mode: str) -> No
                 'field': 'count(*)',
                 'id': 'primary-metric',
             },
-            'color_mode': color_mode,
+            'apply_to': apply_to,
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
-    assert result['applyColorTo'] == color_mode
+    assert result['applyColorTo'] == apply_to
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
-def test_compile_metric_chart_color_mode_omitted(chart_type: str) -> None:
-    """Test metric color_mode defaults to background for Lens and ES|QL charts."""
+def test_compile_metric_chart_apply_to_omitted(chart_type: str) -> None:
+    """Test metric apply_to defaults to background for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',

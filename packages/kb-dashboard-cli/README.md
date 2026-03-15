@@ -139,7 +139,8 @@ dashboards:
   description: A simple dashboard with markdown
   panels:
     - title: Welcome
-      grid: { x: 0, y: 0, w: 24, h: 15 }  # Position and size on 48-column grid
+      size: { w: 24, h: 15 }        # Size on 48-column grid
+      position: { x: 0, y: 0 }     # Position on the grid
       markdown:
         content: |
           # Welcome to Kibana!
