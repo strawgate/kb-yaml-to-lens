@@ -11,6 +11,8 @@ from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.panels.charts.pie.config import PieLegend, PieSliceValuesEnum
 from kb_dashboard_core.shared.config import BaseCfgModel
 
+type ESQLTreemapBreakdownTypes = ESQLDimensionTypes
+
 
 class TreemapSliceLabelsEnum(StrEnum):
     """Represents the possible values for treemap slice labels."""
@@ -105,7 +107,7 @@ class ESQLTreemapChart(BaseTreemapChart):
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the rectangle sizes."""
 
-    breakdowns: list[ESQLDimensionTypes] = Field(default=..., max_length=2)
+    breakdowns: list[ESQLTreemapBreakdownTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
 
     @model_validator(mode='before')
@@ -132,7 +134,7 @@ class ESQLTreemapChart(BaseTreemapChart):
 
     @field_validator('breakdowns')
     @classmethod
-    def validate_breakdowns_count(cls, v: list[ESQLDimensionTypes]) -> list[ESQLDimensionTypes]:
+    def validate_breakdowns_count(cls, v: list[ESQLTreemapBreakdownTypes]) -> list[ESQLTreemapBreakdownTypes]:
         """Validate that treemap has at least one breakdown."""
         if len(v) == 0:
             msg = 'Treemap must have at least one breakdown'
