@@ -19,13 +19,29 @@ dashboards:
     name: Test Dashboard
     description: Verification test
     panels:
-      - title: My Panel
+      - title: My Metric
         lens:
-          type: metric  # or: line, bar, area, pie, heatmap, gauge, tagcloud, treemap, waffle, datatable, mosaic
+          type: metric
           data_view: logs-*
           primary:
-            type: count
+            aggregation: count
+      - title: My Line Chart
+        lens:
+          type: line
+          data_view: logs-*
+          y_axis:
+            - aggregation: count
 ```
+
+**Common mistakes to avoid:**
+- Use `aggregation: count`, NOT `type: count` — metrics use `aggregation` to
+  specify the function (count, average, sum, min, max, unique_count, etc.)
+- Use `data_view: logs-*` or `data_view: metrics-*` (the data view **name**),
+  NOT the data view UUID
+- Seeded data views are `logs-*` and `metrics-*` — seeded fields include
+  `@timestamp`, `service.name`, `host.name`, `env`, `status`, `value` (logs)
+  and `cpu.pct`, `latency_ms`, `requests` (metrics)
+- Gauge uses `metric:` not `primary:` for its metric slot
 
 ### Panel documentation by chart type
 
