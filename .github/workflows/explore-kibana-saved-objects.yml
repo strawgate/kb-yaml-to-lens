@@ -21,13 +21,10 @@ jobs:
     with:
       title-prefix: '[explore-kibana-saved-objects]'
       setup-commands: |
+        make install-just
         uv sync
         npx playwright install chromium
-        if command -v just >/dev/null 2>&1; then
-          just explore-bootstrap 9.3.0
-        else
-          bash scripts/bootstrap-explore-kibana.sh 9.3.0
-        fi
+        just explore-bootstrap 9.3.0
       additional-instructions: |
         You are running an exploration+implementation workflow for kb-yaml-to-lens.
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST — it
