@@ -5,9 +5,9 @@ square represents a proportion of the whole. They are part of the Kibana Lens
 partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
-from typing import Literal, Self
+from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -132,17 +132,6 @@ class LensWaffleChart(BaseWaffleChart):
     dimension: LensDimensionTypes = Field(default=...)
     """Primary dimension for grouping data. Waffle charts support only one dimension."""
 
-    breakdown: LensDimensionTypes | None = Field(default=None)
-    """Deprecated/unsupported for waffle. Use only `dimension` and `metric`."""
-
-    @model_validator(mode='after')
-    def validate_breakdown_not_supported(self) -> Self:
-        """Reject breakdown until Kibana supports two dimensions for waffle charts."""
-        if self.breakdown is not None:
-            msg = "Waffle chart does not support 'breakdown'."
-            raise ValueError(msg)
-        return self
-
 
 class ESQLWaffleChart(BaseWaffleChart):
     """Represents a Waffle chart configuration within an ES|QL panel.
@@ -172,14 +161,3 @@ class ESQLWaffleChart(BaseWaffleChart):
 
     dimension: ESQLDimensionTypes = Field(default=...)
     """Primary dimension for grouping data. Waffle charts support only one dimension."""
-
-    breakdown: ESQLDimensionTypes | None = Field(default=None)
-    """Deprecated/unsupported for waffle. Use only `dimension` and `metric`."""
-
-    @model_validator(mode='after')
-    def validate_breakdown_not_supported(self) -> Self:
-        """Reject breakdown until Kibana supports two dimensions for waffle charts."""
-        if self.breakdown is not None:
-            msg = "Waffle chart does not support 'breakdown'."
-            raise ValueError(msg)
-        return self
