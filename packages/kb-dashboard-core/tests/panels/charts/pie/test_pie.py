@@ -155,6 +155,31 @@ async def test_basic_donut_chart() -> None:
     )
 
 
+def test_pie_deprecated_dimensions_does_not_override_explicit_breakdowns() -> None:
+    """Explicit breakdowns should win over deprecated dimensions for both chart modes."""
+    lens_chart = LensPieChart.model_validate(
+        {
+            'type': 'pie',
+            'data_view': 'logs-*',
+            'metrics': [{'aggregation': 'count'}],
+            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
+            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
+        }
+    )
+    assert [breakdown.id for breakdown in lens_chart.breakdowns] == ['new-breakdown']
+
+    esql_chart = ESQLPiePanelConfig.model_validate(
+        {
+            'type': 'pie',
+            'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+            'metrics': [{'field': 'c'}],
+            'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
+            'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
+        }
+    )
+    assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']
+
+
 async def test_donut_chart_sizes() -> None:
     """Test donut chart with different hole sizes (small, medium, large)."""
     for donut_size, expected_ratio in [('small', 0.3), ('medium', 0.5), ('large', 0.7)]:

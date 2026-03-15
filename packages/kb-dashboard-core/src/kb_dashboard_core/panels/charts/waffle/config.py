@@ -6,7 +6,7 @@ partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
 import warnings
-from typing import Literal
+from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
@@ -136,15 +136,24 @@ class LensWaffleChart(BaseWaffleChart):
     @model_validator(mode='before')
     @classmethod
     def _warn_deprecated_fields(cls, data: object) -> object:
-        if isinstance(data, dict) and 'dimension' in data and 'breakdown' not in data:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimension' in normalized_data and 'breakdown' not in normalized_data:
             warnings.warn(
                 "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = dict(data)
-            data['breakdown'] = data.pop('dimension')
-        return data
+            normalized_data['breakdown'] = normalized_data.pop('dimension')
+        elif 'dimension' in normalized_data and 'breakdown' in normalized_data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is ignored because 'breakdown' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimension')
+        return normalized_data
 
 
 class ESQLWaffleChart(BaseWaffleChart):
@@ -179,12 +188,21 @@ class ESQLWaffleChart(BaseWaffleChart):
     @model_validator(mode='before')
     @classmethod
     def _warn_deprecated_fields(cls, data: object) -> object:
-        if isinstance(data, dict) and 'dimension' in data and 'breakdown' not in data:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimension' in normalized_data and 'breakdown' not in normalized_data:
             warnings.warn(
                 "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data = dict(data)
-            data['breakdown'] = data.pop('dimension')
-        return data
+            normalized_data['breakdown'] = normalized_data.pop('dimension')
+        elif 'dimension' in normalized_data and 'breakdown' in normalized_data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is ignored because 'breakdown' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimension')
+        return normalized_data

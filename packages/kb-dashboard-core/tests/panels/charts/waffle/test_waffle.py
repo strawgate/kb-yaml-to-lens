@@ -225,6 +225,31 @@ async def test_waffle_chart_with_collapse_functions() -> None:
     )
 
 
+def test_waffle_deprecated_dimension_does_not_override_explicit_breakdown() -> None:
+    """Explicit breakdown should win over deprecated dimension for both chart modes."""
+    lens_chart = LensWaffleChart.model_validate(
+        {
+            'type': 'waffle',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'breakdown': {'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'},
+            'dimension': {'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'},
+        }
+    )
+    assert lens_chart.breakdown.id == 'new-breakdown'
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(
+        {
+            'type': 'waffle',
+            'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+            'metric': {'field': 'c'},
+            'breakdown': {'field': 'service.name', 'id': 'new-breakdown'},
+            'dimension': {'field': 'host.name', 'id': 'legacy-dimension'},
+        }
+    )
+    assert esql_chart.breakdown.id == 'new-breakdown'
+
+
 async def test_waffle_chart_with_custom_colors() -> None:
     """Test waffle chart with custom color assignments."""
     lens_config = {

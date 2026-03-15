@@ -10,6 +10,10 @@ from kb_dashboard_core.panels.charts.datatable.appearance import (
     DatatableColumnAppearanceMixin,
     DatatableMetricAppearanceMixin,
 )
+from kb_dashboard_core.panels.charts.datatable.breakdowns import (
+    ESQLDatatableBreakdownTypes,
+    LensDatatableBreakdownTypes,
+)
 from kb_dashboard_core.panels.charts.datatable.config import (
     DatatableAppearance,
     DatatableDensityEnum,
@@ -18,10 +22,6 @@ from kb_dashboard_core.panels.charts.datatable.config import (
     DatatableSortingConfig,
     ESQLDatatableChart,
     LensDatatableChart,
-)
-from kb_dashboard_core.panels.charts.datatable.breakdowns import (
-    ESQLDatatableBreakdownTypes,
-    LensDatatableBreakdownTypes,
 )
 from kb_dashboard_core.panels.charts.datatable.dimensions import (
     ESQLDatatableDimensionTypes,
@@ -39,12 +39,12 @@ from kb_dashboard_core.panels.charts.datatable.view import (
 )
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
 )
 from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimension
-from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -176,7 +176,16 @@ def compile_lens_datatable_chart(
     layer_id = lens_datatable_chart.get_id()
     kbn_columns_by_id: dict[str, KbnLensColumnTypes] = {}
     datatable_columns: list[
-        tuple[str, bool, LensDatatableBreakdownTypes | LensBreakdownTypes | LensDatatableDimensionTypes | LensDimensionTypes | LensDatatableMetricTypes | LensMetricTypes]
+        tuple[
+            str,
+            bool,
+            LensDatatableBreakdownTypes
+            | LensBreakdownTypes
+            | LensDatatableDimensionTypes
+            | LensDimensionTypes
+            | LensDatatableMetricTypes
+            | LensMetricTypes,
+        ]
     ] = []
 
     # Compile metrics first (for dimension compilation to reference)
@@ -247,7 +256,11 @@ def compile_esql_datatable_chart(
     layer_id = esql_datatable_chart.get_id()
     kbn_columns: list[KbnESQLColumnTypes] = []
     datatable_columns: list[
-        tuple[str, bool, ESQLDatatableBreakdownTypes | ESQLDimensionTypes | ESQLDatatableDimensionTypes | ESQLDatatableMetricTypes | ESQLMetricTypes]
+        tuple[
+            str,
+            bool,
+            ESQLDatatableBreakdownTypes | ESQLDimensionTypes | ESQLDatatableDimensionTypes | ESQLDatatableMetricTypes | ESQLMetricTypes,
+        ]
     ] = []
 
     # Compile metrics first (to store for later, but don't add to kbn_columns yet)

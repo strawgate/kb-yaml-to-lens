@@ -1,6 +1,6 @@
 import warnings
 from enum import StrEnum
-from typing import Literal, Self
+from typing import Any, Literal, Self, cast
 
 from pydantic import Field, model_validator
 
@@ -144,22 +144,32 @@ class LensDatatableChart(BaseChart):
     def _warn_deprecated_fields(cls, data: object) -> object:
         if not isinstance(data, dict):
             return data
-        data = dict(data)
-        if 'dimensions' in data and 'breakdowns' not in data:
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
             warnings.warn(
                 "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data['breakdowns'] = data.pop('dimensions')
-        if 'dimensions_by' in data:
+            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
+        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is ignored because 'breakdowns' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimensions')
+        if 'dimensions_by' in normalized_data:
             warnings.warn(
                 "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data['metrics_split_by'] = data.pop('dimensions_by')
-        return data
+            if 'metrics_split_by' not in normalized_data:
+                normalized_data['metrics_split_by'] = normalized_data.pop('dimensions_by')
+            else:
+                normalized_data.pop('dimensions_by')
+        return normalized_data
 
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:
@@ -225,22 +235,32 @@ class ESQLDatatableChart(BaseChart):
     def _warn_deprecated_fields(cls, data: object) -> object:
         if not isinstance(data, dict):
             return data
-        data = dict(data)
-        if 'dimensions' in data and 'breakdowns' not in data:
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
             warnings.warn(
                 "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data['breakdowns'] = data.pop('dimensions')
-        if 'dimensions_by' in data:
+            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
+        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is ignored because 'breakdowns' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimensions')
+        if 'dimensions_by' in normalized_data:
             warnings.warn(
                 "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            data['metrics_split_by'] = data.pop('dimensions_by')
-        return data
+            if 'metrics_split_by' not in normalized_data:
+                normalized_data['metrics_split_by'] = normalized_data.pop('dimensions_by')
+            else:
+                normalized_data.pop('dimensions_by')
+        return normalized_data
 
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:
