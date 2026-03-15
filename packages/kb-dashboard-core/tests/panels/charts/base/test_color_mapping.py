@@ -459,7 +459,7 @@ class TestColorStopsMirrorStops:
     """Tests verifying that colorStops mirrors stops directly."""
 
     def test_color_stops_mirror_stops_for_percent_range(self) -> None:
-        """colorStops should be identical to stops."""
+        """ColorStops should be identical to stops."""
         color_config = ColorRangeMapping(
             range_type='percent',
             stops=[
