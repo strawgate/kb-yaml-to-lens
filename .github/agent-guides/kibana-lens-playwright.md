@@ -6,8 +6,18 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
 
 ## Essential Patterns
 
-- **Save snapshots to disk, not inline.** Use `browser_snapshot(filename="step_name.md")` to write the accessibility tree to a file. This keeps your context window small — inline snapshots are 8-17K chars each and accumulate fast. When you need a ref or want to verify UI state, use `grep` or `read_file` on the saved file instead of taking a new inline snapshot.
-- **Refs invalidate after every interaction.** After any click/type/navigate, save a new snapshot to disk before your next interaction.
+- **Save snapshots to disk, not inline.** Use `browser_snapshot(filename="/tmp/gh-aw/agent/step_name.md")` to write the accessibility tree to a file. This keeps your context window small — inline snapshots are 8-17K chars each and accumulate fast. Then use `grep` on the saved file to find what you need:
+  ```bash
+  # Find a button ref
+  grep 'button.*Legend\|button.*Save\|button.*Close' /tmp/gh-aw/agent/step_name.md
+
+  # Find a dropdown option
+  grep 'option.*Extra large' /tmp/gh-aw/agent/step_name.md
+
+  # Find a combobox
+  grep 'combobox.*Field' /tmp/gh-aw/agent/step_name.md
+  ```
+- **Note: `browser_click` and `browser_wait_for` return inline diffs.** You can't avoid these, but they're usually small (changed elements only). Don't take an extra `browser_snapshot()` after a click just to see refs — the click response already contains them. Only save a new disk snapshot when you need to search a large page.
 - **Wait after navigation.** `browser_navigate` then `browser_wait_for` with `textGone: "Loading Elastic"`.
 - **Keep `browser_run_code` return values small.** When making API calls via `page.request`, extract only what you need:
   ```js
@@ -19,7 +29,12 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
   // Bad: entire response body returned (can be 20K+ chars)
   return await res.text();
   ```
-- **Comboboxes are NOT `<select>`.** Kibana uses EUI comboboxes. Use `browser_type` into the ref, save a snapshot to disk, grep for the matching option ref, then `browser_click` it. Never use `browser_fill_form` with type `combobox`.
+- **Comboboxes are NOT `<select>`.** Kibana uses EUI comboboxes. The pattern is:
+  1. `browser_type` into the combobox ref to filter options
+  2. `browser_snapshot(filename="/tmp/gh-aw/agent/combo_options.md")` to save options to disk
+  3. `grep 'option.*your_value' /tmp/gh-aw/agent/combo_options.md` to find the ref
+  4. `browser_click` the option ref
+  Never use `browser_fill_form` with type `combobox`.
 - **Close dialogs** with the "Close"/"Back" button ref, or `browser_press_key` with `Escape`.
 - **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts even during read-only inspection. Always exit via "Exit without saving"/discard path unless a save is intentional.
 
