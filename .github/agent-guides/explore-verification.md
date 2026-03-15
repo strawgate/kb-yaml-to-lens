@@ -91,8 +91,11 @@ If there are only gaps: `[explore-lens-xy-8.19.0] 2 gaps`
 
 **Issue body** — use **collapsed sections** (`<details>`) for:
 
-- **Compiler Bugs** — feature name, YAML config or exported JSON showing the
-  problem, what the compiler produces vs what Kibana expects
+- **Compiler Bugs** — for each bug you MUST include:
+  - The exact YAML config that reproduces the bug
+  - What the compiler produces (relevant JSON snippet)
+  - What Kibana expects (from manual panel export)
+  - What happens (error message, wrong rendering, etc.)
 - **Features Verified (passed)** — table of features tested with status
 - **Feature Gaps (not in compiler)** — settings found in Kibana exports that
   the compiler doesn't support, with JSON snippets
