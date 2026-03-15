@@ -5,8 +5,6 @@ from typing import Any
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
-from kb_dashboard_core.tools.disassemble import _parse_json_field
-
 _LENS_VISUALIZATION_TYPES = {
     'metric': 'metric',
     'gauge': 'gauge',
@@ -28,6 +26,18 @@ _LENS_VISUALIZATION_TYPES = {
     'lnsmosaic': 'mosaic',
     'lnswaffle': 'waffle',
 }
+
+
+def _parse_json_field(field: str | dict[str, Any] | list[Any] | None) -> dict[str, Any] | list[Any] | None:
+    """Parse a JSON field that may be a string, dict, list, or None."""
+    if field is None:
+        return None
+    if isinstance(field, str):
+        return json.loads(field)
+    if isinstance(field, (dict, list)):
+        return field
+    msg = f'Unsupported field type in _parse_json_field: {type(field).__name__}'
+    raise TypeError(msg)
 
 
 def _to_int(value: Any) -> int | None:
@@ -168,9 +178,7 @@ def _build_external_link_item(raw_link: dict[str, Any], options: dict[str, Any])
     return link_item
 
 
-def _build_dashboard_link_item(
-    raw_link: dict[str, Any], options: dict[str, Any], reference_lookup: dict[str, str]
-) -> CommentedMap | None:
+def _build_dashboard_link_item(raw_link: dict[str, Any], options: dict[str, Any], reference_lookup: dict[str, str]) -> CommentedMap | None:
     """Build a decompiled dashboard link item."""
     destination_ref_name = raw_link.get('destinationRefName')
     if not isinstance(destination_ref_name, str):
@@ -327,11 +335,7 @@ def _panel_type_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) ->
 def _serialize_panel_comment(panel: dict[str, Any], panel_type: str) -> str:
     """Create TODO comment text for non-trivial panel config migration."""
     raw_panel_json = json.dumps(panel, indent=2, sort_keys=True)
-    return (
-        f'TODO(decompile): complete `{panel_type}` panel config from original Kibana panel JSON.\n'
-        'Original panel JSON:\n'
-        f'{raw_panel_json}'
-    )
+    return f'TODO(decompile): complete `{panel_type}` panel config from original Kibana panel JSON.\nOriginal panel JSON:\n{raw_panel_json}'
 
 
 def _build_panel_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) -> tuple[CommentedMap, str]:

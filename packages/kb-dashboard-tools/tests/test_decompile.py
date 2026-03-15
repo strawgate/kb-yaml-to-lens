@@ -5,7 +5,7 @@ import json
 
 from ruamel.yaml import YAML
 
-from kb_dashboard_core.tools.decompile import decompile_dashboard
+from kb_dashboard_tools.decompile import decompile_dashboard
 
 
 def _dump_yaml(document: object) -> str:
