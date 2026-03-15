@@ -17,6 +17,8 @@ from kb_dashboard_core.panels.charts.esql.columns.view import (
 )
 from kb_dashboard_core.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
+    KbnLensDateHistogramDimensionColumn,
+    KbnLensDateHistogramDimensionColumnParams,
 )
 from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
@@ -26,6 +28,7 @@ from kb_dashboard_core.panels.charts.metric.view import (
     KbnMetricVisualizationState,
     KbnSecondaryTrendNone,
 )
+from kb_dashboard_core.shared.config import stable_id_generator
 
 
 def compile_metric_chart_visualization_state(  # noqa: PLR0913
@@ -78,6 +81,18 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
 
     palette = compile_color_range_mapping(chart.color) if isinstance(chart.color, ColorRangeMapping) else None
 
+    trendline_layer_id: str | None = None
+    trendline_time_accessor: str | None = None
+    trendline_metric_accessor: str | None = None
+    trendline_secondary_metric_accessor: str | None = None
+    trendline_layer_type: Literal['metricTrendline'] | None = None
+    if background_chart is not None and background_chart.type == 'line':
+        trendline_layer_id = stable_id_generator([layer_id, 'metric', 'trendline', 'layer'])
+        trendline_time_accessor = stable_id_generator([layer_id, 'metric', 'trendline', 'time'])
+        trendline_metric_accessor = primary_metric_id
+        trendline_secondary_metric_accessor = secondary_metric_id
+        trendline_layer_type = 'metricTrendline'
+
     return KbnMetricVisualizationState(
         layerId=layer_id,
         metricAccessor=primary_metric_id,
@@ -101,7 +116,48 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         secondaryAlign=secondary.alignment if secondary is not None else None,
         titleWeight=titles_and_text.weight if titles_and_text is not None else None,
         palette=palette,
+        trendlineLayerId=trendline_layer_id,
+        trendlineLayerType=trendline_layer_type,
+        trendlineTimeAccessor=trendline_time_accessor,
+        trendlineMetricAccessor=trendline_metric_accessor,
+        trendlineSecondaryMetricAccessor=trendline_secondary_metric_accessor,
     )
+
+
+def compile_lens_metric_trendline_layer_columns(
+    lens_metric_chart: LensMetricChart,
+) -> tuple[dict[str, KbnLensColumnTypes], str]:
+    """Compile columns for the metric trendline datasource layer."""
+    layer_id = lens_metric_chart.get_id()
+    trendline_time_accessor = stable_id_generator([layer_id, 'metric', 'trendline', 'time'])
+
+    trendline_columns: dict[str, KbnLensColumnTypes] = {
+        trendline_time_accessor: KbnLensDateHistogramDimensionColumn(
+            label='@timestamp',
+            dataType='date',
+            customLabel=False,
+            operationType='date_histogram',
+            sourceField='@timestamp',
+            isBucketed=True,
+            scale='interval',
+            params=KbnLensDateHistogramDimensionColumnParams(
+                interval='auto',
+                includeEmptyRows=True,
+                dropPartials=False,
+            ),
+        )
+    }
+
+    if lens_metric_chart.secondary is not None:
+        secondary_result = compile_lens_metric(lens_metric_chart.secondary)
+        trendline_columns[secondary_result.primary_id] = secondary_result.primary_column
+        trendline_columns.update(secondary_result.helper_columns)
+
+    primary_result = compile_lens_metric(lens_metric_chart.primary)
+    trendline_columns[primary_result.primary_id] = primary_result.primary_column
+    trendline_columns.update(primary_result.helper_columns)
+
+    return trendline_columns, trendline_time_accessor
 
 
 def compile_lens_metric_chart(

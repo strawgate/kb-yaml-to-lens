@@ -18,7 +18,11 @@ from kb_dashboard_core.panels.charts.gauge.compile import compile_esql_gauge_cha
 from kb_dashboard_core.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
 from kb_dashboard_core.panels.charts.heatmap.compile import compile_esql_heatmap_chart, compile_lens_heatmap_chart
 from kb_dashboard_core.panels.charts.heatmap.config import ESQLHeatmapChart, LensHeatmapChart
-from kb_dashboard_core.panels.charts.metric.compile import compile_esql_metric_chart, compile_lens_metric_chart
+from kb_dashboard_core.panels.charts.metric.compile import (
+    compile_esql_metric_chart,
+    compile_lens_metric_chart,
+    compile_lens_metric_trendline_layer_columns,
+)
 from kb_dashboard_core.panels.charts.metric.config import ESQLMetricChart, LensMetricChart
 from kb_dashboard_core.panels.charts.mosaic.compile import compile_esql_mosaic_chart, compile_lens_mosaic_chart
 from kb_dashboard_core.panels.charts.mosaic.config import ESQLMosaicChart, LensMosaicChart
@@ -137,6 +141,23 @@ def compile_lens_chart_state(  # noqa: PLR0912
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
             case LensMetricChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_metric_chart(chart)
+                if visualization_state.trendlineLayerId is not None:
+                    trendline_columns, _trendline_time_accessor = compile_lens_metric_trendline_layer_columns(chart)
+                    form_based_datasource_state_layer_by_id[visualization_state.trendlineLayerId] = KbnFormBasedDataSourceStateLayer(
+                        columns=trendline_columns,
+                        columnOrder=list(trendline_columns.keys()),
+                        sampling=1,
+                        indexPatternId=chart.data_view,
+                        linkToLayers=[layer_id],
+                        ignoreGlobalFilters=False,
+                    )
+                    kbn_references.append(
+                        KbnReference(
+                            type='index-pattern',
+                            id=chart.data_view,
+                            name=f'indexpattern-datasource-layer-{visualization_state.trendlineLayerId}',
+                        )
+                    )
             case LensDatatableChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_datatable_chart(chart)
             case LensGaugeChart():

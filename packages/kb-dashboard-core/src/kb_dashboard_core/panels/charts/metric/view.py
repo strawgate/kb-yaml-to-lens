@@ -113,6 +113,21 @@ class KbnMetricVisualizationState(BaseVwModel):
     palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
     """Optional range-based palette settings for threshold coloring."""
 
+    trendlineLayerId: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Layer ID for metric trendline data when line background chart is enabled."""
+
+    trendlineLayerType: Annotated[Literal['metricTrendline'] | None, OmitIfNone()] = Field(default=None)
+    """Layer type marker for metric trendline state."""
+
+    trendlineTimeAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Accessor ID for trendline time dimension."""
+
+    trendlineMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Accessor ID for trendline primary metric."""
+
+    trendlineSecondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Accessor ID for trendline secondary metric."""
+
 
 class KbnESQLMetricVisualizationState(BaseVwModel):
     """View model for ES|QL metric visualization state.
