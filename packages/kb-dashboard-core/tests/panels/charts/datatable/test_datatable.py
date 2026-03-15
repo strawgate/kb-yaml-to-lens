@@ -313,7 +313,7 @@ def test_compile_datatable_chart_with_rows_by_lens() -> None:
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
             }
         ],
-        'dimensions': [
+        'metrics_split_by': [
             {
                 'type': 'values',
                 'field': 'host.name',
@@ -353,7 +353,7 @@ def test_compile_datatable_chart_with_rows_by_esql() -> None:
                 'id': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172',
             }
         ],
-        'dimensions': [
+        'metrics_split_by': [
             {
                 'field': 'host.name',
                 'id': 'split-by-host',

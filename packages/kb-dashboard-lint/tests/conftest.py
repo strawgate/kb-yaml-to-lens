@@ -6,7 +6,7 @@ from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.filters import PhraseFilter
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel, LensMetricPanelConfig, LensPanel
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 from kb_dashboard_core.panels.markdown import MarkdownPanel
@@ -156,7 +156,7 @@ def dashboard_with_dimension_no_label() -> Dashboard:
                     type='metric',
                     data_view='logs-*',
                     primary=LensCountAggregatedMetric(aggregation='count'),
-                    breakdown=LensTermsDimension(
+                    breakdown=LensTermsBreakdown(
                         field='host.name',
                         # No label set
                     ),
@@ -178,7 +178,7 @@ def dashboard_with_dimension_label() -> Dashboard:
                     type='metric',
                     data_view='logs-*',
                     primary=LensCountAggregatedMetric(aggregation='count'),
-                    breakdown=LensTermsDimension(
+                    breakdown=LensTermsBreakdown(
                         field='host.name',
                         label='Host Name',
                     ),

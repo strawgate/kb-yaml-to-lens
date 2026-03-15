@@ -4,7 +4,7 @@ from dashboard_lint.rules.chart import PieChartDimensionCountRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensPanel, LensPiePanelConfig
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 
@@ -25,8 +25,8 @@ class TestPieChartDimensionCountRule:
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
                         breakdowns=[
-                            LensTermsDimension(field='host.name'),
-                            LensTermsDimension(field='service.name'),
+                            LensTermsBreakdown(field='host.name'),
+                            LensTermsBreakdown(field='service.name'),
                         ],
                     ),
                 ),
@@ -53,7 +53,7 @@ class TestPieChartDimensionCountRule:
                         type='pie',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        breakdowns=[LensTermsDimension(field='host.name')],
+                        breakdowns=[LensTermsBreakdown(field='host.name')],
                     ),
                 ),
             ],
@@ -77,9 +77,9 @@ class TestPieChartDimensionCountRule:
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
                         breakdowns=[
-                            LensTermsDimension(field='host.name'),
-                            LensTermsDimension(field='service.name'),
-                            LensTermsDimension(field='log.level'),
+                            LensTermsBreakdown(field='host.name'),
+                            LensTermsBreakdown(field='service.name'),
+                            LensTermsBreakdown(field='log.level'),
                         ],
                     ),
                 ),

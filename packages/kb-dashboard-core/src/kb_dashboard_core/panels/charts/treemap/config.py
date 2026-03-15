@@ -1,13 +1,12 @@
-"""Treemap chart configuration models for YAML schema definition."""
-
+import warnings
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.panels.charts.pie.config import PieLegend, PieSliceValuesEnum
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -64,12 +63,24 @@ class LensTreemapChart(BaseTreemapChart):
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the rectangle sizes."""
 
-    breakdowns: list[LensDimensionTypes] = Field(default=..., max_length=2)
+    breakdowns: list[LensBreakdownTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and 'dimensions' in data:
+            warnings.warn(
+                "Treemap field 'dimensions' is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data = {**data, 'breakdowns': data.pop('dimensions')}
+        return data
 
     @field_validator('breakdowns')
     @classmethod
-    def validate_breakdowns_count(cls, v: list[LensDimensionTypes]) -> list[LensDimensionTypes]:
+    def validate_breakdowns_count(cls, v: list[LensBreakdownTypes]) -> list[LensBreakdownTypes]:
         """Validate that treemap has at least one breakdown."""
         if len(v) == 0:
             msg = 'Treemap must have at least one breakdown'
@@ -85,6 +96,18 @@ class ESQLTreemapChart(BaseTreemapChart):
 
     breakdowns: list[ESQLDimensionTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and 'dimensions' in data:
+            warnings.warn(
+                "Treemap field 'dimensions' is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            data = {**data, 'breakdowns': data.pop('dimensions')}
+        return data
 
     @field_validator('breakdowns')
     @classmethod
