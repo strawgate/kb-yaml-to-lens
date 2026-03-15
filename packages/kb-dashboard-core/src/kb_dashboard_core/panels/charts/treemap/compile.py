@@ -13,12 +13,11 @@ from kb_dashboard_core.panels.charts.lens.dimensions.compile import (
     compile_lens_dimensions,
 )
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
-from kb_dashboard_core.panels.charts.pie.config import PieLegend
 from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreemapTitlesAndText
+from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreeMapLegend, TreemapTitlesAndText
 from kb_dashboard_core.shared.defaults import default_false
 
 
@@ -54,7 +53,7 @@ def _compile_category_display(titles_and_text: TreemapTitlesAndText | None) -> s
     return 'default' if titles_and_text.slice_labels == 'show' else 'hide'
 
 
-def _compile_legend_options(legend: PieLegend | None) -> LegendOptions:
+def _compile_legend_options(legend: TreeMapLegend | None) -> LegendOptions:
     """Compile legend options from YAML config to Kibana format."""
     if legend is None:
         return LegendOptions(

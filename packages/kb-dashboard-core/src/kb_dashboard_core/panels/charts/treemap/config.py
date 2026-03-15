@@ -23,6 +23,10 @@ class TreemapSliceLabelsEnum(StrEnum):
     """Show category labels."""
 
 
+class TreeMapLegend(PieLegend):
+    """Represents legend formatting options for treemap charts."""
+
+
 class TreemapTitlesAndText(BaseCfgModel):
     """Represents titles and text formatting options for treemap charts."""
 
@@ -44,7 +48,7 @@ class BaseTreemapChart(BaseChart):
     titles_and_text: TreemapTitlesAndText | None = Field(default=None)
     """Formatting options for chart labels and values."""
 
-    legend: PieLegend | None = Field(default=None)
+    legend: TreeMapLegend | None = Field(default=None)
     """Formatting options for the chart legend."""
 
     color: ColorValueMapping | None = Field(default=None)

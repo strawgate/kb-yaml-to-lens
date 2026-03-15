@@ -82,6 +82,7 @@ def compile_waffle_chart_visualization_state(
     kbn_layer_visualization = KbnWaffleStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=[dimension_id],
+        secondaryGroups=None,
         metrics=[metric_id],
         allowMultipleMetrics=False,
         collapseFns=collapse_fns if collapse_fns is not None and len(collapse_fns) > 0 else None,
