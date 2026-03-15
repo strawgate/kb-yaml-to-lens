@@ -109,21 +109,83 @@ jobs:
         - ES|QL heatmap with all axis labels/titles toggled off
         - Compare ES|QL heatmap vs equivalent Lens heatmap side-by-side
 
-        ## Required process
-        1. Read compiler source for ES|QL heatmap configs.
-        2. For EACH feature: author YAML, compile, import, verify in editor,
-           manually recreate, export both, compare, record status.
-        3. Note behavioral differences specific to Kibana ${{ matrix.kibana_version }}.
-        4. Document ES|QL vs Lens parity gaps.
+        ## Required process — round-trip verification
+
+        The primary goal is to find **compiler bugs** by comparing compiled
+        output against Kibana's own output. Missing features are secondary.
+
+        ### Step 1: Read compiler source
+        Read the relevant compiler source in `packages/kb-dashboard-core/src/`
+        to understand every supported config option.
+
+        ### Step 2: For EACH feature, do a full round-trip comparison
+        a. **Author** a minimal YAML config exercising the feature.
+        b. **Compile** it: `just cli compile --input <file> --output /tmp/compiled/`
+        c. **Import** the compiled NDJSON into Kibana via the saved objects API:
+           `curl -X POST "http://localhost:5601/api/saved_objects/_import?overwrite=true" -H "kbn-xsrf: true" --form file=@/tmp/compiled/<file>.ndjson`
+        d. **Open** the imported panel in the Kibana Lens editor and verify
+           that all settings rendered correctly.
+        e. **Manually recreate** the EXACT same panel in Kibana from scratch:
+           create a new Lens visualization, set every option to match what
+           the YAML config specified, and save it.
+        f. **Export** both the compiled panel and the manually-created panel
+           from Kibana's saved objects API:
+           `curl "http://localhost:5601/api/saved_objects/_export" -H "kbn-xsrf: true" -H "Content-Type: application/json" -d '{"type":"dashboard","includeReferencesDeep":true}'`
+        g. **Normalize** and **diff** the JSON of both panels — strip IDs,
+           timestamps, and other non-deterministic fields, then compare.
+           Structural differences indicate a **compiler bug**.
+        h. **Record** each feature: name, YAML config used, whether the
+           compiled output matched Kibana's native output, and any diffs.
+
+        ### Step 3: Classify findings
+        - **Bug**: Compiled JSON differs structurally from Kibana-native JSON
+          for the same settings. Include the normalized JSON diff.
+        - **Gap**: Feature exists in Kibana but is not in the compiler's config
+          schema. Note it but do NOT treat it as a bug.
+        - **Pass**: Compiled output matches Kibana-native output exactly.
+
+        ### Step 4: Note version-specific behavior
+        Document any differences specific to Kibana ${{ matrix.kibana_version }}.
+
+        ### Step 5: Compare ES|QL vs Lens parity
+        For features that exist in both ES|QL and Lens, compare the compiled
+        output structure. Note any ES|QL-specific differences in the generated
+        JSON that could indicate a compiler inconsistency.
 
         ## Deliverable
-        Create one GitHub issue titled:
-        `[explore-esql-heatmap-${{ matrix.kibana_version }}] Feature coverage report`
 
-        Use **collapsed sections** (`<details>`) for: Feature Coverage Table,
-        Creative Exploration Results, Bugs Found, ES|QL vs Lens Parity Notes,
-        Features Not Tested.
-        Top-level: summary stats and version-specific notes.
+        **If no bugs are found**, do NOT create an issue. Instead, add a
+        single comment to issue #1301 stating that all tested features passed
+        round-trip verification for this chart type and Kibana version.
+
+        **If bugs or significant findings exist**, create one GitHub issue titled:
+        `[explore-esql-heatmap-${{ matrix.kibana_version }}] Round-trip verification report`
+
+        Structure the issue body with these **collapsed sections** (`<details>`):
+
+        <details><summary>Compiler Bugs (JSON diffs)</summary>
+        For each bug: feature name, YAML config, expected JSON (from Kibana),
+        actual JSON (from compiler), and the normalized diff.
+        </details>
+
+        <details><summary>Features Verified (passed round-trip)</summary>
+        | Feature | YAML Config | Status | Notes |
+        </details>
+
+        <details><summary>Feature Gaps (not in compiler)</summary>
+        Features that exist in Kibana but have no compiler support.
+        </details>
+
+        <details><summary>Creative Exploration Results</summary>
+        Document each interesting combination attempted and outcome.
+        </details>
+
+        <details><summary>ES|QL vs Lens Parity Notes</summary>
+        Structural differences between ES|QL and Lens output for same features.
+        </details>
+
+        Top-level summary: total features tested, passed, bugs found,
+        gaps identified, version-specific notes.
 
         Do not create branches or pull requests.
     secrets:
