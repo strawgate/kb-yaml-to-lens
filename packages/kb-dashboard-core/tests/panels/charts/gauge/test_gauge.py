@@ -20,6 +20,7 @@ from kb_dashboard_core.panels.charts.gauge.compile import (
     compile_lens_gauge_chart,
 )
 from kb_dashboard_core.panels.charts.gauge.config import ESQLGaugeChart, LensGaugeChart
+from kb_dashboard_core.panels.charts.lens.columns.view import KbnLensStaticValueColumn
 
 if TYPE_CHECKING:
     from kb_dashboard_core.dashboard.view import KbnDashboard
@@ -459,7 +460,7 @@ def test_compile_gauge_chart_with_static_values_lens() -> None:
         }
     )
 
-    static_columns = [column for column in kbn_columns.values() if column.operationType == 'static_value']
+    static_columns = [column for column in kbn_columns.values() if isinstance(column, KbnLensStaticValueColumn)]
     assert [column.params.value for column in static_columns] == ['0', '1', '0.8']
 
 
