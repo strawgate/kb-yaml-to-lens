@@ -765,3 +765,538 @@ def test_decompile_panels_json_as_dict() -> None:
     result = decompile_dashboard(dashboard)
     panels = result['dashboards'][0]['panels']
     assert len(panels) == 1
+
+
+def _make_lens_panel(
+    vis_type: str,
+    *,
+    state: dict[str, object] | None = None,
+    references: list[dict[str, str]] | None = None,
+) -> dict[str, object]:
+    """Build a minimal Kibana lens panel dict for testing."""
+    attributes: dict[str, object] = {'visualizationType': vis_type}
+    if state is not None:
+        attributes['state'] = state
+    if references is not None:
+        attributes['references'] = references
+    return {
+        'panelIndex': 'p1',
+        'type': 'lens',
+        'embeddableConfig': {'attributes': attributes},
+    }
+
+
+def _decompile_single_panel(panel: dict[str, object]) -> dict[str, object]:
+    """Decompile a dashboard with a single panel and return that panel dict."""
+    dashboard: dict[str, object] = {
+        'attributes': {
+            'title': 'Test',
+            'panelsJSON': json.dumps([panel]),
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    return result['dashboards'][0]['panels'][0]
+
+
+# --- XY chart type extraction ---
+
+
+def test_decompile_lnsxy_defaults_to_line() -> None:
+    """LnsXY without preferredSeriesType defaults to line."""
+    panel = _make_lens_panel('lnsXY')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'line'
+
+
+def test_decompile_lnsxy_line() -> None:
+    """LnsXY with preferredSeriesType=line yields line."""
+    panel = _make_lens_panel('lnsXY', state={'visualization': {'preferredSeriesType': 'line'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'line'
+
+
+def test_decompile_lnsxy_bar() -> None:
+    """LnsXY with preferredSeriesType=bar yields bar."""
+    panel = _make_lens_panel('lnsXY', state={'visualization': {'preferredSeriesType': 'bar'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'bar'
+
+
+def test_decompile_lnsxy_bar_stacked() -> None:
+    """LnsXY with preferredSeriesType=bar_stacked yields bar."""
+    panel = _make_lens_panel('lnsXY', state={'visualization': {'preferredSeriesType': 'bar_stacked'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'bar'
+
+
+def test_decompile_lnsxy_area() -> None:
+    """LnsXY with preferredSeriesType=area yields area."""
+    panel = _make_lens_panel('lnsXY', state={'visualization': {'preferredSeriesType': 'area'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'area'
+
+
+# --- Metric chart extraction ---
+
+
+def test_decompile_lnsmetric() -> None:
+    """LnsMetric maps to metric type."""
+    panel = _make_lens_panel('lnsMetric')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'metric'
+
+
+# --- Pie chart extraction ---
+
+
+def test_decompile_lnspie_default() -> None:
+    """LnsPie without shape defaults to pie."""
+    panel = _make_lens_panel('lnsPie')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'pie'
+
+
+def test_decompile_lnspie_donut() -> None:
+    """LnsPie with shape=donut yields donut."""
+    panel = _make_lens_panel('lnsPie', state={'visualization': {'shape': 'donut'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'donut'
+
+
+def test_decompile_lnspie_treemap() -> None:
+    """LnsPie with shape=treemap yields treemap."""
+    panel = _make_lens_panel('lnsPie', state={'visualization': {'shape': 'treemap'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'treemap'
+
+
+# --- Data view extraction ---
+
+
+def test_decompile_data_view_from_references() -> None:
+    """Extract data_view from index-pattern references."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        references=[
+            {'type': 'index-pattern', 'id': 'metrics-*', 'name': 'indexpattern-datasource-layer-abc'},
+        ],
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['data_view'] == 'metrics-*'
+
+
+def test_decompile_data_view_picks_first_index_pattern() -> None:
+    """Extract data_view uses first index-pattern reference."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        references=[
+            {'type': 'tag', 'id': 'tag-1', 'name': 'some-tag'},
+            {'type': 'index-pattern', 'id': 'logs-*', 'name': 'indexpattern-datasource-layer-xyz'},
+        ],
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['data_view'] == 'logs-*'
+
+
+# --- Simple metric extraction ---
+
+
+def test_decompile_count_metric() -> None:
+    """Extract count metric from form-based columns."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    metrics = result['lens']['metrics']
+    assert len(metrics) == 1
+    assert metrics[0]['aggregation'] == 'count'
+    assert 'field' not in metrics[0]
+
+
+def test_decompile_sum_metric() -> None:
+    """Extract sum metric with field from form-based columns."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'sum',
+                                    'isBucketed': False,
+                                    'sourceField': 'bytes',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    metrics = result['lens']['metrics']
+    assert len(metrics) == 1
+    assert metrics[0]['aggregation'] == 'sum'
+    assert metrics[0]['field'] == 'bytes'
+
+
+def test_decompile_average_metric() -> None:
+    """Extract avg metric mapped to average."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'avg',
+                                    'isBucketed': False,
+                                    'sourceField': 'response.time',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    metrics = result['lens']['metrics']
+    assert len(metrics) == 1
+    assert metrics[0]['aggregation'] == 'average'
+    assert metrics[0]['field'] == 'response.time'
+
+
+# --- Dimension and breakdown extraction ---
+
+
+def test_decompile_date_histogram_dimension() -> None:
+    """Extract date_histogram dimension from bucketed columns."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {'preferredSeriesType': 'line'},
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'date_histogram',
+                                    'isBucketed': True,
+                                    'sourceField': '@timestamp',
+                                    'params': {'interval': 'auto'},
+                                },
+                                'col2': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'line'
+    dims = result['lens']['dimensions']
+    assert len(dims) == 1
+    assert dims[0]['type'] == 'date_histogram'
+    assert dims[0]['field'] == '@timestamp'
+    assert dims[0]['interval'] == 'auto'
+
+
+def test_decompile_terms_breakdown() -> None:
+    """Extract terms breakdown from bucketed columns."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {'preferredSeriesType': 'bar'},
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 10},
+                                },
+                                'col2': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    bd = result['lens']['breakdown']
+    assert len(bd) == 1
+    assert bd[0]['type'] == 'terms'
+    assert bd[0]['field'] == 'host.name'
+    assert bd[0]['size'] == 10
+
+
+# --- Formula panels should have TODO ---
+
+
+def test_decompile_formula_panel_has_todo() -> None:
+    """Formula operations emit TODO comment in _todo field."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'formula',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'formula' in result['lens']['_todo']
+    assert 'metrics' not in result['lens']
+
+
+# --- ES|QL query extraction ---
+
+
+def test_decompile_esql_query() -> None:
+    """Extract ES|QL query from textBased datasource."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'textBased': {
+                    'layers': {
+                        'layer1': {
+                            'query': {'esql': 'FROM logs-* | STATS count=COUNT()'},
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['query'] == 'FROM logs-* | STATS count=COUNT()'
+
+
+# --- Controls extraction ---
+
+
+def test_decompile_controls() -> None:
+    """Extract controls from controlGroupInput."""
+    dashboard = {
+        'attributes': {
+            'title': 'Controls test',
+            'panelsJSON': json.dumps([]),
+            'controlGroupInput': {
+                'panelsJSON': json.dumps(
+                    {
+                        'ctrl-1': {
+                            'type': 'optionsListControl',
+                            'order': 0,
+                            'explicitInput': {
+                                'fieldName': 'host.name',
+                                'title': 'Host',
+                                'dataViewId': 'metrics-*',
+                            },
+                        },
+                        'ctrl-2': {
+                            'type': 'rangeSliderControl',
+                            'order': 1,
+                            'explicitInput': {
+                                'fieldName': 'severity_number',
+                                'title': 'Severity',
+                                'dataViewId': 'logs-*',
+                            },
+                        },
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    controls = decompiled['controls']
+    assert len(controls) == 2
+
+    assert controls[0]['type'] == 'options'
+    assert controls[0]['field'] == 'host.name'
+    assert controls[0]['label'] == 'Host'
+    assert controls[0]['data_view'] == 'metrics-*'
+
+    assert controls[1]['type'] == 'range'
+    assert controls[1]['field'] == 'severity_number'
+    assert controls[1]['data_view'] == 'logs-*'
+
+
+# --- Filters extraction ---
+
+
+def test_decompile_filters_phrase() -> None:
+    """Extract phrase filters from searchSourceJSON."""
+    dashboard = {
+        'attributes': {
+            'title': 'Filters test',
+            'panelsJSON': json.dumps([]),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                'meta': {
+                                    'type': 'phrase',
+                                    'key': 'status',
+                                    'params': {'query': 'error'},
+                                },
+                            },
+                        ],
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    filters = decompiled['filters']
+    assert len(filters) == 1
+    assert filters[0]['field'] == 'status'
+    assert filters[0]['equals'] == 'error'
+
+
+def test_decompile_filters_exists() -> None:
+    """Extract exists filters from searchSourceJSON."""
+    dashboard = {
+        'attributes': {
+            'title': 'Exists filter test',
+            'panelsJSON': json.dumps([]),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                'meta': {
+                                    'type': 'exists',
+                                    'key': 'host.name',
+                                },
+                            },
+                        ],
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    filters = decompiled['filters']
+    assert len(filters) == 1
+    assert filters[0]['exists'] == 'host.name'
+
+
+def test_decompile_no_controls_when_absent() -> None:
+    """No controls key when controlGroupInput is absent."""
+    result = decompile_dashboard({'attributes': {'title': 'No controls', 'panelsJSON': json.dumps([])}})
+    decompiled = result['dashboards'][0]
+    assert 'controls' not in decompiled
+
+
+def test_decompile_no_filters_when_absent() -> None:
+    """No filters key when searchSourceJSON has no filters."""
+    result = decompile_dashboard({'attributes': {'title': 'No filters', 'panelsJSON': json.dumps([])}})
+    decompiled = result['dashboards'][0]
+    assert 'filters' not in decompiled
+
+
+def test_decompile_gauge_type() -> None:
+    """LnsGauge maps to gauge type."""
+    panel = _make_lens_panel('lnsGauge')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'gauge'
+
+
+def test_decompile_heatmap_type() -> None:
+    """LnsHeatmap maps to heatmap type."""
+    panel = _make_lens_panel('lnsHeatmap')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'heatmap'
+
+
+def test_decompile_tagcloud_type() -> None:
+    """LnsTagcloud maps to tagcloud type."""
+    panel = _make_lens_panel('lnsTagcloud')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'tagcloud'
+
+
+def test_decompile_datatable_type() -> None:
+    """LnsDatatable maps to table type."""
+    panel = _make_lens_panel('lnsDatatable')
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'table'
+
+
+def test_decompile_metric_with_label() -> None:
+    """Metric label is extracted from column."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                    'label': 'Total Requests',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    metrics = result['lens']['metrics']
+    assert metrics[0]['label'] == 'Total Requests'

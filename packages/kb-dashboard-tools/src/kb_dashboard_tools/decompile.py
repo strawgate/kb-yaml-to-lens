@@ -13,7 +13,7 @@ _LENS_VISUALIZATION_TYPES = {
     'line': 'line',
     'area': 'area',
     'heatmap': 'heatmap',
-    'datatable': 'datatable',
+    'datatable': 'table',
     'tagcloud': 'tagcloud',
     'mosaic': 'mosaic',
     'waffle': 'waffle',
@@ -21,11 +21,46 @@ _LENS_VISUALIZATION_TYPES = {
     'lnsgauge': 'gauge',
     'lnspie': 'pie',
     'lnsheatmap': 'heatmap',
-    'lnsdatatable': 'datatable',
+    'lnsdatatable': 'table',
     'lnstagcloud': 'tagcloud',
     'lnsmosaic': 'mosaic',
     'lnswaffle': 'waffle',
+    'lnsxy': None,  # resolved via preferredSeriesType
 }
+
+_XY_SERIES_TYPES: dict[str, str] = {
+    'line': 'line',
+    'bar': 'bar',
+    'bar_stacked': 'bar',
+    'bar_horizontal': 'bar',
+    'bar_horizontal_stacked': 'bar',
+    'bar_percentage_stacked': 'bar',
+    'bar_horizontal_percentage_stacked': 'bar',
+    'area': 'area',
+    'area_stacked': 'area',
+    'area_percentage_stacked': 'area',
+}
+
+_PIE_SHAPES: dict[str, str] = {
+    'pie': 'pie',
+    'donut': 'donut',
+    'treemap': 'treemap',
+}
+
+_OPERATION_TYPE_MAP: dict[str, str] = {
+    'count': 'count',
+    'sum': 'sum',
+    'avg': 'average',
+    'average': 'average',
+    'min': 'min',
+    'max': 'max',
+    'median': 'median',
+    'unique_count': 'unique_count',
+    'last_value': 'last_value',
+    'percentile': 'percentile',
+}
+
+_SKIP_OPERATION_TYPES = {'formula', 'differences', 'math', 'cumulative_sum', 'counter_rate', 'moving_average'}
 
 
 def _as_dict(value: object) -> dict[str, Any] | None:
@@ -59,6 +94,44 @@ def _normalize_lens_type(value: object) -> str | None:
     return _LENS_VISUALIZATION_TYPES.get(value.lower())
 
 
+def _resolve_xy_type(embeddable_attributes: dict[str, Any]) -> str | None:
+    """Resolve XY chart sub-type from preferredSeriesType in visualization state."""
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return 'line'
+
+    visualization = _as_dict(state.get('visualization'))
+    if visualization is None:
+        return 'line'
+
+    preferred = visualization.get('preferredSeriesType')
+    if isinstance(preferred, str):
+        resolved = _XY_SERIES_TYPES.get(preferred)
+        if resolved is not None:
+            return resolved
+
+    return 'line'
+
+
+def _resolve_pie_shape(embeddable_attributes: dict[str, Any]) -> str:
+    """Resolve pie chart shape from visualization state."""
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return 'pie'
+
+    visualization = _as_dict(state.get('visualization'))
+    if visualization is None:
+        return 'pie'
+
+    shape = visualization.get('shape')
+    if isinstance(shape, str):
+        resolved = _PIE_SHAPES.get(shape)
+        if resolved is not None:
+            return resolved
+
+    return 'pie'
+
+
 def _extract_panel_title(panel: dict[str, Any]) -> str:
     """Extract panel title from panel-level or embeddable config."""
     direct_title = panel.get('title')
@@ -85,6 +158,203 @@ def _extract_embeddable_attributes(panel: dict[str, Any]) -> tuple[dict[str, Any
     if attributes is not None:
         embeddable_attributes = attributes
     return embeddable_config, embeddable_attributes
+
+
+def _extract_data_view_from_references(panel: dict[str, Any]) -> str | None:
+    """Extract data view ID from panel references."""
+    embeddable_config, embeddable_attributes = _extract_embeddable_attributes(panel)
+
+    references = embeddable_attributes.get('references')
+    if not isinstance(references, list):
+        references = embeddable_config.get('references')
+    if not isinstance(references, list):
+        return None
+
+    for ref_item in references:  # pyright: ignore[reportUnknownVariableType]
+        ref = _as_dict(ref_item)  # pyright: ignore[reportUnknownArgumentType]
+        if ref is None:
+            continue
+        ref_type = ref.get('type')
+        ref_id = ref.get('id')
+        if ref_type == 'index-pattern' and isinstance(ref_id, str):
+            return ref_id
+
+    return None
+
+
+def _build_bucketed_column(col: dict[str, Any], op_type: str) -> tuple[str, CommentedMap] | None:
+    """Build a dimension or breakdown stub from a bucketed column.
+
+    Returns a tuple of (category, stub) where category is 'dimension' or 'breakdown',
+    or None if the column type is unrecognized.
+    """
+    if op_type == 'date_histogram':
+        dim = CommentedMap()
+        dim['type'] = 'date_histogram'
+        source_field = col.get('sourceField')
+        if isinstance(source_field, str):
+            dim['field'] = source_field
+        params = _as_dict(col.get('params'))
+        if params is not None:
+            interval = params.get('interval')
+            if isinstance(interval, str):
+                dim['interval'] = interval
+        return 'dimension', dim
+
+    if op_type == 'terms':
+        bd = CommentedMap()
+        bd['type'] = 'terms'
+        source_field = col.get('sourceField')
+        if isinstance(source_field, str):
+            bd['field'] = source_field
+        params = _as_dict(col.get('params'))
+        if params is not None:
+            size = params.get('size')
+            if isinstance(size, int):
+                bd['size'] = size
+        return 'breakdown', bd
+
+    if op_type == 'filters':
+        bd = CommentedMap()
+        bd['type'] = 'filters'
+        return 'breakdown', bd
+
+    return None
+
+
+def _build_metric_column(col: dict[str, Any], op_type: str) -> tuple[CommentedMap | None, str | None]:
+    """Build a metric stub from a non-bucketed column.
+
+    Returns a tuple of (metric_stub, skipped_op_type). Exactly one will be non-None.
+    """
+    if op_type in _SKIP_OPERATION_TYPES:
+        return None, op_type
+
+    aggregation = _OPERATION_TYPE_MAP.get(op_type)
+    if aggregation is None:
+        return None, op_type
+
+    metric = CommentedMap()
+    metric['aggregation'] = aggregation
+
+    source_field = col.get('sourceField')
+    if isinstance(source_field, str) and source_field != 'Records':
+        metric['field'] = source_field
+
+    label = col.get('label')
+    if isinstance(label, str) and len(label) > 0:
+        metric['label'] = label
+
+    return metric, None
+
+
+def _get_form_based_layers(embeddable_attributes: dict[str, Any]) -> dict[str, Any] | None:
+    """Navigate to formBased layers dict, returning None if any level is missing."""
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return None
+    datasource_states = _as_dict(state.get('datasourceStates'))
+    if datasource_states is None:
+        return None
+    form_based = _as_dict(datasource_states.get('formBased'))
+    if form_based is None:
+        return None
+    return _as_dict(form_based.get('layers'))
+
+
+def _classify_column(
+    col: dict[str, Any],
+    metrics: list[CommentedMap],
+    dimensions: list[CommentedMap],
+    breakdowns: list[CommentedMap],
+    skipped: list[str],
+) -> None:
+    """Classify a single form-based column into metrics, dimensions, breakdowns, or skipped."""
+    op_type = col.get('operationType')
+    if not isinstance(op_type, str):
+        return
+
+    is_bucketed = col.get('isBucketed')
+    if isinstance(is_bucketed, bool) and is_bucketed:
+        result = _build_bucketed_column(col, op_type)
+        if result is not None:
+            category, stub = result
+            if category == 'dimension':
+                dimensions.append(stub)
+            else:
+                breakdowns.append(stub)
+    else:
+        metric, skipped_op = _build_metric_column(col, op_type)
+        if metric is not None:
+            metrics.append(metric)
+        elif skipped_op is not None:
+            skipped.append(skipped_op)
+
+
+def _extract_form_based_columns(
+    embeddable_attributes: dict[str, Any],
+) -> tuple[list[CommentedMap], list[CommentedMap], list[CommentedMap], list[str]]:
+    """Extract metrics, dimensions, and breakdowns from form-based datasource layers.
+
+    Returns a tuple of (metrics, dimensions, breakdowns, skipped_operation_types).
+    """
+    metrics: list[CommentedMap] = []
+    dimensions: list[CommentedMap] = []
+    breakdowns: list[CommentedMap] = []
+    skipped: list[str] = []
+
+    layers = _get_form_based_layers(embeddable_attributes)
+    if layers is None:
+        return metrics, dimensions, breakdowns, skipped
+
+    for layer_value in layers.values():  # pyright: ignore[reportAny]
+        layer = _as_dict(layer_value)  # pyright: ignore[reportUnknownArgumentType]
+        if layer is None:
+            continue
+
+        columns = _as_dict(layer.get('columns'))
+        if columns is None:
+            continue
+
+        for col_value in columns.values():  # pyright: ignore[reportAny]
+            col = _as_dict(col_value)  # pyright: ignore[reportUnknownArgumentType]
+            if col is None:
+                continue
+            _classify_column(col, metrics, dimensions, breakdowns, skipped)
+
+    return metrics, dimensions, breakdowns, skipped
+
+
+def _extract_esql_query(embeddable_attributes: dict[str, Any]) -> str | None:
+    """Extract ES|QL query string from textBased datasource layers."""
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return None
+
+    datasource_states = _as_dict(state.get('datasourceStates'))
+    if datasource_states is None:
+        return None
+
+    text_based = _as_dict(datasource_states.get('textBased'))
+    if text_based is None:
+        return None
+
+    layers = _as_dict(text_based.get('layers'))
+    if layers is None:
+        return None
+
+    for layer_value in layers.values():  # pyright: ignore[reportAny]
+        layer = _as_dict(layer_value)  # pyright: ignore[reportUnknownArgumentType]
+        if layer is None:
+            continue
+        query = _as_dict(layer.get('query'))
+        if query is None:
+            continue
+        esql = query.get('esql')
+        if isinstance(esql, str):
+            return esql
+
+    return None
 
 
 def _build_markdown_stub(panel: dict[str, Any], _reference_lookup: dict[str, str]) -> CommentedMap:
@@ -308,13 +578,58 @@ def _build_vega_stub_from_panel(_panel: dict[str, Any], _reference_lookup: dict[
 _BuilderFn = Any  # Callable[[dict[str, Any], dict[str, str]], CommentedMap]
 
 
+def _resolve_chart_type(vis_type_raw: object, embeddable_attributes: dict[str, Any]) -> str | None:
+    """Resolve the final chart type from visualization type and state."""
+    visualization_type = _normalize_lens_type(vis_type_raw)
+
+    if isinstance(vis_type_raw, str) and vis_type_raw.lower() == 'lnsxy':
+        return _resolve_xy_type(embeddable_attributes)
+
+    if isinstance(vis_type_raw, str) and vis_type_raw.lower() in {'lnspie', 'pie'}:
+        shape = _resolve_pie_shape(embeddable_attributes)
+        if shape != 'pie':
+            return shape
+
+    return visualization_type
+
+
+def _list_to_seq(items: list[CommentedMap]) -> CommentedSeq:
+    """Convert a list of CommentedMaps to a CommentedSeq."""
+    seq = CommentedSeq()
+    for item in items:
+        seq.append(item)  # pyright: ignore[reportUnknownMemberType]
+    return seq
+
+
 def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:
-    """Build lens/esql panel stub with optional chart type."""
+    """Build lens/esql panel stub with chart type, data view, metrics, and dimensions."""
     _, embeddable_attributes = _extract_embeddable_attributes(panel)
     chart = CommentedMap()
-    visualization_type = _normalize_lens_type(embeddable_attributes.get('visualizationType'))
+
+    visualization_type = _resolve_chart_type(embeddable_attributes.get('visualizationType'), embeddable_attributes)
     if visualization_type is not None:
         chart['type'] = visualization_type
+
+    data_view = _extract_data_view_from_references(panel)
+    if data_view is not None:
+        chart['data_view'] = data_view
+
+    esql_query = _extract_esql_query(embeddable_attributes)
+    if esql_query is not None:
+        chart['query'] = esql_query
+
+    metrics, dimensions, breakdowns, skipped = _extract_form_based_columns(embeddable_attributes)
+
+    if len(metrics) > 0:
+        chart['metrics'] = _list_to_seq(metrics)
+    if len(dimensions) > 0:
+        chart['dimensions'] = _list_to_seq(dimensions)
+    if len(breakdowns) > 0:
+        chart['breakdown'] = _list_to_seq(breakdowns)
+    if len(skipped) > 0:
+        unique_skipped = sorted(set(skipped))
+        chart['_todo'] = f'TODO(decompile): complex operations skipped: {", ".join(unique_skipped)}'
+
     return chart
 
 
@@ -462,6 +777,194 @@ def _extract_time_range(attributes: dict[str, Any]) -> CommentedMap | None:
     return time_range
 
 
+_CONTROL_TYPE_MAP: dict[str, str] = {
+    'optionsListControl': 'options',
+    'rangeSliderControl': 'range',
+    'timesliderControl': 'time',
+}
+
+
+def _build_control_stub(panel: dict[str, Any]) -> CommentedMap:
+    """Build a single control stub from a controlGroupInput panel."""
+    control = CommentedMap()
+    panel_type = panel.get('type')
+    if isinstance(panel_type, str):
+        control['type'] = _CONTROL_TYPE_MAP.get(panel_type, f'TODO_control_type_{panel_type}')
+    else:
+        control['type'] = 'TODO_control_type_unknown'
+
+    explicit_input = _as_dict(panel.get('explicitInput'))
+    if explicit_input is not None:
+        field_name = explicit_input.get('fieldName')
+        if isinstance(field_name, str):
+            control['field'] = field_name
+
+        title = explicit_input.get('title')
+        if isinstance(title, str):
+            control['label'] = title
+
+        data_view_id = explicit_input.get('dataViewId')
+        if isinstance(data_view_id, str):
+            control['data_view'] = data_view_id
+
+    return control
+
+
+def _extract_controls(attributes: dict[str, Any]) -> CommentedSeq | None:
+    """Extract controls from controlGroupInput.panelsJSON."""
+    control_group = _as_dict(attributes.get('controlGroupInput'))
+    if control_group is None:
+        return None
+
+    panels_json = _parse_json_field(control_group.get('panelsJSON'))
+    if not isinstance(panels_json, dict):
+        return None
+
+    controls = CommentedSeq()
+
+    def _control_order(item: tuple[str, object]) -> int:
+        """Extract order field for sorting controls."""
+        panel = _as_dict(item[1])
+        if panel is None:
+            return 0
+        order = panel.get('order', 0)
+        return order if isinstance(order, int) else 0
+
+    sorted_panels = sorted(
+        panels_json.items(),  # pyright: ignore[reportUnknownMemberType]
+        key=_control_order,
+    )
+
+    for _panel_id, panel_value in sorted_panels:  # pyright: ignore[reportUnknownVariableType]
+        panel = _as_dict(panel_value)  # pyright: ignore[reportUnknownArgumentType]
+        if panel is None:
+            continue
+        controls.append(_build_control_stub(panel))  # pyright: ignore[reportUnknownMemberType]
+
+    if len(controls) == 0:
+        return None
+    return controls
+
+
+def _build_phrase_filter(filter_meta: dict[str, Any], filter_key: str) -> CommentedMap:
+    """Build a phrase filter stub."""
+    f = CommentedMap()
+    f['field'] = filter_key
+    params = filter_meta.get('params')
+    if isinstance(params, dict):
+        query = params.get('query')  # pyright: ignore[reportUnknownMemberType]
+        if isinstance(query, str):
+            f['equals'] = query
+        elif query is not None:
+            f['equals'] = str(query)  # pyright: ignore[reportUnknownArgumentType]
+    else:
+        value = filter_meta.get('value')
+        if isinstance(value, str):
+            f['equals'] = value
+    return f
+
+
+def _build_phrases_filter(filter_meta: dict[str, Any], filter_key: str) -> CommentedMap:
+    """Build a phrases (in) filter stub."""
+    f = CommentedMap()
+    f['field'] = filter_key
+    params = filter_meta.get('params')
+    if isinstance(params, list):
+        in_list = CommentedSeq()
+        for p in params:  # pyright: ignore[reportUnknownVariableType]
+            if isinstance(p, str):
+                in_list.append(p)  # pyright: ignore[reportUnknownMemberType]
+            elif p is not None:  # pyright: ignore[reportUnknownArgumentType]
+                in_list.append(str(p))  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+        f['in'] = in_list
+    return f
+
+
+def _build_range_filter(raw_filter: dict[str, Any], filter_key: str) -> CommentedMap:
+    """Build a range filter stub."""
+    f = CommentedMap()
+    f['field'] = filter_key
+    range_params = _as_dict(raw_filter.get('range'))
+    if range_params is not None:
+        field_range = _as_dict(range_params.get(filter_key))
+        if field_range is not None:
+            for bound in ('gte', 'gt', 'lte', 'lt'):
+                val = field_range.get(bound)
+                if val is not None:
+                    f[bound] = str(val)
+    return f
+
+
+def _apply_filter_metadata(f: CommentedMap, filter_meta: dict[str, Any]) -> None:
+    """Apply disabled and alias metadata to a filter stub."""
+    disabled = filter_meta.get('disabled')
+    if isinstance(disabled, bool) and disabled:
+        f['disabled'] = True
+
+    alias = filter_meta.get('alias')
+    if isinstance(alias, str) and len(alias) > 0:
+        f['alias'] = alias
+
+
+def _build_single_filter(raw_filter: dict[str, Any], filter_meta: dict[str, Any], filter_key: str) -> CommentedMap:
+    """Build a single filter stub based on filter type."""
+    filter_type = filter_meta.get('type')
+
+    if filter_type == 'phrase':
+        f = _build_phrase_filter(filter_meta, filter_key)
+    elif filter_type == 'phrases':
+        f = _build_phrases_filter(filter_meta, filter_key)
+    elif filter_type == 'range':
+        f = _build_range_filter(raw_filter, filter_key)
+    else:
+        f = CommentedMap()
+        f['field'] = filter_key
+
+    _apply_filter_metadata(f, filter_meta)
+    return f
+
+
+def _extract_filters(attributes: dict[str, Any]) -> CommentedSeq | None:
+    """Extract dashboard-level filters from kibanaSavedObjectMeta.searchSourceJSON."""
+    meta = _as_dict(attributes.get('kibanaSavedObjectMeta'))
+    if meta is None:
+        return None
+
+    search_source = _parse_json_field(meta.get('searchSourceJSON'))
+    if not isinstance(search_source, dict):
+        return None
+
+    raw_filters = search_source.get('filter')
+    if not isinstance(raw_filters, list):
+        return None
+
+    filters = CommentedSeq()
+    for filter_item in raw_filters:  # pyright: ignore[reportUnknownVariableType]
+        raw_filter = _as_dict(filter_item)  # pyright: ignore[reportUnknownArgumentType]
+        if raw_filter is None:
+            continue
+
+        filter_meta = _as_dict(raw_filter.get('meta'))
+        if filter_meta is None:
+            continue
+
+        filter_key = filter_meta.get('key')
+        if not isinstance(filter_key, str):
+            continue
+
+        if filter_meta.get('type') == 'exists':
+            f_exists = CommentedMap()
+            f_exists['exists'] = filter_key
+            filters.append(f_exists)  # pyright: ignore[reportUnknownMemberType]
+            continue
+
+        filters.append(_build_single_filter(raw_filter, filter_meta, filter_key))  # pyright: ignore[reportUnknownMemberType]
+
+    if len(filters) == 0:
+        return None
+    return filters
+
+
 def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     """Convert a Kibana dashboard object into a YAML stub document."""
     attributes = _as_dict(dashboard.get('attributes'))
@@ -496,6 +999,14 @@ def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     time_range = _extract_time_range(attributes)
     if time_range is not None:
         dashboard_yaml['time_range'] = time_range
+
+    filters = _extract_filters(attributes)
+    if filters is not None:
+        dashboard_yaml['filters'] = filters
+
+    controls = _extract_controls(attributes)
+    if controls is not None:
+        dashboard_yaml['controls'] = controls
 
     panels = CommentedSeq()
     reference_lookup = _extract_reference_lookup(dashboard)
