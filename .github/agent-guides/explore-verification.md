@@ -9,6 +9,12 @@ UI, and verify that things work.** If you skip the Kibana steps and only
 analyze code, your output is no more useful than what a code-review agent
 could produce — and we already have those.
 
+**You cannot push code, create branches, or open pull requests.** Your code
+edits are lost when the workflow ends — your only lasting output is the
+GitHub issue or comment you post. You should still edit code to test fixes
+(edit → recompile → reimport → verify in Kibana), but include the fix as a
+code snippet in your report since the file changes themselves won't survive.
+
 **Every finding you report MUST be backed by Kibana evidence:**
 - For bugs: show what happens in the Kibana UI when you import compiled output
 - For fixes: show that Kibana accepts the fixed output and the UI reflects it
