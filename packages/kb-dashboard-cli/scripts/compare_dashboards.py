@@ -8,6 +8,7 @@ Usage:
     python3 scripts/compare_dashboards.py /path/to/original_disassembled /path/to/compiled_disassembled
 """
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -45,7 +46,7 @@ def main() -> None:
 
     try:
         comparison = compare_disassembled_dashboards(original_dir, compiled_dir)
-    except (FileNotFoundError, ValueError, OSError) as e:
+    except (FileNotFoundError, json.JSONDecodeError, ValueError, OSError) as e:
         print(f'Error: {e}', file=sys.stderr)
         sys.exit(1)
 
