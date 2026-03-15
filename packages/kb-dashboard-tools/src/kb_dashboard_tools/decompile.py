@@ -41,6 +41,15 @@ _XY_SERIES_TYPES: dict[str, str] = {
     'area_percentage_stacked': 'area',
 }
 
+_XY_STACKING_MODES: dict[str, str] = {
+    'bar_stacked': 'stacked',
+    'bar_horizontal_stacked': 'stacked',
+    'bar_percentage_stacked': 'percentage',
+    'bar_horizontal_percentage_stacked': 'percentage',
+    'area_stacked': 'stacked',
+    'area_percentage_stacked': 'percentage',
+}
+
 _PIE_SHAPES: dict[str, str] = {
     'pie': 'pie',
     'donut': 'donut',
@@ -111,6 +120,26 @@ def _resolve_xy_type(embeddable_attributes: dict[str, Any]) -> str | None:
             return resolved
 
     return 'line'
+
+
+def _resolve_xy_mode(embeddable_attributes: dict[str, Any], chart_type: str | None) -> str | None:
+    """Resolve XY chart stacking mode from preferredSeriesType in visualization state."""
+    if chart_type not in {'bar', 'area'}:
+        return None
+
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return None
+
+    visualization = _as_dict(state.get('visualization'))
+    if visualization is None:
+        return None
+
+    preferred = visualization.get('preferredSeriesType')
+    if not isinstance(preferred, str):
+        return None
+
+    return _XY_STACKING_MODES.get(preferred)
 
 
 def _resolve_pie_shape(embeddable_attributes: dict[str, Any]) -> str:
@@ -245,7 +274,136 @@ def _build_metric_column(col: dict[str, Any], op_type: str) -> tuple[CommentedMa
     if isinstance(label, str) and len(label) > 0:
         metric['label'] = label
 
+    params = _as_dict(col.get('params'))
+    metric_filter = _extract_metric_filter(col, params)
+    if metric_filter is not None:
+        metric['filter'] = metric_filter
+
+    metric_format = _extract_metric_format(params)
+    if metric_format is not None:
+        metric['format'] = metric_format
+
     return metric, None
+
+
+def _extract_metric_filter(col: dict[str, Any], params: dict[str, Any] | None) -> CommentedMap | None:
+    """Extract per-column filter metadata into metric filter config."""
+    col_filter = _as_dict(col.get('filter'))
+    if col_filter is not None:
+        filter_query = col_filter.get('query')
+        filter_language = col_filter.get('language')
+        if isinstance(filter_query, str):
+            if filter_language == 'kuery':
+                return CommentedMap({'kql': filter_query})
+            if filter_language == 'lucene':
+                return CommentedMap({'lucene': filter_query})
+
+    if params is None:
+        return None
+
+    kql = params.get('kql')
+    if isinstance(kql, str) and len(kql) > 0:
+        return CommentedMap({'kql': kql})
+
+    return None
+
+
+def _extract_metric_format(params: dict[str, Any] | None) -> CommentedMap | None:
+    """Extract per-column format metadata into metric format config."""
+    if params is None:
+        return None
+
+    format_config = _as_dict(params.get('format'))
+    if format_config is None:
+        return None
+
+    format_type = format_config.get('id')
+    if not (isinstance(format_type, str) and format_type in {'number', 'bytes', 'bits', 'percent', 'duration', 'custom'}):
+        return None
+
+    format_stub = CommentedMap({'type': format_type})
+    format_params = _as_dict(format_config.get('params'))
+    if format_params is None:
+        return format_stub
+
+    decimals = format_params.get('decimals')
+    suffix = format_params.get('suffix')
+    compact = format_params.get('compact')
+    pattern = format_params.get('pattern')
+    if isinstance(decimals, int):
+        format_stub['decimals'] = decimals
+    if isinstance(suffix, str):
+        format_stub['suffix'] = suffix
+    if isinstance(compact, bool):
+        format_stub['compact'] = compact
+    if isinstance(pattern, str):
+        format_stub['pattern'] = pattern
+    return format_stub
+
+
+def _extract_visualization_layer_accessors(embeddable_attributes: dict[str, Any]) -> dict[str, list[str]]:
+    """Extract ordered accessor IDs for each visualization layer."""
+    visualization_layer_accessors: dict[str, list[str]] = {}
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return visualization_layer_accessors
+
+    visualization = _as_dict(state.get('visualization'))
+    if visualization is None:
+        return visualization_layer_accessors
+
+    visualization_layers = visualization.get('layers')
+    if not isinstance(visualization_layers, list):
+        return visualization_layer_accessors
+
+    for vis_layer_item in visualization_layers:  # pyright: ignore[reportUnknownVariableType]
+        vis_layer = _as_dict(vis_layer_item)  # pyright: ignore[reportUnknownArgumentType]
+        if vis_layer is None:
+            continue
+        layer_id = vis_layer.get('layerId')
+        if not isinstance(layer_id, str):
+            continue
+
+        ordered_ids: list[str] = []
+        x_accessor = vis_layer.get('xAccessor')
+        if isinstance(x_accessor, str):
+            ordered_ids.append(x_accessor)
+        split_accessor = vis_layer.get('splitAccessor')
+        if isinstance(split_accessor, str):
+            ordered_ids.append(split_accessor)
+        accessors = vis_layer.get('accessors')
+        if isinstance(accessors, list):
+            ordered_ids.extend([accessor for accessor in accessors if isinstance(accessor, str)])
+
+        deduped_order: list[str] = []
+        seen_ids: set[str] = set()
+        for accessor_id in ordered_ids:
+            if accessor_id in seen_ids:
+                continue
+            deduped_order.append(accessor_id)
+            seen_ids.add(accessor_id)
+
+        if len(deduped_order) > 0:
+            visualization_layer_accessors[layer_id] = deduped_order
+    return visualization_layer_accessors
+
+
+def _select_layer_columns(columns: dict[str, Any], layer_accessors: list[str] | None) -> list[dict[str, Any]]:
+    """Select layer columns in visualization accessor order when available."""
+    iter_columns: list[dict[str, Any]] = []
+    if layer_accessors is not None and len(layer_accessors) > 0:
+        for accessor_id in layer_accessors:
+            col_value = columns.get(accessor_id)
+            col = _as_dict(col_value)  # pyright: ignore[reportUnknownArgumentType]
+            if col is not None:
+                iter_columns.append(col)
+        return iter_columns
+
+    for col_value in columns.values():  # pyright: ignore[reportAny]
+        col = _as_dict(col_value)  # pyright: ignore[reportUnknownArgumentType]
+        if col is not None:
+            iter_columns.append(col)
+    return iter_columns
 
 
 def _get_form_based_layers(embeddable_attributes: dict[str, Any]) -> dict[str, Any] | None:
@@ -307,7 +465,9 @@ def _extract_form_based_columns(
     if layers is None:
         return metrics, dimensions, breakdowns, skipped
 
-    for layer_value in layers.values():  # pyright: ignore[reportAny]
+    visualization_layer_accessors = _extract_visualization_layer_accessors(embeddable_attributes)
+
+    for layer_id, layer_value in layers.items():  # pyright: ignore[reportAny]
         layer = _as_dict(layer_value)  # pyright: ignore[reportUnknownArgumentType]
         if layer is None:
             continue
@@ -316,10 +476,10 @@ def _extract_form_based_columns(
         if columns is None:
             continue
 
-        for col_value in columns.values():  # pyright: ignore[reportAny]
-            col = _as_dict(col_value)  # pyright: ignore[reportUnknownArgumentType]
-            if col is None:
-                continue
+        layer_accessors = visualization_layer_accessors.get(layer_id)
+        iter_columns = _select_layer_columns(columns, layer_accessors)
+
+        for col in iter_columns:
             _classify_column(col, metrics, dimensions, breakdowns, skipped)
 
     return metrics, dimensions, breakdowns, skipped
@@ -609,6 +769,9 @@ def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:  # noqa: PLR09
     visualization_type = _resolve_chart_type(embeddable_attributes.get('visualizationType'), embeddable_attributes)
     if visualization_type is not None:
         chart['type'] = visualization_type
+        xy_mode = _resolve_xy_mode(embeddable_attributes, visualization_type)
+        if xy_mode is not None:
+            chart['mode'] = xy_mode
 
     data_view = _extract_data_view_from_references(panel)
     if data_view is not None:

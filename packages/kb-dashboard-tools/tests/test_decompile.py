@@ -828,6 +828,15 @@ def test_decompile_lnsxy_bar_stacked() -> None:
     panel = _make_lens_panel('lnsXY', state={'visualization': {'preferredSeriesType': 'bar_stacked'}})
     result = _decompile_single_panel(panel)
     assert result['lens']['type'] == 'bar'
+    assert result['lens']['mode'] == 'stacked'
+
+
+def test_decompile_lnsxy_bar_percentage_stacked_sets_percentage_mode() -> None:
+    """LnsXY with preferredSeriesType=bar_percentage_stacked preserves percentage mode."""
+    panel = _make_lens_panel('lnsXY', state={'visualization': {'preferredSeriesType': 'bar_percentage_stacked'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'bar'
+    assert result['lens']['mode'] == 'percentage'
 
 
 def test_decompile_lnsxy_area() -> None:
@@ -1401,3 +1410,105 @@ def test_decompile_metric_with_label() -> None:
     result = _decompile_single_panel(panel)
     primary = result['lens']['primary']
     assert primary['label'] == 'Total Requests'
+
+
+def test_decompile_metric_preserves_column_filter_and_format() -> None:
+    """Metric extraction preserves per-column filter and format metadata."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'sum',
+                                    'isBucketed': False,
+                                    'sourceField': 'bytes',
+                                    'filter': {'query': 'response.status_code >= 500', 'language': 'kuery'},
+                                    'params': {
+                                        'kql': 'response.status_code >= 200',
+                                        'format': {
+                                            'id': 'bytes',
+                                            'params': {'decimals': 1, 'suffix': ' B', 'compact': True},
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    primary = result['lens']['primary']
+
+    assert primary['aggregation'] == 'sum'
+    assert primary['field'] == 'bytes'
+    assert primary['filter']['kql'] == 'response.status_code >= 500'
+    assert primary['format']['type'] == 'bytes'
+    assert primary['format']['decimals'] == 1
+    assert primary['format']['suffix'] == ' B'
+    assert primary['format']['compact'] is True
+
+
+def test_decompile_form_based_uses_visualization_accessors() -> None:
+    """Column extraction follows visualization accessors and skips helper columns."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'layers': [
+                    {
+                        'layerId': 'layer1',
+                        'xAccessor': 'col_time',
+                        'splitAccessor': 'col_host',
+                        'accessors': ['col_metric'],
+                    }
+                ],
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_helper': {
+                                    'operationType': 'avg',
+                                    'isBucketed': False,
+                                    'sourceField': 'helper.value',
+                                },
+                                'col_metric': {
+                                    'operationType': 'sum',
+                                    'isBucketed': False,
+                                    'sourceField': 'bytes',
+                                },
+                                'col_time': {
+                                    'operationType': 'date_histogram',
+                                    'isBucketed': True,
+                                    'sourceField': '@timestamp',
+                                    'params': {'interval': '1h'},
+                                },
+                                'col_host': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 5},
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+
+    assert lens['metrics'][0]['aggregation'] == 'sum'
+    assert lens['metrics'][0]['field'] == 'bytes'
+    assert lens['dimension']['field'] == '@timestamp'
+    assert lens['dimension']['minimum_interval'] == '1h'
+    assert lens['breakdown']['field'] == 'host.name'
