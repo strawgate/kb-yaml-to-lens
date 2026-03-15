@@ -27,11 +27,22 @@ jobs:
         just explore-bootstrap 8.19.0
       additional-instructions: |
         You are running an exploration+implementation workflow for kb-yaml-to-lens.
+
+        ## Why you exist
+        You are the ONLY agent in our system with access to a live Kibana instance
+        and Playwright. Any agent can read code and grep for patterns — your unique
+        value is that you can open Kibana, create panels, import compiled output,
+        and verify things actually work in the UI. If you skip Playwright and only
+        do code analysis, your output is no better than a code-review bot.
+        **You MUST use Playwright and Kibana for every finding you report.**
+
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST — it
         contains validated step-by-step Playwright instructions for the Kibana Lens UI.
 
         ## Goal
-        Implement support for a chart configuration by first generating a real Kibana saved object from UI configuration, then mapping that artifact into compiler/config/view code and tests.
+        Validate compiler behavior by interacting with a live Kibana instance — compile
+        YAML, import into Kibana, verify in the UI, create fresh panels, export, and
+        compare against compiler output.
 
         ## Mode detection
         - Trigger comment: `${{ github.event.comment.body }}`
@@ -65,11 +76,16 @@ jobs:
         2. If running in PR validation mode:
            - Read the PR title/body and extract the claimed bug fix / feature scope.
            - Check out and use the PR head branch for all compile/validation steps.
-           - Build a focused validation matrix that covers the claim + key edge cases.
-           - Author YAML examples that exercise the claimed behavior and compile them.
-           - Import compiled objects into Kibana and verify editor controls match expectations.
-           - Manually recreate equivalent panels in Kibana using the same behavior.
-           - Export both generated and manual saved objects and compare normalized payloads.
+           - Read the compiler source for the relevant chart type to understand every config option.
+           - Follow `.github/agent-guides/explore-verification.md` — both Part 1 and Part 2.
+           - Part 1 (compile → import → verify UI): Author YAML configs that exercise every
+             setting the PR claims to support. Compile, import into Kibana, open in the editor,
+             and confirm each setting is visible in the UI controls. This is the most important
+             check — if a setting doesn't appear in the Kibana editor, it's broken.
+           - Part 2 (create in Kibana → export → compare to compiler): Create fresh panels in
+             Kibana using a variety of settings, export the dashboard, and compare the JSON
+             against the compiler's view models and defaults. Look for fields the compiler gets
+             wrong or doesn't know about.
            - Report whether the PR claim is truly implemented, partially implemented, or incorrect.
         3. If running in feature exploration mode:
            - Use Playwright (Chromium) to automate Kibana and create the target visualization.
@@ -96,13 +112,14 @@ jobs:
         - Clear summary mapping: spec -> saved object fields -> compiler fields.
         In PR validation mode, include:
         - PR claim checklist with pass/fail per claim
-        - YAML reproductions used for validation
-        - Compiler output vs manual Kibana output diff summary
+        - YAML configs used for each test (so bugs can be reproduced)
+        - For any failures: what the compiler produces vs what Kibana expects
         - Explicit verdict on whether the PR fully satisfies its stated goal
 
         ## Verification guidance
-        Read `.github/agent-guides/explore-verification.md` for fields to
-        ignore in exported JSON diffs and classification rules.
+        Read `.github/agent-guides/explore-verification.md` for the full
+        verification process, fields to ignore in JSON comparisons, and
+        classification rules (bug vs gap vs pass).
 
         ## Guardrails
         - Be surgical; avoid broad refactors.

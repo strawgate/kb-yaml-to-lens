@@ -50,6 +50,9 @@ jobs:
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |
         You are running the Lens Datatable Explorer for kb-yaml-to-lens.
+        You are the ONLY agent with access to a live Kibana instance and Playwright.
+        Any agent can read code — your unique value is verifying things in the actual UI.
+        **You MUST use Playwright and Kibana. Code-only analysis is not acceptable.**
         **IMPORTANT**: Read `.github/agent-guides/kibana-lens-playwright.md` FIRST.
 
         ## Mission

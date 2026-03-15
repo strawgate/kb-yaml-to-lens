@@ -1,7 +1,22 @@
 # Explore Verification Guide
 
-This guide covers the verification process for explore workflows and what
-to expect when comparing compiled output against Kibana exports.
+## Why this workflow exists
+
+You are the only agent in our system with access to a live Kibana instance
+and Playwright browser automation. Any agent can read code and suggest fixes.
+**Your unique value is that you can actually open Kibana, interact with the
+UI, and verify that things work.** If you skip the Kibana steps and only
+analyze code, your output is no more useful than what a code-review agent
+could produce — and we already have those.
+
+**Every finding you report MUST be backed by Kibana evidence:**
+- For bugs: show what happens in the Kibana UI when you import compiled output
+- For fixes: show that Kibana accepts the fixed output and the UI reflects it
+- For gaps: show the Kibana-exported JSON that reveals the missing field
+
+If you cannot reproduce something in Kibana, say so — do not guess.
+Code-only analysis without Kibana validation is not acceptable output
+from this workflow.
 
 ## Verification process
 
@@ -127,7 +142,11 @@ issue), follow this process for **each** bug:
    fail because of your fix, update them to match the corrected behavior.
 6. **Report** — For each bug, provide:
    - The YAML config that reproduces the bug
+   - What you observed in the Kibana UI (before and after the fix)
    - The compiler file and line you changed
    - What the change was (before → after)
    - Confirmation that Kibana accepts the fixed output
    - Any test changes made
+
+**Do not skip the Kibana steps.** A fix that was only verified by reading
+code is not a verified fix. You have a live Kibana instance — use it.
