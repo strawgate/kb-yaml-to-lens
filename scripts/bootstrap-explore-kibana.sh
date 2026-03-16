@@ -88,7 +88,7 @@ PATHS=(/api/v1/users /api/v1/orders /api/v1/health /api/v1/sessions /api/v1/prod
 CODES=(200 200 200 201 301 400 401 404 500 503)
 AGENTS=(curl python-requests "Mozilla/5.0" ELB-HealthChecker Go-http-client)
 
-> /tmp/explore-seed.ndjson
+: > /tmp/explore-seed.ndjson
 
 # Generate 30 log documents (one per 30s over the last 15 min)
 for i in $(seq 0 29); do
