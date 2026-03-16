@@ -4,7 +4,7 @@ import re
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel, Sort
@@ -176,15 +176,15 @@ class LensDateHistogramDimension(BaseLensDimension):
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
-    @field_validator('minimum_interval')
-    @classmethod
-    def validate_minimum_interval(cls, value: str | None) -> str | None:
+    @model_validator(mode='after')
+    def validate_minimum_interval(self) -> 'LensDateHistogramDimension':
         """Validate Lens minimum interval format expected by Kibana/Elasticsearch."""
+        value = self.minimum_interval
         if value is None:
-            return value
+            return self
 
         if value == 'auto':
-            return value
+            return self
 
         if not re.fullmatch(r'[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)', value):
             msg = (
@@ -192,4 +192,4 @@ class LensDateHistogramDimension(BaseLensDimension):
                 "'1ms', '1s', '1m', '1h', '1d', '1w', '1M', '1q', '1y'"
             )
             raise ValueError(msg)
-        return value
+        return self
