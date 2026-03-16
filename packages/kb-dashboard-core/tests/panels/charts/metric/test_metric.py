@@ -1435,7 +1435,6 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'extend_beyond_range': 'above',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 50, 'color': '#fcd883'},
@@ -1451,7 +1450,6 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'extend_beyond_range': 'above',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 50, 'color': '#fcd883'},

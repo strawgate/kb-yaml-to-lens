@@ -271,7 +271,7 @@ class TestColorRangeMappingValidation:
         assert len(mapping.thresholds) == 3
 
     def test_accepts_legacy_continuity_alias(self) -> None:
-        """Test that legacy continuity input is translated to extend_beyond_range."""
+        """Test that legacy continuity input is accepted and ignored."""
         with pytest.warns(DeprecationWarning, match='continuity'):
             mapping = ColorRangeMapping.model_validate(
                 {
@@ -279,19 +279,18 @@ class TestColorRangeMappingValidation:
                     'thresholds': [{'up_to': 50, 'color': '#FFA500'}],
                 }
             )
-        assert mapping.extend_beyond_range == 'both'
+        assert mapping.thresholds[0].up_to == 50
 
-    def test_extend_beyond_range_wins_over_legacy_continuity(self) -> None:
-        """Test explicit extend_beyond_range takes precedence over legacy continuity."""
-        with pytest.warns(DeprecationWarning, match='continuity'):
+    def test_extend_beyond_range_is_accepted_and_ignored(self) -> None:
+        """Test extend_beyond_range input is accepted as deprecated and ignored."""
+        with pytest.warns(DeprecationWarning, match='extend_beyond_range'):
             mapping = ColorRangeMapping.model_validate(
                 {
-                    'continuity': 'all',
                     'extend_beyond_range': 'none',
                     'thresholds': [{'up_to': 50, 'color': '#FFA500'}],
                 }
             )
-        assert mapping.extend_beyond_range == 'none'
+        assert mapping.thresholds[0].up_to == 50
 
     def test_number_type_allows_values_outside_percent_bounds(self) -> None:
         """Test that number range type allows values outside 0-100."""
@@ -469,7 +468,6 @@ class TestCompileColorRangeMapping:
             range_type='number',
             range_min=0,
             range_max=100,
-            extend_beyond_range='above',
             thresholds=[
                 ColorThreshold(up_to=25, color='#00BF6F'),
                 ColorThreshold(up_to=50, color='#FFA500'),
