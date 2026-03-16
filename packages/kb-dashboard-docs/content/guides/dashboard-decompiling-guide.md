@@ -463,11 +463,13 @@ Before considering a conversion complete:
 
 - [ ] YAML compiles without errors
 - [ ] Panel counts match (or differences are documented)
-- [ ] Panel types match (lens, esql, links, markdown, image, search, vega, section for Kibana 9.1+)
+- [ ] Panel types match (lens, esql, links, markdown, image, search, vega, section)
 - [ ] Chart configurations preserved (type, stacking, legends)
 - [ ] All dimensions and breakdowns accounted for
 - [ ] Size parameters match original values
 - [ ] Field names and aggregations verified
+
+Note: Section is only available in Kibana 9.1+
 
 ## Common Patterns
 
