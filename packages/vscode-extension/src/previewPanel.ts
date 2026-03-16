@@ -266,7 +266,7 @@ export class PreviewPanel {
                         </button>
                     </div>
                     <div class="success-message" id="successMessage">
-                        Copied to clipboard! Import in Kibana: Stack Management > Saved Objects > Import
+                        Copied to clipboard! Import into Kibana: Stack Management > Saved Objects > Import
                     </div>
                     <div class="stale-warning" id="staleWarning">
                         Layout changed - NDJSON output may be stale. Save the file to recompile.

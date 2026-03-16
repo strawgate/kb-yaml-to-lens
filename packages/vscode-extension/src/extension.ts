@@ -476,7 +476,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 const result = await compiler.compile(filePath, dashboardIndex);
                 const ndjson = JSON.stringify(result);
                 await vscode.env.clipboard.writeText(ndjson);
-                vscode.window.showInformationMessage('NDJSON copied to clipboard! Import in Kibana: Stack Management → Saved Objects → Import');
+                vscode.window.showInformationMessage('NDJSON copied to clipboard! Import into Kibana: Stack Management → Saved Objects → Import');
             } catch (error) {
                 vscode.window.showErrorMessage(`Export failed: ${error instanceof Error ? error.message : String(error)}`);
             }

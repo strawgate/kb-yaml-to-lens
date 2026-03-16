@@ -156,7 +156,7 @@ If using Docker:
 ```bash
 docker run --rm -v $(pwd)/inputs:/inputs -v $(pwd)/output:/output \
   ghcr.io/strawgate/kb-yaml-to-lens/kb-dashboard-compiler:latest \
-  compile --input-dir inputs --output-dir output
+  compile --input-dir /inputs --output-dir /output
 ```
 
 If using standalone binary: `./kb-dashboard-<platform> compile --input-dir inputs --output-dir output`
@@ -180,7 +180,7 @@ The `--upload` flag will automatically open your dashboard in the browser upon s
 - **[Full Documentation Site](https://strawgate.github.io/kb-yaml-to-lens/)** - Complete user guide and API reference
 - **[Programmatic Usage Guide](https://strawgate.github.io/kb-yaml-to-lens/programmatic-usage)** - Create dashboards entirely in Python code
 - **[Architecture](https://strawgate.github.io/kb-yaml-to-lens/architecture)** - Technical design and data flow overview
-- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute and add new capabilities
+- **[Contributing Guide](../../CONTRIBUTING.md)** - How to contribute and add new capabilities
 
 ## License
 
