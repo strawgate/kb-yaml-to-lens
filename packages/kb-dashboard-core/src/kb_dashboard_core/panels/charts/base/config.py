@@ -1,5 +1,6 @@
+import warnings
 from enum import StrEnum
-from typing import Literal
+from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
@@ -42,6 +43,19 @@ class LegendVisibleEnum(StrEnum):
 
     AUTO = 'auto'
     """Automatically determine the visibility of the legend based on the data."""
+
+
+class BaseLegend(BaseCfgModel):
+    """Shared legend fields common to all chart types."""
+
+    visible: LegendVisibleEnum | None = Field(default=None, strict=False)
+    """Visibility of the legend. Kibana defaults vary by chart type."""
+
+    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
+    """Position of the legend."""
+
+    width: LegendWidthEnum | None = Field(default=None, strict=False)
+    """Width of the legend."""
 
 
 class ColorValueAssignment(BaseCfgModel):
@@ -105,11 +119,38 @@ class ColorRangeMapping(BaseCfgModel):
     range_max: float | None = Field(default=None)
     """Optional upper bound for the palette domain. Use null for auto/open upper bound."""
 
-    continuity: Literal['above', 'below', 'all', 'none'] = Field(default='above')
+    extend_beyond_range: Literal['above', 'below', 'both', 'none'] = Field(default='above')
     """How colors extend beyond the configured range."""
 
     thresholds: list[ColorThreshold] = Field(min_length=1)
     """Ordered threshold bands used to build gauge-style color palettes."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_legacy_continuity(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_continuity = cast('object', normalized_data.pop('continuity', None))
+        if legacy_continuity is None:
+            return normalized_data
+
+        if 'extend_beyond_range' in normalized_data:
+            warnings.warn(
+                "Color mapping field 'continuity' is ignored because 'extend_beyond_range' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return normalized_data
+
+        normalized_data['extend_beyond_range'] = 'both' if legacy_continuity == 'all' else legacy_continuity
+        warnings.warn(
+            "Color mapping field 'continuity' is deprecated, use 'extend_beyond_range' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return normalized_data
 
     @model_validator(mode='after')
     def validate_thresholds(self) -> 'ColorRangeMapping':

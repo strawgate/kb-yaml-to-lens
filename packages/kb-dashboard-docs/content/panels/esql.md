@@ -176,7 +176,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `metrics` | `ESQLMetric \| list[ESQLMetric]` object | A single metric or list of metrics that determine the size of each slice. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `breakdowns` | `list of ESQLDimension` objects | One or more breakdowns that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
-| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Deprecated alias for slice labels/values. Prefer `appearance.categories` and `appearance.values`. | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens). | `None` | No |
 | `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None` | No |
 
@@ -491,13 +491,15 @@ ESQL Pie Charts share the same formatting options for appearance, titles/text, l
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
 | `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. If not specified, Kibana displays as a pie chart (no donut hole). | `None` | No |
 
-### Pie Titles and Text Formatting (`titles_and_text` field)
+### Pie Labels and Values Formatting (`appearance.categories` and `appearance.values`)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `None` | No |
-| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `None` | No |
-| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `None` | No |
+| `appearance.categories.position` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `None` | No |
+| `appearance.values.format` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `None` | No |
+| `appearance.values.decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `None` | No |
+
+`titles_and_text` is still accepted for backward compatibility, but it is deprecated and emits `DeprecationWarning`.
 
 ### Pie Legend Formatting (`legend` field)
 

@@ -290,9 +290,10 @@
       "    metric:",
       "      aggregation: ${13|count,sum,avg,min,max|}",
       "      ${14:field: ${15:numeric_field}}",
-      "    ${16:titles_and_text:",
-      "      value_format: ${17|percent,value,hidden|}",
-      "      value_decimal_places: ${18:2}}",
+      "    ${16:appearance:",
+      "      values:",
+      "        format: ${17|percent,value,hidden|}",
+      "        decimal_places: ${18:2}}",
       "    ${19:legend:",
       "      visible: ${20|show,hide,auto|}",
       "      position: ${21|right,bottom,left,top|}}"
@@ -489,9 +490,10 @@
       "      field: ${11:category_field}",
       "    ${14:breakdown:",
       "      field: ${13:breakdown_field}}",
-      "    ${15:titles_and_text:",
-      "      value_format: ${16|percent,value,hidden|}",
-      "      value_decimal_places: ${17:2}}",
+      "    ${15:appearance:",
+      "      values:",
+      "        format: ${16|percent,value,hidden|}",
+      "        decimal_places: ${17:2}}",
       "    ${18:legend:",
       "      visible: ${19|show,hide,auto|}",
       "      position: ${20|right,bottom,left,top|}}"
@@ -583,7 +585,8 @@
       "      min_font_size: ${15:12}",
       "      max_font_size: ${16:72}",
       "      orientation: ${17|single,right angled,multiple|}",
-      "      show_label: ${18|true,false|}}"
+      "      labels:",
+      "        visible: ${18|true,false|}}"
     ],
     "description": "Add a Lens tag cloud panel showing term frequency as a word cloud"
   },
@@ -613,7 +616,8 @@
       "      min_font_size: ${15:12}",
       "      max_font_size: ${16:72}",
       "      orientation: ${17|single,right angled,multiple|}",
-      "      show_label: ${18|true,false|}}"
+      "      labels:",
+      "        visible: ${18|true,false|}}"
     ],
     "description": "Add an ESQL tag cloud panel using ES|QL query language"
   },
@@ -643,15 +647,19 @@
       "    ${18:legend:",
       "      visible: ${19|show,hide|}",
       "      position: ${20|right,bottom,left,top|}}",
-      "    ${21:grid_config:",
-      "      cells:",
-      "        show_labels: ${22|false,true|}",
+      "    ${21:appearance:",
+      "      values:",
+      "        visible: ${22|false,true|}",
       "      x_axis:",
-      "        show_labels: ${23|true,false|}",
-      "        show_title: ${24|true,false|}",
+      "        labels:",
+      "          visible: ${23|true,false|}",
+      "        title:",
+      "          visible: ${24|true,false|}",
       "      y_axis:",
-      "        show_labels: ${25|true,false|}",
-      "        show_title: ${26|true,false|}}"
+      "        labels:",
+      "          visible: ${25|true,false|}",
+      "        title:",
+      "          visible: ${26|true,false|}}"
     ],
     "description": "Add a Lens heatmap panel showing data distribution across two dimensions"
   },
@@ -681,15 +689,19 @@
       "    ${15:legend:",
       "      visible: ${16|show,hide|}",
       "      position: ${17|right,bottom,left,top|}}",
-      "    ${18:grid_config:",
-      "      cells:",
-      "        show_labels: ${19|false,true|}",
+      "    ${18:appearance:",
+      "      values:",
+      "        visible: ${19|false,true|}",
       "      x_axis:",
-      "        show_labels: ${20|true,false|}",
-      "        show_title: ${21|true,false|}",
+      "        labels:",
+      "          visible: ${20|true,false|}",
+      "        title:",
+      "          visible: ${21|true,false|}",
       "      y_axis:",
-      "        show_labels: ${22|true,false|}",
-      "        show_title: ${23|true,false|}}"
+      "        labels:",
+      "          visible: ${22|true,false|}",
+      "        title:",
+      "          visible: ${23|true,false|}}"
     ],
     "description": "Add an ESQL heatmap panel showing data distribution across two dimensions"
   },

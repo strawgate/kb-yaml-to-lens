@@ -81,7 +81,7 @@ Range-based color mappings use thresholds to color numeric values by band:
 | `range_type` | `number \| percent` | How threshold values are interpreted. | `number` | No |
 | `range_min` | `number \| null` | Optional lower bound for the palette domain. | `0` | No |
 | `range_max` | `number \| null` | Optional upper bound for the palette domain. | `null` | No |
-| `continuity` | `above \| below \| all \| none` | How colors extend beyond the configured range. | `above` | No |
+| `extend_beyond_range` | `above \| below \| both \| none` | How colors extend beyond the configured range. | `above` | No |
 | `thresholds` | `list[ColorThreshold]` | Ordered threshold bands used to build the palette. | — | Yes |
 
 Each item in `thresholds` uses these keys:
@@ -102,7 +102,7 @@ appearance:
     range_type: percent
     range_min: 0
     range_max: 100
-    continuity: above
+    extend_beyond_range: above
     thresholds:
       - up_to: 50
         color: '#00BF6F'

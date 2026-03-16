@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -38,6 +39,21 @@ def compile_heatmap_chart_snapshot(config: dict[str, Any], chart_type: str = 'le
 
     assert kbn_state_visualization is not None
     return kbn_state_visualization.model_dump(mode='json', exclude_none=False)
+
+
+def test_heatmap_invalid_legacy_grid_config_type_is_rejected() -> None:
+    """Malformed grid_config should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='grid_config'):
+        LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'logs-*',
+                'x_axis': {'type': 'values', 'field': 'host.name'},
+                'y_axis': {'type': 'values', 'field': 'service.name'},
+                'metric': {'aggregation': 'count'},
+                'grid_config': 'invalid',
+            }
+        )
 
 
 def test_compile_heatmap_chart_1d_lens() -> None:
@@ -217,8 +233,8 @@ def test_compile_heatmap_chart_2d_esql() -> None:
     )
 
 
-def test_compile_heatmap_chart_with_grid_config_lens() -> None:
-    """Test the compilation of a heatmap chart with grid configuration (Lens)."""
+def test_compile_heatmap_chart_with_axis_and_value_config_lens() -> None:
+    """Test the compilation of a heatmap chart with axis/value visibility config (Lens)."""
     config = {
         'type': 'heatmap',
         'data_view': 'metrics-*',
@@ -232,18 +248,10 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'grid_config': {
-            'cells': {
-                'show_labels': True,
-            },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': False,
-                'show_title': False,
-            },
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': False}, 'title': {'visible': False}},
         },
     }
 
@@ -273,8 +281,8 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
     )
 
 
-def test_compile_heatmap_chart_with_grid_config_esql() -> None:
-    """Test the compilation of a heatmap chart with grid configuration (ESQL)."""
+def test_compile_heatmap_chart_with_axis_and_value_config_esql() -> None:
+    """Test the compilation of a heatmap chart with axis/value visibility config (ESQL)."""
     config = {
         'type': 'heatmap',
         'x_axis': {
@@ -285,18 +293,10 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
-        'grid_config': {
-            'cells': {
-                'show_labels': True,
-            },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
         },
     }
 
@@ -341,9 +341,12 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'legend': {
-            'visible': 'hide',
-            'position': 'bottom',
+        'appearance': {
+            'legend': {
+                'visible': 'hide',
+                'position': 'bottom',
+                'width': 'extra_large',
+            }
         },
     }
 
@@ -366,6 +369,7 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
                 'position': 'bottom',
                 'type': 'heatmap_legend',
             },
+            'legendSize': 'xlarge',
             'shape': 'heatmap',
             'valueAccessor': 'value_accessor',
             'xAccessor': 'x_accessor',
@@ -391,8 +395,10 @@ def test_compile_heatmap_chart_with_legend_positions() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'value_accessor',
             },
-            'legend': {
-                'position': position,
+            'appearance': {
+                'legend': {
+                    'position': position,
+                }
             },
         }
 
@@ -403,8 +409,8 @@ def test_compile_heatmap_chart_with_legend_positions() -> None:
         assert result['shape'] == 'heatmap'
 
 
-def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
-    """Test the compilation of a heatmap chart with all grid configuration options (Lens)."""
+def test_compile_heatmap_chart_with_all_axis_and_value_options_lens() -> None:
+    """Test the compilation of a heatmap chart with all axis/value visibility options (Lens)."""
     config = {
         'type': 'heatmap',
         'data_view': 'metrics-*',
@@ -423,22 +429,14 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'grid_config': {
-            'cells': {
-                'show_labels': True,
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'legend': {
+                'visible': 'show',
+                'position': 'left',
             },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-        },
-        'legend': {
-            'visible': 'show',
-            'position': 'left',
         },
     }
 
@@ -469,8 +467,8 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
     )
 
 
-def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
-    """Test the compilation of a heatmap chart with all grid configuration options (ESQL)."""
+def test_compile_heatmap_chart_with_all_axis_and_value_options_esql() -> None:
+    """Test the compilation of a heatmap chart with all axis/value visibility options (ESQL)."""
     config = {
         'type': 'heatmap',
         'x_axis': {
@@ -485,22 +483,14 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
-        'grid_config': {
-            'cells': {
-                'show_labels': True,
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'legend': {
+                'visible': 'hide',
+                'position': 'top',
             },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-        },
-        'legend': {
-            'visible': 'hide',
-            'position': 'top',
         },
     }
 
@@ -531,8 +521,59 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
     )
 
 
-def test_compile_heatmap_chart_partial_grid_config() -> None:
-    """Test the compilation of a heatmap chart with partial grid configuration."""
+def test_heatmap_deprecated_grid_config_warns_and_maps() -> None:
+    """Deprecated grid_config should warn and map to appearance visibility fields."""
+    with pytest.warns(DeprecationWarning, match='grid_config'):
+        chart = LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'metrics-*',
+                'x_axis': {'type': 'values', 'field': 'host.name'},
+                'value': {'aggregation': 'count'},
+                'grid_config': {
+                    'cells': {'show_labels': True},
+                    'x_axis': {'show_labels': True, 'show_title': False},
+                    'y_axis': {'show_labels': False, 'show_title': True},
+                },
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.visible is True
+    assert chart.appearance.x_axis is not None
+    assert chart.appearance.x_axis.labels is not None
+    assert chart.appearance.x_axis.labels.visible is True
+    assert chart.appearance.x_axis.title is not None
+    assert chart.appearance.x_axis.title.visible is False
+    assert chart.appearance.y_axis is not None
+    assert chart.appearance.y_axis.labels is not None
+    assert chart.appearance.y_axis.labels.visible is False
+    assert chart.appearance.y_axis.title is not None
+    assert chart.appearance.y_axis.title.visible is True
+
+
+def test_heatmap_deprecated_legend_warns_when_ignored() -> None:
+    """Deprecated top-level legend should warn when appearance.legend is present."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.legend' is already set"):
+        chart = LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'metrics-*',
+                'x_axis': {'type': 'values', 'field': 'host.name'},
+                'value': {'aggregation': 'count'},
+                'appearance': {'legend': {'visible': 'show'}},
+                'legend': {'visible': 'hide'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.legend is not None
+    assert chart.appearance.legend.visible == 'show'
+
+
+def test_compile_heatmap_chart_partial_visibility_config() -> None:
+    """Test the compilation of a heatmap chart with partial axis/value visibility config."""
     config = {
         'type': 'heatmap',
         'data_view': 'metrics-*',
@@ -546,10 +587,8 @@ def test_compile_heatmap_chart_partial_grid_config() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'grid_config': {
-            'cells': {
-                'show_labels': True,
-            },
+        'appearance': {
+            'values': {'visible': True},
         },
     }
 
@@ -578,8 +617,10 @@ def test_compile_heatmap_chart_partial_legend_config() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'legend': {
-            'visible': 'hide',
+        'appearance': {
+            'legend': {
+                'visible': 'hide',
+            }
         },
     }
 
@@ -648,7 +689,7 @@ def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'all',
+                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 75, 'color': '#fcd883'},
@@ -665,7 +706,7 @@ def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'all',
+                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 75, 'color': '#fcd883'},
@@ -688,7 +729,7 @@ def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
         {'color': '#f6726a', 'stop': 100.0},
     ]
     assert result['palette']['params']['colorStops'] == [
-        {'color': '#24c292', 'stop': 25.0},
-        {'color': '#fcd883', 'stop': 75.0},
-        {'color': '#f6726a', 'stop': 100.0},
+        {'color': '#24c292', 'stop': 0.0},
+        {'color': '#fcd883', 'stop': 25.0},
+        {'color': '#f6726a', 'stop': 75.0},
     ]

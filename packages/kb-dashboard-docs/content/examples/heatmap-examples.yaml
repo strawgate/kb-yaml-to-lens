@@ -64,9 +64,10 @@ dashboards:
           value:
             aggregation: count
             label: Events
-          legend:
-            visible: show
-            position: bottom
+          appearance:
+            legend:
+              visible: show
+              position: bottom
 
       # Heatmap with Custom Grid Configuration
       - title: Response Time Heatmap (Custom Grid)
@@ -96,18 +97,22 @@ dashboards:
             label: Avg Response (ms)
             format:
               type: duration
-          grid_config:
-            cells:
-              show_labels: true
+          appearance:
+            values:
+              visible: true
             x_axis:
-              show_labels: true
-              show_title: true
+              labels:
+                visible: true
+              title:
+                visible: true
             y_axis:
-              show_labels: true
-              show_title: true
-          legend:
-            visible: show
-            position: right
+              labels:
+                visible: true
+              title:
+                visible: true
+            legend:
+              visible: show
+              position: right
 
       # Error Rate Heatmap
       - title: Error Rate by Service and Hour
@@ -219,15 +224,19 @@ dashboards:
             label: P95 Response (ms)
             format:
               type: duration
-          grid_config:
-            cells:
-              show_labels: false
+          appearance:
+            values:
+              visible: false
             x_axis:
-              show_labels: true
-              show_title: true
+              labels:
+                visible: true
+              title:
+                visible: true
             y_axis:
-              show_labels: true
-              show_title: true
+              labels:
+                visible: true
+              title:
+                visible: true
 
       # Memory Usage Heatmap
       - title: Memory Usage by Host and Time
@@ -256,6 +265,7 @@ dashboards:
             label: Max Memory %
             format:
               type: percent
-          legend:
-            visible: show
-            position: right
+          appearance:
+            legend:
+              visible: show
+              position: right

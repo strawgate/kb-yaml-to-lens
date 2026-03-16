@@ -10,15 +10,19 @@ from kb_dashboard_core.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
 )
-from kb_dashboard_core.panels.charts.lens.dimensions.compile import (
-    compile_lens_dimensions,
-)
+from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
 from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreeMapLegend, TreemapTitlesAndText
+from kb_dashboard_core.panels.charts.treemap.config import (
+    ESQLTreemapChart,
+    LensTreemapChart,
+    TreemapCategoriesConfig,
+    TreeMapLegend,
+    TreemapValuesConfig,
+)
 from kb_dashboard_core.shared.defaults import default_false
 
 
@@ -35,11 +39,11 @@ class LegendOptions:
     show_single_series: bool | None
 
 
-def _compile_number_display(titles_and_text: TreemapTitlesAndText | None) -> str:
+def _compile_number_display(values: TreemapValuesConfig | None) -> str:
     """Compile number display setting from YAML config to Kibana format."""
-    if titles_and_text is None or titles_and_text.slice_values is None:
+    if values is None or values.format is None:
         return 'percent'
-    slice_values = titles_and_text.slice_values
+    slice_values = values.format
     if slice_values == 'integer':
         return 'value'
     if slice_values == 'hide':
@@ -47,11 +51,11 @@ def _compile_number_display(titles_and_text: TreemapTitlesAndText | None) -> str
     return slice_values
 
 
-def _compile_category_display(titles_and_text: TreemapTitlesAndText | None) -> str:
+def _compile_category_display(categories: TreemapCategoriesConfig | None) -> str:
     """Compile category display setting from YAML config to Kibana format."""
-    if titles_and_text is None or titles_and_text.slice_labels is None:
+    if categories is None or categories.position is None:
         return 'default'
-    return 'default' if titles_and_text.slice_labels == 'show' else 'hide'
+    return 'default' if categories.position == 'show' else 'hide'
 
 
 def _compile_legend_options(legend: TreeMapLegend | None) -> LegendOptions:
@@ -99,15 +103,17 @@ def compile_treemap_chart_visualization_state(
     collapse_fns: dict[str, str] | None,
 ) -> KbnPieVisualizationState:
     """Compile a TreemapChart config object into a Kibana treemap visualization state."""
-    number_display = _compile_number_display(chart.titles_and_text)
-    category_display = _compile_category_display(chart.titles_and_text)
+    values = chart.appearance.values if chart.appearance is not None else None
+    categories = chart.appearance.categories if chart.appearance is not None else None
+    number_display = _compile_number_display(values)
+    category_display = _compile_category_display(categories)
     legend_options = _compile_legend_options(chart.legend)
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     percent_decimals = None
-    if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
-        percent_decimals = chart.titles_and_text.value_decimal_places
+    if values is not None and values.decimal_places is not None:
+        percent_decimals = values.decimal_places
 
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,
@@ -115,7 +121,7 @@ def compile_treemap_chart_visualization_state(
         secondaryGroups=None,
         metrics=metric_ids,
         allowMultipleMetrics=allow_multiple_metrics,
-        collapseFns=collapse_fns if collapse_fns else None,
+        collapseFns=collapse_fns or None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_options.display,

@@ -4,24 +4,15 @@ from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
-class PieLegend(BaseCfgModel):
+class PieLegend(BaseLegend):
     """Represents legend formatting options for pie charts."""
-
-    visible: LegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified."""
-
-    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
-    """Position of the legend. Kibana defaults to 'right' if not specified."""
-
-    width: LegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified."""
 
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
     """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
@@ -59,17 +50,29 @@ class PieSliceLabelsEnum(StrEnum):
     """Automatically determine the slice labels based on the data."""
 
 
+class PieCategoriesConfig(BaseCfgModel):
+    """Formatting options for category labels."""
+
+    position: PieSliceLabelsEnum | None = Field(default=None, strict=False)
+    """Controls the visibility of category labels in the pie chart. Kibana defaults to 'auto' if not specified."""
+
+
+class PieValuesConfig(BaseCfgModel):
+    """Formatting options for numeric values."""
+
+    format: PieSliceValuesEnum | None = Field(default=None, strict=False)
+    """Controls the display of values in the pie chart. Kibana defaults to percent if not specified."""
+
+    decimal_places: int | None = Field(default=None, ge=0, le=10)
+    """Controls the number of decimal places for values in the pie chart. Kibana defaults to 2 if not specified."""
+
+
 class PieTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for pie charts."""
+    """Legacy pie titles/text settings (deprecated; use appearance.categories/values)."""
 
-    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
-
-    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Controls the display of slice values in the pie chart. Kibana defaults to PERCENT if not specified."""
-
+    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)
+    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)
     value_decimal_places: int | None = Field(default=None, ge=0, le=10)
-    """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
 
 
 class PieChartAppearance(BaseCfgModel):
@@ -77,6 +80,12 @@ class PieChartAppearance(BaseCfgModel):
 
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
+
+    categories: PieCategoriesConfig | None = Field(default=None)
+    """Formatting options for category labels."""
+
+    values: PieValuesConfig | None = Field(default=None)
+    """Formatting options for numeric values."""
 
 
 class BasePieChart(BaseChart):
@@ -87,14 +96,59 @@ class BasePieChart(BaseChart):
     appearance: PieChartAppearance | None = Field(default=None)
     """Formatting options for the chart appearance, including donut size."""
 
-    titles_and_text: PieTitlesAndText | None = Field(default=None)
-    """Formatting options for the chart titles and text."""
-
     legend: PieLegend | None = Field(default=None)
     """Formatting options for the chart legend."""
 
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
+        if legacy_raw is None:
+            return normalized_data
+        if not isinstance(legacy_raw, dict):
+            return normalized_data
+        normalized_data.pop('titles_and_text')
+        legacy = cast('dict[str, Any]', legacy_raw)
+
+        appearance_raw = normalized_data.get('appearance')
+        appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
+        categories = dict(cast('dict[str, Any]', appearance.get('categories'))) if isinstance(appearance.get('categories'), dict) else {}
+        values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
+        legacy_mappings = (
+            ('slice_labels', categories, 'position', 'appearance.categories.position'),
+            ('slice_values', values, 'format', 'appearance.values.format'),
+            ('value_decimal_places', values, 'decimal_places', 'appearance.values.decimal_places'),
+        )
+        for old_key, target, new_key, new_path in legacy_mappings:
+            if old_key not in legacy:
+                continue
+            if new_key in target:
+                warnings.warn(
+                    f"Pie chart field 'titles_and_text.{old_key}' is ignored because '{new_path}' is already set.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                continue
+            target[new_key] = legacy[old_key]
+
+        for appearance_key, target in (('categories', categories), ('values', values)):
+            if target:
+                appearance[appearance_key] = target
+        if appearance:
+            normalized_data['appearance'] = appearance
+
+        warnings.warn(
+            "Pie chart field 'titles_and_text' is deprecated, use 'appearance.categories' and 'appearance.values' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return normalized_data
 
 
 class LensPieChart(BasePieChart):

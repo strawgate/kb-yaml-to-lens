@@ -789,7 +789,7 @@ async def test_xy_chart_with_legend_size() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'legend': {'size': 'extra_large'},
+        'legend': {'width': 'extra_large'},
     }
 
     lens_chart = LensLineChart(**lens_config)
@@ -1001,15 +1001,15 @@ async def test_axis_extent_configuration() -> None:
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is True
 
 
-async def test_axis_title_visibility_respects_show_title_flag() -> None:
-    """Test show_title controls axis title visibility independently of title value."""
+async def test_axis_title_visibility_supports_bool_title_mode() -> None:
+    """Test bool title mode controls axis title visibility."""
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'x_axis': {'title': 'Time', 'show_title': False},
+            'x_axis': {'title': False},
             'y_left_axis': {'title': 'Count'},
         },
     }
@@ -1021,8 +1021,8 @@ async def test_axis_title_visibility_respects_show_title_flag() -> None:
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
 
 
-async def test_axis_title_visibility_default_behavior_when_show_title_omitted() -> None:
-    """Test omitted show_title preserves legacy title-based visibility behavior."""
+async def test_axis_title_visibility_default_behavior_for_string_title() -> None:
+    """Test string title shows axis title."""
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
@@ -1039,6 +1039,24 @@ async def test_axis_title_visibility_default_behavior_when_show_title_omitted() 
     assert kbn_state_visualization.axisTitlesVisibilitySettings.x is True
 
 
+async def test_axis_title_true_uses_auto_mode() -> None:
+    """Test title=true keeps axis title visible without setting a custom title."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'x_axis': {'title': True},
+        },
+    }
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    assert kbn_state_visualization.xTitle is None
+    assert kbn_state_visualization.axisTitlesVisibilitySettings is None
+
+
 async def test_line_chart_with_fitting_function() -> None:
     """Test line chart with fitting function configuration."""
     lens_config = {
@@ -1047,9 +1065,9 @@ async def test_line_chart_with_fitting_function() -> None:
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Linear',
+            'missing_values': 'linear',
             'show_as_dotted': True,
-            'end_values': 'Zero',
+            'end_values': 'zero',
         },
     }
 
@@ -1063,8 +1081,18 @@ async def test_line_chart_with_fitting_function() -> None:
     assert kbn_state_visualization.endValue == 'Zero'
 
 
-@pytest.mark.parametrize('fitting_func', ['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'])
-async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
+@pytest.mark.parametrize(
+    ('fitting_func', 'expected_kibana_value'),
+    [
+        ('none', 'None'),
+        ('linear', 'Linear'),
+        ('carry', 'Carry'),
+        ('lookahead', 'Lookahead'),
+        ('average', 'Average'),
+        ('nearest', 'Nearest'),
+    ],
+)
+async def test_line_chart_with_all_fitting_functions(fitting_func: str, expected_kibana_value: str) -> None:
     """Test line chart with all available fitting function options."""
     lens_config = {
         'type': 'line',
@@ -1079,7 +1107,7 @@ async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
     lens_chart = LensLineChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
-    assert kbn_state_visualization.fittingFunction == fitting_func
+    assert kbn_state_visualization.fittingFunction == expected_kibana_value
 
 
 async def test_area_chart_with_fitting_and_fill_opacity() -> None:
@@ -1090,7 +1118,7 @@ async def test_area_chart_with_fitting_and_fill_opacity() -> None:
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Carry',
+            'missing_values': 'carry',
             'show_as_dotted': False,
             'fill_opacity': 0.5,
         },
@@ -1113,8 +1141,10 @@ async def test_line_chart_with_time_series_features() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'show_current_time_marker': True,
-        'hide_endzones': True,
+        'appearance': {
+            'show_current_time_marker': True,
+            'hide_endzones': True,
+        },
     }
 
     lens_chart = LensLineChart.model_validate(lens_config)
@@ -1133,8 +1163,10 @@ async def test_area_chart_with_time_series_features() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'show_current_time_marker': False,
-        'hide_endzones': False,
+        'appearance': {
+            'show_current_time_marker': False,
+            'hide_endzones': False,
+        },
     }
 
     lens_chart = LensAreaChart.model_validate(lens_config)
@@ -1154,13 +1186,13 @@ async def test_line_chart_with_all_advanced_features() -> None:
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Average',
+            'missing_values': 'average',
             'show_as_dotted': True,
-            'end_values': 'Nearest',
+            'end_values': 'nearest',
             'line_style': 'monotone-x',
+            'show_current_time_marker': True,
+            'hide_endzones': True,
         },
-        'show_current_time_marker': True,
-        'hide_endzones': True,
     }
 
     lens_chart = LensLineChart.model_validate(lens_config)
@@ -1212,11 +1244,11 @@ async def test_esql_line_chart_with_advanced_features() -> None:
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Lookahead',
+            'missing_values': 'lookahead',
             'show_as_dotted': False,
+            'show_current_time_marker': True,
+            'hide_endzones': False,
         },
-        'show_current_time_marker': True,
-        'hide_endzones': False,
     }
 
     esql_chart = ESQLLineChart.model_validate(esql_config)
@@ -1237,12 +1269,12 @@ async def test_esql_area_chart_with_fitting_and_fill_opacity() -> None:
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Carry',
+            'missing_values': 'carry',
             'show_as_dotted': True,
             'fill_opacity': 0.7,
+            'show_current_time_marker': False,
+            'hide_endzones': True,
         },
-        'show_current_time_marker': False,
-        'hide_endzones': True,
     }
 
     esql_chart = ESQLAreaChart.model_validate(esql_config)
@@ -1557,7 +1589,7 @@ def test_value_labels_show_lens() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'titles_and_text': {'value_labels': 'show'},
+        'appearance': {'values': {'visible': True}},
     }
 
     lens_chart = LensBarChart(**lens_config)
@@ -1572,7 +1604,7 @@ def test_value_labels_hide_lens() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'titles_and_text': {'value_labels': 'hide'},
+        'appearance': {'values': {'visible': False}},
     }
 
     lens_chart = LensLineChart(**lens_config)
@@ -1602,7 +1634,7 @@ def test_value_labels_show_esql() -> None:
         'mode': 'stacked',
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-        'titles_and_text': {'value_labels': 'show'},
+        'appearance': {'values': {'visible': True}},
     }
 
     esql_chart = ESQLBarChart(**esql_config)
@@ -1610,17 +1642,88 @@ def test_value_labels_show_esql() -> None:
     assert kbn_state_visualization.valueLabels == 'show'
 
 
-def test_value_labels_default_none_in_titles_and_text() -> None:
-    """Test that value_labels defaults to 'hide' when titles_and_text exists but value_labels is not set."""
+def test_value_labels_default_none_in_appearance_values() -> None:
+    """Test that value_labels defaults to 'hide' when appearance.values is not set."""
     lens_config = {
         'type': 'area',
         'mode': 'stacked',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'titles_and_text': {},
     }
 
     lens_chart = LensAreaChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization.valueLabels == 'hide'
+
+
+def test_xy_axis_deprecated_show_title_warns_and_maps() -> None:
+    """Deprecated axis.show_title should warn and map to title bool."""
+    with pytest.warns(DeprecationWarning, match='show_title'):
+        chart = LensLineChart.model_validate(
+            {
+                'type': 'line',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'appearance': {'x_axis': {'show_title': False}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.x_axis is not None
+    assert chart.appearance.x_axis.title is False
+
+
+def test_xy_deprecated_titles_and_text_value_labels_maps_to_appearance_values() -> None:
+    """Deprecated titles_and_text.value_labels should warn and map to appearance.values.visible."""
+    with pytest.warns(DeprecationWarning, match='titles_and_text.value_labels'):
+        chart = LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'mode': 'stacked',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'titles_and_text': {'value_labels': 'show'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.visible is True
+
+
+def test_xy_appearance_values_visible_wins_over_deprecated_titles_and_text() -> None:
+    """Explicit appearance values visibility should win over deprecated value_labels."""
+    with pytest.warns(DeprecationWarning, match='ignored'):
+        chart = LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'mode': 'stacked',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'appearance': {'values': {'visible': False}},
+                'titles_and_text': {'value_labels': 'show'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.visible is False
+
+
+def test_xy_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'mode': 'stacked',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'titles_and_text': 'invalid',
+            }
+        )

@@ -170,7 +170,7 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: false
+              show_other_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -250,7 +250,7 @@ dashboards:
             sort:
               by: Event Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Event Count
@@ -271,7 +271,7 @@ dashboards:
             sort:
               by: Event Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Event Count

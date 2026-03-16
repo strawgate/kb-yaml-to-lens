@@ -43,6 +43,21 @@ from kb_dashboard_core.panels.charts.xy.view import (
     YConfig,
 )
 
+MISSING_VALUES_TO_KIBANA = {
+    'none': 'None',
+    'linear': 'Linear',
+    'carry': 'Carry',
+    'lookahead': 'Lookahead',
+    'average': 'Average',
+    'nearest': 'Nearest',
+}
+
+END_VALUES_TO_KIBANA = {
+    'none': 'None',
+    'zero': 'Zero',
+    'nearest': 'Nearest',
+}
+
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
     """Convert config AxisExtent to view AxisExtentConfig.
@@ -78,8 +93,8 @@ def _extract_axis_config(
     if axis_config is None:
         return None, True, None, None
 
-    title = axis_config.title
-    show_title = axis_config.show_title
+    title = axis_config.resolved_title
+    show_title = axis_config.resolved_show_title
     scale = axis_config.scale
     extent = _convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None
 
@@ -235,9 +250,11 @@ def _extract_chart_type_specific_appearance(
 
     # Extract line/area chart appearance
     if chart.appearance is not None and isinstance(chart.appearance, (LineChartAppearance, AreaChartAppearance)):
-        fitting_function = chart.appearance.missing_values
+        fitting_function = (
+            MISSING_VALUES_TO_KIBANA[chart.appearance.missing_values] if chart.appearance.missing_values is not None else None
+        )
         emphasize_fitting = chart.appearance.show_as_dotted
-        end_value = chart.appearance.end_values
+        end_value = END_VALUES_TO_KIBANA[chart.appearance.end_values] if chart.appearance.end_values is not None else None
         curve_type = _map_curve_type_to_kibana(chart.appearance.line_style)
 
         if isinstance(chart.appearance, AreaChartAppearance):
@@ -248,9 +265,9 @@ def _extract_chart_type_specific_appearance(
         min_bar_height = chart.appearance.min_bar_height
 
     # Extract time series features from line/area charts
-    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
-        show_current_time_marker = chart.show_current_time_marker
-        hide_endzones = chart.hide_endzones
+    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)) and chart.appearance is not None:
+        show_current_time_marker = chart.appearance.show_current_time_marker
+        hide_endzones = chart.appearance.hide_endzones
 
     return (
         fitting_function,
@@ -297,8 +314,8 @@ def _compile_legend_config(chart: LensXYChartTypes | ESQLXYChartTypes) -> XYLege
             legend_position = chart.legend.position
         if chart.legend.show_single_series is not None:
             legend_show_single_series = chart.legend.show_single_series
-        if chart.legend.size is not None:
-            legend_size = map_legend_size(chart.legend.size)
+        if chart.legend.width is not None:
+            legend_size = map_legend_size(chart.legend.width)
         if chart.legend.truncate_labels is not None:
             if chart.legend.truncate_labels == 0:
                 legend_should_truncate = False
@@ -382,7 +399,7 @@ def _compile_metric_y_config(*, metric_ids: list[str], chart: LensXYChartTypes |
                 )
             )
 
-    return y_config_list if y_config_list else None
+    return y_config_list or None
 
 
 def _compile_axis_settings(
@@ -450,8 +467,8 @@ def _compile_axis_settings(
 def _resolve_value_labels(chart: LensXYChartTypes | ESQLXYChartTypes) -> Literal['hide', 'show']:
     """Resolve the value labels mode, defaulting to Kibana's hidden state."""
     value_labels: Literal['hide', 'show'] = 'hide'
-    if chart.titles_and_text is not None and chart.titles_and_text.value_labels is not None:
-        value_labels = chart.titles_and_text.value_labels
+    if chart.appearance is not None and chart.appearance.values is not None and chart.appearance.values.visible is not None:
+        value_labels = 'show' if chart.appearance.values.visible else 'hide'
     return value_labels
 
 

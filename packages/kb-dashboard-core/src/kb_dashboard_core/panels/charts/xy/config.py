@@ -1,8 +1,9 @@
-from typing import Literal, Self
+import warnings
+from typing import Any, Literal, Self, cast
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes
 from kb_dashboard_core.panels.charts.lens.dimensions import LensDimensionTypes
 from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
@@ -59,29 +60,12 @@ type LensXYChartTypes = LensBarChart | LensLineChart | LensAreaChart
 type ESQLXYChartTypes = ESQLBarChart | ESQLLineChart | ESQLAreaChart
 
 
-class XYLegend(BaseCfgModel):
+class XYLegend(BaseLegend):
     """Represents legend formatting options for XY charts."""
-
-    visible: LegendVisibleEnum | None = Field(
-        default=None,
-        strict=False,  # Turn off strict for enums
-        description='Visibility of the legend (show, hide, or auto). Kibana defaults to show if not specified.',
-    )
-
-    position: Literal['top', 'bottom', 'left', 'right'] | None = Field(
-        default=None,
-        description="Position of the legend. Kibana defaults to 'right' if not specified.",
-    )
 
     show_single_series: bool | None = Field(
         default=None,
         description='Whether to show legend when there is only one series. Kibana defaults to false if not specified.',
-    )
-
-    size: LegendWidthEnum | None = Field(
-        default=None,
-        strict=False,  # Turn off strict for enums
-        description='Size of the legend (small, medium, large, extra_large). If not specified, Kibana uses automatic sizing.',
     )
 
     truncate_labels: int | None = Field(
@@ -131,17 +115,72 @@ class AxisExtent(BaseCfgModel):
 class AxisConfig(BaseCfgModel):
     """Represents configuration for a single axis in XY charts."""
 
-    title: str | None = Field(default=None)
-    """Custom title for the axis."""
-
-    show_title: bool = Field(default=True)
-    """Whether axis title should be shown when a title is provided."""
+    title: bool | str | None = Field(default=None)
+    """Axis title mode/value: True=auto, False=hidden, string=custom title."""
 
     scale: Literal['linear', 'log', 'sqrt', 'time'] | None = Field(default=None)
     """Scale type for the axis. Defaults to 'linear'."""
 
     extent: AxisExtent | None = Field(default=None)
     """Extent/bounds configuration for the axis."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_show_title(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'show_title' not in normalized_data:
+            return normalized_data
+
+        legacy_show_title = cast('object', normalized_data.pop('show_title'))
+        if 'title' not in normalized_data:
+            warnings.warn(
+                "XY axis field 'show_title' is deprecated, use 'title: true|false|<string>' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['title'] = legacy_show_title
+        else:
+            warnings.warn(
+                "XY axis field 'show_title' is ignored because 'title' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return normalized_data
+
+    @model_validator(mode='after')
+    def validate_title(self) -> Self:
+        """Validate title input."""
+        if isinstance(self.title, str) and self.title == '':
+            msg = 'Axis title cannot be an empty string. Use false to hide or omit for auto.'
+            raise ValueError(msg)
+        return self
+
+    @property
+    def resolved_title(self) -> str | None:
+        """Resolved custom title text (None for auto/hidden)."""
+        return self.title if isinstance(self.title, str) else None
+
+    @property
+    def resolved_show_title(self) -> bool:
+        """Resolved axis title visibility."""
+        if isinstance(self.title, bool):
+            return self.title
+        return True
+
+
+class XYValuesConfig(BaseCfgModel):
+    """Formatting options for value labels on data points."""
+
+    visible: bool | None = Field(default=None)
+    """Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to hidden if not specified."""
+
+
+class XYTitlesAndText(BaseCfgModel):
+    """Legacy XY titles/text settings (deprecated; use appearance.values)."""
+
+    value_labels: Literal['show', 'hide'] | None = Field(default=None)
 
 
 class BaseXYChartAppearance(BaseCfgModel):
@@ -160,6 +199,9 @@ class BaseXYChartAppearance(BaseCfgModel):
     y_right_axis: AxisConfig | None = Field(default=None)
     """Configuration for the right Y-axis."""
 
+    values: XYValuesConfig | None = Field(default=None)
+    """Formatting options for value labels on data points."""
+
 
 class BarChartAppearance(BaseXYChartAppearance):
     """Represents bar chart appearance formatting options.
@@ -176,7 +218,7 @@ class LineChartAppearance(BaseXYChartAppearance):
     Extends BaseXYChartAppearance to include line-specific options.
     """
 
-    missing_values: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
+    missing_values: Literal['none', 'linear', 'carry', 'lookahead', 'average', 'nearest'] | None = Field(
         default=None,
         description='How to handle missing data points. Controls interpolation for gaps in your data.',
     )
@@ -184,7 +226,7 @@ class LineChartAppearance(BaseXYChartAppearance):
         default=None,
         description='If `true`, visually distinguish interpolated data from real data points. Defaults to `false`.',
     )
-    end_values: Literal['None', 'Zero', 'Nearest'] | None = Field(
+    end_values: Literal['none', 'zero', 'nearest'] | None = Field(
         default=None,
         description='How to handle the end of the time range in line/area charts.',
     )
@@ -195,6 +237,14 @@ class LineChartAppearance(BaseXYChartAppearance):
             'Only 3 types are supported by Kibana: linear (straight), monotone-x (smooth), step-after (stepped).'
         ),
     )
+    show_current_time_marker: bool | None = Field(
+        default=None,
+        description='Whether to show a vertical line at the current time in time series charts.',
+    )
+    hide_endzones: bool | None = Field(
+        default=None,
+        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
+    )
 
 
 class AreaChartAppearance(LineChartAppearance):
@@ -203,24 +253,8 @@ class AreaChartAppearance(LineChartAppearance):
     fill_opacity: float | None = Field(default=None, ge=0.0, le=1.0, description='The fill opacity for area charts (0.0 to 1.0).')
 
 
-class XYTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for XY charts."""
-
-    value_labels: Literal['hide', 'show'] | None = Field(
-        default=None,
-        description=(
-            "Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to 'hide' if not specified."
-        ),
-    )
-
-
 class BaseXYChart(BaseChart):
     """Base model for defining XY chart objects."""
-
-    titles_and_text: XYTitlesAndText | None = Field(
-        None,
-        description='Formatting options for the chart titles and text.',
-    )
 
     legend: XYLegend | None = Field(
         None,
@@ -231,6 +265,42 @@ class BaseXYChart(BaseChart):
         None,
         description='Formatting options for the chart color palette.',
     )
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
+        if legacy_raw is None:
+            return normalized_data
+        if not isinstance(legacy_raw, dict):
+            return normalized_data
+        normalized_data.pop('titles_and_text')
+        legacy = cast('dict[str, Any]', legacy_raw)
+        if 'value_labels' not in legacy:
+            return normalized_data
+
+        appearance_raw = normalized_data.get('appearance')
+        appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
+        values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
+        if 'visible' not in values:
+            values['visible'] = legacy['value_labels'] == 'show'
+        else:
+            warnings.warn(
+                "XY chart field 'titles_and_text.value_labels' is ignored because 'appearance.values.visible' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        appearance['values'] = values
+        normalized_data['appearance'] = appearance
+        warnings.warn(
+            "XY chart field 'titles_and_text.value_labels' is deprecated, use 'appearance.values.visible' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return normalized_data
 
 
 class LensXYChartMixin(BaseCfgModel):
@@ -322,16 +392,6 @@ class BaseXYLineChart(BaseXYChart):
     appearance: LineChartAppearance | None = Field(
         None,
         description='Formatting options for the chart appearance.',
-    )
-
-    show_current_time_marker: bool | None = Field(
-        default=None,
-        description='Whether to show a vertical line at the current time in time series charts.',
-    )
-
-    hide_endzones: bool | None = Field(
-        default=None,
-        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
     )
 
 

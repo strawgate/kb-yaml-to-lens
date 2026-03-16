@@ -584,14 +584,14 @@ def test_compile_metric_chart_secondary_label_appearance(chart_type: str) -> Non
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label': 'vs. previous period'}},
+            'appearance': {'secondary': {'label': {'text': 'vs. previous period'}}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label': 'vs. previous period'}},
+            'appearance': {'secondary': {'label': {'text': 'vs. previous period'}}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -607,18 +607,95 @@ def test_compile_metric_chart_secondary_label_position_after(chart_type: str) ->
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label_position': 'after'}},
+            'appearance': {'secondary': {'label': {'position': 'after'}}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label_position': 'after'}},
+            'appearance': {'secondary': {'label': {'position': 'after'}}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
     assert result['secondaryLabelPosition'] == 'after'
+
+
+def test_metric_deprecated_secondary_label_string_warns_and_maps() -> None:
+    """Deprecated secondary.label string should warn and map to label.text."""
+    with pytest.warns(DeprecationWarning, match="label'.*string"):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label': 'legacy text'}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.text == 'legacy text'
+
+
+def test_metric_deprecated_label_position_warns_when_ignored() -> None:
+    """Deprecated secondary.label_position should warn when nested position is present."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.secondary.label.position' is already set"):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label_position': 'before', 'label': {'position': 'after'}}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.position == 'after'
+
+
+def test_metric_deprecated_label_position_only_maps_to_nested_label() -> None:
+    """Deprecated secondary.label_position should map when label is omitted."""
+    with pytest.warns(DeprecationWarning, match='label_position'):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label_position': 'before'}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.position == 'before'
+
+
+def test_metric_deprecated_label_position_merges_with_label_text() -> None:
+    """Deprecated secondary.label_position should merge into nested label when position missing."""
+    with pytest.warns(DeprecationWarning, match='label_position'):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label': {'text': 'legacy label'}, 'label_position': 'after'}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.text == 'legacy label'
+    assert chart.appearance.secondary.label.position == 'after'
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
@@ -991,7 +1068,7 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
                     'position': 'bottom',
                     'alignment': 'center',
                 },
-                'secondary': {'alignment': 'right', 'label': 'Change'},
+                'secondary': {'alignment': 'right', 'label': {'text': 'Change'}},
                 'breakdown': {'column_count': 5},
             },
             'titles_and_text': {
@@ -1016,7 +1093,7 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
                     'position': 'bottom',
                     'alignment': 'center',
                 },
-                'secondary': {'alignment': 'right', 'label': 'Change'},
+                'secondary': {'alignment': 'right', 'label': {'text': 'Change'}},
                 'breakdown': {'column_count': 5},
             },
             'titles_and_text': {
@@ -1303,7 +1380,7 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'all',
+                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 50, 'color': '#24c292'},
                     {'up_to': 80, 'color': '#fcd883'},
@@ -1319,7 +1396,7 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'all',
+                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 50, 'color': '#24c292'},
                     {'up_to': 80, 'color': '#fcd883'},
@@ -1341,6 +1418,11 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
         {'color': '#fcd883', 'stop': 80.0},
         {'color': '#f6726a', 'stop': 100.0},
     ]
+    assert result['palette']['params']['colorStops'] == [
+        {'color': '#24c292', 'stop': 0.0},
+        {'color': '#fcd883', 'stop': 50.0},
+        {'color': '#f6726a', 'stop': 80.0},
+    ]
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
@@ -1355,7 +1437,7 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'above',
+                'extend_beyond_range': 'above',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 50, 'color': '#fcd883'},
@@ -1371,7 +1453,7 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'above',
+                'extend_beyond_range': 'above',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 50, 'color': '#fcd883'},
@@ -1388,4 +1470,10 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
         {'color': '#fcd883', 'stop': 50.0},
         {'color': '#f6726a', 'stop': 75.0},
         {'color': '#f6726a', 'stop': 100.0},
+    ]
+    assert result['palette']['params']['colorStops'] == [
+        {'color': '#24c292', 'stop': 0.0},
+        {'color': '#fcd883', 'stop': 25.0},
+        {'color': '#f6726a', 'stop': 50.0},
+        {'color': '#f6726a', 'stop': 75.0},
     ]

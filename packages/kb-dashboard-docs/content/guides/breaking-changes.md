@@ -24,6 +24,30 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Waffle charts (Lens + ES|QL): rename `dimension` to `breakdown`. The secondary `breakdown` field has been removed; waffle charts support exactly one breakdown. Old name emits `DeprecationWarning`.
 - Datatable charts (Lens + ES|QL): rename `dimensions` (row groupings) to `breakdowns`, and rename `dimensions_by` (split metrics by) to `metrics_split_by`. Old names emit `DeprecationWarning`.
 - All Lens charts: `collapse` is now only valid on breakdown fields (pie, treemap, waffle breakdowns; mosaic `breakdown`). The `collapse` field has been removed from plain dimension types used in XY chart `dimension`/`breakdown` axes.
+- XY charts: rename legend `size` to `width`.
+- XY charts: lowercase `appearance.missing_values` and `appearance.end_values` enum values.
+- Lens top values dimensions: rename `other_bucket` to `show_other_bucket`.
+- Lens top values dimensions: rename `missing_bucket` to `include_missing_values`.
+- Lens intervals dimensions: rename `empty_bucket` to `include_empty_intervals`.
+- Range color mappings: rename `continuity` to `extend_beyond_range`.
+- Range color mappings: rename enum value `all` to `both`.
+
+### Field Rename Reference
+
+| Old field | New field | Notes |
+| --------- | --------- | ----- |
+| `stops[].stop` | `thresholds[].up_to` | Range color mappings |
+| `stops` | `thresholds` | Range color mappings |
+| `continuity` | `extend_beyond_range` | Range color mappings |
+| `continuity: all` | `extend_beyond_range: both` | Enum rename |
+| `dimensions` (pie/treemap) | `breakdowns` | Old name emits `DeprecationWarning` |
+| `dimension` (waffle) | `breakdown` | Old name emits `DeprecationWarning` |
+| `dimensions` (datatable row groupings) | `breakdowns` | Old name emits `DeprecationWarning` |
+| `dimensions_by` (datatable split metrics by) | `metrics_split_by` | Old name emits `DeprecationWarning` |
+| `legend.size` (XY) | `legend.width` | |
+| `other_bucket` | `show_other_bucket` | Lens top values dimensions |
+| `missing_bucket` | `include_missing_values` | Lens top values dimensions |
+| `empty_bucket` | `include_empty_intervals` | Lens intervals dimensions |
 
 ### Range Color Mapping Threshold Rename
 

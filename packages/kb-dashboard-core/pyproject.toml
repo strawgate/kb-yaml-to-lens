@@ -30,12 +30,13 @@ dev = [
     "deepdiff>=8.4.2",
     "inline-snapshot>=0.31.1",
     "dirty-equals>=0.8.0",
+    "pytest-timeout>=2.4.0",
 ]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
-addopts = "-vv"
+addopts = "-vv --inline-snapshot=short-report"
 
 [tool.inline-snapshot]
 format-command = "ruff format"

@@ -1,11 +1,62 @@
 """Test the compilation of Lens mosaic charts from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.config import ESQLMosaicPanelConfig
 from kb_dashboard_core.panels.charts.mosaic.compile import compile_esql_mosaic_chart, compile_lens_mosaic_chart
 from kb_dashboard_core.panels.charts.mosaic.config import LensMosaicChart
+
+
+def test_mosaic_legacy_titles_and_text_maps_to_appearance_values() -> None:
+    """Legacy titles_and_text value fields should map into appearance.values."""
+    chart = LensMosaicChart.model_validate(
+        {
+            'type': 'mosaic',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'dimension': {'type': 'values', 'field': 'service.name'},
+            'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
+        }
+    )
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'value'
+    assert chart.appearance.values.decimal_places == 4
+
+
+def test_mosaic_appearance_values_override_legacy_titles_and_text() -> None:
+    """Explicit appearance.values should win over legacy titles_and_text values."""
+    chart = LensMosaicChart.model_validate(
+        {
+            'type': 'mosaic',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'dimension': {'type': 'values', 'field': 'service.name'},
+            'titles_and_text': {'value_format': 'hide', 'value_decimal_places': 1},
+            'appearance': {'values': {'format': 'percent', 'decimal_places': 5}},
+        }
+    )
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'percent'
+    assert chart.appearance.values.decimal_places == 5
+
+
+def test_mosaic_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensMosaicChart.model_validate(
+            {
+                'type': 'mosaic',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'dimension': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': 'invalid',
+            }
+        )
 
 
 async def test_basic_mosaic_chart() -> None:
@@ -28,6 +79,9 @@ async def test_basic_mosaic_chart() -> None:
     lens_chart = LensMosaicChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
     assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    dumped = layer.model_dump()
+    assert 'percentDecimals' not in dumped
     assert kbn_state_visualization.shape == 'mosaic'
     layer = kbn_state_visualization.layers[0]
     assert layer.model_dump() == snapshot(
@@ -164,7 +218,7 @@ async def test_mosaic_chart_with_value_display() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'titles_and_text': {'value_format': 'value'},
+        'appearance': {'values': {'format': 'value'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -202,7 +256,7 @@ async def test_mosaic_chart_with_hidden_values() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'titles_and_text': {'value_format': 'hidden'},
+        'appearance': {'values': {'format': 'hide'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -338,7 +392,7 @@ async def test_mosaic_chart_with_value_decimal_places() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'titles_and_text': {'value_decimal_places': 5},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -346,7 +400,7 @@ async def test_mosaic_chart_with_value_decimal_places() -> None:
         'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
         'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'titles_and_text': {'value_decimal_places': 5},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -418,6 +472,41 @@ async def test_mosaic_chart_without_value_decimal_places() -> None:
     lens_chart = LensMosaicChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
     assert kbn_state_visualization is not None
-    layer = kbn_state_visualization.layers[0]
-    dumped = layer.model_dump()
-    assert 'percentDecimals' not in dumped
+
+
+def test_mosaic_deprecated_titles_and_text_warns_and_maps() -> None:
+    """Deprecated titles_and_text should warn and map to appearance.values."""
+    with pytest.warns(DeprecationWarning, match='titles_and_text'):
+        chart = LensMosaicChart.model_validate(
+            {
+                'type': 'mosaic',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'dimension': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': {'value_format': 'value', 'value_decimal_places': 3},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'value'
+    assert chart.appearance.values.decimal_places == 3
+
+
+def test_mosaic_deprecated_titles_and_text_warns_when_ignored() -> None:
+    """Deprecated titles_and_text fields should warn when overridden by appearance.values."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.values.format' is already set"):
+        chart = LensMosaicChart.model_validate(
+            {
+                'type': 'mosaic',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'dimension': {'type': 'values', 'field': 'service.name'},
+                'appearance': {'values': {'format': 'hide'}},
+                'titles_and_text': {'value_format': 'value'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'hide'

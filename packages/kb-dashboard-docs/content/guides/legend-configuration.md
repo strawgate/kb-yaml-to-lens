@@ -6,7 +6,7 @@ Legends help users understand what colors, lines, and shapes represent in their 
 
 The legend displays a mapping between visual elements (colors, patterns, etc.) and the data they represent. Different chart types support different legend options:
 
-- **XY Charts** (line, bar, area): Support position, size, visibility, and label truncation
+- **XY Charts** (line, bar, area): Support position, width, visibility, and label truncation
 - **Pie Charts**: Support position (via width), visibility, nested legends, and label truncation
 - **Heatmap Charts**: Support position and visibility for the color scale legend
 
@@ -36,7 +36,7 @@ dashboards:
           legend:
             visible: show              # show, hide, or auto
             position: right             # top, bottom, left, or right
-            size: medium                # small, medium, large, extra_large
+            width: medium               # small, medium, large, extra_large
             show_single_series: false   # Show legend even with one series
             truncate_labels: 1          # Lines to truncate labels (0-5)
 ```
@@ -47,7 +47,7 @@ dashboards:
 | ------ | ------ | ----------- | ------- | -------- |
 | `visible` | `show`, `hide`, `auto` | Control legend visibility | `show` | No |
 | `position` | `top`, `bottom`, `left`, `right` | Legend placement | `right` | No |
-| `size` | `small`, `medium`, `large`, `extra_large` | Legend width/height | Auto | No |
+| `width` | `small`, `medium`, `large`, `extra_large` | Legend width/height | Auto | No |
 | `show_single_series` | `true`, `false` | Show legend for single series | `false` | No |
 | `truncate_labels` | `0` to `5` | Lines before truncation (0 = no truncation) | `1` | No |
 
@@ -108,9 +108,10 @@ dashboards:
             type: values
           value:
             aggregation: count
-          legend:
-            visible: show    # show or hide (auto not supported)
-            position: right  # top, bottom, left, or right
+          appearance:
+            legend:
+              visible: show    # show or hide (auto not supported)
+              position: right  # top, bottom, left, or right
 ```
 
 **Available Options:**
@@ -153,18 +154,18 @@ legend:
   truncate_labels: 0  # No truncation
 ```
 
-### 4. Size Considerations
+### 4. Width Considerations
 
-Choose legend size based on the number of series and label length:
+Choose legend width based on the number of series and label length:
 
 ```yaml
 # For many series or long labels
 legend:
-  size: large
+  width: large
 
 # For few series with short labels
 legend:
-  size: small
+  width: small
 ```
 
 ### 5. Single Series Charts
@@ -218,7 +219,7 @@ lens:
     - aggregation: count
   legend:
     position: bottom  # Better for many categories
-    size: small
+    width: small
     truncate_labels: 1
 ```
 
@@ -257,9 +258,10 @@ lens:
   value:
     aggregation: average
     field: "cpu.usage"
-  legend:
-    visible: show
-    position: bottom  # Save horizontal space
+  appearance:
+    legend:
+      visible: show
+      position: bottom  # Save horizontal space
 ```
 
 ## Examples

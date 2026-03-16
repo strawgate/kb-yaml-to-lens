@@ -133,7 +133,7 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: Co
             'min_font_size': 12,
             'max_font_size': 96,
             'orientation': 'multiple',
-            'show_label': False,
+            'labels': {'visible': False},
         },
         'color': {
             'palette': 'kibana_palette',
@@ -178,7 +178,7 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: Co
             'min_font_size': 12,
             'max_font_size': 96,
             'orientation': 'multiple',
-            'show_label': False,
+            'labels': {'visible': False},
         },
         'color': {
             'palette': 'kibana_palette',
@@ -302,7 +302,7 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: Compile
             'id': 'bytes-metric',
         },
         'appearance': {
-            'show_label': False,
+            'labels': {'visible': False},
         },
     }
 
@@ -365,6 +365,42 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
             },
         }
     )
+
+
+def test_tagcloud_deprecated_show_label_warns_and_maps() -> None:
+    """Deprecated appearance.show_label should warn and map to labels.visible."""
+    with pytest.warns(DeprecationWarning, match='show_label'):
+        chart = LensTagcloudChart.model_validate(
+            {
+                'type': 'tagcloud',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'values', 'field': 'host.name'},
+                'metric': {'aggregation': 'count'},
+                'appearance': {'show_label': False},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.labels is not None
+    assert chart.appearance.labels.visible is False
+
+
+def test_tagcloud_deprecated_show_label_warns_when_ignored() -> None:
+    """Deprecated show_label should warn when ignored by explicit labels.visible."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'labels.visible' is already set"):
+        chart = LensTagcloudChart.model_validate(
+            {
+                'type': 'tagcloud',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'values', 'field': 'host.name'},
+                'metric': {'aggregation': 'count'},
+                'appearance': {'show_label': False, 'labels': {'visible': True}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.labels is not None
+    assert chart.appearance.labels.visible is True
 
 
 def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:

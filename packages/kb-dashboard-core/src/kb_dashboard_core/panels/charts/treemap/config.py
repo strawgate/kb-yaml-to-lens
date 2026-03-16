@@ -28,17 +28,31 @@ class TreeMapLegend(PieLegend):
     """Represents legend formatting options for treemap charts."""
 
 
-class TreemapTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for treemap charts."""
+class TreemapCategoriesConfig(BaseCfgModel):
+    """Formatting options for category labels."""
 
-    slice_labels: TreemapSliceLabelsEnum | None = Field(default=None, strict=False)
+    position: TreemapSliceLabelsEnum | None = Field(default=None, strict=False)
     """Controls the visibility of category labels. Defaults to show when not specified."""
 
-    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)
+
+class TreemapValuesConfig(BaseCfgModel):
+    """Formatting options for numeric values."""
+
+    format: PieSliceValuesEnum | None = Field(default=None, strict=False)
     """Controls the display of values in treemap rectangles. Defaults to percent."""
 
-    value_decimal_places: int | None = Field(default=None, ge=0, le=10)
+    decimal_places: int | None = Field(default=None, ge=0, le=10)
     """Controls the number of decimal places for values."""
+
+
+class TreemapAppearance(BaseCfgModel):
+    """Formatting options for treemap appearance."""
+
+    categories: TreemapCategoriesConfig | None = Field(default=None)
+    """Formatting options for category labels."""
+
+    values: TreemapValuesConfig | None = Field(default=None)
+    """Formatting options for numeric values."""
 
 
 class BaseTreemapChart(BaseChart):
@@ -47,8 +61,8 @@ class BaseTreemapChart(BaseChart):
     type: Literal['treemap'] = Field(default='treemap')
     """The type of chart, which is 'treemap' for this visualization."""
 
-    titles_and_text: TreemapTitlesAndText | None = Field(default=None)
-    """Formatting options for chart labels and values."""
+    appearance: TreemapAppearance | None = Field(default=None)
+    """Formatting options for the chart appearance."""
 
     legend: TreeMapLegend | None = Field(default=None)
     """Formatting options for the chart legend."""

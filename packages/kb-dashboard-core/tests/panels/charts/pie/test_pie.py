@@ -8,8 +8,10 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING
 
+import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -180,6 +182,65 @@ def test_pie_deprecated_dimensions_does_not_override_explicit_breakdowns() -> No
     assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']
 
 
+def test_pie_deprecated_titles_and_text_maps_to_appearance() -> None:
+    """Deprecated pie titles_and_text should warn and map to appearance."""
+    with pytest.warns(DeprecationWarning, match='titles_and_text'):
+        chart = LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name'}],
+                'titles_and_text': {
+                    'slice_labels': 'inside',
+                    'slice_values': 'integer',
+                    'value_decimal_places': 3,
+                },
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.categories is not None
+    assert chart.appearance.categories.position == 'inside'
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'integer'
+    assert chart.appearance.values.decimal_places == 3
+
+
+def test_pie_appearance_wins_over_deprecated_titles_and_text() -> None:
+    """Explicit appearance should win over deprecated pie titles_and_text values."""
+    with pytest.warns(DeprecationWarning, match='ignored'):
+        chart = LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name'}],
+                'appearance': {'values': {'format': 'percent', 'decimal_places': 1}},
+                'titles_and_text': {'slice_values': 'integer', 'value_decimal_places': 4},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'percent'
+    assert chart.appearance.values.decimal_places == 1
+
+
+def test_pie_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name'}],
+                'titles_and_text': 'invalid',
+            }
+        )
+
+
 async def test_donut_chart_sizes() -> None:
     """Test donut chart with different hole sizes (small, medium, large)."""
     for donut_size, expected_ratio in [('small', 0.3), ('medium', 0.5), ('large', 0.7)]:
@@ -206,7 +267,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
+        'appearance': {'categories': {'position': 'inside'}, 'values': {'format': 'integer'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -214,7 +275,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'titles_and_text': {'slice_labels': 'inside', 'slice_values': 'integer'},
+        'appearance': {'categories': {'position': 'inside'}, 'values': {'format': 'integer'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -307,7 +368,7 @@ async def test_pie_chart_slice_labels_auto_maps_to_default() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'titles_and_text': {'slice_labels': 'auto'},
+        'appearance': {'categories': {'position': 'auto'}},
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
@@ -324,7 +385,7 @@ async def test_pie_chart_slice_values_hide_maps_to_hidden() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'titles_and_text': {'slice_values': 'hide'},
+        'appearance': {'values': {'format': 'hide'}},
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
@@ -759,7 +820,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'titles_and_text': {'value_decimal_places': 5},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -767,7 +828,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'titles_and_text': {'value_decimal_places': 5},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 

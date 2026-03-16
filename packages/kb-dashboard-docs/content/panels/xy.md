@@ -74,25 +74,18 @@ That show exactly where things are.
       show_root_heading: false
       heading_level: 4
 
-## Titles and Text
+## Value Labels
 
-::: kb_dashboard_core.panels.charts.xy.config.XYTitlesAndText
-    options:
-      show_root_heading: false
-      heading_level: 3
-
-### Value Labels (`titles_and_text.value_labels`)
-
-Use `titles_and_text.value_labels` to control whether values are rendered on chart marks (for example, labels above bars).
+Use `appearance.values.visible` to control whether values are rendered on chart marks (for example, labels above bars).
 
 | Value | Behavior |
 | ----- | -------- |
-| `hide` | Hide value labels. |
-| `show` | Show value labels on chart marks. |
+| `false` | Hide value labels. |
+| `true` | Show value labels on chart marks. |
 
-If `value_labels` is omitted, Kibana defaults to `hide`.
+If `appearance.values.visible` is omitted, Kibana defaults to hidden.
 
-#### Example: Enable value labels on a Lens bar chart
+### Example: Enable value labels on a Lens bar chart
 
 ```yaml
 dashboards:
@@ -109,9 +102,12 @@ dashboards:
           metrics:
             - aggregation: count
               label: "Requests"
-          titles_and_text:
-            value_labels: show
+          appearance:
+            values:
+              visible: true
 ```
+
+`titles_and_text.value_labels` is still accepted for backward compatibility, but it is deprecated and emits `DeprecationWarning`.
 
 ## Axis Configuration
 
@@ -131,7 +127,7 @@ Customize axis titles, bounds, and scale types to better represent your data:
 
 #### Hide Axis Titles
 
-Use `show_title: false` to hide an axis title even when a `title` is configured:
+Use `title: false` to hide an axis title:
 
 ```yaml
 dashboards:
@@ -151,8 +147,7 @@ dashboards:
               label: "Avg Latency"
           appearance:
             x_axis:
-              title: "Time (UTC)"
-              show_title: false
+              title: false
             y_left_axis:
               title: "Response Time (ms)"
 ```

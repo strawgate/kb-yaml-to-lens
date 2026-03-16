@@ -61,7 +61,7 @@ dashboards:
             sort:
               by: Count of records
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Count of records
@@ -108,7 +108,7 @@ dashboards:
               sort:
                 by: Count of records
                 direction: desc
-              other_bucket: false
+              show_other_bucket: false
           metrics:
             - aggregation: count
               label: Count of records

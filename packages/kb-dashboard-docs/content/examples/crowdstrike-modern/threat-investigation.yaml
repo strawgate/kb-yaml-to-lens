@@ -65,7 +65,7 @@ dashboards:
             sort:
               by: Detection Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Detection Count
@@ -142,7 +142,7 @@ dashboards:
               sort:
                 by: Count
                 direction: desc
-              other_bucket: false
+              show_other_bucket: false
           metrics:
             - aggregation: count
               label: Count
@@ -250,7 +250,7 @@ dashboards:
             sort:
               by: Detection Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Detection Count
@@ -273,7 +273,7 @@ dashboards:
             sort:
               by: Detection Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Detection Count
@@ -296,7 +296,7 @@ dashboards:
             sort:
               by: Threat Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Threat Count
@@ -317,7 +317,7 @@ dashboards:
             sort:
               by: Access Count
               direction: desc
-            other_bucket: false
+            show_other_bucket: false
           metrics:
             - aggregation: count
               label: Access Count

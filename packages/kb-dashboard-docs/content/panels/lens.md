@@ -124,8 +124,8 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `primary.position` | `Literal['top', 'bottom']` | Vertical position of the primary metric value. | `None` | No |
 | `primary.alignment` | `Literal['left', 'center', 'right']` | Text alignment for the primary metric value. | `None` | No |
 | `secondary.alignment` | `Literal['left', 'center', 'right']` | Text alignment for the secondary metric value. | `None` | No |
-| `secondary.label` | `string` | Custom label for the secondary metric. | `None` | No |
-| `secondary.label_position` | `Literal['before', 'after']` | Position for the secondary label. | `None` | No |
+| `secondary.label.text` | `string` | Custom label for the secondary metric. | `None` | No |
+| `secondary.label.position` | `Literal['before', 'after']` | Position for the secondary label. | `None` | No |
 | `breakdown.column_count` | `int` | Maximum breakdown columns (minimum `1`). | `None` | No |
 
 ### Metric Titles and Text
@@ -190,7 +190,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `metrics` | `LensMetricTypes \| list[LensMetricTypes]` object | A single metric or list of metrics that determine the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `breakdowns` | `list of LensBreakdownTypes` objects | One or more breakdowns that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-breakdowns-for-pie). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
-| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Deprecated alias for slice labels/values. Prefer `appearance.categories` and `appearance.values`. | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field). | `None` | No |
 | `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-color-field). | `None` | No |
 
@@ -217,12 +217,13 @@ dashboards:
               label: "Device"
           appearance:
             donut: "medium"
+            categories:
+              position: "inside"
+            values:
+              format: "percent"
           legend:
             visible: "show"
             width: "large"
-          titles_and_text:
-            slice_labels: "inside"
-            slice_values: "percent"
 ```
 
 ---
@@ -253,8 +254,8 @@ Groups data by the most frequent unique values of one or more fields. Supports b
 | `fields` | `list of strings` | Multiple fields for multi-term aggregation (minimum 2 fields). Mutually exclusive with `field`. | N/A | One of `field` or `fields` |
 | `size` | `integer` | The number of top values to display. | `3` | No |
 | `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
-| `other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
-| `missing_bucket` | `boolean` | If `true`, creates a bucket for documents where the field is missing. | `false` | No |
+| `show_other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
+| `include_missing_values` | `boolean` | If `true`, creates a bucket for documents where the field is missing. | `false` | No |
 | `include` | `list of strings` | A list of specific terms to include. | `None` | No |
 | `exclude` | `list of strings` | A list of specific terms to exclude. | `None` | No |
 | `include_is_regex` | `boolean` | If `true`, treats `include` values as regex patterns. | `false` | No |
@@ -318,7 +319,7 @@ Groups data into numeric ranges (buckets).
 | `field` | `string` | The numeric field to create intervals from. | N/A | Yes |
 | `intervals` | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used. | `None` | No |
 | `granularity` | `integer` (1-7) | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest. | `4` | No |
-| `empty_bucket` | `boolean` | If `true`, shows a bucket for documents with missing values for the field. | `false` | No |
+| `include_empty_intervals` | `boolean` | If `true`, shows a bucket for documents with missing values for the field. | `false` | No |
 
 **`LensIntervalsDimensionInterval` Object:**
 
@@ -491,13 +492,15 @@ These objects are used within the `LensPieChart` configuration.
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
 | `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
 
-### Pie Titles and Text (`titles_and_text` field)
+### Pie Labels and Values (`appearance.categories` and `appearance.values`)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
-| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
-| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
+| `appearance.categories.position` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
+| `appearance.values.format` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
+| `appearance.values.decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
+
+`titles_and_text` is still accepted for backward compatibility, but it is deprecated and emits `DeprecationWarning`.
 
 ### Pie Legend (`legend` field)
 

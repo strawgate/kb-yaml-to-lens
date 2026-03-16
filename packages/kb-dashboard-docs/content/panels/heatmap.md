@@ -78,18 +78,22 @@ dashboards:
             field: "response.time"
             format:
               type: duration
-          grid_config:
-            cells:
-              show_labels: true
+          appearance:
+            values:
+              visible: true
             x_axis:
-              show_labels: true
-              show_title: true
+              labels:
+                visible: true
+              title:
+                visible: true
             y_axis:
-              show_labels: true
-              show_title: true
-          legend:
-            visible: show
-            position: right
+              labels:
+                visible: true
+              title:
+                visible: true
+            legend:
+              visible: show
+              position: right
 ```
 
 ## One-Dimensional Heatmap Example
@@ -128,21 +132,26 @@ dashboards:
       show_root_heading: false
       heading_level: 3
 
-## Grid Configuration
+## Axis and Value Configuration
 
-Control the visibility of cell labels, axis labels, and titles:
+Control visibility for numeric values, axis tick labels, and axis titles:
 
-::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapGridConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapValuesConfig
     options:
       show_root_heading: false
       heading_level: 3
 
-::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapCellsConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
-::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisLabelsConfig
+    options:
+      show_root_heading: false
+      heading_level: 3
+
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisTitleConfig
     options:
       show_root_heading: false
       heading_level: 3

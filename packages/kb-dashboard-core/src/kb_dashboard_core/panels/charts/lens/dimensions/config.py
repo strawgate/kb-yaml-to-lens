@@ -97,8 +97,8 @@ class LensIntervalsDimension(BaseLensDimension):
     """Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field.
     Kibana defaults to 4 if not specified."""
 
-    empty_bucket: bool | None = Field(default=None)
-    """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
+    include_empty_intervals: bool | None = Field(default=None)
+    """If `true`, include empty histogram buckets. Defaults to `true`."""
 
 
 class BaseLensTermsDimension(BaseLensDimension):
@@ -115,10 +115,10 @@ class BaseLensTermsDimension(BaseLensDimension):
     sort: Sort | None = Field(default=None)
     """The sort configuration for the terms."""
 
-    other_bucket: bool | None = Field(default=None)
-    """If `true`, show a bucket for terms not included in the top size. Defaults to `false`."""
+    show_other_bucket: bool | None = Field(default=None)
+    """If `true`, show a bucket for terms not included in the top size. Defaults to `true`."""
 
-    missing_bucket: bool | None = Field(default=None)
+    include_missing_values: bool | None = Field(default=None)
     """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
 
     include: list[str] | None = Field(default=None)

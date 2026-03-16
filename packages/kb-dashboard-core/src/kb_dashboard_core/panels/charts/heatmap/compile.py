@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
+from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping, map_legend_size
 from kb_dashboard_core.panels.charts.base.config import LegendVisibleEnum
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 from kb_dashboard_core.panels.charts.heatmap.view import (
@@ -41,34 +41,54 @@ def compile_heatmap_chart_visualization_state(
 
     """
     # Compile grid configuration (always present, use defaults if not provided)
-    if chart.grid_config is not None:
-        gc = chart.grid_config
-        # Handle nested cell configuration
-        cell_labels = default_false(gc.cells.show_labels) if gc.cells is not None else False
-        # Handle nested axis configuration
-        x_axis_labels = default_false(gc.x_axis.show_labels) if gc.x_axis is not None else False
-        x_axis_title = default_false(gc.x_axis.show_title) if gc.x_axis is not None else False
-        y_axis_labels = default_false(gc.y_axis.show_labels) if gc.y_axis is not None else False
-        y_axis_title = default_false(gc.y_axis.show_title) if gc.y_axis is not None else False
-
-        grid_config = KbnHeatmapGridConfig(
-            isCellLabelVisible=cell_labels,
-            isXAxisLabelVisible=x_axis_labels,
-            isXAxisTitleVisible=x_axis_title,
-            isYAxisLabelVisible=y_axis_labels,
-            isYAxisTitleVisible=y_axis_title,
+    if chart.appearance is not None:
+        appearance = chart.appearance
+        cell_labels = default_false(appearance.values.visible) if appearance.values is not None else False
+        x_axis_labels = (
+            default_false(appearance.x_axis.labels.visible)
+            if appearance.x_axis is not None and appearance.x_axis.labels is not None
+            else False
+        )
+        x_axis_title = (
+            default_false(appearance.x_axis.title.visible)
+            if appearance.x_axis is not None and appearance.x_axis.title is not None
+            else False
+        )
+        y_axis_labels = (
+            default_false(appearance.y_axis.labels.visible)
+            if appearance.y_axis is not None and appearance.y_axis.labels is not None
+            else False
+        )
+        y_axis_title = (
+            default_false(appearance.y_axis.title.visible)
+            if appearance.y_axis is not None and appearance.y_axis.title is not None
+            else False
         )
     else:
-        grid_config = KbnHeatmapGridConfig()
+        cell_labels = False
+        x_axis_labels = False
+        x_axis_title = False
+        y_axis_labels = False
+        y_axis_title = False
+
+    grid_config = KbnHeatmapGridConfig(
+        isCellLabelVisible=cell_labels,
+        isXAxisLabelVisible=x_axis_labels,
+        isXAxisTitleVisible=x_axis_title,
+        isYAxisLabelVisible=y_axis_labels,
+        isYAxisTitleVisible=y_axis_title,
+    )
 
     # Compile legend configuration (always present, use defaults if not provided)
-    if chart.legend is not None:
+    legend_size = None
+    if chart.appearance is not None and chart.appearance.legend is not None:
         # Map enum values: 'show' -> True, 'hide' -> False, None -> True (Kibana default)
-        legend_visible = chart.legend.visible != LegendVisibleEnum.HIDE if chart.legend.visible is not None else True
+        legend_visible = chart.appearance.legend.visible != LegendVisibleEnum.HIDE if chart.appearance.legend.visible is not None else True
+        legend_size = map_legend_size(chart.appearance.legend.width)
 
         legend = KbnHeatmapLegendConfig(
             isVisible=legend_visible,
-            position=chart.legend.position if chart.legend.position is not None else 'right',
+            position=chart.appearance.legend.position if chart.appearance.legend.position is not None else 'right',
         )
     else:
         legend = KbnHeatmapLegendConfig()
@@ -82,6 +102,7 @@ def compile_heatmap_chart_visualization_state(
         valueAccessor=value_accessor_id,
         gridConfig=grid_config,
         legend=legend,
+        legendSize=legend_size,
         palette=palette,
     )
 
