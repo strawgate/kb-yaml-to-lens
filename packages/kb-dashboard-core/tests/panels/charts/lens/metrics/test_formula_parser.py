@@ -116,6 +116,12 @@ class TestParseFormulaWithFilters:
         assert result.aggregations[0].source_field == 'bytes'
         assert result.aggregations[0].filter_query == 'status:success'
 
+    def test_parse_count_with_quoted_kql_string(self) -> None:
+        """Test parsing quoted strings in KQL filter arguments."""
+        result = parse_formula('count(kql=\'log.level: "error"\')')
+        assert len(result.aggregations) == 1
+        assert result.aggregations[0].filter_query == 'log.level: "error"'
+
 
 class TestParseFormulaPercentile:
     """Test parsing percentile formulas."""

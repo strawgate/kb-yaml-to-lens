@@ -108,8 +108,8 @@ variable
     ;
 
 quoted_string
-    = /\'[^\']*\'/
-    | /\"[^\"]*\"/
+    = /\'(?:\\.|[^\'\\])*\'/
+    | /\"(?:\\.|[^\"\\])*\"/
     ;
 
 unquoted_variable
@@ -203,6 +203,19 @@ OPERATOR_TO_FUNCTION = {
     '<=': 'lte',
     '==': 'eq',
 }
+
+MIN_QUOTED_LITERAL_LENGTH = 2
+
+
+def _unquote_string_literal(value: str) -> str:
+    """Unquote a string literal while preserving interior quotes."""
+    if len(value) >= MIN_QUOTED_LITERAL_LENGTH and value[0] == value[-1] and value[0] in {'"', "'"}:
+        quote = value[0]
+        unquoted = value[1:-1]
+        unquoted = unquoted.replace(f'\\{quote}', quote)
+        return unquoted.replace('\\\\', '\\')
+
+    return value
 
 
 @dataclass
@@ -313,7 +326,7 @@ def _walk_ast(  # noqa: PLR0911, PLR0912
             return int(node)
         except ValueError:
             # It's a variable/field reference
-            return node.strip('\'"')
+            return _unquote_string_literal(node)
 
     if isinstance(node, (int, float)):
         return node
@@ -471,7 +484,7 @@ def _extract_named_param_from_args(args: Any, param_name: str) -> int | None:
         if isinstance(arg, dict) and 'name' in arg and 'value' in arg and arg['name'] == param_name:
             value = arg['value']
             if isinstance(value, str):
-                value = value.strip('\'"')
+                value = _unquote_string_literal(value)
             try:
                 return int(value)
             except (ValueError, TypeError):
@@ -491,7 +504,7 @@ def _extract_field_from_expr(expr: Any) -> str | None:
         return None
 
     if isinstance(expr, str):
-        return expr.strip('\'"')
+        return _unquote_string_literal(expr)
 
     if isinstance(expr, dict):
         # Check for 'left' key (TatSu binary operation wrapper)
@@ -526,7 +539,7 @@ def _extract_aggregation_info(  # noqa: PLR0912
                 arg_name = arg['name']
                 arg_value = arg['value']
                 if isinstance(arg_value, str):
-                    arg_value = arg_value.strip('\'"')
+                    arg_value = _unquote_string_literal(arg_value)
 
                 if arg_name == 'field':
                     source_field = arg_value
@@ -545,7 +558,7 @@ def _extract_aggregation_info(  # noqa: PLR0912
                     source_field = extracted
         elif isinstance(arg, str):
             # First non-named string argument is typically the field
-            cleaned = arg.strip('\'"')
+            cleaned = _unquote_string_literal(arg)
             if source_field is None and cleaned and not cleaned.isdigit():
                 source_field = cleaned
         elif isinstance(arg, (int, float)) and name.lower() in ('percentile', 'percentile_rank') and percentile is None:

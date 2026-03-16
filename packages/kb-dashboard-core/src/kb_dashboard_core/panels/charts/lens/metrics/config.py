@@ -193,7 +193,7 @@ class LensFormulaMetric(BaseLensMetric):
 
     Example formulas:
     - Simple arithmetic: "count() / 100"
-    - Field aggregations: "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
+    - Field aggregations: "(max(response.time) - min(response.time)) / average(response.time)"
     - With filters: "count(kql='status:error') / count() * 100"
     """
 
