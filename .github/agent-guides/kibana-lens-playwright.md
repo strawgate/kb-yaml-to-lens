@@ -18,7 +18,7 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
   ```
 
 - **Wait after navigation.** `browser_navigate` then `browser_wait_for` with `textGone: "Loading Elastic"`.
-- **Close dialogs** using a scoped locator in `browser_run_code`, for example `page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`, or use `browser_press_key` with `Escape`.
+- **Close dialogs** using a scoped locator in `browser_run_code`, for example `await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`, or use `browser_press_key` with `Escape`.
 - **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts. Use `browser_handle_dialog(accept: true)` or exit via "Exit without saving".
 - **Keep `browser_run_code` return values small.** Return a short status string, not full API responses.
 
