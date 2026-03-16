@@ -319,6 +319,7 @@ class ParsedDashboard:
     time_from: str | None = None
     time_to: str | None = None
     settings: ParsedDashboardSettings | None = None
+    query: dict[str, str] | None = None
     filters: list[ParsedFilter] = field(default_factory=list)
     controls: list[ParsedControl] = field(default_factory=list)
     panels: list[ParsedPanel] = field(default_factory=list)
@@ -812,6 +813,24 @@ def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
     return result
 
 
+def _parse_dashboard_query(attributes: dict[str, Any]) -> dict[str, str] | None:
+    query_dict: dict[str, str] | None = None
+    meta_raw = as_dict(attributes.get('kibanaSavedObjectMeta'))
+    if meta_raw is not None:
+        search_source = parse_json_field(meta_raw.get('searchSourceJSON'))
+        if isinstance(search_source, dict):
+            raw_query = as_dict(search_source.get('query'))
+            if raw_query is not None:
+                language = raw_query.get('language')
+                query = raw_query.get('query')
+                if isinstance(query, str):
+                    if language == 'kuery':
+                        query_dict = {'kql': query}
+                    elif language == 'lucene':
+                        query_dict = {'lucene': query}
+    return query_dict
+
+
 def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]) -> list[ParsedControl]:
     control_group = as_dict(attributes.get('controlGroupInput'))
     if control_group is None:
@@ -861,6 +880,11 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
                         if isinstance(attr_ref, str):
                             ctrl.data_view_id = attr_ref
         normalized_panel = _normalize_control_for_view(panel_id, panel)
+        normalized_explicit = as_dict(normalized_panel.get('explicitInput'))
+        if normalized_explicit is not None and ctrl.data_view_id is not None and 'dataViewId' not in normalized_explicit:
+            normalized_explicit = dict(normalized_explicit)
+            normalized_explicit['dataViewId'] = ctrl.data_view_id
+            normalized_panel['explicitInput'] = normalized_explicit
         if ctrl.control_type == 'optionsListControl':
             ctrl.view_control = _validate_view_model(KbnOptionsListControl, normalized_panel)
         elif ctrl.control_type == 'rangeSliderControl':
@@ -904,6 +928,7 @@ def parse_dashboard(dashboard: dict[str, Any]) -> ParsedDashboard:
         time_from=attributes.get('timeFrom') if isinstance(attributes.get('timeFrom'), str) else None,
         time_to=attributes.get('timeTo') if isinstance(attributes.get('timeTo'), str) else None,
         settings=_parse_settings(attributes),
+        query=_parse_dashboard_query(attributes),
         filters=_parse_filters(attributes),
         controls=_parse_controls(attributes, reference_lookup),
         reference_lookup=reference_lookup,

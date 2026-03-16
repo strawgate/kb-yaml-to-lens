@@ -768,6 +768,9 @@ def infer_dashboard(parsed: ParsedDashboard) -> tuple[Dashboard, list[dict[str, 
     if parsed.controls:
         dashboard['controls'] = [_infer_control(c) for c in parsed.controls]
 
+    if parsed.query is not None:
+        dashboard['query'] = parsed.query
+
     panels: list[dict[str, Any]] = []
     for panel in parsed.panels:
         panel_type, chart_config, wrapper = _infer_panel(panel, parsed.reference_lookup)

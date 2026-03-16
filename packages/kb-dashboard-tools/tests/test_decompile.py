@@ -1191,6 +1191,37 @@ def test_decompile_controls() -> None:
     assert controls[1]['data_view'] == 'logs-*'
 
 
+def test_parse_controls_view_model_uses_reference_data_view() -> None:
+    """Parse phase injects resolved data view into control view-model validation."""
+    dashboard = {
+        'references': [
+            {'name': 'controlGroup_ctrl-1:optionsListDataView', 'type': 'index-pattern', 'id': 'metrics-*'},
+        ],
+        'attributes': {
+            'title': 'Controls from references',
+            'panelsJSON': json.dumps([]),
+            'controlGroupInput': {
+                'panelsJSON': json.dumps(
+                    {
+                        'ctrl-1': {
+                            'type': 'optionsListControl',
+                            'order': 0,
+                            'explicitInput': {
+                                'fieldName': 'host.name',
+                                'title': 'Host',
+                            },
+                        },
+                    }
+                ),
+            },
+        },
+    }
+    parsed = parse_dashboard(dashboard)
+    assert parsed.controls
+    assert parsed.controls[0].data_view_id == 'metrics-*'
+    assert parsed.controls[0].view_control is not None
+
+
 # --- Filters extraction ---
 
 
@@ -1783,6 +1814,7 @@ def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -
             'kibanaSavedObjectMeta': {
                 'searchSourceJSON': json.dumps(
                     {
+                        'query': {'language': 'kuery', 'query': 'host.name : "web-01"'},
                         'filter': [
                             {
                                 '$state': {'store': 'appState'},
@@ -1796,7 +1828,7 @@ def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -
                                 },
                                 'query': {'match_phrase': {'host.name': 'web-01'}},
                             }
-                        ]
+                        ],
                     }
                 )
             },
@@ -1828,7 +1860,12 @@ def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -
 
     assert parsed.settings is not None
     assert parsed.settings.view_options is not None
+    assert parsed.query == {'kql': 'host.name : "web-01"'}
     assert parsed.filters
     assert parsed.filters[0].view_filter is not None
     assert parsed.controls
     assert parsed.controls[0].view_control is not None
+
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    assert decompiled['query'] == {'kql': 'host.name : "web-01"'}
