@@ -15,7 +15,9 @@ from kb_dashboard_core.panels.charts.base.config import (
     ColorRangeStop,
     ColorValueAssignment,
     ColorValueMapping,
+    LegendWidthEnum,
 )
+from kb_dashboard_core.panels.charts.base.view import KbnLegendSize
 
 
 class TestCompileColorValueMapping:
@@ -312,7 +314,7 @@ class TestMapLegendSize:
             ('extra_large', 'xlarge'),
         ],
     )
-    def test_maps_legend_sizes(self, size: str | None, expected: str | None) -> None:
+    def test_maps_legend_sizes(self, size: LegendWidthEnum | None, expected: KbnLegendSize | None) -> None:
         """Test YAML legend size mapping to Kibana-compatible values."""
         assert map_legend_size(size) == expected
 

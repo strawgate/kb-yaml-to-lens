@@ -10,7 +10,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnLayerColorMapping
+from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnLayerColorMapping, KbnLegendSize
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -333,8 +333,8 @@ class XYLegendConfig(BaseVwModel):
     showSingleSeries: Annotated[bool | None, OmitIfNone()] = None
     """Whether to show legend when there is only one series."""
 
-    legendSize: Annotated[str | None, OmitIfNone()] = None
-    """Size of the legend ('auto', 'small', 'medium', 'large', 'xlarge')."""
+    legendSize: Annotated[KbnLegendSize | None, OmitIfNone()] = None
+    """Size of the legend ('small', 'medium', 'large', 'xlarge')."""
 
     shouldTruncate: Annotated[bool | None, OmitIfNone()] = None
     """Whether to truncate long legend labels."""

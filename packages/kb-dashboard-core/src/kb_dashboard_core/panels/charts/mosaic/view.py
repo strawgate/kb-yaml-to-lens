@@ -14,7 +14,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
+from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer, KbnLegendSize
 from kb_dashboard_core.shared.view import OmitIfNone
 
 LegendPositionType = Literal['top', 'right', 'bottom', 'left']
@@ -67,7 +67,7 @@ class KbnMosaicStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     legendPosition: LegendPositionType = Field(default='right')
     """Position of the legend ('top', 'right', 'bottom', 'left'). Defaults to 'right'."""
 
-    legendSize: Annotated[str | None, OmitIfNone()] = Field(None)
+    legendSize: Annotated[KbnLegendSize | None, OmitIfNone()] = Field(None)
     """Size of the legend ('small', 'medium', 'large', 'xlarge')."""
 
     truncateLegend: Annotated[bool | None, OmitIfNone()] = Field(None)

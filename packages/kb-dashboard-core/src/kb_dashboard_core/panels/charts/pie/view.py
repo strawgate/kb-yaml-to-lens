@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer
+from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnBaseStateVisualizationLayer, KbnLegendSize
 from kb_dashboard_core.shared.view import OmitIfNone
 
 
@@ -64,7 +64,7 @@ class KbnPieStateVisualizationLayer(KbnBaseStateVisualizationLayer):
     emptySizeRatio: Annotated[float | None, OmitIfNone()] = Field(None)
     """Size ratio of the empty center hole in donut charts (0.0 to 1.0)."""
 
-    legendSize: Annotated[str | None, OmitIfNone()] = Field(None)
+    legendSize: Annotated[KbnLegendSize | None, OmitIfNone()] = Field(None)
     """Size of the legend ('small', 'medium', 'large', 'xlarge')."""
 
     truncateLegend: Annotated[bool | None, OmitIfNone()] = Field(None)
