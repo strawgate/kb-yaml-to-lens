@@ -41,6 +41,7 @@ from dashboard_lint.rules.dashboard import (
     DashboardDatasetFilterRule,
     DashboardMissingDescriptionRule,
     DatatableAtBottomRule,
+    ESQLMinimumKibanaVersionRule,
     MarkdownAtTopRule,
     MetricExcessiveCountRule,
 )
@@ -62,6 +63,7 @@ __all__ = [
     'DatatableRowDensityRule',
     'DimensionMissingLabelRule',
     'ESQLGroupBySyntaxRule',
+    'ESQLMinimumKibanaVersionRule',
     'ESQLMissingLimitRule',
     'ESQLMissingSortAfterBucketRule',
     'ESQLTSMetricsMinVersionRule',

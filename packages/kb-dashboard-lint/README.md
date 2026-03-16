@@ -64,6 +64,7 @@ for violation in violations:
 | `dashboard-dataset-filter` | Dashboard should have a `data_stream.dataset` filter | warning |
 | `dashboard-missing-description` | Dashboards should have a description for discoverability | info |
 | `datatable-at-bottom` | Data table panels should be positioned at the bottom of the dashboard | info |
+| `esql-minimum-kibana-version` | Dashboards using ES\|QL panels should declare a compatible `minimum_kibana_version` | warning |
 | `markdown-at-top` | Markdown panels with navigation content should be at the top of the dashboard | info |
 | `metric-excessive-count` | Dashboards should not have excessive metric panels (style guide recommends 0-4) | info |
 
