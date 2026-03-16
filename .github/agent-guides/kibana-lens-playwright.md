@@ -251,7 +251,7 @@ Some palette parameters (for example `continuity`) may not be exposed in the cur
 
 1. **Monaco editor** — standard click/type times out. Must use `browser_run_code` with `force: true` (see ES|QL recipe above).
 2. **Comboboxes** — Kibana uses EUI comboboxes, not `<select>`. Use `.fill()` to filter, then `.getByRole('option', ...)` to select. Never use `browser_fill_form` with `combobox` type.
-3. **Multiple "Close" buttons** — use `{ name: 'Close', exact: true }` or scope to a dialog inside `browser_run_code`: `page.getByRole('dialog').getByRole('button', { name: 'Close' })`.
+3. **Multiple "Close" buttons** — use `{ name: 'Close', exact: true }` or scope to a dialog inside `browser_run_code`: `await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`.
 4. **Color picker popovers** — close with Escape before interacting behind them.
 5. **Unsaved work dialog** — handle `beforeunload` with `browser_handle_dialog` (accept: true).
 6. **Chart type switching** — Gauge/Legacy Metric warn "modifies configuration"; Region map warns "clears configuration".
