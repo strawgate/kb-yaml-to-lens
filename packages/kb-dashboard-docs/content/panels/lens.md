@@ -190,7 +190,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `metrics` | `LensMetricTypes \| list[LensMetricTypes]` object | A single metric or list of metrics that determine the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `breakdowns` | `list of LensBreakdownTypes` objects | One or more breakdowns that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-breakdowns-for-pie). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
-| `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
+| `titles_and_text` | `PieTitlesAndText` object | Deprecated alias for slice labels/values. Prefer `appearance.categories` and `appearance.values`. | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field). | `None` | No |
 | `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-color-field). | `None` | No |
 
@@ -217,12 +217,13 @@ dashboards:
               label: "Device"
           appearance:
             donut: "medium"
+            categories:
+              position: "inside"
+            values:
+              format: "percent"
           legend:
             visible: "show"
             width: "large"
-          titles_and_text:
-            slice_labels: "inside"
-            slice_values: "percent"
 ```
 
 ---
@@ -491,13 +492,15 @@ These objects are used within the `LensPieChart` configuration.
 | -------- | ------------------------------------- | ------------------------------------------------ | ---------------- | -------- |
 | `donut` | `Literal['small', 'medium', 'large']` | If set, creates a donut chart with the specified hole size. | `None` (pie) | No |
 
-### Pie Titles and Text (`titles_and_text` field)
+### Pie Labels and Values (`appearance.categories` and `appearance.values`)
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | ---------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------- | -------- |
-| `slice_labels` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
-| `slice_values` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
-| `value_decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
+| `appearance.categories.position` | `Literal['hide', 'inside', 'auto']` | How to display labels for each slice. | `auto` | No |
+| `appearance.values.format` | `Literal['hide', 'integer', 'percent']` | How to display the value for each slice. | `percent` | No |
+| `appearance.values.decimal_places` | `integer` (0-10) | Number of decimal places for slice values. | `2` | No |
+
+`titles_and_text` is still accepted for backward compatibility, but it is deprecated and emits `DeprecationWarning`.
 
 ### Pie Legend (`legend` field)
 
