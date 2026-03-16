@@ -354,20 +354,20 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-674864e6-5996-028f-42a7-6c534bf7a4cd"
+                "name": "indexpattern-datasource-layer-225d6523-831d-8ae8-6a75-8ffd4973a097"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "674864e6-5996-028f-42a7-6c534bf7a4cd",
+                    "layerId": "225d6523-831d-8ae8-6a75-8ffd4973a097",
                     "accessors": [
                       "9b34229e-bd19-61fe-21d0-fd827fca1ef9"
                     ],
                     "layerType": "data",
                     "seriesType": "line",
-                    "xAccessor": "10144d72-81af-1f3e-08c7-7b2a2d47ef1d",
+                    "xAccessor": "d08489ac-fbda-405c-71b5-f0a4618e5599",
                     "position": "top",
                     "showGridlines": false,
                     "colorMapping": {
@@ -404,9 +404,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "674864e6-5996-028f-42a7-6c534bf7a4cd": {
+                    "225d6523-831d-8ae8-6a75-8ffd4973a097": {
                       "columns": {
-                        "10144d72-81af-1f3e-08c7-7b2a2d47ef1d": {
+                        "d08489ac-fbda-405c-71b5-f0a4618e5599": {
                           "label": "Time",
                           "dataType": "date",
                           "customLabel": true,
@@ -434,7 +434,7 @@
                         }
                       },
                       "columnOrder": [
-                        "10144d72-81af-1f3e-08c7-7b2a2d47ef1d",
+                        "d08489ac-fbda-405c-71b5-f0a4618e5599",
                         "9b34229e-bd19-61fe-21d0-fd827fca1ef9"
                       ],
                       "incompleteColumns": {},
@@ -487,14 +487,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-2e568255-0833-1118-8314-735c2916ac47"
+                "name": "indexpattern-datasource-layer-ce4a1e03-89bf-dbac-8902-d344881f0a70"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "2e568255-0833-1118-8314-735c2916ac47",
+                    "layerId": "ce4a1e03-89bf-dbac-8902-d344881f0a70",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -515,7 +515,7 @@
                       }
                     },
                     "primaryGroups": [
-                      "59123bc9-a223-daf1-da7e-6579a81ab69c"
+                      "b7ded691-979c-1dbd-569a-17a4136dadcb"
                     ],
                     "metrics": [
                       "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
@@ -536,9 +536,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "2e568255-0833-1118-8314-735c2916ac47": {
+                    "ce4a1e03-89bf-dbac-8902-d344881f0a70": {
                       "columns": {
-                        "59123bc9-a223-daf1-da7e-6579a81ab69c": {
+                        "b7ded691-979c-1dbd-569a-17a4136dadcb": {
                           "label": "Top 8 values of service.name",
                           "dataType": "string",
                           "operationType": "terms",
@@ -576,7 +576,7 @@
                         }
                       },
                       "columnOrder": [
-                        "59123bc9-a223-daf1-da7e-6579a81ab69c",
+                        "b7ded691-979c-1dbd-569a-17a4136dadcb",
                         "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
                       ],
                       "incompleteColumns": {},
@@ -629,20 +629,20 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-061227ca-44a0-d292-c0e3-a56251c0ae14"
+                "name": "indexpattern-datasource-layer-882deb78-312d-567c-e8e0-889638e4b916"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "061227ca-44a0-d292-c0e3-a56251c0ae14",
+                    "layerId": "882deb78-312d-567c-e8e0-889638e4b916",
                     "accessors": [
                       "ab18ea19-1c50-d80d-0842-00cf76f58b24"
                     ],
                     "layerType": "data",
                     "seriesType": "bar_stacked",
-                    "xAccessor": "152721a2-d7bf-7c94-1039-5448d2daf898",
+                    "xAccessor": "2fda6efe-d1c0-db39-ddfd-1852697a106d",
                     "position": "top",
                     "showGridlines": false,
                     "colorMapping": {
@@ -698,9 +698,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "061227ca-44a0-d292-c0e3-a56251c0ae14": {
+                    "882deb78-312d-567c-e8e0-889638e4b916": {
                       "columns": {
-                        "152721a2-d7bf-7c94-1039-5448d2daf898": {
+                        "2fda6efe-d1c0-db39-ddfd-1852697a106d": {
                           "label": "Top 10 values of url.path",
                           "dataType": "string",
                           "operationType": "terms",
@@ -739,7 +739,7 @@
                         }
                       },
                       "columnOrder": [
-                        "152721a2-d7bf-7c94-1039-5448d2daf898",
+                        "2fda6efe-d1c0-db39-ddfd-1852697a106d",
                         "ab18ea19-1c50-d80d-0842-00cf76f58b24"
                       ],
                       "incompleteColumns": {},
@@ -861,17 +861,17 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "64a8dfe4-c683-1a8a-0c7b-0398dcf06435:indexpattern-datasource-layer-674864e6-5996-028f-42a7-6c534bf7a4cd"
+      "name": "64a8dfe4-c683-1a8a-0c7b-0398dcf06435:indexpattern-datasource-layer-225d6523-831d-8ae8-6a75-8ffd4973a097"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "910be9e6-3784-25ee-ff9a-552c437ebc29:indexpattern-datasource-layer-2e568255-0833-1118-8314-735c2916ac47"
+      "name": "910be9e6-3784-25ee-ff9a-552c437ebc29:indexpattern-datasource-layer-ce4a1e03-89bf-dbac-8902-d344881f0a70"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "e6745f8e-d722-ae96-1a67-7e97c44c1b9a:indexpattern-datasource-layer-061227ca-44a0-d292-c0e3-a56251c0ae14"
+      "name": "e6745f8e-d722-ae96-1a67-7e97c44c1b9a:indexpattern-datasource-layer-882deb78-312d-567c-e8e0-889638e4b916"
     },
     {
       "type": "index-pattern",

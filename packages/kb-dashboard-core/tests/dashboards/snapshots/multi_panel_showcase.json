@@ -197,14 +197,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-a07cf4e5-1691-aba5-7072-662a43ab65fd"
+                "name": "indexpattern-datasource-layer-e824caf3-ef53-562b-9750-97a5433f35d6"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "a07cf4e5-1691-aba5-7072-662a43ab65fd",
+                    "layerId": "e824caf3-ef53-562b-9750-97a5433f35d6",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -225,7 +225,7 @@
                       }
                     },
                     "primaryGroups": [
-                      "38146403-3bf0-bb5e-17a4-c4f98dd953c4"
+                      "9e87f728-fbc1-658a-80c0-03127c93e109"
                     ],
                     "metrics": [
                       "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
@@ -246,9 +246,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "a07cf4e5-1691-aba5-7072-662a43ab65fd": {
+                    "e824caf3-ef53-562b-9750-97a5433f35d6": {
                       "columns": {
-                        "38146403-3bf0-bb5e-17a4-c4f98dd953c4": {
+                        "9e87f728-fbc1-658a-80c0-03127c93e109": {
                           "label": "Top 10 values of log.level",
                           "dataType": "string",
                           "operationType": "terms",
@@ -286,7 +286,7 @@
                         }
                       },
                       "columnOrder": [
-                        "38146403-3bf0-bb5e-17a4-c4f98dd953c4",
+                        "9e87f728-fbc1-658a-80c0-03127c93e109",
                         "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
                       ],
                       "incompleteColumns": {},
@@ -339,20 +339,20 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-262a7e1c-3ee4-bbe3-291c-db39d5b97c70"
+                "name": "indexpattern-datasource-layer-adf9d88d-b5b6-3e90-345e-aa9560ca44de"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "262a7e1c-3ee4-bbe3-291c-db39d5b97c70",
+                    "layerId": "adf9d88d-b5b6-3e90-345e-aa9560ca44de",
                     "accessors": [
                       "cdceb520-d498-363b-8576-f1288ef35443"
                     ],
                     "layerType": "data",
                     "seriesType": "line",
-                    "xAccessor": "a01376ce-7bfd-f032-8917-96da6803fcc4",
+                    "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
                     "position": "top",
                     "showGridlines": false,
                     "colorMapping": {
@@ -389,9 +389,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "262a7e1c-3ee4-bbe3-291c-db39d5b97c70": {
+                    "adf9d88d-b5b6-3e90-345e-aa9560ca44de": {
                       "columns": {
-                        "a01376ce-7bfd-f032-8917-96da6803fcc4": {
+                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
                           "label": "@timestamp",
                           "dataType": "date",
                           "operationType": "date_histogram",
@@ -417,7 +417,7 @@
                         }
                       },
                       "columnOrder": [
-                        "a01376ce-7bfd-f032-8917-96da6803fcc4",
+                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
                         "cdceb520-d498-363b-8576-f1288ef35443"
                       ],
                       "incompleteColumns": {},
@@ -470,20 +470,20 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-f4dfa491-002f-fc81-c88b-a2dbd24de309"
+                "name": "indexpattern-datasource-layer-3a03ccbb-40b1-2dc0-0c42-8440de8003d6"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "f4dfa491-002f-fc81-c88b-a2dbd24de309",
+                    "layerId": "3a03ccbb-40b1-2dc0-0c42-8440de8003d6",
                     "accessors": [
                       "cdceb520-d498-363b-8576-f1288ef35443"
                     ],
                     "layerType": "data",
                     "seriesType": "bar_stacked",
-                    "xAccessor": "fd563840-dd9a-082f-b6e3-8af7a5582caf",
+                    "xAccessor": "eaefe01d-6c76-525f-e60c-c407bf795a0a",
                     "position": "top",
                     "showGridlines": false,
                     "colorMapping": {
@@ -520,9 +520,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "f4dfa491-002f-fc81-c88b-a2dbd24de309": {
+                    "3a03ccbb-40b1-2dc0-0c42-8440de8003d6": {
                       "columns": {
-                        "fd563840-dd9a-082f-b6e3-8af7a5582caf": {
+                        "eaefe01d-6c76-525f-e60c-c407bf795a0a": {
                           "label": "Top 3 values of host.name",
                           "dataType": "string",
                           "operationType": "terms",
@@ -560,7 +560,7 @@
                         }
                       },
                       "columnOrder": [
-                        "fd563840-dd9a-082f-b6e3-8af7a5582caf",
+                        "eaefe01d-6c76-525f-e60c-c407bf795a0a",
                         "cdceb520-d498-363b-8576-f1288ef35443"
                       ],
                       "incompleteColumns": {},
@@ -613,23 +613,23 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-cf50519e-d2dd-2a18-ce0a-92f5aed36ccd"
+                "name": "indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "cf50519e-d2dd-2a18-ce0a-92f5aed36ccd",
+                    "layerId": "16c3c093-76cf-c263-9145-6f57744b86ae",
                     "accessors": [
                       "cdceb520-d498-363b-8576-f1288ef35443"
                     ],
                     "layerType": "data",
                     "seriesType": "area",
-                    "xAccessor": "a01376ce-7bfd-f032-8917-96da6803fcc4",
+                    "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
                     "position": "top",
                     "showGridlines": false,
-                    "splitAccessor": "969cd68f-d37a-d989-eb8b-de2e1d756e86",
+                    "splitAccessor": "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
                     "colorMapping": {
                       "assignments": [],
                       "specialAssignments": [
@@ -664,9 +664,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "cf50519e-d2dd-2a18-ce0a-92f5aed36ccd": {
+                    "16c3c093-76cf-c263-9145-6f57744b86ae": {
                       "columns": {
-                        "a01376ce-7bfd-f032-8917-96da6803fcc4": {
+                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
                           "label": "@timestamp",
                           "dataType": "date",
                           "operationType": "date_histogram",
@@ -679,7 +679,7 @@
                           },
                           "sourceField": "@timestamp"
                         },
-                        "969cd68f-d37a-d989-eb8b-de2e1d756e86": {
+                        "ac2350d6-3da8-5120-08d8-9904a56c2ecd": {
                           "label": "Top 3 values of log.level",
                           "dataType": "string",
                           "operationType": "terms",
@@ -717,8 +717,8 @@
                         }
                       },
                       "columnOrder": [
-                        "a01376ce-7bfd-f032-8917-96da6803fcc4",
-                        "969cd68f-d37a-d989-eb8b-de2e1d756e86",
+                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
+                        "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
                         "cdceb520-d498-363b-8576-f1288ef35443"
                       ],
                       "incompleteColumns": {},
@@ -771,13 +771,13 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-80fb7f33-0edf-aae9-8cfc-8ea2b34cfeda"
+                "name": "indexpattern-datasource-layer-0ca58879-1504-e330-23f2-11862277147d"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "80fb7f33-0edf-aae9-8cfc-8ea2b34cfeda",
-                "tagAccessor": "0d5f1cf9-48e7-570b-5493-1822209a18a5",
+                "layerId": "0ca58879-1504-e330-23f2-11862277147d",
+                "tagAccessor": "a69b857f-8c12-cc13-1ebd-a8962cce7a31",
                 "valueAccessor": "3c2bc97d-1a0d-764c-e652-addeb8aaff00",
                 "maxFontSize": 72,
                 "minFontSize": 12,
@@ -810,9 +810,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "80fb7f33-0edf-aae9-8cfc-8ea2b34cfeda": {
+                    "0ca58879-1504-e330-23f2-11862277147d": {
                       "columns": {
-                        "0d5f1cf9-48e7-570b-5493-1822209a18a5": {
+                        "a69b857f-8c12-cc13-1ebd-a8962cce7a31": {
                           "label": "Top 3 values of tags",
                           "dataType": "string",
                           "operationType": "terms",
@@ -850,7 +850,7 @@
                         }
                       },
                       "columnOrder": [
-                        "0d5f1cf9-48e7-570b-5493-1822209a18a5",
+                        "a69b857f-8c12-cc13-1ebd-a8962cce7a31",
                         "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
                       ],
                       "incompleteColumns": {},
@@ -925,27 +925,27 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "ade4429d-dc5c-f89f-e494-5acb4bc5563b:indexpattern-datasource-layer-a07cf4e5-1691-aba5-7072-662a43ab65fd"
+      "name": "ade4429d-dc5c-f89f-e494-5acb4bc5563b:indexpattern-datasource-layer-e824caf3-ef53-562b-9750-97a5433f35d6"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "40b04cd5-e2b8-adbe-7ae6-5babda2c5cd7:indexpattern-datasource-layer-262a7e1c-3ee4-bbe3-291c-db39d5b97c70"
+      "name": "40b04cd5-e2b8-adbe-7ae6-5babda2c5cd7:indexpattern-datasource-layer-adf9d88d-b5b6-3e90-345e-aa9560ca44de"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "a80cbca1-18c7-c232-c4e0-4cdaba88fab0:indexpattern-datasource-layer-f4dfa491-002f-fc81-c88b-a2dbd24de309"
+      "name": "a80cbca1-18c7-c232-c4e0-4cdaba88fab0:indexpattern-datasource-layer-3a03ccbb-40b1-2dc0-0c42-8440de8003d6"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "f0902727-d2c6-5d94-d9bd-c4182dfd515f:indexpattern-datasource-layer-cf50519e-d2dd-2a18-ce0a-92f5aed36ccd"
+      "name": "f0902727-d2c6-5d94-d9bd-c4182dfd515f:indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "15e96f92-b8ef-91d2-912b-fe70386292cb:indexpattern-datasource-layer-80fb7f33-0edf-aae9-8cfc-8ea2b34cfeda"
+      "name": "15e96f92-b8ef-91d2-912b-fe70386292cb:indexpattern-datasource-layer-0ca58879-1504-e330-23f2-11862277147d"
     }
   ],
   "type": "dashboard",

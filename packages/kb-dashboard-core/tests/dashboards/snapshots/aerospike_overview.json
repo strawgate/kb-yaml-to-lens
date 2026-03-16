@@ -494,7 +494,7 @@
                     "isMetric": false
                   }
                 ],
-                "layerId": "1db8233f-9b9e-9336-890b-de1bbf5ba01b",
+                "layerId": "5d8a0691-39c2-3025-e170-6fe7f05978c7",
                 "layerType": "data"
               },
               "query": {
@@ -504,7 +504,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "1db8233f-9b9e-9336-890b-de1bbf5ba01b": {
+                    "5d8a0691-39c2-3025-e170-6fe7f05978c7": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.name IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free), connections = AVG(aerospike.node.connection.open), namespaces = COUNT_DISTINCT(aerospike.namespace) BY node = aerospike.node.name\n| KEEP node, namespaces, memory_free, connections\n| SORT node ASC\n| LIMIT 100"
                       },
@@ -938,7 +938,7 @@
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "172d0df6-ee21-98b2-aad6-b6cd43b8ed9d",
+                    "layerId": "659d00e9-c199-76a0-6f7e-7a1a2ef48150",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -980,7 +980,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "172d0df6-ee21-98b2-aad6-b6cd43b8ed9d": {
+                    "659d00e9-c199-76a0-6f7e-7a1a2ef48150": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.memory.free IS NOT NULL\n| STATS memory_free = AVG(aerospike.node.memory.free) BY node = aerospike.node.name\n| SORT memory_free DESC\n| LIMIT 20\n"
                       },
@@ -1084,7 +1084,7 @@
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "ce23fba1-d56a-425f-3936-bf4622a37fc9",
+                    "layerId": "d506b007-8c12-eb2c-5679-d70495d1e65b",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -1126,7 +1126,7 @@
               "datasourceStates": {
                 "textBased": {
                   "layers": {
-                    "ce23fba1-d56a-425f-3936-bf4622a37fc9": {
+                    "d506b007-8c12-eb2c-5679-d70495d1e65b": {
                       "query": {
                         "esql": "FROM metrics-*\n| WHERE data_stream.dataset == \"aerospikereceiver.otel\"\n| WHERE aerospike.node.connection.open IS NOT NULL\n| STATS connections = AVG(aerospike.node.connection.open) BY node = aerospike.node.name\n| SORT connections DESC\n| LIMIT 20\n"
                       },
