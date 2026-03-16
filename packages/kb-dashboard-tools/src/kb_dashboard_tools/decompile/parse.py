@@ -53,7 +53,11 @@ def parse_json_field(raw: str | dict[str, Any] | list[Any] | None) -> dict[str, 
     if raw is None:
         return None
     if isinstance(raw, str):
-        parsed: dict[str, Any] | list[Any] = json.loads(raw)  # pyright: ignore[reportAny]
+        try:
+            parsed: dict[str, Any] | list[Any] = json.loads(raw)  # pyright: ignore[reportAny]
+        except json.JSONDecodeError:
+            logger.warning('Failed to decode JSON field in parse_json_field')
+            return None
         return parsed
     return raw
 
@@ -91,7 +95,7 @@ def get_str(source: dict[str, Any], key: str) -> str | None:
 def get_int(source: dict[str, Any], key: str) -> int | None:
     """Extract an int-valued key from a dict source."""
     value = source.get(key)
-    return value if isinstance(value, int) else None
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
 
 
 def get_bool(source: dict[str, Any], key: str) -> bool | None:
@@ -805,6 +809,11 @@ def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
     panel_type = raw_panel.type
     if panel_type is None:
         parsed.error = 'missing panel type'
+        return parsed
+    panel_ref_name = get_str(panel, 'panelRefName')
+    embeddable_config = get_dict(panel, 'embeddableConfig') or {}
+    if panel_ref_name is not None and get_dict(embeddable_config, 'attributes') is None:
+        parsed.error = f'unresolved panel reference: {panel_ref_name}'
         return parsed
 
     handler = PANEL_PARSE_HANDLERS.get(panel_type, _assign_simple_panel)

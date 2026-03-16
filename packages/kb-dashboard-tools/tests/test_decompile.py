@@ -11,7 +11,7 @@ from kb_dashboard_core.loader import DashboardConfig
 from ruamel.yaml import YAML
 
 from kb_dashboard_tools.decompile import decompile_dashboard
-from kb_dashboard_tools.decompile.parse import parse_dashboard
+from kb_dashboard_tools.decompile.parse import get_int, parse_dashboard, parse_json_field
 
 
 def _dump_yaml(document: object) -> str:
@@ -1869,3 +1869,37 @@ def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -
     result = decompile_dashboard(dashboard)
     decompiled = result['dashboards'][0]
     assert decompiled['query'] == {'kql': 'host.name : "web-01"'}
+
+
+def test_parse_json_field_invalid_json_returns_none() -> None:
+    """Malformed stringified JSON is ignored in best-effort parse mode."""
+    assert parse_json_field('{not-json') is None
+
+
+def test_get_int_excludes_bools() -> None:
+    """Boolean values are not treated as integers."""
+    assert get_int({'order': True}, 'order') is None
+    assert get_int({'order': 1}, 'order') == 1
+
+
+def test_parse_panel_ref_name_without_embedded_attributes_sets_error() -> None:
+    """Unresolved panel references produce explicit parse errors."""
+    dashboard = {
+        'attributes': {
+            'title': 'Panel references',
+            'panelsJSON': json.dumps(
+                [
+                    {
+                        'panelIndex': 'p1',
+                        'type': 'lens',
+                        'panelRefName': 'panel_ref_0',
+                    }
+                ]
+            ),
+        }
+    }
+    parsed = parse_dashboard(dashboard)
+    assert len(parsed.panels) == 1
+    assert parsed.panels[0].error == 'unresolved panel reference: panel_ref_0'
+    assert parsed.panels[0].lens is None
+    assert parsed.panels[0].simple is None
