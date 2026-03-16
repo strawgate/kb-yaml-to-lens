@@ -30,7 +30,7 @@ jobs:
           if [ -n "$INPUT_VERSION" ]; then
             echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
           else
-            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+            echo 'matrix={"kibana_version":["8.14.0","8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
           fi
   explore:
     needs: generate-matrix

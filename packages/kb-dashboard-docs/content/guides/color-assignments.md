@@ -72,6 +72,46 @@ Each item in the `assignments` list specifies a color for one or more data value
 
 \* At least one of `value` or `values` must be provided.
 
+### ColorRangeMapping Object
+
+Range-based color mappings use thresholds to color numeric values by band:
+
+| YAML Key | Data Type | Description | Default | Required |
+| -------- | --------- | ----------- | ------- | -------- |
+| `range_type` | `number \| percent` | How threshold values are interpreted. | `number` | No |
+| `range_min` | `number \| null` | Optional lower bound for the palette domain. | `0` | No |
+| `range_max` | `number \| null` | Optional upper bound for the palette domain. | `null` | No |
+| `continuity` | `above \| below \| all \| none` | How colors extend beyond the configured range. | `above` | No |
+| `thresholds` | `list[ColorThreshold]` | Ordered threshold bands used to build the palette. | — | Yes |
+
+Each item in `thresholds` uses these keys:
+
+| YAML Key | Data Type | Description | Required |
+| -------- | --------- | ----------- | -------- |
+| `up_to` | `number` | Upper bound for this threshold band. | Yes |
+| `color` | `string` | Hex color code for values up to that threshold. | Yes |
+
+Datatable metric color example:
+
+This snippet shows `appearance.color` in context. `apply_to` belongs to the surrounding datatable config, while `thresholds`/`up_to` are the `ColorRangeMapping` keys.
+
+```yaml
+appearance:
+  color:
+    apply_to: cell
+    range_type: percent
+    range_min: 0
+    range_max: 100
+    continuity: above
+    thresholds:
+      - up_to: 50
+        color: '#00BF6F'
+      - up_to: 80
+        color: '#FFA500'
+      - up_to: 100
+        color: '#BD271E'
+```
+
 ## Advanced Patterns
 
 ### Pattern 1: Grouping Related Values

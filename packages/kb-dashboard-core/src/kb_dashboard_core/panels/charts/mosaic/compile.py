@@ -82,7 +82,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
         layerId=layer_id,
         primaryGroups=[dimension_id],
-        secondaryGroups=[breakdown_id] if breakdown_id is not None else None,
+        secondaryGroups=[breakdown_id] if breakdown_id is not None else [],
         metrics=[metric_id],
         allowMultipleMetrics=False,
         collapseFns=collapse_fns if collapse_fns is not None and len(collapse_fns) > 0 else None,

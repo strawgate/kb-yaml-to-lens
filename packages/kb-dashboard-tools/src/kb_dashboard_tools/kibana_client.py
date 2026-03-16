@@ -25,6 +25,17 @@ HTTP_SERVICE_UNAVAILABLE = 503
 # ============================================================================
 
 
+class MissingReference(BaseModel):
+    """A missing reference reported by Kibana's saved objects import API."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow')
+
+    type: str
+    """Reference type, e.g. 'index-pattern'."""
+    id: str
+    """Reference ID that could not be resolved."""
+
+
 class KibanaErrorDetail(BaseModel):
     """Structured error detail from Kibana API responses.
 
@@ -38,6 +49,8 @@ class KibanaErrorDetail(BaseModel):
     """Error message from Kibana."""
     type: str | None = None
     """Error type identifier."""
+    references: list[MissingReference] = Field(default_factory=list)
+    """Missing references (populated when type is 'missing_references')."""
 
 
 # ============================================================================
@@ -156,8 +169,14 @@ class SavedObjectError(BaseModel):
             Error message from nested error detail, top-level message, or 'Unknown error'.
 
         """
-        if self.error is not None and self.error.message is not None:
-            return self.error.message
+        if self.error is not None:
+            if self.error.type == 'missing_references' and self.error.references:
+                refs = ', '.join(f'{r.type}:{r.id}' for r in self.error.references)
+                return f'Missing references: {refs}'
+            if self.error.message is not None:
+                return self.error.message
+            if self.error.type is not None:
+                return f'Error type: {self.error.type}'
         if self.message is not None:
             return self.message
         return 'Unknown error'

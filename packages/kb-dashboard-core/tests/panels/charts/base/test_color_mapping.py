@@ -12,7 +12,7 @@ from kb_dashboard_core.panels.charts.base.compile import (
 )
 from kb_dashboard_core.panels.charts.base.config import (
     ColorRangeMapping,
-    ColorRangeStop,
+    ColorThreshold,
     ColorValueAssignment,
     ColorValueMapping,
     LegendWidthEnum,
@@ -205,9 +205,9 @@ class TestColorRangeMappingValidation:
         with pytest.raises(ValidationError, match='sorted in ascending order'):
             ColorRangeMapping(
                 range_type='number',
-                stops=[
-                    ColorRangeStop(stop=80, color='#00BF6F'),
-                    ColorRangeStop(stop=50, color='#FFA500'),
+                thresholds=[
+                    ColorThreshold(up_to=80, color='#00BF6F'),
+                    ColorThreshold(up_to=50, color='#FFA500'),
                 ],
             )
 
@@ -216,9 +216,9 @@ class TestColorRangeMappingValidation:
         with pytest.raises(ValidationError, match='between 0 and 100'):
             ColorRangeMapping(
                 range_type='percent',
-                stops=[
-                    ColorRangeStop(stop=0, color='#00BF6F'),
-                    ColorRangeStop(stop=150, color='#BD271E'),
+                thresholds=[
+                    ColorThreshold(up_to=0, color='#00BF6F'),
+                    ColorThreshold(up_to=150, color='#BD271E'),
                 ],
             )
 
@@ -227,59 +227,59 @@ class TestColorRangeMappingValidation:
         with pytest.raises(ValidationError, match='between 0 and 100'):
             ColorRangeMapping(
                 range_type='percent',
-                stops=[
-                    ColorRangeStop(stop=-10, color='#00BF6F'),
-                    ColorRangeStop(stop=50, color='#BD271E'),
+                thresholds=[
+                    ColorThreshold(up_to=-10, color='#00BF6F'),
+                    ColorThreshold(up_to=50, color='#BD271E'),
                 ],
             )
 
     def test_rejects_empty_stops(self) -> None:
         """Test that at least one stop is required."""
         with pytest.raises(ValidationError):
-            ColorRangeMapping(range_type='number', stops=[])
+            ColorRangeMapping(range_type='number', thresholds=[])
 
     def test_accepts_single_stop(self) -> None:
-        """Test that a single stop is valid."""
+        """Test that a single threshold is valid."""
         mapping = ColorRangeMapping(
             range_type='percent',
-            stops=[ColorRangeStop(stop=50, color='#FFA500')],
+            thresholds=[ColorThreshold(up_to=50, color='#FFA500')],
         )
-        assert len(mapping.stops) == 1
+        assert len(mapping.thresholds) == 1
 
     def test_accepts_valid_ascending_stops(self) -> None:
         """Test that valid ascending stops are accepted."""
         mapping = ColorRangeMapping(
             range_type='number',
-            stops=[
-                ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=50, color='#FFA500'),
-                ColorRangeStop(stop=100, color='#BD271E'),
+            thresholds=[
+                ColorThreshold(up_to=0, color='#00BF6F'),
+                ColorThreshold(up_to=50, color='#FFA500'),
+                ColorThreshold(up_to=100, color='#BD271E'),
             ],
         )
-        assert len(mapping.stops) == 3
+        assert len(mapping.thresholds) == 3
 
     def test_accepts_valid_percent_stops_within_bounds(self) -> None:
         """Test that valid percent stops within 0-100 are accepted."""
         mapping = ColorRangeMapping(
             range_type='percent',
-            stops=[
-                ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=50, color='#FFA500'),
-                ColorRangeStop(stop=100, color='#BD271E'),
+            thresholds=[
+                ColorThreshold(up_to=0, color='#00BF6F'),
+                ColorThreshold(up_to=50, color='#FFA500'),
+                ColorThreshold(up_to=100, color='#BD271E'),
             ],
         )
-        assert len(mapping.stops) == 3
+        assert len(mapping.thresholds) == 3
 
     def test_number_type_allows_values_outside_percent_bounds(self) -> None:
         """Test that number range type allows values outside 0-100."""
         mapping = ColorRangeMapping(
             range_type='number',
-            stops=[
-                ColorRangeStop(stop=-50, color='#00BF6F'),
-                ColorRangeStop(stop=200, color='#BD271E'),
+            thresholds=[
+                ColorThreshold(up_to=-50, color='#00BF6F'),
+                ColorThreshold(up_to=200, color='#BD271E'),
             ],
         )
-        assert len(mapping.stops) == 2
+        assert len(mapping.thresholds) == 2
 
     def test_rejects_percent_range_max_above_100(self) -> None:
         """Test percent range_max must be between 0 and 100."""
@@ -287,7 +287,7 @@ class TestColorRangeMappingValidation:
             ColorRangeMapping(
                 range_type='percent',
                 range_max=101,
-                stops=[ColorRangeStop(stop=90, color='#00BF6F')],
+                thresholds=[ColorThreshold(up_to=90, color='#00BF6F')],
             )
 
     def test_rejects_range_min_greater_than_or_equal_to_range_max(self) -> None:
@@ -297,7 +297,7 @@ class TestColorRangeMappingValidation:
                 range_type='number',
                 range_min=10,
                 range_max=10,
-                stops=[ColorRangeStop(stop=20, color='#00BF6F')],
+                thresholds=[ColorThreshold(up_to=20, color='#00BF6F')],
             )
 
 
@@ -331,10 +331,10 @@ class TestCompileColorRangeMapping:
         """Test number-based range mapping compilation."""
         color_config = ColorRangeMapping(
             range_type='number',
-            stops=[
-                ColorRangeStop(stop=80, color='#00BF6F'),
-                ColorRangeStop(stop=95, color='#FFA500'),
-                ColorRangeStop(stop=120, color='#BD271E'),
+            thresholds=[
+                ColorThreshold(up_to=80, color='#00BF6F'),
+                ColorThreshold(up_to=95, color='#FFA500'),
+                ColorThreshold(up_to=120, color='#BD271E'),
             ],
         )
         result = compile_color_range_mapping(color_config)
@@ -371,10 +371,10 @@ class TestCompileColorRangeMapping:
         """Test percent ranges mirror stops into colorStops and use 0..100 bounds."""
         color_config = ColorRangeMapping(
             range_type='percent',
-            stops=[
-                ColorRangeStop(stop=90, color='#cc5642'),
-                ColorRangeStop(stop=95, color='#d6bf57'),
-                ColorRangeStop(stop=100, color='#54b399'),
+            thresholds=[
+                ColorThreshold(up_to=90, color='#cc5642'),
+                ColorThreshold(up_to=95, color='#d6bf57'),
+                ColorThreshold(up_to=100, color='#54b399'),
             ],
         )
         result = compile_color_range_mapping(color_config)
@@ -391,27 +391,27 @@ class TestCompileColorRangeMapping:
         assert result.params.colorStops[2].stop == 100.0
 
     def test_compiles_single_stop(self) -> None:
-        """Test compilation with a single stop."""
+        """Test percent compilation preserves the threshold and appends terminal 100."""
         color_config = ColorRangeMapping(
             range_type='percent',
-            stops=[ColorRangeStop(stop=50, color='#FFA500')],
+            thresholds=[ColorThreshold(up_to=50, color='#FFA500')],
         )
         result = compile_color_range_mapping(color_config)
         assert result is not None
-        assert result.params.steps == 1
+        assert result.params.steps == 2
         assert result.params.rangeMin == 0.0
         assert result.params.rangeMax is None
-        assert len(result.params.stops) == 1
-        assert len(result.params.colorStops) == 1
-        assert result.params.stops[0].stop == 100.0
-        assert result.params.colorStops[0].stop == 100.0
+        assert len(result.params.stops) == 2
+        assert len(result.params.colorStops) == 2
+        assert [entry.stop for entry in result.params.stops] == [50.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [50.0, 100.0]
 
     def test_compiles_percent_range_mapping_with_custom_range_max(self) -> None:
         """Test percent range supports custom max while preserving stop semantics."""
         color_config = ColorRangeMapping(
             range_type='percent',
             range_max=95,
-            stops=[ColorRangeStop(stop=100, color='#24c292')],
+            thresholds=[ColorThreshold(up_to=100, color='#24c292')],
         )
         result = compile_color_range_mapping(color_config)
         assert result is not None
@@ -427,10 +427,10 @@ class TestCompileColorRangeMapping:
             range_min=-10,
             range_max=100,
             continuity='none',
-            stops=[
-                ColorRangeStop(stop=4.25, color='#24c292'),
-                ColorRangeStop(stop=5, color='#ffc9c2'),
-                ColorRangeStop(stop=6, color='#ffc9c2'),
+            thresholds=[
+                ColorThreshold(up_to=4.25, color='#24c292'),
+                ColorThreshold(up_to=5, color='#ffc9c2'),
+                ColorThreshold(up_to=6, color='#ffc9c2'),
             ],
         )
         result = compile_color_range_mapping(color_config)
@@ -448,9 +448,9 @@ class TestCompileColorRangeMapping:
             range_min=None,
             range_max=None,
             continuity='all',
-            stops=[
-                ColorRangeStop(stop=4.25, color='#24c292'),
-                ColorRangeStop(stop=5, color='#ffc9c2'),
+            thresholds=[
+                ColorThreshold(up_to=4.25, color='#24c292'),
+                ColorThreshold(up_to=5, color='#ffc9c2'),
             ],
         )
         result = compile_color_range_mapping(color_config)
@@ -483,9 +483,9 @@ class TestColorStopsMirrorStops:
         """ColorStops should be identical to stops."""
         color_config = ColorRangeMapping(
             range_type='percent',
-            stops=[
-                ColorRangeStop(stop=0, color='#00BF6F'),
-                ColorRangeStop(stop=100, color='#BD271E'),
+            thresholds=[
+                ColorThreshold(up_to=0, color='#00BF6F'),
+                ColorThreshold(up_to=100, color='#BD271E'),
             ],
         )
         result = compile_color_range_mapping(color_config)

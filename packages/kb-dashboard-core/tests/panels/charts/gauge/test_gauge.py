@@ -236,7 +236,7 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
 
 
 def test_compile_gauge_chart_with_range_palette() -> None:
-    """Test the compilation of a gauge chart with range-based palette stops."""
+    """Test the compilation of a gauge chart with range-based palette thresholds."""
     config = {
         'type': 'gauge',
         'data_view': 'metrics-*',
@@ -248,10 +248,10 @@ def test_compile_gauge_chart_with_range_palette() -> None:
         'appearance': {
             'palette': {
                 'range_type': 'percent',
-                'stops': [
-                    {'stop': 80, 'color': '#00BF6F'},
-                    {'stop': 95, 'color': '#FFA500'},
-                    {'stop': 100, 'color': '#BD271E'},
+                'thresholds': [
+                    {'up_to': 80, 'color': '#00BF6F'},
+                    {'up_to': 95, 'color': '#FFA500'},
+                    {'up_to': 100, 'color': '#BD271E'},
                 ],
             },
         },
@@ -317,9 +317,9 @@ def test_compile_gauge_chart_preserves_thresholds_in_color_stops(range_type: str
         'appearance': {
             'palette': {
                 'range_type': range_type,
-                'stops': [
-                    {'stop': 0, 'color': '#000000'},
-                    {'stop': expected_stops[-1], 'color': '#ffffff'},
+                'thresholds': [
+                    {'up_to': 0, 'color': '#000000'},
+                    {'up_to': expected_stops[-1], 'color': '#ffffff'},
                 ],
             },
         },

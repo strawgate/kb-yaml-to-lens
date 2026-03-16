@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorRangeStop
+from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorThreshold
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -57,7 +57,7 @@ class DatatableMetricColor(BaseCfgModel):
     """How to apply colors to the metric column."""
 
     range_type: Literal['number', 'percent'] = Field(default='number')
-    """How stop values are interpreted by Kibana."""
+    """How threshold values are interpreted by Kibana."""
 
     range_min: float | None = Field(default=0)
     """Optional lower bound for the palette domain."""
@@ -68,19 +68,19 @@ class DatatableMetricColor(BaseCfgModel):
     continuity: Literal['above', 'below', 'all', 'none'] = Field(default='above')
     """How colors extend beyond the configured range."""
 
-    stops: list[ColorRangeStop] | None = Field(default=None, min_length=1)
-    """Ordered range stops used to build datatable palettes."""
+    thresholds: list[ColorThreshold] | None = Field(default=None, min_length=1)
+    """Ordered threshold bands used to build datatable palettes."""
 
     def to_range_mapping(self) -> ColorRangeMapping | None:
-        """Convert to ColorRangeMapping when range stops are provided."""
-        if self.stops is None:
+        """Convert to ColorRangeMapping when thresholds are provided."""
+        if self.thresholds is None:
             return None
         return ColorRangeMapping(
             range_type=self.range_type,
             range_min=self.range_min,
             range_max=self.range_max,
             continuity=self.continuity,
-            stops=self.stops,
+            thresholds=self.thresholds,
         )
 
 

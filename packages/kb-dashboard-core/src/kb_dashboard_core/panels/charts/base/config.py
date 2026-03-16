@@ -83,21 +83,21 @@ class ColorValueMapping(BaseCfgModel):
     """Manual color assignments to specific data values."""
 
 
-class ColorRangeStop(BaseCfgModel):
-    """Single stop in a range-based color map."""
+class ColorThreshold(BaseCfgModel):
+    """Single threshold band in a range-based color map."""
 
-    stop: float = Field(...)
-    """The numeric stop value."""
+    up_to: float = Field(...)
+    """Upper bound for this threshold band."""
 
     color: str = Field(...)
-    """The color applied at this stop (hex color code)."""
+    """The color applied within this threshold band (hex color code)."""
 
 
 class ColorRangeMapping(BaseCfgModel):
     """Range/threshold-based color mapping for numeric values."""
 
     range_type: Literal['number', 'percent'] = Field(default='number')
-    """How stop values are interpreted by Kibana."""
+    """How threshold values are interpreted by Kibana."""
 
     range_min: float | None = Field(default=0)
     """Optional lower bound for the palette domain. Use null for auto/open lower bound."""
@@ -108,20 +108,20 @@ class ColorRangeMapping(BaseCfgModel):
     continuity: Literal['above', 'below', 'all', 'none'] = Field(default='above')
     """How colors extend beyond the configured range."""
 
-    stops: list[ColorRangeStop] = Field(min_length=1)
-    """Ordered range stops used to build gauge-style color palettes."""
+    thresholds: list[ColorThreshold] = Field(min_length=1)
+    """Ordered threshold bands used to build gauge-style color palettes."""
 
     @model_validator(mode='after')
-    def validate_stops(self) -> 'ColorRangeMapping':
-        """Validate stop ordering and percent bounds."""
-        stop_values = [color_stop.stop for color_stop in self.stops]
-        if stop_values != sorted(stop_values):
-            msg = "'stops' must be sorted in ascending order"
+    def validate_thresholds(self) -> 'ColorRangeMapping':
+        """Validate threshold ordering and percent bounds."""
+        threshold_values = [threshold.up_to for threshold in self.thresholds]
+        if threshold_values != sorted(threshold_values):
+            msg = "'thresholds' must be sorted in ascending order"
             raise ValueError(msg)
         if self.range_type == 'percent':
-            for stop_value in stop_values:
-                if stop_value < 0 or stop_value > PERCENT_MAX:
-                    msg = f'Percent-based stops must be between 0 and {PERCENT_MAX}'
+            for threshold_value in threshold_values:
+                if threshold_value < 0 or threshold_value > PERCENT_MAX:
+                    msg = f'Percent-based thresholds must be between 0 and {PERCENT_MAX}'
                     raise ValueError(msg)
             if self.range_min is not None and (self.range_min < 0 or self.range_min > PERCENT_MAX):
                 msg = f'Percent-based range_min must be between 0 and {PERCENT_MAX}'

@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorValueMapping, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import PERCENT_MAX, ColorRangeMapping, ColorValueMapping, LegendWidthEnum
 from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
@@ -115,19 +115,20 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     if color_config is None:
         return None
 
-    user_stops = color_config.stops
-    n = len(user_stops)
+    user_thresholds = color_config.thresholds
 
     range_min = color_config.range_min
     range_max = color_config.range_max
 
-    # Build stops (END of each band) from user input.
-    stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in user_stops]
-    if color_config.range_type == 'percent':
-        stops[-1] = KbnRangePaletteStop(color=stops[-1].color, stop=100.0)
+    # Build stops (END of each band) from user thresholds.
+    stops = [KbnRangePaletteStop(color=entry.color, stop=entry.up_to) for entry in user_thresholds]
+    percent_max = float(PERCENT_MAX)
+    if color_config.range_type == 'percent' and stops[-1].stop != percent_max:
+        stops.append(KbnRangePaletteStop(color=stops[-1].color, stop=percent_max))
 
     # colorStops mirrors stops so threshold boundaries are preserved in both arrays.
     color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in stops]
+    n = len(stops)
 
     return KbnRangePalette(
         params=KbnRangePaletteParams(

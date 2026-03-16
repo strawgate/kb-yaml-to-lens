@@ -1304,10 +1304,10 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_min': 0,
                 'range_max': 100,
                 'continuity': 'all',
-                'stops': [
-                    {'stop': 50, 'color': '#24c292'},
-                    {'stop': 80, 'color': '#fcd883'},
-                    {'stop': 100, 'color': '#f6726a'},
+                'thresholds': [
+                    {'up_to': 50, 'color': '#24c292'},
+                    {'up_to': 80, 'color': '#fcd883'},
+                    {'up_to': 100, 'color': '#f6726a'},
                 ],
             },
         }
@@ -1320,10 +1320,10 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_min': 0,
                 'range_max': 100,
                 'continuity': 'all',
-                'stops': [
-                    {'stop': 50, 'color': '#24c292'},
-                    {'stop': 80, 'color': '#fcd883'},
-                    {'stop': 100, 'color': '#f6726a'},
+                'thresholds': [
+                    {'up_to': 50, 'color': '#24c292'},
+                    {'up_to': 80, 'color': '#fcd883'},
+                    {'up_to': 100, 'color': '#f6726a'},
                 ],
             },
         }

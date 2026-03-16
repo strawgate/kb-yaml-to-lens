@@ -116,6 +116,7 @@ class TestRegistry:
             'dashboard-dataset-filter',
             'dashboard-missing-description',
             'datatable-at-bottom',
+            'esql-minimum-kibana-version',
             'markdown-at-top',
             'metric-excessive-count',
             # Panel rules
