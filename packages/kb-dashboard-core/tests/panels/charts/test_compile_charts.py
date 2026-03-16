@@ -425,7 +425,6 @@ class TestCompileLensChartState:
                         'label': 'Count of records',
                         'operationType': 'count',
                         'params': {'emptyAsNull': True},
-                        'scale': 'ratio',
                         'sourceField': '___records___',
                     }
                 },
@@ -576,6 +575,12 @@ class TestCompileLensChartState:
                 'showLabel': True,
                 'tagAccessor': 'tags1',
                 'valueAccessor': 'metric1',
+                'colorMapping': {
+                    'assignments': [],
+                    'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                    'paletteId': 'eui_amsterdam_color_blind',
+                    'colorMode': {'type': 'categorical'},
+                },
             }
         )
 

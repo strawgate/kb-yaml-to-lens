@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       kibana_version:
-        description: 'Kibana version to test (leave empty for all)'
+        description: Kibana version to test (leave empty for all)
         required: false
         type: string
         default: ''
@@ -14,9 +14,7 @@ permissions:
   actions: read
   contents: read
   issues: write
-  pull-requests: write
-  discussions: write
-  id-token: write
+  pull-requests: read
 concurrency:
   group: explore-lens-datatable-${{ github.ref }}
   cancel-in-progress: false
@@ -40,7 +38,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
-    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
     with:
       title-prefix: '[explore-lens-datatable-${{ matrix.kibana_version }}]'
       setup-commands: |
@@ -109,4 +107,4 @@ jobs:
         The workflow automatically prefixes your title. Just provide the
         summary, e.g. `3 bugs, 2 gaps`
     secrets:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
