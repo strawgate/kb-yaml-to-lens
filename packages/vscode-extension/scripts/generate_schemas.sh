@@ -22,7 +22,7 @@ PYTHONPATH="src:${PYTHONPATH:-}" uv run \
 from pydantic2zod import Compiler
 output = Compiler().parse('dashboard_compiler.lsp.models').to_zod()
 print(output)
-" > "$OUTPUT_FILE.tmp" 2>/dev/null
+" > "$OUTPUT_FILE.tmp"
 
 # Post-process the generated schemas:
 # 1. Replace standalone 'object' with 'z.unknown()' for dynamic types

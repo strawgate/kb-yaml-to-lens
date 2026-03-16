@@ -63,7 +63,7 @@ __all__ = [
 
 def main() -> None:
     """Generate Zod schemas using pydantic2zod."""
-    from pydantic2zod import Compiler
+    from pydantic2zod import Compiler  # pyright: ignore[reportMissingImports]
 
     output = Compiler().parse('dashboard_compiler.lsp.models').to_zod()
     print(output)
