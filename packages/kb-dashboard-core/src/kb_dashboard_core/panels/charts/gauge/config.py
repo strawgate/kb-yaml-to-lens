@@ -82,10 +82,10 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
             shape: arc
             palette:
               range_type: percent
-              stops:
-                - stop: 0
+              thresholds:
+                - up_to: 0
                   color: "#00BF6F"
-                - stop: 80
+                - up_to: 80
                   color: "#FFA500"
         ```
     """

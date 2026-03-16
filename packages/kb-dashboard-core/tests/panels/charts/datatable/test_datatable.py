@@ -564,10 +564,10 @@ def test_compile_datatable_chart_with_range_colors_esql() -> None:
                         'range_min': 0,
                         'range_max': 100,
                         'continuity': 'above',
-                        'stops': [
-                            {'stop': 50, 'color': '#00BF6F'},
-                            {'stop': 80, 'color': '#FFA500'},
-                            {'stop': 100, 'color': '#BD271E'},
+                        'thresholds': [
+                            {'up_to': 50, 'color': '#00BF6F'},
+                            {'up_to': 80, 'color': '#FFA500'},
+                            {'up_to': 100, 'color': '#BD271E'},
                         ],
                     },
                 },
@@ -619,7 +619,7 @@ def test_compile_datatable_chart_with_range_colors_esql() -> None:
 
 
 def test_compile_datatable_chart_with_range_colors_lens() -> None:
-    """Test Lens datatable metric column with range color stops compiles correctly."""
+    """Test Lens datatable metric column with range color thresholds compiles correctly."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -634,10 +634,10 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
                         'range_type': 'number',
                         'range_min': 0,
                         'continuity': 'all',
-                        'stops': [
-                            {'stop': 0.5, 'color': '#00BF6F'},
-                            {'stop': 0.8, 'color': '#FFA500'},
-                            {'stop': 1.0, 'color': '#BD271E'},
+                        'thresholds': [
+                            {'up_to': 0.5, 'color': '#00BF6F'},
+                            {'up_to': 0.8, 'color': '#FFA500'},
+                            {'up_to': 1.0, 'color': '#BD271E'},
                         ],
                     },
                 },
@@ -704,9 +704,9 @@ def test_compile_datatable_chart_preserves_thresholds_in_color_stops(range_type:
                     'color': {
                         'apply_to': 'text',
                         'range_type': range_type,
-                        'stops': [
-                            {'stop': 0, 'color': '#000000'},
-                            {'stop': expected_stops[-1], 'color': '#ffffff'},
+                        'thresholds': [
+                            {'up_to': 0, 'color': '#000000'},
+                            {'up_to': expected_stops[-1], 'color': '#ffffff'},
                         ],
                     }
                 },
@@ -743,8 +743,8 @@ def test_compile_datatable_chart_without_color_omits_palette() -> None:
     assert 'palette' not in column
 
 
-def test_datatable_metric_color_stops_empty_list_is_invalid() -> None:
-    """Test that empty range color stops are rejected."""
+def test_datatable_metric_color_thresholds_empty_list_is_invalid() -> None:
+    """Test that empty range color thresholds are rejected."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -756,7 +756,7 @@ def test_datatable_metric_color_stops_empty_list_is_invalid() -> None:
                 'appearance': {
                     'color': {
                         'apply_to': 'text',
-                        'stops': [],
+                        'thresholds': [],
                     }
                 },
             }

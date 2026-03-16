@@ -115,14 +115,14 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     if color_config is None:
         return None
 
-    user_stops = color_config.stops
-    n = len(user_stops)
+    user_thresholds = color_config.thresholds
+    n = len(user_thresholds)
 
     range_min = color_config.range_min
     range_max = color_config.range_max
 
-    # Build stops (END of each band) from user input.
-    stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in user_stops]
+    # Build stops (END of each band) from user thresholds.
+    stops = [KbnRangePaletteStop(color=entry.color, stop=entry.up_to) for entry in user_thresholds]
     if color_config.range_type == 'percent':
         stops[-1] = KbnRangePaletteStop(color=stops[-1].color, stop=100.0)
 

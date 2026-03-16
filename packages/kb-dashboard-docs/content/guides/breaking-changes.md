@@ -18,3 +18,22 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Datatable: replace metric top-level `color` with `appearance.color`.
 - Metric charts (Lens + ES|QL): rename `color_mode` to `apply_to`.
 - Datatable validation: ensure each datatable has at least one metric or one dimension.
+- Range color mappings: rename `stops` to `thresholds` and nested `stop` to `up_to`.
+
+### Range Color Mapping Threshold Rename
+
+Range-based color mappings now use threshold-oriented YAML keys:
+
+```yaml
+color:
+  range_type: percent
+  thresholds:
+    - up_to: 50
+      color: '#00BF6F'
+    - up_to: 80
+      color: '#FFA500'
+    - up_to: 100
+      color: '#BD271E'
+```
+
+Old YAML using `stops` / `stop` must be updated.
