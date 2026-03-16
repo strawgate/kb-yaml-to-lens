@@ -365,6 +365,32 @@ async def test_mosaic_chart_with_legend_position() -> None:
     assert layer.legendDisplay == 'show'
 
 
+async def test_mosaic_chart_legend_auto_maps_to_default() -> None:
+    """Partition chart legend auto should compile to Kibana default."""
+    lens_config = {
+        'type': 'mosaic',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': 'metric-id'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': 'dimension-id'},
+        'legend': {'visible': 'auto'},
+    }
+    esql_config = {
+        'type': 'mosaic',
+        'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+        'metric': {'field': 'c', 'id': 'metric-id'},
+        'dimension': {'field': 'service.name', 'id': 'dimension-id'},
+        'legend': {'visible': 'auto'},
+    }
+
+    lens_chart = LensMosaicChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, lens_visualization = compile_lens_mosaic_chart(lens_mosaic_chart=lens_chart)
+    assert lens_visualization.layers[0].legendDisplay == 'default'
+
+    esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, esql_visualization = compile_esql_mosaic_chart(esql_mosaic_chart=esql_chart)
+    assert esql_visualization.layers[0].legendDisplay == 'default'
+
+
 async def test_esql_mosaic_chart_with_breakdown() -> None:
     """Test ES|QL mosaic chart with breakdown dimension."""
     esql_config = {

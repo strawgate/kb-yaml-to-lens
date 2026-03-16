@@ -350,7 +350,7 @@ async def test_compile_lens_formula_metric_with_fields() -> None:
     assert result['operationType'] == 'formula'
     assert result['isBucketed'] is False
     assert result['scale'] == 'ratio'
-    assert result['params']['formula'] == "(max(field='response.time') - min(field='response.time')) / average(field='response.time')"
+    assert result['params']['formula'] == '(max(response.time) - min(response.time)) / average(response.time)'
     assert result['params']['isFormulaBroken'] is False
     # The references should now contain the math column ID (ends with X3 for 3 aggregations)
     assert len(result['references']) == 1
@@ -372,6 +372,18 @@ async def test_compile_lens_formula_metric_with_format() -> None:
     # The references should now contain the math column ID (ends with X2 for 2 aggregations)
     assert len(result['references']) == 1
     assert result['references'][0].endswith('X2')
+
+
+async def test_compile_lens_formula_metric_preserves_quoted_kql_helper_filter() -> None:
+    """Test helper filter query keeps quoted strings intact."""
+    result = compile_formula_with_helpers({'formula': 'count(kql=\'log.level: "error"\') / count()'})
+
+    assert result['primary_column']['params']['formula'] == 'count(kql=\'log.level: "error"\') / count()'
+
+    helper_ids = sorted(result['helper_columns'].keys())
+    filtered_count = result['helper_columns'][helper_ids[0]]
+    assert filtered_count['operationType'] == 'count'
+    assert filtered_count['filter'] == {'query': 'log.level: "error"', 'language': 'kuery'}
 
 
 def compile_formula_with_helpers(config: dict[str, Any]) -> dict[str, Any]:

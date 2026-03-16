@@ -76,6 +76,94 @@ AGG_TO_DEFAULT_EXCLUDE_ZEROS = {
     'sum': True,
 }
 
+MIN_QUOTED_LITERAL_LENGTH = 2
+
+
+def _is_unquoted_field_char(char: str) -> bool:
+    return char.isalnum() or char in '._@[]-'
+
+
+def _unquote_formula_string(value: str) -> str:
+    if len(value) >= MIN_QUOTED_LITERAL_LENGTH and value[0] == value[-1] and value[0] in {'"', "'"}:
+        quote = value[0]
+        unquoted = value[1:-1]
+        unquoted = unquoted.replace(f'\\{quote}', quote)
+        return unquoted.replace('\\\\', '\\')
+    return value
+
+
+def _normalize_field_named_args(formula: str) -> str:  # noqa: PLR0912, PLR0915
+    """Rewrite field=<value> to positional syntax for Kibana compatibility."""
+    out: list[str] = []
+    i = 0
+    while i < len(formula):
+        char = formula[i]
+
+        if char in {'"', "'"}:
+            quote = char
+            start = i
+            i += 1
+            while i < len(formula):
+                if formula[i] == '\\' and i + 1 < len(formula):
+                    i += 2
+                    continue
+                if formula[i] == quote:
+                    i += 1
+                    break
+                i += 1
+            out.append(formula[start:i])
+            continue
+
+        if formula.startswith('field', i):
+            prev = i - 1
+            while prev >= 0 and formula[prev].isspace():
+                prev -= 1
+            prev_char = formula[prev] if prev >= 0 else ''
+
+            next_idx = i + len('field')
+            next_char = formula[next_idx] if next_idx < len(formula) else ''
+            is_identifier_suffix = next_char.isalnum() or next_char == '_'
+
+            if prev_char in {'(', ','} and not is_identifier_suffix:
+                j = next_idx
+                while j < len(formula) and formula[j].isspace():
+                    j += 1
+
+                if j < len(formula) and formula[j] == '=':
+                    j += 1
+                    while j < len(formula) and formula[j].isspace():
+                        j += 1
+
+                    if j < len(formula):
+                        if formula[j] in {'"', "'"}:
+                            quote = formula[j]
+                            value_start = j
+                            j += 1
+                            while j < len(formula):
+                                if formula[j] == '\\' and j + 1 < len(formula):
+                                    j += 2
+                                    continue
+                                if formula[j] == quote:
+                                    j += 1
+                                    break
+                                j += 1
+                            raw_value = formula[value_start:j]
+                        else:
+                            value_start = j
+                            while j < len(formula) and _is_unquoted_field_char(formula[j]):
+                                j += 1
+                            raw_value = formula[value_start:j]
+
+                        if raw_value:
+                            out.append(_unquote_formula_string(raw_value))
+                            i = j
+                            continue
+
+        out.append(char)
+        i += 1
+
+    return ''.join(out)
+
 
 @dataclass
 class CompiledMetricResult:
@@ -238,6 +326,7 @@ def _compile_formula_metric(
     """
     custom_label = None if metric.label is None else True
     formula_id = metric.get_id()
+    normalized_formula = _normalize_field_named_args(metric.formula)
 
     # Parse the formula to extract aggregations and fullReference operations
     parse_result = parse_formula(metric.formula)
@@ -253,7 +342,7 @@ def _compile_formula_metric(
             scale='ratio',
             references=[],
             params=KbnLensFormulaColumnParams(
-                formula=metric.formula,
+                formula=normalized_formula,
                 format=metric_format,
             ),
         )
@@ -310,7 +399,7 @@ def _compile_formula_metric(
             scale='ratio',
             references=all_helper_column_ids,
             params=KbnLensFormulaColumnParams(
-                formula=metric.formula,
+                formula=normalized_formula,
                 isFormulaBroken=False,
                 format=metric_format,
             ),
@@ -331,7 +420,7 @@ def _compile_formula_metric(
             scale='ratio',
             references=[math_id],
             params=KbnLensFormulaColumnParams(
-                formula=metric.formula,
+                formula=normalized_formula,
                 isFormulaBroken=False,
                 format=metric_format,
             ),

@@ -29,8 +29,7 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Lens top values dimensions: rename `other_bucket` to `show_other_bucket`.
 - Lens top values dimensions: rename `missing_bucket` to `include_missing_values`.
 - Lens intervals dimensions: rename `empty_bucket` to `include_empty_intervals`.
-- Range color mappings: rename `continuity` to `extend_beyond_range`.
-- Range color mappings: rename enum value `all` to `both`.
+- Range color mappings: remove configurable range extension; `continuity` and `extend_beyond_range` are deprecated and ignored.
 
 ### Field Rename Reference
 
@@ -38,8 +37,8 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 | --------- | --------- | ----- |
 | `stops[].stop` | `thresholds[].up_to` | Range color mappings |
 | `stops` | `thresholds` | Range color mappings |
-| `continuity` | `extend_beyond_range` | Range color mappings |
-| `continuity: all` | `extend_beyond_range: both` | Enum rename |
+| `continuity` | removed (ignored) | Range color mappings always compile with `continuity: above` |
+| `extend_beyond_range` | removed (ignored) | Range color mappings always compile with `continuity: above` |
 | `dimensions` (pie/treemap) | `breakdowns` | Old name emits `DeprecationWarning` |
 | `dimension` (waffle) | `breakdown` | Old name emits `DeprecationWarning` |
 | `dimensions` (datatable row groupings) | `breakdowns` | Old name emits `DeprecationWarning` |

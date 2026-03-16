@@ -23,7 +23,7 @@ def compile_waffle_chart_visualization_state(
     *,
     layer_id: str,
     chart: LensWaffleChart | ESQLWaffleChart,
-    breakdown_id: str,
+    breakdown_id: str | None,
     metric_id: str,
     collapse_fns: dict[str, str] | None,
 ) -> KbnWaffleVisualizationState:
@@ -32,7 +32,7 @@ def compile_waffle_chart_visualization_state(
     Args:
         layer_id: The ID of the layer.
         chart: The WaffleChart config object.
-        breakdown_id: The ID of the breakdown dimension.
+        breakdown_id: The ID of the breakdown dimension, or None if not specified.
         metric_id: The ID of the metric.
         collapse_fns: Mapping of dimension ID to collapse function.
 
@@ -57,7 +57,7 @@ def compile_waffle_chart_visualization_state(
 
     if chart.legend is not None:
         if chart.legend.visible is not None:
-            legend_display = chart.legend.visible
+            legend_display = 'default' if chart.legend.visible == 'auto' else chart.legend.visible
         if chart.legend.width is not None:
             legend_size = map_legend_size(chart.legend.width)
         if chart.legend.truncate_labels is not None:
@@ -82,7 +82,7 @@ def compile_waffle_chart_visualization_state(
 
     kbn_layer_visualization = KbnWaffleStateVisualizationLayer(
         layerId=layer_id,
-        primaryGroups=[breakdown_id],
+        primaryGroups=[breakdown_id] if breakdown_id is not None else [],
         secondaryGroups=None,
         metrics=[metric_id],
         allowMultipleMetrics=False,
@@ -129,13 +129,20 @@ def compile_lens_waffle_chart(
     kbn_metric_column_by_id[metric_id] = metric
     kbn_metric_column_by_id.update(result.helper_columns)
 
-    # Compile the breakdown
-    breakdown_columns = compile_lens_dimensions(dimensions=[lens_waffle_chart.breakdown], kbn_metric_column_by_id=kbn_metric_column_by_id)
-    breakdown_id = next(iter(breakdown_columns.keys()))
+    # Compile the breakdown (if present)
+    breakdown_id: str | None = None
+    breakdown_columns: dict[str, KbnLensColumnTypes] = {}
+    collapse_dimensions: list[tuple[str, str | None]] = []
+    if lens_waffle_chart.breakdown is not None:
+        compiled_breakdown = compile_lens_dimensions(
+            dimensions=[lens_waffle_chart.breakdown], kbn_metric_column_by_id=kbn_metric_column_by_id
+        )
+        breakdown_id = next(iter(compiled_breakdown.keys()))
+        breakdown_columns = dict(compiled_breakdown)
+        collapse_dimensions.append((breakdown_id, lens_waffle_chart.breakdown.collapse))
+    collapse_fns = build_collapse_fns(collapse_dimensions)
 
-    collapse_fns = build_collapse_fns([(breakdown_id, lens_waffle_chart.breakdown.collapse)])
-
-    kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(breakdown_columns), **kbn_metric_column_by_id}
+    kbn_columns: dict[str, KbnLensColumnTypes] = {**breakdown_columns, **kbn_metric_column_by_id}
 
     return (
         layer_id,
@@ -171,13 +178,18 @@ def compile_esql_waffle_chart(
     metric = compile_esql_metric(esql_waffle_chart.metric)
     metric_id = metric.columnId
 
-    # Compile the breakdown
-    breakdown_columns = compile_esql_dimensions(dimensions=[esql_waffle_chart.breakdown])
-    breakdown_id = breakdown_columns[0].columnId
+    # Compile the breakdown (if present)
+    breakdown_id: str | None = None
+    breakdown_columns: list[KbnESQLColumnTypes] = []
+    collapse_dimensions: list[tuple[str, str | None]] = []
+    if esql_waffle_chart.breakdown is not None:
+        compiled_breakdown = compile_esql_dimensions(dimensions=[esql_waffle_chart.breakdown])
+        breakdown_id = compiled_breakdown[0].columnId
+        breakdown_columns = list(compiled_breakdown)
+        collapse_dimensions.append((breakdown_id, esql_waffle_chart.breakdown.collapse))
+    collapse_fns = build_collapse_fns(collapse_dimensions)
 
-    collapse_fns = build_collapse_fns([(breakdown_id, esql_waffle_chart.breakdown.collapse)])
-
-    kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(breakdown_columns)]
+    kbn_columns: list[KbnESQLColumnTypes] = [metric, *breakdown_columns]
 
     return (
         layer_id,
