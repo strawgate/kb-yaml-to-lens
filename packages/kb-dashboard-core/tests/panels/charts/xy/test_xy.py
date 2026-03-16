@@ -1712,3 +1712,18 @@ def test_xy_appearance_values_visible_wins_over_deprecated_titles_and_text() -> 
     assert chart.appearance is not None
     assert chart.appearance.values is not None
     assert chart.appearance.values.visible is False
+
+
+def test_xy_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'mode': 'stacked',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'titles_and_text': 'invalid',
+            }
+        )

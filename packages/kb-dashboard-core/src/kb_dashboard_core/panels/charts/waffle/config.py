@@ -76,12 +76,16 @@ class BaseWaffleChart(BaseChart):
             return dict(cast('dict[str, Any]', value)) if isinstance(value, dict) else {}
 
         normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_titles_and_text = as_dict(cast('object', normalized_data.pop('titles_and_text', None)))
-        if not legacy_titles_and_text:
+        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
+        if legacy_raw is None:
             return normalized_data
+        if not isinstance(legacy_raw, dict):
+            return normalized_data
+        legacy_titles_and_text = as_dict(cast('object', legacy_raw))
+        normalized_data.pop('titles_and_text')
 
         appearance = as_dict(cast('object', normalized_data.get('appearance')))
-        values = as_dict(appearance.get('values'))
+        values = as_dict(cast('object', appearance.get('values')))
 
         if 'value_format' in legacy_titles_and_text:
             mapped_format = cast('object', legacy_titles_and_text['value_format'])

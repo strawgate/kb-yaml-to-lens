@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -224,6 +225,20 @@ def test_pie_appearance_wins_over_deprecated_titles_and_text() -> None:
     assert chart.appearance.values is not None
     assert chart.appearance.values.format == 'percent'
     assert chart.appearance.values.decimal_places == 1
+
+
+def test_pie_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name'}],
+                'titles_and_text': 'invalid',
+            }
+        )
 
 
 async def test_donut_chart_sizes() -> None:

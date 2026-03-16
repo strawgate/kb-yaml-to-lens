@@ -272,9 +272,12 @@ class BaseXYChart(BaseChart):
         if not isinstance(data, dict):
             return data
         normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_raw = cast('object', normalized_data.pop('titles_and_text', None))
+        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
+        if legacy_raw is None:
+            return normalized_data
         if not isinstance(legacy_raw, dict):
             return normalized_data
+        normalized_data.pop('titles_and_text')
         legacy = cast('dict[str, Any]', legacy_raw)
         if 'value_labels' not in legacy:
             return normalized_data

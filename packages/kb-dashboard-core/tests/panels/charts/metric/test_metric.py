@@ -659,6 +659,45 @@ def test_metric_deprecated_label_position_warns_when_ignored() -> None:
     assert chart.appearance.secondary.label.position == 'after'
 
 
+def test_metric_deprecated_label_position_only_maps_to_nested_label() -> None:
+    """Deprecated secondary.label_position should map when label is omitted."""
+    with pytest.warns(DeprecationWarning, match='label_position'):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label_position': 'before'}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.position == 'before'
+
+
+def test_metric_deprecated_label_position_merges_with_label_text() -> None:
+    """Deprecated secondary.label_position should merge into nested label when position missing."""
+    with pytest.warns(DeprecationWarning, match='label_position'):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label': {'text': 'legacy label'}, 'label_position': 'after'}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.text == 'legacy label'
+    assert chart.appearance.secondary.label.position == 'after'
+
+
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 def test_compile_metric_chart_icon(chart_type: str) -> None:
     """Test metric icon compilation for Lens and ES|QL charts."""

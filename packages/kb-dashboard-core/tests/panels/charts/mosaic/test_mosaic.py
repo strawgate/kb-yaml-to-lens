@@ -3,6 +3,7 @@
 import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.config import ESQLMosaicPanelConfig
 from kb_dashboard_core.panels.charts.mosaic.compile import compile_esql_mosaic_chart, compile_lens_mosaic_chart
@@ -42,6 +43,20 @@ def test_mosaic_appearance_values_override_legacy_titles_and_text() -> None:
     assert chart.appearance.values is not None
     assert chart.appearance.values.format == 'percent'
     assert chart.appearance.values.decimal_places == 5
+
+
+def test_mosaic_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensMosaicChart.model_validate(
+            {
+                'type': 'mosaic',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'dimension': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': 'invalid',
+            }
+        )
 
 
 async def test_basic_mosaic_chart() -> None:

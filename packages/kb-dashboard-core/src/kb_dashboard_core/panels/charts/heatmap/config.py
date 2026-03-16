@@ -104,15 +104,16 @@ class BaseHeatmapChart(BaseCfgModel):
             return dict(cast('dict[str, Any]', value)) if isinstance(value, dict) else {}
 
         normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        appearance = as_dict(normalized_data.get('appearance'))
+        appearance = as_dict(cast('object', normalized_data.get('appearance')))
 
         if 'grid_config' in normalized_data:
-            grid_config_raw: object = cast('object', normalized_data.pop('grid_config'))
-            grid_config = as_dict(grid_config_raw)
-            if grid_config:
-                values = as_dict(appearance.get('values'))
-                x_axis = as_dict(appearance.get('x_axis'))
-                y_axis = as_dict(appearance.get('y_axis'))
+            grid_config_raw = cast('object', normalized_data.get('grid_config'))
+            if isinstance(grid_config_raw, dict):
+                normalized_data.pop('grid_config')
+                grid_config = as_dict(cast('object', grid_config_raw))
+                values = as_dict(cast('object', appearance.get('values')))
+                x_axis = as_dict(cast('object', appearance.get('x_axis')))
+                y_axis = as_dict(cast('object', appearance.get('y_axis')))
 
                 cells = grid_config.get('cells')
                 if isinstance(cells, dict) and 'show_labels' in cells:
@@ -207,9 +208,10 @@ class BaseHeatmapChart(BaseCfgModel):
                 )
 
         if 'legend' in normalized_data:
-            legend_raw: object = cast('object', normalized_data.pop('legend'))
-            legend = as_dict(legend_raw)
-            if legend:
+            legend_raw = cast('object', normalized_data.get('legend'))
+            if isinstance(legend_raw, dict):
+                normalized_data.pop('legend')
+                legend = as_dict(cast('object', legend_raw))
                 if 'legend' not in appearance:
                     appearance['legend'] = legend
                     warnings.warn(

@@ -3,6 +3,7 @@
 import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.config import ESQLWafflePanelConfig
 from kb_dashboard_core.panels.charts.waffle.compile import compile_esql_waffle_chart, compile_lens_waffle_chart
@@ -94,6 +95,20 @@ async def test_waffle_chart_breakdown_goes_to_primary_groups() -> None:
     layer = kbn_state_visualization.layers[0]
     assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
     assert layer.secondaryGroups is None
+
+
+def test_waffle_invalid_legacy_titles_and_text_type_is_rejected() -> None:
+    """Malformed titles_and_text should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensWaffleChart.model_validate(
+            {
+                'type': 'waffle',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'breakdown': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': 'invalid',
+            }
+        )
 
 
 def test_waffle_legacy_titles_and_text_maps_to_appearance_values() -> None:

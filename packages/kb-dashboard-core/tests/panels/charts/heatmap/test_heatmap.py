@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -38,6 +39,21 @@ def compile_heatmap_chart_snapshot(config: dict[str, Any], chart_type: str = 'le
 
     assert kbn_state_visualization is not None
     return kbn_state_visualization.model_dump(mode='json', exclude_none=False)
+
+
+def test_heatmap_invalid_legacy_grid_config_type_is_rejected() -> None:
+    """Malformed grid_config should fail validation instead of being silently dropped."""
+    with pytest.raises(ValidationError, match='grid_config'):
+        LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'logs-*',
+                'x_axis': {'type': 'values', 'field': 'host.name'},
+                'y_axis': {'type': 'values', 'field': 'service.name'},
+                'metric': {'aggregation': 'count'},
+                'grid_config': 'invalid',
+            }
+        )
 
 
 def test_compile_heatmap_chart_1d_lens() -> None:
