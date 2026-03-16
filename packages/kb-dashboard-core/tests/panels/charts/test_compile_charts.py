@@ -439,7 +439,7 @@ class TestCompileLensChartState:
                 'layerId': IsUUID,
                 'layerType': 'data',
                 'metricAccessor': 'metric1',
-                'shape': 'arc',
+                'shape': 'horizontalBullet',
                 'ticksPosition': 'auto',
             }
         )

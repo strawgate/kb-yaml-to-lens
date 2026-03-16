@@ -14,6 +14,23 @@ from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization,
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 type KbnXYLegendSize = Literal['auto', 'small', 'medium', 'large', 'xlarge']
+type KbnReferenceLineIcon = Literal[
+    'asterisk',
+    'bell',
+    'bolt',
+    'bomb',
+    'bug',
+    'comment',
+    'exclamationCircle',
+    'exclamationTriangle',
+    'fire',
+    'flag',
+    'heart',
+    'mapMarker',
+    'mapPin',
+    'star',
+    'tag',
+]
 
 
 class LabelsOrientationConfig(BaseVwModel):
@@ -120,7 +137,7 @@ class YConfig(BaseVwModel):
     fill: Annotated[Literal['none', 'below', 'above'] | None, OmitIfNone()] = None
     """Fill configuration (used by reference lines only)."""
 
-    icon: Annotated[str | None, OmitIfNone()] = None
+    icon: Annotated[KbnReferenceLineIcon | None, OmitIfNone()] = None
     """Icon identifier (used by reference lines only)."""
 
     iconPosition: Annotated[Literal['auto', 'left', 'right', 'above', 'below'] | None, OmitIfNone()] = None

@@ -439,6 +439,36 @@ async def test_terms_dimension_with_formula_metric_uses_alphabetical_ordering() 
     assert dimension_result['params']['orderDirection'] == 'desc'
 
 
+async def test_terms_dimension_with_static_value_metric_uses_alphabetical_ordering() -> None:
+    """Test that terms dimensions use alphabetical ordering when first metric is static_value."""
+    metric_config = {
+        'value': 42,
+        'label': 'Static threshold',
+        'id': 'static-threshold',
+    }
+    dimension_config = {
+        'type': 'values',
+        'field': 'host.name',
+        'size': 100,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result['params']['orderBy'] == snapshot({'type': 'alphabetical', 'fallback': True})
+    assert dimension_result['params']['orderDirection'] == 'desc'
+
+
 async def test_terms_dimension_with_non_formula_metric_orders_by_metric() -> None:
     """Test that terms dimension orders by metric when first metric is not a formula.
 
