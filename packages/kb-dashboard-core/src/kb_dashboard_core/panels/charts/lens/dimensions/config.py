@@ -1,9 +1,9 @@
 """Lens dimensions configuration for the Lens chart."""
 
 from enum import StrEnum
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import Field, StringConstraints
 
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel, Sort
@@ -11,6 +11,15 @@ from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel,
 type LensDimensionTypes = (
     LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 )
+
+type LensDateMathMinimumInterval = (
+    Literal['auto']
+    | Annotated[
+        str,
+        StringConstraints(pattern=r'^[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)$'),
+    ]
+)
+"""Lens minimum interval using Elasticsearch date math format or `auto`."""
 
 
 class BaseDimension(BaseIdentifiableModel):
@@ -157,8 +166,8 @@ class LensDateHistogramDimension(BaseLensDimension):
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
 
-    minimum_interval: str | None = Field(default=None)
-    """The numeric interval for the histogram buckets. Defaults to `auto` if not specified."""
+    minimum_interval: LensDateMathMinimumInterval | None = Field(default=None)
+    """The minimum interval using Elasticsearch date math format (e.g. `1m`, `1h`). Defaults to `auto`."""
 
     partial_intervals: bool | None = Field(default=None)
     """If `true`, show partial intervals. Kibana defaults to `true` if not specified."""

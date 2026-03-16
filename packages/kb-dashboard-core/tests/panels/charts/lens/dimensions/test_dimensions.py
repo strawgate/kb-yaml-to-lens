@@ -61,6 +61,40 @@ async def test_date_histogram_dimension() -> None:
     )
 
 
+async def test_date_histogram_dimension_with_minimum_interval_and_partial_intervals_disabled() -> None:
+    """Test date histogram minimum_interval passthrough and partial interval inversion."""
+    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'date_histogram',
+        'field': '@timestamp',
+        'minimum_interval': '1m',
+        'partial_intervals': False,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
+
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+    dimension_result = kbn_dimension_column.model_dump()
+
+    assert dimension_result['params'] == snapshot({'interval': '1m', 'includeEmptyRows': True, 'dropPartials': True})
+
+
+def test_date_histogram_dimension_rejects_non_date_math_minimum_interval() -> None:
+    """Test date histogram rejects non-Kibana interval format (e.g., 'minute')."""
+    with pytest.raises(ValueError, match='String should match pattern'):
+        TypeAdapter(LensDateHistogramDimension).validate_python(
+            {'type': 'date_histogram', 'field': '@timestamp', 'minimum_interval': 'minute'}
+        )
+
+
 async def test_terms_dimension_with_sorting() -> None:
     """Test terms dimension with sorting."""
     metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
