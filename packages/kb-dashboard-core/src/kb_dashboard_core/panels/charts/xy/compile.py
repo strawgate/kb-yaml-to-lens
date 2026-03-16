@@ -510,9 +510,12 @@ def compile_xy_chart_visualization_state(
         axis_titles_visibility,
     ) = _compile_axis_settings(chart)
     collapse_fn: Literal['sum', 'avg', 'min', 'max'] | None = None
-    if isinstance(chart, ESQLBarChart | ESQLLineChart | ESQLAreaChart):
-        if chart.breakdown is not None and chart.breakdown.collapse is not None:
-            collapse_fn = cast("Literal['sum', 'avg', 'min', 'max']", str(chart.breakdown.collapse))
+    if (
+        isinstance(chart, ESQLBarChart | ESQLLineChart | ESQLAreaChart)
+        and chart.breakdown is not None
+        and chart.breakdown.collapse is not None
+    ):
+        collapse_fn = cast("Literal['sum', 'avg', 'min', 'max']", str(chart.breakdown.collapse))
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
