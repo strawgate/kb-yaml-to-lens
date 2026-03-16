@@ -50,7 +50,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     """
     # Extract appearance settings with defaults
     appearance = chart.appearance
-    shape_cfg: GaugeShapeCfg = appearance.shape if appearance is not None and appearance.shape is not None else 'arc'
+    shape_cfg: GaugeShapeCfg = appearance.shape if appearance is not None and appearance.shape is not None else 'horizontal_bullet'
     shape = GAUGE_SHAPE_TO_KBN[shape_cfg]
     ticks_position = appearance.ticks_position if appearance is not None and appearance.ticks_position is not None else 'auto'
     label_major = appearance.label_major if appearance is not None else None

@@ -98,6 +98,13 @@ ignore = [
     "PLR2004", # Allow magic values in test assertions
     "INP001", # Tests are not meant to be imported as packages
 ]
+"src/kb_dashboard_tools/decompile/infer.py" = [
+    "PLR0912", # Allow many branches in chart type inference mapping
+    "PLR0915", # Allow many statements in chart type inference mapping
+]
+"src/kb_dashboard_tools/decompile/parse.py" = [
+    "PLR0912", # Allow many branches in visualization state parsing
+]
 
 [tool.ruff.format]
 quote-style = "single"

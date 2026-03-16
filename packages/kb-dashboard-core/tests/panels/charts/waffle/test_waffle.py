@@ -287,6 +287,7 @@ def test_waffle_deprecated_dimension_does_not_override_explicit_breakdown() -> N
             'dimension': {'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'},
         }
     )
+    assert lens_chart.breakdown is not None
     assert lens_chart.breakdown.id == 'new-breakdown'
 
     esql_chart = ESQLWafflePanelConfig.model_validate(
@@ -298,6 +299,7 @@ def test_waffle_deprecated_dimension_does_not_override_explicit_breakdown() -> N
             'dimension': {'field': 'host.name', 'id': 'legacy-dimension'},
         }
     )
+    assert esql_chart.breakdown is not None
     assert esql_chart.breakdown.id == 'new-breakdown'
 
 
@@ -345,6 +347,32 @@ async def test_waffle_chart_with_legend_position() -> None:
     assert layer.legendDisplay == 'show'
 
 
+async def test_waffle_chart_legend_auto_maps_to_default() -> None:
+    """Partition chart legend auto should compile to Kibana default."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': 'metric-id'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': 'breakdown-id'},
+        'legend': {'visible': 'auto'},
+    }
+    esql_config = {
+        'type': 'waffle',
+        'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+        'metric': {'field': 'c', 'id': 'metric-id'},
+        'breakdown': {'field': 'service.name', 'id': 'breakdown-id'},
+        'legend': {'visible': 'auto'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, lens_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert lens_visualization.layers[0].legendDisplay == 'default'
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, esql_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
+    assert esql_visualization.layers[0].legendDisplay == 'default'
+
+
 async def test_esql_waffle_chart_breakdown_goes_to_primary_groups() -> None:
     """Test ES|QL waffle chart breakdown is compiled into primaryGroups."""
     esql_config = {
@@ -360,6 +388,34 @@ async def test_esql_waffle_chart_breakdown_goes_to_primary_groups() -> None:
     layer = kbn_state_visualization.layers[0]
     assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
     assert layer.secondaryGroups is None
+
+
+async def test_waffle_chart_without_breakdown_compiles_for_lens_and_esql() -> None:
+    """Waffle charts should support metric-only mode with no breakdown."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': 'metric-id'},
+    }
+    esql_config = {
+        'type': 'waffle',
+        'query': 'FROM logs-* | STATS c = COUNT(*)',
+        'metric': {'field': 'c', 'id': 'metric-id'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, lens_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    lens_layer = lens_visualization.layers[0]
+    assert lens_layer.primaryGroups == []
+    assert lens_layer.collapseFns is None
+    assert lens_layer.metrics == ['metric-id']
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, esql_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
+    esql_layer = esql_visualization.layers[0]
+    assert esql_layer.primaryGroups == []
+    assert esql_layer.collapseFns is None
+    assert esql_layer.metrics == ['metric-id']
 
 
 async def test_waffle_chart_with_value_decimal_places() -> None:

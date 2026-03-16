@@ -58,7 +58,7 @@ def test_compile_gauge_chart_metric_only_lens() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'metric_accessor',
-            'shape': 'arc',
+            'shape': 'horizontalBullet',
             'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
@@ -82,7 +82,7 @@ def test_compile_gauge_chart_metric_only_esql() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'metric_accessor',
-            'shape': 'arc',
+            'shape': 'horizontalBullet',
             'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
@@ -155,7 +155,7 @@ def test_compile_gauge_chart_with_min_max_goal_lens() -> None:
             'minAccessor': 'min_accessor',
             'maxAccessor': 'max_accessor',
             'goalAccessor': 'goal_accessor',
-            'shape': 'arc',
+            'shape': 'horizontalBullet',
             'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
@@ -194,7 +194,7 @@ def test_compile_gauge_chart_with_min_max_goal_esql() -> None:
             'minAccessor': 'min_accessor',
             'maxAccessor': 'max_accessor',
             'goalAccessor': 'goal_accessor',
-            'shape': 'arc',
+            'shape': 'horizontalBullet',
             'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }
@@ -264,7 +264,7 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             'layerId': IsUUID,
             'layerType': 'data',
             'metricAccessor': 'metric_accessor',
-            'shape': 'arc',
+            'shape': 'horizontalBullet',
             'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
             'colorMode': 'palette',
@@ -456,7 +456,7 @@ def test_compile_gauge_chart_with_static_values_lens() -> None:
             'minAccessor': IsUUID,
             'maxAccessor': IsUUID,
             'goalAccessor': IsUUID,
-            'shape': 'arc',
+            'shape': 'horizontalBullet',
             'ticksPosition': 'auto',
             'labelMajorMode': 'auto',
         }

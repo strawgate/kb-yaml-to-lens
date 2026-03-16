@@ -367,6 +367,31 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
     )
 
 
+def test_tagcloud_static_metric_uses_alphabetical_terms_ordering() -> None:
+    """Tagcloud terms ordering should not target static_value metric columns."""
+    chart = LensTagcloudChart.model_validate(
+        {
+            'type': 'tagcloud',
+            'data_view': 'logs-*',
+            'dimension': {
+                'type': 'values',
+                'field': 'tags',
+                'id': 'tag-dimension',
+            },
+            'metric': {
+                'value': 42,
+                'id': 'metric-static',
+            },
+        }
+    )
+
+    _layer_id, columns, _visualization_state = compile_lens_tagcloud_chart(chart=chart)
+    terms_column = columns['tag-dimension'].model_dump()
+
+    assert terms_column['operationType'] == 'terms'
+    assert terms_column['params']['orderBy'] == snapshot({'type': 'alphabetical', 'fallback': True})
+
+
 def test_tagcloud_deprecated_show_label_warns_and_maps() -> None:
     """Deprecated appearance.show_label should warn and map to labels.visible."""
     with pytest.warns(DeprecationWarning, match='show_label'):

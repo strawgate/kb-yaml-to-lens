@@ -76,6 +76,13 @@ def _resolve_order_by(
         else:
             msg = f"Sort column '{sort.by}' not found in available metric columns"
             raise ValueError(msg)
+        metric = kbn_metric_column_by_id[column_id]
+        if metric.operationType in ('formula', 'static_value'):
+            return KbnLensTermsOrderBy(
+                type='alphabetical',
+                fallback=True,
+            )
+
         return KbnLensTermsOrderBy(
             type='column',
             columnId=column_id,
@@ -87,8 +94,9 @@ def _resolve_order_by(
         first_metric_id = next(iter(kbn_metric_column_by_id.keys()))
         first_metric = kbn_metric_column_by_id[first_metric_id]
 
-        if first_metric.operationType == 'formula':
-            # Formula columns are computed post-aggregation, use alphabetical ordering
+        if first_metric.operationType in ('formula', 'static_value'):
+            # Formula and static value columns are computed post-aggregation,
+            # use alphabetical ordering.
             return KbnLensTermsOrderBy(
                 type='alphabetical',
                 fallback=True,

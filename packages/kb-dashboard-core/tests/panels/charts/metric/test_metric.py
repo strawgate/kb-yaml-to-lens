@@ -1423,7 +1423,6 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 50, 'color': '#24c292'},
                     {'up_to': 80, 'color': '#fcd883'},
@@ -1439,7 +1438,6 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 50, 'color': '#24c292'},
                     {'up_to': 80, 'color': '#fcd883'},
@@ -1455,7 +1453,7 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
     assert result['palette']['params']['rangeType'] == 'number'
     assert result['palette']['params']['rangeMin'] == 0.0
     assert result['palette']['params']['rangeMax'] == 100.0
-    assert result['palette']['params']['continuity'] == 'all'
+    assert result['palette']['params']['continuity'] == 'above'
     assert result['palette']['params']['stops'] == [
         {'color': '#24c292', 'stop': 50.0},
         {'color': '#fcd883', 'stop': 80.0},
@@ -1480,7 +1478,6 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'extend_beyond_range': 'above',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 50, 'color': '#fcd883'},
@@ -1496,7 +1493,6 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'extend_beyond_range': 'above',
                 'thresholds': [
                     {'up_to': 25, 'color': '#24c292'},
                     {'up_to': 50, 'color': '#fcd883'},

@@ -119,9 +119,6 @@ class ColorRangeMapping(BaseCfgModel):
     range_max: float | None = Field(default=None)
     """Optional upper bound for the palette domain. Use null for auto/open upper bound."""
 
-    extend_beyond_range: Literal['above', 'below', 'both', 'none'] = Field(default='above')
-    """How colors extend beyond the configured range."""
-
     thresholds: list[ColorThreshold] = Field(min_length=1)
     """Ordered threshold bands used to build gauge-style color palettes."""
 
@@ -133,23 +130,19 @@ class ColorRangeMapping(BaseCfgModel):
 
         normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
         legacy_continuity = cast('object', normalized_data.pop('continuity', None))
-        if legacy_continuity is None:
-            return normalized_data
-
-        if 'extend_beyond_range' in normalized_data:
+        legacy_extend = cast('object', normalized_data.pop('extend_beyond_range', None))
+        if legacy_continuity is not None:
             warnings.warn(
-                "Color mapping field 'continuity' is ignored because 'extend_beyond_range' is already set.",
+                "Color mapping field 'continuity' is deprecated and ignored.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-            return normalized_data
-
-        normalized_data['extend_beyond_range'] = 'both' if legacy_continuity == 'all' else legacy_continuity
-        warnings.warn(
-            "Color mapping field 'continuity' is deprecated, use 'extend_beyond_range' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        if legacy_extend is not None:
+            warnings.warn(
+                "Color mapping field 'extend_beyond_range' is deprecated and ignored.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         return normalized_data
 
     @model_validator(mode='after')

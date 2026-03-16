@@ -10,7 +10,7 @@ from kb_dashboard_core.filters import (
     PhrasesFilter,
     RangeFilter,
 )
-from kb_dashboard_core.filters.config import FilterTypes
+from kb_dashboard_core.filters.config import FilterScalar, FilterTypes
 from kb_dashboard_core.filters.view import KbnCombinedFilterMeta, KbnCustomFilterMeta, KbnFilter, KbnFilterMeta
 from kb_dashboard_core.shared.defaults import default_false
 from kb_dashboard_core.shared.filter_utils import create_filter_state
@@ -140,7 +140,7 @@ def compile_range_filter(*, range_filter: RangeFilter, negate: bool = False, nes
     Returns:
         KbnFilter: The compiled Kibana filter view model.
     """
-    range_query: dict[str, str] = {}
+    range_query: dict[str, FilterScalar] = {}
 
     if range_filter.gte is not None:
         range_query['gte'] = range_filter.gte

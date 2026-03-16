@@ -6,6 +6,7 @@ human-readable error messages suitable for CLI output.
 Based on patterns from https://docs.pydantic.dev/latest/errors/errors/
 """
 
+import contextlib
 from pathlib import Path
 from typing import Any
 
@@ -118,18 +119,13 @@ def format_error_message(error: ErrorDetails) -> str:
 
     # Try to get a custom message for this error type
     custom_msg = CUSTOM_MESSAGES.get(error_type)
-    if custom_msg is not None:
+    should_apply_custom = custom_msg is not None and not (error_type == 'model_type' and loc != ())
+
+    if should_apply_custom and custom_msg is not None:
         if ctx is not None:
-            try:
-                # Handle special case where 'message' is in ctx (for value_error)
-                if 'message' in ctx:
-                    ctx_message: str = ctx['message']  # pyright: ignore[reportAny]
-                    msg = ctx_message
-                else:
-                    msg = custom_msg.format(**ctx)  # pyright: ignore[reportAny]
-            except KeyError:
-                msg = custom_msg
-        else:
+            with contextlib.suppress(KeyError):
+                msg = custom_msg.format(**ctx)  # pyright: ignore[reportAny]
+        elif '{' not in custom_msg and '}' not in custom_msg:
             msg = custom_msg
 
     # Add field hint if available

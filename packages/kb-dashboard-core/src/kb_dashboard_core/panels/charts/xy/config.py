@@ -9,6 +9,24 @@ from kb_dashboard_core.panels.charts.lens.dimensions import LensDimensionTypes
 from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel
 
+type ReferenceLineIcon = Literal[
+    'asterisk',
+    'bell',
+    'bolt',
+    'bomb',
+    'bug',
+    'comment',
+    'exclamationCircle',
+    'exclamationTriangle',
+    'fire',
+    'flag',
+    'heart',
+    'mapMarker',
+    'mapPin',
+    'star',
+    'tag',
+]
+
 
 class XYReferenceLineValue(BaseCfgModel):
     """Defines the value for a reference line."""
@@ -47,7 +65,7 @@ class XYReferenceLine(BaseIdentifiableModel):
     fill: Literal['above', 'below', 'none'] | None = Field(default=None)
     """Fill area above or below the line."""
 
-    icon: str | None = Field(default=None)
+    icon: ReferenceLineIcon | None = Field(default=None)
     """Icon to display on the reference line."""
 
     icon_position: Literal['auto', 'left', 'right', 'above', 'below'] | None = Field(default=None)
