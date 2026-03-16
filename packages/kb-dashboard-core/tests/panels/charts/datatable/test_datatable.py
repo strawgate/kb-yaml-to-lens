@@ -328,7 +328,7 @@ def test_compile_datatable_chart_with_rows_by_lens() -> None:
         {
             'columns': [
                 {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172', 'isTransposed': False, 'isMetric': False},
-                {'columnId': 'split-by-host', 'isTransposed': False, 'isMetric': False},
+                {'columnId': 'split-by-host', 'isTransposed': True, 'isMetric': False},
                 {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
             ],
             'layerId': IsUUID,
@@ -367,7 +367,7 @@ def test_compile_datatable_chart_with_rows_by_esql() -> None:
         {
             'columns': [
                 {'columnId': '17fe5b4b-d36c-4fbd-ace9-58d143bb3172', 'isTransposed': False, 'isMetric': False},
-                {'columnId': 'split-by-host', 'isTransposed': False, 'isMetric': False},
+                {'columnId': 'split-by-host', 'isTransposed': True, 'isMetric': False},
                 {'columnId': '156e3e91-7bb6-406f-8ae5-cb409747953b', 'isTransposed': False, 'isMetric': True},
             ],
             'layerId': IsUUID,

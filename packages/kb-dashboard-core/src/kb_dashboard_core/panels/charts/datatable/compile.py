@@ -126,6 +126,7 @@ def _build_datatable_column_state(
         | ESQLDatatableMetricTypes
         | ESQLMetricTypes
     ),
+    is_transposed: bool = False,
 ) -> KbnDatatableColumnState:
     metric_appearance = config.appearance if is_metric and isinstance(config, DatatableMetricAppearanceMixin) else None
     if metric_appearance is not None:
@@ -147,7 +148,7 @@ def _build_datatable_column_state(
         columnId=column_id,
         width=column_appearance.width if column_appearance is not None else None,
         hidden=hidden if hidden is True else None,
-        isTransposed=False,
+        isTransposed=is_transposed,
         isMetric=is_metric,
         oneClickFilter=one_click_filter if one_click_filter is True else None,
         alignment=column_appearance.alignment if column_appearance is not None else None,
@@ -185,6 +186,7 @@ def compile_lens_datatable_chart(
             | LensDimensionTypes
             | LensDatatableMetricTypes
             | LensMetricTypes,
+            bool,
         ]
     ] = []
 
@@ -206,7 +208,7 @@ def compile_lens_datatable_chart(
             kbn_metric_column_by_id=kbn_metric_columns_by_id,
         )
         kbn_columns_by_id[dimension_id] = compiled_dimension
-        datatable_columns.append((dimension_id, False, dimension))
+        datatable_columns.append((dimension_id, False, dimension, False))
 
     # Compile metrics_split_by dimensions
     if lens_datatable_chart.metrics_split_by is not None:
@@ -216,15 +218,15 @@ def compile_lens_datatable_chart(
                 kbn_metric_column_by_id=kbn_metric_columns_by_id,
             )
             kbn_columns_by_id[metrics_split_by_id] = compiled_metrics_split_by
-            datatable_columns.append((metrics_split_by_id, False, metrics_split_by_dim))
+            datatable_columns.append((metrics_split_by_id, False, metrics_split_by_dim, True))
 
     # Add all metric columns (including helper columns) to kbn_columns_by_id
     # but only add primary metric IDs to datatable columns (helper columns are not visible)
     kbn_columns_by_id.update(kbn_metric_columns_by_id)
-    datatable_columns.extend(zip(primary_metric_ids, [True] * len(lens_datatable_chart.metrics), lens_datatable_chart.metrics, strict=True))
+    datatable_columns.extend((mid, True, m, False) for mid, m in zip(primary_metric_ids, lens_datatable_chart.metrics, strict=True))
     column_states = [
-        _build_datatable_column_state(column_id=column_id, is_metric=is_metric, config=config)
-        for column_id, is_metric, config in datatable_columns
+        _build_datatable_column_state(column_id=column_id, is_metric=is_metric, config=config, is_transposed=is_transposed)
+        for column_id, is_metric, config, is_transposed in datatable_columns
     ]
 
     visualization_state = _build_datatable_visualization_state(
@@ -260,6 +262,7 @@ def compile_esql_datatable_chart(
             str,
             bool,
             ESQLDatatableBreakdownTypes | ESQLDimensionTypes | ESQLDatatableDimensionTypes | ESQLDatatableMetricTypes | ESQLMetricTypes,
+            bool,
         ]
     ] = []
 
@@ -275,21 +278,21 @@ def compile_esql_datatable_chart(
     for dimension in esql_datatable_chart.breakdowns:
         compiled_dimension: KbnESQLFieldDimensionColumn = compile_esql_dimension(dimension)
         kbn_columns.append(compiled_dimension)
-        datatable_columns.append((compiled_dimension.columnId, False, dimension))
+        datatable_columns.append((compiled_dimension.columnId, False, dimension, False))
 
     # Compile metrics_split_by dimensions
     if esql_datatable_chart.metrics_split_by is not None:
         for metrics_split_by_dim in esql_datatable_chart.metrics_split_by:
             compiled_metrics_split_by: KbnESQLFieldDimensionColumn = compile_esql_dimension(metrics_split_by_dim)
             kbn_columns.append(compiled_metrics_split_by)
-            datatable_columns.append((compiled_metrics_split_by.columnId, False, metrics_split_by_dim))
+            datatable_columns.append((compiled_metrics_split_by.columnId, False, metrics_split_by_dim, True))
 
     # Add metrics to kbn_columns AFTER dimensions
     kbn_columns.extend(compiled_metrics)
-    datatable_columns.extend(zip(metric_column_ids, [True] * len(esql_datatable_chart.metrics), esql_datatable_chart.metrics, strict=True))
+    datatable_columns.extend((mid, True, m, False) for mid, m in zip(metric_column_ids, esql_datatable_chart.metrics, strict=True))
     column_states = [
-        _build_datatable_column_state(column_id=column_id, is_metric=is_metric, config=config)
-        for column_id, is_metric, config in datatable_columns
+        _build_datatable_column_state(column_id=column_id, is_metric=is_metric, config=config, is_transposed=is_transposed)
+        for column_id, is_metric, config, is_transposed in datatable_columns
     ]
 
     visualization_state = _build_datatable_visualization_state(
