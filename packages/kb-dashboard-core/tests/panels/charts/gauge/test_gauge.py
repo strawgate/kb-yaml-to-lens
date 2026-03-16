@@ -285,9 +285,9 @@ def test_compile_gauge_chart_with_range_palette() -> None:
                         {'color': '#BD271E', 'stop': 100.0},
                     ],
                     'colorStops': [
-                        {'color': '#00BF6F', 'stop': 80.0},
-                        {'color': '#FFA500', 'stop': 95.0},
-                        {'color': '#BD271E', 'stop': 100.0},
+                        {'color': '#00BF6F', 'stop': 0.0},
+                        {'color': '#FFA500', 'stop': 80.0},
+                        {'color': '#BD271E', 'stop': 95.0},
                     ],
                     'continuity': 'above',
                     'maxSteps': 3,
@@ -298,14 +298,16 @@ def test_compile_gauge_chart_with_range_palette() -> None:
 
 
 @pytest.mark.parametrize(
-    ('range_type', 'expected_stops'),
+    ('range_type', 'threshold_stops', 'expected_color_stops'),
     [
-        ('number', [0.0, 50.0]),
-        ('percent', [0.0, 100.0]),
+        ('number', [25.0, 50.0], [0.0, 25.0]),
+        ('percent', [25.0, 100.0], [0.0, 25.0]),
     ],
 )
-def test_compile_gauge_chart_preserves_thresholds_in_color_stops(range_type: str, expected_stops: list[float]) -> None:
-    """Test gauge colorStops mirror user thresholds, including zero-based starts."""
+def test_compile_gauge_chart_preserves_thresholds_in_color_stops(
+    range_type: str, threshold_stops: list[float], expected_color_stops: list[float]
+) -> None:
+    """Test gauge colorStops encode lower bounds for each threshold band."""
     config = {
         'type': 'gauge',
         'data_view': 'metrics-*',
@@ -318,8 +320,8 @@ def test_compile_gauge_chart_preserves_thresholds_in_color_stops(range_type: str
             'palette': {
                 'range_type': range_type,
                 'thresholds': [
-                    {'up_to': 0, 'color': '#000000'},
-                    {'up_to': expected_stops[-1], 'color': '#ffffff'},
+                    {'up_to': threshold_stops[0], 'color': '#000000'},
+                    {'up_to': threshold_stops[1], 'color': '#ffffff'},
                 ],
             },
         },
@@ -327,8 +329,8 @@ def test_compile_gauge_chart_preserves_thresholds_in_color_stops(range_type: str
 
     result = compile_gauge_chart_snapshot(config, 'lens')
     color_stops = result['palette']['params']['colorStops']
-    assert [entry['stop'] for entry in color_stops] == expected_stops
-    assert [entry['stop'] for entry in result['palette']['params']['stops']] == expected_stops
+    assert [entry['stop'] for entry in color_stops] == expected_color_stops
+    assert [entry['stop'] for entry in result['palette']['params']['stops']] == threshold_stops
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:
