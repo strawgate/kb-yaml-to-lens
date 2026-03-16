@@ -14,7 +14,9 @@ permissions:
   actions: read
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
+  discussions: write
+  id-token: write
 concurrency:
   group: explore-esql-gauge-${{ github.ref }}
   cancel-in-progress: false
@@ -38,7 +40,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
-    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
     with:
       title-prefix: '[explore-esql-gauge-${{ matrix.kibana_version }}]'
       setup-commands: |
@@ -116,4 +118,4 @@ jobs:
         The workflow automatically prefixes your title. Just provide the
         summary, e.g. `3 bugs, 2 gaps`
     secrets:
-      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
