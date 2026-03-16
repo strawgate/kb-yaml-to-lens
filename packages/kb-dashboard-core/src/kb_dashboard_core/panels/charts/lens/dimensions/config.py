@@ -12,10 +12,13 @@ type LensDimensionTypes = (
     LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 )
 
-type LensDateMathMinimumInterval = Literal['auto'] | Annotated[
-    str,
-    StringConstraints(pattern=r'^[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)$'),
-]
+type LensDateMathMinimumInterval = (
+    Literal['auto']
+    | Annotated[
+        str,
+        StringConstraints(pattern=r'^[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)$'),
+    ]
+)
 """Lens minimum interval using Elasticsearch date math format or `auto`."""
 
 
