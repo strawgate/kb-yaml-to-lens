@@ -62,9 +62,10 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
 
     # Parse the YAML
     try:
-        config = yaml.safe_load(yaml_content)
+        config: dict[str, Any] = yaml.safe_load(yaml_content)
     except yaml.YAMLError as e:
         pytest.fail(f'Invalid YAML in {example["file"]} - {example["description"]}: {e}')
+        return  # unreachable, but helps type checker know config is bound below
 
     # Check if this is a full dashboard configuration
     if 'dashboards' in config:
@@ -93,6 +94,7 @@ def test_docstring_yaml_example(example: dict[str, Any]) -> None:
         else:
             # Unknown format - skip
             pytest.skip(f'Example is not a full dashboard and cannot be auto-wrapped: {example["description"]}')
+            return  # unreachable, but helps type checker know panel_config is bound below
 
         # Create a minimal dashboard with this panel
         dashboard_dict = {'name': f'Test Dashboard for {example["description"]}', 'panels': [panel_config]}
