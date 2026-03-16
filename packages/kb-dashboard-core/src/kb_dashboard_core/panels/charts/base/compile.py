@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorValueMapping
+from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorValueMapping, LegendWidthEnum
 from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
@@ -14,10 +14,26 @@ from kb_dashboard_core.panels.charts.base.view import (
     KbnLayerColorMappingColor,
     KbnLayerColorMappingRule,
     KbnLayerColorMappingSpecialAssignment,
+    KbnLegendSize,
     KbnRangePalette,
     KbnRangePaletteParams,
     KbnRangePaletteStop,
 )
+
+
+def map_legend_size(size: LegendWidthEnum | None) -> KbnLegendSize | None:
+    """Map YAML legend sizes to Kibana legend sizes."""
+    match size:
+        case None:
+            return None
+        case LegendWidthEnum.SMALL:
+            return 'small'
+        case LegendWidthEnum.MEDIUM:
+            return 'medium'
+        case LegendWidthEnum.LARGE:
+            return 'large'
+        case LegendWidthEnum.EXTRA_LARGE:
+            return 'xlarge'
 
 
 def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLayerColorMapping:

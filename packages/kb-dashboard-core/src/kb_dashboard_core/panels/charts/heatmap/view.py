@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -95,3 +96,6 @@ class KbnHeatmapVisualizationState(BaseVwModel):
 
     legend: KbnHeatmapLegendConfig = Field(default_factory=KbnHeatmapLegendConfig)
     """Legend configuration controlling visibility and position. Always present with defaults."""
+
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Optional range-based palette settings for heatmap color stops."""

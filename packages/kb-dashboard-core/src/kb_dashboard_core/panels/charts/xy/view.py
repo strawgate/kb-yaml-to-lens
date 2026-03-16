@@ -13,6 +13,8 @@ from pydantic import Field
 from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnLayerColorMapping
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
+type KbnXYLegendSize = Literal['auto', 'small', 'medium', 'large', 'xlarge']
+
 
 class LabelsOrientationConfig(BaseVwModel):
     """View model for XY chart axis label orientation configuration.
@@ -333,8 +335,8 @@ class XYLegendConfig(BaseVwModel):
     showSingleSeries: Annotated[bool | None, OmitIfNone()] = None
     """Whether to show legend when there is only one series."""
 
-    legendSize: Annotated[str | None, OmitIfNone()] = None
-    """Size of the legend ('auto', 'small', 'medium', 'large', 'extra_large')."""
+    legendSize: Annotated[KbnXYLegendSize | None, OmitIfNone()] = None
+    """Size of the legend ('auto', 'small', 'medium', 'large', 'xlarge')."""
 
     shouldTruncate: Annotated[bool | None, OmitIfNone()] = None
     """Whether to truncate long legend labels."""

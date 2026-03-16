@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING
 
+from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
 from kb_dashboard_core.panels.charts.base.config import LegendVisibleEnum
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 from kb_dashboard_core.panels.charts.heatmap.view import (
@@ -72,6 +73,8 @@ def compile_heatmap_chart_visualization_state(
     else:
         legend = KbnHeatmapLegendConfig()
 
+    palette = compile_color_range_mapping(chart.color)
+
     return KbnHeatmapVisualizationState(
         layerId=layer_id,
         xAccessor=x_accessor_id,
@@ -79,6 +82,7 @@ def compile_heatmap_chart_visualization_state(
         valueAccessor=value_accessor_id,
         gridConfig=grid_config,
         legend=legend,
+        palette=palette,
     )
 
 

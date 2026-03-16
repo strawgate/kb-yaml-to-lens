@@ -15,6 +15,7 @@ async def test_basic_treemap_chart() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -22,6 +23,7 @@ async def test_basic_treemap_chart() -> None:
         'query': 'FROM metrics-* | STATS count(*) by service.name',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'dimensions': [{'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -45,6 +47,7 @@ async def test_basic_treemap_chart() -> None:
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
             'nestedLegend': False,
+            'legendSize': 'xlarge',
         }
     )
 
@@ -68,6 +71,7 @@ async def test_basic_treemap_chart() -> None:
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
             'nestedLegend': False,
+            'legendSize': 'xlarge',
         }
     )
 

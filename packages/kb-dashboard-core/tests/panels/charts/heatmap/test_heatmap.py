@@ -8,6 +8,7 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
@@ -632,3 +633,62 @@ def test_heatmap_chart_dashboard_references_bubble_up() -> None:
             }
         ]
     )
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
+    """Heatmaps should compile range-based color settings into visualization.palette."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'heatmap',
+            'data_view': 'metrics-*',
+            'x_axis': {'type': 'values', 'field': 'host.name', 'id': 'x_accessor'},
+            'value': {'aggregation': 'average', 'field': 'system.cpu.total.pct', 'id': 'value_accessor'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'all',
+                'stops': [
+                    {'stop': 25, 'color': '#24c292'},
+                    {'stop': 75, 'color': '#fcd883'},
+                    {'stop': 100, 'color': '#f6726a'},
+                ],
+            },
+        }
+    else:
+        config = {
+            'type': 'heatmap',
+            'x_axis': {'field': 'host_name', 'id': 'x_accessor'},
+            'value': {'field': 'avg_cpu', 'id': 'value_accessor'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'all',
+                'stops': [
+                    {'stop': 25, 'color': '#24c292'},
+                    {'stop': 75, 'color': '#fcd883'},
+                    {'stop': 100, 'color': '#f6726a'},
+                ],
+            },
+        }
+
+    result = compile_heatmap_chart_snapshot(config, chart_type)
+
+    assert result['palette']['name'] == 'custom'
+    assert result['palette']['type'] == 'palette'
+    assert result['palette']['params']['rangeType'] == 'number'
+    assert result['palette']['params']['rangeMin'] == 0.0
+    assert result['palette']['params']['rangeMax'] == 100.0
+    assert result['palette']['params']['continuity'] == 'all'
+    assert result['palette']['params']['stops'] == [
+        {'color': '#24c292', 'stop': 25.0},
+        {'color': '#fcd883', 'stop': 75.0},
+        {'color': '#f6726a', 'stop': 100.0},
+    ]
+    assert result['palette']['params']['colorStops'] == [
+        {'color': '#24c292', 'stop': 25.0},
+        {'color': '#fcd883', 'stop': 75.0},
+        {'color': '#f6726a', 'stop': 100.0},
+    ]

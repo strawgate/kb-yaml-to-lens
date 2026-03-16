@@ -1,6 +1,6 @@
 """Compile Lens mosaic visualizations into their Kibana view models."""
 
-from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping, map_legend_size
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -60,7 +60,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         if chart.legend.visible is not None:
             legend_display = chart.legend.visible
         if chart.legend.width is not None:
-            legend_size = chart.legend.width
+            legend_size = map_legend_size(chart.legend.width)
         if chart.legend.truncate_labels is not None:
             if chart.legend.truncate_labels == 0:
                 truncate_legend = False
