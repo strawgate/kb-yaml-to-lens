@@ -426,7 +426,7 @@ class TestCompileColorRangeMapping:
             range_type='number',
             range_min=-10,
             range_max=100,
-            continuity='none',
+            extend_beyond_range='none',
             thresholds=[
                 ColorThreshold(up_to=4.25, color='#24c292'),
                 ColorThreshold(up_to=5, color='#ffc9c2'),
@@ -468,7 +468,7 @@ class TestCompileColorRangeMapping:
             range_type='number',
             range_min=None,
             range_max=None,
-            continuity='all',
+            extend_beyond_range='both',
             thresholds=[
                 ColorThreshold(up_to=4.25, color='#24c292'),
                 ColorThreshold(up_to=5, color='#ffc9c2'),

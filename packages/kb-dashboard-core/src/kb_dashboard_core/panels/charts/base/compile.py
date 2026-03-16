@@ -135,6 +135,8 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in stops]
     n = len(stops)
 
+    continuity = 'all' if color_config.extend_beyond_range == 'both' else color_config.extend_beyond_range
+
     return KbnRangePalette(
         params=KbnRangePaletteParams(
             steps=n,
@@ -143,7 +145,7 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
             rangeMax=range_max,
             stops=stops,
             colorStops=color_stops,
-            continuity=color_config.continuity,
+            continuity=continuity,
             maxSteps=n,
         ),
     )

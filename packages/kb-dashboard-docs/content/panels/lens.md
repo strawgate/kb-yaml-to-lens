@@ -253,8 +253,8 @@ Groups data by the most frequent unique values of one or more fields. Supports b
 | `fields` | `list of strings` | Multiple fields for multi-term aggregation (minimum 2 fields). Mutually exclusive with `field`. | N/A | One of `field` or `fields` |
 | `size` | `integer` | The number of top values to display. | `3` | No |
 | `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
-| `other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
-| `missing_bucket` | `boolean` | If `true`, creates a bucket for documents where the field is missing. | `false` | No |
+| `show_other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
+| `include_missing_values` | `boolean` | If `true`, creates a bucket for documents where the field is missing. | `false` | No |
 | `include` | `list of strings` | A list of specific terms to include. | `None` | No |
 | `exclude` | `list of strings` | A list of specific terms to exclude. | `None` | No |
 | `include_is_regex` | `boolean` | If `true`, treats `include` values as regex patterns. | `false` | No |
@@ -318,7 +318,7 @@ Groups data into numeric ranges (buckets).
 | `field` | `string` | The numeric field to create intervals from. | N/A | Yes |
 | `intervals` | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used. | `None` | No |
 | `granularity` | `integer` (1-7) | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest. | `4` | No |
-| `empty_bucket` | `boolean` | If `true`, shows a bucket for documents with missing values for the field. | `false` | No |
+| `include_empty_intervals` | `boolean` | If `true`, shows a bucket for documents with missing values for the field. | `false` | No |
 
 **`LensIntervalsDimensionInterval` Object:**
 

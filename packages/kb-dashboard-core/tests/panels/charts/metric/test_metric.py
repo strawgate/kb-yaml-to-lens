@@ -1303,7 +1303,7 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'all',
+                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 50, 'color': '#24c292'},
                     {'up_to': 80, 'color': '#fcd883'},
@@ -1319,7 +1319,7 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
                 'range_type': 'number',
                 'range_min': 0,
                 'range_max': 100,
-                'continuity': 'all',
+                'extend_beyond_range': 'both',
                 'thresholds': [
                     {'up_to': 50, 'color': '#24c292'},
                     {'up_to': 80, 'color': '#fcd883'},

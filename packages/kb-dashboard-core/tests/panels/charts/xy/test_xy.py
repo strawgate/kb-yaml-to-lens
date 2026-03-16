@@ -789,7 +789,7 @@ async def test_xy_chart_with_legend_size() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': '451e4374-f869-4ee9-8569-3092cd16ac18'},
         'metrics': [{'aggregation': 'count', 'id': 'f1c1076b-5312-4458-aa74-535c908194fe'}],
-        'legend': {'size': 'extra_large'},
+        'legend': {'width': 'extra_large'},
     }
 
     lens_chart = LensLineChart(**lens_config)
@@ -1047,9 +1047,9 @@ async def test_line_chart_with_fitting_function() -> None:
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Linear',
+            'missing_values': 'linear',
             'show_as_dotted': True,
-            'end_values': 'Zero',
+            'end_values': 'zero',
         },
     }
 
@@ -1063,8 +1063,18 @@ async def test_line_chart_with_fitting_function() -> None:
     assert kbn_state_visualization.endValue == 'Zero'
 
 
-@pytest.mark.parametrize('fitting_func', ['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'])
-async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
+@pytest.mark.parametrize(
+    ('fitting_func', 'expected_kibana_value'),
+    [
+        ('none', 'None'),
+        ('linear', 'Linear'),
+        ('carry', 'Carry'),
+        ('lookahead', 'Lookahead'),
+        ('average', 'Average'),
+        ('nearest', 'Nearest'),
+    ],
+)
+async def test_line_chart_with_all_fitting_functions(fitting_func: str, expected_kibana_value: str) -> None:
     """Test line chart with all available fitting function options."""
     lens_config = {
         'type': 'line',
@@ -1079,7 +1089,7 @@ async def test_line_chart_with_all_fitting_functions(fitting_func: str) -> None:
     lens_chart = LensLineChart.model_validate(lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization is not None
-    assert kbn_state_visualization.fittingFunction == fitting_func
+    assert kbn_state_visualization.fittingFunction == expected_kibana_value
 
 
 async def test_area_chart_with_fitting_and_fill_opacity() -> None:
@@ -1090,7 +1100,7 @@ async def test_area_chart_with_fitting_and_fill_opacity() -> None:
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Carry',
+            'missing_values': 'carry',
             'show_as_dotted': False,
             'fill_opacity': 0.5,
         },
@@ -1154,9 +1164,9 @@ async def test_line_chart_with_all_advanced_features() -> None:
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Average',
+            'missing_values': 'average',
             'show_as_dotted': True,
-            'end_values': 'Nearest',
+            'end_values': 'nearest',
             'line_style': 'monotone-x',
         },
         'show_current_time_marker': True,
@@ -1212,7 +1222,7 @@ async def test_esql_line_chart_with_advanced_features() -> None:
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Lookahead',
+            'missing_values': 'lookahead',
             'show_as_dotted': False,
         },
         'show_current_time_marker': True,
@@ -1237,7 +1247,7 @@ async def test_esql_area_chart_with_fitting_and_fill_opacity() -> None:
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
         'appearance': {
-            'missing_values': 'Carry',
+            'missing_values': 'carry',
             'show_as_dotted': True,
             'fill_opacity': 0.7,
         },

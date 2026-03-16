@@ -623,8 +623,8 @@ async def test_multi_field_top_values_with_sort_and_filters() -> None:
         'include': ['pattern1', 'pattern2'],
         'exclude': ['excluded'],
         'include_is_regex': True,
-        'other_bucket': False,
-        'missing_bucket': True,
+        'show_other_bucket': False,
+        'include_missing_values': True,
     }
 
     metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)

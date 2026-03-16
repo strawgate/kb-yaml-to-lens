@@ -105,7 +105,7 @@ class ColorRangeMapping(BaseCfgModel):
     range_max: float | None = Field(default=None)
     """Optional upper bound for the palette domain. Use null for auto/open upper bound."""
 
-    continuity: Literal['above', 'below', 'all', 'none'] = Field(default='above')
+    extend_beyond_range: Literal['above', 'below', 'both', 'none'] = Field(default='above')
     """How colors extend beyond the configured range."""
 
     thresholds: list[ColorThreshold] = Field(min_length=1)

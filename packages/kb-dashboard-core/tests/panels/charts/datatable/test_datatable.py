@@ -563,7 +563,7 @@ def test_compile_datatable_chart_with_range_colors_esql() -> None:
                         'range_type': 'percent',
                         'range_min': 0,
                         'range_max': 100,
-                        'continuity': 'above',
+                        'extend_beyond_range': 'above',
                         'thresholds': [
                             {'up_to': 50, 'color': '#00BF6F'},
                             {'up_to': 80, 'color': '#FFA500'},
@@ -633,7 +633,7 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
                         'apply_to': 'text',
                         'range_type': 'number',
                         'range_min': 0,
-                        'continuity': 'all',
+                        'extend_beyond_range': 'both',
                         'thresholds': [
                             {'up_to': 0.5, 'color': '#00BF6F'},
                             {'up_to': 0.8, 'color': '#FFA500'},

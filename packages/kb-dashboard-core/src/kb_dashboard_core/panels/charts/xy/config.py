@@ -78,10 +78,10 @@ class XYLegend(BaseCfgModel):
         description='Whether to show legend when there is only one series. Kibana defaults to false if not specified.',
     )
 
-    size: LegendWidthEnum | None = Field(
+    width: LegendWidthEnum | None = Field(
         default=None,
         strict=False,  # Turn off strict for enums
-        description='Size of the legend (small, medium, large, extra_large). If not specified, Kibana uses automatic sizing.',
+        description='Width of the legend (small, medium, large, extra_large). If not specified, Kibana uses automatic sizing.',
     )
 
     truncate_labels: int | None = Field(
@@ -176,7 +176,7 @@ class LineChartAppearance(BaseXYChartAppearance):
     Extends BaseXYChartAppearance to include line-specific options.
     """
 
-    missing_values: Literal['None', 'Linear', 'Carry', 'Lookahead', 'Average', 'Nearest'] | None = Field(
+    missing_values: Literal['none', 'linear', 'carry', 'lookahead', 'average', 'nearest'] | None = Field(
         default=None,
         description='How to handle missing data points. Controls interpolation for gaps in your data.',
     )
@@ -184,7 +184,7 @@ class LineChartAppearance(BaseXYChartAppearance):
         default=None,
         description='If `true`, visually distinguish interpolated data from real data points. Defaults to `false`.',
     )
-    end_values: Literal['None', 'Zero', 'Nearest'] | None = Field(
+    end_values: Literal['none', 'zero', 'nearest'] | None = Field(
         default=None,
         description='How to handle the end of the time range in line/area charts.',
     )
