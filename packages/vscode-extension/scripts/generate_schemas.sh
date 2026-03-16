@@ -13,14 +13,16 @@ OUTPUT_FILE="$VSCODE_DIR/src/schemas.generated.ts"
 
 echo "Generating Zod schemas from Pydantic models..."
 
-# Generate schemas using pydantic2zod
-# Parse directly from the canonical lsp/models.py (single source of truth)
+# Generate schemas using pydantic2zod (installed as an inline dependency
+# so it doesn't need to be in the project's pyproject.toml)
 cd "$COMPILER_DIR"
-PYTHONPATH="src:${PYTHONPATH:-}" uv run python -c "
+PYTHONPATH="src:${PYTHONPATH:-}" uv run \
+  --with "pydantic2zod @ git+https://github.com/argyle-engineering/pydantic2zod@0.1.1" \
+  python -c "
 from pydantic2zod import Compiler
 output = Compiler().parse('dashboard_compiler.lsp.models').to_zod()
 print(output)
-" > "$OUTPUT_FILE.tmp" 2>/dev/null
+" > "$OUTPUT_FILE.tmp"
 
 # Post-process the generated schemas:
 # 1. Replace standalone 'object' with 'z.unknown()' for dynamic types

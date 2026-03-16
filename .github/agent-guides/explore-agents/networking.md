@@ -3,6 +3,18 @@
 You run inside a Docker container. Understanding the network topology is
 critical — getting this wrong means your CLI commands silently time out.
 
+## Tool paths
+
+`uv` and `just` are pre-installed but may not be on your default PATH.
+If either gives "command not found", use absolute paths:
+
+```bash
+.gh-aw-tools/bin/uv run kb-dashboard compile ...
+.gh-aw-tools/bin/just <target>
+```
+
+Do NOT waste time debugging PATH issues — just use the absolute paths above.
+
 ## URL rules
 
 | Context | Kibana URL | Elasticsearch URL | Why |
