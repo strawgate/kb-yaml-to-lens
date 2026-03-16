@@ -363,7 +363,7 @@ def _collect_ordered_accessor_ids(source: dict[str, Any], scalar_keys: tuple[str
 
     list_accessors = source.get('accessors')
     if isinstance(list_accessors, list):
-        ordered_ids.extend([accessor_id for accessor_id in list_accessors if isinstance(accessor_id, str)])
+        ordered_ids.extend([accessor_id for accessor_id in list_accessors if isinstance(accessor_id, str)])  # pyright: ignore[reportUnknownVariableType]
 
     return _dedupe_accessor_ids(ordered_ids)
 
@@ -412,13 +412,13 @@ def _select_layer_columns(columns: dict[str, Any], layer_accessors: list[str] | 
     if layer_accessors is not None and len(layer_accessors) > 0:
         for accessor_id in layer_accessors:
             col_value = columns.get(accessor_id)
-            col = _as_dict(col_value)  # pyright: ignore[reportUnknownArgumentType]
+            col = _as_dict(col_value)
             if col is not None:
                 iter_columns.append(col)
         return iter_columns
 
     for col_value in columns.values():  # pyright: ignore[reportAny]
-        col = _as_dict(col_value)  # pyright: ignore[reportUnknownArgumentType]
+        col = _as_dict(col_value)  # pyright: ignore[reportAny]
         if col is not None:
             iter_columns.append(col)
     return iter_columns
@@ -486,7 +486,7 @@ def _extract_form_based_columns(
     visualization_layer_accessors = _extract_visualization_layer_accessors(embeddable_attributes)
 
     for layer_id, layer_value in layers.items():  # pyright: ignore[reportAny]
-        layer = _as_dict(layer_value)  # pyright: ignore[reportUnknownArgumentType]
+        layer = _as_dict(layer_value)  # pyright: ignore[reportAny]
         if layer is None:
             continue
 
@@ -522,7 +522,7 @@ def _extract_esql_query(embeddable_attributes: dict[str, Any]) -> str | None:
         return None
 
     for layer_value in layers.values():  # pyright: ignore[reportAny]
-        layer = _as_dict(layer_value)  # pyright: ignore[reportUnknownArgumentType]
+        layer = _as_dict(layer_value)  # pyright: ignore[reportAny]
         if layer is None:
             continue
         query = _as_dict(layer.get('query'))
@@ -1023,16 +1023,16 @@ def _extract_controls(attributes: dict[str, Any]) -> CommentedSeq | None:
         panel = _as_dict(item[1])
         if panel is None:
             return 0
-        order = panel.get('order', 0)
+        order = panel.get('order', 0)  # pyright: ignore[reportAny]
         return order if isinstance(order, int) else 0
 
     sorted_panels = sorted(
-        panels_json.items(),  # pyright: ignore[reportUnknownMemberType]
+        panels_json.items(),
         key=_control_order,
     )
 
-    for _panel_id, panel_value in sorted_panels:  # pyright: ignore[reportUnknownVariableType]
-        panel = _as_dict(panel_value)  # pyright: ignore[reportUnknownArgumentType]
+    for _panel_id, panel_value in sorted_panels:  # pyright: ignore[reportAny]
+        panel = _as_dict(panel_value)  # pyright: ignore[reportAny]
         if panel is None:
             continue
         controls.append(_build_control_stub(panel))  # pyright: ignore[reportUnknownMemberType]
@@ -1048,7 +1048,7 @@ def _build_phrase_filter(filter_meta: dict[str, Any], filter_key: str) -> Commen
     f['field'] = filter_key
     params = filter_meta.get('params')
     if isinstance(params, dict):
-        query = params.get('query')  # pyright: ignore[reportUnknownMemberType]
+        query = params.get('query')  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
         if isinstance(query, (str, int, float, bool)):
             f['equals'] = query
     else:
