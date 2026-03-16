@@ -52,7 +52,7 @@ _XY_STACKING_MODES: dict[str, str] = {
 
 _PIE_SHAPES: dict[str, str] = {
     'pie': 'pie',
-    'donut': 'donut',
+    'donut': 'pie',
     'treemap': 'treemap',
 }
 
@@ -187,6 +187,33 @@ def _extract_embeddable_attributes(panel: dict[str, Any]) -> tuple[dict[str, Any
     if attributes is not None:
         embeddable_attributes = attributes
     return embeddable_config, embeddable_attributes
+
+
+def _has_text_based_query(embeddable_attributes: dict[str, Any]) -> bool:  # noqa: PLR0911
+    """Return True when embeddable state contains an ES|QL query string."""
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return False
+    top_query = _as_dict(state.get('query'))
+    if top_query is not None and isinstance(top_query.get('esql'), str):
+        return True
+    datasource_states = _as_dict(state.get('datasourceStates'))
+    if datasource_states is None:
+        return False
+    text_based = _as_dict(datasource_states.get('textBased'))
+    if text_based is None:
+        return False
+    layers = _as_dict(text_based.get('layers'))
+    if layers is None:
+        return False
+    for layer_value in layers.values():  # pyright: ignore[reportAny]
+        layer = _as_dict(layer_value)  # pyright: ignore[reportAny]
+        if layer is None:
+            continue
+        query = _as_dict(layer.get('query'))
+        if query is not None and isinstance(query.get('esql'), str):
+            return True
+    return False
 
 
 def _extract_data_view_from_references(panel: dict[str, Any]) -> str | None:
@@ -406,6 +433,64 @@ def _extract_visualization_layer_accessors(embeddable_attributes: dict[str, Any]
     return visualization_layer_accessors
 
 
+def _extract_visualization_layer_roles(embeddable_attributes: dict[str, Any]) -> dict[str, dict[str, str | list[str]]]:  # noqa: PLR0912
+    """Extract accessor roles (metrics/dimension/breakdown) per visualization layer."""
+    roles: dict[str, dict[str, str | list[str]]] = {}
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return roles
+
+    visualization = _as_dict(state.get('visualization'))
+    if visualization is None:
+        return roles
+
+    visualization_layers = visualization.get('layers')
+    if isinstance(visualization_layers, list):
+        for vis_layer_item in visualization_layers:  # pyright: ignore[reportUnknownVariableType]
+            vis_layer = _as_dict(vis_layer_item)  # pyright: ignore[reportUnknownArgumentType]
+            if vis_layer is None:
+                continue
+            layer_id = vis_layer.get('layerId')
+            if not isinstance(layer_id, str):
+                continue
+            layer_metric_ids_raw = vis_layer.get('accessors')
+            role: dict[str, str | list[str]] = {}
+            if isinstance(layer_metric_ids_raw, list):
+                layer_metric_ids = [value for value in layer_metric_ids_raw if isinstance(value, str)]  # pyright: ignore[reportUnknownVariableType]
+                if len(layer_metric_ids) > 0:
+                    role['metric_ids'] = layer_metric_ids
+            x_accessor = vis_layer.get('xAccessor')
+            if isinstance(x_accessor, str):
+                role['dimension_id'] = x_accessor
+            split_accessor = vis_layer.get('splitAccessor')
+            if isinstance(split_accessor, str):
+                role['breakdown_id'] = split_accessor
+            if len(role) > 0:
+                roles[layer_id] = role
+
+    single_layer_id = visualization.get('layerId')
+    if isinstance(single_layer_id, str):
+        role = roles.setdefault(single_layer_id, {})
+        metric_ids: list[str] = []
+        for key in ('metricAccessor', 'secondaryAccessor', 'accessor'):
+            value = visualization.get(key)
+            if isinstance(value, str):
+                metric_ids.append(value)
+        list_accessors = visualization.get('accessors')
+        if isinstance(list_accessors, list):
+            metric_ids.extend([value for value in list_accessors if isinstance(value, str)])  # pyright: ignore[reportUnknownVariableType]
+        if len(metric_ids) > 0:
+            role['metric_ids'] = _dedupe_accessor_ids(metric_ids)
+        x_accessor = visualization.get('xAccessor')
+        if isinstance(x_accessor, str):
+            role['dimension_id'] = x_accessor
+        split_accessor = visualization.get('splitAccessor')
+        if isinstance(split_accessor, str):
+            role['breakdown_id'] = split_accessor
+
+    return roles
+
+
 def _select_layer_columns(columns: dict[str, Any], layer_accessors: list[str] | None) -> list[dict[str, Any]]:
     """Select layer columns in visualization accessor order when available."""
     iter_columns: list[dict[str, Any]] = []
@@ -503,11 +588,104 @@ def _extract_form_based_columns(
     return metrics, dimensions, breakdowns, skipped
 
 
-def _extract_esql_query(embeddable_attributes: dict[str, Any]) -> str | None:
+def _extract_text_based_columns(embeddable_attributes: dict[str, Any]) -> tuple[list[CommentedMap], list[CommentedMap], list[CommentedMap]]:  # noqa: PLR0912, PLR0915
+    """Extract metric/dimension/breakdown stubs from textBased datasource columns."""
+    metrics: list[CommentedMap] = []
+    dimensions: list[CommentedMap] = []
+    breakdowns: list[CommentedMap] = []
+
+    state = _as_dict(embeddable_attributes.get('state'))
+    if state is None:
+        return metrics, dimensions, breakdowns
+    datasource_states = _as_dict(state.get('datasourceStates'))
+    if datasource_states is None:
+        return metrics, dimensions, breakdowns
+    text_based = _as_dict(datasource_states.get('textBased'))
+    if text_based is None:
+        return metrics, dimensions, breakdowns
+    layers = _as_dict(text_based.get('layers'))
+    if layers is None:
+        return metrics, dimensions, breakdowns
+
+    role_lookup = _extract_visualization_layer_roles(embeddable_attributes)
+
+    for layer_id, layer_value in layers.items():  # pyright: ignore[reportAny]
+        layer = _as_dict(layer_value)  # pyright: ignore[reportAny]
+        if layer is None:
+            continue
+
+        columns_raw = layer.get('columns')
+        if not isinstance(columns_raw, list):
+            columns_raw = layer.get('allColumns')
+        if not isinstance(columns_raw, list):
+            continue
+
+        columns_by_id: dict[str, dict[str, Any]] = {}
+        for raw_col in columns_raw:  # pyright: ignore[reportUnknownVariableType]
+            col = _as_dict(raw_col)  # pyright: ignore[reportUnknownArgumentType]
+            if col is None:
+                continue
+            col_id = col.get('columnId')
+            if isinstance(col_id, str):
+                columns_by_id[col_id] = col
+
+        role = role_lookup.get(layer_id, {})
+        metric_ids = role.get('metric_ids')
+        if isinstance(metric_ids, list):
+            for metric_id in metric_ids:
+                col = columns_by_id.get(metric_id)
+                if col is None:
+                    continue
+                field_name = col.get('fieldName')
+                if not isinstance(field_name, str):
+                    continue
+                metric = CommentedMap()
+                metric['field'] = field_name
+                label = col.get('label')
+                if isinstance(label, str) and label != field_name:
+                    metric['label'] = label
+                metrics.append(metric)
+
+        dimension_id = role.get('dimension_id')
+        if isinstance(dimension_id, str):
+            col = columns_by_id.get(dimension_id)
+            if col is not None:
+                field_name = col.get('fieldName')
+                if isinstance(field_name, str):
+                    dim = CommentedMap()
+                    dim['field'] = field_name
+                    label = col.get('label')
+                    if isinstance(label, str) and label != field_name:
+                        dim['label'] = label
+                    dimensions.append(dim)
+
+        breakdown_id = role.get('breakdown_id')
+        if isinstance(breakdown_id, str):
+            col = columns_by_id.get(breakdown_id)
+            if col is not None:
+                field_name = col.get('fieldName')
+                if isinstance(field_name, str):
+                    bd = CommentedMap()
+                    bd['field'] = field_name
+                    label = col.get('label')
+                    if isinstance(label, str) and label != field_name:
+                        bd['label'] = label
+                    breakdowns.append(bd)
+
+    return metrics, dimensions, breakdowns
+
+
+def _extract_esql_query(embeddable_attributes: dict[str, Any]) -> str | None:  # noqa: PLR0911
     """Extract ES|QL query string from textBased datasource layers."""
     state = _as_dict(embeddable_attributes.get('state'))
     if state is None:
         return None
+
+    top_query = _as_dict(state.get('query'))
+    if top_query is not None:
+        top_esql = top_query.get('esql')
+        if isinstance(top_esql, str):
+            return top_esql
 
     datasource_states = _as_dict(state.get('datasourceStates'))
     if datasource_states is None:
@@ -779,7 +957,7 @@ def _list_to_seq(items: list[CommentedMap]) -> CommentedSeq:
     return seq
 
 
-def _build_lens_like_stub(panel: dict[str, Any], panel_type: str) -> CommentedMap:  # noqa: PLR0912
+def _build_lens_like_stub(panel: dict[str, Any], panel_type: str) -> CommentedMap:  # noqa: PLR0912, PLR0915
     """Build lens/esql panel stub with chart type, data view, metrics, and dimensions."""
     _, embeddable_attributes = _extract_embeddable_attributes(panel)
     chart = CommentedMap()
@@ -790,19 +968,51 @@ def _build_lens_like_stub(panel: dict[str, Any], panel_type: str) -> CommentedMa
         xy_mode = _resolve_xy_mode(embeddable_attributes, visualization_type)
         if xy_mode is not None:
             chart['mode'] = xy_mode
+        if visualization_type == 'pie':
+            state = _as_dict(embeddable_attributes.get('state'))
+            visualization = _as_dict(state.get('visualization')) if state is not None else None
+            if visualization is not None and visualization.get('shape') == 'donut':
+                appearance = CommentedMap()
+                appearance['donut'] = 'medium'
+                chart['appearance'] = appearance
 
     data_view = _extract_data_view_from_references(panel)
-    if data_view is not None:
+    if panel_type == 'lens' and data_view is not None:
         chart['data_view'] = data_view
 
     esql_query = _extract_esql_query(embeddable_attributes)
     if panel_type == 'esql' and esql_query is not None:
         chart['query'] = esql_query
 
-    metrics, dimensions, breakdowns, _skipped = _extract_form_based_columns(embeddable_attributes)
+    if panel_type == 'esql':
+        metrics, dimensions, breakdowns = _extract_text_based_columns(embeddable_attributes)
+    else:
+        metrics, dimensions, breakdowns, _skipped = _extract_form_based_columns(embeddable_attributes)
 
     is_xy = visualization_type in {'line', 'bar', 'area'}
     is_metric = visualization_type == 'metric'
+    is_partition = visualization_type in {'pie', 'treemap'}
+
+    def _default_lens_metric() -> CommentedMap:
+        metric = CommentedMap()
+        metric['aggregation'] = 'count'
+        return metric
+
+    def _default_lens_dimension() -> CommentedMap:
+        dim = CommentedMap()
+        dim['type'] = 'values'
+        dim['field'] = 'TODO_field'
+        return dim
+
+    def _default_esql_metric() -> CommentedMap:
+        metric = CommentedMap()
+        metric['field'] = 'TODO_metric_field'
+        return metric
+
+    def _default_esql_dimension() -> CommentedMap:
+        dim = CommentedMap()
+        dim['field'] = 'TODO_dimension_field'
+        return dim
 
     if is_metric:
         # Metric charts use primary/secondary, not metrics list
@@ -827,6 +1037,33 @@ def _build_lens_like_stub(panel: dict[str, Any], panel_type: str) -> CommentedMa
         if len(merged_dimensions) > 0:
             chart['dimensions'] = _list_to_seq(merged_dimensions)
 
+    if panel_type == 'lens':
+        if 'data_view' not in chart:
+            chart['data_view'] = 'TODO_data_view'
+        if visualization_type == 'metric' and 'primary' not in chart:
+            chart['primary'] = _default_lens_metric()
+        if visualization_type in {'line', 'bar', 'area'} and 'metrics' not in chart:
+            chart['metrics'] = _list_to_seq([_default_lens_metric()])
+        if is_partition:
+            if 'metrics' not in chart:
+                chart['metrics'] = _list_to_seq([_default_lens_metric()])
+            if 'dimensions' not in chart:
+                chart['dimensions'] = _list_to_seq([_default_lens_dimension()])
+        if visualization_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
+            chart['metrics'] = _list_to_seq([_default_lens_metric()])
+    else:
+        if visualization_type == 'metric' and 'primary' not in chart:
+            chart['primary'] = _default_esql_metric()
+        if visualization_type in {'line', 'bar', 'area'} and 'metrics' not in chart:
+            chart['metrics'] = _list_to_seq([_default_esql_metric()])
+        if is_partition:
+            if 'metrics' not in chart:
+                chart['metrics'] = _list_to_seq([_default_esql_metric()])
+            if 'dimensions' not in chart:
+                chart['dimensions'] = _list_to_seq([_default_esql_dimension()])
+        if visualization_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
+            chart['metrics'] = _list_to_seq([_default_esql_metric()])
+
     return chart
 
 
@@ -848,6 +1085,10 @@ def _panel_type_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) ->
 
     if panel_type in {'lens', 'esql'}:
         panel_type_str = str(panel_type)
+        if panel_type_str == 'lens':
+            _, embeddable_attributes = _extract_embeddable_attributes(panel)
+            if _has_text_based_query(embeddable_attributes):
+                panel_type_str = 'esql'
         return panel_type_str, _build_lens_like_stub(panel, panel_type_str)
 
     markdown = CommentedMap()

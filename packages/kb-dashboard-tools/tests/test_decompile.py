@@ -875,10 +875,11 @@ def test_decompile_lnspie_default() -> None:
 
 
 def test_decompile_lnspie_donut() -> None:
-    """LnsPie with shape=donut yields donut."""
+    """LnsPie with shape=donut maps to pie with donut appearance."""
     panel = _make_lens_panel('lnsPie', state={'visualization': {'shape': 'donut'}})
     result = _decompile_single_panel(panel)
-    assert result['lens']['type'] == 'donut'
+    assert result['lens']['type'] == 'pie'
+    assert result['lens']['appearance']['donut'] == 'medium'
 
 
 def test_decompile_lnspie_treemap() -> None:
@@ -1083,7 +1084,7 @@ def test_decompile_terms_breakdown() -> None:
 
 
 def test_decompile_formula_panel_has_todo() -> None:
-    """Formula operations are skipped and do not produce metric fields."""
+    """Formula operations fall back to a compilable placeholder metric."""
     panel = _make_lens_panel(
         'lnsMetric',
         state={
@@ -1106,8 +1107,7 @@ def test_decompile_formula_panel_has_todo() -> None:
     )
     result = _decompile_single_panel(panel)
     assert '_todo' not in result['lens']
-    assert 'primary' not in result['lens']
-    assert 'metrics' not in result['lens']
+    assert result['lens']['primary']['aggregation'] == 'count'
 
 
 # --- ES|QL query extraction ---
@@ -1574,24 +1574,28 @@ def test_decompile_form_based_uses_top_level_visualization_accessors() -> None:
     assert lens['secondary']['field'] == 'cpu.usage'
 
 
-def test_decompile_lens_with_text_based_query_does_not_emit_panel_query() -> None:
-    """Lens stubs should not emit string `query` values from textBased datasource state."""
+def test_decompile_lens_with_text_based_query_emits_esql_stub() -> None:
+    """Lens textBased panels are emitted as ES|QL stubs with query + required metric field."""
     panel = _make_lens_panel(
         'lnsMetric',
         state={
+            'query': {'esql': 'FROM metrics-* | STATS count = COUNT(*)'},
             'datasourceStates': {
                 'textBased': {
                     'layers': {
                         'layer1': {
-                            'query': {'esql': 'FROM metrics-* | STATS count = COUNT(*)'},
+                            'columns': [{'columnId': 'col_metric', 'fieldName': 'count'}],
                         }
                     }
-                }
-            }
+                },
+            },
+            'visualization': {'layerId': 'layer1', 'metricAccessor': 'col_metric'},
         },
     )
     result = _decompile_single_panel(panel)
-    assert 'query' not in result['lens']
+    assert 'esql' in result
+    assert result['esql']['query'] == 'FROM metrics-* | STATS count = COUNT(*)'
+    assert result['esql']['primary']['field'] == 'count'
 
 
 @pytest.mark.parametrize(
