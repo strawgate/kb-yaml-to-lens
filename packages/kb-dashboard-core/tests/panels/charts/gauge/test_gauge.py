@@ -235,6 +235,104 @@ def test_compile_gauge_chart_with_all_options_lens() -> None:
     )
 
 
+def test_compile_gauge_chart_with_titles_and_text_custom() -> None:
+    """Gauge titles_and_text custom values compile to labelMajor/labelMinor."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'titles_and_text': {
+            'title': 'CPU Usage',
+            'subtitle': 'Percentage',
+        },
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'metric_accessor',
+            'shape': 'horizontalBullet',
+            'ticksPosition': 'auto',
+            'labelMajor': 'CPU Usage',
+            'labelMinor': 'Percentage',
+            'labelMajorMode': 'custom',
+        }
+    )
+
+
+def test_compile_gauge_chart_with_titles_and_text_none_modes() -> None:
+    """Gauge titles_and_text none mode hides title/subtitle."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'titles_and_text': {
+            'title': 'none',
+            'subtitle': 'none',
+        },
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'metric_accessor',
+            'shape': 'horizontalBullet',
+            'ticksPosition': 'auto',
+            'labelMajorMode': 'none',
+        }
+    )
+
+
+def test_compile_gauge_chart_titles_and_text_does_not_override_appearance_labels() -> None:
+    """Appearance labels stay canonical when both appearance and titles_and_text are set."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'appearance': {
+            'label_major': 'From Appearance',
+            'label_minor': 'From Appearance Subtitle',
+        },
+        'titles_and_text': {
+            'title': 'From Titles',
+            'subtitle': 'From Titles Subtitle',
+        },
+    }
+
+    result = compile_gauge_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'layerId': IsUUID,
+            'layerType': 'data',
+            'metricAccessor': 'metric_accessor',
+            'shape': 'horizontalBullet',
+            'ticksPosition': 'auto',
+            'labelMajor': 'From Appearance',
+            'labelMinor': 'From Appearance Subtitle',
+            'labelMajorMode': 'custom',
+        }
+    )
+
+
 def test_compile_gauge_chart_with_range_palette() -> None:
     """Test the compilation of a gauge chart with range-based palette thresholds."""
     config = {
@@ -331,6 +429,26 @@ def test_compile_gauge_chart_preserves_thresholds_in_color_stops(
     color_stops = result['palette']['params']['colorStops']
     assert [entry['stop'] for entry in color_stops] == expected_color_stops
     assert [entry['stop'] for entry in result['palette']['params']['stops']] == threshold_stops
+
+
+def test_gauge_titles_and_text_rejects_auto_subtitle() -> None:
+    """Subtitle only supports none/custom; auto should fail validation."""
+    config = {
+        'type': 'gauge',
+        'data_view': 'metrics-*',
+        'metric': {
+            'field': 'system.cpu.total.pct',
+            'id': 'metric_accessor',
+            'aggregation': 'average',
+        },
+        'titles_and_text': {
+            'title': 'auto',
+            'subtitle': 'auto',
+        },
+    }
+
+    with pytest.raises(ValidationError):
+        LensGaugeChart.model_validate(config)
 
 
 def test_compile_gauge_chart_with_all_shapes() -> None:

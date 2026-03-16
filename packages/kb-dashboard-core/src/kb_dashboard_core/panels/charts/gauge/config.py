@@ -1,8 +1,8 @@
 """Configuration models for gauge chart visualizations."""
 
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
@@ -33,6 +33,33 @@ class GaugeAppearance(BaseCfgModel):
     """Range-based palette configuration for gauge thresholds. When set, enables palette color mode."""
 
 
+class GaugeTitlesAndText(BaseCfgModel):
+    """Title and subtitle display options for gauges.
+
+    These fields map to Kibana gauge `labelMajor` (title) and `labelMinor` (subtitle).
+    """
+
+    title: Literal['none', 'auto'] | str | None = Field(default=None)
+    """Title mode/value: `'none'` hides it, `'auto'` uses Kibana default, a string sets custom text."""
+
+    subtitle: Literal['none'] | str | None = Field(default=None)
+    """Subtitle mode/value: `'none'` hides it, a string sets custom text."""
+
+    @model_validator(mode='after')
+    def validate_custom_text(self) -> Self:
+        """Disallow empty custom strings."""
+        if isinstance(self.title, str) and self.title == '':
+            msg = "Gauge title cannot be an empty string. Use 'auto', 'none', or a non-empty string."
+            raise ValueError(msg)
+        if isinstance(self.subtitle, str) and self.subtitle == '':
+            msg = "Gauge subtitle cannot be an empty string. Use 'none' or a non-empty string."
+            raise ValueError(msg)
+        if self.subtitle == 'auto':
+            msg = "Gauge subtitle does not support 'auto'. Use 'none' or a custom string."
+            raise ValueError(msg)
+        return self
+
+
 class BaseGaugeChart(BaseCfgModel):
     """Base configuration for gauge chart visualizations.
 
@@ -45,6 +72,9 @@ class BaseGaugeChart(BaseCfgModel):
 
     appearance: GaugeAppearance | None = Field(default=None)
     """Visual appearance configuration for the gauge."""
+
+    titles_and_text: GaugeTitlesAndText | None = Field(default=None)
+    """Title and subtitle options mapped to gauge `label_major` and `label_minor`."""
 
 
 class LensGaugeChart(BaseChart, BaseGaugeChart):

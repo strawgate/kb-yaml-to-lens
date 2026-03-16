@@ -53,6 +53,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     shape_cfg: GaugeShapeCfg = appearance.shape if appearance is not None and appearance.shape is not None else 'horizontal_bullet'
     shape = GAUGE_SHAPE_TO_KBN[shape_cfg]
     ticks_position = appearance.ticks_position if appearance is not None and appearance.ticks_position is not None else 'auto'
+    titles_and_text = chart.titles_and_text
     label_major = appearance.label_major if appearance is not None else None
     label_minor = appearance.label_minor if appearance is not None else None
     palette = compile_color_range_mapping(appearance.palette) if appearance is not None else None
@@ -60,7 +61,24 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     # Infer color_mode from palette presence
     color_mode = 'palette' if palette is not None else None
 
-    label_major_mode = 'custom' if label_major is not None else 'auto'
+    label_major_mode: Literal['auto', 'custom', 'none']
+    if label_major is not None:
+        label_major_mode = 'custom'
+    elif titles_and_text is not None and titles_and_text.title == 'none':
+        label_major_mode = 'none'
+    elif titles_and_text is not None and isinstance(titles_and_text.title, str) and titles_and_text.title not in {'none', 'auto'}:
+        label_major = titles_and_text.title
+        label_major_mode = 'custom'
+    else:
+        label_major_mode = 'auto'
+
+    if (
+        label_minor is None
+        and titles_and_text is not None
+        and isinstance(titles_and_text.subtitle, str)
+        and titles_and_text.subtitle != 'none'
+    ):
+        label_minor = titles_and_text.subtitle
 
     return KbnGaugeVisualizationState(
         layerId=layer_id,
