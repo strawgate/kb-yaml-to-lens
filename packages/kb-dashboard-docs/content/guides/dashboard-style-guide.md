@@ -366,7 +366,7 @@ Mix of metrics, time series, and categorical breakdowns, plus browser/OS distrib
 | **Standard** | 7-12 | 3-4 | 2-4 metrics, 4-6 charts, 1-2 tables | General-purpose monitoring, package overviews |
 | **Complex** | 13+ | 5-6 | 3-6 metrics, 7-12 charts, 2-4 tables, controls | Enterprise monitoring, multi-dimensional analysis, security operations |
 
-**Complex dashboard considerations:** Use markdown panels or top-level `section` panels to separate areas, group related visualizations, and maintain logical vertical flow. `section` panels cannot be nested. Consider breaking into multiple dashboards if exceeding 20 panels.
+**Complex dashboard considerations:** Use markdown panels or top-level `section` panels (Kibana 9.1+) to separate areas, group related visualizations, and maintain logical vertical flow. `section` panels cannot be nested. Consider breaking into multiple dashboards if exceeding 20 panels.
 
 ---
 
