@@ -767,6 +767,74 @@ def test_datatable_metric_color_thresholds_empty_list_is_invalid() -> None:
         LensDatatableChart.model_validate(config)
 
 
+@pytest.mark.parametrize(
+    'legacy_color_config',
+    [
+        {
+            'apply_to': 'text',
+            'stops': [
+                {'stop': 50, 'color': '#00BF6F'},
+            ],
+        },
+        {
+            'apply_to': 'text',
+            'thresholds': [
+                {'stop': 50, 'color': '#00BF6F'},
+            ],
+        },
+    ],
+)
+def test_datatable_metric_color_legacy_stops_keys_are_invalid(legacy_color_config: dict[str, object]) -> None:
+    """Test that legacy stops/stop keys are rejected."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'id': 'cpu-metric',
+                'field': 'system.cpu.total.pct',
+                'aggregation': 'average',
+                'appearance': {
+                    'color': legacy_color_config,
+                },
+            }
+        ],
+    }
+
+    with pytest.raises(ValidationError, match='Extra inputs are not permitted'):
+        LensDatatableChart.model_validate(config)
+
+
+def test_compile_datatable_chart_percent_thresholds_append_terminal_100() -> None:
+    """Test that percent color stops keep the user threshold and append a terminal 100 stop."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'field': 'system.cpu.total.pct',
+                'id': 'cpu-metric',
+                'aggregation': 'average',
+                'appearance': {
+                    'color': {
+                        'apply_to': 'text',
+                        'range_type': 'percent',
+                        'thresholds': [
+                            {'up_to': 50, 'color': '#00BF6F'},
+                            {'up_to': 80, 'color': '#ffffff'},
+                        ],
+                    }
+                },
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+    color_stops = result['columns'][0]['palette']['params']['colorStops']
+    assert [entry['stop'] for entry in color_stops] == [50, 80, 100]
+    assert [entry['stop'] for entry in result['columns'][0]['palette']['params']['stops']] == [50, 80, 100]
+
+
 def test_datatable_chart_dashboard_references_bubble_up() -> None:
     """Test that datatable chart data view references bubble up to dashboard level correctly.
 

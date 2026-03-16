@@ -391,20 +391,20 @@ class TestCompileColorRangeMapping:
         assert result.params.colorStops[2].stop == 100.0
 
     def test_compiles_single_stop(self) -> None:
-        """Test compilation with a single threshold."""
+        """Test percent compilation preserves the threshold and appends terminal 100."""
         color_config = ColorRangeMapping(
             range_type='percent',
             thresholds=[ColorThreshold(up_to=50, color='#FFA500')],
         )
         result = compile_color_range_mapping(color_config)
         assert result is not None
-        assert result.params.steps == 1
+        assert result.params.steps == 2
         assert result.params.rangeMin == 0.0
         assert result.params.rangeMax is None
-        assert len(result.params.stops) == 1
-        assert len(result.params.colorStops) == 1
-        assert result.params.stops[0].stop == 100.0
-        assert result.params.colorStops[0].stop == 100.0
+        assert len(result.params.stops) == 2
+        assert len(result.params.colorStops) == 2
+        assert [entry.stop for entry in result.params.stops] == [50.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [50.0, 100.0]
 
     def test_compiles_percent_range_mapping_with_custom_range_max(self) -> None:
         """Test percent range supports custom max while preserving stop semantics."""

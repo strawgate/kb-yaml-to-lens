@@ -91,7 +91,9 @@ Each item in `thresholds` uses these keys:
 | `up_to` | `number` | Upper bound for this threshold band. | Yes |
 | `color` | `string` | Hex color code for values up to that threshold. | Yes |
 
-Example:
+Datatable metric color example:
+
+This snippet shows `appearance.color` in context. `apply_to` belongs to the surrounding datatable config, while `thresholds`/`up_to` are the `ColorRangeMapping` keys.
 
 ```yaml
 appearance:
