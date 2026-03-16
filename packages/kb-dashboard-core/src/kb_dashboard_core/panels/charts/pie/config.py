@@ -120,41 +120,26 @@ class BasePieChart(BaseChart):
         appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
         categories = dict(cast('dict[str, Any]', appearance.get('categories'))) if isinstance(appearance.get('categories'), dict) else {}
         values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
-
-        if 'slice_labels' in legacy:
-            if 'position' not in categories:
-                categories['position'] = legacy['slice_labels']
-            else:
+        legacy_mappings = (
+            ('slice_labels', categories, 'position', 'appearance.categories.position'),
+            ('slice_values', values, 'format', 'appearance.values.format'),
+            ('value_decimal_places', values, 'decimal_places', 'appearance.values.decimal_places'),
+        )
+        for old_key, target, new_key, new_path in legacy_mappings:
+            if old_key not in legacy:
+                continue
+            if new_key in target:
                 warnings.warn(
-                    "Pie chart field 'titles_and_text.slice_labels' is ignored because 'appearance.categories.position' is already set.",
+                    f"Pie chart field 'titles_and_text.{old_key}' is ignored because '{new_path}' is already set.",
                     DeprecationWarning,
                     stacklevel=2,
                 )
+                continue
+            target[new_key] = legacy[old_key]
 
-        if 'slice_values' in legacy:
-            if 'format' not in values:
-                values['format'] = legacy['slice_values']
-            else:
-                warnings.warn(
-                    "Pie chart field 'titles_and_text.slice_values' is ignored because 'appearance.values.format' is already set.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-        if 'value_decimal_places' in legacy:
-            if 'decimal_places' not in values:
-                values['decimal_places'] = legacy['value_decimal_places']
-            else:
-                warnings.warn(
-                    "Pie chart field 'titles_and_text.value_decimal_places' is ignored because 'appearance.values.decimal_places' is already set.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-        if categories:
-            appearance['categories'] = categories
-        if values:
-            appearance['values'] = values
+        for appearance_key, target in (('categories', categories), ('values', values)):
+            if target:
+                appearance[appearance_key] = target
         if appearance:
             normalized_data['appearance'] = appearance
 
