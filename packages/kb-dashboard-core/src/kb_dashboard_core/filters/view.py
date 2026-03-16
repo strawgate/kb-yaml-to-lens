@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any, Literal
 
-from pydantic import ConfigDict, Field
+from pydantic import AliasChoices, ConfigDict, Field, model_validator
 
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
@@ -73,11 +73,22 @@ class KbnFilterMeta(KbnBaseFilterMeta):
     key: str
     """The key of the filter, typically the field name being filtered on."""
 
-    field: str
+    field: str | None = None
     """The field name being filtered on, same as `key` in most cases."""
 
     params: Annotated[dict[str, Any] | list[FilterScalar] | None, OmitIfNone()] = Field(default=None)
     """Parameters for the filter, such as the value to match against."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _populate_field_from_key(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        if data.get('field') is None and isinstance(data.get('key'), str):
+            normalized = dict(data)
+            normalized['field'] = data['key']
+            return normalized
+        return data
 
 
 class KbnCustomFilterMeta(KbnBaseFilterMeta):
@@ -105,6 +116,10 @@ class KbnFilter(BaseVwModel):
     model_config: ConfigDict = ConfigDict(serialize_by_alias=True)
     """Configuration for the model to serialize using aliases for the $state field."""
 
-    state: Annotated[KbnFilterState | None, OmitIfNone()] = Field(..., serialization_alias='$state')
+    state: Annotated[KbnFilterState | None, OmitIfNone()] = Field(
+        default=None,
+        validation_alias=AliasChoices('state', '$state'),
+        serialization_alias='$state',
+    )
     meta: KbnFilterMetaTypes
     query: Annotated[dict[str, Any] | None, OmitIfNone()]

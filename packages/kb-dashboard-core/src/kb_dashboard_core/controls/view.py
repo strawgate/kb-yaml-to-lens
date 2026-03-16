@@ -87,7 +87,7 @@ class SearchTechnique(str, Enum):
 class KbnOptionsListControlExplicitInput(KbnBaseControlExplicitInput):
     """Explicit input for options list controls."""
 
-    dataViewId: str = Field(...)
+    dataViewId: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """The ID of the data view (index pattern) the control operates on."""
 
     fieldName: str = Field(...)
@@ -96,25 +96,25 @@ class KbnOptionsListControlExplicitInput(KbnBaseControlExplicitInput):
     title: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """The label for the control."""
 
-    searchTechnique: SearchTechnique = Field(...)
+    searchTechnique: SearchTechnique = Field(default=SearchTechnique.PREFIX)
     """The search technique used for filtering options."""
 
-    selectedOptions: Annotated[list[str], OmitIfNone()] = Field(...)
+    selectedOptions: Annotated[list[str], OmitIfNone()] = Field(default_factory=list)
     """A list of options that are preselected when the control is initialized."""
 
-    singleSelect: Annotated[bool | None, OmitIfNone()] = Field(...)
+    singleSelect: Annotated[bool | None, OmitIfNone()] = Field(default=None)
 
-    sort: KbnControlSort = Field(...)
+    sort: KbnControlSort = Field(default_factory=lambda: KbnControlSort(by='_count', direction='desc'))
     """Sorting configuration for the options in the control."""
 
-    runPastTimeout: Annotated[bool | None, OmitIfNone()] = Field(...)
+    runPastTimeout: Annotated[bool | None, OmitIfNone()] = Field(default=False)
     """If set to true, delay the display of the list of values until the results are fully loaded."""
 
 
 class KbnRangeSliderControlExplicitInput(KbnBaseControlExplicitInput):
     """Explicit input for range slider controls."""
 
-    dataViewId: str = Field(...)
+    dataViewId: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """The ID of the data view (index pattern) the control operates on."""
 
     fieldName: str = Field(...)
@@ -123,7 +123,7 @@ class KbnRangeSliderControlExplicitInput(KbnBaseControlExplicitInput):
     title: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """The label for the control."""
 
-    step: int | float | None = Field(...)
+    step: int | float | None = Field(default=None)
     """The step size for the range slider, if applicable. If not set, defaults to 1."""
 
 
@@ -261,7 +261,7 @@ class KbnControlGroupInput(BaseModel):
 
     ignoreParentSettingsJSON: KbnIgnoreParentSettingsJson
     panelsJSON: KbnControlPanelsJson
-    showApplySelections: bool
+    showApplySelections: bool = False
 
     @field_serializer('ignoreParentSettingsJSON', when_used='always')
     def serialize_parent_settings_json(self, value: KbnIgnoreParentSettingsJson) -> str:

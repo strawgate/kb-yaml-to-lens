@@ -16,7 +16,7 @@ from kb_dashboard_core.controls.view import (
     KbnRangeSliderControl,
     KbnTimeSliderControl,
 )
-from kb_dashboard_core.dashboard.view import KbnDashboardOptions
+from kb_dashboard_core.dashboard.view import KbnDashboardAttributes, KbnDashboardOptions
 from kb_dashboard_core.filters.view import KbnFilter
 from kb_dashboard_core.panels.charts.datatable.view import KbnDatatableVisualizationState
 from kb_dashboard_core.panels.charts.gauge.view import KbnGaugeVisualizationState
@@ -25,6 +25,7 @@ from kb_dashboard_core.panels.charts.metric.view import KbnESQLMetricVisualizati
 from kb_dashboard_core.panels.charts.mosaic.view import KbnMosaicVisualizationState
 from kb_dashboard_core.panels.charts.pie.view import KbnPieVisualizationState
 from kb_dashboard_core.panels.charts.tagcloud.view import KbnTagcloudVisualizationState
+from kb_dashboard_core.panels.charts.view import KbnLensPanel
 from kb_dashboard_core.panels.charts.waffle.view import KbnWaffleVisualizationState
 from kb_dashboard_core.panels.charts.xy.view import KbnXYVisualizationState
 from kb_dashboard_core.panels.images.view import KbnImagePanel
@@ -139,6 +140,90 @@ def _normalize_control_for_view(panel_id: str, raw: dict[str, Any]) -> dict[str,
     return normalized
 
 
+def _normalize_grid_for_view(panel: dict[str, Any]) -> dict[str, Any]:
+    """Fill panel grid defaults needed by concrete Kbn* panel models."""
+    normalized = dict(panel)
+    grid = as_dict(normalized.get('gridData'))
+    if grid is None:
+        return normalized
+
+    normalized_grid = dict(grid)
+    panel_index = normalized.get('panelIndex')
+    if 'i' not in normalized_grid and isinstance(panel_index, str):
+        normalized_grid['i'] = panel_index
+    normalized['gridData'] = normalized_grid
+    return normalized
+
+
+def _decode_dashboard_attributes_for_view(attributes: dict[str, Any]) -> dict[str, Any]:
+    """Decode saved-object transport wrappers into KbnDashboardAttributes input."""
+    normalized = dict(attributes)
+
+    panels = parse_json_field(normalized.get('panelsJSON'))
+    if isinstance(panels, list):
+        normalized['panelsJSON'] = panels
+
+    options = parse_json_field(normalized.get('optionsJSON'))
+    if isinstance(options, dict):
+        normalized['optionsJSON'] = options
+
+    saved_object_meta = as_dict(normalized.get('kibanaSavedObjectMeta'))
+    if saved_object_meta is not None:
+        normalized_meta = dict(saved_object_meta)
+        search_source = parse_json_field(normalized_meta.get('searchSourceJSON'))
+        if isinstance(search_source, dict):
+            normalized_meta['searchSourceJSON'] = search_source
+        normalized['kibanaSavedObjectMeta'] = normalized_meta
+
+    control_group = as_dict(normalized.get('controlGroupInput'))
+    if control_group is not None:
+        normalized_control_group = dict(control_group)
+        ignore_parent = parse_json_field(normalized_control_group.get('ignoreParentSettingsJSON'))
+        if isinstance(ignore_parent, dict):
+            normalized_control_group['ignoreParentSettingsJSON'] = ignore_parent
+        control_panels = parse_json_field(normalized_control_group.get('panelsJSON'))
+        if isinstance(control_panels, dict):
+            normalized_control_group['panelsJSON'] = control_panels
+        normalized['controlGroupInput'] = normalized_control_group
+
+    return normalized
+
+
+def _panel_view_model_type(panel: dict[str, Any]) -> type[Any] | None:
+    """Resolve the concrete Kbn* panel model for a decoded raw panel."""
+    panel_type = panel.get('type')
+    if panel_type in {'lens', 'esql'}:
+        return KbnLensPanel
+    if panel_type == 'visualization':
+        saved_vis_type = _saved_visualization_panel_type(panel)
+        return SIMPLE_PANEL_VIEW_MODEL_MAP.get(saved_vis_type or '')
+    if isinstance(panel_type, str):
+        return SIMPLE_PANEL_VIEW_MODEL_MAP.get(panel_type)
+    return None
+
+
+def _parse_panel_view_model(panel: dict[str, Any]) -> object | None:
+    """Validate a raw panel into its concrete Kbn* view model when supported."""
+    model_cls = _panel_view_model_type(panel)
+    if model_cls is None:
+        return None
+    return _validate_view_model(model_cls, _normalize_grid_for_view(panel))
+
+
+def _panel_dicts_from_attributes(attributes: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract decoded panel dicts from normalized dashboard attributes."""
+    panels_json = attributes.get('panelsJSON')
+    if not isinstance(panels_json, list):
+        return []
+
+    result: list[dict[str, Any]] = []
+    for panel_item in cast('list[object]', panels_json):
+        panel = as_dict(panel_item)
+        if panel is not None:
+            result.append(panel)
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Parsed intermediate structures
 # ---------------------------------------------------------------------------
@@ -246,6 +331,7 @@ class ParsedLensPanel:
     data_view_id: str | None = None
     esql_query: str | None = None
     references: list[ParsedReference] = field(default_factory=list)
+    view_panel: KbnLensPanel | None = None
     view_visualization: object | None = None
 
 
@@ -324,6 +410,7 @@ class ParsedDashboard:
     controls: list[ParsedControl] = field(default_factory=list)
     panels: list[ParsedPanel] = field(default_factory=list)
     reference_lookup: dict[str, str] = field(default_factory=dict)
+    view_attributes: KbnDashboardAttributes | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -654,9 +741,18 @@ def _extract_data_view_from_refs(refs: list[object]) -> str | None:
     return None
 
 
-def _parse_lens_panel(panel: dict[str, Any], raw_panel_type: str) -> ParsedLensPanel:
-    embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
-    embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
+def _parse_lens_panel(
+    panel: dict[str, Any],
+    raw_panel_type: str,
+    *,
+    panel_view: KbnLensPanel | None = None,
+) -> ParsedLensPanel:
+    if panel_view is not None:
+        embeddable_config = panel_view.embeddableConfig.model_dump(mode='python', by_alias=True)
+        embeddable_attributes = panel_view.embeddableConfig.attributes.model_dump(mode='python', by_alias=True)
+    else:
+        embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
+        embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
 
     state = as_dict(embeddable_attributes.get('state')) or {}
     is_esql = raw_panel_type == 'esql' or _has_text_based_query(state)
@@ -698,6 +794,7 @@ def _parse_lens_panel(panel: dict[str, Any], raw_panel_type: str) -> ParsedLensP
         data_view_id=data_view,
         esql_query=esql_query,
         references=parsed_refs,
+        view_panel=panel_view,
         view_visualization=vis_state.view_model,
     )
 
@@ -715,20 +812,27 @@ def _parse_simple_panel_view(panel: dict[str, Any], panel_type: str) -> object |
     return _validate_view_model(model_cls, panel)
 
 
-def _parse_simple_panel(panel: dict[str, Any], panel_type: str) -> ParsedSimplePanel:
-    embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
-    embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
+def _parse_simple_panel(panel: dict[str, Any], panel_type: str, *, panel_view: object | None = None) -> ParsedSimplePanel:
+    embeddable_config_model = getattr(panel_view, 'embeddableConfig', None) if panel_view is not None else None
+    model_dump = getattr(embeddable_config_model, 'model_dump', None)
+    if callable(model_dump):
+        embeddable_config = cast('dict[str, Any]', model_dump(mode='python', by_alias=True))
+        embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
+    else:
+        embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
+        embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
     return ParsedSimplePanel(
         panel_type=panel_type,
         raw=panel,
         embeddable_config=embeddable_config,
         embeddable_attributes=embeddable_attributes,
-        view_panel=_parse_simple_panel_view(panel, panel_type),
+        view_panel=panel_view if panel_view is not None else _parse_simple_panel_view(panel, panel_type),
     )
 
 
 def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
     parsed = ParsedPanel()
+    panel_view = _parse_panel_view_model(panel)
 
     panel_index = panel.get('panelIndex')
     if isinstance(panel_index, str):
@@ -747,14 +851,14 @@ def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
 
     if panel_type in {'lens', 'esql'}:
         try:
-            parsed.lens = _parse_lens_panel(panel, panel_type)
+            parsed.lens = _parse_lens_panel(panel, panel_type, panel_view=cast('KbnLensPanel | None', panel_view))
         except Exception as exc:
             logger.warning('Failed to parse lens panel %s: %s', parsed.panel_index, exc)
             parsed.error = f'parse error: {exc}'
     elif panel_type in {'markdown', 'search', 'links', 'image', 'vega', 'visualization', 'map'}:
-        parsed.simple = _parse_simple_panel(panel, panel_type)
+        parsed.simple = _parse_simple_panel(panel, panel_type, panel_view=panel_view)
     else:
-        parsed.simple = _parse_simple_panel(panel, panel_type)
+        parsed.simple = _parse_simple_panel(panel, panel_type, panel_view=panel_view)
 
     return parsed
 
@@ -764,7 +868,22 @@ def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
 # ---------------------------------------------------------------------------
 
 
-def _parse_settings(attributes: dict[str, Any]) -> ParsedDashboardSettings | None:
+def _parse_settings(
+    attributes: dict[str, Any],
+    *,
+    view_attributes: KbnDashboardAttributes | None = None,
+) -> ParsedDashboardSettings | None:
+    if view_attributes is not None:
+        options = view_attributes.optionsJSON
+        return ParsedDashboardSettings(
+            margins=options.useMargins,
+            sync_colors=options.syncColors,
+            sync_cursor=options.syncCursor,
+            sync_tooltips=options.syncTooltips,
+            hide_panel_titles=options.hidePanelTitles,
+            view_options=options,
+        )
+
     options = parse_json_field(attributes.get('optionsJSON'))
     if not isinstance(options, dict):
         return None
@@ -778,20 +897,29 @@ def _parse_settings(attributes: dict[str, Any]) -> ParsedDashboardSettings | Non
     )
 
 
-def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
-    meta_raw = as_dict(attributes.get('kibanaSavedObjectMeta'))
-    if meta_raw is None:
-        return []
-    search_source = parse_json_field(meta_raw.get('searchSourceJSON'))
-    if not isinstance(search_source, dict):
-        return []
-    raw_filters = search_source.get('filter')
-    if not isinstance(raw_filters, list):
-        return []
+def _parse_filters(
+    attributes: dict[str, Any],
+    *,
+    view_attributes: KbnDashboardAttributes | None = None,
+) -> list[ParsedFilter]:
+    if view_attributes is not None:
+        raw_filters: list[object] = [
+            filter_obj.model_dump(mode='python', by_alias=True)
+            for filter_obj in view_attributes.kibanaSavedObjectMeta.searchSourceJSON.filter
+        ]
+    else:
+        meta_raw = as_dict(attributes.get('kibanaSavedObjectMeta'))
+        if meta_raw is None:
+            return []
+        search_source = parse_json_field(meta_raw.get('searchSourceJSON'))
+        if not isinstance(search_source, dict):
+            return []
+        raw_filters_value = search_source.get('filter')
+        raw_filters = cast('list[object]', raw_filters_value) if isinstance(raw_filters_value, list) else []
 
     result: list[ParsedFilter] = []
-    for filter_item in raw_filters:  # pyright: ignore[reportUnknownVariableType]
-        raw = as_dict(filter_item)  # pyright: ignore[reportUnknownArgumentType]
+    for filter_item in raw_filters:
+        raw = as_dict(filter_item)
         if raw is None:
             continue
         filter_meta = as_dict(raw.get('meta'))
@@ -812,14 +940,25 @@ def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
     return result
 
 
-def _parse_controls(attributes: dict[str, Any]) -> list[ParsedControl]:
-    control_group = as_dict(attributes.get('controlGroupInput'))
-    if control_group is None:
-        return []
-    control_group_view = _validate_view_model(KbnControlGroupInput, control_group)
-    panels_json = parse_json_field(control_group.get('panelsJSON'))
-    if not isinstance(panels_json, dict):
-        return []
+def _parse_controls(
+    attributes: dict[str, Any],
+    *,
+    view_attributes: KbnDashboardAttributes | None = None,
+) -> list[ParsedControl]:
+    control_group_view = view_attributes.controlGroupInput if view_attributes is not None else None
+    if control_group_view is not None:
+        panels_json: dict[str, object] = {
+            panel_id: control.model_dump(mode='python', by_alias=True) for panel_id, control in control_group_view.panelsJSON.root.items()
+        }
+    else:
+        control_group = as_dict(attributes.get('controlGroupInput'))
+        if control_group is None:
+            return []
+        control_group_view = cast('KbnControlGroupInput | None', _validate_view_model(KbnControlGroupInput, control_group))
+        panels_json_raw = parse_json_field(control_group.get('panelsJSON'))
+        if not isinstance(panels_json_raw, dict):
+            return []
+        panels_json = cast('dict[str, object]', panels_json_raw)
 
     def _order(item: tuple[str, object]) -> int:
         panel = as_dict(item[1])
@@ -829,8 +968,8 @@ def _parse_controls(attributes: dict[str, Any]) -> list[ParsedControl]:
         return order if isinstance(order, int) else 0
 
     result: list[ParsedControl] = []
-    for panel_id, panel_value in sorted(panels_json.items(), key=_order):  # pyright: ignore[reportAny]
-        panel = as_dict(panel_value)  # pyright: ignore[reportAny]
+    for panel_id, panel_value in sorted(panels_json.items(), key=_order):
+        panel = as_dict(panel_value)
         if panel is None:
             continue
         explicit_input = as_dict(panel.get('explicitInput'))
@@ -879,27 +1018,33 @@ def _extract_reference_lookup(dashboard: dict[str, Any]) -> dict[str, str]:
 def parse_dashboard(dashboard: dict[str, Any]) -> ParsedDashboard:
     """Parse a raw Kibana dashboard JSON dict into a typed intermediate structure."""
     attributes = as_dict(dashboard.get('attributes')) or {}
+    normalized_attributes = _decode_dashboard_attributes_for_view(attributes)
+    view_attributes = cast(
+        'KbnDashboardAttributes | None',
+        _validate_view_model(KbnDashboardAttributes, normalized_attributes),
+    )
 
-    title = attributes.get('title')
-    description = attributes.get('description')
+    title = view_attributes.title if view_attributes is not None else attributes.get('title')
+    description = view_attributes.description if view_attributes is not None else attributes.get('description')
 
     parsed = ParsedDashboard(
         dashboard_id=dashboard.get('id') if isinstance(dashboard.get('id'), str) else None,
         title=title if isinstance(title, str) else 'Untitled Dashboard',
         description=description if isinstance(description, str) else None,
-        time_from=attributes.get('timeFrom') if isinstance(attributes.get('timeFrom'), str) else None,
-        time_to=attributes.get('timeTo') if isinstance(attributes.get('timeTo'), str) else None,
-        settings=_parse_settings(attributes),
-        filters=_parse_filters(attributes),
-        controls=_parse_controls(attributes),
+        time_from=view_attributes.timeFrom
+        if view_attributes is not None
+        else (attributes.get('timeFrom') if isinstance(attributes.get('timeFrom'), str) else None),
+        time_to=view_attributes.timeTo
+        if view_attributes is not None
+        else (attributes.get('timeTo') if isinstance(attributes.get('timeTo'), str) else None),
+        settings=_parse_settings(normalized_attributes, view_attributes=view_attributes),
+        filters=_parse_filters(normalized_attributes, view_attributes=view_attributes),
+        controls=_parse_controls(normalized_attributes, view_attributes=view_attributes),
         reference_lookup=_extract_reference_lookup(dashboard),
+        view_attributes=view_attributes,
     )
 
-    panels_json = parse_json_field(attributes.get('panelsJSON'))
-    if isinstance(panels_json, list):
-        for panel_item in panels_json:  # pyright: ignore[reportAny]
-            panel = as_dict(panel_item)  # pyright: ignore[reportAny]
-            if panel is not None:
-                parsed.panels.append(_parse_panel(panel))
+    for panel in _panel_dicts_from_attributes(normalized_attributes):
+        parsed.panels.append(_parse_panel(panel))
 
     return parsed

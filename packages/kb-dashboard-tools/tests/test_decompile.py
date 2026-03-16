@@ -1639,6 +1639,7 @@ def _load_fixture(name: str) -> dict[str, Any]:
     [
         'nginx-overview.json',
         'nginx-access-errors.json',
+        'kafka-overview.json',
         'system-overview.json',
     ],
 )
@@ -1658,6 +1659,7 @@ def test_decompile_real_dashboard_does_not_crash(fixture_name: str) -> None:
     [
         'nginx-overview.json',
         'nginx-access-errors.json',
+        'kafka-overview.json',
         'system-overview.json',
     ],
 )
@@ -1678,6 +1680,7 @@ def test_decompile_real_dashboard_produces_valid_yaml(fixture_name: str) -> None
     [
         'nginx-overview.json',
         'nginx-access-errors.json',
+        'kafka-overview.json',
         'system-overview.json',
     ],
 )
@@ -1763,6 +1766,22 @@ def test_parse_real_dashboard_validates_visualization_view_models() -> None:
         panel.lens.view_visualization for panel in parsed.panels if panel.lens is not None and panel.lens.view_visualization is not None
     ]
     assert view_models
+
+
+def test_parse_kafka_dashboard_validates_dashboard_and_lens_view_models() -> None:
+    """Kafka overview should validate through dashboard and concrete Lens view models."""
+    dashboard = _load_fixture('kafka-overview.json')
+    parsed = parse_dashboard(dashboard)
+
+    assert parsed.view_attributes is not None
+    assert parsed.filters
+    assert all(filter_obj.view_filter is not None for filter_obj in parsed.filters)
+    assert parsed.controls
+    assert all(control.view_control is not None for control in parsed.controls)
+
+    kafka_lens_panels = [panel.lens for panel in parsed.panels if panel.lens is not None]
+    assert kafka_lens_panels
+    assert all(panel.view_panel is not None for panel in kafka_lens_panels)
 
 
 def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -> None:

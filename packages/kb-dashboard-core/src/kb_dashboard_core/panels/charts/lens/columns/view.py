@@ -65,7 +65,7 @@ class KbnLensBaseColumn(BaseVwModel):
     dataType: str
     """The data type of the column, such as 'date', 'number', 'string', etc."""
 
-    customLabel: Annotated[bool | None, OmitIfNone()]
+    customLabel: Annotated[bool | None, OmitIfNone()] = Field(default=None)
     """Whether the column has a custom label. Should be set to true if a custom label was provided."""
 
     operationType: str
@@ -279,7 +279,9 @@ class KbnLensFullReferenceColumn(KbnLensBaseColumn):
     scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
     """Scale for fullReference results. Gauge charts may omit this field."""
 
-    params: KbnLensFullReferenceColumnParams
+    params: KbnLensFullReferenceColumnParams = Field(
+        default_factory=KbnLensFullReferenceColumnParams
+    )
     """Parameters for the fullReference column."""
 
     references: list[str] = Field(default_factory=list)
@@ -322,7 +324,7 @@ class KbnLensDateHistogramDimensionColumn(KbnLensBaseDimensionColumn):
 class KbnLensTermsOrderBy(BaseVwModel):
     """Represents the orderBy parameter for terms dimension columns."""
 
-    type: Literal['column', 'alphabetical']
+    type: Literal['column', 'alphabetical', 'custom']
     columnId: Annotated[str | None, OmitIfNone()] = Field(default=None)
     fallback: Annotated[bool | None, OmitIfNone()] = Field(default=None)
 
@@ -360,7 +362,7 @@ class KbnLensTermsDimensionColumn(KbnLensBaseDimensionColumn):
 
     sourceField: str
     operationType: Literal['terms']
-    dataType: Literal['string']
+    dataType: Literal['string', 'number']
     scale: Literal['ordinal']
     isBucketed: Literal[True] = True
     params: KbnLensTermsDimensionColumnParams

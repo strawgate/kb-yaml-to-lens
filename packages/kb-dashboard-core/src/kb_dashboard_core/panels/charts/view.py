@@ -63,7 +63,7 @@ class KbnFormBasedDataSourceStateLayer(BaseVwModel):
     columns: dict[str, KbnLensColumnTypes] = Field(default_factory=dict)
     columnOrder: list[str] = Field(default_factory=list)
     incompleteColumns: dict[str, Any] = Field(default_factory=dict)
-    sampling: int
+    sampling: int = Field(default=1)
     indexPatternId: Annotated[str | None, OmitIfNone()] = None
     linkToLayers: Annotated[list[str] | None, OmitIfNone()] = None
     ignoreGlobalFilters: Annotated[bool | None, OmitIfNone()] = None
@@ -224,7 +224,7 @@ class KbnLensPanelEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     )
 
     query: KbnQuery = Field(
-        ...,
+        default_factory=lambda: KbnQuery(query='', language='kuery'),
         description="(Optional) Query object for the Lens visualization. Defaults to empty query with 'kuery' language.",
     )
 
