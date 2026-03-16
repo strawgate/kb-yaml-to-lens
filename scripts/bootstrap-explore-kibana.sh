@@ -138,7 +138,7 @@ for DV in "logs-*" "metrics-*"; do
   curl -fsS -X POST "http://localhost:443/api/data_views/data_view" \
     -H "kbn-xsrf: true" \
     -H "Content-Type: application/json" \
-    -d "{\"data_view\":{\"title\":\"${DV}\",\"name\":\"${DV}\",\"timeFieldName\":\"@timestamp\"}}" \
+    -d "{\"data_view\":{\"id\":\"${DV}\",\"title\":\"${DV}\",\"name\":\"${DV}\",\"timeFieldName\":\"@timestamp\"}}" \
     >/dev/null
   echo "  Created data view: ${DV}"
 done
