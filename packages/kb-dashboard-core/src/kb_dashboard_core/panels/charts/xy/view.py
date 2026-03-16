@@ -10,8 +10,10 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnLayerColorMapping, KbnXYLegendSize
+from kb_dashboard_core.panels.charts.base.view import KbnBaseStateVisualization, KbnLayerColorMapping
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
+
+type KbnXYLegendSize = Literal['auto', 'small', 'medium', 'large', 'xlarge']
 
 
 class LabelsOrientationConfig(BaseVwModel):
