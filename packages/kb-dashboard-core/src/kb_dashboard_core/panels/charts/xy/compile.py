@@ -1,6 +1,6 @@
 """Compile Lens XY visualizations into their Kibana view models."""
 
-from typing import Literal
+from typing import Literal, cast
 
 from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping, map_legend_size
 from kb_dashboard_core.panels.charts.base.config import LegendVisibleEnum
@@ -509,6 +509,12 @@ def compile_xy_chart_visualization_state(
         y_right_extent,
         axis_titles_visibility,
     ) = _compile_axis_settings(chart)
+    collapse_fn: Literal['sum', 'avg', 'min', 'max'] | None = None
+    if isinstance(chart, ESQLBarChart | ESQLLineChart | ESQLAreaChart):
+        if chart.breakdown is not None and chart.breakdown.collapse is not None:
+            collapse_fn = cast("Literal['sum', 'avg', 'min', 'max']", str(chart.breakdown.collapse))
+        elif chart.dimension is not None and chart.dimension.collapse is not None:
+            collapse_fn = cast("Literal['sum', 'avg', 'min', 'max']", str(chart.dimension.collapse))
 
     kbn_layer_visualization = XYDataLayerConfig(
         layerId=layer_id,
@@ -520,6 +526,7 @@ def compile_xy_chart_visualization_state(
         layerType='data',
         colorMapping=kbn_color_mapping,
         splitAccessor=breakdown_id,
+        collapseFn=collapse_fn,
         yConfig=y_config,
         xScaleType=x_scale,
     )

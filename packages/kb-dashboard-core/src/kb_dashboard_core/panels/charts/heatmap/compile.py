@@ -147,8 +147,8 @@ def compile_lens_heatmap_chart(
         )
         kbn_columns_by_id[y_id] = y_column
 
-    # Add value metric to columns
-    kbn_columns_by_id[value_id] = value_column
+    # Add all metric columns (including helper columns) to the datasource layer
+    kbn_columns_by_id.update(kbn_metric_columns_by_id)
 
     layer_id = lens_heatmap_chart.get_id()
 

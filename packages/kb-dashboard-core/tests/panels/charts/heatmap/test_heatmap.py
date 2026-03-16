@@ -521,6 +521,29 @@ def test_compile_heatmap_chart_with_all_axis_and_value_options_esql() -> None:
     )
 
 
+def test_compile_lens_heatmap_formula_includes_helper_columns() -> None:
+    """Formula heatmap metrics should include helper columns required by formula references."""
+    chart = LensHeatmapChart.model_validate(
+        {
+            'type': 'heatmap',
+            'data_view': 'metrics-*',
+            'x_axis': {'type': 'values', 'field': 'host.name', 'id': 'x_accessor'},
+            'value': {
+                'id': 'value_accessor',
+                'formula': 'counter_rate(max(in.bytes)) + counter_rate(max(out.bytes))',
+            },
+        }
+    )
+
+    _layer_id, kbn_columns_by_id, _visualization = compile_lens_heatmap_chart(chart)
+    value_column = kbn_columns_by_id['value_accessor'].model_dump(mode='json', by_alias=True)
+    references = value_column.get('references', [])
+
+    assert isinstance(references, list)
+    assert len(references) > 0
+    assert all(reference_id in kbn_columns_by_id for reference_id in references)
+
+
 def test_heatmap_deprecated_grid_config_warns_and_maps() -> None:
     """Deprecated grid_config should warn and map to appearance visibility fields."""
     with pytest.warns(DeprecationWarning, match='grid_config'):

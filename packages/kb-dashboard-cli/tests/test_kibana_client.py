@@ -262,6 +262,42 @@ class TestKibanaClient:
         assert response.success_count == 1
 
     @pytest.mark.asyncio
+    async def test_resolve_index_pattern_ids_by_title(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test resolving data view titles to saved object IDs."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_get(endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            assert endpoint == '/api/saved_objects/_find'
+            return _FakeResponseContext(
+                _FakeResponse(
+                    status=200,
+                    json_data={
+                        'saved_objects': [
+                            {'id': 'uuid-logs', 'attributes': {'title': 'logs-*'}},
+                            {'id': 'uuid-metrics', 'attributes': {'title': 'metrics-*'}},
+                        ]
+                    },
+                )
+            )
+
+        monkeypatch.setattr(client, '_get', fake_get)
+        resolved = await client.resolve_index_pattern_ids_by_title({'logs-*', 'metrics-*', 'missing-*'})
+        assert resolved == {'logs-*': 'uuid-logs', 'metrics-*': 'uuid-metrics'}
+
+    @pytest.mark.asyncio
+    async def test_resolve_index_pattern_ids_by_title_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test non-200 response when resolving data view titles."""
+        client = KibanaClient(url='http://localhost:5601')
+
+        async def fake_get(_endpoint: str, **_kwargs: Any) -> _FakeResponseContext:
+            return _FakeResponseContext(_FakeResponse(status=500, text_data='boom'))
+
+        monkeypatch.setattr(client, '_get', fake_get)
+
+        with pytest.raises(ValueError, match='Failed to resolve data views'):
+            await client.resolve_index_pattern_ids_by_title({'logs-*'})
+
+    @pytest.mark.asyncio
     async def test_generate_screenshot_returns_job_path(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test generating a screenshot returns the job path."""
         client = KibanaClient(url='http://localhost:5601')

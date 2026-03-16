@@ -575,6 +575,66 @@ class KibanaClient:
             json_response = await response.json()  # pyright: ignore[reportAny]
             return KibanaSavedObjectsResponse.model_validate(json_response)
 
+    async def resolve_index_pattern_ids_by_title(self, titles: set[str]) -> dict[str, str]:
+        """Resolve data view titles to index-pattern saved object IDs.
+
+        Args:
+            titles: Data view titles to resolve.
+
+        Returns:
+            Mapping from title -> saved object ID for titles found in Kibana.
+
+        Raises:
+            ValueError: If Kibana responds with an HTTP error.
+            TypeError: If Kibana response shape is unexpected.
+        """
+        if len(titles) == 0:
+            return {}
+
+        resolved: dict[str, str] = {}
+        page = 1
+        per_page = 1000
+
+        while True:
+            params = {
+                'type': 'index-pattern',
+                'per_page': per_page,
+                'page': page,
+                'fields': ['title'],
+            }
+            async with await self._get('/api/saved_objects/_find', params=params) as response:
+                if response.status != HTTP_OK:
+                    error_text = await response.text()
+                    msg = f'Failed to resolve data views (HTTP {response.status}): {error_text[:200]}'
+                    raise ValueError(msg)
+                payload = await response.json()  # pyright: ignore[reportAny]
+
+            if not isinstance(payload, dict):
+                msg = f'Expected dict from saved objects find API, got {type(payload).__name__}'
+                raise TypeError(msg)
+
+            saved_objects = payload.get('saved_objects')
+            if not isinstance(saved_objects, list):
+                msg = f'Expected list in saved_objects, got {type(saved_objects).__name__}'
+                raise TypeError(msg)
+
+            for saved_object in saved_objects:
+                if not isinstance(saved_object, dict):
+                    continue
+                object_id = saved_object.get('id')
+                attributes = saved_object.get('attributes')
+                if not isinstance(object_id, str) or not isinstance(attributes, dict):
+                    continue
+                title = attributes.get('title')
+                if isinstance(title, str) and title in titles and title not in resolved:
+                    resolved[title] = object_id
+
+            if len(resolved) == len(titles) or len(saved_objects) < per_page:
+                break
+            page += 1
+
+        return resolved
+
     def get_dashboard_url(self, dashboard_id: str) -> str:
         """Get the URL for a specific dashboard.
 

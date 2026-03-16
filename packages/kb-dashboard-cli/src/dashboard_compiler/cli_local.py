@@ -7,6 +7,7 @@ import logging
 import sys
 import webbrowser
 from pathlib import Path
+from uuid import UUID
 
 import rich_click as click
 import yaml
@@ -89,6 +90,125 @@ def _write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -
             _ = f.write(line + '\n')
 
 
+def _is_uuid(value: str) -> bool:
+    """Check whether a string is a UUID."""
+    try:
+        _ = UUID(value)
+    except ValueError:
+        return False
+    return True
+
+
+def _iter_ndjson_saved_objects(ndjson_content: str) -> list[dict[str, object]]:
+    """Parse NDJSON content into JSON objects."""
+    saved_objects: list[dict[str, object]] = []
+    for line in ndjson_content.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        parsed = json.loads(stripped)
+        if not isinstance(parsed, dict):
+            msg = 'NDJSON line must be a JSON object'
+            raise TypeError(msg)
+        saved_objects.append(parsed)
+    return saved_objects
+
+
+def _extract_form_based_layers(saved_object: dict[str, object]) -> list[dict[str, object]]:
+    """Extract form-based datasource layers from a saved object."""
+    attributes = saved_object.get('attributes')
+    if not isinstance(attributes, dict):
+        return []
+    state = attributes.get('state')
+    if not isinstance(state, dict):
+        return []
+    datasource_states = state.get('datasourceStates')
+    if not isinstance(datasource_states, dict):
+        return []
+    form_based = datasource_states.get('formBased')
+    if not isinstance(form_based, dict):
+        return []
+    layers = form_based.get('layers')
+    if not isinstance(layers, dict):
+        return []
+    return [layer for layer in layers.values() if isinstance(layer, dict)]
+
+
+def _collect_index_pattern_titles_from_ndjson(ndjson_content: str) -> set[str]:
+    """Collect non-UUID index-pattern IDs found in references and Lens datasource state."""
+    titles: set[str] = set()
+    for saved_object in _iter_ndjson_saved_objects(ndjson_content):
+        references = saved_object.get('references')
+        if isinstance(references, list):
+            for reference in references:
+                if not isinstance(reference, dict):
+                    continue
+                reference_id = reference.get('id')
+                reference_type = reference.get('type')
+                if reference_type == 'index-pattern' and isinstance(reference_id, str) and not _is_uuid(reference_id):
+                    titles.add(reference_id)
+
+        for layer in _extract_form_based_layers(saved_object):
+            index_pattern_id = layer.get('indexPatternId')
+            if isinstance(index_pattern_id, str) and not _is_uuid(index_pattern_id):
+                titles.add(index_pattern_id)
+    return titles
+
+
+def _rewrite_index_pattern_ids_in_saved_object(
+    *,
+    saved_object: dict[str, object],
+    title_to_id: dict[str, str],
+    unresolved_titles: set[str],
+) -> None:
+    """Rewrite index-pattern references and layer IDs in a single saved object."""
+    references = saved_object.get('references')
+    if isinstance(references, list):
+        for reference in references:
+            if not isinstance(reference, dict):
+                continue
+            reference_id = reference.get('id')
+            reference_type = reference.get('type')
+            if reference_type != 'index-pattern' or not isinstance(reference_id, str):
+                continue
+            resolved_id = title_to_id.get(reference_id)
+            if resolved_id is not None:
+                reference['id'] = resolved_id
+            elif not _is_uuid(reference_id):
+                unresolved_titles.add(reference_id)
+
+    for layer in _extract_form_based_layers(saved_object):
+        index_pattern_id = layer.get('indexPatternId')
+        if not isinstance(index_pattern_id, str):
+            continue
+        resolved_id = title_to_id.get(index_pattern_id)
+        if resolved_id is not None:
+            layer['indexPatternId'] = resolved_id
+        elif not _is_uuid(index_pattern_id):
+            unresolved_titles.add(index_pattern_id)
+
+
+def _resolve_index_pattern_titles_in_ndjson(ndjson_content: str, title_to_id: dict[str, str]) -> str:
+    """Replace index-pattern IDs that are data view titles with their resolved UUIDs."""
+    saved_objects = _iter_ndjson_saved_objects(ndjson_content)
+    unresolved_titles: set[str] = set()
+
+    for saved_object in saved_objects:
+        _rewrite_index_pattern_ids_in_saved_object(
+            saved_object=saved_object,
+            title_to_id=title_to_id,
+            unresolved_titles=unresolved_titles,
+        )
+
+    if len(unresolved_titles) > 0:
+        unresolved = ', '.join(sorted(unresolved_titles))
+        msg = f'Could not resolve data view name(s) to saved object IDs: {unresolved}'
+        raise ValueError(msg)
+
+    output_lines = [json.dumps(saved_object, separators=(',', ':')) for saved_object in saved_objects]
+    return '\n'.join(output_lines) + '\n'
+
+
 def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], list[KbnDashboard], str | None]:
     """Compile dashboard YAML to JSON strings for NDJSON.
 
@@ -166,7 +286,13 @@ async def _upload_to_kibana(
 
     async with client:
         try:
-            result = await client.upload_ndjson(ndjson_file, overwrite=overwrite)
+            ndjson_content = ndjson_file.read_text(encoding='utf-8')
+            unresolved_titles = _collect_index_pattern_titles_from_ndjson(ndjson_content)
+            if len(unresolved_titles) > 0:
+                title_to_id = await client.resolve_index_pattern_ids_by_title(unresolved_titles)
+                ndjson_content = _resolve_index_pattern_titles_in_ndjson(ndjson_content, title_to_id)
+
+            result = await client.upload_ndjson(ndjson_content, overwrite=overwrite)
 
             if result.success is True:
                 print_success(f'Successfully uploaded {result.success_count} object(s) to Kibana')
