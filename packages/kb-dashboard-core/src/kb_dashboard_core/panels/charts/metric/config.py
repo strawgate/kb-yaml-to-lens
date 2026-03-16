@@ -1,4 +1,5 @@
-from typing import Literal
+import warnings
+from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
@@ -69,6 +70,53 @@ class MetricSecondaryAppearance(BaseCfgModel):
 
     label: 'MetricSecondaryLabelAppearance | None' = Field(default=None)
     """Custom secondary label configuration."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_label_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_label_position = cast('object', normalized_data.pop('label_position', None))
+
+        label: object = normalized_data.get('label')
+        if isinstance(label, str):
+            normalized_data['label'] = {'text': label}
+            warnings.warn(
+                "Metric field 'appearance.secondary.label' as a string is deprecated, use 'appearance.secondary.label.text' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            label = normalized_data['label']
+
+        if legacy_label_position is not None:
+            if label is None:
+                normalized_data['label'] = {'position': legacy_label_position}
+                warnings.warn(
+                    "Metric field 'appearance.secondary.label_position' is deprecated, use 'appearance.secondary.label.position' instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            elif isinstance(label, dict) and 'position' not in label:
+                merged_label: dict[str, Any] = dict(cast('dict[str, Any]', label))
+                merged_label['position'] = legacy_label_position
+                normalized_data['label'] = merged_label
+                warnings.warn(
+                    "Metric field 'appearance.secondary.label_position' is deprecated, use 'appearance.secondary.label.position' instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            else:
+                warnings.warn(
+                    (
+                        "Metric field 'appearance.secondary.label_position' is ignored because "
+                        "'appearance.secondary.label.position' is already set."
+                    ),
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
+        return normalized_data
 
 
 class MetricSecondaryLabelAppearance(BaseCfgModel):

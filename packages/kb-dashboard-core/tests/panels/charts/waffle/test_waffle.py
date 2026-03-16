@@ -1,5 +1,6 @@
 """Test the compilation of Lens waffle charts from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -434,3 +435,41 @@ async def test_waffle_chart_without_value_decimal_places() -> None:
     layer = kbn_state_visualization.layers[0]
     dumped = layer.model_dump()
     assert 'percentDecimals' not in dumped
+
+
+def test_waffle_deprecated_titles_and_text_warns_and_maps() -> None:
+    """Deprecated titles_and_text should warn and map to appearance.values."""
+    with pytest.warns(DeprecationWarning, match='titles_and_text'):
+        chart = LensWaffleChart.model_validate(
+            {
+                'type': 'waffle',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'breakdown': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'value'
+    assert chart.appearance.values.decimal_places == 4
+
+
+def test_waffle_deprecated_titles_and_text_warns_when_ignored() -> None:
+    """Deprecated titles_and_text fields should warn when overridden by appearance.values."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.values.format' is already set"):
+        chart = LensWaffleChart.model_validate(
+            {
+                'type': 'waffle',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'breakdown': {'type': 'values', 'field': 'service.name'},
+                'appearance': {'values': {'format': 'hide'}},
+                'titles_and_text': {'value_format': 'value'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'hide'

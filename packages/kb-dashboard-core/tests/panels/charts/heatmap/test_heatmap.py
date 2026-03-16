@@ -505,6 +505,57 @@ def test_compile_heatmap_chart_with_all_axis_and_value_options_esql() -> None:
     )
 
 
+def test_heatmap_deprecated_grid_config_warns_and_maps() -> None:
+    """Deprecated grid_config should warn and map to appearance visibility fields."""
+    with pytest.warns(DeprecationWarning, match='grid_config'):
+        chart = LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'metrics-*',
+                'x_axis': {'type': 'values', 'field': 'host.name'},
+                'value': {'aggregation': 'count'},
+                'grid_config': {
+                    'cells': {'show_labels': True},
+                    'x_axis': {'show_labels': True, 'show_title': False},
+                    'y_axis': {'show_labels': False, 'show_title': True},
+                },
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.visible is True
+    assert chart.appearance.x_axis is not None
+    assert chart.appearance.x_axis.labels is not None
+    assert chart.appearance.x_axis.labels.visible is True
+    assert chart.appearance.x_axis.title is not None
+    assert chart.appearance.x_axis.title.visible is False
+    assert chart.appearance.y_axis is not None
+    assert chart.appearance.y_axis.labels is not None
+    assert chart.appearance.y_axis.labels.visible is False
+    assert chart.appearance.y_axis.title is not None
+    assert chart.appearance.y_axis.title.visible is True
+
+
+def test_heatmap_deprecated_legend_warns_when_ignored() -> None:
+    """Deprecated top-level legend should warn when appearance.legend is present."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.legend' is already set"):
+        chart = LensHeatmapChart.model_validate(
+            {
+                'type': 'heatmap',
+                'data_view': 'metrics-*',
+                'x_axis': {'type': 'values', 'field': 'host.name'},
+                'value': {'aggregation': 'count'},
+                'appearance': {'legend': {'visible': 'show'}},
+                'legend': {'visible': 'hide'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.legend is not None
+    assert chart.appearance.legend.visible == 'show'
+
+
 def test_compile_heatmap_chart_partial_visibility_config() -> None:
     """Test the compilation of a heatmap chart with partial axis/value visibility config."""
     config = {

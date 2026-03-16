@@ -1,4 +1,5 @@
-from typing import Literal, Self
+import warnings
+from typing import Any, Literal, Self, cast
 
 from pydantic import Field, model_validator
 
@@ -122,6 +123,31 @@ class AxisConfig(BaseCfgModel):
 
     extent: AxisExtent | None = Field(default=None)
     """Extent/bounds configuration for the axis."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_show_title(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'show_title' not in normalized_data:
+            return normalized_data
+
+        legacy_show_title = cast('object', normalized_data.pop('show_title'))
+        if 'title' not in normalized_data:
+            warnings.warn(
+                "XY axis field 'show_title' is deprecated, use 'title: true|false|<string>' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['title'] = legacy_show_title
+        else:
+            warnings.warn(
+                "XY axis field 'show_title' is ignored because 'title' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return normalized_data
 
     @model_validator(mode='after')
     def validate_title(self) -> Self:

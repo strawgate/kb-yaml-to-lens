@@ -621,6 +621,44 @@ def test_compile_metric_chart_secondary_label_position_after(chart_type: str) ->
     assert result['secondaryLabelPosition'] == 'after'
 
 
+def test_metric_deprecated_secondary_label_string_warns_and_maps() -> None:
+    """Deprecated secondary.label string should warn and map to label.text."""
+    with pytest.warns(DeprecationWarning, match="label'.*string"):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label': 'legacy text'}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.text == 'legacy text'
+
+
+def test_metric_deprecated_label_position_warns_when_ignored() -> None:
+    """Deprecated secondary.label_position should warn when nested position is present."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.secondary.label.position' is already set"):
+        chart = LensMetricChart.model_validate(
+            {
+                'type': 'metric',
+                'data_view': 'metrics-*',
+                'primary': {'aggregation': 'count'},
+                'secondary': {'aggregation': 'count'},
+                'appearance': {'secondary': {'label_position': 'before', 'label': {'position': 'after'}}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.secondary is not None
+    assert chart.appearance.secondary.label is not None
+    assert chart.appearance.secondary.label.position == 'after'
+
+
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 def test_compile_metric_chart_icon(chart_type: str) -> None:
     """Test metric icon compilation for Lens and ES|QL charts."""

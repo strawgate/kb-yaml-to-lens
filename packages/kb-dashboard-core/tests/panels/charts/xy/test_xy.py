@@ -1655,3 +1655,21 @@ def test_value_labels_default_none_in_appearance_values() -> None:
     lens_chart = LensAreaChart(**lens_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
     assert kbn_state_visualization.valueLabels == 'hide'
+
+
+def test_xy_axis_deprecated_show_title_warns_and_maps() -> None:
+    """Deprecated axis.show_title should warn and map to title bool."""
+    with pytest.warns(DeprecationWarning, match='show_title'):
+        chart = LensLineChart.model_validate(
+            {
+                'type': 'line',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'appearance': {'x_axis': {'show_title': False}},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.x_axis is not None
+    assert chart.appearance.x_axis.title is False

@@ -76,9 +76,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
             show_bar = None
 
     secondary_label_position = (
-        secondary.label.position
-        if secondary is not None and secondary.label is not None and secondary.label.position is not None
-        else None
+        secondary.label.position if secondary is not None and secondary.label is not None and secondary.label.position is not None else None
     )
     if secondary_label_position is None:
         secondary_label_position = 'before'
@@ -307,9 +305,7 @@ def compile_esql_metric_chart(
         show_bar = False
 
     secondary_label_position = (
-        secondary.label.position
-        if secondary is not None and secondary.label is not None and secondary.label.position is not None
-        else None
+        secondary.label.position if secondary is not None and secondary.label is not None and secondary.label.position is not None else None
     )
 
     palette = compile_color_range_mapping(esql_metric_chart.color) if isinstance(esql_metric_chart.color, ColorRangeMapping) else None
