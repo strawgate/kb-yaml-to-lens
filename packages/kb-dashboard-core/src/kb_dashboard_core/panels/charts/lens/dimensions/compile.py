@@ -139,7 +139,7 @@ def compile_lens_dimension(
             params=KbnLensDateHistogramDimensionColumnParams(
                 interval=dimension.minimum_interval if dimension.minimum_interval is not None else 'auto',
                 includeEmptyRows=True,
-                dropPartials=False,
+                dropPartials=not default_true(dimension.partial_intervals),
             ),
         )
     if isinstance(dimension, LensTermsDimension):

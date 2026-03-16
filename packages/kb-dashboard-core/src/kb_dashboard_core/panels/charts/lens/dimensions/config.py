@@ -1,9 +1,10 @@
 """Lens dimensions configuration for the Lens chart."""
 
+import re
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel, Sort
@@ -167,10 +168,28 @@ class LensDateHistogramDimension(BaseLensDimension):
     """The name of the field in the data view that this dimension is based on."""
 
     minimum_interval: str | None = Field(default=None)
-    """The numeric interval for the histogram buckets. Defaults to `auto` if not specified."""
+    """The minimum interval using Elasticsearch date math format (e.g. `1m`, `1h`). Defaults to `auto`."""
 
     partial_intervals: bool | None = Field(default=None)
     """If `true`, show partial intervals. Kibana defaults to `true` if not specified."""
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
+
+    @field_validator('minimum_interval')
+    @classmethod
+    def validate_minimum_interval(cls, value: str | None) -> str | None:
+        """Validate Lens minimum interval format expected by Kibana/Elasticsearch."""
+        if value is None:
+            return value
+
+        if value == 'auto':
+            return value
+
+        if not re.fullmatch(r'[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)', value):
+            msg = (
+                "minimum_interval must be 'auto' or Elasticsearch date math format like "
+                "'1ms', '1s', '1m', '1h', '1d', '1w', '1M', '1q', '1y'"
+            )
+            raise ValueError(msg)
+        return value
