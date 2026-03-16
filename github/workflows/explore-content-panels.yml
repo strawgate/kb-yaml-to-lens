@@ -1,0 +1,147 @@
+---
+name: 'Explore: Content Panels (Markdown/Search/Links/Image/Vega/Section)'
+on:
+  schedule:
+    - cron: 40 13 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: Kibana version to test (leave empty for all)
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: explore-content-panels-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[explore-content-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
+
+        ## Mission
+        Systematically test every config option for **non-chart panel types**
+        against **Kibana ${{ matrix.kibana_version }}**: markdown, search, links,
+        image, vega, and collapsible sections.
+        Data views: `logs-*`, `metrics-*`.
+
+        ## Compiler-supported features to test
+
+        ### Markdown (`type: markdown`)
+        - `content` (required) — Markdown text content
+        - `font_size` (optional) — font size in pixels (default: 12)
+        - `links_in_new_tab` (optional) — open links in new tab (boolean)
+        - Markdown formatting: headers, bold, italic, lists, code blocks,
+          links, tables, blockquotes, images
+        - Base panel properties: `title`, `hide_title`, `description`,
+          `size` (w/h), `position` (x/y)
+
+        ### Search (`type: search`)
+        - `saved_search_id` (required) — ID of saved Kibana search object
+        - Base panel properties: `title`, `hide_title`, `description`,
+          `size`, `position`
+        - NOTE: The compiler references an existing saved search by ID.
+          It does NOT create saved searches. You must create one in Kibana
+          first, then reference its ID.
+
+        ### Links (`type: links`)
+        - `layout` (optional) — `horizontal` (default) or `vertical`
+        - `items` — list of link objects:
+          - **Dashboard link**: `dashboard` (required, dashboard ID),
+            `label`, `new_tab`, `with_time` (default: true),
+            `with_filters` (default: true)
+          - **URL link**: `url` (required), `label`, `new_tab`,
+            `encode` (default: true)
+        - Base panel properties
+
+        ### Image (`type: image`)
+        - `from_url` (required) — URL of image to display
+        - `fit` (optional) — sizing mode:
+          - `contain` (default) — fit within panel, maintain aspect ratio
+          - `cover` — fill panel, maintain ratio, may crop
+          - `fill` — stretch to fill, may distort
+          - `none` — original size, crop if larger
+        - `description` (optional) — alt text for accessibility
+        - `background_color` (optional) — hex color for panel background
+        - Base panel properties
+
+        ### Vega (`type: vega`)
+        - `spec` (required) — Vega or Vega-Lite specification as YAML object
+        - The spec is passed directly to Kibana's Vega renderer
+        - Supports all Vega-Lite mark types, encodings, and data sources
+        - Base panel properties
+
+        ### Collapsible Section (`type: section`)
+        - `collapsed` (optional) — default collapsed state (boolean)
+        - `panels` — list of child panels nested within the section
+          - Inner panels use RELATIVE coordinates starting at (0, 0)
+          - All panel types are valid inside sections EXCEPT nested sections
+        - `title` — section header label
+        - `hide_title` — hide section header
+        - Default size: full width (48), height 1
+
+        ### Common base panel properties
+        All panel types inherit:
+        - `id` — unique panel identifier
+        - `title` — panel title (empty string default)
+        - `hide_title` — hide the title bar (boolean)
+        - `description` — brief panel description
+        - `size` — `{w: int | semantic, h: int}` where semantic is one of:
+          `whole` (48), `half` (24), `third` (16), `quarter` (12),
+          `sixth` (8), `eighth` (6)
+        - `position` — `{x: int, y: int}` (auto-placed if omitted)
+        - `drilldowns` — optional drilldown actions
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Markdown with complex formatting: headers, code blocks, tables,
+          links (both same-tab and new-tab)
+        - Markdown with large font_size (24+) for dashboard headers
+        - Links panel with mix of dashboard links and URL links
+        - Links panel in vertical layout with 5+ links
+        - Image panel with each fit mode (contain, cover, fill, none)
+        - Image with custom background_color
+        - Vega-Lite bar chart with inline data
+        - Vega-Lite line chart pulling from Elasticsearch
+        - Collapsible section containing multiple chart panels
+        - Collapsible section with `collapsed: true` default state
+        - Multiple collapsible sections organizing a full dashboard
+        - Dashboard mixing content panels with chart panels
+        - Semantic width sizes: whole, half, third, quarter, sixth, eighth
+
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}

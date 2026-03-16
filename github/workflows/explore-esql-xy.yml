@@ -1,0 +1,154 @@
+---
+name: 'Explore: ES|QL XY Charts (Bar/Line/Area)'
+on:
+  schedule:
+    - cron: 20 12 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: Kibana version to test (leave empty for all)
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: explore-esql-xy-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[explore-esql-xy-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
+
+        ## Mission
+        Systematically test every config option for ES|QL **bar, line, and area**
+        charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+        Data views: `logs-*`, `metrics-*`.
+
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string: `query: "FROM logs-* | STATS count = COUNT()"`
+        - A list of strings (joined with pipes):
+          ```yaml
+          query:
+            - FROM logs-*
+            - WHERE @timestamp > NOW() - 1h
+            - STATS count = COUNT(), avg_bytes = AVG(bytes)
+          ```
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+
+        ### Dimensions
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `data_type` (optional) — set to `'date'` for time/date fields
+        - `collapse` (optional) — aggregation: `sum`, `avg`, `min`, `max`
+
+        ### Metrics
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `format` (optional) — `number`, `bytes`, `bits`, `percent`, `duration`
+          with `decimals`, `suffix`, `compact` params; or custom `pattern`
+
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **dimension** (optional) — x-axis (0 or 1 dimension)
+        - **metrics** (required) — y-axis (1 or more)
+        - **breakdown** (optional) — series split dimension
+
+        ### Chart types and modes
+        - `type: bar` with `mode: stacked` (default), `unstacked`, `percentage`
+        - `type: line`
+        - `type: area` with `mode: stacked` (default), `unstacked`, `percentage`
+
+        ### Per-metric options
+        - `axis: left | right` — for dual-axis charts
+        - `color` — custom series color (hex)
+
+        ### Axis configuration (`appearance:`)
+        - `x_axis`, `y_left_axis`, `y_right_axis`:
+          - `title` — axis label text
+          - `show_title` — boolean
+          - `scale` — `linear`, `log`, `sqrt`, `time`
+          - `extent.mode` — `full`, `custom`, `data_bounds`
+          - `extent.min`, `extent.max` — custom bounds
+          - `extent.enforce` — strict enforcement
+          - `extent.nice_values` — rounded values
+
+        ### Line/Area-specific appearance
+        - `missing_values` — `None`, `Linear`, `Carry`, `Lookahead`,
+          `Average`, `Nearest`
+        - `show_as_dotted` — distinguish interpolated data
+        - `end_values` — `None`, `Zero`, `Nearest`
+        - `line_style` — `linear`, `monotone-x`, `step-after`
+        - `fill_opacity` — 0.0-1.0 (area charts)
+
+        ### Bar-specific appearance
+        - `min_bar_height` — minimum bar pixel height
+
+        ### Other appearance
+        - `show_current_time_marker` — boolean
+        - `hide_endzones` — boolean
+
+        ### Legend (`legend:`)
+        - `visible` — `show`, `hide`, `auto`
+        - `position` — `top`, `bottom`, `left`, `right`
+        - `show_single_series` — boolean
+        - `size` — `small`, `medium`, `large`, `extra_large`
+        - `truncate_labels` — 0-5 lines
+
+        ### Value labels (`titles_and_text:`)
+        - `value_labels` — `hide` or `show`
+
+        ### Color (`color:`)
+        - `palette` — categorical color scheme
+        - `assignments` — manual value-to-color mappings
+
+        ## Creative exploration
+        - ES|QL bar chart with `STATS count = COUNT() BY host.name`
+        - ES|QL line chart with `EVAL bucket = BUCKET(@timestamp, 1 hour)`
+          for date histogram, with `data_type: date` on dimension
+        - ES|QL area chart with percentage mode + 3 breakdown categories
+        - Dual-axis: bytes on left, count on right from same query
+        - ES|QL bar with `step-after` line style overlay
+        - Stacked bar with custom color assignments per breakdown value
+        - Compare ES|QL XY panel vs equivalent Lens XY panel side-by-side
+
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}

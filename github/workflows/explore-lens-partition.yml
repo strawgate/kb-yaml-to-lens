@@ -1,0 +1,111 @@
+---
+name: 'Explore: Lens Partition (Waffle/Mosaic)'
+on:
+  schedule:
+    - cron: 40 11 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: Kibana version to test (leave empty for all)
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: explore-lens-partition-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[explore-lens-partition-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
+
+        ## Mission
+        Systematically test every config option for **waffle and mosaic** Lens
+        charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+        Data views: `logs-*`, `metrics-*`.
+
+        ## Compiler-supported features to test
+
+        ### Waffle chart (`type: waffle`)
+        Config slots in Kibana: **Group by** (optional), **Metric** (required)
+        - `dimension` — primary grouping dimension (maps to "Group by")
+        - `metric` — single metric for cell proportions
+        - `color.palette` — categorical color palette
+        - `color.assignments` — manual value-to-color mappings
+        - `legend` — `visible`, `position`, `width`, `truncate_labels`, `nested`,
+          `show_single_series`
+        - `titles_and_text.value_format` — `percent`, `value`, `hidden`
+        - `titles_and_text.value_decimal_places` — 0-10
+        **Known Kibana limitations for Waffle:**
+        - Waffle does NOT have a Maximum value slot (unlike Metric)
+        - Waffle does NOT have a Breakdown slot — using `breakdown` in YAML may
+          cause "too many dimensions" error in Kibana. This is a known issue.
+
+        ### Mosaic chart (`type: mosaic`)
+        Config slots in Kibana: **Horizontal axis**, **Vertical axis**, **Metric**
+        - `dimension` — horizontal axis terms dimension
+        - `breakdown` — vertical axis terms dimension
+        - `metric` — single metric for rectangle proportions
+        - `color.palette` — categorical color palette
+        - `color.assignments` — manual value-to-color mappings
+        - `legend` — same options as waffle
+        - `titles_and_text.value_format` — `percent`, `value`, `hidden`
+        - `titles_and_text.value_decimal_places` — 0-10
+
+        ### Shared dimension types
+        - `type: values` — top values with `field`, `size`, `other_bucket`
+        - `type: date_histogram` — time bucketing
+        - `type: intervals` — numeric ranges
+        - `type: filters` — KQL filter-based
+
+        ### Shared metric types
+        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
+        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
+        `standard_deviation`, `formula`
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Waffle with top 10 terms + custom color assignments per value
+        - Mosaic with two terms dimensions + count metric
+        - Waffle with formula metric
+        - Mosaic with `value_format: percent` + 2 decimal places
+        - Both chart types with `legend.nested: true`
+        - Partition charts inside collapsible sections
+
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}

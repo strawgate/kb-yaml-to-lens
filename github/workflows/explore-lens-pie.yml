@@ -1,0 +1,113 @@
+---
+name: 'Explore: Lens Pie/Donut'
+on:
+  schedule:
+    - cron: 30 11 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: Kibana version to test (leave empty for all)
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: explore-lens-pie-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[explore-lens-pie-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
+
+        ## Mission
+        Systematically test every config option for **pie and donut** Lens charts
+        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+        Data views: `logs-*`, `metrics-*`.
+
+        ## Compiler-supported features to test
+
+        ### Config slots (Kibana editor drop zones)
+        - **Slice by** (required) — one or more dimensions (primary + secondary groups)
+        - **Metric** (required) — one or more metrics for slice sizes
+
+        ### Shape (`appearance:`)
+        - Pie (default) — no donut setting or `appearance.donut` omitted
+        - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
+
+        ### Dimension types (`dimensions:`)
+        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
+          `missing_bucket`, `include`/`exclude`
+        - `type: date_histogram` — with `field`, `minimum_interval`
+        - `type: intervals` — numeric ranges
+        - `type: filters` — KQL filter-based
+        - Multiple dimensions create nested rings (primaryGroups + secondaryGroups)
+
+        ### Metric types (`metrics:`)
+        All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
+        `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
+        `standard_deviation`, `formula`
+
+        ### Slice labels and values (`titles_and_text:`)
+        - `slice_labels` — `hide`, `inside`, `auto` (default: auto)
+        - `slice_values` — `hide`, `integer`, `percent` (default: percent)
+        - `value_decimal_places` — 0-10 (default: 2)
+
+        ### Legend (`legend:`)
+        - `visible` — `show`, `hide`, `auto`
+        - `position` — `top`, `right` (default), `bottom`, `left`
+        - `width` — `small`, `medium`, `large`, `extra_large`
+        - `truncate_labels` — 0-5 lines
+        - `nested` — boolean for hierarchical legend
+        - `show_single_series` — boolean
+
+        ### Color (`color:`)
+        - `palette` — EUI color scheme
+        - `assignments` — manual value-to-color hex mappings
+
+        ## Creative exploration
+        After covering the feature matrix, try interesting combinations:
+        - Donut with 2 nested ring dimensions + custom color assignments
+        - Pie with filters dimension (e.g. error vs warning vs info)
+        - Large donut with `slice_labels: inside` + `slice_values: percent`
+        - Pie with `other_bucket: true` + small `size` to show grouping
+        - Multiple metrics on a single pie (test emptySizeRatio behavior)
+        - Formula-based metric as pie slice size
+        - Pie chart inside a collapsible section
+
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}

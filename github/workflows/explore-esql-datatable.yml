@@ -1,0 +1,119 @@
+---
+name: 'Explore: ES|QL Datatable'
+on:
+  schedule:
+    - cron: 10 13 * * 1-5
+  workflow_dispatch:
+    inputs:
+      kibana_version:
+        description: Kibana version to test (leave empty for all)
+        required: false
+        type: string
+        default: ''
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+concurrency:
+  group: explore-esql-datatable-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          INPUT_VERSION="${{ inputs.kibana_version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "matrix={\"kibana_version\":[\"$INPUT_VERSION\"]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"kibana_version":["8.19.0","9.3.0"]}' >> "$GITHUB_OUTPUT"
+          fi
+  explore:
+    needs: generate-matrix
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[explore-esql-datatable-${{ matrix.kibana_version }}]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        npx playwright install chromium
+        just explore-bootstrap ${{ matrix.kibana_version }}
+      additional-instructions: |
+        You MUST read `.github/agent-guides/explore-agents/getting-started.md`
+        and all instruction files it references BEFORE starting any work.
+
+        ## Mission
+        Systematically test every config option for ES|QL **datatable** panels
+        against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
+        compile them, import into Kibana, and verify every setting renders correctly.
+        Data views: `logs-*`, `metrics-*`.
+
+        ## ES|QL query configuration
+        Queries can be specified as:
+        - A single string or list of strings (joined with pipes)
+        - `time_field` (optional, default: `@timestamp`) — used for time picker
+
+        ## ES|QL column configuration
+        - `field` (required) — field name from ES|QL query result
+        - `label` (optional) — custom display label
+        - `format` (optional) — `number`, `bytes`, `bits`, `percent`, `duration`
+          with `decimals`, `suffix`, `compact`; or custom `pattern`
+
+        ## Compiler-supported features to test
+
+        ### Config slots
+        - **metrics** (optional) — metric columns
+        - **dimensions** (optional) — row grouping columns
+        - **dimensions_by** (optional) — split metrics by dimension values
+        - At least one metric OR dimension is required
+
+        ### Per-column appearance (metrics and dimensions)
+        - `appearance.width` — column width in pixels
+        - `appearance.hidden` — hide column (boolean)
+        - `appearance.one_click_filter` — click-to-filter (boolean)
+        - `appearance.alignment` — `left`, `right`, `center`
+
+        ### Metric column extras
+        - `appearance.summary_row` — `none`, `sum`, `avg`, `count`, `min`, `max`
+        - `appearance.summary_label` — custom label for summary row
+        - `appearance.color` — cell/text coloring:
+          - `apply_to` — `none`, `cell`, `text`
+          - `range_type` — `number` or `percent`
+          - `range_min`, `range_max`, `continuity`
+          - `stops` — color range `[{stop, color}]`
+
+        ### Table layout (`appearance:`)
+        - `row_height` — `auto`, `single`, `custom`
+        - `row_height_lines` — lines for custom height
+        - `header_row_height` — `auto`, `single`, `custom`
+        - `header_row_height_lines`
+        - `density` — `compact`, `normal`, `expanded`
+
+        ### Sorting and pagination
+        - `sorting.column_id`, `sorting.direction` (`asc`/`desc`)
+        - `paging.enabled` (boolean), `paging.page_size` (number, default: 10)
+
+        ## Creative exploration
+        - ES|QL datatable with `STATS count = COUNT(), avg = AVG(bytes) BY host.name`
+        - ES|QL datatable with multiple STATS columns + sorting
+        - ES|QL datatable with summary rows on metric columns
+        - ES|QL datatable with cell color gradient (green/yellow/red)
+        - ES|QL datatable with mixed alignment: left dimensions, right metrics
+        - ES|QL datatable with hidden column for sorting only
+        - ES|QL datatable with compact density + custom row height
+        - ES|QL datatable with pagination (page_size: 25)
+        - Compare ES|QL datatable vs equivalent Lens datatable side-by-side
+
+        ## Issue title
+        The workflow automatically prefixes your title. Just provide the
+        summary, e.g. `3 bugs, 2 gaps`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
