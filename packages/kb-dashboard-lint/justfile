@@ -4,8 +4,9 @@
 # Import shared helpers
 import '../../shared.just'
 
-# Repository root (parent of packages directory)
-REPO_ROOT := justfile_directory() / "../.."
+# Repository root — use source_directory() so this resolves correctly both
+# when invoked directly and via root mod (just lint ...).
+REPO_ROOT := source_directory() / "../.."
 
 # Default recipe - show help
 default:

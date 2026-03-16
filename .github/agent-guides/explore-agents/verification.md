@@ -1,19 +1,85 @@
 # Explore Agent: Verification Process
 
-## Prereq: Read compiler source
+## Prereq: Read compiler source and examples
 
 Read the relevant compiler source in `packages/kb-dashboard-core/src/` to
 understand every supported config option and the view model defaults.
+
+### YAML format reference
+
+Every YAML file **must** start with a `dashboards:` top-level key. Panels go
+under `dashboards[].panels[]` and use a discriminator key (`lens:`, `esql:`,
+`vega:`, `markdown:`, `search:`, `links:`, `image:`, or `section:`).
+
+**Base dashboard template** — copy this as your starting point:
+```yaml
+---
+dashboards:
+  - id: test-dashboard
+    name: Test Dashboard
+    description: Verification test
+    panels:
+      - title: My Metric
+        lens:
+          type: metric
+          data_view: logs-*
+          primary:
+            aggregation: count
+      - title: My Line Chart
+        lens:
+          type: line
+          data_view: logs-*
+          y_axis:
+            - aggregation: count
+```
+
+**Common mistakes to avoid:**
+- Use `aggregation: count`, NOT `type: count` — metrics use `aggregation` to
+  specify the function (count, average, sum, min, max, unique_count, etc.)
+- Use `data_view: logs-*` or `data_view: metrics-*` (the data view **name**),
+  NOT the data view UUID
+- Seeded data views are `logs-*` and `metrics-*` with ECS-compatible fields:
+  - **Both:** `@timestamp`, `service.name`, `host.name`, `host.ip`, `event.dataset`, `event.module`
+  - **Logs:** `message`, `log.level`, `http.response.status_code`, `http.response.bytes`,
+    `http.request.method`, `url.path`, `user_agent.name`, `service.environment`
+  - **Metrics:** `system.cpu.user.pct`, `system.cpu.system.pct`, `system.cpu.total.pct`,
+    `system.memory.used.pct`, `system.memory.used.bytes`, `system.load.1`
+- Gauge uses `metric:` not `primary:` for its metric slot
+
+### Panel documentation by chart type
+
+| Chart type | Example YAML | Compiler source |
+|------------|-------------|-----------------|
+| **XY** (line, bar, area) | `packages/kb-dashboard-docs/content/examples/multi-panel-showcase.yaml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/xy/` |
+| **Metric** | `packages/kb-dashboard-docs/content/examples/metric-formatting-examples.yaml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/metric/` |
+| **Pie / Donut** | `packages/kb-dashboard-docs/content/examples/multi-panel-showcase.yaml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/pie/` |
+| **Heatmap** | `packages/kb-dashboard-docs/content/examples/heatmap-examples.yaml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/heatmap/` |
+| **Gauge** | Real-world examples in `packages/kb-dashboard-docs/content/examples/system/` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/gauge/` |
+| **Treemap** | `samples/treemap.yml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/treemap/` |
+| **Waffle** | Real-world examples in `packages/kb-dashboard-docs/content/examples/` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/waffle/` |
+| **Tag cloud** | `packages/kb-dashboard-docs/content/examples/multi-panel-showcase.yaml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/tagcloud/` |
+| **Data table** | Real-world examples in `packages/kb-dashboard-docs/content/examples/` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/datatable/` |
+| **Mosaic** | — | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/mosaic/` |
+| **ES\|QL** | `packages/kb-dashboard-docs/content/examples/multi-panel-showcase.yaml` | `packages/kb-dashboard-core/src/kb_dashboard_core/panels/charts/esql/` |
+
+**Additional references:**
+- Color mapping: `packages/kb-dashboard-docs/content/examples/color-palette-examples.yaml`
+- Dimensions & breakdowns: `packages/kb-dashboard-docs/content/examples/dimensions-example.yaml`
+- Full documentation index: `packages/kb-dashboard-docs/content/examples/index.md`
+
+**Always read an example YAML file for the chart type you are working with
+before authoring your own.** Do not guess at the YAML structure.
 
 ## Part 1: Compile YAML → Import → Verify in Kibana
 
 For each supported feature:
 
-1. **Author** a minimal YAML config exercising the feature.
+1. **Author** a minimal YAML config exercising the feature (using the base
+   template above and referencing the example YAML for that chart type).
 2. **Compile and upload** in one step:
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://host.docker.internal:5601
+     --upload --kibana-url http://host.docker.internal:443
    ```
    This compiles the YAML to NDJSON and uploads it to Kibana via the
    saved objects API. Do NOT use curl or the Kibana UI to import — the
@@ -33,7 +99,7 @@ For each supported feature:
 2. **Export** the dashboard using the CLI:
    ```bash
    uv run kb-dashboard fetch <dashboard-id> --output /tmp/exported.ndjson \
-     --kibana-url http://host.docker.internal:5601
+     --kibana-url http://host.docker.internal:443
    ```
 3. **Inspect** the exported JSON and compare it against the compiler's view
    models and defaults. Look for:
@@ -71,7 +137,7 @@ issue), follow this process for **each** bug:
    Compile and upload it:
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://host.docker.internal:5601
+     --upload --kibana-url http://host.docker.internal:443
    ```
    Open the dashboard in Kibana and confirm the bug exists.
 2. **Show the diff** — Show the specific JSON fields the compiler produces
@@ -84,7 +150,7 @@ issue), follow this process for **each** bug:
 4. **Verify the fix** — Recompile and re-upload with your fix applied:
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://host.docker.internal:5601
+     --upload --kibana-url http://host.docker.internal:443
    ```
    Open in Kibana and confirm the panel now works correctly.
 5. **Run tests** — Run `just core test` and `just core lint`. If tests

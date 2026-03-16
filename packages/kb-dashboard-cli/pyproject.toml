@@ -33,7 +33,6 @@ dev = [
     "inline-snapshot>=0.31.1",
     "dirty-equals>=0.8.0",
     "pytest-examples>=0.0.18",
-    "pydantic2zod @ git+https://github.com/argyle-engineering/pydantic2zod@0.1.1",
 ]
 
 [project.scripts]

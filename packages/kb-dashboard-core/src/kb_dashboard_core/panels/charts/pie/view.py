@@ -95,8 +95,8 @@ class KbnPieVisualizationState(KbnBaseStateVisualization):
         https://github.com/elastic/kibana/blob/main/src/platform/packages/shared/kbn-lens-common/visualizations/pie/types.ts
     """
 
-    shape: Literal['pie', 'donut']
-    """Shape of the chart ('pie' for full circle, 'donut' for ring chart)."""
+    shape: Literal['pie', 'donut', 'treemap']
+    """Shape of the chart ('pie' for full circle, 'donut' for ring chart, or 'treemap')."""
 
     layers: list[KbnPieStateVisualizationLayer] = Field(...)
     """List of data layers for the pie chart."""

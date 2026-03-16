@@ -11,27 +11,33 @@
 set -euo pipefail
 
 KIBANA_VERSION="${1:-9.3.0}"
+NETWORK_NAME="explore-net"
 ES_CONTAINER="es-explore"
 KIBANA_CONTAINER="kibana-explore"
 
 echo "Bootstrapping Elasticsearch + Kibana (version: ${KIBANA_VERSION})"
 
 docker rm -f "${ES_CONTAINER}" "${KIBANA_CONTAINER}" >/dev/null 2>&1 || true
+docker network rm "${NETWORK_NAME}" >/dev/null 2>&1 || true
+docker network create "${NETWORK_NAME}" >/dev/null
 
-# Use host networking so ES and Kibana bind directly to the host's interfaces.
-# This is required for the AWF sandbox — the agent container can only reach the
-# host via host.docker.internal, and the AWF firewall blocks non-standard ports
-# when containers use bridge networking with -p port mappings.
 docker run -d --name "${ES_CONTAINER}" \
-  --network host \
+  --network "${NETWORK_NAME}" \
+  -p 9200:9200 \
   -e "discovery.type=single-node" \
   -e "xpack.security.enabled=false" \
   -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+  -e "network.host=0.0.0.0" \
   "docker.elastic.co/elasticsearch/elasticsearch:${KIBANA_VERSION}" >/dev/null
 
+# Map Kibana to host port 443 so the AWF sandbox agent can reach it.
+# The AWF firewall only DNAT-redirects ports 80 and 443 through its Squid proxy;
+# all other ports are dropped by the filter chain's default deny rule.
+# Port 80 is already used by the MCP gateway, so we use 443.
 docker run -d --name "${KIBANA_CONTAINER}" \
-  --network host \
-  -e "ELASTICSEARCH_HOSTS=http://localhost:9200" \
+  --network "${NETWORK_NAME}" \
+  -p 443:5601 \
+  -e "ELASTICSEARCH_HOSTS=http://${ES_CONTAINER}:9200" \
   -e "XPACK_SECURITY_ENABLED=false" \
   -e "SERVER_HOST=0.0.0.0" \
   "docker.elastic.co/kibana/kibana:${KIBANA_VERSION}" >/dev/null
@@ -44,10 +50,10 @@ for i in $(seq 1 90); do
   sleep 2
 done
 
-echo "Waiting for Kibana on http://localhost:5601 ..."
+echo "Waiting for Kibana on http://localhost:443 ..."
 KIBANA_READY=0
 for _ in $(seq 1 180); do
-  if curl -fsS "http://localhost:5601/api/status" >/dev/null; then
+  if curl -fsS "http://localhost:443/api/status" >/dev/null; then
     KIBANA_READY=1
     break
   fi
@@ -68,27 +74,52 @@ epoch_to_iso() {
   date -u -r "$1" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null \
     || date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ
 }
-TS0="$(epoch_to_iso $((NOW_EPOCH - 600)))"   # 10 min ago
-TS1="$(epoch_to_iso $((NOW_EPOCH - 540)))"   # 9 min ago
-TS2="$(epoch_to_iso $((NOW_EPOCH - 480)))"   # 8 min ago
-TS3="$(epoch_to_iso $((NOW_EPOCH - 420)))"   # 7 min ago
-TS4="$(epoch_to_iso $((NOW_EPOCH - 360)))"   # 6 min ago
-TS5="$(epoch_to_iso $((NOW_EPOCH - 300)))"   # 5 min ago
+# --- Build seed NDJSON with realistic volume ---
+# 3 hosts, 3 services, spread across the 15-minute window so date histograms
+# and breakdowns have enough data to look realistic.
+# Produces ~30 log docs + ~15 metric docs = ~45 documents.
+HOSTS=(host-a host-b host-c)
+HOST_IPS=(10.0.0.1 10.0.0.2 10.0.0.3)
+SERVICES=(api worker frontend)
+ENVS=(production staging production)
+LEVELS=(info warn error info info info)  # weighted toward info
+METHODS=(GET POST PUT DELETE GET GET)
+PATHS=(/api/v1/users /api/v1/orders /api/v1/health /api/v1/sessions /api/v1/products /)
+CODES=(200 200 200 201 301 400 401 404 500 503)
+AGENTS=(curl python-requests "Mozilla/5.0" ELB-HealthChecker Go-http-client)
 
-cat > /tmp/explore-seed.ndjson <<EOF
-{"create":{"_index":"logs-default-generic"}}
-{"@timestamp":"${TS0}","service":{"name":"api"},"host":{"name":"host-a"},"event":{"dataset":"app.logs"},"log":{"level":"info"},"env":"prod","status":"ok","value":12.5}
-{"create":{"_index":"logs-default-generic"}}
-{"@timestamp":"${TS1}","service":{"name":"api"},"host":{"name":"host-b"},"event":{"dataset":"app.logs"},"log":{"level":"error"},"env":"prod","status":"error","value":41.1}
-{"create":{"_index":"logs-default-generic"}}
-{"@timestamp":"${TS2}","service":{"name":"worker"},"host":{"name":"host-c"},"event":{"dataset":"app.logs"},"log":{"level":"warn"},"env":"staging","status":"warn","value":22.0}
-{"create":{"_index":"metrics-default-generic"}}
-{"@timestamp":"${TS3}","service.name":"api","host.name":"host-a","env":"prod","cpu.pct":0.43,"latency_ms":121,"requests":240}
-{"create":{"_index":"metrics-default-generic"}}
-{"@timestamp":"${TS4}","service.name":"api","host.name":"host-b","env":"prod","cpu.pct":0.88,"latency_ms":292,"requests":310}
-{"create":{"_index":"metrics-default-generic"}}
-{"@timestamp":"${TS5}","service.name":"worker","host.name":"host-c","env":"staging","cpu.pct":0.36,"latency_ms":95,"requests":125}
-EOF
+: > /tmp/explore-seed.ndjson
+
+# Generate 30 log documents (one per 30s over the last 15 min)
+for i in $(seq 0 29); do
+  ts="$(epoch_to_iso $((NOW_EPOCH - 870 + i * 30)))"
+  h=$((i % 3)); s=$((i % 3))
+  lvl="${LEVELS[$((i % ${#LEVELS[@]}))]}"
+  method="${METHODS[$((i % ${#METHODS[@]}))]}"
+  path="${PATHS[$((i % ${#PATHS[@]}))]}"
+  code="${CODES[$((i % ${#CODES[@]}))]}"
+  bytes=$(( (i + 1) * 128 ))
+  agent="${AGENTS[$((i % ${#AGENTS[@]}))]}"
+  env="${ENVS[$s]}"
+  echo '{"create":{"_index":"logs-default-generic"}}' >> /tmp/explore-seed.ndjson
+  echo "{\"@timestamp\":\"${ts}\",\"message\":\"${method} ${path} ${code}\",\"log\":{\"level\":\"${lvl}\"},\"service\":{\"name\":\"${SERVICES[$s]}\",\"version\":\"1.2.0\",\"environment\":\"${env}\"},\"host\":{\"name\":\"${HOSTS[$h]}\",\"ip\":\"${HOST_IPS[$h]}\"},\"event\":{\"dataset\":\"app.logs\",\"module\":\"${SERVICES[$s]}\"},\"http\":{\"request\":{\"method\":\"${method}\"},\"response\":{\"status_code\":${code},\"bytes\":${bytes}}},\"url\":{\"path\":\"${path}\"},\"user_agent\":{\"name\":\"${agent}\"}}" >> /tmp/explore-seed.ndjson
+done
+
+# Generate 15 metric documents (one per minute per host over 5 min)
+for minute in $(seq 0 4); do
+  ts="$(epoch_to_iso $((NOW_EPOCH - 600 + minute * 60)))"
+  for h in 0 1 2; do
+    cpu_user="0.$((20 + h * 25 + minute * 3))"
+    cpu_sys="0.$((5 + h * 3 + minute))"
+    mem_pct="0.$((55 + h * 15 + minute * 2))"
+    mem_bytes=$(( 2400000000 + h * 500000000 + minute * 100000000 ))
+    load1="$((h + minute)).$(( (h + minute) % 10 ))"
+    echo '{"create":{"_index":"metrics-default-generic"}}' >> /tmp/explore-seed.ndjson
+    echo "{\"@timestamp\":\"${ts}\",\"service\":{\"name\":\"${SERVICES[$h]}\"},\"host\":{\"name\":\"${HOSTS[$h]}\",\"ip\":\"${HOST_IPS[$h]}\"},\"event\":{\"dataset\":\"system.cpu\",\"module\":\"system\"},\"system\":{\"cpu\":{\"user\":{\"pct\":${cpu_user}},\"system\":{\"pct\":${cpu_sys}},\"total\":{\"pct\":${cpu_user}}},\"memory\":{\"used\":{\"pct\":${mem_pct},\"bytes\":${mem_bytes}},\"total\":{\"bytes\":4294967296}},\"load\":{\"1\":${load1},\"5\":0.8,\"15\":0.6}},\"metricset\":{\"name\":\"cpu\"}}" >> /tmp/explore-seed.ndjson
+  done
+done
+
+echo "Seeded $(grep -c 'logs-default-generic' /tmp/explore-seed.ndjson) log docs + $(grep -c 'metrics-default-generic' /tmp/explore-seed.ndjson) metric docs"
 
 echo "Seeding indices logs-default-generic + metrics-default-generic ..."
 bulk_response="$(curl -fsS -H "Content-Type: application/x-ndjson" \
@@ -104,7 +135,7 @@ fi
 # Create data views so Lens is immediately usable (Kibana never auto-creates these)
 echo "Creating data views ..."
 for DV in "logs-*" "metrics-*"; do
-  curl -fsS -X POST "http://localhost:5601/api/data_views/data_view" \
+  curl -fsS -X POST "http://localhost:443/api/data_views/data_view" \
     -H "kbn-xsrf: true" \
     -H "Content-Type: application/json" \
     -d "{\"data_view\":{\"title\":\"${DV}\",\"name\":\"${DV}\",\"timeFieldName\":\"@timestamp\"}}" \
@@ -114,5 +145,5 @@ done
 
 echo "Bootstrap complete."
 echo "- Elasticsearch: http://localhost:9200"
-echo "- Kibana:        http://localhost:5601"
+echo "- Kibana:        http://localhost:443"
 echo "- Data views:    logs-*, metrics-*"

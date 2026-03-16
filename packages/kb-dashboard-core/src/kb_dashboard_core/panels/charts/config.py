@@ -11,6 +11,7 @@ from kb_dashboard_core.panels.charts.metric import ESQLMetricChart, LensMetricCh
 from kb_dashboard_core.panels.charts.mosaic import ESQLMosaicChart, LensMosaicChart
 from kb_dashboard_core.panels.charts.pie import ESQLPieChart, LensPieChart
 from kb_dashboard_core.panels.charts.tagcloud import ESQLTagcloudChart, LensTagcloudChart
+from kb_dashboard_core.panels.charts.treemap import ESQLTreemapChart, LensTreemapChart
 from kb_dashboard_core.panels.charts.waffle import ESQLWaffleChart, LensWaffleChart
 from kb_dashboard_core.panels.charts.xy.config import (
     ESQLAreaChart,
@@ -30,7 +31,9 @@ type LensChartTypes = MultiLayerChartTypes | SingleLayerChartTypes
 
 type MultiLayerChartTypes = LensPieChart | LensLineChart | LensBarChart | LensAreaChart | LensTagcloudChart | LensReferenceLineLayer
 
-type SingleLayerChartTypes = LensMetricChart | LensDatatableChart | LensGaugeChart | LensHeatmapChart | LensMosaicChart | LensWaffleChart
+type SingleLayerChartTypes = (
+    LensMetricChart | LensDatatableChart | LensGaugeChart | LensHeatmapChart | LensMosaicChart | LensTreemapChart | LensWaffleChart
+)
 
 type ESQLChartTypes = (
     ESQLMetricChart
@@ -43,6 +46,7 @@ type ESQLChartTypes = (
     | ESQLDatatableChart
     | ESQLTagcloudChart
     | ESQLMosaicChart
+    | ESQLTreemapChart
     | ESQLWaffleChart
 )
 
@@ -104,6 +108,10 @@ class LensMosaicPanelConfig(LensMosaicChart, LensPanelFieldsMixin):
     """Configuration for a Lens mosaic panel."""
 
 
+class LensTreemapPanelConfig(LensTreemapChart, LensPanelFieldsMixin):
+    """Configuration for a Lens treemap panel."""
+
+
 class LensWafflePanelConfig(LensWaffleChart, LensPanelFieldsMixin):
     """Configuration for a Lens waffle panel."""
 
@@ -119,6 +127,7 @@ type LensPanelConfig = Annotated[
     | Annotated[LensTagcloudPanelConfig, Tag('tagcloud')]
     | Annotated[LensDatatablePanelConfig, Tag('datatable')]
     | Annotated[LensMosaicPanelConfig, Tag('mosaic')]
+    | Annotated[LensTreemapPanelConfig, Tag('treemap')]
     | Annotated[LensWafflePanelConfig, Tag('waffle')],
     Discriminator('type'),
 ]
@@ -174,6 +183,10 @@ class ESQLMosaicPanelConfig(ESQLMosaicChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL mosaic panel."""
 
 
+class ESQLTreemapPanelConfig(ESQLTreemapChart, ESQLPanelFieldsMixin):
+    """Configuration for an ES|QL treemap panel."""
+
+
 class ESQLWafflePanelConfig(ESQLWaffleChart, ESQLPanelFieldsMixin):
     """Configuration for an ES|QL waffle panel."""
 
@@ -189,6 +202,7 @@ type ESQLPanelConfig = Annotated[
     | Annotated[ESQLTagcloudPanelConfig, Tag('tagcloud')]
     | Annotated[ESQLDatatablePanelConfig, Tag('datatable')]
     | Annotated[ESQLMosaicPanelConfig, Tag('mosaic')]
+    | Annotated[ESQLTreemapPanelConfig, Tag('treemap')]
     | Annotated[ESQLWafflePanelConfig, Tag('waffle')],
     Discriminator('type'),
 ]
