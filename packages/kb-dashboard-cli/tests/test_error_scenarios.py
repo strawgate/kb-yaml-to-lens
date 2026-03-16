@@ -225,6 +225,30 @@ dashboards:
   • dashboards[0].panels[0].markdown.position.x: Expected an integer value\
 """)
 
+    def test_esql_gauge_static_minimum_reports_field_validation_error(self, tmp_path: Path) -> None:
+        """Test ESQL gauge static bounds show a field error, not root YAML-invalid message."""
+        yaml_file = tmp_path / 'esql-gauge-static-minimum.yaml'
+        yaml_file.write_text("""
+dashboards:
+  - name: Test
+    panels:
+      - title: Gauge
+        esql:
+          type: gauge
+          query:
+            - FROM logs-*
+            - STATS cpu_avg = AVG(system.cpu.total.pct)
+          metric:
+            field: cpu_avg
+          minimum: 0
+""")
+        json_lines, _dashboards, error = compile_yaml_to_json(yaml_file)
+        assert json_lines == []
+        assert error is not None
+        assert 'esql-gauge-static-minimum.yaml' in error
+        assert 'dashboards[0].panels[0].esql.gauge.minimum' in error
+        assert 'File is empty or invalid. Expected a YAML document with a "dashboards" key.' not in error
+
     def test_unknown_options_field_rejected(self, tmp_path: Path) -> None:
         """Test that unknown fields are rejected by extra='forbid' behavior."""
         yaml_file = tmp_path / 'unknown-field.yaml'

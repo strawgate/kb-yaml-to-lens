@@ -394,7 +394,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     if len(ndjson_lines) == 0:
         print_error('No valid YAML configurations found or compiled.')
-        return
+        ctx.exit(1)
 
     if output_format_lower == 'json':
         print_success(f'Wrote {len(json_files_to_write)} individual JSON file(s)')

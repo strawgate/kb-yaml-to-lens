@@ -77,6 +77,28 @@ class TestFormatErrorMessage:
         result = format_error_message(error)
         assert 'Panel "A" overlaps with "B"' in result
 
+    def test_value_error_without_ctx_message_uses_original_message(self) -> None:
+        """Test that value_error falls back to Pydantic message when ctx.message is missing."""
+        error: ErrorDetails = {
+            'type': 'value_error',
+            'loc': ('dashboards', 0, 'panels', 0),
+            'msg': 'Value error, at least one panel is required',
+            'input': None,
+        }
+        result = format_error_message(error)
+        assert result == 'Value error, at least one panel is required'
+
+    def test_non_root_model_type_uses_original_message(self) -> None:
+        """Test that nested model_type errors keep their field-level message."""
+        error: ErrorDetails = {
+            'type': 'model_type',
+            'loc': ('dashboards', 0, 'panels', 0, 'esql', 'gauge', 'minimum'),
+            'msg': 'Input should be a valid dictionary or instance of ESQLMetric',
+            'input': 0,
+        }
+        result = format_error_message(error)
+        assert result == 'Input should be a valid dictionary or instance of ESQLMetric'
+
     def test_union_tag_invalid_formats_tags(self) -> None:
         """Test that union_tag_invalid formats expected tags."""
         error: ErrorDetails = {
