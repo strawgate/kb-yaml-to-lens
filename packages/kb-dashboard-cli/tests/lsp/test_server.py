@@ -258,6 +258,56 @@ class TestCompileCustom(unittest.TestCase):
         self.assertIsNotNone(result.error)
         self.assertIn('dashboard_index', result.error)
 
+    def test_compile_custom_rejects_deprecated_fields_by_default(self) -> None:
+        """Deprecated fields should fail unless allow_deprecated is true."""
+        self.temp_file.write_text("""dashboards:
+- name: Deprecated Dashboard
+  panels:
+  - title: Deprecated Pie
+    size: {w: 24, h: 12}
+    position: {x: 0, y: 0}
+    esql:
+      type: pie
+      query: |
+        FROM logs-* | STATS total = COUNT(*) BY service.name
+      metrics:
+      - field: total
+      breakdowns:
+      - field: service.name
+      titles_and_text:
+        slice_values: integer
+""")
+
+        result = compile_custom({'path': str(self.temp_file), 'dashboard_index': 0})
+
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('--allow-deprecated', result.error)
+
+    def test_compile_custom_accepts_deprecated_fields_with_opt_in(self) -> None:
+        """allow_deprecated=true should preserve compatibility path in LSP."""
+        self.temp_file.write_text("""dashboards:
+- name: Deprecated Dashboard
+  panels:
+  - title: Deprecated Pie
+    size: {w: 24, h: 12}
+    position: {x: 0, y: 0}
+    esql:
+      type: pie
+      query: |
+        FROM logs-* | STATS total = COUNT(*) BY service.name
+      metrics:
+      - field: total
+      breakdowns:
+      - field: service.name
+      titles_and_text:
+        slice_values: integer
+""")
+
+        result = compile_custom({'path': str(self.temp_file), 'dashboard_index': 0, 'allow_deprecated': True})
+
+        self.assertTrue(result.success)
+
 
 class TestGetDashboardsCustom(unittest.TestCase):
     """Test the get_dashboards_custom handler."""
@@ -381,6 +431,57 @@ class TestGetDashboardsCustom(unittest.TestCase):
         result = get_dashboards_custom(params)
 
         self.assertTrue(result.success)
+
+    def test_get_dashboards_rejects_deprecated_fields_by_default(self) -> None:
+        """Deprecated fields should fail unless allow_deprecated is true."""
+        self.temp_file.write_text("""dashboards:
+- name: Deprecated Dashboard
+  panels:
+  - title: Deprecated Pie
+    size: {w: 24, h: 12}
+    position: {x: 0, y: 0}
+    esql:
+      type: pie
+      query: |
+        FROM logs-* | STATS total = COUNT(*) BY service.name
+      metrics:
+      - field: total
+      breakdowns:
+      - field: service.name
+      titles_and_text:
+        slice_values: integer
+""")
+
+        result = get_dashboards_custom({'path': str(self.temp_file)})
+
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('--allow-deprecated', result.error)
+
+    def test_get_dashboards_accepts_deprecated_fields_with_opt_in(self) -> None:
+        """allow_deprecated=true should preserve compatibility path in LSP."""
+        self.temp_file.write_text("""dashboards:
+- name: Deprecated Dashboard
+  panels:
+  - title: Deprecated Pie
+    size: {w: 24, h: 12}
+    position: {x: 0, y: 0}
+    esql:
+      type: pie
+      query: |
+        FROM logs-* | STATS total = COUNT(*) BY service.name
+      metrics:
+      - field: total
+      breakdowns:
+      - field: service.name
+      titles_and_text:
+        slice_values: integer
+""")
+
+        result = get_dashboards_custom({'path': str(self.temp_file), 'allow_deprecated': True})
+
+        self.assertTrue(result.success)
+        self.assertIsNotNone(result.data)
 
 
 class TestGetGridLayoutCustom(unittest.TestCase):
@@ -677,6 +778,56 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
         self.assertIn('dashboard_index', result.error)
+
+    def test_get_grid_layout_rejects_deprecated_fields_by_default(self) -> None:
+        """Deprecated fields should fail unless allow_deprecated is true."""
+        self.temp_file.write_text("""dashboards:
+- name: Deprecated Dashboard
+  panels:
+  - title: Deprecated Pie
+    size: {w: 24, h: 12}
+    position: {x: 0, y: 0}
+    esql:
+      type: pie
+      query: |
+        FROM logs-* | STATS total = COUNT(*) BY service.name
+      metrics:
+      - field: total
+      breakdowns:
+      - field: service.name
+      titles_and_text:
+        slice_values: integer
+""")
+
+        result = get_grid_layout_custom({'path': str(self.temp_file)})
+
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('--allow-deprecated', result.error)
+
+    def test_get_grid_layout_accepts_deprecated_fields_with_opt_in(self) -> None:
+        """allow_deprecated=true should preserve compatibility path in LSP."""
+        self.temp_file.write_text("""dashboards:
+- name: Deprecated Dashboard
+  panels:
+  - title: Deprecated Pie
+    size: {w: 24, h: 12}
+    position: {x: 0, y: 0}
+    esql:
+      type: pie
+      query: |
+        FROM logs-* | STATS total = COUNT(*) BY service.name
+      metrics:
+      - field: total
+      breakdowns:
+      - field: service.name
+      titles_and_text:
+        slice_values: integer
+""")
+
+        result = get_grid_layout_custom({'path': str(self.temp_file), 'allow_deprecated': True})
+
+        self.assertTrue(result.success)
 
 
 if __name__ == '__main__':

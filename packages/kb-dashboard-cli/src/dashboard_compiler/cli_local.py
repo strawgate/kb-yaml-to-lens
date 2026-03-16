@@ -89,18 +89,19 @@ def _write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -
             _ = f.write(line + '\n')
 
 
-def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], list[KbnDashboard], str | None]:
+def compile_yaml_to_json(yaml_path: Path, allow_deprecated: bool = False) -> tuple[list[str], list[KbnDashboard], str | None]:
     """Compile dashboard YAML to JSON strings for NDJSON.
 
     Args:
         yaml_path: Path to the dashboard YAML configuration file.
+        allow_deprecated: Whether deprecated compatibility translations are enabled.
 
     Returns:
         Tuple of (list of JSON strings for NDJSON lines, list of dashboard models, error message or None).
 
     """
     try:
-        dashboards = load(str(yaml_path))
+        dashboards = load(str(yaml_path), allow_deprecated=allow_deprecated)
         json_lines: list[str] = []
         kbn_dashboards: list[KbnDashboard] = []
         for dashboard in dashboards:
@@ -344,7 +345,10 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             except ValueError:
                 display_path = yaml_file
             progress.update(task, description=f'Compiling: {display_path}')
-            compiled_jsons, kbn_dashboards, error = compile_yaml_to_json(yaml_file)
+            compiled_jsons, kbn_dashboards, error = compile_yaml_to_json(
+                yaml_file,
+                allow_deprecated=cli_context.allow_deprecated,
+            )
 
             if len(compiled_jsons) > 0:
                 if output_format_lower == 'json':

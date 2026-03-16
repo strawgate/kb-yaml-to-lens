@@ -88,6 +88,8 @@ class CompileRequest(BaseLSPModel):
     """Path to the YAML file containing dashboards."""
     dashboard_index: int = 0
     """Index of the dashboard to compile (default: 0)."""
+    allow_deprecated: bool = False
+    """Whether deprecated compatibility translations are enabled while loading YAML."""
 
 
 class GetDashboardsRequest(BaseLSPModel):
@@ -95,6 +97,8 @@ class GetDashboardsRequest(BaseLSPModel):
 
     path: str
     """Path to the YAML file containing dashboards."""
+    allow_deprecated: bool = False
+    """Whether deprecated compatibility translations are enabled while loading YAML."""
 
 
 class GetGridLayoutRequest(BaseLSPModel):
@@ -104,6 +108,8 @@ class GetGridLayoutRequest(BaseLSPModel):
     """Path to the YAML file containing dashboards."""
     dashboard_index: int = 0
     """Index of the dashboard to extract (default: 0)."""
+    allow_deprecated: bool = False
+    """Whether deprecated compatibility translations are enabled while loading YAML."""
 
 
 class UpdateGridLayoutRequest(BaseLSPModel):

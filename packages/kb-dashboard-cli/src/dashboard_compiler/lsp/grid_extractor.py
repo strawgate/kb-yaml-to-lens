@@ -71,17 +71,18 @@ def _extract_inner_panels(section_panel: CollapsiblePanel) -> tuple[list[PanelGr
     return result, max_bottom
 
 
-def extract_grid_layout(yaml_path: str, dashboard_index: int = 0) -> DashboardGridInfo:
+def extract_grid_layout(yaml_path: str, dashboard_index: int = 0, allow_deprecated: bool = False) -> DashboardGridInfo:
     """Extract grid layout information from a YAML dashboard file.
 
     Args:
         yaml_path: Path to the YAML dashboard file
         dashboard_index: Index of the dashboard to extract (default: 0)
+        allow_deprecated: Whether deprecated compatibility translations are enabled while loading YAML.
 
     Returns:
         DashboardGridInfo containing dashboard metadata and panel grid information
     """
-    dashboards = load(yaml_path)
+    dashboards = load(yaml_path, allow_deprecated=allow_deprecated)
     if len(dashboards) == 0:
         msg = 'No dashboards found in YAML file'
         raise ValueError(msg)

@@ -63,8 +63,8 @@ dashboards:
               label: Method
           appearance:
             donut: large
-          titles_and_text:
-            slice_values: percent
+            values:
+              format: percent
       - title: Logs by user agent
         size: {w: 24, h: 15}
         esql:
@@ -86,8 +86,8 @@ dashboards:
               label: User Agent
           appearance:
             donut: large
-          titles_and_text:
-            slice_values: percent
+            values:
+              format: percent
       - title: Logs by event type
         size: {w: 24, h: 15}
         esql:
@@ -107,8 +107,8 @@ dashboards:
               label: Event Type
           appearance:
             donut: large
-          titles_and_text:
-            slice_values: percent
+            values:
+              format: percent
       - title: Failed operations by error code
         size: {w: 24, h: 15}
         esql:
@@ -129,8 +129,8 @@ dashboards:
               label: Error Code
           appearance:
             donut: large
-          titles_and_text:
-            slice_values: percent
+            values:
+              format: percent
       - title: Recent Events
         size: {w: 31, h: 15}
         esql:

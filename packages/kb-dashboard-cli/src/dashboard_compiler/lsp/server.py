@@ -116,12 +116,13 @@ def _params_to_dict(params: Any) -> dict[str, Any]:
     raise TypeError(msg)
 
 
-def _compile_dashboard(path: str, dashboard_index: int = 0) -> CompileResult:
+def _compile_dashboard(path: str, dashboard_index: int = 0, allow_deprecated: bool = False) -> CompileResult:
     """Compile a dashboard at the given path and index.
 
     Args:
         path: Path to the YAML file containing dashboards
         dashboard_index: Index of the dashboard to compile (default: 0)
+        allow_deprecated: Whether deprecated compatibility translations are enabled while loading YAML.
 
     Returns:
         CompileResult with success status and either data or error message
@@ -130,7 +131,7 @@ def _compile_dashboard(path: str, dashboard_index: int = 0) -> CompileResult:
         return CompileResult(success=False, error='Missing path parameter')
 
     try:
-        dashboards = load(path)
+        dashboards = load(path, allow_deprecated=allow_deprecated)
         if len(dashboards) == 0:
             return CompileResult(success=False, error='No dashboards found in YAML file')
 
@@ -185,7 +186,11 @@ def compile_custom(params: Any) -> CompileResult:
     except ValidationError as e:
         return CompileResult(success=False, error=f'Invalid request parameters: {e}')
 
-    return _compile_dashboard(request.path, request.dashboard_index)
+    return _compile_dashboard(
+        request.path,
+        request.dashboard_index,
+        allow_deprecated=request.allow_deprecated,
+    )
 
 
 @server.feature('dashboard/getDashboards')
@@ -206,7 +211,7 @@ def get_dashboards_custom(params: Any) -> DashboardListResult:
         return DashboardListResult(success=False, error=f'Invalid request parameters: {e}')
 
     try:
-        dashboards = load(request.path)
+        dashboards = load(request.path, allow_deprecated=request.allow_deprecated)
         dashboard_list = [
             DashboardInfo(
                 index=i,
@@ -239,7 +244,11 @@ def get_grid_layout_custom(params: Any) -> GridLayoutResult:
         return GridLayoutResult(success=False, error=f'Invalid request parameters: {e}')
 
     try:
-        result = extract_grid_layout(request.path, request.dashboard_index)
+        result = extract_grid_layout(
+            request.path,
+            request.dashboard_index,
+            allow_deprecated=request.allow_deprecated,
+        )
     except Exception as e:
         return GridLayoutResult(success=False, error=str(e))
     else:

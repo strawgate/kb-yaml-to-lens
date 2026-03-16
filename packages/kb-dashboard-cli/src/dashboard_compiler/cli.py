@@ -54,8 +54,14 @@ except PackageNotFoundError:
     default='WARNING',
     help='Set logging verbosity level for compilation output.',
 )
+@click.option(
+    '--allow-deprecated',
+    is_flag=True,
+    default=False,
+    help='Enable deprecated compatibility translations while loading YAML configurations.',
+)
 @click.pass_context
-def cli(ctx: click.Context, loglevel: str) -> None:
+def cli(ctx: click.Context, loglevel: str, allow_deprecated: bool) -> None:
     r"""Kibana Dashboard Compiler - Compile YAML dashboards to Kibana format.
 
     This tool helps you manage Kibana dashboards as code by compiling YAML
@@ -87,7 +93,8 @@ def cli(ctx: click.Context, loglevel: str) -> None:
     # Also set level for our specific logger
     logging.getLogger('dashboard_compiler').setLevel(log_level)
 
-    _ = ctx.ensure_object(CliContext)
+    cli_context = ctx.ensure_object(CliContext)
+    cli_context.allow_deprecated = allow_deprecated
 
 
 # Register local file operation commands
