@@ -6,11 +6,164 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
 
 ## Essential Patterns
 
-- **Snapshot before every click.** Use `browser_snapshot` for the accessibility tree with `ref` values. Refs invalidate after every interaction. Use `browser_take_screenshot` only for visual verification.
+- **Prefer `browser_run_code` for known workflows.** Batch multiple Kibana interactions in a single call using Playwright role selectors (e.g., `page.getByRole('button', { name: 'Save' })`). This is far more efficient than individual snapshot→click→snapshot chains. See the recipes below.
+- **Use snapshots only for discovery.** When you don't know what's on the page, save a snapshot to disk and grep it:
+
+  ```text
+  browser_snapshot(filename="/tmp/gh-aw/agent/page.md")
+  ```
+
+  ```bash
+  grep 'button.*Legend\|button.*Save' /tmp/gh-aw/agent/page.md
+  ```
+
+- **`browser_click` and `browser_wait_for` return inline diffs.** Don't take an extra `browser_snapshot` after every click — the response already contains changed elements with fresh refs. Only save a new snapshot when you need to search a full page.
 - **Wait after navigation.** `browser_navigate` then `browser_wait_for` with `textGone: "Loading Elastic"`.
-- **Comboboxes are NOT `<select>`.** Kibana uses EUI comboboxes. Use `browser_type` into the ref, `browser_snapshot`, then `browser_click` the matching option. Never use `browser_fill_form` with type `combobox`.
-- **Close dialogs** with the "Close"/"Back" button ref, or `browser_press_key` with `Escape`.
-- **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts even during read-only inspection. Always exit via "Exit without saving"/discard path unless a save is intentional.
+- **Close dialogs** using a scoped locator in `browser_run_code`, for example `await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`, or use `browser_press_key` with `Escape`.
+- **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts. Use `browser_handle_dialog(accept: true)` or exit via "Exit without saving".
+- **Keep `browser_run_code` return values small.** Return a short status string, not full API responses.
+
+## `browser_run_code` Recipes
+
+### Navigate to Lens and wait for load
+
+```js
+async (page) => {
+  await page.goto('http://localhost:443/app/lens');
+  await page.getByText('Loading Elastic').first().waitFor({ state: 'hidden' });
+  const tip = page.getByRole('button', { name: "Don't show again" });
+  if (await tip.isVisible({ timeout: 1000 }).catch(() => false)) await tip.click();
+  return 'Lens ready';
+}
+```
+
+### Switch chart type
+
+```js
+async (page) => {
+  await page.locator('[data-test-subj="lnsChartSwitchPopover"]').click();
+  await page.getByRole('option', { name: 'Pie' }).click(); // or Line, Bar, Area, Metric, Gauge, Table, etc.
+  return 'Switched to Pie';
+}
+```
+
+### Add a dimension or metric to a slot
+
+```js
+async (page) => {
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Slice by' }).click();
+  await page.getByRole('button', { name: 'Top values' }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: 'Top values' }).click();
+  await page.getByRole('combobox', { name: 'Field' }).waitFor({ state: 'visible' });
+  await page.getByRole('combobox', { name: 'Field' }).fill('log.level');
+  await page.getByRole('option', { name: /log\.level/ }).waitFor({ state: 'visible' });
+  await page.getByRole('option', { name: /log\.level/ }).click();
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+  return 'Added Top 5 values of log.level to Slice by';
+}
+```
+
+### Set legend width
+
+```js
+async (page) => {
+  await page.getByRole('button', { name: 'Legend' }).click();
+  await page.getByRole('button', { name: /Width/ }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: /Width/ }).click();
+  await page.getByRole('option', { name: 'Extra large' }).waitFor({ state: 'visible' });
+  await page.getByRole('option', { name: 'Extra large' }).click();
+  return 'Legend set to Extra large';
+}
+```
+
+### Set time range
+
+```js
+async (page) => {
+  await page.getByRole('button', { name: 'Date quick select' }).click();
+  await page.getByRole('spinbutton', { name: 'Time value' }).clear();
+  await page.getByRole('spinbutton', { name: 'Time value' }).fill('1');
+  // Time unit is a native <select>, so use selectOption (not fill + click)
+  await page.getByRole('combobox', { name: 'Time unit' }).selectOption('y');
+  await page.getByRole('button', { name: 'Apply', exact: true }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
+  return 'Time range set to last 1 year';
+}
+```
+
+### Edit ES|QL in Monaco editor
+
+```js
+async (page) => {
+  const editor = page.locator('.monaco-editor').first();
+  await editor.click({ force: true });
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.type('FROM logs-* | STATS count=COUNT(*) BY log.level', { delay: 20 });
+  await page.keyboard.press('Escape');
+  return 'ES|QL query entered';
+}
+```
+
+### Import a compiled dashboard
+
+```js
+async (page) => {
+  await page.goto('http://localhost:443/app/management/kibana/objects');
+  await page.getByText('Loading Elastic').first().waitFor({ state: 'hidden' });
+  await page.getByRole('button', { name: 'Import' }).click();
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.waitFor({ state: 'attached' });
+  await fileInput.setInputFiles('/tmp/gh-aw/agent/compiled/compiled_dashboards.ndjson');
+  await page.getByRole('dialog').getByRole('button', { name: 'Import', exact: true }).click();
+  await page.getByText('Successfully imported').waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  const success = await page.getByText('Successfully imported').isVisible().catch(() => false);
+  return success ? 'Import succeeded' : 'Import may have failed — check page';
+}
+```
+
+### Open Style or Legend toolbar popover
+
+```js
+async (page) => {
+  await page.getByRole('button', { name: 'Style' }).click();
+  return 'Style popover opened';
+}
+```
+
+### Full example: create a pie chart with extra_large legend
+
+```js
+async (page) => {
+  await page.locator('[data-test-subj="lnsChartSwitchPopover"]').click();
+  await page.getByRole('option', { name: 'Pie' }).waitFor({ state: 'visible' });
+  await page.getByRole('option', { name: 'Pie' }).click();
+
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Slice by' }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Slice by' }).click();
+  await page.getByRole('button', { name: 'Top values' }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: 'Top values' }).click();
+  await page.getByRole('combobox', { name: 'Field' }).waitFor({ state: 'visible' });
+  await page.getByRole('combobox', { name: 'Field' }).fill('log.level');
+  await page.getByRole('option', { name: /log\.level/ }).waitFor({ state: 'visible' });
+  await page.getByRole('option', { name: /log\.level/ }).click();
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Metric' }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Metric' }).click();
+  await page.getByRole('button', { name: 'Count', exact: true }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: 'Count', exact: true }).click();
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+
+  await page.getByRole('button', { name: 'Legend' }).click();
+  await page.getByRole('button', { name: /Width/ }).waitFor({ state: 'visible' });
+  await page.getByRole('button', { name: /Width/ }).click();
+  await page.getByRole('option', { name: 'Extra large' }).waitFor({ state: 'visible' });
+  await page.getByRole('option', { name: 'Extra large' }).click();
+
+  return 'Pie chart created with log.level, count, extra_large legend';
+}
+```
 
 ## Create a Lens Visualization
 
@@ -66,19 +219,7 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
 
 ## ES|QL Visualizations
 
-ES|QL panels are added from a **Dashboard** (not Lens directly): Dashboard → Add → New panel → ES|QL.
-
-**Monaco editor workaround** — standard `browser_click`/`browser_type` timeout on Monaco. Use `browser_run_code`:
-```js
-async (page) => {
-  const editor = page.locator('.monaco-editor').first();
-  await editor.click({ force: true });
-  await page.keyboard.press('ControlOrMeta+A');
-  await page.keyboard.press('Backspace');
-  await page.keyboard.type('FROM logs-default-generic | STATS count=COUNT(*) BY log.level', { delay: 20 });
-}
-```
-After typing: Escape (dismiss autocomplete) → click "Run query". The config panel then works identically to Lens. Click "Apply and close" to add to dashboard.
+ES|QL panels are added from a **Dashboard** (not Lens directly): Dashboard → Add → New panel → ES|QL. The Monaco editor requires `browser_run_code` — see the ES|QL recipe above. After entering the query: Escape (dismiss autocomplete) → click "Run query". The config panel then works identically to Lens. Click "Apply and close" to add to dashboard.
 
 ## Exporting Saved Objects
 
@@ -112,13 +253,13 @@ Some palette parameters (for example `continuity`) may not be exposed in the cur
 
 ## Common Pitfalls
 
-1. **Stale refs** — always re-snapshot before clicking.
-2. **Monaco editor** — must use `browser_run_code` with `force: true` (see above).
-3. **Combobox errors** — `browser_fill_form` with `combobox` type fails; use type + click.
-4. **Multiple "Close" buttons** — use the specific ref from the latest snapshot.
-5. **Color picker popovers** — close with Escape before interacting behind them.
-6. **Unsaved work dialog** — handle `beforeunload` with `browser_handle_dialog` (accept: true).
-7. **Chart type switching** — Gauge/Legacy Metric warn "modifies configuration"; Region map warns "clears configuration".
+1. **Monaco editor** — standard click/type times out. Must use `browser_run_code` with `force: true` (see ES|QL recipe above).
+2. **Comboboxes** — Kibana uses EUI comboboxes, not `<select>`. In `browser_run_code`: `.fill()` to filter, then `.getByRole('option', ...)` to select. With individual tool calls: `browser_type` to filter, save snapshot to disk, `grep 'option.*value'` to find the ref, then `browser_click`. Never use `browser_fill_form` with `combobox` type. **Exception:** the time range "Time unit" IS a native `<select>` — use `selectOption()` for that one.
+3. **Multiple "Close" buttons** — use `{ name: 'Close', exact: true }` or scope to a dialog inside `browser_run_code`: `await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`.
+4. **Color picker popovers** — close with Escape before interacting behind them.
+5. **Unsaved work dialog** — handle `beforeunload` with `browser_handle_dialog` (accept: true).
+6. **Chart type switching** — Gauge/Legacy Metric warn "modifies configuration"; Region map warns "clears configuration".
+7. **Chart type button name changes** — after switching chart type, the button text changes (e.g., "Bar" → "Pie"). Use `[data-test-subj="lnsChartSwitchPopover"]` instead of matching by name.
 8. **Metric Method toggle** — dialog has Quick function / Formula toggle; pipeline aggregations may be disabled.
 9. **False-positive export checks** — exporting an object you just imported does not validate UI/editor parity.
 
