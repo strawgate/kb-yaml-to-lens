@@ -1085,7 +1085,7 @@ def test_decompile_terms_breakdown() -> None:
 
 
 def test_decompile_formula_panel_has_todo() -> None:
-    """Formula operations fall back to a compilable placeholder metric."""
+    """Unsupported formula operations keep a TODO metric placeholder."""
     panel = _make_lens_panel(
         'lnsMetric',
         state={
@@ -1108,7 +1108,8 @@ def test_decompile_formula_panel_has_todo() -> None:
     )
     result = _decompile_single_panel(panel)
     assert '_todo' not in result['lens']
-    assert result['lens']['primary']['aggregation'] == 'count'
+    assert result['lens']['primary']['aggregation'] == 'sum'
+    assert result['lens']['primary']['field'] == 'TODO_unsupported_metric_field'
 
 
 # --- ES|QL query extraction ---

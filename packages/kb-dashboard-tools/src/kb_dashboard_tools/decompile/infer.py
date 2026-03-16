@@ -303,6 +303,7 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
     all_metrics: list[dict[str, Any]] = []
     all_dimensions: list[dict[str, Any]] = []
     all_breakdowns: list[dict[str, Any]] = []
+    has_skipped_metrics = False
 
     if parsed.panel_type == 'esql':
         for layer_id, layer in parsed.esql_layers.items():
@@ -314,10 +315,12 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
     else:
         for layer_id, layer in parsed.form_layers.items():
             role = vis_state.layer_roles.get(layer_id) if vis_state else None
-            m, d, b, _ = _classify_form_columns(layer, role)
+            m, d, b, skipped = _classify_form_columns(layer, role)
             all_metrics.extend(m)
             all_dimensions.extend(d)
             all_breakdowns.extend(b)
+            if skipped:
+                has_skipped_metrics = True
 
     # Assign metrics/dimensions/breakdowns based on chart type
     is_xy = chart_type in {'line', 'bar', 'area'}
@@ -329,6 +332,11 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
     uses_plural_metrics = chart_type in {'pie', 'treemap', 'datatable'} or is_xy
 
     default_lens_metric: dict[str, Any] = {'aggregation': 'count'}
+    unsupported_lens_metric: dict[str, Any] = {
+        'aggregation': 'sum',
+        'field': 'TODO_unsupported_metric_field',
+        'label': 'TODO_unsupported_metric',
+    }
     default_esql_metric: dict[str, Any] = {'field': 'TODO_metric_field'}
     default_lens_dim: dict[str, Any] = {'type': 'values', 'field': 'TODO_field'}
     default_esql_dim: dict[str, Any] = {'field': 'TODO_dimension_field'}
@@ -377,26 +385,27 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
     # Fill in required defaults for incomplete panels
     is_lens = parsed.panel_type == 'lens'
     if is_lens:
+        lens_metric_fallback = unsupported_lens_metric if has_skipped_metrics else default_lens_metric
         if 'data_view' not in chart:
             chart['data_view'] = 'TODO_data_view'
         if is_metric_chart and 'primary' not in chart:
-            chart['primary'] = default_lens_metric
+            chart['primary'] = lens_metric_fallback
         if is_xy and 'metrics' not in chart:
-            chart['metrics'] = [default_lens_metric]
+            chart['metrics'] = [lens_metric_fallback]
         if is_partition:
             if 'metrics' not in chart:
-                chart['metrics'] = [default_lens_metric]
+                chart['metrics'] = [lens_metric_fallback]
             if 'dimensions' not in chart:
                 chart['dimensions'] = [default_lens_dim]
         if chart_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
-            chart['metrics'] = [default_lens_metric]
+            chart['metrics'] = [lens_metric_fallback]
         if is_heatmap:
             if 'x_axis' not in chart:
                 chart['x_axis'] = default_lens_dim
             if 'value' not in chart:
-                chart['value'] = default_lens_metric
+                chart['value'] = lens_metric_fallback
         if is_singular_metric and 'metric' not in chart:
-            chart['metric'] = default_lens_metric
+            chart['metric'] = lens_metric_fallback
         if is_singular_dim and 'dimension' not in chart:
             chart['dimension'] = default_lens_dim
     else:

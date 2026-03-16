@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from typing import Any, cast
 
 from kb_dashboard_core.controls.view import (
-    KbnControlGroupInput,
     KbnESQLControl,
     KbnOptionsListControl,
     KbnRangeSliderControl,
@@ -718,8 +717,9 @@ def _parse_simple_panel_view(panel: dict[str, Any], panel_type: str) -> object |
 def _parse_simple_panel(panel: dict[str, Any], panel_type: str) -> ParsedSimplePanel:
     embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
     embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
+    resolved_panel_type = _saved_visualization_panel_type(panel) if panel_type == 'visualization' else panel_type
     return ParsedSimplePanel(
-        panel_type=panel_type,
+        panel_type=resolved_panel_type or panel_type,
         raw=panel,
         embeddable_config=embeddable_config,
         embeddable_attributes=embeddable_attributes,
@@ -812,11 +812,10 @@ def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
     return result
 
 
-def _parse_controls(attributes: dict[str, Any]) -> list[ParsedControl]:
+def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]) -> list[ParsedControl]:
     control_group = as_dict(attributes.get('controlGroupInput'))
     if control_group is None:
         return []
-    control_group_view = _validate_view_model(KbnControlGroupInput, control_group)
     panels_json = parse_json_field(control_group.get('panelsJSON'))
     if not isinstance(panels_json, dict):
         return []
@@ -845,6 +844,22 @@ def _parse_controls(attributes: dict[str, Any]) -> list[ParsedControl]:
             dv = explicit_input.get('dataViewId')
             if isinstance(dv, str):
                 ctrl.data_view_id = dv
+            else:
+                ref_suffix = {
+                    'optionsListControl': 'optionsListDataView',
+                    'rangeSliderControl': 'rangeSliderDataView',
+                    'timeSliderControl': 'timeSliderDataView',
+                    'esqlControl': 'esqlControlDataView',
+                }.get(ctrl.control_type or '')
+                if ref_suffix is not None:
+                    ref_name = f'controlGroup_{panel_id}:{ref_suffix}'
+                    resolved = reference_lookup.get(ref_name)
+                    if isinstance(resolved, str):
+                        ctrl.data_view_id = resolved
+                    else:
+                        attr_ref = attributes.get(ref_name)
+                        if isinstance(attr_ref, str):
+                            ctrl.data_view_id = attr_ref
         normalized_panel = _normalize_control_for_view(panel_id, panel)
         if ctrl.control_type == 'optionsListControl':
             ctrl.view_control = _validate_view_model(KbnOptionsListControl, normalized_panel)
@@ -854,8 +869,6 @@ def _parse_controls(attributes: dict[str, Any]) -> list[ParsedControl]:
             ctrl.view_control = _validate_view_model(KbnTimeSliderControl, normalized_panel)
         elif ctrl.control_type == 'esqlControl':
             ctrl.view_control = _validate_view_model(KbnESQLControl, normalized_panel)
-        elif control_group_view is not None:
-            ctrl.view_control = control_group_view
         result.append(ctrl)
     return result
 
@@ -879,6 +892,7 @@ def _extract_reference_lookup(dashboard: dict[str, Any]) -> dict[str, str]:
 def parse_dashboard(dashboard: dict[str, Any]) -> ParsedDashboard:
     """Parse a raw Kibana dashboard JSON dict into a typed intermediate structure."""
     attributes = as_dict(dashboard.get('attributes')) or {}
+    reference_lookup = _extract_reference_lookup(dashboard)
 
     title = attributes.get('title')
     description = attributes.get('description')
@@ -891,8 +905,8 @@ def parse_dashboard(dashboard: dict[str, Any]) -> ParsedDashboard:
         time_to=attributes.get('timeTo') if isinstance(attributes.get('timeTo'), str) else None,
         settings=_parse_settings(attributes),
         filters=_parse_filters(attributes),
-        controls=_parse_controls(attributes),
-        reference_lookup=_extract_reference_lookup(dashboard),
+        controls=_parse_controls(attributes, reference_lookup),
+        reference_lookup=reference_lookup,
     )
 
     panels_json = parse_json_field(attributes.get('panelsJSON'))

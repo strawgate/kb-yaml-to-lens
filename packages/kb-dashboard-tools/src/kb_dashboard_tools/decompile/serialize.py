@@ -133,7 +133,12 @@ def serialize_dashboard(
             if not isinstance(panel_cm, CommentedMap):
                 continue
             panel_type = _detect_panel_type_key(panel_cm)
-            comment = _panel_todo_comment_from_raw(raw_panels, i, panel_type, parsed_panel)
+            source_panel_type = panel_type
+            if i < len(raw_panels):
+                raw_type = raw_panels[i].get('type')
+                if isinstance(raw_type, str):
+                    source_panel_type = raw_type
+            comment = _panel_todo_comment_from_raw(raw_panels, i, source_panel_type, parsed_panel)
             panels_seq_any.yaml_set_comment_before_after_key(i, before=comment)
 
     dashboards_any = cast('Any', dashboards)

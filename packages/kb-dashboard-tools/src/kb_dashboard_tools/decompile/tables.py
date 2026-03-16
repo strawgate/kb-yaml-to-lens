@@ -49,6 +49,8 @@ PIE_SHAPES: dict[str, str] = {
     'pie': 'pie',
     'donut': 'pie',
     'treemap': 'treemap',
+    'mosaic': 'mosaic',
+    'waffle': 'waffle',
 }
 
 OPERATION_TYPE_MAP: dict[str, str] = {
@@ -69,5 +71,5 @@ SKIP_OPERATION_TYPES = frozenset({'formula', 'differences', 'math', 'cumulative_
 CONTROL_TYPE_MAP: dict[str, str] = {
     'optionsListControl': 'options',
     'rangeSliderControl': 'range',
-    'timesliderControl': 'time',
+    'timeSliderControl': 'time',
 }
