@@ -53,6 +53,52 @@ def as_dict(value: object) -> dict[str, Any] | None:
     return None
 
 
+def as_list(value: object) -> list[object] | None:
+    """Safely cast a value to list if it is one, otherwise return None."""
+    if isinstance(value, list):
+        return cast('list[object]', value)
+    return None
+
+
+def get_dict(source: dict[str, Any], key: str) -> dict[str, Any] | None:
+    """Extract a dict-valued key from a dict source."""
+    return as_dict(source.get(key))
+
+
+def get_list(source: dict[str, Any], key: str) -> list[object] | None:
+    """Extract a list-valued key from a dict source."""
+    return as_list(source.get(key))
+
+
+def get_str(source: dict[str, Any], key: str) -> str | None:
+    """Extract a string-valued key from a dict source."""
+    value = source.get(key)
+    return value if isinstance(value, str) else None
+
+
+def get_int(source: dict[str, Any], key: str) -> int | None:
+    """Extract an int-valued key from a dict source."""
+    value = source.get(key)
+    return value if isinstance(value, int) else None
+
+
+def get_bool(source: dict[str, Any], key: str) -> bool | None:
+    """Extract a bool-valued key from a dict source."""
+    value = source.get(key)
+    return value if isinstance(value, bool) else None
+
+
+def get_dict_path(source: dict[str, Any], *path: str) -> dict[str, Any] | None:
+    """Walk nested dict keys and return the final dict, or None if any segment is missing."""
+    current: dict[str, Any] = source
+    for key in path:
+        next_value = as_dict(current.get(key))
+        if next_value is None:
+            return None
+        current = next_value
+    return current
+
+
 def _validate_view_model(model_cls: type[Any], data: object) -> object | None:
     """Best-effort validation into an existing Kbn* view model."""
     try:
@@ -96,10 +142,8 @@ def _visualization_model_type(visualization_type: str | None, visualization: dic
 
 
 def _saved_visualization_panel_type(panel: dict[str, Any]) -> str | None:
-    embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
-    saved_vis = as_dict(embeddable_config.get('savedVis')) or {}
-    saved_vis_type = saved_vis.get('type')
-    return saved_vis_type if isinstance(saved_vis_type, str) else None
+    saved_vis = get_dict_path(panel, 'embeddableConfig', 'savedVis') or {}
+    return get_str(saved_vis, 'type')
 
 
 def _normalize_filter_for_view(raw: dict[str, Any]) -> dict[str, Any]:
@@ -118,7 +162,7 @@ def _normalize_control_for_view(panel_id: str, raw: dict[str, Any]) -> dict[str,
     normalized.setdefault('grow', False)
     normalized.setdefault('width', 'medium')
 
-    explicit_input = as_dict(normalized.get('explicitInput')) or {}
+    explicit_input = get_dict(normalized, 'explicitInput') or {}
     normalized_explicit = dict(explicit_input)
     normalized_explicit.setdefault('id', panel_id)
 
@@ -332,80 +376,71 @@ class ParsedDashboard:
 
 
 def _parse_grid_data(raw: dict[str, Any]) -> ParsedGridData:
-    grid = ParsedGridData()
-    x = raw.get('x')
-    y = raw.get('y')
-    w = raw.get('w')
-    h = raw.get('h')
-    if isinstance(x, int):
-        grid.x = x
-    if isinstance(y, int):
-        grid.y = y
-    if isinstance(w, int):
-        grid.w = w
-    if isinstance(h, int):
-        grid.h = h
-    section_id = raw.get('sectionId')
-    if isinstance(section_id, str):
-        grid.section_id = section_id
-    return grid
+    return ParsedGridData(
+        x=get_int(raw, 'x'),
+        y=get_int(raw, 'y'),
+        w=get_int(raw, 'w'),
+        h=get_int(raw, 'h'),
+        section_id=get_str(raw, 'sectionId'),
+    )
 
 
 def _parse_panel_title(panel: dict[str, Any]) -> str:
-    direct_title = panel.get('title')
-    if isinstance(direct_title, str):
+    direct_title = get_str(panel, 'title')
+    if direct_title is not None:
         return direct_title
-    embeddable_config = as_dict(panel.get('embeddableConfig'))
+    embeddable_config = get_dict(panel, 'embeddableConfig')
     if embeddable_config is not None:
-        embedded_title = embeddable_config.get('title')
-        if isinstance(embedded_title, str):
+        embedded_title = get_str(embeddable_config, 'title')
+        if embedded_title is not None:
             return embedded_title
     return ''
 
 
 def _parse_column(col_id: str, col: dict[str, Any]) -> ParsedColumn:
-    op_type = col.get('operationType')
+    op_type = get_str(col, 'operationType')
+    data_type = get_str(col, 'dataType')
     parsed = ParsedColumn(
         column_id=col_id,
-        operation_type=op_type if isinstance(op_type, str) else 'unknown',
+        operation_type=op_type if op_type is not None else 'unknown',
         is_bucketed=bool(col.get('isBucketed')),
-        data_type=col.get('dataType') if isinstance(col.get('dataType'), str) else None,
+        data_type=data_type,
     )
-    source_field = col.get('sourceField')
-    if isinstance(source_field, str):
+    source_field = get_str(col, 'sourceField')
+    if source_field is not None:
         parsed.source_field = source_field
-    label = col.get('label')
-    if isinstance(label, str):
+    label = get_str(col, 'label')
+    if label is not None:
         parsed.label = label
     parsed.custom_label = bool(col.get('customLabel'))
-    params = as_dict(col.get('params'))
+    params = get_dict(col, 'params')
     if params is not None:
         parsed.params = params
 
-    col_filter = as_dict(col.get('filter'))
+    col_filter = get_dict(col, 'filter')
     if col_filter is not None:
-        q = col_filter.get('query')
-        lang = col_filter.get('language')
-        if isinstance(q, str):
+        q = get_str(col_filter, 'query')
+        lang = get_str(col_filter, 'language')
+        if q is not None:
             parsed.filter_query = q
-            parsed.filter_language = lang if isinstance(lang, str) else None
+            parsed.filter_language = lang
     return parsed
 
 
 def _parse_esql_column(raw: dict[str, Any]) -> ParsedESQLColumn | None:
-    col_id = raw.get('columnId')
-    field_name = raw.get('fieldName')
-    if not isinstance(col_id, str) or not isinstance(field_name, str):
+    col_id = get_str(raw, 'columnId')
+    field_name = get_str(raw, 'fieldName')
+    if col_id is None or field_name is None:
         return None
     parsed = ParsedESQLColumn(column_id=col_id, field_name=field_name)
-    label = raw.get('label')
-    if isinstance(label, str):
+    label = get_str(raw, 'label')
+    if label is not None:
         parsed.label = label
     parsed.custom_label = bool(raw.get('customLabel'))
-    meta = as_dict(raw.get('meta'))
+    meta = get_dict(raw, 'meta')
     if meta is not None:
-        mt = meta.get('type')
-        if isinstance(mt, str):
+        mt = get_str(meta, 'type')
+        if mt is not None:
             parsed.meta_type = mt
     return parsed
 
@@ -423,12 +458,12 @@ def _dedupe_ids(ids: list[str]) -> list[str]:
 def _collect_accessor_ids(source: dict[str, Any], scalar_keys: tuple[str, ...]) -> list[str]:
     ids: list[str] = []
     for key in scalar_keys:
-        value = source.get(key)
-        if isinstance(value, str):
+        value = get_str(source, key)
+        if value is not None:
             ids.append(value)
-    list_accessors = source.get('accessors')
-    if isinstance(list_accessors, list):
-        ids.extend([a for a in list_accessors if isinstance(a, str)])  # pyright: ignore[reportUnknownVariableType]
+    list_accessors = get_list(source, 'accessors')
+    if list_accessors is not None:
+        ids.extend([a for a in list_accessors if isinstance(a, str)])
     return _dedupe_ids(ids)
 
 
@@ -445,66 +480,64 @@ def _parse_visualization_view_model(
 
 
 def _parse_visualization_state(embeddable_attributes: dict[str, Any], *, is_esql: bool) -> ParsedVisualizationState:
-    state_raw = as_dict(embeddable_attributes.get('state'))
-    vis_type = embeddable_attributes.get('visualizationType')
+    state_raw = get_dict(embeddable_attributes, 'state')
+    vis_type = get_str(embeddable_attributes, 'visualizationType')
     parsed = ParsedVisualizationState(
-        raw_type=vis_type if isinstance(vis_type, str) else None,
+        raw_type=vis_type,
     )
     if state_raw is None:
         return parsed
 
-    visualization = as_dict(state_raw.get('visualization'))
+    visualization = get_dict(state_raw, 'visualization')
     if visualization is None:
         return parsed
 
     parsed.raw = visualization
     parsed.view_model = _parse_visualization_view_model(parsed.raw_type, visualization, is_esql=is_esql)
-    parsed.preferred_series_type = (
-        visualization.get('preferredSeriesType') if isinstance(visualization.get('preferredSeriesType'), str) else None
-    )
-    parsed.shape = visualization.get('shape') if isinstance(visualization.get('shape'), str) else None
+    parsed.preferred_series_type = get_str(visualization, 'preferredSeriesType')
+    parsed.shape = get_str(visualization, 'shape')
 
     # Multi-layer roles (XY charts, reference lines)
-    vis_layers = visualization.get('layers')
-    if isinstance(vis_layers, list):
-        for vis_layer_item in vis_layers:  # pyright: ignore[reportUnknownVariableType]
-            vis_layer = as_dict(vis_layer_item)  # pyright: ignore[reportUnknownArgumentType]
+    vis_layers = get_list(visualization, 'layers')
+    if vis_layers is not None:
+        for vis_layer_item in vis_layers:
+            vis_layer = as_dict(vis_layer_item)
             if vis_layer is None:
                 continue
-            layer_id = vis_layer.get('layerId')
-            if not isinstance(layer_id, str):
+            layer_id = get_str(vis_layer, 'layerId')
+            if layer_id is None:
                 continue
             role = ParsedVisualizationLayerRole(layer_id=layer_id)
-            metric_ids = vis_layer.get('accessors')
-            if isinstance(metric_ids, list):
-                role.metric_ids = [v for v in metric_ids if isinstance(v, str)]  # pyright: ignore[reportUnknownVariableType]
-            x_accessor = vis_layer.get('xAccessor')
-            if isinstance(x_accessor, str):
+            metric_ids = get_list(vis_layer, 'accessors')
+            if metric_ids is not None:
+                role.metric_ids = [v for v in metric_ids if isinstance(v, str)]
+            x_accessor = get_str(vis_layer, 'xAccessor')
+            if x_accessor is not None:
                 role.dimension_id = x_accessor
-            split_accessor = vis_layer.get('splitAccessor')
-            if isinstance(split_accessor, str):
+            split_accessor = get_str(vis_layer, 'splitAccessor')
+            if split_accessor is not None:
                 role.breakdown_id = split_accessor
             role.accessors = _collect_accessor_ids(vis_layer, ('xAccessor', 'splitAccessor'))
             parsed.layer_roles[layer_id] = role
 
     # Single-layer roles (metric, gauge, pie, heatmap, etc.)
-    single_layer_id = visualization.get('layerId')
-    if isinstance(single_layer_id, str):
+    single_layer_id = get_str(visualization, 'layerId')
+    if single_layer_id is not None:
         role = parsed.layer_roles.setdefault(single_layer_id, ParsedVisualizationLayerRole(layer_id=single_layer_id))
         for key in ('metricAccessor', 'secondaryAccessor', 'accessor'):
-            value = visualization.get(key)
-            if isinstance(value, str) and value not in role.metric_ids:
+            value = get_str(visualization, key)
+            if value is not None and value not in role.metric_ids:
                 role.metric_ids.append(value)
-        list_accessors = visualization.get('accessors')
-        if isinstance(list_accessors, list):
-            for v in list_accessors:  # pyright: ignore[reportUnknownVariableType]
+        list_accessors = get_list(visualization, 'accessors')
+        if list_accessors is not None:
+            for v in list_accessors:
                 if isinstance(v, str) and v not in role.metric_ids:
                     role.metric_ids.append(v)
-        x_accessor = visualization.get('xAccessor')
-        if isinstance(x_accessor, str):
+        x_accessor = get_str(visualization, 'xAccessor')
+        if x_accessor is not None:
             role.dimension_id = x_accessor
-        split_accessor = visualization.get('splitAccessor')
-        if isinstance(split_accessor, str):
+        split_accessor = get_str(visualization, 'splitAccessor')
+        if split_accessor is not None:
             role.breakdown_id = split_accessor
         if not role.accessors:
             role.accessors = _collect_accessor_ids(
@@ -516,13 +549,13 @@ def _parse_visualization_state(embeddable_attributes: dict[str, Any], *, is_esql
 
 
 def _parse_form_based_layers(state: dict[str, Any]) -> dict[str, ParsedFormLayer]:
-    ds_states = as_dict(state.get('datasourceStates'))
+    ds_states = get_dict(state, 'datasourceStates')
     if ds_states is None:
         return {}
-    form_based = as_dict(ds_states.get('formBased'))
+    form_based = get_dict(ds_states, 'formBased')
     if form_based is None:
         return {}
-    layers_raw = as_dict(form_based.get('layers'))
+    layers_raw = get_dict(form_based, 'layers')
     if layers_raw is None:
         return {}
 
@@ -533,13 +566,13 @@ def _parse_form_based_layers(state: dict[str, Any]) -> dict[str, ParsedFormLayer
             continue
         parsed_layer = ParsedFormLayer(
             layer_id=layer_id,
-            index_pattern_id=layer.get('indexPatternId') if isinstance(layer.get('indexPatternId'), str) else None,
+            index_pattern_id=get_str(layer, 'indexPatternId'),
         )
-        column_order = layer.get('columnOrder')
-        if isinstance(column_order, list):
-            parsed_layer.column_order = [c for c in column_order if isinstance(c, str)]  # pyright: ignore[reportUnknownVariableType]
+        column_order = get_list(layer, 'columnOrder')
+        if column_order is not None:
+            parsed_layer.column_order = [c for c in column_order if isinstance(c, str)]
 
-        columns_raw = as_dict(layer.get('columns'))
+        columns_raw = get_dict(layer, 'columns')
         if columns_raw is not None:
             for col_id, col_value in columns_raw.items():  # pyright: ignore[reportAny]
                 col = as_dict(col_value)  # pyright: ignore[reportAny]
@@ -550,13 +583,13 @@ def _parse_form_based_layers(state: dict[str, Any]) -> dict[str, ParsedFormLayer
 
 
 def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
-    ds_states = as_dict(state.get('datasourceStates'))
+    ds_states = get_dict(state, 'datasourceStates')
     if ds_states is None:
         return {}
-    text_based = as_dict(ds_states.get('textBased'))
+    text_based = get_dict(ds_states, 'textBased')
     if text_based is None:
         return {}
-    layers_raw = as_dict(text_based.get('layers'))
+    layers_raw = get_dict(text_based, 'layers')
     if layers_raw is None:
         return {}
 
@@ -568,22 +601,22 @@ def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
         layer = as_dict(layer_value)  # pyright: ignore[reportAny]
         if layer is None:
             continue
-        query_obj = as_dict(layer.get('query'))
-        esql = query_obj.get('esql') if query_obj is not None else None
-        if not isinstance(esql, str):
+        query_obj = get_dict(layer, 'query')
+        esql = get_str(query_obj, 'esql') if query_obj is not None else None
+        if esql is None:
             esql = top_esql
-        if not isinstance(esql, str):
+        if esql is None:
             continue
         parsed_layer = ParsedESQLLayer(layer_id=layer_id, query=esql)
-        time_field = layer.get('timeField')
-        if isinstance(time_field, str):
+        time_field = get_str(layer, 'timeField')
+        if time_field is not None:
             parsed_layer.time_field = time_field
 
         for col_list_key in ('columns', 'allColumns'):
-            col_list = layer.get(col_list_key)
-            if isinstance(col_list, list):
-                for raw_col in col_list:  # pyright: ignore[reportUnknownVariableType]
-                    col = as_dict(raw_col)  # pyright: ignore[reportUnknownArgumentType]
+            col_list = get_list(layer, col_list_key)
+            if col_list is not None:
+                for raw_col in col_list:
+                    col = as_dict(raw_col)
                     if col is not None:
                         parsed = _parse_esql_column(col)
                         if parsed is not None:
@@ -595,51 +628,51 @@ def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
 
 
 def _has_text_based_query(state: dict[str, Any]) -> bool:
-    top_query = as_dict(state.get('query'))
-    if top_query is not None and isinstance(top_query.get('esql'), str):
+    top_query = get_dict(state, 'query')
+    if top_query is not None and get_str(top_query, 'esql') is not None:
         return True
-    ds_states = as_dict(state.get('datasourceStates'))
+    ds_states = get_dict(state, 'datasourceStates')
     if ds_states is None:
         return False
-    text_based = as_dict(ds_states.get('textBased'))
+    text_based = get_dict(ds_states, 'textBased')
     if text_based is None:
         return False
-    layers_raw = as_dict(text_based.get('layers'))
+    layers_raw = get_dict(text_based, 'layers')
     if layers_raw is None:
         return False
     for layer_value in layers_raw.values():  # pyright: ignore[reportAny]
         layer = as_dict(layer_value)  # pyright: ignore[reportAny]
         if layer is None:
             continue
-        query = as_dict(layer.get('query'))
-        if query is not None and isinstance(query.get('esql'), str):
+        query = get_dict(layer, 'query')
+        if query is not None and get_str(query, 'esql') is not None:
             return True
     return False
 
 
 def _extract_esql_query_from_state(state: dict[str, Any]) -> str | None:
-    top_query = as_dict(state.get('query'))
+    top_query = get_dict(state, 'query')
     if top_query is not None:
-        esql = top_query.get('esql')
-        if isinstance(esql, str):
+        esql = get_str(top_query, 'esql')
+        if esql is not None:
             return esql
-    ds_states = as_dict(state.get('datasourceStates'))
+    ds_states = get_dict(state, 'datasourceStates')
     if ds_states is None:
         return None
-    text_based = as_dict(ds_states.get('textBased'))
+    text_based = get_dict(ds_states, 'textBased')
     if text_based is None:
         return None
-    layers_raw = as_dict(text_based.get('layers'))
+    layers_raw = get_dict(text_based, 'layers')
     if layers_raw is None:
         return None
     for layer_value in layers_raw.values():  # pyright: ignore[reportAny]
         layer = as_dict(layer_value)  # pyright: ignore[reportAny]
         if layer is None:
             continue
-        query = as_dict(layer.get('query'))
+        query = get_dict(layer, 'query')
         if query is not None:
-            esql = query.get('esql')
-            if isinstance(esql, str):
+            esql = get_str(query, 'esql')
+            if esql is not None:
                 return esql
     return None
 
@@ -649,16 +682,18 @@ def _extract_data_view_from_refs(refs: list[object]) -> str | None:
         ref = as_dict(ref_item)
         if ref is None:
             continue
-        if ref.get('type') == 'index-pattern' and isinstance(ref.get('id'), str):
-            return ref['id']  # pyright: ignore[reportAny]
+        ref_type = get_str(ref, 'type')
+        ref_id = get_str(ref, 'id')
+        if ref_type == 'index-pattern' and ref_id is not None:
+            return ref_id
     return None
 
 
 def _parse_lens_panel(panel: dict[str, Any], raw_panel_type: str) -> ParsedLensPanel:
-    embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
-    embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
+    embeddable_config = get_dict(panel, 'embeddableConfig') or {}
+    embeddable_attributes = get_dict(embeddable_config, 'attributes') or {}
 
-    state = as_dict(embeddable_attributes.get('state')) or {}
+    state = get_dict(embeddable_attributes, 'state') or {}
     is_esql = raw_panel_type == 'esql' or _has_text_based_query(state)
     panel_type = 'esql' if is_esql else 'lens'
 
@@ -672,10 +707,9 @@ def _parse_lens_panel(panel: dict[str, Any], raw_panel_type: str) -> ParsedLensP
     esql_query = _extract_esql_query_from_state(state) if is_esql else None
 
     # Extract data view from references
-    refs_raw = embeddable_attributes.get('references')
-    if not isinstance(refs_raw, list):
-        refs_raw = embeddable_config.get('references')
-    refs = cast('list[object]', refs_raw) if isinstance(refs_raw, list) else []
+    refs = get_list(embeddable_attributes, 'references')
+    if refs is None:
+        refs = get_list(embeddable_config, 'references') or []
     data_view = _extract_data_view_from_refs(refs)
 
     parsed_refs: list[ParsedReference] = []
@@ -683,10 +717,10 @@ def _parse_lens_panel(panel: dict[str, Any], raw_panel_type: str) -> ParsedLensP
         ref = as_dict(ref_item)
         if ref is None:
             continue
-        name = ref.get('name')
-        ref_type = ref.get('type')
-        ref_id = ref.get('id')
-        if isinstance(name, str) and isinstance(ref_type, str) and isinstance(ref_id, str):
+        name = get_str(ref, 'name')
+        ref_type = get_str(ref, 'type')
+        ref_id = get_str(ref, 'id')
+        if name is not None and ref_type is not None and ref_id is not None:
             parsed_refs.append(ParsedReference(name=name, ref_type=ref_type, ref_id=ref_id))
 
     return ParsedLensPanel(
@@ -716,8 +750,8 @@ def _parse_simple_panel_view(panel: dict[str, Any], panel_type: str) -> object |
 
 
 def _parse_simple_panel(panel: dict[str, Any], panel_type: str) -> ParsedSimplePanel:
-    embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
-    embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
+    embeddable_config = get_dict(panel, 'embeddableConfig') or {}
+    embeddable_attributes = get_dict(embeddable_config, 'attributes') or {}
     resolved_panel_type = _saved_visualization_panel_type(panel) if panel_type == 'visualization' else panel_type
     return ParsedSimplePanel(
         panel_type=resolved_panel_type or panel_type,
@@ -731,18 +765,18 @@ def _parse_simple_panel(panel: dict[str, Any], panel_type: str) -> ParsedSimpleP
 def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
     parsed = ParsedPanel()
 
-    panel_index = panel.get('panelIndex')
-    if isinstance(panel_index, str):
+    panel_index = get_str(panel, 'panelIndex')
+    if panel_index is not None:
         parsed.panel_index = panel_index
 
     parsed.title = _parse_panel_title(panel)
 
-    grid_raw = as_dict(panel.get('gridData'))
+    grid_raw = get_dict(panel, 'gridData')
     if grid_raw is not None:
         parsed.grid = _parse_grid_data(grid_raw)
 
-    panel_type = panel.get('type')
-    if not isinstance(panel_type, str):
+    panel_type = get_str(panel, 'type')
+    if panel_type is None:
         parsed.error = 'missing panel type'
         return parsed
 
@@ -770,17 +804,17 @@ def _parse_settings(attributes: dict[str, Any]) -> ParsedDashboardSettings | Non
     if not isinstance(options, dict):
         return None
     return ParsedDashboardSettings(
-        margins=options.get('useMargins') if isinstance(options.get('useMargins'), bool) else None,
-        sync_colors=options.get('syncColors') if isinstance(options.get('syncColors'), bool) else None,
-        sync_cursor=options.get('syncCursor') if isinstance(options.get('syncCursor'), bool) else None,
-        sync_tooltips=options.get('syncTooltips') if isinstance(options.get('syncTooltips'), bool) else None,
-        hide_panel_titles=options.get('hidePanelTitles') if isinstance(options.get('hidePanelTitles'), bool) else None,
+        margins=get_bool(options, 'useMargins'),
+        sync_colors=get_bool(options, 'syncColors'),
+        sync_cursor=get_bool(options, 'syncCursor'),
+        sync_tooltips=get_bool(options, 'syncTooltips'),
+        hide_panel_titles=get_bool(options, 'hidePanelTitles'),
         view_options=cast('KbnDashboardOptions | None', _validate_view_model(KbnDashboardOptions, options)),
     )
 
 
 def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
-    meta_raw = as_dict(attributes.get('kibanaSavedObjectMeta'))
+    meta_raw = get_dict(attributes, 'kibanaSavedObjectMeta')
     if meta_raw is None:
         return []
     search_source = parse_json_field(meta_raw.get('searchSourceJSON'))
@@ -795,18 +829,18 @@ def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
         raw = as_dict(filter_item)  # pyright: ignore[reportUnknownArgumentType]
         if raw is None:
             continue
-        filter_meta = as_dict(raw.get('meta'))
+        filter_meta = get_dict(raw, 'meta')
         if filter_meta is None:
             continue
-        key = filter_meta.get('key')
-        if not isinstance(key, str):
+        key = get_str(filter_meta, 'key')
+        if key is None:
             continue
         result.append(
             ParsedFilter(
                 raw=raw,
                 meta=filter_meta,
                 key=key,
-                filter_type=filter_meta.get('type') if isinstance(filter_meta.get('type'), str) else None,
+                filter_type=get_str(filter_meta, 'type'),
                 view_filter=cast('KbnFilter | None', _validate_view_model(KbnFilter, _normalize_filter_for_view(raw))),
             )
         )
@@ -815,15 +849,15 @@ def _parse_filters(attributes: dict[str, Any]) -> list[ParsedFilter]:
 
 def _parse_dashboard_query(attributes: dict[str, Any]) -> dict[str, str] | None:
     query_dict: dict[str, str] | None = None
-    meta_raw = as_dict(attributes.get('kibanaSavedObjectMeta'))
+    meta_raw = get_dict(attributes, 'kibanaSavedObjectMeta')
     if meta_raw is not None:
         search_source = parse_json_field(meta_raw.get('searchSourceJSON'))
         if isinstance(search_source, dict):
-            raw_query = as_dict(search_source.get('query'))
+            raw_query = get_dict(search_source, 'query')
             if raw_query is not None:
-                language = raw_query.get('language')
-                query = raw_query.get('query')
-                if isinstance(query, str):
+                language = get_str(raw_query, 'language')
+                query = get_str(raw_query, 'query')
+                if query is not None:
                     if language == 'kuery':
                         query_dict = {'kql': query}
                     elif language == 'lucene':
@@ -832,7 +866,7 @@ def _parse_dashboard_query(attributes: dict[str, Any]) -> dict[str, str] | None:
 
 
 def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]) -> list[ParsedControl]:
-    control_group = as_dict(attributes.get('controlGroupInput'))
+    control_group = get_dict(attributes, 'controlGroupInput')
     if control_group is None:
         return []
     panels_json = parse_json_field(control_group.get('panelsJSON'))
@@ -843,25 +877,24 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
         panel = as_dict(item[1])
         if panel is None:
             return 0
-        order = panel.get('order', 0)  # pyright: ignore[reportAny]
-        return order if isinstance(order, int) else 0
+        return get_int(panel, 'order') or 0
 
     result: list[ParsedControl] = []
     for panel_id, panel_value in sorted(panels_json.items(), key=_order):  # pyright: ignore[reportAny]
         panel = as_dict(panel_value)  # pyright: ignore[reportAny]
         if panel is None:
             continue
-        explicit_input = as_dict(panel.get('explicitInput'))
-        ctrl = ParsedControl(raw=panel, control_type=panel.get('type') if isinstance(panel.get('type'), str) else None)
+        explicit_input = get_dict(panel, 'explicitInput')
+        ctrl = ParsedControl(raw=panel, control_type=get_str(panel, 'type'))
         if explicit_input is not None:
-            fn = explicit_input.get('fieldName')
-            if isinstance(fn, str):
+            fn = get_str(explicit_input, 'fieldName')
+            if fn is not None:
                 ctrl.field_name = fn
-            title = explicit_input.get('title')
-            if isinstance(title, str):
+            title = get_str(explicit_input, 'title')
+            if title is not None:
                 ctrl.title = title
-            dv = explicit_input.get('dataViewId')
-            if isinstance(dv, str):
+            dv = get_str(explicit_input, 'dataViewId')
+            if dv is not None:
                 ctrl.data_view_id = dv
             else:
                 ref_suffix = {
@@ -873,14 +906,14 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
                 if ref_suffix is not None:
                     ref_name = f'controlGroup_{panel_id}:{ref_suffix}'
                     resolved = reference_lookup.get(ref_name)
-                    if isinstance(resolved, str):
+                    if resolved is not None:
                         ctrl.data_view_id = resolved
                     else:
-                        attr_ref = attributes.get(ref_name)
-                        if isinstance(attr_ref, str):
+                        attr_ref = get_str(attributes, ref_name)
+                        if attr_ref is not None:
                             ctrl.data_view_id = attr_ref
         normalized_panel = _normalize_control_for_view(panel_id, panel)
-        normalized_explicit = as_dict(normalized_panel.get('explicitInput'))
+        normalized_explicit = get_dict(normalized_panel, 'explicitInput')
         if normalized_explicit is not None and ctrl.data_view_id is not None and 'dataViewId' not in normalized_explicit:
             normalized_explicit = dict(normalized_explicit)
             normalized_explicit['dataViewId'] = ctrl.data_view_id
@@ -899,34 +932,37 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
 
 def _extract_reference_lookup(dashboard: dict[str, Any]) -> dict[str, str]:
     lookup: dict[str, str] = {}
-    references = dashboard.get('references')
-    if not isinstance(references, list):
+    references = get_list(dashboard, 'references')
+    if references is None:
         return lookup
-    for ref_item in references:  # pyright: ignore[reportUnknownVariableType]
-        ref = as_dict(ref_item)  # pyright: ignore[reportUnknownArgumentType]
+    for ref_item in references:
+        ref = as_dict(ref_item)
         if ref is None:
             continue
-        name = ref.get('name')
-        target_id = ref.get('id')
-        if isinstance(name, str) and isinstance(target_id, str):
+        name = get_str(ref, 'name')
+        target_id = get_str(ref, 'id')
+        if name is not None and target_id is not None:
             lookup[name] = target_id
     return lookup
 
 
 def parse_dashboard(dashboard: dict[str, Any]) -> ParsedDashboard:
     """Parse a raw Kibana dashboard JSON dict into a typed intermediate structure."""
-    attributes = as_dict(dashboard.get('attributes')) or {}
+    attributes = get_dict(dashboard, 'attributes') or {}
     reference_lookup = _extract_reference_lookup(dashboard)
 
-    title = attributes.get('title')
-    description = attributes.get('description')
+    title = get_str(attributes, 'title')
+    description = get_str(attributes, 'description')
+    dashboard_id = get_str(dashboard, 'id')
+    time_from = get_str(attributes, 'timeFrom')
+    time_to = get_str(attributes, 'timeTo')
 
     parsed = ParsedDashboard(
-        dashboard_id=dashboard.get('id') if isinstance(dashboard.get('id'), str) else None,
-        title=title if isinstance(title, str) else 'Untitled Dashboard',
-        description=description if isinstance(description, str) else None,
-        time_from=attributes.get('timeFrom') if isinstance(attributes.get('timeFrom'), str) else None,
-        time_to=attributes.get('timeTo') if isinstance(attributes.get('timeTo'), str) else None,
+        dashboard_id=dashboard_id,
+        title=title if title is not None else 'Untitled Dashboard',
+        description=description,
+        time_from=time_from,
+        time_to=time_to,
         settings=_parse_settings(attributes),
         query=_parse_dashboard_query(attributes),
         filters=_parse_filters(attributes),
