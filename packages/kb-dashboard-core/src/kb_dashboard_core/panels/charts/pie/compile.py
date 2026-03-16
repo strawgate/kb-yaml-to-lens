@@ -3,7 +3,8 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping
+from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping, map_legend_size
+from kb_dashboard_core.panels.charts.base.view import KbnLegendSize
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -35,7 +36,7 @@ class LegendOptions:
     position: str | None
     """Legend position ('top', 'right', 'bottom', 'left')."""
 
-    size: str | None
+    size: KbnLegendSize | None
     """Legend size/width."""
 
     truncate: bool | None
@@ -106,7 +107,7 @@ def _compile_legend_options(legend: PieLegend | None) -> LegendOptions:
     return LegendOptions(
         display=legend_display,
         position=legend.position,
-        size=legend.width,
+        size=map_legend_size(legend.width),
         truncate=truncate_legend,
         max_lines=legend_max_lines,
         nested=legend.nested,

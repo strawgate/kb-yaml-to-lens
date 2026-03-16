@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Literal
 
+from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
+from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
 if TYPE_CHECKING:
@@ -74,6 +76,8 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
     if secondary_label_position is None:
         secondary_label_position = 'before'
 
+    palette = compile_color_range_mapping(chart.color) if isinstance(chart.color, ColorRangeMapping) else None
+
     return KbnMetricVisualizationState(
         layerId=layer_id,
         metricAccessor=primary_metric_id,
@@ -96,6 +100,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         primaryAlign=primary.alignment if primary is not None else None,
         secondaryAlign=secondary.alignment if secondary is not None else None,
         titleWeight=titles_and_text.weight if titles_and_text is not None else None,
+        palette=palette,
     )
 
 
@@ -243,6 +248,8 @@ def compile_esql_metric_chart(
 
     secondary_label_position = secondary.label_position if secondary is not None and secondary.label_position is not None else None
 
+    palette = compile_color_range_mapping(esql_metric_chart.color) if isinstance(esql_metric_chart.color, ColorRangeMapping) else None
+
     return (
         layer_id,
         kbn_columns,
@@ -267,5 +274,6 @@ def compile_esql_metric_chart(
             primaryAlign=primary.alignment if primary is not None else None,
             secondaryAlign=secondary.alignment if secondary is not None else None,
             titleWeight=titles_and_text.weight if titles_and_text is not None else None,
+            palette=palette,
         ),
     )

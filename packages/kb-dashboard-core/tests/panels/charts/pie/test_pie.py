@@ -316,7 +316,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'dimensions': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'legend': {'visible': 'show', 'width': 'large', 'truncate_labels': 0},
+        'legend': {'visible': 'show', 'width': 'extra_large', 'truncate_labels': 0},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -324,7 +324,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'dimensions': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'legend': {'visible': 'show', 'width': 'large', 'truncate_labels': 0},
+        'legend': {'visible': 'show', 'width': 'extra_large', 'truncate_labels': 0},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -348,7 +348,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
             'categoryDisplay': 'default',
             'legendDisplay': 'show',
             'nestedLegend': False,
-            'legendSize': 'large',
+            'legendSize': 'xlarge',
             'truncateLegend': False,
         }
     )
@@ -373,7 +373,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
             'categoryDisplay': 'default',
             'legendDisplay': 'show',
             'nestedLegend': False,
-            'legendSize': 'large',
+            'legendSize': 'xlarge',
             'truncateLegend': False,
         }
     )

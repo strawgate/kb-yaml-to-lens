@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -109,6 +110,9 @@ class KbnMetricVisualizationState(BaseVwModel):
     primaryPosition: Annotated[Literal['top', 'bottom'] | None, OmitIfNone()] = Field(default=None)
     """Vertical position of the primary metric value within the panel."""
 
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Optional range-based palette settings for threshold coloring."""
+
 
 class KbnESQLMetricVisualizationState(BaseVwModel):
     """View model for ES|QL metric visualization state.
@@ -185,3 +189,6 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
 
     primaryPosition: Annotated[Literal['top', 'bottom'] | None, OmitIfNone()] = Field(default=None)
     """Vertical position of the primary metric value within the panel."""
+
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Optional range-based palette settings for threshold coloring."""
