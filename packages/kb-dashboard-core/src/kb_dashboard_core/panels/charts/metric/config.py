@@ -251,21 +251,28 @@ class LensMetricChart(BaseMetricChart):
     """An optional breakdown dimension to split metric values by category."""
 
     @staticmethod
-    def _metric_has_shift(metric: LensMetricTypes) -> bool:
-        """Return True when metric formula includes at least one shifted aggregation."""
+    def _metric_shifts(metric: LensMetricTypes) -> set[str | None]:
+        """Return all normalized time-shift values referenced by the metric."""
         if not isinstance(metric, LensFormulaMetric):
-            return False
+            return {None}
+
         parse_result = parse_formula(metric.formula)
-        return any(aggregation.shift not in (None, '') for aggregation in parse_result.aggregations)
+        if len(parse_result.aggregations) == 0:
+            return {None}
+
+        return {aggregation.shift if aggregation.shift not in (None, '') else None for aggregation in parse_result.aggregations}
 
     @model_validator(mode='after')
     def validate_shifted_metrics_with_top_values_breakdown(self) -> 'LensMetricChart':
-        """Kibana rejects shifted metrics with dynamic top-values breakdowns."""
+        """Kibana rejects dynamic top values when metrics use mixed time shifts."""
         if self.breakdown is not None and self.breakdown.type == 'values':
-            metrics = [self.primary, self.secondary, self.maximum]
-            has_shifted_metric = any(metric is not None and self._metric_has_shift(metric) for metric in metrics)
-            if has_shifted_metric:
-                msg = 'Metric charts cannot combine shifted metrics with `breakdown.type: values` (dynamic top values).'
+            metrics = [metric for metric in [self.primary, self.secondary, self.maximum] if metric is not None]
+            distinct_shifts: set[str | None] = set()
+            for metric in metrics:
+                distinct_shifts.update(self._metric_shifts(metric))
+
+            if len(distinct_shifts) > 1:
+                msg = 'Metric charts with `breakdown.type: values` (dynamic top values) cannot combine metrics with different time shifts.'
                 raise ValueError(msg)
         return self
 

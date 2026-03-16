@@ -916,8 +916,8 @@ def test_metric_color_assignments_are_rejected(chart_type: str) -> None:
             ESQLMetricChart.model_validate(config)
 
 
-def test_metric_shifted_secondary_with_top_values_breakdown_is_rejected() -> None:
-    """Metric charts should reject shifted formulas with dynamic top-values breakdowns."""
+def test_metric_mixed_shifts_with_top_values_breakdown_is_rejected() -> None:
+    """Metric charts should reject mixed time shifts with dynamic top-values breakdowns."""
     config: dict[str, Any] = {
         'type': 'metric',
         'data_view': 'metrics-*',
@@ -933,8 +933,33 @@ def test_metric_shifted_secondary_with_top_values_breakdown_is_rejected() -> Non
         },
     }
 
-    with pytest.raises(ValidationError, match='dynamic top values'):
+    with pytest.raises(ValidationError, match='different time shifts'):
         LensMetricChart.model_validate(config)
+
+
+def test_metric_same_shift_with_top_values_breakdown_is_allowed() -> None:
+    """Metric charts should allow dynamic top values when configured shifts match."""
+    config: dict[str, Any] = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'id': 'primary-shifted',
+            'formula': "count(shift='1h')",
+        },
+        'secondary': {
+            'id': 'secondary-shifted',
+            'formula': "count(kql='event.outcome:failure', shift='1h')",
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'service.name',
+            'id': 'breakdown-service',
+        },
+    }
+
+    chart = LensMetricChart.model_validate(config)
+    assert chart.primary is not None
+    assert chart.secondary is not None
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
