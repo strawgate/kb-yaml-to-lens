@@ -40,7 +40,14 @@ class TagcloudAppearance(BaseCfgModel):
     orientation: TagcloudOrientationEnum | None = Field(default=TagcloudOrientationEnum.SINGLE, strict=False)  # Turn off strict for enums
     """Text orientation configuration. Defaults to 'single'."""
 
-    show_label: bool | None = Field(default=True)
+    labels: 'TagcloudLabelsConfig | None' = Field(default=None)
+    """Label visibility configuration."""
+
+
+class TagcloudLabelsConfig(BaseCfgModel):
+    """Label visibility settings for tagcloud."""
+
+    visible: bool | None = Field(default=True)
     """Toggle for label visibility. Defaults to True."""
 
 
@@ -98,7 +105,8 @@ class LensTagcloudChart(BaseTagcloudChart):
                   min_font_size: 12
                   max_font_size: 96
                   orientation: "multiple"
-                  show_label: false
+                  labels:
+                    visible: false
                 color:
                   palette: "kibana_palette"
         ```

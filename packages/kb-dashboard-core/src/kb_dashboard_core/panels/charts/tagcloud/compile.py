@@ -41,8 +41,8 @@ def compile_tagcloud_chart_visualization_state(
             max_font_size = chart.appearance.max_font_size
         if chart.appearance.orientation is not None:
             orientation = chart.appearance.orientation
-        if chart.appearance.show_label is not None:
-            show_label = chart.appearance.show_label
+        if chart.appearance.labels is not None and chart.appearance.labels.visible is not None:
+            show_label = chart.appearance.labels.visible
 
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 

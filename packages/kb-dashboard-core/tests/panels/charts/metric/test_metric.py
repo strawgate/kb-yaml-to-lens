@@ -584,14 +584,14 @@ def test_compile_metric_chart_secondary_label_appearance(chart_type: str) -> Non
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label': 'vs. previous period'}},
+            'appearance': {'secondary': {'label': {'text': 'vs. previous period'}}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label': 'vs. previous period'}},
+            'appearance': {'secondary': {'label': {'text': 'vs. previous period'}}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -607,14 +607,14 @@ def test_compile_metric_chart_secondary_label_position_after(chart_type: str) ->
             'data_view': 'metrics-*',
             'primary': {'aggregation': 'count', 'id': 'primary-metric'},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label_position': 'after'}},
+            'appearance': {'secondary': {'label': {'position': 'after'}}},
         }
     else:
         config = {
             'type': 'metric',
             'primary': {'field': 'count(*)', 'id': 'primary-metric'},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
-            'appearance': {'secondary': {'label_position': 'after'}},
+            'appearance': {'secondary': {'label': {'position': 'after'}}},
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -991,7 +991,7 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
                     'position': 'bottom',
                     'alignment': 'center',
                 },
-                'secondary': {'alignment': 'right', 'label': 'Change'},
+                'secondary': {'alignment': 'right', 'label': {'text': 'Change'}},
                 'breakdown': {'column_count': 5},
             },
             'titles_and_text': {
@@ -1016,7 +1016,7 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
                     'position': 'bottom',
                     'alignment': 'center',
                 },
-                'secondary': {'alignment': 'right', 'label': 'Change'},
+                'secondary': {'alignment': 'right', 'label': {'text': 'Change'}},
                 'breakdown': {'column_count': 5},
             },
             'titles_and_text': {

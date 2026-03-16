@@ -95,8 +95,8 @@ dashboards:
 | `primary.position` | `Literal['top', 'bottom'] \| None` | Vertical position of the primary metric value within the panel. | `None` | No |
 | `primary.alignment` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the primary metric value. | `None` | No |
 | `secondary.alignment` | `Literal['left', 'center', 'right'] \| None` | Text alignment for the secondary metric value. | `None` | No |
-| `secondary.label` | `string \| None` | Custom label for the secondary metric. | `None` | No |
-| `secondary.label_position` | `Literal['before', 'after'] \| None` | Position of the secondary label relative to the value. | `None` | No |
+| `secondary.label.text` | `string \| None` | Custom label text for the secondary metric. | `None` | No |
+| `secondary.label.position` | `Literal['before', 'after'] \| None` | Position of the secondary label relative to the value. | `None` | No |
 | `breakdown.column_count` | `int \| None` | Maximum number of columns when displaying broken-down metrics. Minimum value is `1`. | `None` | No |
 
 #### Metric Titles and Text
@@ -263,8 +263,9 @@ dashboards:
           data_view: "metrics-*"
           appearance:
             secondary:
-              label: "vs. previous day"
-              label_position: after
+              label:
+                text: "vs. previous day"
+                position: after
           titles_and_text:
             subtitle: "Last 24 hours"
           primary:

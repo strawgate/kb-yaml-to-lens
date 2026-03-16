@@ -133,7 +133,7 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: Co
             'min_font_size': 12,
             'max_font_size': 96,
             'orientation': 'multiple',
-            'show_label': False,
+            'labels': {'visible': False},
         },
         'color': {
             'palette': 'kibana_palette',
@@ -178,7 +178,7 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: Co
             'min_font_size': 12,
             'max_font_size': 96,
             'orientation': 'multiple',
-            'show_label': False,
+            'labels': {'visible': False},
         },
         'color': {
             'palette': 'kibana_palette',
@@ -302,7 +302,7 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: Compile
             'id': 'bytes-metric',
         },
         'appearance': {
-            'show_label': False,
+            'labels': {'visible': False},
         },
     }
 

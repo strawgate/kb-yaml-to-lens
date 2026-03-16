@@ -67,10 +67,17 @@ class MetricSecondaryAppearance(BaseCfgModel):
     alignment: Literal['left', 'center', 'right'] | None = Field(default=None)
     """Text alignment for the secondary metric value."""
 
-    label: str | None = Field(default=None)
-    """Custom label for the secondary metric, overriding its default label."""
+    label: 'MetricSecondaryLabelAppearance | None' = Field(default=None)
+    """Custom secondary label configuration."""
 
-    label_position: Literal['before', 'after'] | None = Field(default=None)
+
+class MetricSecondaryLabelAppearance(BaseCfgModel):
+    """Secondary metric label appearance options."""
+
+    text: str | None = Field(default=None)
+    """Custom label text for the secondary metric, overriding its default label."""
+
+    position: Literal['before', 'after'] | None = Field(default=None)
     """Position of secondary label relative to the metric value."""
 
 
@@ -169,8 +176,9 @@ class LensMetricChart(BaseMetricChart):
             breakdown:
               column_count: 3
             secondary:
-              label: "vs. previous day"
-              label_position: after
+              label:
+                text: "vs. previous day"
+                position: after
           titles_and_text:
             subtitle: "Last 24 hours"
             alignment: center

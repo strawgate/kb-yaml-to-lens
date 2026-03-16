@@ -124,8 +124,8 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `primary.position` | `Literal['top', 'bottom']` | Vertical position of the primary metric value. | `None` | No |
 | `primary.alignment` | `Literal['left', 'center', 'right']` | Text alignment for the primary metric value. | `None` | No |
 | `secondary.alignment` | `Literal['left', 'center', 'right']` | Text alignment for the secondary metric value. | `None` | No |
-| `secondary.label` | `string` | Custom label for the secondary metric. | `None` | No |
-| `secondary.label_position` | `Literal['before', 'after']` | Position for the secondary label. | `None` | No |
+| `secondary.label.text` | `string` | Custom label for the secondary metric. | `None` | No |
+| `secondary.label.position` | `Literal['before', 'after']` | Position for the secondary label. | `None` | No |
 | `breakdown.column_count` | `int` | Maximum breakdown columns (minimum `1`). | `None` | No |
 
 ### Metric Titles and Text

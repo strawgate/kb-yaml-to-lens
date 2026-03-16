@@ -131,7 +131,7 @@ Customize axis titles, bounds, and scale types to better represent your data:
 
 #### Hide Axis Titles
 
-Use `show_title: false` to hide an axis title even when a `title` is configured:
+Use `title: false` to hide an axis title:
 
 ```yaml
 dashboards:
@@ -151,8 +151,7 @@ dashboards:
               label: "Avg Latency"
           appearance:
             x_axis:
-              title: "Time (UTC)"
-              show_title: false
+              title: false
             y_left_axis:
               title: "Response Time (ms)"
 ```

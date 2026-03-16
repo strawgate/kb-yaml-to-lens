@@ -93,8 +93,8 @@ def _extract_axis_config(
     if axis_config is None:
         return None, True, None, None
 
-    title = axis_config.title
-    show_title = axis_config.show_title
+    title = axis_config.resolved_title
+    show_title = axis_config.resolved_show_title
     scale = axis_config.scale
     extent = _convert_axis_extent(axis_config.extent) if axis_config.extent is not None else None
 

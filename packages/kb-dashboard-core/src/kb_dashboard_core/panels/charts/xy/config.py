@@ -114,17 +114,34 @@ class AxisExtent(BaseCfgModel):
 class AxisConfig(BaseCfgModel):
     """Represents configuration for a single axis in XY charts."""
 
-    title: str | None = Field(default=None)
-    """Custom title for the axis."""
-
-    show_title: bool = Field(default=True)
-    """Whether axis title should be shown when a title is provided."""
+    title: bool | str | None = Field(default=None)
+    """Axis title mode/value: True=auto, False=hidden, string=custom title."""
 
     scale: Literal['linear', 'log', 'sqrt', 'time'] | None = Field(default=None)
     """Scale type for the axis. Defaults to 'linear'."""
 
     extent: AxisExtent | None = Field(default=None)
     """Extent/bounds configuration for the axis."""
+
+    @model_validator(mode='after')
+    def validate_title(self) -> Self:
+        """Validate title input."""
+        if isinstance(self.title, str) and self.title == '':
+            msg = "Axis title cannot be an empty string. Use false to hide or omit for auto."
+            raise ValueError(msg)
+        return self
+
+    @property
+    def resolved_title(self) -> str | None:
+        """Resolved custom title text (None for auto/hidden)."""
+        return self.title if isinstance(self.title, str) else None
+
+    @property
+    def resolved_show_title(self) -> bool:
+        """Resolved axis title visibility."""
+        if isinstance(self.title, bool):
+            return self.title
+        return True
 
 
 class XYValuesConfig(BaseCfgModel):

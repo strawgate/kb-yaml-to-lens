@@ -1001,15 +1001,15 @@ async def test_axis_extent_configuration() -> None:
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yRight is True
 
 
-async def test_axis_title_visibility_respects_show_title_flag() -> None:
-    """Test show_title controls axis title visibility independently of title value."""
+async def test_axis_title_visibility_supports_bool_title_mode() -> None:
+    """Test bool title mode controls axis title visibility."""
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
         'appearance': {
-            'x_axis': {'title': 'Time', 'show_title': False},
+            'x_axis': {'title': False},
             'y_left_axis': {'title': 'Count'},
         },
     }
@@ -1021,8 +1021,8 @@ async def test_axis_title_visibility_respects_show_title_flag() -> None:
     assert kbn_state_visualization.axisTitlesVisibilitySettings.yLeft is True
 
 
-async def test_axis_title_visibility_default_behavior_when_show_title_omitted() -> None:
-    """Test omitted show_title preserves legacy title-based visibility behavior."""
+async def test_axis_title_visibility_default_behavior_for_string_title() -> None:
+    """Test string title shows axis title."""
     lens_config = {
         'type': 'line',
         'data_view': 'metrics-*',
@@ -1037,6 +1037,24 @@ async def test_axis_title_visibility_default_behavior_when_show_title_omitted() 
 
     assert kbn_state_visualization.axisTitlesVisibilitySettings is not None
     assert kbn_state_visualization.axisTitlesVisibilitySettings.x is True
+
+
+async def test_axis_title_true_uses_auto_mode() -> None:
+    """Test title=true keeps axis title visible without setting a custom title."""
+    lens_config = {
+        'type': 'line',
+        'data_view': 'metrics-*',
+        'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+        'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+        'appearance': {
+            'x_axis': {'title': True},
+        },
+    }
+    lens_chart = LensLineChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=lens_chart)
+
+    assert kbn_state_visualization.xTitle is None
+    assert kbn_state_visualization.axisTitlesVisibilitySettings is None
 
 
 async def test_line_chart_with_fitting_function() -> None:
