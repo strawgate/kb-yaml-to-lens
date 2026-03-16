@@ -1,10 +1,9 @@
 """Lens dimensions configuration for the Lens chart."""
 
-import re
 from enum import StrEnum
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, StringConstraints
 
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel, Sort
@@ -12,6 +11,12 @@ from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel,
 type LensDimensionTypes = (
     LensTermsDimension | LensMultiTermsDimension | LensDateHistogramDimension | LensFiltersDimension | LensIntervalsDimension
 )
+
+type LensDateMathMinimumInterval = Literal['auto'] | Annotated[
+    str,
+    StringConstraints(pattern=r'^[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)$'),
+]
+"""Lens minimum interval using Elasticsearch date math format or `auto`."""
 
 
 class BaseDimension(BaseIdentifiableModel):
@@ -167,7 +172,7 @@ class LensDateHistogramDimension(BaseLensDimension):
     field: str = Field(default=...)
     """The name of the field in the data view that this dimension is based on."""
 
-    minimum_interval: str | None = Field(default=None)
+    minimum_interval: LensDateMathMinimumInterval | None = Field(default=None)
     """The minimum interval using Elasticsearch date math format (e.g. `1m`, `1h`). Defaults to `auto`."""
 
     partial_intervals: bool | None = Field(default=None)
@@ -175,21 +180,3 @@ class LensDateHistogramDimension(BaseLensDimension):
 
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
     """The collapse function to apply to this dimension (sum, avg, min, max)."""
-
-    @model_validator(mode='after')
-    def validate_minimum_interval(self) -> 'LensDateHistogramDimension':
-        """Validate Lens minimum interval format expected by Kibana/Elasticsearch."""
-        value = self.minimum_interval
-        if value is None:
-            return self
-
-        if value == 'auto':
-            return self
-
-        if not re.fullmatch(r'[1-9][0-9]*(ms|s|m|h|d|w|M|q|y)', value):
-            msg = (
-                "minimum_interval must be 'auto' or Elasticsearch date math format like "
-                "'1ms', '1s', '1m', '1h', '1d', '1w', '1M', '1q', '1y'"
-            )
-            raise ValueError(msg)
-        return self

@@ -89,8 +89,10 @@ async def test_date_histogram_dimension_with_minimum_interval_and_partial_interv
 
 def test_date_histogram_dimension_rejects_non_date_math_minimum_interval() -> None:
     """Test date histogram rejects non-Kibana interval format (e.g., 'minute')."""
-    with pytest.raises(ValueError, match='minimum_interval must be'):
-        TypeAdapter(LensDimensionTypes).validate_python({'type': 'date_histogram', 'field': '@timestamp', 'minimum_interval': 'minute'})
+    with pytest.raises(ValueError, match='String should match pattern'):
+        TypeAdapter(LensDateHistogramDimension).validate_python(
+            {'type': 'date_histogram', 'field': '@timestamp', 'minimum_interval': 'minute'}
+        )
 
 
 async def test_terms_dimension_with_sorting() -> None:
