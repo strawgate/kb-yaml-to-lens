@@ -3,7 +3,7 @@ from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping, ColorValueMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensFormulaMetric, LensMetricTypes
@@ -163,7 +163,7 @@ class BaseMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    color: ColorRangeMapping | ColorValueMapping | None = Field(default=None)
+    color: ColorRangeMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
     apply_to: Literal['value', 'background'] = Field(default='background')
@@ -174,14 +174,6 @@ class BaseMetricChart(BaseChart):
 
     titles_and_text: MetricTitlesAndText | None = Field(default=None)
     """Formatting options for the chart titles and text."""
-
-    @model_validator(mode='after')
-    def validate_color_mapping_support(self) -> 'BaseMetricChart':
-        """Reject categorical color assignments for metric charts."""
-        if isinstance(self.color, ColorValueMapping):
-            msg = 'Metric charts do not support `color.assignments`; use range-based `color.thresholds` instead.'
-            raise ValueError(msg)  # noqa: TRY004
-        return self
 
 
 class LensMetricChart(BaseMetricChart):
