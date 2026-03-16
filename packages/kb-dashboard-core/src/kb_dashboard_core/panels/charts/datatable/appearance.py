@@ -65,9 +65,6 @@ class DatatableMetricColor(BaseCfgModel):
     range_max: float | None = Field(default=None)
     """Optional upper bound for the palette domain."""
 
-    extend_beyond_range: Literal['above', 'below', 'both', 'none'] = Field(default='above')
-    """How colors extend beyond the configured range."""
-
     thresholds: list[ColorThreshold] | None = Field(default=None, min_length=1)
     """Ordered threshold bands used to build datatable palettes."""
 
@@ -79,7 +76,6 @@ class DatatableMetricColor(BaseCfgModel):
             range_type=self.range_type,
             range_min=self.range_min,
             range_max=self.range_max,
-            extend_beyond_range=self.extend_beyond_range,
             thresholds=self.thresholds,
         )
 

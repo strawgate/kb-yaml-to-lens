@@ -443,13 +443,12 @@ class TestCompileColorRangeMapping:
         assert [entry.stop for entry in result.params.colorStops] == [0.0]
         assert [entry.stop for entry in result.params.stops] == [100.0]
 
-    def test_compiles_number_range_mapping_with_custom_bounds_and_continuity(self) -> None:
-        """Test number range honors explicit min/max bounds and continuity mode."""
+    def test_compiles_number_range_mapping_with_custom_bounds(self) -> None:
+        """Test number range honors explicit min/max bounds."""
         color_config = ColorRangeMapping(
             range_type='number',
             range_min=-10,
             range_max=100,
-            extend_beyond_range='none',
             thresholds=[
                 ColorThreshold(up_to=4.25, color='#24c292'),
                 ColorThreshold(up_to=5, color='#ffc9c2'),
@@ -460,7 +459,7 @@ class TestCompileColorRangeMapping:
         assert result is not None
         assert result.params.rangeMin == -10.0
         assert result.params.rangeMax == 100.0
-        assert result.params.continuity == 'none'
+        assert result.params.continuity == 'above'
         assert [entry.stop for entry in result.params.colorStops] == [-10.0, 4.25, 5.0, 6.0]
         assert [entry.stop for entry in result.params.stops] == [4.25, 5.0, 6.0, 100.0]
 
@@ -491,7 +490,6 @@ class TestCompileColorRangeMapping:
             range_type='number',
             range_min=None,
             range_max=None,
-            extend_beyond_range='both',
             thresholds=[
                 ColorThreshold(up_to=4.25, color='#24c292'),
                 ColorThreshold(up_to=5, color='#ffc9c2'),
@@ -501,7 +499,7 @@ class TestCompileColorRangeMapping:
         assert result is not None
         assert result.params.rangeMin is None
         assert result.params.rangeMax is None
-        assert result.params.continuity == 'all'
+        assert result.params.continuity == 'above'
         assert [entry.stop for entry in result.params.colorStops] == [None, 4.25]
         assert [entry.stop for entry in result.params.stops] == [4.25, 5.0]
 

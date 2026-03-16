@@ -91,7 +91,7 @@ Range palettes are emitted only when `appearance.color.thresholds` is configured
 | Field | Description |
 | ----- | ----------- |
 | `appearance.color.apply_to` | How generated range colors are applied: `cell` (background color) or `text` (text color) |
-| `appearance.color` | Optional range settings (`range_type`, `range_min`, `range_max`, `extend_beyond_range`, `thresholds`) |
+| `appearance.color` | Optional range settings (`range_type`, `range_min`, `range_max`, `thresholds`) |
 
 ### Example: CPU Usage Thresholds
 
@@ -119,7 +119,6 @@ dashboards:
                   range_type: percent
                   range_min: 0
                   range_max: 100
-                  extend_beyond_range: above
                   thresholds:
                     - up_to: 50
                       color: '#00BF6F'  # Green for low usage
