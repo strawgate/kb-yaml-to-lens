@@ -8,6 +8,7 @@ Fixture Examples:
 
 from typing import TYPE_CHECKING
 
+import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
 
@@ -178,6 +179,51 @@ def test_pie_deprecated_dimensions_does_not_override_explicit_breakdowns() -> No
         }
     )
     assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']
+
+
+def test_pie_deprecated_titles_and_text_maps_to_appearance() -> None:
+    """Deprecated pie titles_and_text should warn and map to appearance."""
+    with pytest.warns(DeprecationWarning, match='titles_and_text'):
+        chart = LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name'}],
+                'titles_and_text': {
+                    'slice_labels': 'inside',
+                    'slice_values': 'integer',
+                    'value_decimal_places': 3,
+                },
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.categories is not None
+    assert chart.appearance.categories.position == 'inside'
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'integer'
+    assert chart.appearance.values.decimal_places == 3
+
+
+def test_pie_appearance_wins_over_deprecated_titles_and_text() -> None:
+    """Explicit appearance should win over deprecated pie titles_and_text values."""
+    with pytest.warns(DeprecationWarning, match='ignored'):
+        chart = LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name'}],
+                'appearance': {'values': {'format': 'percent', 'decimal_places': 1}},
+                'titles_and_text': {'slice_values': 'integer', 'value_decimal_places': 4},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'percent'
+    assert chart.appearance.values.decimal_places == 1
 
 
 async def test_donut_chart_sizes() -> None:

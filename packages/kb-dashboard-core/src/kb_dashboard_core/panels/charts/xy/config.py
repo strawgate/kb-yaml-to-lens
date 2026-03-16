@@ -177,6 +177,12 @@ class XYValuesConfig(BaseCfgModel):
     """Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to hidden if not specified."""
 
 
+class XYTitlesAndText(BaseCfgModel):
+    """Legacy XY titles/text settings (deprecated; use appearance.values)."""
+
+    value_labels: Literal['show', 'hide'] | None = Field(default=None)
+
+
 class BaseXYChartAppearance(BaseCfgModel):
     """Base class for XY chart appearance formatting options.
 
@@ -259,6 +265,39 @@ class BaseXYChart(BaseChart):
         None,
         description='Formatting options for the chart color palette.',
     )
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_raw = cast('object', normalized_data.pop('titles_and_text', None))
+        if not isinstance(legacy_raw, dict):
+            return normalized_data
+        legacy = cast('dict[str, Any]', legacy_raw)
+        if 'value_labels' not in legacy:
+            return normalized_data
+
+        appearance_raw = normalized_data.get('appearance')
+        appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
+        values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
+        if 'visible' not in values:
+            values['visible'] = legacy['value_labels'] == 'show'
+        else:
+            warnings.warn(
+                "XY chart field 'titles_and_text.value_labels' is ignored because 'appearance.values.visible' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        appearance['values'] = values
+        normalized_data['appearance'] = appearance
+        warnings.warn(
+            "XY chart field 'titles_and_text.value_labels' is deprecated, use 'appearance.values.visible' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return normalized_data
 
 
 class LensXYChartMixin(BaseCfgModel):

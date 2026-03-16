@@ -1,3 +1,4 @@
+import warnings
 from enum import StrEnum
 from typing import Any, Literal, cast
 
@@ -131,11 +132,24 @@ class ColorRangeMapping(BaseCfgModel):
             return data
 
         normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_continuity = normalized_data.pop('continuity', None)
-        if legacy_continuity is None or 'extend_beyond_range' in normalized_data:
+        legacy_continuity = cast('object', normalized_data.pop('continuity', None))
+        if legacy_continuity is None:
+            return normalized_data
+
+        if 'extend_beyond_range' in normalized_data:
+            warnings.warn(
+                "Color mapping field 'continuity' is ignored because 'extend_beyond_range' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             return normalized_data
 
         normalized_data['extend_beyond_range'] = 'both' if legacy_continuity == 'all' else legacy_continuity
+        warnings.warn(
+            "Color mapping field 'continuity' is deprecated, use 'extend_beyond_range' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return normalized_data
 
     @model_validator(mode='after')

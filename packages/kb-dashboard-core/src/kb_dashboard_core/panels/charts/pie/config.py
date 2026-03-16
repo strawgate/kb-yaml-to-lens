@@ -67,6 +67,14 @@ class PieValuesConfig(BaseCfgModel):
     """Controls the number of decimal places for values in the pie chart. Kibana defaults to 2 if not specified."""
 
 
+class PieTitlesAndText(BaseCfgModel):
+    """Legacy pie titles/text settings (deprecated; use appearance.categories/values)."""
+
+    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)
+    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)
+    value_decimal_places: int | None = Field(default=None, ge=0, le=10)
+
+
 class PieChartAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for Pie charts."""
 
@@ -88,11 +96,74 @@ class BasePieChart(BaseChart):
     appearance: PieChartAppearance | None = Field(default=None)
     """Formatting options for the chart appearance, including donut size."""
 
+    titles_and_text: PieTitlesAndText | None = Field(default=None)
+    """Deprecated titles/text settings. Use `appearance.categories` and `appearance.values`."""
+
     legend: PieLegend | None = Field(default=None)
     """Formatting options for the chart legend."""
 
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_raw = cast('object', normalized_data.pop('titles_and_text', None))
+        if not isinstance(legacy_raw, dict):
+            return normalized_data
+        legacy = cast('dict[str, Any]', legacy_raw)
+
+        appearance_raw = normalized_data.get('appearance')
+        appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
+        categories = dict(cast('dict[str, Any]', appearance.get('categories'))) if isinstance(appearance.get('categories'), dict) else {}
+        values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
+
+        if 'slice_labels' in legacy:
+            if 'position' not in categories:
+                categories['position'] = legacy['slice_labels']
+            else:
+                warnings.warn(
+                    "Pie chart field 'titles_and_text.slice_labels' is ignored because 'appearance.categories.position' is already set.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
+        if 'slice_values' in legacy:
+            if 'format' not in values:
+                values['format'] = legacy['slice_values']
+            else:
+                warnings.warn(
+                    "Pie chart field 'titles_and_text.slice_values' is ignored because 'appearance.values.format' is already set.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
+        if 'value_decimal_places' in legacy:
+            if 'decimal_places' not in values:
+                values['decimal_places'] = legacy['value_decimal_places']
+            else:
+                warnings.warn(
+                    "Pie chart field 'titles_and_text.value_decimal_places' is ignored because 'appearance.values.decimal_places' is already set.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
+        if categories:
+            appearance['categories'] = categories
+        if values:
+            appearance['values'] = values
+        if appearance:
+            normalized_data['appearance'] = appearance
+
+        warnings.warn(
+            "Pie chart field 'titles_and_text' is deprecated, use 'appearance.categories' and 'appearance.values' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return normalized_data
 
 
 class LensPieChart(BasePieChart):

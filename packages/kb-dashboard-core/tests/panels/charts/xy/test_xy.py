@@ -1673,3 +1673,42 @@ def test_xy_axis_deprecated_show_title_warns_and_maps() -> None:
     assert chart.appearance is not None
     assert chart.appearance.x_axis is not None
     assert chart.appearance.x_axis.title is False
+
+
+def test_xy_deprecated_titles_and_text_value_labels_maps_to_appearance_values() -> None:
+    """Deprecated titles_and_text.value_labels should warn and map to appearance.values.visible."""
+    with pytest.warns(DeprecationWarning, match='titles_and_text.value_labels'):
+        chart = LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'mode': 'stacked',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'titles_and_text': {'value_labels': 'show'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.visible is True
+
+
+def test_xy_appearance_values_visible_wins_over_deprecated_titles_and_text() -> None:
+    """Explicit appearance values visibility should win over deprecated value_labels."""
+    with pytest.warns(DeprecationWarning, match='ignored'):
+        chart = LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'mode': 'stacked',
+                'data_view': 'logs-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp'},
+                'metrics': [{'aggregation': 'count'}],
+                'appearance': {'values': {'visible': False}},
+                'titles_and_text': {'value_labels': 'show'},
+            }
+        )
+
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.visible is False
