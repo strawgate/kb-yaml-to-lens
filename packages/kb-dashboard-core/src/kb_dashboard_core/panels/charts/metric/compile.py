@@ -1,7 +1,9 @@
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
 from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping
+from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
 if TYPE_CHECKING:
@@ -29,6 +31,56 @@ from kb_dashboard_core.panels.charts.metric.view import (
     KbnSecondaryTrendNone,
 )
 from kb_dashboard_core.shared.config import stable_id_generator
+
+
+@dataclass
+class MetricVisualStyle:
+    """Compiled visual style fields shared by Lens and ES|QL metric visualizations."""
+
+    show_bar: bool | None
+    progress_direction: Literal['horizontal', 'vertical'] | None
+    secondary_label_position: Literal['before', 'after'] | None
+    palette: KbnRangePalette | None
+
+
+def _compile_metric_visual_style(
+    chart: BaseMetricChart,
+    *,
+    default_show_bar: bool | None,
+    default_secondary_label_position: Literal['before', 'after'] | None,
+) -> MetricVisualStyle:
+    """Compile common metric visual-style fields with caller-provided backend defaults."""
+    appearance = chart.appearance
+    primary = appearance.primary if appearance is not None else None
+    secondary = appearance.secondary if appearance is not None else None
+
+    show_bar: bool | None = default_show_bar
+    progress_direction: Literal['horizontal', 'vertical'] | None = None
+
+    background_chart = primary.background_chart if primary is not None else None
+    if background_chart is not None:
+        if background_chart.type == 'bar':
+            show_bar = True
+            progress_direction = background_chart.direction
+        elif background_chart.type == 'line':
+            show_bar = False
+        elif background_chart.type == 'none':
+            show_bar = None
+
+    secondary_label_position = (
+        secondary.label.position if secondary is not None and secondary.label is not None and secondary.label.position is not None else None
+    )
+    if secondary_label_position is None:
+        secondary_label_position = default_secondary_label_position
+
+    palette = compile_color_range_mapping(chart.color) if isinstance(chart.color, ColorRangeMapping) else None
+
+    return MetricVisualStyle(
+        show_bar=show_bar,
+        progress_direction=progress_direction,
+        secondary_label_position=secondary_label_position,
+        palette=palette,
+    )
 
 
 def compile_metric_chart_visualization_state(  # noqa: PLR0913
@@ -63,32 +115,18 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
     secondary = appearance.secondary if appearance is not None else None
     breakdown = appearance.breakdown if appearance is not None else None
 
-    background_chart = primary.background_chart if primary is not None else None
-    show_bar: bool | None = None
-    progress_direction: Literal['horizontal', 'vertical'] | None = None
-    if background_chart is not None:
-        if background_chart.type == 'bar':
-            show_bar = True
-            progress_direction = background_chart.direction
-        elif background_chart.type == 'line':
-            show_bar = False
-        elif background_chart.type == 'none':
-            show_bar = None
-
-    secondary_label_position = (
-        secondary.label.position if secondary is not None and secondary.label is not None and secondary.label.position is not None else None
+    style = _compile_metric_visual_style(
+        chart,
+        default_show_bar=None,
+        default_secondary_label_position='before',
     )
-    if secondary_label_position is None:
-        secondary_label_position = 'before'
-
-    palette = compile_color_range_mapping(chart.color) if isinstance(chart.color, ColorRangeMapping) else None
 
     trendline_layer_id: str | None = None
     trendline_time_accessor: str | None = None
     trendline_metric_accessor: str | None = None
     trendline_secondary_metric_accessor: str | None = None
     trendline_layer_type: Literal['metricTrendline'] | None = None
-    if background_chart is not None and background_chart.type == 'line':
+    if primary is not None and primary.background_chart is not None and primary.background_chart.type == 'line':
         trendline_layer_id = stable_id_generator([layer_id, 'metric', 'trendline', 'layer'])
         trendline_time_accessor = stable_id_generator([layer_id, 'metric', 'trendline', 'time'])
         trendline_metric_accessor = primary_metric_id
@@ -99,15 +137,15 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         layerId=layer_id,
         metricAccessor=primary_metric_id,
         secondaryTrend=KbnSecondaryTrendNone(),
-        secondaryLabelPosition=secondary_label_position,
+        secondaryLabelPosition=style.secondary_label_position,
         secondaryMetricAccessor=secondary_metric_id,
         maxAccessor=max_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
         applyColorTo=apply_to,
         icon=primary.icon if primary is not None else None,
         iconAlign=primary.icon_position if primary is not None else None,
-        showBar=show_bar,
-        progressDirection=progress_direction,
+        showBar=style.show_bar,
+        progressDirection=style.progress_direction,
         maxCols=breakdown.column_count if breakdown is not None else None,
         valueFontMode=primary.font_size if primary is not None else None,
         primaryPosition=primary.position if primary is not None else None,
@@ -117,7 +155,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         primaryAlign=primary.alignment if primary is not None else None,
         secondaryAlign=secondary.alignment if secondary is not None else None,
         titleWeight=titles_and_text.weight if titles_and_text is not None else None,
-        palette=palette,
+        palette=style.palette,
         trendlineLayerId=trendline_layer_id,
         trendlineLayerType=trendline_layer_type,
         trendlineTimeAccessor=trendline_time_accessor,
@@ -290,25 +328,11 @@ def compile_esql_metric_chart(
     secondary = appearance.secondary if appearance is not None else None
     breakdown = appearance.breakdown if appearance is not None else None
 
-    background_chart = primary.background_chart if primary is not None else None
-    show_bar: bool | None = None
-    progress_direction: Literal['horizontal', 'vertical'] | None = None
-    if background_chart is not None:
-        if background_chart.type == 'bar':
-            show_bar = True
-            progress_direction = background_chart.direction
-        elif background_chart.type == 'line':
-            show_bar = False
-        elif background_chart.type == 'none':
-            show_bar = None
-    else:
-        show_bar = False
-
-    secondary_label_position = (
-        secondary.label.position if secondary is not None and secondary.label is not None and secondary.label.position is not None else None
+    style = _compile_metric_visual_style(
+        esql_metric_chart,
+        default_show_bar=False,
+        default_secondary_label_position=None,
     )
-
-    palette = compile_color_range_mapping(esql_metric_chart.color) if isinstance(esql_metric_chart.color, ColorRangeMapping) else None
 
     return (
         layer_id,
@@ -316,15 +340,15 @@ def compile_esql_metric_chart(
         KbnESQLMetricVisualizationState(
             layerId=layer_id,
             metricAccessor=primary_metric_id,
-            secondaryLabelPosition=secondary_label_position,
+            secondaryLabelPosition=style.secondary_label_position,
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
             applyColorTo=esql_metric_chart.apply_to,
             icon=primary.icon if primary is not None else None,
             iconAlign=primary.icon_position if primary is not None else None,
-            showBar=show_bar,
-            progressDirection=progress_direction,
+            showBar=style.show_bar,
+            progressDirection=style.progress_direction,
             maxCols=breakdown.column_count if breakdown is not None else None,
             valueFontMode=primary.font_size if primary is not None else None,
             primaryPosition=primary.position if primary is not None else None,
@@ -334,6 +358,6 @@ def compile_esql_metric_chart(
             primaryAlign=primary.alignment if primary is not None else None,
             secondaryAlign=secondary.alignment if secondary is not None else None,
             titleWeight=titles_and_text.weight if titles_and_text is not None else None,
-            palette=palette,
+            palette=style.palette,
         ),
     )
