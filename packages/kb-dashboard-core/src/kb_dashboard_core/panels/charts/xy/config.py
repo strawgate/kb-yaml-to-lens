@@ -10,21 +10,21 @@ from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXY
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel
 
 type ReferenceLineIcon = Literal[
+    'empty',
+    'alert',
     'asterisk',
     'bell',
     'bolt',
-    'bomb',
     'bug',
-    'comment',
-    'exclamationCircle',
-    'exclamationTriangle',
-    'fire',
+    'circle',
+    'editor_comment',
     'flag',
     'heart',
-    'mapMarker',
-    'mapPin',
-    'star',
+    'map_marker',
+    'pin_filled',
+    'star_empty',
     'tag',
+    'triangle',
 ]
 
 

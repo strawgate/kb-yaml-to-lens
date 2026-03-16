@@ -15,21 +15,21 @@ from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 type KbnXYLegendSize = Literal['auto', 'small', 'medium', 'large', 'xlarge']
 type KbnReferenceLineIcon = Literal[
+    'empty',
+    'alert',
     'asterisk',
     'bell',
     'bolt',
-    'bomb',
     'bug',
-    'comment',
-    'exclamationCircle',
-    'exclamationTriangle',
-    'fire',
+    'circle',
+    'editorComment',
     'flag',
     'heart',
     'mapMarker',
-    'mapPin',
-    'star',
+    'pinFilled',
+    'starEmpty',
     'tag',
+    'triangle',
 ]
 
 

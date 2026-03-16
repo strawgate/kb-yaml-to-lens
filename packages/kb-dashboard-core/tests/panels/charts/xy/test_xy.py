@@ -486,7 +486,7 @@ async def test_reference_line_single() -> None:
         line_width=2,
         line_style='dashed',
         fill='above',
-        icon='exclamationTriangle',
+        icon='map_marker',
         icon_position='auto',
         axis='left',
     )
@@ -504,7 +504,7 @@ async def test_reference_line_single() -> None:
             'lineWidth': 2.0,
             'lineStyle': 'dashed',
             'fill': 'above',
-            'icon': 'exclamationTriangle',
+            'icon': 'mapMarker',
             'iconPosition': 'auto',
             'axisMode': 'left',
         }
@@ -532,6 +532,12 @@ async def test_reference_line_invalid_icon_rejected() -> None:
         XYReferenceLine(
             value=500.0,
             icon='error',
+        )
+
+    with pytest.raises(ValidationError, match='icon'):
+        XYReferenceLine(
+            value=500.0,
+            icon='mapMarker',
         )
 
 

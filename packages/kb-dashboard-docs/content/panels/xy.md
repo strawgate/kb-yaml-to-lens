@@ -457,13 +457,13 @@ dashboards:
                   label: "Warning Level"
                   color: "#FFA500"
                   line_width: 2
-                  icon: "exclamationTriangle"
+                  icon: "triangle"
                   icon_position: right
                 - value: 95
                   label: "Critical Level"
                   color: "#BD271E"
                   line_width: 3
-                  icon: "exclamationCircle"
+                  icon: "alert"
                   icon_position: right
 ```
 

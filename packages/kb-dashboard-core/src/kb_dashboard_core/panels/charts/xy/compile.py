@@ -30,12 +30,14 @@ from kb_dashboard_core.panels.charts.xy.config import (
     LensReferenceLineLayer,
     LensXYChartTypes,
     LineChartAppearance,
+    ReferenceLineIcon,
     XYReferenceLine,
     XYReferenceLineValue,
 )
 from kb_dashboard_core.panels.charts.xy.view import (
     AxisExtentConfig,
     AxisTitlesVisibilitySettings,
+    KbnReferenceLineIcon,
     KbnXYVisualizationState,
     XYDataLayerConfig,
     XYLegendConfig,
@@ -58,6 +60,24 @@ END_VALUES_TO_KIBANA = {
     'nearest': 'Nearest',
 }
 
+REFERENCE_LINE_ICONS_TO_KIBANA: dict[ReferenceLineIcon, KbnReferenceLineIcon] = {
+    'empty': 'empty',
+    'alert': 'alert',
+    'asterisk': 'asterisk',
+    'bell': 'bell',
+    'bolt': 'bolt',
+    'bug': 'bug',
+    'circle': 'circle',
+    'editor_comment': 'editorComment',
+    'flag': 'flag',
+    'heart': 'heart',
+    'map_marker': 'mapMarker',
+    'pin_filled': 'pinFilled',
+    'star_empty': 'starEmpty',
+    'tag': 'tag',
+    'triangle': 'triangle',
+}
+
 
 def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
     """Convert config AxisExtent to view AxisExtentConfig.
@@ -77,6 +97,14 @@ def _convert_axis_extent(extent: AxisExtent) -> AxisExtentConfig:
         enforce=extent.enforce,
         niceValues=extent.nice_values,
     )
+
+
+def _map_reference_line_icon_to_kibana(icon: ReferenceLineIcon | None) -> KbnReferenceLineIcon | None:
+    """Map snake_case reference line icon names to Kibana's icon identifiers."""
+    if icon is None:
+        return None
+
+    return REFERENCE_LINE_ICONS_TO_KIBANA[icon]
 
 
 def _extract_axis_config(
@@ -180,7 +208,7 @@ def compile_reference_line(ref_line: XYReferenceLine) -> tuple[str, KbnLensStati
         lineWidth=ref_line.line_width,
         lineStyle=ref_line.line_style,
         fill=ref_line.fill,
-        icon=ref_line.icon,
+        icon=_map_reference_line_icon_to_kibana(ref_line.icon),
         iconPosition=ref_line.icon_position,
         axisMode=ref_line.axis,
     )
