@@ -10,7 +10,7 @@ from kb_dashboard_core.dashboard_compiler import render
 from kb_dashboard_core.panels.compile import compile_dashboard_panel, get_panel_type_name
 from kb_dashboard_core.panels.config import Grid
 from kb_dashboard_core.panels.images.config import ImagePanel, ImagePanelConfig
-from kb_dashboard_core.panels.links.config import LinksPanel, LinksPanelConfig, UrlLink
+from kb_dashboard_core.panels.links.config import DashboardLink, LinksPanel, LinksPanelConfig, UrlLink
 from kb_dashboard_core.panels.markdown.config import MarkdownPanel, MarkdownPanelConfig
 from kb_dashboard_core.panels.search.config import SearchPanel, SearchPanelConfig
 
@@ -118,19 +118,21 @@ class TestCompileDashboardPanel:
         assert panel.position.y is not None
         grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
         references, kbn_panel = compile_dashboard_panel(panel, grid)
+        panel_dump = kbn_panel.model_dump(by_alias=True)
 
-        assert kbn_panel.model_dump(by_alias=True) == snapshot(
+        assert panel_dump == snapshot(
             {
                 'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
                 'embeddableConfig': {
                     'enhancements': {},
                     'savedObjectId': 'search-id',
                 },
-                'panelRefName': IsStr(regex=r'panel_[a-f0-9-]+'),
+                'panelRefName': IsStr(regex=r'[a-f0-9-]+:panel_[a-f0-9-]+'),
                 'panelIndex': IsUUID,
                 'type': 'search',
             }
         )
+        assert panel_dump['panelRefName'] == f'{panel_dump["panelIndex"]}:panel_{panel_dump["panelIndex"]}'
 
         assert len(references) == 1
         assert references[0].model_dump() == {
@@ -138,6 +140,23 @@ class TestCompileDashboardPanel:
             'type': 'search',
             'id': 'search-id',
         }
+
+    def test_compiles_links_panel_with_dashboard_reference(self) -> None:
+        """Test dashboard link references are namespaced inside links panel payload."""
+        panel = LinksPanel(
+            links=LinksPanelConfig(items=[DashboardLink(dashboard='target-dashboard-id', label='Go to target', id='target-link')]),
+            position={'x': 0, 'y': 0},
+            size={'w': 12, 'h': 4},
+        )
+        assert panel.position.x is not None
+        assert panel.position.y is not None
+        grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
+        references, kbn_panel = compile_dashboard_panel(panel, grid)
+        panel_dump = kbn_panel.model_dump(by_alias=True)
+
+        dashboard_link = panel_dump['embeddableConfig']['attributes']['links'][0]
+        assert dashboard_link['destinationRefName'] == f'{panel_dump["panelIndex"]}:link_target-link_dashboard'
+        assert references[0].model_dump() == {'name': 'link_target-link_dashboard', 'type': 'dashboard', 'id': 'target-dashboard-id'}
 
 
 class TestDashboardReferenceBubbleUp:

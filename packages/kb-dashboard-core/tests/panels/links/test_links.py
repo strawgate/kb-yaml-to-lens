@@ -10,6 +10,7 @@ from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
 from kb_dashboard_core.panels.links.compile import compile_links_panel_config
 from kb_dashboard_core.panels.links.config import LinksPanel, get_link_type
+from tests.conftest import de_json_kbn_dashboard
 
 if TYPE_CHECKING:
     from kb_dashboard_core.dashboard.view import KbnDashboard
@@ -293,6 +294,11 @@ def test_links_panel_dashboard_link_references_bubble_up() -> None:
     assert references == snapshot(
         [{'id': '71a1e537-15ed-4891-b102-4ef0f314a037', 'name': 'links-panel-1:link_link-1_dashboard', 'type': 'dashboard'}]
     )
+
+    dashboard_dict = de_json_kbn_dashboard(kbn_dashboard.model_dump(by_alias=True))
+    links_panel = dashboard_dict['attributes']['panelsJSON'][0]
+    link = links_panel['embeddableConfig']['attributes']['links'][0]
+    assert link['destinationRefName'] == 'links-panel-1:link_link-1_dashboard'
 
 
 def test_compile_links_panel_dashboard_link_partial_options() -> None:

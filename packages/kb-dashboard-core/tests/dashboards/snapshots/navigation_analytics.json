@@ -23,21 +23,21 @@
                 "order": 0,
                 "label": "Overview",
                 "type": "dashboardLink",
-                "destinationRefName": "link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
+                "destinationRefName": "25381616-81af-f361-7791-ce327e0007da:link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
               },
               {
                 "id": "d419ac44-d077-1fda-684c-98797145d4be",
                 "order": 1,
                 "label": "Details",
                 "type": "dashboardLink",
-                "destinationRefName": "link_d419ac44-d077-1fda-684c-98797145d4be_dashboard"
+                "destinationRefName": "25381616-81af-f361-7791-ce327e0007da:link_d419ac44-d077-1fda-684c-98797145d4be_dashboard"
               },
               {
                 "id": "abe184d7-c1f5-b182-7bed-566396e603de",
                 "order": 2,
                 "label": "Analytics",
                 "type": "dashboardLink",
-                "destinationRefName": "link_abe184d7-c1f5-b182-7bed-566396e603de_dashboard"
+                "destinationRefName": "25381616-81af-f361-7791-ce327e0007da:link_abe184d7-c1f5-b182-7bed-566396e603de_dashboard"
               }
             ]
           }

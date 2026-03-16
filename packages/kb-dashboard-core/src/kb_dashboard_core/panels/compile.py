@@ -29,6 +29,9 @@ from kb_dashboard_core.shared.view import KbnReference
 @log_compile
 def _convert_to_panel_reference(kbn_reference: KbnReference, panel_index: str) -> KbnReference:
     """Convert a KbnReference object to a panel reference by namespacing with the panel ID."""
+    if kbn_reference.name.startswith(f'{panel_index}:'):
+        return kbn_reference
+
     return KbnReference(
         type=kbn_reference.type,
         id=kbn_reference.id,
@@ -106,7 +109,7 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
             references, embeddable_config = compile_markdown_panel_config(panel)
             return references, KbnMarkdownPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case LinksPanel():
-            references, embeddable_config = compile_links_panel_config(panel)
+            references, embeddable_config = compile_links_panel_config(panel, panel_index=panel_index)
             return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case ImagePanel():
             references, embeddable_config = compile_image_panel_config(panel)
