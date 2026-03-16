@@ -895,6 +895,74 @@ def test_metric_breakdown_column_count_minimum(chart_type: str) -> None:
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_metric_color_assignments_are_rejected(chart_type: str) -> None:
+    """Metric charts should fail fast on unsupported color.assignments."""
+    if chart_type == 'lens':
+        config: dict[str, Any] = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+        }
+        with pytest.raises(ValidationError, match=r'color\.assignments'):
+            LensMetricChart.model_validate(config)
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+        }
+        with pytest.raises(ValidationError, match=r'color\.assignments'):
+            ESQLMetricChart.model_validate(config)
+
+
+def test_metric_mixed_shifts_with_top_values_breakdown_is_rejected() -> None:
+    """Metric charts should reject mixed time shifts with dynamic top-values breakdowns."""
+    config: dict[str, Any] = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+        'secondary': {
+            'id': 'secondary-shifted',
+            'formula': "count(kql='event.outcome:failure', shift='1h')",
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'service.name',
+            'id': 'breakdown-service',
+        },
+    }
+
+    with pytest.raises(ValidationError, match='different time shifts'):
+        LensMetricChart.model_validate(config)
+
+
+def test_metric_same_shift_with_top_values_breakdown_is_allowed() -> None:
+    """Metric charts should allow dynamic top values when configured shifts match."""
+    config: dict[str, Any] = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'id': 'primary-shifted',
+            'formula': "count(shift='1h')",
+        },
+        'secondary': {
+            'id': 'secondary-shifted',
+            'formula': "count(kql='event.outcome:failure', shift='1h')",
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'service.name',
+            'id': 'breakdown-service',
+        },
+    }
+
+    chart = LensMetricChart.model_validate(config)
+    assert chart.primary is not None
+    assert chart.secondary is not None
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('align', ['left', 'center', 'right'])
 def test_compile_metric_chart_titles_and_text_alignment(chart_type: str, align: str) -> None:
     """Test metric titles_and_text.alignment compilation for Lens and ES|QL charts."""

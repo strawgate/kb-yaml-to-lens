@@ -3,10 +3,11 @@ from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping, ColorValueMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensFormulaMetric, LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.formula_parser import parse_formula
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -162,7 +163,7 @@ class BaseMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    color: ColorRangeMapping | ColorValueMapping | None = Field(default=None)
+    color: ColorRangeMapping | None = Field(default=None)
     """Formatting options for the chart color palette."""
 
     apply_to: Literal['value', 'background'] = Field(default='background')
@@ -248,6 +249,32 @@ class LensMetricChart(BaseMetricChart):
 
     breakdown: LensDimensionTypes | None = Field(default=None)
     """An optional breakdown dimension to split metric values by category."""
+
+    @staticmethod
+    def _metric_shifts(metric: LensMetricTypes) -> set[str | None]:
+        """Return all normalized time-shift values referenced by the metric."""
+        if not isinstance(metric, LensFormulaMetric):
+            return {None}
+
+        parse_result = parse_formula(metric.formula)
+        if len(parse_result.aggregations) == 0:
+            return {None}
+
+        return {aggregation.shift if aggregation.shift not in (None, '') else None for aggregation in parse_result.aggregations}
+
+    @model_validator(mode='after')
+    def validate_shifted_metrics_with_top_values_breakdown(self) -> 'LensMetricChart':
+        """Kibana rejects dynamic top values when metrics use mixed time shifts."""
+        if self.breakdown is not None and self.breakdown.type == 'values':
+            metrics = [metric for metric in [self.primary, self.secondary, self.maximum] if metric is not None]
+            distinct_shifts: set[str | None] = set()
+            for metric in metrics:
+                distinct_shifts.update(self._metric_shifts(metric))
+
+            if len(distinct_shifts) > 1:
+                msg = 'Metric charts with `breakdown.type: values` (dynamic top values) cannot combine metrics with different time shifts.'
+                raise ValueError(msg)
+        return self
 
 
 class ESQLMetricChart(BaseMetricChart):
