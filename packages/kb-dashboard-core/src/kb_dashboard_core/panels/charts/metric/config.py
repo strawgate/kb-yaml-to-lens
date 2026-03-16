@@ -6,7 +6,8 @@ from pydantic import Field, model_validator
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensFormulaMetric, LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.formula_parser import parse_formula
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -174,6 +175,14 @@ class BaseMetricChart(BaseChart):
     titles_and_text: MetricTitlesAndText | None = Field(default=None)
     """Formatting options for the chart titles and text."""
 
+    @model_validator(mode='after')
+    def validate_color_mapping_support(self) -> 'BaseMetricChart':
+        """Reject categorical color assignments for metric charts."""
+        if isinstance(self.color, ColorValueMapping):
+            msg = 'Metric charts do not support `color.assignments`; use range-based `color.thresholds` instead.'
+            raise ValueError(msg)  # noqa: TRY004
+        return self
+
 
 class LensMetricChart(BaseMetricChart):
     """Represents a Metric chart configuration within a Lens panel.
@@ -248,6 +257,25 @@ class LensMetricChart(BaseMetricChart):
 
     breakdown: LensDimensionTypes | None = Field(default=None)
     """An optional breakdown dimension to split metric values by category."""
+
+    @staticmethod
+    def _metric_has_shift(metric: LensMetricTypes) -> bool:
+        """Return True when metric formula includes at least one shifted aggregation."""
+        if not isinstance(metric, LensFormulaMetric):
+            return False
+        parse_result = parse_formula(metric.formula)
+        return any(aggregation.shift not in (None, '') for aggregation in parse_result.aggregations)
+
+    @model_validator(mode='after')
+    def validate_shifted_metrics_with_top_values_breakdown(self) -> 'LensMetricChart':
+        """Kibana rejects shifted metrics with dynamic top-values breakdowns."""
+        if self.breakdown is not None and self.breakdown.type == 'values':
+            metrics = [self.primary, self.secondary, self.maximum]
+            has_shifted_metric = any(metric is not None and self._metric_has_shift(metric) for metric in metrics)
+            if has_shifted_metric:
+                msg = 'Metric charts cannot combine shifted metrics with `breakdown.type: values` (dynamic top values).'
+                raise ValueError(msg)
+        return self
 
 
 class ESQLMetricChart(BaseMetricChart):

@@ -895,6 +895,49 @@ def test_metric_breakdown_column_count_minimum(chart_type: str) -> None:
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_metric_color_assignments_are_rejected(chart_type: str) -> None:
+    """Metric charts should fail fast on unsupported color.assignments."""
+    if chart_type == 'lens':
+        config: dict[str, Any] = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+        }
+        with pytest.raises(ValidationError, match=r'color\.assignments'):
+            LensMetricChart.model_validate(config)
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+        }
+        with pytest.raises(ValidationError, match=r'color\.assignments'):
+            ESQLMetricChart.model_validate(config)
+
+
+def test_metric_shifted_secondary_with_top_values_breakdown_is_rejected() -> None:
+    """Metric charts should reject shifted formulas with dynamic top-values breakdowns."""
+    config: dict[str, Any] = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+        'secondary': {
+            'id': 'secondary-shifted',
+            'formula': "count(kql='event.outcome:failure', shift='1h')",
+        },
+        'breakdown': {
+            'type': 'values',
+            'field': 'service.name',
+            'id': 'breakdown-service',
+        },
+    }
+
+    with pytest.raises(ValidationError, match='dynamic top values'):
+        LensMetricChart.model_validate(config)
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('align', ['left', 'center', 'right'])
 def test_compile_metric_chart_titles_and_text_alignment(chart_type: str, align: str) -> None:
     """Test metric titles_and_text.alignment compilation for Lens and ES|QL charts."""
