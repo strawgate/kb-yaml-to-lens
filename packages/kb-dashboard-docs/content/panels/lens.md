@@ -256,10 +256,10 @@ Groups data by the most frequent unique values of one or more fields. Supports b
 | `sort` | `Sort` object | How to sort the terms. `by` can be a metric label or `_term` (alphabetical). `direction` is `asc` or `desc`. | Sort by metric, `desc` | No |
 | `show_other_bucket` | `boolean` | If `true`, groups remaining values into an "Other" bucket. | `true` | No |
 | `include_missing_values` | `boolean` | If `true`, creates a bucket for documents where the field is missing. | `false` | No |
-| `include` | `list of strings` | A list of specific terms to include. | `None` | No |
-| `exclude` | `list of strings` | A list of specific terms to exclude. | `None` | No |
-| `include_is_regex` | `boolean` | If `true`, treats `include` values as regex patterns. | `false` | No |
-| `exclude_is_regex` | `boolean` | If `true`, treats `exclude` values as regex patterns. | `false` | No |
+| `include` | `list of strings` | A list of specific terms to include. When `include_is_regex` is `true`, must contain exactly one entry. | `None` | No |
+| `exclude` | `list of strings` | A list of specific terms to exclude. When `exclude_is_regex` is `true`, must contain exactly one entry. | `None` | No |
+| `include_is_regex` | `boolean` | If `true`, treats the single `include` value as a regex pattern. `include` must contain exactly one entry. | `false` | No |
+| `exclude_is_regex` | `boolean` | If `true`, treats the single `exclude` value as a regex pattern. `exclude` must contain exactly one entry. | `false` | No |
 
 **Example - Single Field:**
 
@@ -280,6 +280,20 @@ breakdowns:
       - agent.type
     size: 10
     label: "Agent Name + Type"
+```
+
+**Example - Regex Include/Exclude:**
+
+```yaml
+breakdowns:
+  - type: values
+    field: log.level
+    include:
+      - "^err(or)?$"
+    include_is_regex: true
+    exclude:
+      - "^debug$"
+    exclude_is_regex: true
 ```
 
 ### Date Histogram Dimension (`type: date_histogram`)
