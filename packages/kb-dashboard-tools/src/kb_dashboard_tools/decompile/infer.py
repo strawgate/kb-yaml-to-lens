@@ -661,6 +661,10 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
     if isinstance(alias, str) and len(alias) > 0:
         f['alias'] = alias
 
+    negate = pf.meta.get('negate')
+    if isinstance(negate, bool) and negate:
+        return {'not': f}
+
     return f
 
 

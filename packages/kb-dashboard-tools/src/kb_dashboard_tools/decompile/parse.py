@@ -192,7 +192,7 @@ def _decode_dashboard_attributes_for_view(attributes: dict[str, Any]) -> dict[st
 def _panel_view_model_type(panel: dict[str, Any]) -> type[Any] | None:
     """Resolve the concrete Kbn* panel model for a decoded raw panel."""
     panel_type = panel.get('type')
-    if panel_type == 'lens':
+    if panel_type in {'lens', 'esql'}:
         return KbnLensPanel
     if panel_type == 'visualization':
         saved_vis_type = _saved_visualization_panel_type(panel)
@@ -207,7 +207,11 @@ def _parse_panel_view_model(panel: dict[str, Any]) -> object | None:
     model_cls = _panel_view_model_type(panel)
     if model_cls is None:
         return None
-    return _validate_view_model(model_cls, _normalize_grid_for_view(panel))
+    normalized_panel = _normalize_grid_for_view(panel)
+    if model_cls is KbnLensPanel and normalized_panel.get('type') == 'esql':
+        # Reuse Lens panel defaults/compat parsing for raw ES|QL panels.
+        normalized_panel = {**normalized_panel, 'type': 'lens'}
+    return _validate_view_model(model_cls, normalized_panel)
 
 
 def _panel_dicts_from_attributes(attributes: dict[str, Any]) -> list[dict[str, Any]]:
@@ -814,6 +818,12 @@ def _parse_simple_panel_view(panel: dict[str, Any], panel_type: str) -> object |
 
 
 def _parse_simple_panel(panel: dict[str, Any], panel_type: str, *, panel_view: object | None = None) -> ParsedSimplePanel:
+    resolved_panel_type = panel_type
+    if panel_type == 'visualization':
+        saved_vis_type = _saved_visualization_panel_type(panel)
+        if isinstance(saved_vis_type, str):
+            resolved_panel_type = saved_vis_type
+
     embeddable_config_model = getattr(panel_view, 'embeddableConfig', None) if panel_view is not None else None
     model_dump = getattr(embeddable_config_model, 'model_dump', None)
     if callable(model_dump):
@@ -823,11 +833,11 @@ def _parse_simple_panel(panel: dict[str, Any], panel_type: str, *, panel_view: o
         embeddable_config = as_dict(panel.get('embeddableConfig')) or {}
         embeddable_attributes = as_dict(embeddable_config.get('attributes')) or {}
     return ParsedSimplePanel(
-        panel_type=panel_type,
+        panel_type=resolved_panel_type,
         raw=panel,
         embeddable_config=embeddable_config,
         embeddable_attributes=embeddable_attributes,
-        view_panel=panel_view if panel_view is not None else _parse_simple_panel_view(panel, panel_type),
+        view_panel=panel_view if panel_view is not None else _parse_simple_panel_view(panel, resolved_panel_type),
     )
 
 

@@ -1256,6 +1256,39 @@ def test_decompile_filters_phrase_preserves_scalar_type() -> None:
     assert isinstance(filters[0]['equals'], int)
 
 
+def test_decompile_filters_phrase_preserves_negation() -> None:
+    """Phrase filters preserve negate metadata as a negate-wrapper filter."""
+    dashboard = {
+        'attributes': {
+            'title': 'Filters negated phrase test',
+            'panelsJSON': json.dumps([]),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                'meta': {
+                                    'type': 'phrase',
+                                    'key': 'response.status_code',
+                                    'params': {'query': 200},
+                                    'negate': True,
+                                },
+                            },
+                        ],
+                    }
+                ),
+            },
+        },
+    }
+    result = decompile_dashboard(dashboard)
+    decompiled = result['dashboards'][0]
+    filters = decompiled['filters']
+    assert len(filters) == 1
+    assert 'not_filter' in filters[0]
+    assert filters[0]['not_filter']['field'] == 'response.status_code'
+    assert filters[0]['not_filter']['equals'] == 200
+
+
 def test_decompile_filters_phrases_preserves_scalar_types() -> None:
     """Phrases filters preserve scalar value types."""
     dashboard = {
@@ -1782,6 +1815,69 @@ def test_parse_kafka_dashboard_validates_dashboard_and_lens_view_models() -> Non
     kafka_lens_panels = [panel.lens for panel in parsed.panels if panel.lens is not None]
     assert kafka_lens_panels
     assert all(panel.view_panel is not None for panel in kafka_lens_panels)
+
+
+def test_parse_esql_panel_validates_panel_view_model() -> None:
+    """Raw ES|QL panels should validate through Lens view model defaults/shims."""
+    dashboard = {
+        'attributes': {
+            'title': 'ES|QL typed panel',
+            'panelsJSON': json.dumps(
+                [
+                    {
+                        'panelIndex': 'esql-1',
+                        'type': 'esql',
+                        'gridData': {'x': 0, 'y': 0, 'w': 24, 'h': 15},
+                        'embeddableConfig': {
+                            'attributes': {
+                                'visualizationType': 'lnsMetric',
+                                'references': [],
+                                'state': {
+                                    'visualization': {},
+                                    'query': {'language': 'kuery', 'query': ''},
+                                    'filters': [],
+                                    'datasourceStates': {},
+                                    'internalReferences': [],
+                                    'adHocDataViews': {},
+                                },
+                            },
+                        },
+                    }
+                ]
+            ),
+        }
+    }
+    parsed = parse_dashboard(dashboard)
+    esql_panels = [panel.lens for panel in parsed.panels if panel.lens is not None and panel.lens.panel_type == 'esql']
+    assert esql_panels
+    assert all(panel.view_panel is not None for panel in esql_panels)
+
+
+def test_decompile_visualization_panel_normalizes_to_saved_vis_type() -> None:
+    """Saved visualization panels dispatch using their concrete subtype."""
+    dashboard = {
+        'attributes': {
+            'title': 'Saved vis markdown',
+            'panelsJSON': json.dumps(
+                [
+                    {
+                        'panelIndex': 'vis-1',
+                        'type': 'visualization',
+                        'embeddableConfig': {
+                            'savedVis': {
+                                'type': 'markdown',
+                                'params': {'markdown': '# Legacy markdown'},
+                            }
+                        },
+                    }
+                ]
+            ),
+        }
+    }
+    result = decompile_dashboard(dashboard)
+    panel = result['dashboards'][0]['panels'][0]
+    assert 'markdown' in panel
+    assert panel['markdown']['content'] == '# Legacy markdown'
 
 
 def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -> None:

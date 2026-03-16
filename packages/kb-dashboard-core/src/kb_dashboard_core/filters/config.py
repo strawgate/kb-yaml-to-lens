@@ -209,3 +209,9 @@ class OrFilter(BaseFilter):
 
     or_filters: list['FilterTypes'] = Field(..., alias='or')
     """A list of filters. At least one filter must match for a document to be included."""
+
+
+# Ensure recursive FilterTypes references are fully built for serialization.
+_ = NegateFilter.model_rebuild()
+_ = AndFilter.model_rebuild()
+_ = OrFilter.model_rebuild()
