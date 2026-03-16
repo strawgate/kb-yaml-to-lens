@@ -11,43 +11,35 @@ from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
-class HeatmapAxisConfig(BaseCfgModel):
-    """Configuration for a heatmap axis.
+class HeatmapAxisLabelsConfig(BaseCfgModel):
+    """Configuration for heatmap axis tick labels."""
 
-    Controls visibility of axis labels and title.
-    """
-
-    show_labels: bool | None = Field(default=None)
-    """Whether to show axis labels."""
-
-    show_title: bool | None = Field(default=None)
-    """Whether to show axis title."""
+    visible: bool | None = Field(default=None)
+    """Whether to show tick labels on the axis."""
 
 
-class HeatmapCellsConfig(BaseCfgModel):
-    """Configuration for heatmap cells.
+class HeatmapAxisTitleConfig(BaseCfgModel):
+    """Configuration for heatmap axis titles."""
 
-    Controls visibility of cell labels.
-    """
-
-    show_labels: bool | None = Field(default=None)
-    """Whether to show labels inside heatmap cells."""
+    visible: bool | None = Field(default=None)
+    """Whether to show the axis title."""
 
 
-class HeatmapGridConfig(BaseCfgModel):
-    """Grid configuration for heatmap visualizations.
+class HeatmapAxisAppearance(BaseCfgModel):
+    """Appearance configuration for a heatmap axis."""
 
-    Controls the visibility of cell labels and axis configuration.
-    """
+    labels: HeatmapAxisLabelsConfig | None = Field(default=None)
+    """Configuration for axis tick labels."""
 
-    cells: HeatmapCellsConfig | None = Field(default=None)
-    """Configuration for cell labels."""
+    title: HeatmapAxisTitleConfig | None = Field(default=None)
+    """Configuration for axis title visibility."""
 
-    x_axis: HeatmapAxisConfig | None = Field(default=None)
-    """Configuration for the X-axis."""
 
-    y_axis: HeatmapAxisConfig | None = Field(default=None)
-    """Configuration for the Y-axis."""
+class HeatmapValuesConfig(BaseCfgModel):
+    """Configuration for heatmap numeric values."""
+
+    visible: bool | None = Field(default=None)
+    """Whether to show numeric values inside heatmap cells."""
 
 
 class HeatmapLegendConfig(BaseLegend):
@@ -72,8 +64,14 @@ class HeatmapLegendConfig(BaseLegend):
 class HeatmapAppearance(BaseCfgModel):
     """Formatting options for the chart appearance."""
 
-    grid: HeatmapGridConfig | None = Field(default=None)
-    """Configuration for grid elements (cell labels, axis labels, titles)."""
+    values: HeatmapValuesConfig | None = Field(default=None)
+    """Configuration for numeric values shown in heatmap cells."""
+
+    x_axis: HeatmapAxisAppearance | None = Field(default=None)
+    """Configuration for the X-axis labels and title."""
+
+    y_axis: HeatmapAxisAppearance | None = Field(default=None)
+    """Configuration for the Y-axis labels and title."""
 
     legend: HeatmapLegendConfig | None = Field(default=None)
     """Configuration for the color legend."""

@@ -30,7 +30,7 @@ class MosaicLegend(BaseLegend):
     """Whether to show legend when there is only one series. Kibana defaults to false if not specified."""
 
 
-class MosaicLabelsConfig(BaseCfgModel):
+class MosaicValuesConfig(BaseCfgModel):
     """Formatting options for value labels."""
 
     format: Literal['percent', 'value', 'hide'] | None = Field(default=None)
@@ -43,8 +43,8 @@ class MosaicLabelsConfig(BaseCfgModel):
 class MosaicAppearance(BaseCfgModel):
     """Formatting options for value labels."""
 
-    labels: MosaicLabelsConfig | None = Field(default=None)
-    """Formatting options for value labels."""
+    values: MosaicValuesConfig | None = Field(default=None)
+    """Formatting options for numeric values."""
 
 
 class BaseMosaicChart(BaseChart):

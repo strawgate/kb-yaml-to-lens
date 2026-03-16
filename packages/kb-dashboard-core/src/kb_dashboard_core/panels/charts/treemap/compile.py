@@ -18,7 +18,13 @@ from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreeMapLegend, TreemapLabelsConfig
+from kb_dashboard_core.panels.charts.treemap.config import (
+    ESQLTreemapChart,
+    LensTreemapChart,
+    TreeMapLegend,
+    TreemapCategoriesConfig,
+    TreemapValuesConfig,
+)
 from kb_dashboard_core.shared.defaults import default_false
 
 
@@ -35,11 +41,11 @@ class LegendOptions:
     show_single_series: bool | None
 
 
-def _compile_number_display(labels: TreemapLabelsConfig | None) -> str:
+def _compile_number_display(values: TreemapValuesConfig | None) -> str:
     """Compile number display setting from YAML config to Kibana format."""
-    if labels is None or labels.format is None:
+    if values is None or values.format is None:
         return 'percent'
-    slice_values = labels.format
+    slice_values = values.format
     if slice_values == 'integer':
         return 'value'
     if slice_values == 'hide':
@@ -47,11 +53,11 @@ def _compile_number_display(labels: TreemapLabelsConfig | None) -> str:
     return slice_values
 
 
-def _compile_category_display(labels: TreemapLabelsConfig | None) -> str:
+def _compile_category_display(categories: TreemapCategoriesConfig | None) -> str:
     """Compile category display setting from YAML config to Kibana format."""
-    if labels is None or labels.position is None:
+    if categories is None or categories.position is None:
         return 'default'
-    return 'default' if labels.position == 'show' else 'hide'
+    return 'default' if categories.position == 'show' else 'hide'
 
 
 def _compile_legend_options(legend: TreeMapLegend | None) -> LegendOptions:
@@ -99,15 +105,17 @@ def compile_treemap_chart_visualization_state(
     collapse_fns: dict[str, str] | None,
 ) -> KbnPieVisualizationState:
     """Compile a TreemapChart config object into a Kibana treemap visualization state."""
-    number_display = _compile_number_display(chart.appearance.labels if chart.appearance is not None else None)
-    category_display = _compile_category_display(chart.appearance.labels if chart.appearance is not None else None)
+    values = chart.appearance.values if chart.appearance is not None else None
+    categories = chart.appearance.categories if chart.appearance is not None else None
+    number_display = _compile_number_display(values)
+    category_display = _compile_category_display(categories)
     legend_options = _compile_legend_options(chart.legend)
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     percent_decimals = None
-    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.decimal_places is not None:
-        percent_decimals = chart.appearance.labels.decimal_places
+    if values is not None and values.decimal_places is not None:
+        percent_decimals = values.decimal_places
 
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,

@@ -28,11 +28,15 @@ class TreeMapLegend(PieLegend):
     """Represents legend formatting options for treemap charts."""
 
 
-class TreemapLabelsConfig(BaseCfgModel):
-    """Formatting options for category labels and values."""
+class TreemapCategoriesConfig(BaseCfgModel):
+    """Formatting options for category labels."""
 
     position: TreemapSliceLabelsEnum | None = Field(default=None, strict=False)
     """Controls the visibility of category labels. Defaults to show when not specified."""
+
+
+class TreemapValuesConfig(BaseCfgModel):
+    """Formatting options for numeric values."""
 
     format: PieSliceValuesEnum | None = Field(default=None, strict=False)
     """Controls the display of values in treemap rectangles. Defaults to percent."""
@@ -42,10 +46,13 @@ class TreemapLabelsConfig(BaseCfgModel):
 
 
 class TreemapAppearance(BaseCfgModel):
-    """Formatting options for category labels and values."""
+    """Formatting options for treemap appearance."""
 
-    labels: TreemapLabelsConfig | None = Field(default=None)
-    """Formatting options for category labels and values."""
+    categories: TreemapCategoriesConfig | None = Field(default=None)
+    """Formatting options for category labels."""
+
+    values: TreemapValuesConfig | None = Field(default=None)
+    """Formatting options for numeric values."""
 
 
 class BaseTreemapChart(BaseChart):

@@ -206,7 +206,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'appearance': {'labels': {'position': 'inside', 'format': 'integer'}},
+        'appearance': {'categories': {'position': 'inside'}, 'values': {'format': 'integer'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -214,7 +214,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'appearance': {'labels': {'position': 'inside', 'format': 'integer'}},
+        'appearance': {'categories': {'position': 'inside'}, 'values': {'format': 'integer'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -307,7 +307,7 @@ async def test_pie_chart_slice_labels_auto_maps_to_default() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'appearance': {'labels': {'position': 'auto'}},
+        'appearance': {'categories': {'position': 'auto'}},
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
@@ -324,7 +324,7 @@ async def test_pie_chart_slice_values_hide_maps_to_hidden() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'host.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'appearance': {'labels': {'format': 'hide'}},
+        'appearance': {'values': {'format': 'hide'}},
     }
 
     lens_chart = LensPieChart.model_validate(lens_config)
@@ -759,7 +759,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'type': 'values', 'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'appearance': {'labels': {'decimal_places': 5}},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -767,7 +767,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [{'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
-        'appearance': {'labels': {'decimal_places': 5}},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 

@@ -43,8 +43,8 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
 
     """
     number_display = 'percent'
-    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.format is not None:
-        fmt = chart.appearance.labels.format
+    if chart.appearance is not None and chart.appearance.values is not None and chart.appearance.values.format is not None:
+        fmt = chart.appearance.values.format
         number_display = 'hidden' if fmt == 'hide' else fmt
 
     category_display = 'default'
@@ -77,8 +77,8 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     percent_decimals = None
-    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.decimal_places is not None:
-        percent_decimals = chart.appearance.labels.decimal_places
+    if chart.appearance is not None and chart.appearance.values is not None and chart.appearance.values.decimal_places is not None:
+        percent_decimals = chart.appearance.values.decimal_places
 
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
         layerId=layer_id,

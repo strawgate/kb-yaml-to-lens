@@ -85,7 +85,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
-            'appearance': {'labels': {'position': 'show'}},
+            'appearance': {'categories': {'position': 'show'}},
         }
     )
     _layer_id, _kbn_columns, show_state = compile_lens_treemap_chart(lens_treemap_chart=lens_show)
@@ -97,7 +97,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
             'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
-            'appearance': {'labels': {'position': 'hide'}},
+            'appearance': {'categories': {'position': 'hide'}},
         }
     )
     _layer_id, _kbn_columns, hide_state = compile_lens_treemap_chart(lens_treemap_chart=lens_hide)

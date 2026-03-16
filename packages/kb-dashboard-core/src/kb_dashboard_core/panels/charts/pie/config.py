@@ -50,17 +50,21 @@ class PieSliceLabelsEnum(StrEnum):
     """Automatically determine the slice labels based on the data."""
 
 
-class PieLabelsConfig(BaseCfgModel):
-    """Formatting options for slice labels and values."""
+class PieCategoriesConfig(BaseCfgModel):
+    """Formatting options for category labels."""
 
     position: PieSliceLabelsEnum | None = Field(default=None, strict=False)
-    """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
+    """Controls the visibility of category labels in the pie chart. Kibana defaults to 'auto' if not specified."""
+
+
+class PieValuesConfig(BaseCfgModel):
+    """Formatting options for numeric values."""
 
     format: PieSliceValuesEnum | None = Field(default=None, strict=False)
-    """Controls the display of slice values in the pie chart. Kibana defaults to PERCENT if not specified."""
+    """Controls the display of values in the pie chart. Kibana defaults to percent if not specified."""
 
     decimal_places: int | None = Field(default=None, ge=0, le=10)
-    """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
+    """Controls the number of decimal places for values in the pie chart. Kibana defaults to 2 if not specified."""
 
 
 class PieChartAppearance(BaseCfgModel):
@@ -69,8 +73,11 @@ class PieChartAppearance(BaseCfgModel):
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
 
-    labels: PieLabelsConfig | None = Field(default=None)
-    """Formatting options for slice labels and values."""
+    categories: PieCategoriesConfig | None = Field(default=None)
+    """Formatting options for category labels."""
+
+    values: PieValuesConfig | None = Field(default=None)
+    """Formatting options for numeric values."""
 
 
 class BasePieChart(BaseChart):

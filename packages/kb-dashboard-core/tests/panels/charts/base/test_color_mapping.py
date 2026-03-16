@@ -361,7 +361,7 @@ class TestCompileColorRangeMapping:
                         {'color': '#FFA500', 'stop': 95.0},
                         {'color': '#BD271E', 'stop': 120.0},
                     ],
-                    'continuity': 'above',
+                    'extend_beyond_range': 'above',
                     'maxSteps': 3,
                 },
             }
@@ -447,7 +447,7 @@ class TestCompileColorRangeMapping:
             range_type='number',
             range_min=0,
             range_max=100,
-            continuity='above',
+            extend_beyond_range='above',
             thresholds=[
                 ColorThreshold(up_to=25, color='#00BF6F'),
                 ColorThreshold(up_to=50, color='#FFA500'),

@@ -468,8 +468,8 @@ def _compile_axis_settings(
 def _resolve_value_labels(chart: LensXYChartTypes | ESQLXYChartTypes) -> Literal['hide', 'show']:
     """Resolve the value labels mode, defaulting to Kibana's hidden state."""
     value_labels: Literal['hide', 'show'] = 'hide'
-    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.format is not None:
-        value_labels = chart.appearance.labels.format
+    if chart.appearance is not None and chart.appearance.values is not None and chart.appearance.values.visible is not None:
+        value_labels = 'show' if chart.appearance.values.visible else 'hide'
     return value_labels
 
 

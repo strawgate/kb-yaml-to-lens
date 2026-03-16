@@ -164,7 +164,7 @@ async def test_mosaic_chart_with_value_display() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'appearance': {'labels': {'format': 'value'}},
+        'appearance': {'values': {'format': 'value'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -202,7 +202,7 @@ async def test_mosaic_chart_with_hidden_values() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'appearance': {'labels': {'format': 'hide'}},
+        'appearance': {'values': {'format': 'hide'}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -338,7 +338,7 @@ async def test_mosaic_chart_with_value_decimal_places() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'appearance': {'labels': {'decimal_places': 5}},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
@@ -346,7 +346,7 @@ async def test_mosaic_chart_with_value_decimal_places() -> None:
         'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
         'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'appearance': {'labels': {'decimal_places': 5}},
+        'appearance': {'values': {'decimal_places': 5}},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 

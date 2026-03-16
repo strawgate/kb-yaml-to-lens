@@ -30,7 +30,7 @@ class WaffleLegend(BaseLegend):
     """Whether to show legend when there is only one series. Kibana defaults to false if not specified."""
 
 
-class WaffleLabelsConfig(BaseCfgModel):
+class WaffleValuesConfig(BaseCfgModel):
     """Formatting options for value labels."""
 
     format: Literal['percent', 'value', 'hide'] | None = Field(default=None)
@@ -43,8 +43,8 @@ class WaffleLabelsConfig(BaseCfgModel):
 class WaffleAppearance(BaseCfgModel):
     """Formatting options for value labels."""
 
-    labels: WaffleLabelsConfig | None = Field(default=None)
-    """Formatting options for value labels."""
+    values: WaffleValuesConfig | None = Field(default=None)
+    """Formatting options for numeric values."""
 
 
 class BaseWaffleChart(BaseChart):

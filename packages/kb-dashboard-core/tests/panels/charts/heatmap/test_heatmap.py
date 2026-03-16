@@ -217,8 +217,8 @@ def test_compile_heatmap_chart_2d_esql() -> None:
     )
 
 
-def test_compile_heatmap_chart_with_grid_config_lens() -> None:
-    """Test the compilation of a heatmap chart with grid configuration (Lens)."""
+def test_compile_heatmap_chart_with_axis_and_value_config_lens() -> None:
+    """Test the compilation of a heatmap chart with axis/value visibility config (Lens)."""
     config = {
         'type': 'heatmap',
         'data_view': 'metrics-*',
@@ -232,19 +232,11 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'appearance': {'grid': {
-            'cells': {
-                'show_labels': True,
-            },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': False,
-                'show_title': False,
-            },
-        }},
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': False}, 'title': {'visible': False}},
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -273,8 +265,8 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
     )
 
 
-def test_compile_heatmap_chart_with_grid_config_esql() -> None:
-    """Test the compilation of a heatmap chart with grid configuration (ESQL)."""
+def test_compile_heatmap_chart_with_axis_and_value_config_esql() -> None:
+    """Test the compilation of a heatmap chart with axis/value visibility config (ESQL)."""
     config = {
         'type': 'heatmap',
         'x_axis': {
@@ -285,19 +277,11 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
-        'appearance': {'grid': {
-            'cells': {
-                'show_labels': True,
-            },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-        }},
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'esql')
@@ -341,11 +325,13 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'appearance': {'legend': {
-            'visible': 'hide',
-            'position': 'bottom',
-            'width': 'extra_large',
-        }},
+        'appearance': {
+            'legend': {
+                'visible': 'hide',
+                'position': 'bottom',
+                'width': 'extra_large',
+            }
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -393,9 +379,11 @@ def test_compile_heatmap_chart_with_legend_positions() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'value_accessor',
             },
-            'appearance': {'legend': {
-                'position': position,
-            }},
+            'appearance': {
+                'legend': {
+                    'position': position,
+                }
+            },
         }
 
         result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -405,8 +393,8 @@ def test_compile_heatmap_chart_with_legend_positions() -> None:
         assert result['shape'] == 'heatmap'
 
 
-def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
-    """Test the compilation of a heatmap chart with all grid configuration options (Lens)."""
+def test_compile_heatmap_chart_with_all_axis_and_value_options_lens() -> None:
+    """Test the compilation of a heatmap chart with all axis/value visibility options (Lens)."""
     config = {
         'type': 'heatmap',
         'data_view': 'metrics-*',
@@ -425,22 +413,15 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'appearance': {'grid': {
-            'cells': {
-                'show_labels': True,
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'legend': {
+                'visible': 'show',
+                'position': 'left',
             },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-        }, 'legend': {
-            'visible': 'show',
-            'position': 'left',
-        }},
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -470,8 +451,8 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
     )
 
 
-def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
-    """Test the compilation of a heatmap chart with all grid configuration options (ESQL)."""
+def test_compile_heatmap_chart_with_all_axis_and_value_options_esql() -> None:
+    """Test the compilation of a heatmap chart with all axis/value visibility options (ESQL)."""
     config = {
         'type': 'heatmap',
         'x_axis': {
@@ -486,22 +467,15 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
-        'appearance': {'grid': {
-            'cells': {
-                'show_labels': True,
+        'appearance': {
+            'values': {'visible': True},
+            'x_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'y_axis': {'labels': {'visible': True}, 'title': {'visible': True}},
+            'legend': {
+                'visible': 'hide',
+                'position': 'top',
             },
-            'x_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-            'y_axis': {
-                'show_labels': True,
-                'show_title': True,
-            },
-        }, 'legend': {
-            'visible': 'hide',
-            'position': 'top',
-        }},
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'esql')
@@ -531,8 +505,8 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
     )
 
 
-def test_compile_heatmap_chart_partial_grid_config() -> None:
-    """Test the compilation of a heatmap chart with partial grid configuration."""
+def test_compile_heatmap_chart_partial_visibility_config() -> None:
+    """Test the compilation of a heatmap chart with partial axis/value visibility config."""
     config = {
         'type': 'heatmap',
         'data_view': 'metrics-*',
@@ -546,11 +520,9 @@ def test_compile_heatmap_chart_partial_grid_config() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'appearance': {'grid': {
-            'cells': {
-                'show_labels': True,
-            },
-        }},
+        'appearance': {
+            'values': {'visible': True},
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -578,9 +550,11 @@ def test_compile_heatmap_chart_partial_legend_config() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'appearance': {'legend': {
-            'visible': 'hide',
-        }},
+        'appearance': {
+            'legend': {
+                'visible': 'hide',
+            }
+        },
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')

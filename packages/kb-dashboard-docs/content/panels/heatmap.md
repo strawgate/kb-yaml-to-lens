@@ -128,21 +128,26 @@ dashboards:
       show_root_heading: false
       heading_level: 3
 
-## Grid Configuration
+## Axis and Value Configuration
 
-Control the visibility of cell labels, axis labels, and titles:
+Control visibility for numeric values, axis tick labels, and axis titles:
 
-::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapGridConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapValuesConfig
     options:
       show_root_heading: false
       heading_level: 3
 
-::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapCellsConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisAppearance
     options:
       show_root_heading: false
       heading_level: 3
 
-::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisConfig
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisLabelsConfig
+    options:
+      show_root_heading: false
+      heading_level: 3
+
+::: kb_dashboard_core.panels.charts.heatmap.config.HeatmapAxisTitleConfig
     options:
       show_root_heading: false
       heading_level: 3

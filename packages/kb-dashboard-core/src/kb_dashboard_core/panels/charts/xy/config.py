@@ -127,11 +127,11 @@ class AxisConfig(BaseCfgModel):
     """Extent/bounds configuration for the axis."""
 
 
-class XYLabelsConfig(BaseCfgModel):
+class XYValuesConfig(BaseCfgModel):
     """Formatting options for value labels on data points."""
 
-    format: Literal['hide', 'show'] | None = Field(default=None)
-    """Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to 'hide' if not specified."""
+    visible: bool | None = Field(default=None)
+    """Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to hidden if not specified."""
 
 
 class BaseXYChartAppearance(BaseCfgModel):
@@ -150,7 +150,7 @@ class BaseXYChartAppearance(BaseCfgModel):
     y_right_axis: AxisConfig | None = Field(default=None)
     """Configuration for the right Y-axis."""
 
-    labels: XYLabelsConfig | None = Field(default=None)
+    values: XYValuesConfig | None = Field(default=None)
     """Formatting options for value labels on data points."""
 
 

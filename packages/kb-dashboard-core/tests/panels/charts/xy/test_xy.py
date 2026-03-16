@@ -1571,7 +1571,7 @@ def test_value_labels_show_lens() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'appearance': {'labels': {'format': 'show'}},
+        'appearance': {'values': {'visible': True}},
     }
 
     lens_chart = LensBarChart(**lens_config)
@@ -1586,7 +1586,7 @@ def test_value_labels_hide_lens() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'appearance': {'labels': {'format': 'hide'}},
+        'appearance': {'values': {'visible': False}},
     }
 
     lens_chart = LensLineChart(**lens_config)
@@ -1616,7 +1616,7 @@ def test_value_labels_show_esql() -> None:
         'mode': 'stacked',
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-        'appearance': {'labels': {'format': 'show'}},
+        'appearance': {'values': {'visible': True}},
     }
 
     esql_chart = ESQLBarChart(**esql_config)
@@ -1624,8 +1624,8 @@ def test_value_labels_show_esql() -> None:
     assert kbn_state_visualization.valueLabels == 'show'
 
 
-def test_value_labels_default_none_in_appearance_labels() -> None:
-    """Test that value_labels defaults to 'hide' when appearance.labels is not set."""
+def test_value_labels_default_none_in_appearance_values() -> None:
+    """Test that value_labels defaults to 'hide' when appearance.values is not set."""
     lens_config = {
         'type': 'area',
         'mode': 'stacked',

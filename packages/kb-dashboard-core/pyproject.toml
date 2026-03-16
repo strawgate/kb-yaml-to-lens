@@ -30,6 +30,7 @@ dev = [
     "deepdiff>=8.4.2",
     "inline-snapshot>=0.31.1",
     "dirty-equals>=0.8.0",
+    "pytest-timeout>=2.4.0",
 ]
 
 [tool.pytest.ini_options]
