@@ -380,9 +380,9 @@ class TestCompileColorRangeMapping:
                         {'color': '#BD271E', 'stop': 120.0},
                     ],
                     'colorStops': [
-                        {'color': '#00BF6F', 'stop': 80.0},
-                        {'color': '#FFA500', 'stop': 95.0},
-                        {'color': '#BD271E', 'stop': 120.0},
+                        {'color': '#00BF6F', 'stop': 0.0},
+                        {'color': '#FFA500', 'stop': 80.0},
+                        {'color': '#BD271E', 'stop': 95.0},
                     ],
                     'continuity': 'above',
                     'maxSteps': 3,
@@ -391,7 +391,7 @@ class TestCompileColorRangeMapping:
         )
 
     def test_compiles_percent_range_mapping(self) -> None:
-        """Test percent ranges mirror stops into colorStops and use 0..100 bounds."""
+        """Test percent ranges use lower bounds in colorStops and 0..100 stops."""
         color_config = ColorRangeMapping(
             range_type='percent',
             thresholds=[
@@ -409,9 +409,9 @@ class TestCompileColorRangeMapping:
         assert result.params.stops[1].stop == 95.0
         assert result.params.stops[-1].stop == 100.0
         assert result.params.maxSteps == 3
-        assert result.params.colorStops[0].stop == 90.0
-        assert result.params.colorStops[1].stop == 95.0
-        assert result.params.colorStops[2].stop == 100.0
+        assert result.params.colorStops[0].stop == 0.0
+        assert result.params.colorStops[1].stop == 90.0
+        assert result.params.colorStops[2].stop == 95.0
 
     def test_compiles_single_stop(self) -> None:
         """Test percent compilation preserves the threshold and appends terminal 100."""
@@ -427,7 +427,7 @@ class TestCompileColorRangeMapping:
         assert len(result.params.stops) == 2
         assert len(result.params.colorStops) == 2
         assert [entry.stop for entry in result.params.stops] == [50.0, 100.0]
-        assert [entry.stop for entry in result.params.colorStops] == [50.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [0.0, 50.0]
 
     def test_compiles_percent_range_mapping_with_custom_range_max(self) -> None:
         """Test percent range supports custom max while preserving stop semantics."""
@@ -440,7 +440,7 @@ class TestCompileColorRangeMapping:
         assert result is not None
         assert result.params.rangeMin == 0.0
         assert result.params.rangeMax == 95.0
-        assert [entry.stop for entry in result.params.colorStops] == [100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [0.0]
         assert [entry.stop for entry in result.params.stops] == [100.0]
 
     def test_compiles_number_range_mapping_with_custom_bounds_and_continuity(self) -> None:
@@ -461,7 +461,7 @@ class TestCompileColorRangeMapping:
         assert result.params.rangeMin == -10.0
         assert result.params.rangeMax == 100.0
         assert result.params.continuity == 'none'
-        assert [entry.stop for entry in result.params.colorStops] == [4.25, 5.0, 6.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [-10.0, 4.25, 5.0, 6.0]
         assert [entry.stop for entry in result.params.stops] == [4.25, 5.0, 6.0, 100.0]
 
     def test_compiles_number_range_mapping_extends_last_stop_to_range_max(self) -> None:
@@ -482,7 +482,7 @@ class TestCompileColorRangeMapping:
 
         assert result is not None
         assert [entry.stop for entry in result.params.stops] == [25.0, 50.0, 75.0, 100.0]
-        assert [entry.stop for entry in result.params.colorStops] == [25.0, 50.0, 75.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [0.0, 25.0, 50.0, 75.0]
         assert result.params.stops[-1].color == '#BD271E'
 
     def test_compiles_number_range_mapping_with_open_bounds(self) -> None:
@@ -502,7 +502,7 @@ class TestCompileColorRangeMapping:
         assert result.params.rangeMin is None
         assert result.params.rangeMax is None
         assert result.params.continuity == 'all'
-        assert [entry.stop for entry in result.params.colorStops] == [4.25, 5.0]
+        assert [entry.stop for entry in result.params.colorStops] == [None, 4.25]
         assert [entry.stop for entry in result.params.stops] == [4.25, 5.0]
 
 
@@ -520,19 +520,19 @@ class TestBuildCollapseFns:
         assert result == {'dim-1': 'sum', 'dim-3': 'avg'}
 
 
-class TestColorStopsMirrorStops:
-    """Tests verifying that colorStops mirrors stops directly."""
+class TestColorStopsLowerBounds:
+    """Tests verifying that colorStops carries lower bounds."""
 
-    def test_color_stops_mirror_stops_for_percent_range(self) -> None:
-        """ColorStops should be identical to stops."""
+    def test_color_stops_use_previous_stop_for_percent_range(self) -> None:
+        """ColorStops should start at range_min then use previous stop values."""
         color_config = ColorRangeMapping(
             range_type='percent',
             thresholds=[
-                ColorThreshold(up_to=0, color='#00BF6F'),
+                ColorThreshold(up_to=25, color='#00BF6F'),
                 ColorThreshold(up_to=100, color='#BD271E'),
             ],
         )
         result = compile_color_range_mapping(color_config)
         assert result is not None
-        assert [entry.stop for entry in result.params.colorStops] == [0.0, 100.0]
-        assert [entry.stop for entry in result.params.stops] == [0.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [0.0, 25.0]
+        assert [entry.stop for entry in result.params.stops] == [25.0, 100.0]

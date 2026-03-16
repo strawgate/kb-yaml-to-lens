@@ -1418,6 +1418,11 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
         {'color': '#fcd883', 'stop': 80.0},
         {'color': '#f6726a', 'stop': 100.0},
     ]
+    assert result['palette']['params']['colorStops'] == [
+        {'color': '#24c292', 'stop': 0.0},
+        {'color': '#fcd883', 'stop': 50.0},
+        {'color': '#f6726a', 'stop': 80.0},
+    ]
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
@@ -1465,4 +1470,10 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
         {'color': '#fcd883', 'stop': 50.0},
         {'color': '#f6726a', 'stop': 75.0},
         {'color': '#f6726a', 'stop': 100.0},
+    ]
+    assert result['palette']['params']['colorStops'] == [
+        {'color': '#24c292', 'stop': 0.0},
+        {'color': '#fcd883', 'stop': 25.0},
+        {'color': '#f6726a', 'stop': 50.0},
+        {'color': '#f6726a', 'stop': 75.0},
     ]

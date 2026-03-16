@@ -729,7 +729,7 @@ def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
         {'color': '#f6726a', 'stop': 100.0},
     ]
     assert result['palette']['params']['colorStops'] == [
-        {'color': '#24c292', 'stop': 25.0},
-        {'color': '#fcd883', 'stop': 75.0},
-        {'color': '#f6726a', 'stop': 100.0},
+        {'color': '#24c292', 'stop': 0.0},
+        {'color': '#fcd883', 'stop': 25.0},
+        {'color': '#f6726a', 'stop': 75.0},
     ]

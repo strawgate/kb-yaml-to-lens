@@ -109,8 +109,7 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
 
     Kibana uses two parallel arrays in the palette params:
     - ``stops``: each entry marks the END of a color band
-    - ``colorStops``: mirrored from ``stops`` so threshold boundaries are
-      preserved in both arrays (required by gauge and datatable visualizations)
+    - ``colorStops``: each entry marks the START of the same color band
     """
     if color_config is None:
         return None
@@ -131,8 +130,15 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     elif color_config.range_type == 'percent' and stops[-1].stop != percent_max:
         stops.append(KbnRangePaletteStop(color=stops[-1].color, stop=percent_max))
 
-    # colorStops mirrors stops so threshold boundaries are preserved in both arrays.
-    color_stops = [KbnRangePaletteStop(color=entry.color, stop=entry.stop) for entry in stops]
+    # colorStops carries the lower bound for each band.
+    # Example:
+    #   range_min=0, stops=[25, 50, 75]
+    #   colorStops=[0, 25, 50]
+    lower_bound = range_min
+    color_stops: list[KbnRangePaletteStop] = []
+    for entry in stops:
+        color_stops.append(KbnRangePaletteStop(color=entry.color, stop=lower_bound))
+        lower_bound = entry.stop
     n = len(stops)
 
     continuity = 'all' if color_config.extend_beyond_range == 'both' else color_config.extend_beyond_range

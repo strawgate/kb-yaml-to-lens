@@ -3,7 +3,7 @@
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import Field, StringConstraints
+from pydantic import Field, StringConstraints, model_validator
 
 from kb_dashboard_core.queries.types import LegacyQueryTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel, Sort
@@ -132,6 +132,21 @@ class BaseLensTermsDimension(BaseLensDimension):
 
     exclude_is_regex: bool | None = Field(default=None)
     """If `true`, treat the values in the `exclude` list as regular expressions. Defaults to `false`."""
+
+    @model_validator(mode='after')
+    def validate_regex_filters(self) -> 'BaseLensTermsDimension':
+        """Validate regex include/exclude inputs use exactly one pattern."""
+        include_count = len(self.include) if self.include is not None else 0
+        if self.include_is_regex is True and include_count != 1:
+            msg = '`include` must contain exactly one entry when `include_is_regex` is true'
+            raise ValueError(msg)
+
+        exclude_count = len(self.exclude) if self.exclude is not None else 0
+        if self.exclude_is_regex is True and exclude_count != 1:
+            msg = '`exclude` must contain exactly one entry when `exclude_is_regex` is true'
+            raise ValueError(msg)
+
+        return self
 
 
 class LensTermsDimension(BaseLensTermsDimension):

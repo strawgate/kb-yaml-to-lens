@@ -643,7 +643,7 @@ async def test_multi_field_top_values_with_sort_and_filters() -> None:
         'fields': ['agent.name', 'agent.type'],
         'size': 5,
         'sort': {'by': 'Count', 'direction': 'asc'},
-        'include': ['pattern1', 'pattern2'],
+        'include': ['pattern1'],
         'exclude': ['excluded'],
         'include_is_regex': True,
         'show_other_bucket': False,
@@ -677,7 +677,7 @@ async def test_multi_field_top_values_with_sort_and_filters() -> None:
                 'otherBucket': False,
                 'missingBucket': True,
                 'parentFormat': {'id': 'multi_terms'},
-                'include': ['pattern1', 'pattern2'],
+                'include': ['pattern1'],
                 'exclude': ['excluded'],
                 'includeIsRegex': True,
                 'excludeIsRegex': False,
@@ -743,3 +743,47 @@ async def test_validation_error_fields_with_single_item() -> None:
 
     with pytest.raises(ValueError, match='List should have at least 2 items'):
         TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+
+
+def test_validation_error_include_regex_requires_single_entry() -> None:
+    """Test validation error when include_is_regex is true with zero or multiple include entries."""
+    with pytest.raises(ValueError, match='`include` must contain exactly one entry'):
+        TypeAdapter(LensTermsDimension).validate_python(
+            {
+                'type': 'values',
+                'field': 'agent.name',
+                'include_is_regex': True,
+            }
+        )
+
+    with pytest.raises(ValueError, match='`include` must contain exactly one entry'):
+        TypeAdapter(LensTermsDimension).validate_python(
+            {
+                'type': 'values',
+                'field': 'agent.name',
+                'include': ['^err(or)?$', '^warn(ing)?$'],
+                'include_is_regex': True,
+            }
+        )
+
+
+def test_validation_error_exclude_regex_requires_single_entry() -> None:
+    """Test validation error when exclude_is_regex is true with zero or multiple exclude entries."""
+    with pytest.raises(ValueError, match='`exclude` must contain exactly one entry'):
+        TypeAdapter(LensMultiTermsDimension).validate_python(
+            {
+                'type': 'values',
+                'fields': ['agent.name', 'agent.type'],
+                'exclude_is_regex': True,
+            }
+        )
+
+    with pytest.raises(ValueError, match='`exclude` must contain exactly one entry'):
+        TypeAdapter(LensMultiTermsDimension).validate_python(
+            {
+                'type': 'values',
+                'fields': ['agent.name', 'agent.type'],
+                'exclude': ['^debug$', '^trace$'],
+                'exclude_is_regex': True,
+            }
+        )

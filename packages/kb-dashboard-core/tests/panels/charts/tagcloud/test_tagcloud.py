@@ -477,3 +477,23 @@ def test_tagcloud_chart_dashboard_references_bubble_up() -> None:
             }
         ]
     )
+
+
+def test_tagcloud_regex_include_requires_single_entry() -> None:
+    """Test tagcloud terms dimension rejects multiple include regex patterns."""
+    with pytest.raises(ValueError, match='`include` must contain exactly one entry'):
+        LensTagcloudChart.model_validate(
+            {
+                'type': 'tagcloud',
+                'data_view': 'logs-*',
+                'dimension': {
+                    'type': 'values',
+                    'field': 'log.level',
+                    'include': ['^err(or)?$', '^warn(ing)?$'],
+                    'include_is_regex': True,
+                },
+                'metric': {
+                    'aggregation': 'count',
+                },
+            }
+        )
