@@ -10,7 +10,7 @@ This guide covers converting existing Kibana dashboards into kb-yaml-to-lens YAM
 
 1. **Fetch** the dashboard NDJSON (`kb-dashboard fetch`) or download it from a repository.
 2. **Decompile** into a YAML skeleton: `kb-dashboard decompile dashboard.ndjson -o dashboard.yaml`. This gives you panel stubs with layout, titles, and panel types pre-filled. Each stub includes `TODO(decompile)` comments containing the original Kibana panel JSON.
-3. **Fill in panel configs** using the TODO comments as reference. Translate the original Kibana JSON into the YAML schema (type, data_view, metrics, dimensions, breakdowns, etc.). Use the [Component Mapping](#component-mapping) section below and the panel type documentation as guides.
+3. **Fill in panel configs** using the TODO comments as reference. Translate the original Kibana JSON into the YAML schema using the current panel-specific keys (`type`, `data_view`, `metrics`, `dimension`, `breakdown`, `breakdowns`, etc.). Use the [Component Mapping](#component-mapping) section below and the panel type documentation as guides.
 4. **Compile** to verify the YAML is valid: `kb-dashboard compile`.
 5. **Round-trip validate**: disassemble both the original and compiled NDJSON, then compare them.
 
@@ -33,7 +33,7 @@ Use this prompt pattern when asking an LLM to complete a decompiled dashboard. K
 ```text
 Complete the decompiled YAML stubs in <yaml_file>. Each panel has TODO comments
 containing the original Kibana panel JSON — use these to fill in the lens
-configuration (type, data_view, metrics, dimensions, breakdowns).
+configuration (type, data_view, metrics, `dimension`, `breakdown`, `breakdowns`, and related panel-specific fields).
 
 Requirements:
 1. Preserve panel layout (size and position are already set).

@@ -17,7 +17,7 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Datatable: replace metric `color_mode` with `appearance.color.apply_to`.
 - Datatable: replace metric top-level `color` with `appearance.color`.
 - Metric charts (Lens + ES|QL): rename `color_mode` to `apply_to`.
-- Datatable validation: ensure each datatable has at least one metric or one dimension.
+- Datatable validation: ensure each datatable has at least one metric or one breakdown.
 - Range color mappings: rename `stops` to `thresholds` and nested `stop` to `up_to`.
 - Pie charts (Lens + ES|QL): rename `dimensions` to `breakdowns`. Old name emits `DeprecationWarning`.
 - Treemap charts (Lens + ES|QL): rename `dimensions` to `breakdowns`. Treemap now requires 1–2 breakdowns. Old name emits `DeprecationWarning`.

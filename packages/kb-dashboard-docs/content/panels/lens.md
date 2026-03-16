@@ -240,6 +240,8 @@ All specific dimension types below can include:
 | `id` | `string` | An optional unique identifier for the dimension. | Generated ID | No |
 | `label` | `string` | A custom display label for the dimension. If not provided, a label is inferred. | Inferred | No |
 
+When these shapes are used in chart fields that accept `LensBreakdownTypes` instead of `LensDimensionTypes` (for example pie `breakdowns` or other breakdown-specific configs), the breakdown variant may also allow `collapse`. Plain XY `dimension` / `breakdown` axes do not support `collapse`.
+
 ### Top Values Dimension (`type: values`)
 
 Groups data by the most frequent unique values of one or more fields. Supports both single-field and multi-field (multi-term) aggregations.
@@ -289,7 +291,6 @@ Groups data into time-based buckets (e.g., per hour, day).
 | `field` | `string` | The date field to use for the histogram. | N/A | Yes |
 | `minimum_interval` | `string` | The time interval (e.g., `auto`, `1h`, `1d`, `1w`). | `auto` | No |
 | `partial_intervals` | `boolean` | If `true`, includes buckets for time periods that are only partially covered by the data. | `true` | No |
-| `collapse` | `CollapseAggregationEnum` | For stacked charts, how to aggregate values within the same time bucket if multiple series exist. (`sum`, `min`, `max`, `avg`) | `None` | No |
 
 ### Filters Dimension (`type: filters`)
 
@@ -317,7 +318,6 @@ Groups data into numeric ranges (buckets).
 | `field` | `string` | The numeric field to create intervals from. | N/A | Yes |
 | `intervals` | `list of LensIntervalsDimensionInterval` objects | A list of custom interval ranges. If not provided, `granularity` is used. | `None` | No |
 | `granularity` | `integer` (1-7) | Divides the field into evenly spaced intervals. 1 is coarsest, 7 is finest. | `4` | No |
-| `collapse` | `CollapseAggregationEnum` | For stacked charts, how to aggregate values within the same interval if multiple series exist. (`sum`, `min`, `max`, `avg`) | `None` | No |
 | `empty_bucket` | `boolean` | If `true`, shows a bucket for documents with missing values for the field. | `false` | No |
 
 **`LensIntervalsDimensionInterval` Object:**
