@@ -239,7 +239,6 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
                 'colorMode': {'type': 'categorical'},
             },
             'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
-<<<<<<< HEAD
             'secondaryGroups': ['bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33'],
             'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
             'allowMultipleMetrics': False,
