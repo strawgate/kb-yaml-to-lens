@@ -279,9 +279,7 @@ class KbnLensFullReferenceColumn(KbnLensBaseColumn):
     scale: Annotated[Literal['ratio'] | None, OmitIfNone()] = Field(default='ratio')
     """Scale for fullReference results. Gauge charts may omit this field."""
 
-    params: KbnLensFullReferenceColumnParams = Field(
-        default_factory=KbnLensFullReferenceColumnParams
-    )
+    params: KbnLensFullReferenceColumnParams = Field(default_factory=KbnLensFullReferenceColumnParams)
     """Parameters for the fullReference column."""
 
     references: list[str] = Field(default_factory=list)

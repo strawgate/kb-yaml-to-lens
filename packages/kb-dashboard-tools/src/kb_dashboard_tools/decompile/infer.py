@@ -464,11 +464,21 @@ def _infer_search_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) -
     if ec is not None:
         ref_name = ec.get('savedSearchRefName')
         if isinstance(ref_name, str):
-            resolved = ref_lookup.get(ref_name)
-            if isinstance(resolved, str):
+            resolved = _resolve_panel_reference(simple, ref_lookup, ref_name)
+            if resolved is not None:
                 return {'saved_search_id': resolved}
 
     return {'saved_search_id': 'TODO_saved_search_id'}
+
+
+def _resolve_panel_reference(simple: ParsedSimplePanel, ref_lookup: dict[str, str], ref_name: str) -> str | None:
+    panel_index = simple.raw.get('panelIndex')
+    if isinstance(panel_index, str):
+        scoped_ref = ref_lookup.get(f'{panel_index}:{ref_name}')
+        if isinstance(scoped_ref, str):
+            return scoped_ref
+    resolved = ref_lookup.get(ref_name)
+    return resolved if isinstance(resolved, str) else None
 
 
 def _infer_image_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]) -> dict[str, Any]:
@@ -551,8 +561,8 @@ def _infer_links_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) ->
                 if not isinstance(dest_ref, str):
                     continue
                 item = _build_link_common(raw_link)
-                dashboard_id = ref_lookup.get(dest_ref)
-                item['dashboard'] = dashboard_id if isinstance(dashboard_id, str) else f'TODO_dashboard_id_for_{dest_ref}'
+                dashboard_id = _resolve_panel_reference(simple, ref_lookup, dest_ref)
+                item['dashboard'] = dashboard_id if dashboard_id is not None else f'TODO_dashboard_id_for_{dest_ref}'
                 new_tab = options.get('openInNewTab')
                 if isinstance(new_tab, bool):
                     item['new_tab'] = new_tab
@@ -654,7 +664,7 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
     return f
 
 
-def _infer_control(pc: ParsedControl) -> dict[str, Any]:
+def _infer_control(pc: ParsedControl, ref_lookup: dict[str, str]) -> dict[str, Any]:
     """Infer a single control config dict."""
     ctrl: dict[str, Any] = {}
     if pc.control_type is not None:
@@ -665,12 +675,22 @@ def _infer_control(pc: ParsedControl) -> dict[str, Any]:
         ctrl['field'] = pc.field_name
     if pc.title is not None:
         ctrl['label'] = pc.title
+
+    data_view_id = pc.data_view_id
+    if data_view_id is None and pc.control_type == 'optionsListControl':
+        explicit_input = as_dict(pc.raw.get('explicitInput')) or {}
+        control_id = explicit_input.get('id')
+        if isinstance(control_id, str):
+            resolved = ref_lookup.get(f'controlGroup_{control_id}:optionsListDataView')
+            if isinstance(resolved, str):
+                data_view_id = resolved
+
     # data_view is required for options and range controls
     resolved_type = ctrl.get('type')
     if resolved_type in {'options', 'range'}:
-        ctrl['data_view'] = pc.data_view_id if pc.data_view_id is not None else 'TODO_data_view'
-    elif pc.data_view_id is not None:
-        ctrl['data_view'] = pc.data_view_id
+        ctrl['data_view'] = data_view_id if data_view_id is not None else 'TODO_data_view'
+    elif data_view_id is not None:
+        ctrl['data_view'] = data_view_id
     return ctrl
 
 
@@ -757,7 +777,7 @@ def infer_dashboard(parsed: ParsedDashboard) -> tuple[Dashboard, list[dict[str, 
         dashboard['filters'] = [_infer_filter(f) for f in parsed.filters]
 
     if parsed.controls:
-        dashboard['controls'] = [_infer_control(c) for c in parsed.controls]
+        dashboard['controls'] = [_infer_control(c, parsed.reference_lookup) for c in parsed.controls]
 
     panels: list[dict[str, Any]] = []
     for panel in parsed.panels:

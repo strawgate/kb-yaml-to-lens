@@ -6,8 +6,8 @@ from pydantic import Discriminator, Field, Tag, model_validator
 
 from kb_dashboard_core.shared.config import BaseCfgModel
 
-
 type FilterScalar = str | int | float | bool
+type RangeBoundScalar = str | int | float
 
 
 def get_filter_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0912
@@ -155,22 +155,22 @@ class RangeFilter(BaseFilter):
     field: str = Field(...)
     """The field name to apply the filter to."""
 
-    gte: FilterScalar | None = Field(default=None)
+    gte: RangeBoundScalar | None = Field(default=None)
     """Greater than or equal to value for the range filter."""
 
-    lte: FilterScalar | None = Field(default=None)
+    lte: RangeBoundScalar | None = Field(default=None)
     """Less than or equal to value for the range filter."""
 
-    lt: FilterScalar | None = Field(default=None)
+    lt: RangeBoundScalar | None = Field(default=None)
     """Less than value for the range filter."""
 
-    gt: FilterScalar | None = Field(default=None)
+    gt: RangeBoundScalar | None = Field(default=None)
     """Greater than value for the range filter."""
 
     @model_validator(mode='after')
     def at_least_one_value(self) -> Self:
         """Ensure at least one of gte, lte, gt, or lt is provided."""
-        if not any([self.lte, self.gte, self.gt, self.lt]):
+        if all(bound is None for bound in (self.lte, self.gte, self.gt, self.lt)):
             msg = "At least one of 'gte', 'lte', 'gt', or 'lt' must be provided for RangeFilter."
             raise ValueError(msg)
         return self

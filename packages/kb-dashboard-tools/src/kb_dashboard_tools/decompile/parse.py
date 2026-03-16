@@ -192,7 +192,7 @@ def _decode_dashboard_attributes_for_view(attributes: dict[str, Any]) -> dict[st
 def _panel_view_model_type(panel: dict[str, Any]) -> type[Any] | None:
     """Resolve the concrete Kbn* panel model for a decoded raw panel."""
     panel_type = panel.get('type')
-    if panel_type in {'lens', 'esql'}:
+    if panel_type == 'lens':
         return KbnLensPanel
     if panel_type == 'visualization':
         saved_vis_type = _saved_visualization_panel_type(panel)
@@ -800,16 +800,17 @@ def _parse_lens_panel(
 
 
 def _parse_simple_panel_view(panel: dict[str, Any], panel_type: str) -> object | None:
+    normalized_panel = _normalize_grid_for_view(panel)
     model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(panel_type)
     if model_cls is not None:
-        return _validate_view_model(model_cls, panel)
+        return _validate_view_model(model_cls, normalized_panel)
     if panel_type != 'visualization':
         return None
     saved_vis_type = _saved_visualization_panel_type(panel)
     model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(saved_vis_type or '')
     if model_cls is None:
         return None
-    return _validate_view_model(model_cls, panel)
+    return _validate_view_model(model_cls, normalized_panel)
 
 
 def _parse_simple_panel(panel: dict[str, Any], panel_type: str, *, panel_view: object | None = None) -> ParsedSimplePanel:
@@ -993,8 +994,6 @@ def _parse_controls(
             ctrl.view_control = _validate_view_model(KbnTimeSliderControl, normalized_panel)
         elif ctrl.control_type == 'esqlControl':
             ctrl.view_control = _validate_view_model(KbnESQLControl, normalized_panel)
-        elif control_group_view is not None:
-            ctrl.view_control = control_group_view
         result.append(ctrl)
     return result
 

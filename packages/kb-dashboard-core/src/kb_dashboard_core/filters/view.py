@@ -1,6 +1,6 @@
 """View models for filters in the Kibana JSON structure."""
 
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 
 from pydantic import AliasChoices, ConfigDict, Field, model_validator
 
@@ -84,11 +84,13 @@ class KbnFilterMeta(KbnBaseFilterMeta):
     def _populate_field_from_key(cls, data: object) -> object:
         if not isinstance(data, dict):
             return data
-        if data.get('field') is None and isinstance(data.get('key'), str):
-            normalized = dict(data)
-            normalized['field'] = data['key']
+        typed_data = cast('dict[str, Any]', data)
+        key = typed_data.get('key')
+        if typed_data.get('field') is None and isinstance(key, str):
+            normalized = dict(typed_data)
+            normalized['field'] = key
             return normalized
-        return data
+        return typed_data
 
 
 class KbnCustomFilterMeta(KbnBaseFilterMeta):
