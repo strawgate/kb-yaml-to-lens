@@ -2,6 +2,8 @@
 
 The `section` panel type creates a collapsible section that groups panels under a named, expandable header. This is useful for organizing complex dashboards by allowing users to collapse groups of related panels to focus on specific areas.
 
+> **Requires Kibana 9.1+.** Collapsible sections are not supported on Kibana 8.x. Dashboards containing `section:` panels will fail to import on older versions.
+
 ## A Poem for the Section Architects
 
 _For those who organize dashboards into collapsible realms:_
