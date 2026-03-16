@@ -130,7 +130,7 @@ class LensWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     where each square represents a proportion of the whole.
-    Waffle charts support exactly one metric and one breakdown.
+    Waffle charts support exactly one metric and an optional breakdown.
 
     Examples:
         Simple waffle chart showing request distribution:
@@ -186,8 +186,8 @@ class LensWaffleChart(BaseWaffleChart):
     metric: LensMetricTypes = Field(default=...)
     """Metric that determines the size of squares. Waffle charts support only one metric."""
 
-    breakdown: LensBreakdownTypes = Field(default=...)
-    """Breakdown for grouping data. Waffle charts support only one breakdown."""
+    breakdown: LensBreakdownTypes | None = Field(default=None)
+    """Optional breakdown for grouping data. Waffle charts support only one breakdown."""
 
     @model_validator(mode='before')
     @classmethod
@@ -217,7 +217,7 @@ class ESQLWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     using ES|QL queries to aggregate and group the data.
-    Waffle charts support exactly one metric and one breakdown.
+    Waffle charts support exactly one metric and an optional breakdown.
 
     Examples:
         ES|QL waffle chart with STATS query:
@@ -238,8 +238,8 @@ class ESQLWaffleChart(BaseWaffleChart):
     metric: ESQLMetricTypes = Field(default=...)
     """Metric that determines the size of squares. Waffle charts support only one metric."""
 
-    breakdown: ESQLDimensionTypes = Field(default=...)
-    """Breakdown for grouping data. Waffle charts support only one breakdown."""
+    breakdown: ESQLDimensionTypes | None = Field(default=None)
+    """Optional breakdown for grouping data. Waffle charts support only one breakdown."""
 
     @model_validator(mode='before')
     @classmethod

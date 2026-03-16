@@ -59,7 +59,7 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
 
     if chart.legend is not None:
         if chart.legend.visible is not None:
-            legend_display = chart.legend.visible
+            legend_display = 'default' if chart.legend.visible == 'auto' else chart.legend.visible
         if chart.legend.width is not None:
             legend_size = map_legend_size(chart.legend.width)
         if chart.legend.truncate_labels is not None:
