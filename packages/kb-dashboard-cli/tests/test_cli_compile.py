@@ -171,8 +171,8 @@ dashboards:
         result = runner.invoke(
             cli,
             [
-                '--allow-deprecated',
                 'compile',
+                '--allow-deprecated',
                 '--input-dir',
                 str(input_dir),
                 '--output-dir',

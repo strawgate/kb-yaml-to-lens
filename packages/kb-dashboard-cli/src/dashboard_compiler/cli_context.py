@@ -19,6 +19,3 @@ class CliContext:
 
     es_client: AsyncElasticsearch | None = field(default=None)
     """Pre-configured Elasticsearch client, populated by @elasticsearch_options decorator."""
-
-    allow_deprecated: bool = field(default=False)
-    """Whether deprecated compatibility translations are enabled while loading YAML."""
