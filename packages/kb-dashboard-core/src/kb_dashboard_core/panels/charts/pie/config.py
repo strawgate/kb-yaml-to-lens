@@ -96,9 +96,6 @@ class BasePieChart(BaseChart):
     appearance: PieChartAppearance | None = Field(default=None)
     """Formatting options for the chart appearance, including donut size."""
 
-    titles_and_text: PieTitlesAndText | None = Field(default=None)
-    """Deprecated titles/text settings. Use `appearance.categories` and `appearance.values`."""
-
     legend: PieLegend | None = Field(default=None)
     """Formatting options for the chart legend."""
 
