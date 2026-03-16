@@ -361,7 +361,7 @@ class TestCompileColorRangeMapping:
                         {'color': '#FFA500', 'stop': 95.0},
                         {'color': '#BD271E', 'stop': 120.0},
                     ],
-                    'extend_beyond_range': 'above',
+                    'continuity': 'above',
                     'maxSteps': 3,
                 },
             }
