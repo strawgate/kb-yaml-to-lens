@@ -1,5 +1,20 @@
 # Explore Agent: Response Format
 
+## Report structure
+
+Your report MUST have results from **both** verification jobs. If you only
+completed one, say so explicitly and explain why (e.g., "Job 2 not completed:
+ran out of time after Job 1 found 3 bugs").
+
+### Required sections
+
+1. **Summary** — one paragraph: how many features tested, bugs found, gaps found
+2. **Job 1: Compiler → Kibana** — table of features tested via YAML → compile → import → verify
+3. **Job 2: Kibana → Compiler comparison** — table of settings created in Kibana UI → exported → compared to compiler
+4. **Compiler Bugs** (if any) — detailed bug reports with YAML, JSON, and Kibana evidence
+5. **Feature Gaps** (if any) — settings Kibana supports that the compiler doesn't
+6. **Features Verified** — summary of what passed
+
 ## Classifying findings
 
 - **Bug**: The compiler produces incorrect JSON for a setting it claims to
@@ -11,47 +26,80 @@
 
 ## When to create an issue
 
-**If no bugs are found**, do not create an issue. No-op.
+**If no bugs or gaps are found**, do not create an issue. Use the `noop` tool
+with a message like "All features verified, 0 bugs, 0 gaps."
 
 **If bugs or significant findings exist**, create one GitHub issue.
 
-## Issue title format
+## Issue title
 
-`[WORKFLOW_TAG-KIBANA_VERSION] N bugs, M gaps`
+The workflow auto-prefixes the title. Just provide the summary:
 
-Examples:
-- `[explore-lens-xy-8.19.0] 3 bugs, 2 gaps`
-- `[explore-lens-metric-9.3.0] 1 bug`
-- `[explore-esql-pie-8.19.0] 4 gaps`
+`N bugs, M gaps`
+
+Examples: `3 bugs, 2 gaps` · `1 bug` · `0 bugs, 4 gaps`
 
 ## Issue body structure
 
-Use **collapsed sections** (`<details>`) for each category:
+```markdown
+## Summary
+Tested N features against Kibana X.Y.Z. Found B bugs and G gaps.
 
-- **Compiler Bugs** — for each bug you MUST include:
-  - The exact YAML config that reproduces the bug
-  - What the compiler produces (relevant JSON snippet)
-  - What Kibana expects (from manual panel export)
-  - What happens (error message, wrong rendering, etc.)
-- **Features Verified (passed)** — table of features tested with status
-- **Feature Gaps (not in compiler)** — settings found in Kibana exports that
-  the compiler doesn't support, with JSON snippets
-- **Creative Exploration Results** — interesting combinations attempted
+## Job 1: Compiler → Kibana
 
-Top-level summary: total features tested, passed, bugs found, gaps
-identified, version-specific notes.
+| Feature | YAML | Panel renders? | Editor correct? | Status |
+|---------|------|---------------|-----------------|--------|
+| ... | ... | ... | ... | PASS/BUG |
 
-## PR validation mode (comment-triggered workflows only)
+## Job 2: Kibana → Compiler comparison
 
-When validating a PR, your deliverable is a **comment on the issue**
+| Setting created in Kibana | Kibana JSON field | Compiler emits? | Correct? | Status |
+|--------------------------|-------------------|-----------------|----------|--------|
+| ... | ... | ... | ... | PASS/GAP |
+
+<details>
+<summary>Compiler Bugs</summary>
+
+### Bug 1: [title]
+- **YAML:** (the config that reproduces it)
+- **Compiler output:** (relevant JSON snippet)
+- **Kibana behavior:** (what happens — error message, wrong rendering)
+- **Expected:** (what Kibana needs)
+- **Root cause:** (file and line if identified)
+
+</details>
+
+<details>
+<summary>Feature Gaps</summary>
+
+### Gap 1: [title]
+- **Kibana JSON:** (the field from exported JSON)
+- **Compiler:** (no corresponding config option)
+
+</details>
+
+<details>
+<summary>Features Verified (passed)</summary>
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| ... | PASS | ... |
+
+</details>
+```
+
+## PR validation mode
+
+When validating a PR (triggered by a comment), post a **comment on the PR**
 (not a new issue). Include:
 
 - PR claim checklist with pass/fail per claim
-- YAML configs used for each test (so bugs can be reproduced)
-- For any failures: what the compiler produces vs what Kibana expects
-- Explicit verdict on whether the PR fully satisfies its stated goal
+- Job 1 and Job 2 tables (at minimum Job 1 for the PR's claimed features)
+- For failures: YAML, compiler output, and Kibana evidence
+- Explicit verdict: does the PR fully satisfy its stated goal?
 
 ## General rules
 
 - Do not create branches or pull requests.
 - Do not push code to any branch.
+- Every finding MUST be backed by Kibana evidence, not just code reading.

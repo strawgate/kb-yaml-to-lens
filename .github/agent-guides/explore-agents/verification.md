@@ -1,9 +1,15 @@
 # Explore Agent: Verification Process
 
+You have **two independent verification jobs**. You must complete both
+and report results for each separately. Do not skip either one.
+
+---
+
 ## Prereq: Read compiler source and examples
 
-Read the relevant compiler source in `packages/kb-dashboard-core/src/` to
-understand every supported config option and the view model defaults.
+Before starting either job, read the relevant compiler source in
+`packages/kb-dashboard-core/src/` and at least one example YAML file
+for the chart type you are testing.
 
 ### YAML format reference
 
@@ -70,104 +76,118 @@ dashboards:
 **Always read an example YAML file for the chart type you are working with
 before authoring your own.** Do not guess at the YAML structure.
 
-## Part 1: Compile YAML → Import → Verify in Kibana
+---
 
-For each supported feature:
+## Job 1: YAML → Compile → Kibana (does our compiler produce valid panels?)
+
+**Goal:** Verify that the compiler's output actually works in Kibana.
+
+For each feature you are testing:
 
 1. **Author** a minimal YAML config exercising the feature (using the base
-   template above and referencing the example YAML for that chart type).
-2. **Compile and upload** in one step:
+   template above and the example YAML for that chart type).
+2. **Compile and upload:**
    ```bash
    uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
      --upload --kibana-url http://host.docker.internal:443
    ```
-   This compiles the YAML to NDJSON and uploads it to Kibana via the
-   saved objects API. Do NOT use curl or the Kibana UI to import — the
-   CLI handles it reliably.
-3. **Check the dashboard for panel errors** before opening editors. After
-   navigating to the dashboard, use the "Check dashboard panels for errors"
-   recipe from the Playwright guide. Panels that show messages like "requires
-   a date histogram", "No results found", or expression errors are broken —
-   do NOT claim success based on a successful upload alone. A successful upload
-   only means the JSON was valid, not that the panel renders correctly.
-4. **Open** the imported panel in the Kibana editor and verify:
-   - Every setting you specified in YAML is reflected in the UI
-   - No settings are lost or silently dropped
-   - The panel renders without errors
+3. **Navigate** to the dashboard in Playwright and **check for panel errors.**
+   Use the "Check dashboard panels for errors" recipe. A successful upload
+   does NOT mean the panel works — Kibana may show runtime errors like
+   "Counter rate requires a date histogram" or expression failures.
+   **Do not skip this step.**
+4. **Open** the panel in the Lens editor (use the "Open a panel's Lens editor
+   from a dashboard" recipe) and verify:
+   - Every YAML setting is reflected in the editor UI controls
+   - The panel renders data (not "No results" or an error)
    - Kibana does not show warnings or "invalid" states
-5. **Record** the result: feature name, YAML used, pass/fail, notes.
+5. **Record** the result per feature: YAML used, pass/fail, what you observed.
 
-## Part 2: Create fresh panels in Kibana → Export → Compare to compiler
+### Job 1 output format
 
-1. **Manually create** many fresh panels in Kibana from scratch, using a wide
-   variety of settings. Cover edge cases, unusual combinations, and settings
-   you haven't seen exercised in the YAML configs.
-2. **Export** the dashboard using the CLI:
+In your report, use this exact heading and table:
+
+```markdown
+## Job 1: Compiler → Kibana
+
+| Feature | YAML | Panel renders? | Editor correct? | Status |
+|---------|------|---------------|-----------------|--------|
+| count metric | `primary: {aggregation: count}` | Yes | Yes — shows "Count of records" | PASS |
+| formula heatmap | `value: {formula: 'counter_rate(...)'}` | No — "requires date histogram" | N/A | BUG |
+```
+
+---
+
+## Job 2: Kibana → Export → Compare (does our compiler know all the fields?)
+
+**Goal:** Discover fields and defaults the compiler doesn't know about by
+creating panels manually in Kibana and comparing the exported JSON to the
+compiler's view models.
+
+1. **Create** fresh panels in the Kibana Lens editor using a wide variety of
+   settings. Try edge cases, unusual combinations, and settings you haven't
+   seen in the YAML examples. Use different chart types, multiple metrics,
+   breakdowns, color mappings, legend positions, etc.
+2. **Save** the dashboard and **export** it:
    ```bash
    uv run kb-dashboard fetch <dashboard-id> --output /tmp/exported.ndjson \
      --kibana-url http://host.docker.internal:443
    ```
-3. **Inspect** the exported JSON and compare it against the compiler's view
-   models and defaults. Look for:
-   - Fields or settings Kibana produces that the compiler doesn't know about
-   - Default values that differ from what the compiler sets
+3. **Inspect** the exported JSON. For each panel, compare the
+   `state.visualization` and `state.datasourceStates` against the compiler's
+   view models in `packages/kb-dashboard-core/src/`. Look for:
+   - Fields Kibana produces that the compiler doesn't emit
+   - Default values that differ from the compiler's defaults
    - Structural patterns the compiler gets wrong
-4. **Record** any discrepancies as potential compiler bugs or feature gaps.
+4. **Record** each discrepancy with the Kibana JSON snippet and the
+   corresponding compiler view model field (or note that it's missing).
+
+### Job 2 output format
+
+In your report, use this exact heading and table:
+
+```markdown
+## Job 2: Kibana → Compiler comparison
+
+| Setting created in Kibana | Kibana JSON field | Compiler emits? | Correct? | Status |
+|--------------------------|-------------------|-----------------|----------|--------|
+| Legend position right | `legendDisplay: "show"`, `legendPosition: "right"` | Yes | Yes | PASS |
+| Custom number format | `format: {id: "number", params: {pattern: "0.0%"}}` | No | N/A | GAP |
+```
+
+---
 
 ## Fields to ignore in exported JSON
 
 When comparing Kibana-exported JSON against the compiler's view models,
-**ignore** the following fields. They are runtime artifacts or
-non-deterministic values that will always differ and are **never** bugs:
+**ignore** these runtime artifacts — they are **never** bugs:
 
-- `adHocDataViews` / `indexPatternRefs` — Kibana runtime artifacts, not
-  produced by the compiler
-- `migrationVersion` / `typeMigrationVersion` / `coreMigrationVersion` —
-  Kibana migration bookkeeping, varies by version
-- Auto-generated `id` fields, `updatedAt`, `created_at`, `updated_at`,
-  `version`, `namespaces`
-- `references[].id` values — always unique per panel instance
-- JSON key ordering differences — not meaningful
-- `kibanaSavedObjectMeta.searchSourceJSON` differences in default empty
-  filters/query — Kibana may add defaults the compiler omits
+- `adHocDataViews` / `indexPatternRefs`
+- `migrationVersion` / `typeMigrationVersion` / `coreMigrationVersion`
+- Auto-generated `id`, `updatedAt`, `created_at`, `updated_at`, `version`, `namespaces`
+- `references[].id` values
+- JSON key ordering differences
+- `kibanaSavedObjectMeta.searchSourceJSON` default empty filters/query
 
 Only flag a difference as a bug if it affects a **functional setting** —
 something that changes how the panel looks or behaves.
 
+---
+
 ## Fix-and-verify workflow (when investigating known bugs)
 
-When asked to validate or fix specific compiler bugs (e.g., from a triage
-issue), follow this process for **each** bug:
+When validating or fixing specific compiler bugs (e.g., from a triage issue):
 
-1. **Reproduce** — Write a minimal YAML config that triggers the bug.
-   Compile and upload it:
-   ```bash
-   uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://host.docker.internal:443
-   ```
-   Open the dashboard in Kibana and confirm the bug exists.
-2. **Show the diff** — Show the specific JSON fields the compiler produces
-   vs what Kibana produces for the same panel. Create the panel manually in
-   Kibana, export it, and compare the relevant fields only (ignore fields
-   listed in "Fields to ignore" above).
-3. **Fix it** — Find the exact file and line in
-   `packages/kb-dashboard-core/src/` that causes the problem. Make the
-   smallest possible change.
-4. **Verify the fix** — Recompile and re-upload with your fix applied:
-   ```bash
-   uv run kb-dashboard compile --input-file <file> --output-dir /tmp/compiled/ \
-     --upload --kibana-url http://host.docker.internal:443
-   ```
-   Open in Kibana and confirm the panel now works correctly.
-5. **Run tests** — Run `just core test` and `just core lint`. If tests
-   fail because of your fix, update them to match the corrected behavior.
-6. **Report** — For each bug, provide:
-   - The YAML config that reproduces the bug
-   - What you observed in the Kibana UI (before and after the fix)
-   - The compiler file and line you changed
-   - What the change was (before → after)
-   - Confirmation that Kibana accepts the fixed output
-   - Any test changes made
+1. **Reproduce** — Write YAML that triggers the bug, compile, upload, confirm
+   the bug in Kibana.
+2. **Show the diff** — Create the same panel manually in Kibana, export it,
+   compare relevant fields.
+3. **Fix it** — Edit the compiler source. Smallest possible change.
+4. **Verify** — Recompile and re-upload. Confirm the panel works in Kibana.
+5. **Run tests** — `just core test` and `just core lint`. Update snapshots
+   if needed.
+6. **Report** — YAML config, before/after Kibana behavior, compiler file and
+   line changed, test changes.
 
 **Do not skip the Kibana steps.** A fix that was only verified by reading
-code is not a verified fix. You have a live Kibana instance — use it.
+code is not a verified fix.
