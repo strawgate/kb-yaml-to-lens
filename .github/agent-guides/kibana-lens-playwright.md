@@ -18,7 +18,7 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
   ```
 
 - **Wait after navigation.** `browser_navigate` then `browser_wait_for` with `textGone: "Loading Elastic"`.
-- **Close dialogs** with `page.getByRole('button', { name: 'Close', exact: true }).click()` or `page.keyboard.press('Escape')`.
+- **Close dialogs** using `browser_run_code` with `page.getByRole('button', { name: 'Close', exact: true }).click()`, or use `browser_press_key` with `Escape`.
 - **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts. Use `browser_handle_dialog(accept: true)` or exit via "Exit without saving".
 - **Keep `browser_run_code` return values small.** Return a short status string, not full API responses.
 
@@ -250,7 +250,7 @@ Some palette parameters (for example `continuity`) may not be exposed in the cur
 
 1. **Monaco editor** — standard click/type times out. Must use `browser_run_code` with `force: true` (see ES|QL recipe above).
 2. **Comboboxes** — Kibana uses EUI comboboxes, not `<select>`. Use `.fill()` to filter, then `.getByRole('option', ...)` to select. Never use `browser_fill_form` with `combobox` type.
-3. **Multiple "Close" buttons** — use `{ name: 'Close', exact: true }` or scope to a dialog: `page.getByRole('dialog').getByRole('button', { name: 'Close' })`.
+3. **Multiple "Close" buttons** — use `{ name: 'Close', exact: true }` or scope to a dialog inside `browser_run_code`: `page.getByRole('dialog').getByRole('button', { name: 'Close' })`.
 4. **Color picker popovers** — close with Escape before interacting behind them.
 5. **Unsaved work dialog** — handle `beforeunload` with `browser_handle_dialog` (accept: true).
 6. **Chart type switching** — Gauge/Legacy Metric warn "modifies configuration"; Region map warns "clears configuration".
