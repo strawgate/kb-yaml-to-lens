@@ -90,6 +90,8 @@ SHOW INFO
 
 Optimized source command for time series data streams. Available in Elasticsearch 9.2+ (tech preview).
 
+Use `TS` only when your target stack supports it. For dashboards that must remain broadly compatible, prefer `FROM`. If a dashboard intentionally depends on `TS`, set `minimum_kibana_version: "9.2.0"` on the dashboard so the requirement is explicit.
+
 ```esql
 TS my_metrics
 | WHERE @timestamp >= NOW() - 1 day
@@ -745,7 +747,7 @@ TS metrics-*
 
 ### Counter vs Gauge Metrics
 
-**Counter metrics** (cumulative, always increasing) must use `RATE()`:
+**Counter metrics** (cumulative, always increasing) must use `RATE()` when you are using `TS`:
 
 ```esql
 # CORRECT - Use RATE() for counters
@@ -757,7 +759,7 @@ FROM metrics-*
 | STATS requests = MAX(apache.requests)
 ```
 
-**Gauge metrics** (point-in-time values) use `*_OVER_TIME()` functions. Choose based on your use case:
+**Gauge metrics** (point-in-time values) use `*_OVER_TIME()` functions when you are using `TS`. Choose based on your use case:
 
 | Gauge Type | Function | Examples |
 | ---------- | -------- | -------- |

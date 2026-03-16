@@ -6,7 +6,7 @@ This guide provides a systematic approach for creating Kibana dashboards that vi
 
 1. Read `documentation.md` and `metadata.yaml` for the receiver.
 2. Confirm metric type semantics (Gauge vs Sum vs Histogram).
-3. Draft ES|QL with dynamic bucketing: `BUCKET(@timestamp, 20, ?_tstart, ?_tend)`.
+3. Draft ES|QL with dynamic bucketing: `BUCKET(@timestamp, 20, ?_tstart, ?_tend)`. Prefer `FROM` queries for broad compatibility; use `TS` only when the target stack supports it.
 4. Build dashboard YAML incrementally (key metrics → trends → details).
 5. Compile and fix schema/query errors.
 6. Validate metric names, attribute paths, and labels with the checklist below.
@@ -51,6 +51,8 @@ For gauge metrics with the `TS` command, choose the right `*_OVER_TIME()` functi
 | Peak detection | `MAX_OVER_TIME()` | Latency spikes, memory high-water marks |
 
 **Rule of thumb:** If the metric answers "how many/much right now?", use `LAST_OVER_TIME()`. If it answers "what's the average/typical level?", use `AVG_OVER_TIME()`.
+
+**Version note:** `TS`, `RATE()`, and `*_OVER_TIME()` are only available on newer Elasticsearch/Kibana stacks. If your dashboard must work below 9.2, avoid `TS`-only query patterns and prefer `FROM`-based ES|QL or Lens panels. When you intentionally depend on `TS`, set `minimum_kibana_version: "9.2.0"` on the dashboard.
 
 ### 3. Verify Attribute Names
 
@@ -125,7 +127,7 @@ filters:
 
 ### Time Series Queries
 
-Use the `TS` source command with dynamic bucketing for time series data. Always use `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` so dashboards remain readable across different time ranges:
+When targeting Elasticsearch/Kibana 9.2+, you can use the `TS` source command with dynamic bucketing for time series data. Always use `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` so dashboards remain readable across different time ranges:
 
 ```esql
 TS metrics-*
@@ -137,7 +139,7 @@ TS metrics-*
 
 ### Time Bucket Sizing Best Practices
 
-Always use dynamic bucketing with both FROM and TS queries:
+Always use dynamic bucketing with both `FROM` and `TS` queries:
 
 ```esql
 # Recommended pattern for all queries
@@ -244,8 +246,6 @@ formula: average(used) / average(total)
 # CORRECT - Add small value to prevent division by zero
 formula: average(used) / (average(total) + 0.000001)
 
-# ALTERNATIVE - Use clamp() to ensure minimum denominator
-formula: average(used) / clamp(average(total), 1, Infinity)
 ```
 
 ### Dimensional Filtering in Lens
@@ -299,6 +299,7 @@ Before finalizing a dashboard, verify:
 ### Query Correctness
 
 - [ ] Counter metrics use `RATE()`, not `MAX()`/`AVG()`
+- [ ] `TS`-only functions are used only when the target stack supports `TS` (set `minimum_kibana_version: "9.2.0"` when needed)
 - [ ] All time bucketing uses `BUCKET(@timestamp, 20, ?_tstart, ?_tend)` for dynamic sizing
 - [ ] No fixed-interval bucketing like `TBUCKET(5 minutes)` or `BUCKET(@timestamp, 1 hour)`
 - [ ] Field names with special characters are backtick-escaped

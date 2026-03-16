@@ -176,7 +176,7 @@ panels:
   # Using field variable
   - title: Dynamic Field Display
     esql:
-      type: table
+      type: datatable
       query:
         - FROM logs-*
         - KEEP ??selected_field

@@ -152,11 +152,11 @@ Omit fields that match defaults. Common defaults:
 
 **Dashboard Level:**
 
-- `use_margins: true`
-- `sync_colors: false`
-- `sync_cursor: true`
-- `sync_tooltips: false`
-- `hide_panel_titles: false`
+- `settings.margins: true`
+- `settings.sync.colors: false`
+- `settings.sync.cursor: true`
+- `settings.sync.tooltips: false`
+- `settings.titles: true`
 
 **Panel Level:**
 
@@ -366,7 +366,7 @@ Reference [Filters & Queries](../filters/config.md) for filter conversion.
 | `lnsPie` | `lens.type: pie` | [Pie Charts](../panels/pie.md) |
 | `lnsXY` | `lens.type: line/bar/area` | [XY Charts](../panels/xy.md) |
 | `lnsGauge` | `lens.type: gauge` | [Gauge Charts](../panels/gauge.md) |
-| `lnsDatatable` | `lens.type: table` | [Datatable Charts](../panels/datatable.md) |
+| `lnsDatatable` | `lens.type: datatable` | [Datatable Charts](../panels/datatable.md) |
 | `markdown` | `markdown` | [Markdown Panels](../panels/markdown.md) |
 | `links` | `links` | [Links Panels](../panels/links.md) |
 
@@ -463,7 +463,7 @@ Before considering a conversion complete:
 
 - [ ] YAML compiles without errors
 - [ ] Panel counts match (or differences are documented)
-- [ ] Panel types match (lens, visualization, links, markdown)
+- [ ] Panel types match (lens, esql, links, markdown, image, search, vega, section)
 - [ ] Chart configurations preserved (type, stacking, legends)
 - [ ] All dimensions and breakdowns accounted for
 - [ ] Size parameters match original values
@@ -512,9 +512,9 @@ Before considering a conversion complete:
 lens:
   type: line
   data_view: metrics-*
-  dimensions:
-    - field: '@timestamp'
-      type: date_histogram
+  dimension:
+    field: '@timestamp'
+    type: date_histogram
   metrics:
     - field: system.cpu.total.norm.pct
       aggregation: average
@@ -540,12 +540,12 @@ lens:
 lens:
   type: line
   data_view: metrics-*
-  dimensions:
-    - field: '@timestamp'
-      type: date_histogram
+  dimension:
+    field: '@timestamp'
+    type: date_histogram
   breakdown:
-    - field: host.name
-      type: values
+    field: host.name
+    type: values
   metrics:
     - field: cpu.usage
       aggregation: average
@@ -575,7 +575,7 @@ TypeError: Expected string, got int
 ### Unsupported Panel Types
 
 ```text
-Error: Panel type 'vega' is not supported
+Error: Panel type 'map' is not supported
 ```
 
 **Solution:** See [supported panel types](../panels/base.md). For unsupported panels, either:

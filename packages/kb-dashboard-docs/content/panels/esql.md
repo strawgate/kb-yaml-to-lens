@@ -2,7 +2,7 @@
 
 ESQL panels leverage the power of Elasticsearch Query Language (ESQL) to create visualizations. This allows for more complex data transformations and aggregations directly within the query that feeds the chart.
 
-The `ESQLPanel` is the primary container. Its `esql` field holds the ESQL query, and its `chart` field defines the specific type of visualization (e.g., `metric`, `pie`).
+The `ESQLPanel` is the primary container. Its `esql` field holds both the ESQL query and the specific visualization type configuration (for example `metric`, `pie`, `bar`, or `datatable`).
 
 ## A Poem for the Query Wizards
 
@@ -78,20 +78,19 @@ dashboards:
 
 ## Full Configuration Options
 
-### ESQL Panel (`type: charts` with an `esql` field)
+### ESQL Panel (panel with an `esql:` field)
 
 This is the main object for an ESQL-based visualization. It inherits from the [Base Panel Configuration](base.md). The presence of the `esql` field distinguishes it from a Lens panel.
 
 | YAML Key | Data Type | Description | Kibana Default | Required |
 | -------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | -------- |
-| `type` | `Literal['charts']` | Specifies the panel type. For ESQL panels, this is `charts`. | `charts` | Yes |
 | `id` | `string` | A unique identifier for the panel. Inherited from BasePanel. | Generated ID | No |
 | `title` | `string` | The title displayed on the panel header. Inherited from BasePanel. | `""` (empty string) | No |
 | `hide_title` | `boolean` | If `true`, the panel title will be hidden. Inherited from BasePanel. | `false` | No |
 | `description` | `string` | A brief description of the panel. Inherited from BasePanel. | `""` (empty string, if `None`) | No |
 | `size` | `Size` object | Defines the panel's width and height. Inherited from BasePanel. See [Size Object Configuration](base.md#size-object-configuration-size). | `w: 12, h: 8` | No |
 | `position` | `Position` object | Defines the panel's x/y coordinates. Inherited from BasePanel. See [Position Object Configuration](base.md#position-object-configuration-position). | Auto-calculated | No |
-| `esql` | `ESQLChartConfig` object | Defines the actual ESQL visualization configuration. Contains the query, time_field, and chart type-specific fields. | N/A | Yes |
+| `esql` | `ESQLPanelConfig` object | Defines the actual ESQL visualization configuration. Contains the query, time_field, inner `type`, and chart-specific fields. | N/A | Yes |
 
 ### ESQL Chart Configuration Fields
 
@@ -128,7 +127,7 @@ dashboards:
 
 ---
 
-## ESQL Metric Chart (`chart.type: metric`)
+## ESQL Metric Chart (`esql.type: metric`)
 
 Displays a single primary metric derived from an ESQL query, optionally with a secondary metric, a maximum value, and a breakdown dimension. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
@@ -166,7 +165,7 @@ dashboards:
 
 ---
 
-## ESQL Pie Chart (`chart.type: pie`)
+## ESQL Pie Chart (`esql.type: pie`)
 
 Visualizes proportions of categories using slices of a pie or a donut chart, with data sourced from an ESQL query. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
@@ -207,7 +206,7 @@ dashboards:
 
 ---
 
-## ESQL Bar Chart (`chart.type: bar`)
+## ESQL Bar Chart (`esql.type: bar`)
 
 Displays bar chart visualizations with data sourced from an ESQL query. Supports stacked, unstacked, and percentage modes. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
@@ -249,7 +248,7 @@ dashboards:
 
 ---
 
-## ESQL Line Chart (`chart.type: line`)
+## ESQL Line Chart (`esql.type: line`)
 
 Displays line chart visualizations with data sourced from an ESQL query. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 
@@ -289,7 +288,7 @@ dashboards:
 
 ---
 
-## ESQL Area Chart (`chart.type: area`)
+## ESQL Area Chart (`esql.type: area`)
 
 Displays area chart visualizations with data sourced from an ESQL query. Supports stacked, unstacked, and percentage modes. The `field` names in the chart configuration **must** correspond to column names produced by the ESQL query.
 

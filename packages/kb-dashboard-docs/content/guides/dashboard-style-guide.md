@@ -103,7 +103,7 @@ Arrange charts in horizontal rows of 2-3 panels for easy comparison.
 | Performance Percentiles | Heatmap | 95th percentile latency over time |
 | Top N with Details | Data Table | Top 10 threats with counts |
 | Recent Events/Logs | Data Table | Audit logs, access logs |
-| Geographic Distribution | Map | Access by country, network sources |
+| Geographic Breakdown | Bar Chart / Data Table | Access by country, network sources when map panels are unavailable |
 
 ---
 
@@ -115,15 +115,17 @@ Complete configuration details are available in [Lens Panel Configuration](../pa
 
 **When to Use:** High-level KPIs, single counts, status breakdowns at dashboard top.
 
-**Best Practices:** Use sparingly (0-4 typical, 78% use zero). Group horizontally, position before detailed visualizations. Modern dashboards prefer charts over standalone metrics. When the `primary_label` text matches or closely resembles the panel `title`, set `hide_title: true` to avoid displaying redundant text.
+**Best Practices:** Use sparingly (0-4 typical, 78% use zero). Group horizontally, position before detailed visualizations. Modern dashboards prefer charts over standalone metrics. When the primary metric `label` matches or closely resembles the panel `title`, set `hide_title: true` to avoid displaying redundant text.
 
 ```yaml
 - title: Total Requests
-  hide_title: true  # primary_label "Requests" conveys the same meaning as the title
+  hide_title: true  # primary label "Requests" conveys the same meaning as the title
   lens:
     type: metric
-    metric:
-      primary_label: "Requests"
+    data_view: "logs-*"
+    primary:
+      aggregation: count
+      label: "Requests"
 ```
 
 ### Pie and Donut Charts
@@ -186,11 +188,9 @@ This pattern is especially useful for detailed charts showing multiple dimension
 
 **Vertical:** Short category labels, standard comparisons, stacking more common.
 
-### Maps
+### Geographic Data
 
-**Point-Based:** Plot IP addresses/coordinates, security context, user access patterns. Panel type: `map`. Usage: 30% of dashboards.
-
-**Choropleth:** Country/region-level aggregations, administrative boundaries. Visualization type: `lnsChoropleth`. Color intensity represents metric values.
+The compiler does not currently expose native Kibana map or Lens choropleth panels. When you need geographic analysis, represent it with supported panels such as datatables, bar charts, pies, or treemaps rather than telling agents to create `map` or `lnsChoropleth` visualizations.
 
 ### Treemap Charts
 
@@ -255,7 +255,8 @@ For packages with multiple dashboards, links panels provide an alternative to ma
 
 - Options list (dropdown selections)
 - Range slider (numeric/date ranges)
-- Hierarchical controls (nested categories)
+- Time slider
+- ES|QL variable controls
 
 **Positioning:** Top of dashboard after navigation
 
@@ -353,9 +354,9 @@ Exclusive use of line charts for precision, dual-axis comparisons, moving averag
 
 ### Infrastructure Dashboards
 
-Mix of metrics, time series, and categorical breakdowns. Geographic maps when relevant, browser/OS distribution analysis, error rate and status code tracking.
+Mix of metrics, time series, and categorical breakdowns, plus browser/OS distribution analysis, error rate tracking, and geographic breakdowns represented with supported panels.
 
-**Flow:** Navigation → Metrics → Geographic distribution → Requests over time → Status codes → Browser/OS → Top URLs table
+**Flow:** Navigation → Metrics → Geographic breakdowns → Requests over time → Status codes → Browser/OS → Top URLs table
 
 ### Dashboard Complexity Spectrum
 
@@ -365,7 +366,7 @@ Mix of metrics, time series, and categorical breakdowns. Geographic maps when re
 | **Standard** | 7-12 | 3-4 | 2-4 metrics, 4-6 charts, 1-2 tables | General-purpose monitoring, package overviews |
 | **Complex** | 13+ | 5-6 | 3-6 metrics, 7-12 charts, 2-4 tables, controls | Enterprise monitoring, multi-dimensional analysis, security operations |
 
-**Complex dashboard considerations:** Use markdown sections to separate areas, group related visualizations, maintain logical vertical flow. Consider breaking into multiple dashboards if exceeding 20 panels.
+**Complex dashboard considerations:** Use markdown panels or top-level `section` panels to separate areas, group related visualizations, and maintain logical vertical flow. `section` panels cannot be nested. Consider breaking into multiple dashboards if exceeding 20 panels.
 
 ---
 
@@ -386,8 +387,10 @@ Enable time range restoration as best practice.
 **Standard:** Enable cursor synchronization across time-series panels.
 
 ```yaml
-sync_cursor: true
-sync_tooltips: false
+settings:
+  sync:
+    cursor: true
+    tooltips: false
 ```
 
 ---
