@@ -65,6 +65,8 @@ class KbnFormBasedDataSourceStateLayer(BaseVwModel):
     incompleteColumns: dict[str, Any] = Field(default_factory=dict)
     sampling: int
     indexPatternId: Annotated[str | None, OmitIfNone()] = None
+    linkToLayers: Annotated[list[str] | None, OmitIfNone()] = None
+    ignoreGlobalFilters: Annotated[bool | None, OmitIfNone()] = None
 
 
 class KbnFormBasedDataSourceStateLayerById(RootModel[dict[str, KbnFormBasedDataSourceStateLayer]]):

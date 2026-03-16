@@ -4,7 +4,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, LegendVisibleEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping, LegendVisibleEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -93,6 +93,9 @@ class BaseHeatmapChart(BaseCfgModel):
 
     legend: HeatmapLegendConfig | None = Field(default=None)
     """Configuration for the color legend."""
+
+    color: ColorRangeMapping | None = Field(default=None)
+    """Optional range-based palette configuration for heatmap cell coloring."""
 
 
 class LensHeatmapChart(BaseChart, BaseHeatmapChart):

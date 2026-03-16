@@ -1,5 +1,6 @@
 """Compile Lens tagcloud visualizations into their Kibana view models."""
 
+from kb_dashboard_core.panels.charts.base.compile import compile_color_value_mapping
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import KbnLensColumnTypes
@@ -43,6 +44,8 @@ def compile_tagcloud_chart_visualization_state(
         if chart.appearance.show_label is not None:
             show_label = chart.appearance.show_label
 
+    kbn_color_mapping = compile_color_value_mapping(chart.color)
+
     return KbnTagcloudVisualizationState(
         layerId=layer_id,
         tagAccessor=tag_accessor_id,
@@ -51,6 +54,7 @@ def compile_tagcloud_chart_visualization_state(
         minFontSize=min_font_size,
         orientation=orientation,
         showLabel=show_label,
+        colorMapping=kbn_color_mapping,
     )
 
 

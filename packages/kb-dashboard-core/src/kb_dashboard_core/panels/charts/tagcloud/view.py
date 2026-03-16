@@ -10,6 +10,7 @@ from typing import Annotated
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnLayerColorMapping
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -40,3 +41,6 @@ class KbnTagcloudVisualizationState(BaseVwModel):
 
     showLabel: bool = Field(default=True)
     """Toggle for label visibility."""
+
+    colorMapping: Annotated[KbnLayerColorMapping | None, OmitIfNone()] = None
+    """Color mapping configuration for tag values."""

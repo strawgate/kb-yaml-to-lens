@@ -10,6 +10,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 
 
@@ -109,6 +110,24 @@ class KbnMetricVisualizationState(BaseVwModel):
     primaryPosition: Annotated[Literal['top', 'bottom'] | None, OmitIfNone()] = Field(default=None)
     """Vertical position of the primary metric value within the panel."""
 
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Optional range-based palette settings for threshold coloring."""
+
+    trendlineLayerId: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Layer ID for metric trendline data when line background chart is enabled."""
+
+    trendlineLayerType: Annotated[Literal['metricTrendline'] | None, OmitIfNone()] = Field(default=None)
+    """Layer type marker for metric trendline state."""
+
+    trendlineTimeAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Accessor ID for trendline time dimension."""
+
+    trendlineMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Accessor ID for trendline primary metric."""
+
+    trendlineSecondaryMetricAccessor: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Accessor ID for trendline secondary metric."""
+
 
 class KbnESQLMetricVisualizationState(BaseVwModel):
     """View model for ES|QL metric visualization state.
@@ -185,3 +204,6 @@ class KbnESQLMetricVisualizationState(BaseVwModel):
 
     primaryPosition: Annotated[Literal['top', 'bottom'] | None, OmitIfNone()] = Field(default=None)
     """Vertical position of the primary metric value within the panel."""
+
+    palette: Annotated[KbnRangePalette | None, OmitIfNone()] = Field(default=None)
+    """Optional range-based palette settings for threshold coloring."""

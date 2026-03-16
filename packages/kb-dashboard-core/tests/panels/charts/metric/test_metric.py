@@ -731,6 +731,25 @@ def test_compile_metric_chart_background_chart_type_mapping(chart_type: str, bac
         assert result['showBar'] is expected_show_bar
 
 
+def test_compile_metric_chart_line_background_adds_trendline_fields_lens() -> None:
+    """Test line background charts emit trendline accessors in visualization state."""
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+        'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
+        'appearance': {'primary': {'background_chart': {'type': 'line'}}},
+    }
+
+    result = compile_metric_chart_snapshot(config, 'lens')
+    assert result['showBar'] is False
+    assert result['trendlineLayerType'] == 'metricTrendline'
+    assert result['trendlineLayerId']
+    assert result['trendlineTimeAccessor']
+    assert result['trendlineMetricAccessor'] == 'primary-metric'
+    assert result['trendlineSecondaryMetricAccessor'] == 'secondary-metric'
+
+
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('direction', ['horizontal', 'vertical'])
 def test_compile_metric_chart_background_chart_bar_direction(chart_type: str, direction: str) -> None:
@@ -1065,6 +1084,42 @@ def test_metric_chart_dashboard_references_bubble_up() -> None:
     )
 
 
+def test_metric_line_background_adds_trendline_reference_and_layer() -> None:
+    """Test line background charts include trendline datasource layer and reference."""
+    dashboard = Dashboard(
+        name='Line Trendline Metric Dashboard',
+        panels=[
+            {
+                'title': 'Metric Line',
+                'id': 'metric-panel-line',
+                'position': {'x': 0, 'y': 0},
+                'size': {'w': 12, 'h': 8},
+                'lens': {
+                    'type': 'metric',
+                    'data_view': 'metrics-*',
+                    'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+                    'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
+                    'appearance': {'primary': {'background_chart': {'type': 'line'}}},
+                },
+            }
+        ],
+    )
+
+    kbn_dashboard: KbnDashboard = render(dashboard=dashboard)
+    references = [ref.model_dump() for ref in kbn_dashboard.references]
+    assert len(references) == 2
+    assert all(ref['type'] == 'index-pattern' and ref['id'] == 'metrics-*' for ref in references)
+    assert all(ref['name'].startswith('metric-panel-line:indexpattern-datasource-layer-') for ref in references)
+
+    panel_json = kbn_dashboard.attributes.panelsJSON[0].model_dump()
+    layers = panel_json['embeddableConfig']['attributes']['state']['datasourceStates']['formBased']['layers']
+    assert len(layers) == 2
+    panel_layer_id = panel_json['embeddableConfig']['attributes']['state']['visualization']['layerId']
+    trendline_layer = next(layer for layer in layers.values() if layer.get('linkToLayers') == [panel_layer_id])
+    assert trendline_layer['indexPatternId'] == 'metrics-*'
+    assert trendline_layer['ignoreGlobalFilters'] is False
+
+
 def test_compile_metric_chart_with_maximum_lens() -> None:
     """Test the compilation of a metric chart with a maximum metric (Lens).
 
@@ -1234,3 +1289,55 @@ def test_compile_metric_chart_with_all_metrics_lens() -> None:
             'breakdownByAccessor': 'breakdown-host',
         }
     )
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
+    """Metrics should compile threshold color ranges into visualization.palette."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'all',
+                'stops': [
+                    {'stop': 50, 'color': '#24c292'},
+                    {'stop': 80, 'color': '#fcd883'},
+                    {'stop': 100, 'color': '#f6726a'},
+                ],
+            },
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'all',
+                'stops': [
+                    {'stop': 50, 'color': '#24c292'},
+                    {'stop': 80, 'color': '#fcd883'},
+                    {'stop': 100, 'color': '#f6726a'},
+                ],
+            },
+        }
+
+    result = compile_metric_chart_snapshot(config, chart_type)
+
+    assert result['palette']['name'] == 'custom'
+    assert result['palette']['type'] == 'palette'
+    assert result['palette']['params']['rangeType'] == 'number'
+    assert result['palette']['params']['rangeMin'] == 0.0
+    assert result['palette']['params']['rangeMax'] == 100.0
+    assert result['palette']['params']['continuity'] == 'all'
+    assert result['palette']['params']['stops'] == [
+        {'color': '#24c292', 'stop': 50.0},
+        {'color': '#fcd883', 'stop': 80.0},
+        {'color': '#f6726a', 'stop': 100.0},
+    ]

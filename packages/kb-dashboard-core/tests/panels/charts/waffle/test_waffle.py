@@ -102,7 +102,7 @@ async def test_waffle_chart_with_legend_options() -> None:
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'legend': {'visible': 'show', 'width': 'medium', 'nested': True},
+        'legend': {'visible': 'show', 'width': 'extra_large', 'nested': True},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -128,7 +128,7 @@ async def test_waffle_chart_with_legend_options() -> None:
             'legendDisplay': 'show',
             'legendPosition': 'right',
             'nestedLegend': True,
-            'legendSize': 'medium',
+            'legendSize': 'xlarge',
         }
     )
 
