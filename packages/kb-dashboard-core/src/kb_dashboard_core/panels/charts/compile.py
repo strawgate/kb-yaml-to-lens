@@ -112,7 +112,7 @@ def chart_type_to_kbn_type_lens(chart: AllChartTypes) -> KbnVisualizationTypeEnu
             raise NotImplementedError(msg)  # pyright: ignore[reportUnreachable]
 
 
-def compile_lens_chart_state(  # noqa: PLR0912
+def compile_lens_chart_state(  # noqa: PLR0912, PLR0915
     query: LegacyQueryTypes | None,
     filters: list[FilterTypes] | None,
     charts: Sequence[LensChartTypes],
@@ -129,14 +129,18 @@ def compile_lens_chart_state(  # noqa: PLR0912
     # Collect reference line layers to be merged into XY visualization state
     all_reference_line_layers: list[XYReferenceLineLayerConfig] = []
 
-    # IMPORTANT: When multiple charts are provided in a single panel, only the LAST chart's
-    # visualization state is used. Earlier charts contribute their datasource layers, but
-    # their visualization config (legend, colors, axis settings) is discarded.
-    # This is a current limitation - multi-layer support is partial.
     for chart in charts:
         match chart:
             case LensLineChart() | LensBarChart() | LensAreaChart():
-                layer_id, lens_columns_by_id, visualization_state = compile_lens_xy_chart(chart)
+                layer_id, lens_columns_by_id, current_visualization_state = compile_lens_xy_chart(chart)
+                if visualization_state is None:
+                    visualization_state = current_visualization_state
+                elif isinstance(visualization_state, KbnXYVisualizationState):
+                    # Preserve the first XY chart's visualization-level settings and append
+                    # additional XY chart data layers for mixed bar/line/area overlays.
+                    visualization_state.layers.extend(current_visualization_state.layers)
+                else:
+                    visualization_state = current_visualization_state
             case LensPieChart():
                 layer_id, lens_columns_by_id, visualization_state = compile_lens_pie_chart(chart)
             case LensMetricChart():

@@ -833,6 +833,39 @@ class TestCompileLensChartState:
             }
         )
 
+    def test_compiles_mixed_xy_layers_without_overwriting_base_series_type(self) -> None:
+        """Test that multi-layer XY compilation preserves base chart type and appends layers."""
+        bar_chart = LensBarChart.model_validate(
+            {
+                'type': 'bar',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [{'aggregation': 'count', 'id': 'bar_metric'}],
+            }
+        )
+        line_chart = LensLineChart.model_validate(
+            {
+                'type': 'line',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim2'},
+                'metrics': [{'aggregation': 'count', 'id': 'line_metric'}],
+            }
+        )
+
+        state, references = compile_lens_chart_state(query=None, filters=None, charts=[bar_chart, line_chart])
+
+        assert len(references) == 2
+        vis = state.visualization
+        assert vis is not None
+        assert vis.preferredSeriesType == 'bar_stacked'
+
+        data_layers = [layer for layer in vis.layers if isinstance(layer, XYDataLayerConfig)]
+        assert len(data_layers) == 2
+        assert {layer.seriesType for layer in data_layers} == {'bar_stacked', 'line'}
+
+        assert state.datasourceStates.formBased is not None
+        assert len(state.datasourceStates.formBased.layers.root) == 2
+
 
 class TestCompileESQLChartState:
     """Tests for compile_esql_chart_state function."""
