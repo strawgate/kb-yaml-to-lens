@@ -20,7 +20,6 @@ from kb_dashboard_core.panels.search.view import KbnSearchPanel
 from kb_dashboard_core.panels.vega.view import KbnVegaPanel
 from pydantic import ValidationError
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -21,7 +21,7 @@ from .parse_models import (
     SimplePanelViewModel,
     VisualizationViewModel,
 )
-from .parse_shared import as_dict, parse_json_field
+from .parse_shared import as_dict, get_int, parse_json_field
 
 __all__ = [
     'ControlViewModel',
@@ -43,6 +43,7 @@ __all__ = [
     'SimplePanelViewModel',
     'VisualizationViewModel',
     'as_dict',
+    'get_int',
     'parse_dashboard',
     'parse_json_field',
 ]

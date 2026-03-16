@@ -208,7 +208,12 @@ def _parse_multi_layer_roles(parsed: ParsedVisualizationState, visualization_mod
             role.dimension_id = vis_layer.x_accessor
         if vis_layer.split_accessor is not None:
             role.breakdown_id = vis_layer.split_accessor
-        role.accessors = _collect_accessor_ids(vis_layer_dict, ('xAccessor', 'splitAccessor'))
+        role.accessors = _dedupe_ids(
+            [
+                *_collect_accessor_ids(vis_layer_dict, ('xAccessor', 'splitAccessor')),
+                *role.metric_ids,
+            ]
+        )
         parsed.layer_roles[layer_id] = role
 
 

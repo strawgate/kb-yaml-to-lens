@@ -182,7 +182,7 @@ def _classify_form_columns(
 
     # Determine iteration order: prefer visualization accessor order
     if layer_role is not None and layer_role.accessors:
-        ordered_ids = layer_role.accessors
+        ordered_ids = list(dict.fromkeys([*layer_role.accessors, *layer.column_order, *list(layer.columns.keys())]))
     elif layer.column_order:
         ordered_ids = layer.column_order
     else:
