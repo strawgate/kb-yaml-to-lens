@@ -116,6 +116,7 @@ dashboards:
 ### Minimum Kibana Version (`minimum_kibana_version`)
 
 Use `minimum_kibana_version` when a dashboard depends on features that are unavailable on older Kibana versions.
+For example, `section` panels require Kibana 9.1+, and `TS`-based ES|QL queries require Kibana 9.2+.
 
 **Example:**
 
@@ -136,6 +137,27 @@ dashboards:
             field: "time_bucket"
           metrics:
             - field: "request_rate"
+```
+
+**Example with collapsible sections:**
+
+```yaml
+dashboards:
+  - name: "Operations Overview"
+    minimum_kibana_version: "9.1.0"
+    panels:
+      - title: "Expanded Details"
+        section:
+          collapsed: true
+          panels:
+            - title: "CPU Usage"
+              size: { w: half, h: 8 }
+              lens:
+                type: metric
+                data_view: "metrics-*"
+                primary:
+                  aggregation: average
+                  field: system.cpu.total.pct
 ```
 
 ### Dashboard Settings (`settings`)

@@ -60,7 +60,7 @@ for violation in violations:
 
 | Rule ID | Description | Default |
 |---------|-------------|---------|
-| `collapsible-minimum-kibana-version` | Dashboards using section panels should declare a compatible `minimum_kibana_version` | warning |
+| `collapsible-minimum-kibana-version` | Dashboards using section panels should declare `minimum_kibana_version: "9.1.0"` or newer | warning |
 | `dashboard-dataset-filter` | Dashboard should have a `data_stream.dataset` filter | warning |
 | `dashboard-missing-description` | Dashboards should have a description for discoverability | info |
 | `datatable-at-bottom` | Data table panels should be positioned at the bottom of the dashboard | info |

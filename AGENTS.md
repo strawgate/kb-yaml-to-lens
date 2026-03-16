@@ -89,6 +89,8 @@ Do NOT flag them as bugs in explore workflow reports or triage issues:
   for ES|QL charts
 - **ES|QL formula metrics** — ES|QL uses query-computed columns, not
   Lens formula syntax
+- **Collapsible sections on Kibana < 9.1** — `section` panels require
+  Kibana 9.1+; do not tell agents to add or test them on older stacks
 - **Nested collapsible sections** — sections cannot contain sections
 
 ## Saved Object content that seems like it matters but doesn't
