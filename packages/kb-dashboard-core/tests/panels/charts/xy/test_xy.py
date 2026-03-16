@@ -1123,8 +1123,10 @@ async def test_line_chart_with_time_series_features() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'show_current_time_marker': True,
-        'hide_endzones': True,
+        'appearance': {
+            'show_current_time_marker': True,
+            'hide_endzones': True,
+        },
     }
 
     lens_chart = LensLineChart.model_validate(lens_config)
@@ -1143,8 +1145,10 @@ async def test_area_chart_with_time_series_features() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'show_current_time_marker': False,
-        'hide_endzones': False,
+        'appearance': {
+            'show_current_time_marker': False,
+            'hide_endzones': False,
+        },
     }
 
     lens_chart = LensAreaChart.model_validate(lens_config)
@@ -1168,9 +1172,9 @@ async def test_line_chart_with_all_advanced_features() -> None:
             'show_as_dotted': True,
             'end_values': 'nearest',
             'line_style': 'monotone-x',
+            'show_current_time_marker': True,
+            'hide_endzones': True,
         },
-        'show_current_time_marker': True,
-        'hide_endzones': True,
     }
 
     lens_chart = LensLineChart.model_validate(lens_config)
@@ -1224,9 +1228,9 @@ async def test_esql_line_chart_with_advanced_features() -> None:
         'appearance': {
             'missing_values': 'lookahead',
             'show_as_dotted': False,
+            'show_current_time_marker': True,
+            'hide_endzones': False,
         },
-        'show_current_time_marker': True,
-        'hide_endzones': False,
     }
 
     esql_chart = ESQLLineChart.model_validate(esql_config)
@@ -1250,9 +1254,9 @@ async def test_esql_area_chart_with_fitting_and_fill_opacity() -> None:
             'missing_values': 'carry',
             'show_as_dotted': True,
             'fill_opacity': 0.7,
+            'show_current_time_marker': False,
+            'hide_endzones': True,
         },
-        'show_current_time_marker': False,
-        'hide_endzones': True,
     }
 
     esql_chart = ESQLAreaChart.model_validate(esql_config)
@@ -1567,7 +1571,7 @@ def test_value_labels_show_lens() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'titles_and_text': {'value_labels': 'show'},
+        'appearance': {'labels': {'format': 'show'}},
     }
 
     lens_chart = LensBarChart(**lens_config)
@@ -1582,7 +1586,7 @@ def test_value_labels_hide_lens() -> None:
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'titles_and_text': {'value_labels': 'hide'},
+        'appearance': {'labels': {'format': 'hide'}},
     }
 
     lens_chart = LensLineChart(**lens_config)
@@ -1612,7 +1616,7 @@ def test_value_labels_show_esql() -> None:
         'mode': 'stacked',
         'dimension': {'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
-        'titles_and_text': {'value_labels': 'show'},
+        'appearance': {'labels': {'format': 'show'}},
     }
 
     esql_chart = ESQLBarChart(**esql_config)
@@ -1620,15 +1624,14 @@ def test_value_labels_show_esql() -> None:
     assert kbn_state_visualization.valueLabels == 'show'
 
 
-def test_value_labels_default_none_in_titles_and_text() -> None:
-    """Test that value_labels defaults to 'hide' when titles_and_text exists but value_labels is not set."""
+def test_value_labels_default_none_in_appearance_labels() -> None:
+    """Test that value_labels defaults to 'hide' when appearance.labels is not set."""
     lens_config = {
         'type': 'area',
         'mode': 'stacked',
         'data_view': 'metrics-*',
         'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
         'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-        'titles_and_text': {},
     }
 
     lens_chart = LensAreaChart(**lens_config)

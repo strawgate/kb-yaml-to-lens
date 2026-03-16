@@ -4,24 +4,15 @@ from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
-class PieLegend(BaseCfgModel):
+class PieLegend(BaseLegend):
     """Represents legend formatting options for pie charts."""
-
-    visible: LegendVisibleEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Visibility of the legend in the pie chart. Kibana defaults to 'auto' if not specified."""
-
-    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
-    """Position of the legend. Kibana defaults to 'right' if not specified."""
-
-    width: LegendWidthEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
-    """Width of the legend in the pie chart. Kibana defaults to 'medium' if not specified."""
 
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
     """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
@@ -59,16 +50,16 @@ class PieSliceLabelsEnum(StrEnum):
     """Automatically determine the slice labels based on the data."""
 
 
-class PieTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for pie charts."""
+class PieLabelsConfig(BaseCfgModel):
+    """Formatting options for slice labels and values."""
 
-    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
+    position: PieSliceLabelsEnum | None = Field(default=None, strict=False)
     """Controls the visibility of slice labels in the pie chart. Kibana defaults to 'auto' if not specified."""
 
-    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)  # Turn off strict for enums
+    format: PieSliceValuesEnum | None = Field(default=None, strict=False)
     """Controls the display of slice values in the pie chart. Kibana defaults to PERCENT if not specified."""
 
-    value_decimal_places: int | None = Field(default=None, ge=0, le=10)
+    decimal_places: int | None = Field(default=None, ge=0, le=10)
     """Controls the number of decimal places for slice values in the pie chart. Kibana defaults to 2, if not specified."""
 
 
@@ -78,6 +69,9 @@ class PieChartAppearance(BaseCfgModel):
     donut: Literal['small', 'medium', 'large'] | None = Field(default=None)
     """Controls the size of the donut hole in the pie chart. Kibana defaults to 'medium' if not specified."""
 
+    labels: PieLabelsConfig | None = Field(default=None)
+    """Formatting options for slice labels and values."""
+
 
 class BasePieChart(BaseChart):
     """Base model for defining Pie chart objects."""
@@ -86,9 +80,6 @@ class BasePieChart(BaseChart):
 
     appearance: PieChartAppearance | None = Field(default=None)
     """Formatting options for the chart appearance, including donut size."""
-
-    titles_and_text: PieTitlesAndText | None = Field(default=None)
-    """Formatting options for the chart titles and text."""
 
     legend: PieLegend | None = Field(default=None)
     """Formatting options for the chart legend."""

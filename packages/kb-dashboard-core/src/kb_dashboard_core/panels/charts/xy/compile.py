@@ -266,8 +266,9 @@ def _extract_chart_type_specific_appearance(
 
     # Extract time series features from line/area charts
     if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
-        show_current_time_marker = chart.show_current_time_marker
-        hide_endzones = chart.hide_endzones
+        if chart.appearance is not None:
+            show_current_time_marker = chart.appearance.show_current_time_marker
+            hide_endzones = chart.appearance.hide_endzones
 
     return (
         fitting_function,
@@ -467,8 +468,8 @@ def _compile_axis_settings(
 def _resolve_value_labels(chart: LensXYChartTypes | ESQLXYChartTypes) -> Literal['hide', 'show']:
     """Resolve the value labels mode, defaulting to Kibana's hidden state."""
     value_labels: Literal['hide', 'show'] = 'hide'
-    if chart.titles_and_text is not None and chart.titles_and_text.value_labels is not None:
-        value_labels = chart.titles_and_text.value_labels
+    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.format is not None:
+        value_labels = chart.appearance.labels.format
     return value_labels
 
 

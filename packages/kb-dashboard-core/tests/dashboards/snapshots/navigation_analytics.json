@@ -67,14 +67,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-aee5f7ea-ed9c-d256-a0a2-bdd5fca58942"
+                "name": "indexpattern-datasource-layer-cf50519e-d2dd-2a18-ce0a-92f5aed36ccd"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "aee5f7ea-ed9c-d256-a0a2-bdd5fca58942",
+                    "layerId": "cf50519e-d2dd-2a18-ce0a-92f5aed36ccd",
                     "accessors": [
                       "cdceb520-d498-363b-8576-f1288ef35443"
                     ],
@@ -118,7 +118,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "aee5f7ea-ed9c-d256-a0a2-bdd5fca58942": {
+                    "cf50519e-d2dd-2a18-ce0a-92f5aed36ccd": {
                       "columns": {
                         "a01376ce-7bfd-f032-8917-96da6803fcc4": {
                           "label": "@timestamp",
@@ -389,7 +389,7 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-aee5f7ea-ed9c-d256-a0a2-bdd5fca58942"
+      "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-cf50519e-d2dd-2a18-ce0a-92f5aed36ccd"
     },
     {
       "type": "index-pattern",

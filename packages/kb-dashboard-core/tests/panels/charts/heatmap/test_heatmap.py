@@ -232,7 +232,7 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'grid_config': {
+        'appearance': {'grid': {
             'cells': {
                 'show_labels': True,
             },
@@ -244,7 +244,7 @@ def test_compile_heatmap_chart_with_grid_config_lens() -> None:
                 'show_labels': False,
                 'show_title': False,
             },
-        },
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -285,7 +285,7 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
-        'grid_config': {
+        'appearance': {'grid': {
             'cells': {
                 'show_labels': True,
             },
@@ -297,7 +297,7 @@ def test_compile_heatmap_chart_with_grid_config_esql() -> None:
                 'show_labels': True,
                 'show_title': True,
             },
-        },
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'esql')
@@ -341,10 +341,11 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'legend': {
+        'appearance': {'legend': {
             'visible': 'hide',
             'position': 'bottom',
-        },
+            'width': 'extra_large',
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -366,6 +367,7 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
                 'position': 'bottom',
                 'type': 'heatmap_legend',
             },
+            'legendSize': 'xlarge',
             'shape': 'heatmap',
             'valueAccessor': 'value_accessor',
             'xAccessor': 'x_accessor',
@@ -391,9 +393,9 @@ def test_compile_heatmap_chart_with_legend_positions() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'value_accessor',
             },
-            'legend': {
+            'appearance': {'legend': {
                 'position': position,
-            },
+            }},
         }
 
         result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -423,7 +425,7 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'grid_config': {
+        'appearance': {'grid': {
             'cells': {
                 'show_labels': True,
             },
@@ -435,11 +437,10 @@ def test_compile_heatmap_chart_with_all_grid_options_lens() -> None:
                 'show_labels': True,
                 'show_title': True,
             },
-        },
-        'legend': {
+        }, 'legend': {
             'visible': 'show',
             'position': 'left',
-        },
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -485,7 +486,7 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
-        'grid_config': {
+        'appearance': {'grid': {
             'cells': {
                 'show_labels': True,
             },
@@ -497,11 +498,10 @@ def test_compile_heatmap_chart_with_all_grid_options_esql() -> None:
                 'show_labels': True,
                 'show_title': True,
             },
-        },
-        'legend': {
+        }, 'legend': {
             'visible': 'hide',
             'position': 'top',
-        },
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'esql')
@@ -546,11 +546,11 @@ def test_compile_heatmap_chart_partial_grid_config() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'grid_config': {
+        'appearance': {'grid': {
             'cells': {
                 'show_labels': True,
             },
-        },
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')
@@ -578,9 +578,9 @@ def test_compile_heatmap_chart_partial_legend_config() -> None:
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
         },
-        'legend': {
+        'appearance': {'legend': {
             'visible': 'hide',
-        },
+        }},
     }
 
     result = compile_heatmap_chart_snapshot(config, 'lens')

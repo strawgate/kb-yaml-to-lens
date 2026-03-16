@@ -15,7 +15,7 @@ from kb_dashboard_core.panels.charts.lens.dimensions.compile import (
     compile_lens_dimensions,
 )
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
-from kb_dashboard_core.panels.charts.pie.config import ESQLPieChart, LensPieChart, PieLegend, PieTitlesAndText
+from kb_dashboard_core.panels.charts.pie.config import ESQLPieChart, LensPieChart, PieLegend, PieLabelsConfig
 from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
@@ -52,11 +52,11 @@ class LegendOptions:
     """Whether to show legend for single series."""
 
 
-def _compile_number_display(titles_and_text: PieTitlesAndText | None) -> str:
+def _compile_number_display(labels: PieLabelsConfig | None) -> str:
     """Compile number display setting from YAML config to Kibana format."""
-    if titles_and_text is None or titles_and_text.slice_values is None:
+    if labels is None or labels.format is None:
         return 'percent'
-    slice_values = titles_and_text.slice_values
+    slice_values = labels.format
     if slice_values == 'integer':
         return 'value'
     if slice_values == 'hide':
@@ -64,11 +64,11 @@ def _compile_number_display(titles_and_text: PieTitlesAndText | None) -> str:
     return slice_values
 
 
-def _compile_category_display(titles_and_text: PieTitlesAndText | None) -> str:
+def _compile_category_display(labels: PieLabelsConfig | None) -> str:
     """Compile category display setting from YAML config to Kibana format."""
-    if titles_and_text is None or titles_and_text.slice_labels is None:
+    if labels is None or labels.position is None:
         return 'default'
-    return 'default' if titles_and_text.slice_labels == 'auto' else titles_and_text.slice_labels
+    return 'default' if labels.position == 'auto' else labels.position
 
 
 def _compile_legend_options(legend: PieLegend | None) -> LegendOptions:
@@ -150,8 +150,8 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
             raise ValueError(msg)
         empty_size_ratio = ratio
 
-    number_display = _compile_number_display(chart.titles_and_text)
-    category_display = _compile_category_display(chart.titles_and_text)
+    number_display = _compile_number_display(chart.appearance.labels if chart.appearance is not None else None)
+    category_display = _compile_category_display(chart.appearance.labels if chart.appearance is not None else None)
 
     legend_options = _compile_legend_options(chart.legend)
 
@@ -162,8 +162,8 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         empty_size_ratio = 0.0
 
     percent_decimals = None
-    if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
-        percent_decimals = chart.titles_and_text.value_decimal_places
+    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.decimal_places is not None:
+        percent_decimals = chart.appearance.labels.decimal_places
 
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,

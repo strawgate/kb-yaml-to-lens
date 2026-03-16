@@ -18,7 +18,7 @@ from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
     KbnPieVisualizationState,
 )
-from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreeMapLegend, TreemapTitlesAndText
+from kb_dashboard_core.panels.charts.treemap.config import ESQLTreemapChart, LensTreemapChart, TreeMapLegend, TreemapLabelsConfig
 from kb_dashboard_core.shared.defaults import default_false
 
 
@@ -35,11 +35,11 @@ class LegendOptions:
     show_single_series: bool | None
 
 
-def _compile_number_display(titles_and_text: TreemapTitlesAndText | None) -> str:
+def _compile_number_display(labels: TreemapLabelsConfig | None) -> str:
     """Compile number display setting from YAML config to Kibana format."""
-    if titles_and_text is None or titles_and_text.slice_values is None:
+    if labels is None or labels.format is None:
         return 'percent'
-    slice_values = titles_and_text.slice_values
+    slice_values = labels.format
     if slice_values == 'integer':
         return 'value'
     if slice_values == 'hide':
@@ -47,11 +47,11 @@ def _compile_number_display(titles_and_text: TreemapTitlesAndText | None) -> str
     return slice_values
 
 
-def _compile_category_display(titles_and_text: TreemapTitlesAndText | None) -> str:
+def _compile_category_display(labels: TreemapLabelsConfig | None) -> str:
     """Compile category display setting from YAML config to Kibana format."""
-    if titles_and_text is None or titles_and_text.slice_labels is None:
+    if labels is None or labels.position is None:
         return 'default'
-    return 'default' if titles_and_text.slice_labels == 'show' else 'hide'
+    return 'default' if labels.position == 'show' else 'hide'
 
 
 def _compile_legend_options(legend: TreeMapLegend | None) -> LegendOptions:
@@ -99,15 +99,15 @@ def compile_treemap_chart_visualization_state(
     collapse_fns: dict[str, str] | None,
 ) -> KbnPieVisualizationState:
     """Compile a TreemapChart config object into a Kibana treemap visualization state."""
-    number_display = _compile_number_display(chart.titles_and_text)
-    category_display = _compile_category_display(chart.titles_and_text)
+    number_display = _compile_number_display(chart.appearance.labels if chart.appearance is not None else None)
+    category_display = _compile_category_display(chart.appearance.labels if chart.appearance is not None else None)
     legend_options = _compile_legend_options(chart.legend)
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
     percent_decimals = None
-    if chart.titles_and_text is not None and chart.titles_and_text.value_decimal_places is not None:
-        percent_decimals = chart.titles_and_text.value_decimal_places
+    if chart.appearance is not None and chart.appearance.labels is not None and chart.appearance.labels.decimal_places is not None:
+        percent_decimals = chart.appearance.labels.decimal_places
 
     kbn_layer_visualization = KbnPieStateVisualizationLayer(
         layerId=layer_id,

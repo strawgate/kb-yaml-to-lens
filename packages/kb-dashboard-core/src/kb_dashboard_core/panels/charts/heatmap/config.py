@@ -4,7 +4,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping, LegendVisibleEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorRangeMapping, LegendVisibleEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
@@ -50,21 +50,12 @@ class HeatmapGridConfig(BaseCfgModel):
     """Configuration for the Y-axis."""
 
 
-class HeatmapLegendConfig(BaseCfgModel):
+class HeatmapLegendConfig(BaseLegend):
     """Legend configuration for heatmap visualizations.
 
     Controls the visibility and position of the color legend.
     Note: Heatmaps only support 'show' and 'hide' visibility options (not 'auto').
     """
-
-    visible: LegendVisibleEnum | None = Field(
-        default=None,
-        strict=False,  # Allow string coercion from YAML config (e.g., 'show' -> LegendVisibleEnum.SHOW)
-    )
-    """Visibility of the legend (show or hide). Kibana defaults to show if not specified."""
-
-    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
-    """Position of the legend relative to the chart."""
 
     @model_validator(mode='after')
     def validate_visible_not_auto(self) -> Self:
@@ -78,6 +69,16 @@ class HeatmapLegendConfig(BaseCfgModel):
         return self
 
 
+class HeatmapAppearance(BaseCfgModel):
+    """Formatting options for the chart appearance."""
+
+    grid: HeatmapGridConfig | None = Field(default=None)
+    """Configuration for grid elements (cell labels, axis labels, titles)."""
+
+    legend: HeatmapLegendConfig | None = Field(default=None)
+    """Configuration for the color legend."""
+
+
 class BaseHeatmapChart(BaseCfgModel):
     """Base configuration for heatmap chart visualizations.
 
@@ -88,11 +89,8 @@ class BaseHeatmapChart(BaseCfgModel):
     type: Literal['heatmap'] = Field(default='heatmap')
     """The type of chart, which is 'heatmap' for this visualization."""
 
-    grid_config: HeatmapGridConfig | None = Field(default=None)
-    """Configuration for grid elements (cell labels, axis labels, titles)."""
-
-    legend: HeatmapLegendConfig | None = Field(default=None)
-    """Configuration for the color legend."""
+    appearance: HeatmapAppearance | None = Field(default=None)
+    """Formatting options for the chart appearance."""
 
     color: ColorRangeMapping | None = Field(default=None)
     """Optional range-based palette configuration for heatmap cell coloring."""

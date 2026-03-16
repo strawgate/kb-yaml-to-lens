@@ -9,7 +9,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
@@ -17,17 +17,8 @@ from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
-class MosaicLegend(BaseCfgModel):
+class MosaicLegend(BaseLegend):
     """Represents legend formatting options for mosaic charts."""
-
-    visible: LegendVisibleEnum | None = Field(default=None, strict=False)
-    """Visibility of the legend in the mosaic chart. Kibana defaults to 'auto' if not specified."""
-
-    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
-    """Position of the legend. Kibana defaults to 'right' if not specified."""
-
-    width: LegendWidthEnum | None = Field(default=None, strict=False)
-    """Width of the legend in the mosaic chart. Kibana defaults to 'medium' if not specified."""
 
     truncate_labels: int | None = Field(default=None, ge=0, le=5)
     """Number of lines to truncate the legend labels to. Kibana defaults to 1 if not specified. Set to 0 to disable truncation."""
@@ -39,14 +30,21 @@ class MosaicLegend(BaseCfgModel):
     """Whether to show legend when there is only one series. Kibana defaults to false if not specified."""
 
 
-class MosaicTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for mosaic charts."""
+class MosaicLabelsConfig(BaseCfgModel):
+    """Formatting options for value labels."""
 
-    value_format: Literal['percent', 'value', 'hidden'] | None = Field(default=None)
+    format: Literal['percent', 'value', 'hide'] | None = Field(default=None)
     """Controls how values are displayed in the mosaic chart. Kibana defaults to 'percent' if not specified."""
 
-    value_decimal_places: int | None = Field(default=None, ge=0, le=10)
+    decimal_places: int | None = Field(default=None, ge=0, le=10)
     """Controls the number of decimal places for values in the mosaic chart. Kibana defaults to 2 if not specified."""
+
+
+class MosaicAppearance(BaseCfgModel):
+    """Formatting options for value labels."""
+
+    labels: MosaicLabelsConfig | None = Field(default=None)
+    """Formatting options for value labels."""
 
 
 class BaseMosaicChart(BaseChart):
@@ -59,8 +57,8 @@ class BaseMosaicChart(BaseChart):
 
     type: Literal['mosaic'] = Field(default='mosaic')
 
-    titles_and_text: MosaicTitlesAndText | None = Field(default=None)
-    """Formatting options for the chart titles and text."""
+    appearance: MosaicAppearance | None = Field(default=None)
+    """Formatting options for the chart appearance."""
 
     legend: MosaicLegend | None = Field(default=None)
     """Formatting options for the chart legend."""

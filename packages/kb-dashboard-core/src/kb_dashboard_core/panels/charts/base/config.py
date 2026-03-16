@@ -44,6 +44,19 @@ class LegendVisibleEnum(StrEnum):
     """Automatically determine the visibility of the legend based on the data."""
 
 
+class BaseLegend(BaseCfgModel):
+    """Shared legend fields common to all chart types."""
+
+    visible: LegendVisibleEnum | None = Field(default=None, strict=False)
+    """Visibility of the legend. Kibana defaults vary by chart type."""
+
+    position: Literal['top', 'right', 'bottom', 'left'] | None = Field(default=None)
+    """Position of the legend."""
+
+    width: LegendWidthEnum | None = Field(default=None, strict=False)
+    """Width of the legend."""
+
+
 class ColorValueAssignment(BaseCfgModel):
     """Manual color assignment to specific categorical values."""
 

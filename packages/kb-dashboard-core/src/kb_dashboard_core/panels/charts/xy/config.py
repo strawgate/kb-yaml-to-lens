@@ -2,7 +2,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes
 from kb_dashboard_core.panels.charts.lens.dimensions import LensDimensionTypes
 from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
@@ -59,29 +59,12 @@ type LensXYChartTypes = LensBarChart | LensLineChart | LensAreaChart
 type ESQLXYChartTypes = ESQLBarChart | ESQLLineChart | ESQLAreaChart
 
 
-class XYLegend(BaseCfgModel):
+class XYLegend(BaseLegend):
     """Represents legend formatting options for XY charts."""
-
-    visible: LegendVisibleEnum | None = Field(
-        default=None,
-        strict=False,  # Turn off strict for enums
-        description='Visibility of the legend (show, hide, or auto). Kibana defaults to show if not specified.',
-    )
-
-    position: Literal['top', 'bottom', 'left', 'right'] | None = Field(
-        default=None,
-        description="Position of the legend. Kibana defaults to 'right' if not specified.",
-    )
 
     show_single_series: bool | None = Field(
         default=None,
         description='Whether to show legend when there is only one series. Kibana defaults to false if not specified.',
-    )
-
-    width: LegendWidthEnum | None = Field(
-        default=None,
-        strict=False,  # Turn off strict for enums
-        description='Width of the legend (small, medium, large, extra_large). If not specified, Kibana uses automatic sizing.',
     )
 
     truncate_labels: int | None = Field(
@@ -144,6 +127,13 @@ class AxisConfig(BaseCfgModel):
     """Extent/bounds configuration for the axis."""
 
 
+class XYLabelsConfig(BaseCfgModel):
+    """Formatting options for value labels on data points."""
+
+    format: Literal['hide', 'show'] | None = Field(default=None)
+    """Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to 'hide' if not specified."""
+
+
 class BaseXYChartAppearance(BaseCfgModel):
     """Base class for XY chart appearance formatting options.
 
@@ -159,6 +149,9 @@ class BaseXYChartAppearance(BaseCfgModel):
 
     y_right_axis: AxisConfig | None = Field(default=None)
     """Configuration for the right Y-axis."""
+
+    labels: XYLabelsConfig | None = Field(default=None)
+    """Formatting options for value labels on data points."""
 
 
 class BarChartAppearance(BaseXYChartAppearance):
@@ -195,6 +188,14 @@ class LineChartAppearance(BaseXYChartAppearance):
             'Only 3 types are supported by Kibana: linear (straight), monotone-x (smooth), step-after (stepped).'
         ),
     )
+    show_current_time_marker: bool | None = Field(
+        default=None,
+        description='Whether to show a vertical line at the current time in time series charts.',
+    )
+    hide_endzones: bool | None = Field(
+        default=None,
+        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
+    )
 
 
 class AreaChartAppearance(LineChartAppearance):
@@ -203,24 +204,8 @@ class AreaChartAppearance(LineChartAppearance):
     fill_opacity: float | None = Field(default=None, ge=0.0, le=1.0, description='The fill opacity for area charts (0.0 to 1.0).')
 
 
-class XYTitlesAndText(BaseCfgModel):
-    """Represents titles and text formatting options for XY charts."""
-
-    value_labels: Literal['hide', 'show'] | None = Field(
-        default=None,
-        description=(
-            "Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to 'hide' if not specified."
-        ),
-    )
-
-
 class BaseXYChart(BaseChart):
     """Base model for defining XY chart objects."""
-
-    titles_and_text: XYTitlesAndText | None = Field(
-        None,
-        description='Formatting options for the chart titles and text.',
-    )
 
     legend: XYLegend | None = Field(
         None,
@@ -322,16 +307,6 @@ class BaseXYLineChart(BaseXYChart):
     appearance: LineChartAppearance | None = Field(
         None,
         description='Formatting options for the chart appearance.',
-    )
-
-    show_current_time_marker: bool | None = Field(
-        default=None,
-        description='Whether to show a vertical line at the current time in time series charts.',
-    )
-
-    hide_endzones: bool | None = Field(
-        default=None,
-        description='Whether to hide end zones in time series charts (areas where data is incomplete).',
     )
 
 

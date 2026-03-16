@@ -354,14 +354,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-32d06379-32df-94da-6f84-fe79d29f65b5"
+                "name": "indexpattern-datasource-layer-674864e6-5996-028f-42a7-6c534bf7a4cd"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "32d06379-32df-94da-6f84-fe79d29f65b5",
+                    "layerId": "674864e6-5996-028f-42a7-6c534bf7a4cd",
                     "accessors": [
                       "9b34229e-bd19-61fe-21d0-fd827fca1ef9"
                     ],
@@ -404,7 +404,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "32d06379-32df-94da-6f84-fe79d29f65b5": {
+                    "674864e6-5996-028f-42a7-6c534bf7a4cd": {
                       "columns": {
                         "10144d72-81af-1f3e-08c7-7b2a2d47ef1d": {
                           "label": "Time",
@@ -487,14 +487,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-915c520c-2f34-ff90-bed9-f1040d379180"
+                "name": "indexpattern-datasource-layer-2e568255-0833-1118-8314-735c2916ac47"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "915c520c-2f34-ff90-bed9-f1040d379180",
+                    "layerId": "2e568255-0833-1118-8314-735c2916ac47",
                     "layerType": "data",
                     "colorMapping": {
                       "assignments": [],
@@ -536,7 +536,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "915c520c-2f34-ff90-bed9-f1040d379180": {
+                    "2e568255-0833-1118-8314-735c2916ac47": {
                       "columns": {
                         "59123bc9-a223-daf1-da7e-6579a81ab69c": {
                           "label": "Top 8 values of service.name",
@@ -629,14 +629,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-1d0a9742-3368-553d-da03-bac7dd0ead4c"
+                "name": "indexpattern-datasource-layer-061227ca-44a0-d292-c0e3-a56251c0ae14"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "1d0a9742-3368-553d-da03-bac7dd0ead4c",
+                    "layerId": "061227ca-44a0-d292-c0e3-a56251c0ae14",
                     "accessors": [
                       "ab18ea19-1c50-d80d-0842-00cf76f58b24"
                     ],
@@ -698,7 +698,7 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "1d0a9742-3368-553d-da03-bac7dd0ead4c": {
+                    "061227ca-44a0-d292-c0e3-a56251c0ae14": {
                       "columns": {
                         "152721a2-d7bf-7c94-1039-5448d2daf898": {
                           "label": "Top 10 values of url.path",
@@ -861,17 +861,17 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "64a8dfe4-c683-1a8a-0c7b-0398dcf06435:indexpattern-datasource-layer-32d06379-32df-94da-6f84-fe79d29f65b5"
+      "name": "64a8dfe4-c683-1a8a-0c7b-0398dcf06435:indexpattern-datasource-layer-674864e6-5996-028f-42a7-6c534bf7a4cd"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "910be9e6-3784-25ee-ff9a-552c437ebc29:indexpattern-datasource-layer-915c520c-2f34-ff90-bed9-f1040d379180"
+      "name": "910be9e6-3784-25ee-ff9a-552c437ebc29:indexpattern-datasource-layer-2e568255-0833-1118-8314-735c2916ac47"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "e6745f8e-d722-ae96-1a67-7e97c44c1b9a:indexpattern-datasource-layer-1d0a9742-3368-553d-da03-bac7dd0ead4c"
+      "name": "e6745f8e-d722-ae96-1a67-7e97c44c1b9a:indexpattern-datasource-layer-061227ca-44a0-d292-c0e3-a56251c0ae14"
     },
     {
       "type": "index-pattern",
