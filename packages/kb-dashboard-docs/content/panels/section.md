@@ -178,6 +178,8 @@ dashboards:
 
 4. **Auto-Layout**: Inner panels support auto-layout. Omit the `position` field to let panels flow automatically within the section.
 
+5. **Unsupported Base Fields on Section Headers**: `hide_title`, `description`, and `drilldowns` are not supported for `section` panels. Section headers are always full-width, so `size` must remain `{w: whole, h: 1}` and `position.x` must be `0` (or omitted).
+
 ## Related Documentation
 
 - [Base Panel Configuration](./base.md)

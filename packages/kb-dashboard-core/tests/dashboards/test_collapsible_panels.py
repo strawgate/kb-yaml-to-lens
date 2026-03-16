@@ -2,6 +2,9 @@
 
 from typing import Any
 
+import pytest
+from pydantic import ValidationError
+
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
 from kb_dashboard_core.panels.collapsible import CollapsiblePanel, SectionConfig
@@ -556,9 +559,6 @@ class TestNestedCollapsiblePrevention:
 
     def test_nested_collapsible_raises(self) -> None:
         """Verify that placing a CollapsiblePanel inside another CollapsiblePanel raises an error."""
-        import pytest
-        from pydantic import ValidationError
-
         with pytest.raises((ValidationError, ValueError)):
             Dashboard(
                 name='Test Dashboard',
@@ -636,3 +636,52 @@ class TestSectionIdCollision:
         assert sections[0]['gridData']['i'] == 'section-a'
         assert sections[1]['gridData']['i'] == 'section-b'
         assert sections[0]['gridData']['i'] != sections[1]['gridData']['i']
+
+
+class TestSectionUnsupportedFields:
+    """Test unsupported base panel fields for collapsible sections."""
+
+    def test_hide_title_rejected(self) -> None:
+        """Collapsible sections should reject hide_title."""
+        with pytest.raises(ValidationError, match="does not support 'hide_title'"):
+            CollapsiblePanel(
+                title='Section',
+                hide_title=True,
+                section=SectionConfig(panels=[]),
+            )
+
+    def test_description_rejected(self) -> None:
+        """Collapsible sections should reject description."""
+        with pytest.raises(ValidationError, match="does not support 'description'"):
+            CollapsiblePanel(
+                title='Section',
+                description='ignored by Kibana section header',
+                section=SectionConfig(panels=[]),
+            )
+
+    def test_drilldowns_rejected(self) -> None:
+        """Collapsible sections should reject drilldowns."""
+        with pytest.raises(ValidationError, match="does not support 'drilldowns'"):
+            CollapsiblePanel(
+                title='Section',
+                drilldowns=[],
+                section=SectionConfig(panels=[]),
+            )
+
+    def test_custom_size_rejected(self) -> None:
+        """Collapsible sections should reject custom section-header size."""
+        with pytest.raises(ValidationError, match='size is fixed to full width and 1 row'):
+            CollapsiblePanel(
+                title='Section',
+                size=Size(w=24, h=2),
+                section=SectionConfig(panels=[]),
+            )
+
+    def test_nonzero_x_position_rejected(self) -> None:
+        """Collapsible sections should reject non-zero x coordinate."""
+        with pytest.raises(ValidationError, match=r'position\.x must be 0'):
+            CollapsiblePanel(
+                title='Section',
+                position=Position(x=12, y=0),
+                section=SectionConfig(panels=[]),
+            )

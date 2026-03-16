@@ -1,6 +1,6 @@
 """Configuration for collapsible section panels."""
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.base import BasePanel
 from kb_dashboard_core.panels.config import GRID_WIDTH_WHOLE, Size
@@ -58,3 +58,23 @@ class CollapsiblePanel(BasePanel):
 
     section: SectionConfig = Field(...)
     """Section configuration including collapsed state and inner panels."""
+
+    @model_validator(mode='after')
+    def validate_unsupported_base_fields(self) -> 'CollapsiblePanel':
+        """Reject base panel fields that Kibana section headers do not support."""
+        if self.hide_title is not None:
+            msg = "CollapsiblePanel does not support 'hide_title'; Kibana always renders section headers."
+            raise ValueError(msg)
+        if self.description is not None:
+            msg = "CollapsiblePanel does not support 'description'."
+            raise ValueError(msg)
+        if self.drilldowns is not None:
+            msg = "CollapsiblePanel does not support 'drilldowns'."
+            raise ValueError(msg)
+        if self.size.width != GRID_WIDTH_WHOLE or self.size.h != 1:
+            msg = 'CollapsiblePanel size is fixed to full width and 1 row (size: {w: whole, h: 1}).'
+            raise ValueError(msg)
+        if self.position.x not in (None, 0):
+            msg = 'CollapsiblePanel position.x must be 0 because section headers are full-width.'
+            raise ValueError(msg)
+        return self
