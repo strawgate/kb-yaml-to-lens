@@ -23,21 +23,21 @@
                                 "order": 0,
                                 "label": "Overview",
                                 "type": "dashboardLink",
-                                "destinationRefName": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d:link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
+                                "destinationRefName": "link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
                             },
                             {
                                 "id": "bba5d7c0-2ffb-10eb-dcf3-2f2d991a9a8f",
                                 "order": 1,
                                 "label": "Node Metrics",
                                 "type": "dashboardLink",
-                                "destinationRefName": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d:link_bba5d7c0-2ffb-10eb-dcf3-2f2d991a9a8f_dashboard"
+                                "destinationRefName": "link_bba5d7c0-2ffb-10eb-dcf3-2f2d991a9a8f_dashboard"
                             },
                             {
                                 "id": "24769c7e-6266-835e-71a4-cf38bda00dba",
                                 "order": 2,
                                 "label": "Namespace Metrics",
                                 "type": "dashboardLink",
-                                "destinationRefName": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d:link_24769c7e-6266-835e-71a4-cf38bda00dba_dashboard"
+                                "destinationRefName": "link_24769c7e-6266-835e-71a4-cf38bda00dba_dashboard"
                             }
                         ]
                     }

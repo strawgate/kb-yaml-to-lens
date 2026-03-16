@@ -298,7 +298,7 @@ def test_links_panel_dashboard_link_references_bubble_up() -> None:
     dashboard_dict = de_json_kbn_dashboard(kbn_dashboard.model_dump(by_alias=True))
     links_panel = dashboard_dict['attributes']['panelsJSON'][0]
     link = links_panel['embeddableConfig']['attributes']['links'][0]
-    assert link['destinationRefName'] == 'links-panel-1:link_link-1_dashboard'
+    assert link['destinationRefName'] == 'link_link-1_dashboard'
 
 
 def test_compile_links_panel_dashboard_link_partial_options() -> None:

@@ -155,7 +155,7 @@ class TestCompileDashboardPanel:
         panel_dump = kbn_panel.model_dump(by_alias=True)
 
         dashboard_link = panel_dump['embeddableConfig']['attributes']['links'][0]
-        assert dashboard_link['destinationRefName'] == f'{panel_dump["panelIndex"]}:link_target-link_dashboard'
+        assert dashboard_link['destinationRefName'] == 'link_target-link_dashboard'
         assert references[0].model_dump() == {'name': 'link_target-link_dashboard', 'type': 'dashboard', 'id': 'target-dashboard-id'}
 
 

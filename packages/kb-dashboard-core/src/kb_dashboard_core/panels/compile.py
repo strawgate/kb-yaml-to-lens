@@ -109,7 +109,7 @@ def compile_dashboard_panel(panel: PanelTypes, grid: Grid) -> tuple[list[KbnRefe
             references, embeddable_config = compile_markdown_panel_config(panel)
             return references, KbnMarkdownPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case LinksPanel():
-            references, embeddable_config = compile_links_panel_config(panel, panel_index=panel_index)
+            references, embeddable_config = compile_links_panel_config(panel)
             return references, KbnLinksPanel(panelIndex=panel_index, gridData=grid_data, embeddableConfig=embeddable_config)
         case ImagePanel():
             references, embeddable_config = compile_image_panel_config(panel)
