@@ -800,6 +800,12 @@ async def test_xy_chart_with_legend_size() -> None:
     )
 
 
+def test_xy_legend_config_accepts_auto_legend_size() -> None:
+    """Test XY legend config still accepts Kibana's auto legend size."""
+    legend = XYLegendConfig(position='right', legendSize='auto')
+    assert legend.legendSize == 'auto'
+
+
 async def test_xy_chart_with_legend_truncate() -> None:
     """Test XY chart with legend label truncation."""
     lens_config = {

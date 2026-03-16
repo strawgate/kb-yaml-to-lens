@@ -16,6 +16,7 @@ KBN_DEFAULT_COLOR_MAPPING_PALETTE_ID = 'eui_amsterdam_color_blind'
 KBN_DEFAULT_COLOR_MAPPING_COLOR_MODE_TYPE = 'categorical'
 
 type KbnLegendSize = Literal['small', 'medium', 'large', 'xlarge']
+type KbnXYLegendSize = Literal['auto', 'small', 'medium', 'large', 'xlarge']
 
 
 class KbnLayerColorMappingRule(BaseVwModel):
