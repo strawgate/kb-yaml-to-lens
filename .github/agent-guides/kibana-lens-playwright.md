@@ -17,6 +17,7 @@ Validated against Kibana 9.3.0 with bootstrap data from `scripts/bootstrap-explo
   grep 'button.*Legend\|button.*Save' /tmp/gh-aw/agent/page.md
   ```
 
+- **`browser_click` and `browser_wait_for` return inline diffs.** Don't take an extra `browser_snapshot` after every click — the response already contains changed elements with fresh refs. Only save a new snapshot when you need to search a full page.
 - **Wait after navigation.** `browser_navigate` then `browser_wait_for` with `textGone: "Loading Elastic"`.
 - **Close dialogs** using a scoped locator in `browser_run_code`, for example `await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`, or use `browser_press_key` with `Escape`.
 - **Exit editors deliberately.** Opening panel editors may trigger "Unsaved changes" prompts. Use `browser_handle_dialog(accept: true)` or exit via "Exit without saving".
@@ -253,7 +254,7 @@ Some palette parameters (for example `continuity`) may not be exposed in the cur
 ## Common Pitfalls
 
 1. **Monaco editor** — standard click/type times out. Must use `browser_run_code` with `force: true` (see ES|QL recipe above).
-2. **Comboboxes** — Kibana uses EUI comboboxes, not `<select>`. Use `.fill()` to filter, then `.getByRole('option', ...)` to select. Never use `browser_fill_form` with `combobox` type.
+2. **Comboboxes** — Kibana uses EUI comboboxes, not `<select>`. In `browser_run_code`: `.fill()` to filter, then `.getByRole('option', ...)` to select. With individual tool calls: `browser_type` to filter, save snapshot to disk, `grep 'option.*value'` to find the ref, then `browser_click`. Never use `browser_fill_form` with `combobox` type. **Exception:** the time range "Time unit" IS a native `<select>` — use `selectOption()` for that one.
 3. **Multiple "Close" buttons** — use `{ name: 'Close', exact: true }` or scope to a dialog inside `browser_run_code`: `await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()`.
 4. **Color picker popovers** — close with Escape before interacting behind them.
 5. **Unsaved work dialog** — handle `beforeunload` with `browser_handle_dialog` (accept: true).
