@@ -51,11 +51,11 @@ async (page) => {
 ```js
 async (page) => {
   await page.getByRole('button', { name: 'Add or drag-and-drop a field to Slice by' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('button', { name: 'Top values' }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Top values' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('combobox', { name: 'Field' }).waitFor({ state: 'visible' });
   await page.getByRole('combobox', { name: 'Field' }).fill('log.level');
-  await page.waitForTimeout(500);
+  await page.getByRole('option', { name: /log\.level/ }).waitFor({ state: 'visible' });
   await page.getByRole('option', { name: /log\.level/ }).click();
   await page.getByRole('button', { name: 'Close', exact: true }).click();
   return 'Added Top 5 values of log.level to Slice by';
@@ -67,8 +67,9 @@ async (page) => {
 ```js
 async (page) => {
   await page.getByRole('button', { name: 'Legend' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('button', { name: /Width/ }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: /Width/ }).click();
+  await page.getByRole('option', { name: 'Extra large' }).waitFor({ state: 'visible' });
   await page.getByRole('option', { name: 'Extra large' }).click();
   return 'Legend set to Extra large';
 }
@@ -81,8 +82,9 @@ async (page) => {
   await page.getByRole('button', { name: 'Date quick select' }).click();
   await page.getByRole('spinbutton', { name: 'Time value' }).clear();
   await page.getByRole('spinbutton', { name: 'Time value' }).fill('1');
-  await page.getByRole('combobox', { name: 'Time unit' }).fill('year');
-  await page.getByRole('option', { name: /year/i }).click();
+  // Time unit is a native <select>, so use selectOption (not fill + click)
+  await page.getByRole('combobox', { name: 'Time unit' }).selectOption('y');
+  await page.getByRole('button', { name: 'Apply', exact: true }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
   return 'Time range set to last 1 year';
 }
@@ -109,12 +111,12 @@ async (page) => {
   await page.goto('http://localhost:443/app/management/kibana/objects');
   await page.getByText('Loading Elastic').first().waitFor({ state: 'hidden' });
   await page.getByRole('button', { name: 'Import' }).click();
-  await page.waitForTimeout(500);
   const fileInput = page.locator('input[type="file"]');
+  await fileInput.waitFor({ state: 'attached' });
   await fileInput.setInputFiles('/tmp/gh-aw/agent/compiled/compiled_dashboards.ndjson');
   await page.getByRole('dialog').getByRole('button', { name: 'Import', exact: true }).click();
-  await page.waitForTimeout(2000);
-  const success = await page.getByText('Successfully imported').isVisible({ timeout: 5000 }).catch(() => false);
+  await page.getByText('Successfully imported').waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+  const success = await page.getByText('Successfully imported').isVisible().catch(() => false);
   return success ? 'Import succeeded' : 'Import may have failed — check page';
 }
 ```
@@ -133,28 +135,29 @@ async (page) => {
 ```js
 async (page) => {
   await page.locator('[data-test-subj="lnsChartSwitchPopover"]').click();
+  await page.getByRole('option', { name: 'Pie' }).waitFor({ state: 'visible' });
   await page.getByRole('option', { name: 'Pie' }).click();
-  await page.waitForTimeout(500);
 
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Slice by' }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Add or drag-and-drop a field to Slice by' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('button', { name: 'Top values' }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Top values' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('combobox', { name: 'Field' }).waitFor({ state: 'visible' });
   await page.getByRole('combobox', { name: 'Field' }).fill('log.level');
-  await page.waitForTimeout(500);
+  await page.getByRole('option', { name: /log\.level/ }).waitFor({ state: 'visible' });
   await page.getByRole('option', { name: /log\.level/ }).click();
   await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await page.waitForTimeout(300);
 
+  await page.getByRole('button', { name: 'Add or drag-and-drop a field to Metric' }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Add or drag-and-drop a field to Metric' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('button', { name: 'Count', exact: true }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Count', exact: true }).click();
   await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await page.waitForTimeout(500);
 
   await page.getByRole('button', { name: 'Legend' }).click();
-  await page.waitForTimeout(300);
+  await page.getByRole('button', { name: /Width/ }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: /Width/ }).click();
+  await page.getByRole('option', { name: 'Extra large' }).waitFor({ state: 'visible' });
   await page.getByRole('option', { name: 'Extra large' }).click();
 
   return 'Pie chart created with log.level, count, extra_large legend';
