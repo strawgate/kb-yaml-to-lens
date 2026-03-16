@@ -627,7 +627,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
         'query': 'FROM metrics-* | STATS count(*) by aerospike.namespace',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
         'breakdowns': [
-            {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
+            {'field': 'aerospike.namespace.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         ],
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -656,6 +656,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
         }
     )
 
+    # ES|QL pie breakdowns ("slice by") do not support collapse
     esql_chart = ESQLPiePanelConfig.model_validate(esql_config)
     _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_pie_chart(esql_pie_chart=esql_chart)
     assert kbn_state_visualization is not None
@@ -672,7 +673,6 @@ async def test_pie_chart_with_collapse_functions() -> None:
             },
             'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
             'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
-            'collapseFns': {'6e73286b-85cf-4343-9676-b7ee2ed0a3df': 'sum'},
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',

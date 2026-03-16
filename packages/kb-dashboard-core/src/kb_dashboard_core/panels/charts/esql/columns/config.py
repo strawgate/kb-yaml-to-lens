@@ -9,6 +9,8 @@ type ESQLColumnTypes = ESQLDimension | ESQLMetric
 
 type ESQLDimensionTypes = ESQLDimension
 
+type ESQLBreakdownTypes = ESQLBreakdown
+
 type ESQLMetricTypes = ESQLMetric
 
 type ESQLMetricFormatTypes = ESQLMetricFormat | ESQLCustomMetricFormat
@@ -65,8 +67,17 @@ class ESQLDimension(BaseESQLColumn):
     data_type: Literal['date'] | None = Field(default=None)
     """The data type of the field. Set to 'date' for time/date fields to enable proper sorting and formatting."""
 
+
+class ESQLBreakdown(ESQLDimension):
+    """A breakdown dimension for ESQL charts that supports collapse aggregation.
+
+    Breakdowns slice data into categories (e.g. bar segments, waffle sections).
+    Unlike plain dimensions, breakdowns support the ``collapse`` aggregation
+    which merges multiple dimension values into a single bucket using a summary function.
+    """
+
     collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
+    """Aggregate all breakdown values into a single bucket using this function (sum, avg, min, max)."""
 
 
 class ESQLMetric(BaseESQLColumn):

@@ -270,12 +270,8 @@ def compile_esql_pie_chart(
 
     primary_dimension_ids, secondary_dimension_ids = split_dimensions(all_dimension_ids)
 
-    collapse_fns = build_collapse_fns(
-        [
-            (compiled_dim.columnId, dim_config.collapse)
-            for dim_config, compiled_dim in zip(esql_pie_chart.breakdowns, dimensions, strict=True)
-        ]
-    )
+    # ES|QL pie breakdowns ("slice by") do not support collapse
+    collapse_fns = build_collapse_fns([])
 
     kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions]
 

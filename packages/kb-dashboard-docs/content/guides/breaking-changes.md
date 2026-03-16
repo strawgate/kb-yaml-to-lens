@@ -24,6 +24,7 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Waffle charts (Lens + ES|QL): rename `dimension` to `breakdown`. The secondary `breakdown` field has been removed; waffle charts support exactly one breakdown. Old name emits `DeprecationWarning`.
 - Datatable charts (Lens + ES|QL): rename `dimensions` (row groupings) to `breakdowns`, and rename `dimensions_by` (split metrics by) to `metrics_split_by`. Old names emit `DeprecationWarning`.
 - All Lens charts: `collapse` is now only valid on breakdown fields (pie, treemap, waffle breakdowns; mosaic `breakdown`). The `collapse` field has been removed from plain dimension types used in XY chart `dimension`/`breakdown` axes.
+- ES|QL charts: `collapse` has moved from `ESQLDimension` to the new `ESQLBreakdown` type. If you had `dimension.collapse`, move it to `breakdown.collapse` instead. Charts that use `ESQLBreakdownTypes` for their breakdown field (XY, metric, mosaic, waffle) support `collapse`; pie and treemap breakdowns do not.
 - XY charts: rename legend `size` to `width`.
 - XY charts: lowercase `appearance.missing_values` and `appearance.end_values` enum values.
 - Lens top values dimensions: rename `other_bucket` to `show_other_bucket`.
@@ -47,6 +48,7 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 | `other_bucket` | `show_other_bucket` | Lens top values dimensions |
 | `missing_bucket` | `include_missing_values` | Lens top values dimensions |
 | `empty_bucket` | `include_empty_intervals` | Lens intervals dimensions |
+| `dimension.collapse` (ES\|QL) | `breakdown.collapse` | ES\|QL charts (XY, metric, mosaic, waffle) |
 
 ### Range Color Mapping Threshold Rename
 

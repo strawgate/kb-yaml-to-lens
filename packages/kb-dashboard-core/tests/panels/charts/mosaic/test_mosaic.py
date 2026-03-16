@@ -306,13 +306,13 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
     )
 
 
-async def test_esql_mosaic_ignores_primary_dimension_collapse() -> None:
-    """ES|QL mosaic should only emit collapseFns for breakdowns, not primary dimension."""
+async def test_esql_mosaic_no_collapse_without_breakdown() -> None:
+    """ES|QL mosaic without breakdown should have no collapseFns."""
     esql_config = {
         'type': 'mosaic',
         'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
         'metric': {'field': 'c', 'id': 'metric-id'},
-        'dimension': {'field': 'service.name', 'id': 'primary-dimension', 'collapse': 'sum'},
+        'dimension': {'field': 'service.name', 'id': 'primary-dimension'},
     }
 
     esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)

@@ -193,12 +193,8 @@ def compile_esql_treemap_chart(
     dimensions = compile_esql_dimensions(dimensions=esql_treemap_chart.breakdowns)
     all_dimension_ids = [d.columnId for d in dimensions]
 
-    collapse_fns = build_collapse_fns(
-        [
-            (compiled_dim.columnId, dim_config.collapse)
-            for dim_config, compiled_dim in zip(esql_treemap_chart.breakdowns, dimensions, strict=True)
-        ]
-    )
+    # ES|QL treemap breakdowns do not support collapse
+    collapse_fns = build_collapse_fns([])
 
     kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions]
 
