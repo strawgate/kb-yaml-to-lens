@@ -105,6 +105,52 @@ async (page) => {
 }
 ```
 
+### Check dashboard panels for errors
+
+After navigating to a dashboard, check whether panels rendered or show errors.
+Panels with errors display messages like "Counter rate requires a date histogram"
+or "No results found" inside a `<figure>` element.
+
+```js
+async (page) => {
+  const figures = await page.locator('figure').allTextContents();
+  const errors = figures.filter(t => /error|requires|failed|invalid|No results/i.test(t));
+  return errors.length === 0
+    ? `All ${figures.length} panels rendered OK`
+    : `ERRORS: ${JSON.stringify(errors)}`;
+}
+```
+
+### Open a panel's Lens editor from a dashboard
+
+Panel action buttons are hidden until you hover. Use `data-test-subj` selectors,
+not role-based names like `"Panel options for ..."` (those don't exist).
+
+```js
+async (page) => {
+  // Hover the panel to reveal action buttons
+  await page.locator('[data-test-subj="embeddablePanel"]').first().hover();
+  await page.waitForTimeout(500);
+  // Click the edit button (pencil icon, only visible on hover)
+  await page.locator('[data-test-subj="embeddablePanelAction-editPanel"]').click({ force: true });
+  await page.waitForTimeout(3000);
+  return 'Lens editor opened';
+}
+```
+
+For a specific panel when multiple exist, scope by title:
+
+```js
+async (page) => {
+  const panel = page.locator('[data-test-subj="embeddablePanel"]', { has: page.getByText('My Panel Title') });
+  await panel.hover();
+  await page.waitForTimeout(500);
+  await panel.locator('[data-test-subj="embeddablePanelAction-editPanel"]').click({ force: true });
+  await page.waitForTimeout(3000);
+  return 'Opened editor for My Panel Title';
+}
+```
+
 ### Import a compiled dashboard
 
 ```js

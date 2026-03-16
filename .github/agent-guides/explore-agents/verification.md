@@ -84,12 +84,18 @@ For each supported feature:
    This compiles the YAML to NDJSON and uploads it to Kibana via the
    saved objects API. Do NOT use curl or the Kibana UI to import — the
    CLI handles it reliably.
-3. **Open** the imported panel in the Kibana editor and verify:
+3. **Check the dashboard for panel errors** before opening editors. After
+   navigating to the dashboard, use the "Check dashboard panels for errors"
+   recipe from the Playwright guide. Panels that show messages like "requires
+   a date histogram", "No results found", or expression errors are broken —
+   do NOT claim success based on a successful upload alone. A successful upload
+   only means the JSON was valid, not that the panel renders correctly.
+4. **Open** the imported panel in the Kibana editor and verify:
    - Every setting you specified in YAML is reflected in the UI
    - No settings are lost or silently dropped
    - The panel renders without errors
    - Kibana does not show warnings or "invalid" states
-4. **Record** the result: feature name, YAML used, pass/fail, notes.
+5. **Record** the result: feature name, YAML used, pass/fail, notes.
 
 ## Part 2: Create fresh panels in Kibana → Export → Compare to compiler
 
