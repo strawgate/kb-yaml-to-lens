@@ -1,8 +1,8 @@
 """Configuration models for gauge chart visualizations."""
 
-from typing import Literal, Self
+from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
@@ -37,27 +37,17 @@ class GaugeTitlesAndText(BaseCfgModel):
     """Title and subtitle display options for gauges.
 
     These fields map to Kibana gauge `labelMajor` (title) and `labelMinor` (subtitle).
+
+    - ``None`` (omit): Kibana default (auto for title, hidden for subtitle)
+    - ``False``: explicitly hidden
+    - ``str``: custom text
     """
 
-    title: Literal['none', 'auto'] | str | None = Field(default=None)
-    """Title mode/value: `'none'` hides it, `'auto'` uses Kibana default, a string sets custom text."""
+    title: str | Literal[False] | None = Field(default=None)
+    """Gauge title. Omit for Kibana default, ``False`` to hide, or a string for custom text."""
 
-    subtitle: Literal['none'] | str | None = Field(default=None)
-    """Subtitle mode/value: `'none'` hides it, a string sets custom text."""
-
-    @model_validator(mode='after')
-    def validate_custom_text(self) -> Self:
-        """Disallow empty custom strings."""
-        if isinstance(self.title, str) and self.title == '':
-            msg = "Gauge title cannot be an empty string. Use 'auto', 'none', or a non-empty string."
-            raise ValueError(msg)
-        if isinstance(self.subtitle, str) and self.subtitle == '':
-            msg = "Gauge subtitle cannot be an empty string. Use 'none' or a non-empty string."
-            raise ValueError(msg)
-        if self.subtitle == 'auto':
-            msg = "Gauge subtitle does not support 'auto'. Use 'none' or a custom string."
-            raise ValueError(msg)
-        return self
+    subtitle: str | Literal[False] | None = Field(default=None)
+    """Gauge subtitle. Omit for no subtitle, ``False`` to hide, or a string for custom text."""
 
 
 class BaseGaugeChart(BaseCfgModel):

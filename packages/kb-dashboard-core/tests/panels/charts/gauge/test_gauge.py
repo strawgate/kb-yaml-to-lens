@@ -278,8 +278,8 @@ def test_compile_gauge_chart_with_titles_and_text_none_modes() -> None:
             'aggregation': 'average',
         },
         'titles_and_text': {
-            'title': 'none',
-            'subtitle': 'none',
+            'title': False,
+            'subtitle': False,
         },
     }
 
@@ -431,8 +431,8 @@ def test_compile_gauge_chart_preserves_thresholds_in_color_stops(
     assert [entry['stop'] for entry in result['palette']['params']['stops']] == threshold_stops
 
 
-def test_gauge_titles_and_text_rejects_auto_subtitle() -> None:
-    """Subtitle only supports none/custom; auto should fail validation."""
+def test_gauge_titles_and_text_rejects_true() -> None:
+    """Title and subtitle reject True (only False, str, or None are valid)."""
     config = {
         'type': 'gauge',
         'data_view': 'metrics-*',
@@ -442,8 +442,7 @@ def test_gauge_titles_and_text_rejects_auto_subtitle() -> None:
             'aggregation': 'average',
         },
         'titles_and_text': {
-            'title': 'auto',
-            'subtitle': 'auto',
+            'title': True,
         },
     }
 

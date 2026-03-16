@@ -64,20 +64,15 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     label_major_mode: Literal['auto', 'custom', 'none']
     if label_major is not None:
         label_major_mode = 'custom'
-    elif titles_and_text is not None and titles_and_text.title == 'none':
+    elif titles_and_text is not None and titles_and_text.title is False:
         label_major_mode = 'none'
-    elif titles_and_text is not None and isinstance(titles_and_text.title, str) and titles_and_text.title not in {'none', 'auto'}:
+    elif titles_and_text is not None and isinstance(titles_and_text.title, str):
         label_major = titles_and_text.title
         label_major_mode = 'custom'
     else:
         label_major_mode = 'auto'
 
-    if (
-        label_minor is None
-        and titles_and_text is not None
-        and isinstance(titles_and_text.subtitle, str)
-        and titles_and_text.subtitle != 'none'
-    ):
+    if label_minor is None and titles_and_text is not None and isinstance(titles_and_text.subtitle, str):
         label_minor = titles_and_text.subtitle
 
     return KbnGaugeVisualizationState(
