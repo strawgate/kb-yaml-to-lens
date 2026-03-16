@@ -447,6 +447,7 @@ Used to specify a dimension/grouping column from your ESQL query result.
 | `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
 | `label` | `string` | An optional display label for the dimension. If not provided, the field name is used. | `None` | No |
 | `data_type` | `Literal['date'] \| None` | The data type of the field. Set to `'date'` for time/date fields to enable proper sorting and formatting in Kibana. This is particularly useful when using `BUCKET()` to create time series. | `None` | No |
+| `collapse` | `CollapseAggregationEnum \| None` | The collapse function to apply to this dimension (`sum`, `avg`, `min`, `max`). Used to aggregate values when multiple series exist. | `None` | No |
 
 **Example using label and data_type for time series:**
 
