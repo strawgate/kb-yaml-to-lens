@@ -3,7 +3,7 @@
 import io
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from kb_dashboard_core.dashboard_compiler import load, render
@@ -11,6 +11,7 @@ from kb_dashboard_core.loader import DashboardConfig
 from ruamel.yaml import YAML
 
 from kb_dashboard_tools.decompile import decompile_dashboard
+from kb_dashboard_tools.decompile.parse import parse_dashboard
 
 
 def _dump_yaml(document: object) -> str:
@@ -1619,3 +1620,214 @@ def test_compile_decompile_compile_roundtrip_examples(relative_yaml_path: str) -
         assert len(roundtrip_config.dashboards) > 0
         for roundtrip_dashboard in roundtrip_config.dashboards:
             render(roundtrip_dashboard)
+
+
+# ---------------------------------------------------------------------------
+# Integration tests: real dashboards from elastic/integrations
+# ---------------------------------------------------------------------------
+
+_FIXTURES_DIR = Path(__file__).resolve().parent / 'fixtures' / 'elastic-integrations'
+
+
+def _load_fixture(name: str) -> dict[str, Any]:
+    with (_FIXTURES_DIR / name).open() as f:
+        return cast('dict[str, Any]', json.load(f))
+
+
+@pytest.mark.parametrize(
+    'fixture_name',
+    [
+        'nginx-overview.json',
+        'nginx-access-errors.json',
+        'system-overview.json',
+    ],
+)
+def test_decompile_real_dashboard_does_not_crash(fixture_name: str) -> None:
+    """Decompiling real elastic/integrations dashboards must not crash."""
+    dashboard = _load_fixture(fixture_name)
+    result = decompile_dashboard(dashboard)
+    dashboards = result['dashboards']
+    assert len(dashboards) == 1
+    assert isinstance(dashboards[0]['name'], str)
+    assert len(dashboards[0]['name']) > 0
+    assert len(dashboards[0]['panels']) > 0
+
+
+@pytest.mark.parametrize(
+    'fixture_name',
+    [
+        'nginx-overview.json',
+        'nginx-access-errors.json',
+        'system-overview.json',
+    ],
+)
+def test_decompile_real_dashboard_produces_valid_yaml(fixture_name: str) -> None:
+    """Decompiled real dashboards produce valid YAML that can be dumped."""
+    dashboard = _load_fixture(fixture_name)
+    result = decompile_dashboard(dashboard)
+    yaml = YAML(typ='rt')
+    stream = io.StringIO()
+    yaml.dump(result, stream)
+    output = stream.getvalue()
+    assert 'dashboards:' in output
+    assert 'panels:' in output
+
+
+@pytest.mark.parametrize(
+    'fixture_name',
+    [
+        'nginx-overview.json',
+        'nginx-access-errors.json',
+        'system-overview.json',
+    ],
+)
+def test_decompile_real_dashboard_validates_as_dashboard_config(fixture_name: str) -> None:
+    """Decompiled real dashboards validate as DashboardConfig (roundtrip parse)."""
+    dashboard = _load_fixture(fixture_name)
+    result = decompile_dashboard(dashboard)
+    config = DashboardConfig.model_validate(result)
+    assert len(config.dashboards) > 0
+    for db in config.dashboards:
+        assert db.name is not None
+
+
+@pytest.mark.parametrize(
+    'fixture_name',
+    [
+        'nginx-overview.json',
+        'system-overview.json',
+    ],
+)
+def test_decompile_real_dashboard_roundtrip_compiles(fixture_name: str) -> None:
+    """Decompiled real dashboards can be re-compiled without errors."""
+    dashboard = _load_fixture(fixture_name)
+    result = decompile_dashboard(dashboard)
+    config = DashboardConfig.model_validate(result)
+    for db in config.dashboards:
+        render(db)
+
+
+def test_decompile_nginx_overview_extracts_chart_types() -> None:
+    """Nginx overview dashboard has XY charts with correct types."""
+    dashboard = _load_fixture('nginx-overview.json')
+    result = decompile_dashboard(dashboard)
+    panels = result['dashboards'][0]['panels']
+    chart_types = set()
+    for panel in panels:
+        if 'lens' in panel:
+            chart_types.add(panel['lens'].get('type'))
+        elif 'esql' in panel:
+            chart_types.add(panel['esql'].get('type'))
+    assert len(chart_types) > 0
+
+
+def test_decompile_system_overview_has_metric_panels() -> None:
+    """System overview dashboard has metric panels with data_view."""
+    dashboard = _load_fixture('system-overview.json')
+    result = decompile_dashboard(dashboard)
+    panels = result['dashboards'][0]['panels']
+    metric_panels = [p for p in panels if 'lens' in p and p['lens'].get('type') == 'metric']
+    assert len(metric_panels) > 0
+    for panel in metric_panels:
+        assert panel['lens'].get('data_view') is not None
+
+
+def test_parse_real_dashboard_produces_typed_structure() -> None:
+    """Parse phase produces fully typed ParsedDashboard from real JSON."""
+    dashboard = _load_fixture('nginx-overview.json')
+    parsed = parse_dashboard(dashboard)
+    assert parsed.title is not None
+    assert len(parsed.panels) > 0
+    for panel in parsed.panels:
+        assert panel.error is None, f'Panel {panel.panel_index} had parse error: {panel.error}'
+        assert panel.lens is not None or panel.simple is not None
+
+
+def test_parse_system_dashboard_detects_visualization_types() -> None:
+    """Parse phase detects all visualization types in system overview."""
+    dashboard = _load_fixture('system-overview.json')
+    parsed = parse_dashboard(dashboard)
+    vis_types = set()
+    for panel in parsed.panels:
+        if panel.lens is not None and panel.lens.visualization_type is not None:
+            vis_types.add(panel.lens.visualization_type)
+    assert 'lnsMetric' in vis_types
+    assert 'lnsDatatable' in vis_types or 'lnsHeatmap' in vis_types
+
+
+def test_parse_real_dashboard_validates_visualization_view_models() -> None:
+    """Parse phase threads real Lens visualization state through Kbn* view models."""
+    dashboard = _load_fixture('system-overview.json')
+    parsed = parse_dashboard(dashboard)
+    view_models = [
+        panel.lens.view_visualization for panel in parsed.panels if panel.lens is not None and panel.lens.view_visualization is not None
+    ]
+    assert view_models
+
+
+def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -> None:
+    """Parse phase validates dashboard-level parts against Kbn* view models when available."""
+    dashboard = {
+        'attributes': {
+            'title': 'Typed bits',
+            'optionsJSON': json.dumps(
+                {
+                    'useMargins': False,
+                    'syncColors': True,
+                    'syncCursor': True,
+                    'syncTooltips': False,
+                    'hidePanelTitles': True,
+                }
+            ),
+            'kibanaSavedObjectMeta': {
+                'searchSourceJSON': json.dumps(
+                    {
+                        'filter': [
+                            {
+                                '$state': {'store': 'appState'},
+                                'meta': {
+                                    'disabled': False,
+                                    'negate': False,
+                                    'key': 'host.name',
+                                    'field': 'host.name',
+                                    'type': 'phrase',
+                                    'params': {'query': 'web-01'},
+                                },
+                                'query': {'match_phrase': {'host.name': 'web-01'}},
+                            }
+                        ]
+                    }
+                )
+            },
+            'controlGroupInput': {
+                'panelsJSON': json.dumps(
+                    {
+                        'control-1': {
+                            'type': 'optionsListControl',
+                            'grow': False,
+                            'order': 0,
+                            'width': 'medium',
+                            'explicitInput': {
+                                'id': 'control-1',
+                                'fieldName': 'host.name',
+                                'title': 'Host',
+                                'dataViewId': 'metrics-*',
+                                'searchTechnique': 'prefix',
+                                'selectedOptions': [],
+                                'sort': {'by': '_count', 'direction': 'desc'},
+                            },
+                        }
+                    }
+                )
+            },
+        }
+    }
+
+    parsed = parse_dashboard(dashboard)
+
+    assert parsed.settings is not None
+    assert parsed.settings.view_options is not None
+    assert parsed.filters
+    assert parsed.filters[0].view_filter is not None
+    assert parsed.controls
+    assert parsed.controls[0].view_control is not None

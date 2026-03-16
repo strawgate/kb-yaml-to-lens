@@ -35,6 +35,9 @@ from kb_dashboard_core.shared.view import BaseVwModel, OmitIfNone
 # }
 
 
+type FilterScalar = str | int | float | bool
+
+
 class KbnBaseFilterMeta(BaseVwModel):
     disabled: bool
     """Indicates whether the filter is disabled."""
@@ -73,7 +76,7 @@ class KbnFilterMeta(KbnBaseFilterMeta):
     field: str
     """The field name being filtered on, same as `key` in most cases."""
 
-    params: Annotated[dict[str, Any] | list[str] | None, OmitIfNone()] = Field(default=None)
+    params: Annotated[dict[str, Any] | list[FilterScalar] | None, OmitIfNone()] = Field(default=None)
     """Parameters for the filter, such as the value to match against."""
 
 

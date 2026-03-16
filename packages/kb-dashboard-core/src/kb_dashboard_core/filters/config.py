@@ -7,6 +7,9 @@ from pydantic import Discriminator, Field, Tag, model_validator
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
+type FilterScalar = str | int | float | bool
+
+
 def get_filter_type(v: dict[str, object] | object) -> str:  # noqa: PLR0911, PLR0912
     """Extract filter type for discriminated union validation.
 
@@ -125,7 +128,7 @@ class PhraseFilter(BaseFilter):
     field: str = Field(...)
     """The field name to apply the filter to."""
 
-    equals: str = Field(...)
+    equals: FilterScalar = Field(...)
     """The exact phrase value that the field must match."""
 
 
@@ -139,7 +142,7 @@ class PhrasesFilter(BaseFilter):
     field: str = Field(...)
     """The field name to apply the filter to."""
 
-    in_list: list[str] = Field(..., alias='in')
+    in_list: list[FilterScalar] = Field(..., alias='in')
     """A list of phrases. Documents must match at least one of these phrases in the specified field."""
 
 
@@ -152,16 +155,16 @@ class RangeFilter(BaseFilter):
     field: str = Field(...)
     """The field name to apply the filter to."""
 
-    gte: str | None = Field(default=None)
+    gte: FilterScalar | None = Field(default=None)
     """Greater than or equal to value for the range filter."""
 
-    lte: str | None = Field(default=None)
+    lte: FilterScalar | None = Field(default=None)
     """Less than or equal to value for the range filter."""
 
-    lt: str | None = Field(default=None)
+    lt: FilterScalar | None = Field(default=None)
     """Less than value for the range filter."""
 
-    gt: str | None = Field(default=None)
+    gt: FilterScalar | None = Field(default=None)
     """Greater than value for the range filter."""
 
     @model_validator(mode='after')
