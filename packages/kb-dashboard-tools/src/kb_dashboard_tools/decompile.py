@@ -13,7 +13,7 @@ _LENS_VISUALIZATION_TYPES = {
     'line': 'line',
     'area': 'area',
     'heatmap': 'heatmap',
-    'datatable': 'table',
+    'datatable': 'datatable',
     'tagcloud': 'tagcloud',
     'mosaic': 'mosaic',
     'waffle': 'waffle',
@@ -21,7 +21,7 @@ _LENS_VISUALIZATION_TYPES = {
     'lnsgauge': 'gauge',
     'lnspie': 'pie',
     'lnsheatmap': 'heatmap',
-    'lnsdatatable': 'table',
+    'lnsdatatable': 'datatable',
     'lnstagcloud': 'tagcloud',
     'lnsmosaic': 'mosaic',
     'lnswaffle': 'waffle',
@@ -779,7 +779,7 @@ def _list_to_seq(items: list[CommentedMap]) -> CommentedSeq:
     return seq
 
 
-def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:  # noqa: PLR0912
+def _build_lens_like_stub(panel: dict[str, Any], panel_type: str) -> CommentedMap:  # noqa: PLR0912
     """Build lens/esql panel stub with chart type, data view, metrics, and dimensions."""
     _, embeddable_attributes = _extract_embeddable_attributes(panel)
     chart = CommentedMap()
@@ -796,7 +796,7 @@ def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:  # noqa: PLR09
         chart['data_view'] = data_view
 
     esql_query = _extract_esql_query(embeddable_attributes)
-    if esql_query is not None:
+    if panel_type == 'esql' and esql_query is not None:
         chart['query'] = esql_query
 
     metrics, dimensions, breakdowns, _skipped = _extract_form_based_columns(embeddable_attributes)
@@ -820,11 +820,12 @@ def _build_lens_like_stub(panel: dict[str, Any]) -> CommentedMap:  # noqa: PLR09
         if len(breakdowns) > 0:
             chart['breakdown'] = breakdowns[0]
     else:
-        # Pie, table, etc. use plural dimensions
-        if len(dimensions) > 0:
-            chart['dimensions'] = _list_to_seq(dimensions)
-        if len(breakdowns) > 0:
-            chart['breakdown'] = _list_to_seq(breakdowns)
+        # Pie, datatable, treemap, etc. use plural dimensions.
+        # Lens decompile currently cannot reliably separate "dimensions" vs "breakdowns"
+        # across all chart families, so keep both as dimensions for compilable stubs.
+        merged_dimensions = [*dimensions, *breakdowns]
+        if len(merged_dimensions) > 0:
+            chart['dimensions'] = _list_to_seq(merged_dimensions)
 
     return chart
 
@@ -846,7 +847,8 @@ def _panel_type_stub(panel: dict[str, Any], reference_lookup: dict[str, str]) ->
         return yaml_type, result
 
     if panel_type in {'lens', 'esql'}:
-        return str(panel_type), _build_lens_like_stub(panel)
+        panel_type_str = str(panel_type)
+        return panel_type_str, _build_lens_like_stub(panel, panel_type_str)
 
     markdown = CommentedMap()
     markdown['content'] = f'TODO(decompile): unsupported panel type `{panel_type}`'

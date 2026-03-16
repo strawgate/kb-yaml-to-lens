@@ -2,8 +2,12 @@
 
 import io
 import json
+from pathlib import Path
 from typing import Any
 
+import pytest
+from kb_dashboard_core.dashboard_compiler import load, render
+from kb_dashboard_core.loader import DashboardConfig
 from ruamel.yaml import YAML
 
 from kb_dashboard_tools.decompile import decompile_dashboard
@@ -15,6 +19,10 @@ def _dump_yaml(document: object) -> str:
     stream = io.StringIO()
     yaml.dump(document, stream)
     return stream.getvalue()
+
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_EXAMPLES_DIR = _PROJECT_ROOT / 'packages' / 'kb-dashboard-docs' / 'content' / 'examples'
 
 
 def test_decompile_dashboard_stubs_panels_and_settings() -> None:
@@ -1107,22 +1115,28 @@ def test_decompile_formula_panel_has_todo() -> None:
 
 def test_decompile_esql_query() -> None:
     """Extract ES|QL query from textBased datasource."""
-    panel = _make_lens_panel(
-        'lnsMetric',
-        state={
-            'datasourceStates': {
-                'textBased': {
-                    'layers': {
-                        'layer1': {
-                            'query': {'esql': 'FROM logs-* | STATS count=COUNT()'},
+    panel = {
+        'panelIndex': 'p1',
+        'type': 'esql',
+        'embeddableConfig': {
+            'attributes': {
+                'visualizationType': 'metric',
+                'state': {
+                    'datasourceStates': {
+                        'textBased': {
+                            'layers': {
+                                'layer1': {
+                                    'query': {'esql': 'FROM logs-* | STATS count=COUNT()'},
+                                },
+                            },
                         },
                     },
                 },
-            },
+            }
         },
-    )
+    }
     result = _decompile_single_panel(panel)
-    assert result['lens']['query'] == 'FROM logs-* | STATS count=COUNT()'
+    assert result['esql']['query'] == 'FROM logs-* | STATS count=COUNT()'
 
 
 # --- Controls extraction ---
@@ -1378,10 +1392,10 @@ def test_decompile_tagcloud_type() -> None:
 
 
 def test_decompile_datatable_type() -> None:
-    """LnsDatatable maps to table type."""
+    """LnsDatatable maps to datatable type."""
     panel = _make_lens_panel('lnsDatatable')
     result = _decompile_single_panel(panel)
-    assert result['lens']['type'] == 'table'
+    assert result['lens']['type'] == 'datatable'
 
 
 def test_decompile_metric_with_label() -> None:
@@ -1558,3 +1572,46 @@ def test_decompile_form_based_uses_top_level_visualization_accessors() -> None:
     assert lens['primary']['field'] == 'bytes'
     assert lens['secondary']['aggregation'] == 'average'
     assert lens['secondary']['field'] == 'cpu.usage'
+
+
+def test_decompile_lens_with_text_based_query_does_not_emit_panel_query() -> None:
+    """Lens stubs should not emit string `query` values from textBased datasource state."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'textBased': {
+                    'layers': {
+                        'layer1': {
+                            'query': {'esql': 'FROM metrics-* | STATS count = COUNT(*)'},
+                        }
+                    }
+                }
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'query' not in result['lens']
+
+
+@pytest.mark.parametrize(
+    'relative_yaml_path',
+    [
+        'filters-example.yaml',
+        'system/01-metrics-overview.yaml',
+        'crowdstrike/alert.yaml',
+    ],
+)
+def test_compile_decompile_compile_roundtrip_examples(relative_yaml_path: str) -> None:
+    """Roundtrip compile->decompile->compile should not error for representative examples."""
+    yaml_path = _EXAMPLES_DIR / relative_yaml_path
+    dashboards = load(str(yaml_path))
+    assert len(dashboards) > 0
+
+    for dashboard in dashboards:
+        compiled_dashboard = render(dashboard).model_dump(by_alias=True)
+        decompiled_yaml = decompile_dashboard(compiled_dashboard)
+        roundtrip_config = DashboardConfig.model_validate(decompiled_yaml)
+        assert len(roundtrip_config.dashboards) > 0
+        for roundtrip_dashboard in roundtrip_config.dashboards:
+            render(roundtrip_dashboard)
