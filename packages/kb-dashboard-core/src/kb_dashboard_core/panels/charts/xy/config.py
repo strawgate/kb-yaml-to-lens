@@ -127,7 +127,7 @@ class AxisConfig(BaseCfgModel):
     def validate_title(self) -> Self:
         """Validate title input."""
         if isinstance(self.title, str) and self.title == '':
-            msg = "Axis title cannot be an empty string. Use false to hide or omit for auto."
+            msg = 'Axis title cannot be an empty string. Use false to hide or omit for auto.'
             raise ValueError(msg)
         return self
 

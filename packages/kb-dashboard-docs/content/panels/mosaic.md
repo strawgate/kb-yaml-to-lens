@@ -20,9 +20,9 @@ For comprehensive guidance on legend configuration, see the [Legend Configuratio
       show_root_heading: false
       heading_level: 3
 
-## Mosaic Chart Titles and Text
+## Mosaic Chart Appearance
 
-::: kb_dashboard_core.panels.charts.mosaic.config.MosaicTitlesAndText
+::: kb_dashboard_core.panels.charts.mosaic.config.MosaicAppearance
     options:
       show_root_heading: false
       heading_level: 3

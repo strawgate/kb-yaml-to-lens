@@ -246,7 +246,7 @@ def compile_lens_dimension(
                 customLabel=custom_label,
                 sourceField=dimension.field,
                 params=KbnLensIntervalsDimensionColumnParams(
-                    includeEmptyRows=True,
+                    includeEmptyRows=default_true(dimension.include_empty_intervals),
                     type='histogram',
                     ranges=[KbnLensIntervalsRange(from_value=0, to_value=1000, label='')],
                     maxBars=GRANULARITY_TO_BARS[dimension.granularity] if dimension.granularity is not None else 'auto',

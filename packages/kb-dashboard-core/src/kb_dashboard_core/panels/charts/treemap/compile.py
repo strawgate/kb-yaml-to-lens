@@ -10,9 +10,7 @@ from kb_dashboard_core.panels.charts.lens.columns.view import (
     KbnLensColumnTypes,
     KbnLensMetricColumnTypes,
 )
-from kb_dashboard_core.panels.charts.lens.dimensions.compile import (
-    compile_lens_dimensions,
-)
+from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimensions
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
 from kb_dashboard_core.panels.charts.pie.view import (
     KbnPieStateVisualizationLayer,
@@ -21,8 +19,8 @@ from kb_dashboard_core.panels.charts.pie.view import (
 from kb_dashboard_core.panels.charts.treemap.config import (
     ESQLTreemapChart,
     LensTreemapChart,
-    TreeMapLegend,
     TreemapCategoriesConfig,
+    TreeMapLegend,
     TreemapValuesConfig,
 )
 from kb_dashboard_core.shared.defaults import default_false
@@ -123,7 +121,7 @@ def compile_treemap_chart_visualization_state(
         secondaryGroups=None,
         metrics=metric_ids,
         allowMultipleMetrics=allow_multiple_metrics,
-        collapseFns=collapse_fns if collapse_fns else None,
+        collapseFns=collapse_fns or None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_options.display,

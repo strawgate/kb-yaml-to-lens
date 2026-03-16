@@ -78,18 +78,22 @@ dashboards:
             field: "response.time"
             format:
               type: duration
-          grid_config:
-            cells:
-              show_labels: true
+          appearance:
+            values:
+              visible: true
             x_axis:
-              show_labels: true
-              show_title: true
+              labels:
+                visible: true
+              title:
+                visible: true
             y_axis:
-              show_labels: true
-              show_title: true
-          legend:
-            visible: show
-            position: right
+              labels:
+                visible: true
+              title:
+                visible: true
+            legend:
+              visible: show
+              position: right
 ```
 
 ## One-Dimensional Heatmap Example

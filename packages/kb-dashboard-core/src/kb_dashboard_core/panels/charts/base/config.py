@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Literal
+from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
@@ -123,6 +123,20 @@ class ColorRangeMapping(BaseCfgModel):
 
     thresholds: list[ColorThreshold] = Field(min_length=1)
     """Ordered threshold bands used to build gauge-style color palettes."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_legacy_continuity(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_continuity = normalized_data.pop('continuity', None)
+        if legacy_continuity is None or 'extend_beyond_range' in normalized_data:
+            return normalized_data
+
+        normalized_data['extend_beyond_range'] = 'both' if legacy_continuity == 'all' else legacy_continuity
+        return normalized_data
 
     @model_validator(mode='after')
     def validate_thresholds(self) -> 'ColorRangeMapping':

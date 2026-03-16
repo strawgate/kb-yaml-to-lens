@@ -270,6 +270,27 @@ class TestColorRangeMappingValidation:
         )
         assert len(mapping.thresholds) == 3
 
+    def test_accepts_legacy_continuity_alias(self) -> None:
+        """Test that legacy continuity input is translated to extend_beyond_range."""
+        mapping = ColorRangeMapping.model_validate(
+            {
+                'continuity': 'all',
+                'thresholds': [{'up_to': 50, 'color': '#FFA500'}],
+            }
+        )
+        assert mapping.extend_beyond_range == 'both'
+
+    def test_extend_beyond_range_wins_over_legacy_continuity(self) -> None:
+        """Test explicit extend_beyond_range takes precedence over legacy continuity."""
+        mapping = ColorRangeMapping.model_validate(
+            {
+                'continuity': 'all',
+                'extend_beyond_range': 'none',
+                'thresholds': [{'up_to': 50, 'color': '#FFA500'}],
+            }
+        )
+        assert mapping.extend_beyond_range == 'none'
+
     def test_number_type_allows_values_outside_percent_bounds(self) -> None:
         """Test that number range type allows values outside 0-100."""
         mapping = ColorRangeMapping(

@@ -265,10 +265,9 @@ def _extract_chart_type_specific_appearance(
         min_bar_height = chart.appearance.min_bar_height
 
     # Extract time series features from line/area charts
-    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)):
-        if chart.appearance is not None:
-            show_current_time_marker = chart.appearance.show_current_time_marker
-            hide_endzones = chart.appearance.hide_endzones
+    if isinstance(chart, (LensLineChart, LensAreaChart, ESQLLineChart, ESQLAreaChart)) and chart.appearance is not None:
+        show_current_time_marker = chart.appearance.show_current_time_marker
+        hide_endzones = chart.appearance.hide_endzones
 
     return (
         fitting_function,
@@ -400,7 +399,7 @@ def _compile_metric_y_config(*, metric_ids: list[str], chart: LensXYChartTypes |
                 )
             )
 
-    return y_config_list if y_config_list else None
+    return y_config_list or None
 
 
 def _compile_axis_settings(

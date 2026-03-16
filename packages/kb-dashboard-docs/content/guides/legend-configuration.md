@@ -108,9 +108,10 @@ dashboards:
             type: values
           value:
             aggregation: count
-          legend:
-            visible: show    # show or hide (auto not supported)
-            position: right  # top, bottom, left, or right
+          appearance:
+            legend:
+              visible: show    # show or hide (auto not supported)
+              position: right  # top, bottom, left, or right
 ```
 
 **Available Options:**
@@ -257,9 +258,10 @@ lens:
   value:
     aggregation: average
     field: "cpu.usage"
-  legend:
-    visible: show
-    position: bottom  # Save horizontal space
+  appearance:
+    legend:
+      visible: show
+      position: bottom  # Save horizontal space
 ```
 
 ## Examples

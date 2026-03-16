@@ -299,6 +299,29 @@ async def test_intervals_dimension_with_custom_granularity() -> None:
     )
 
 
+async def test_intervals_dimension_respects_include_empty_intervals() -> None:
+    """Test intervals dimension include_empty_intervals is passed through."""
+    metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}
+    dimension_config = {
+        'type': 'intervals',
+        'field': 'apache.uptime',
+        'include_empty_intervals': False,
+    }
+
+    metric = TypeAdapter(LensMetricTypes).validate_python(metric_config)
+    result = compile_lens_metric(metric)
+    metric_id = result.primary_id
+    kbn_metric_column = result.primary_column
+    kbn_metric_column_by_id = {metric_id: kbn_metric_column}
+    dimension = TypeAdapter(LensDimensionTypes).validate_python(dimension_config)
+    _, kbn_dimension_column = compile_lens_dimension(
+        dimension=dimension,
+        kbn_metric_column_by_id=kbn_metric_column_by_id,
+    )
+
+    assert kbn_dimension_column.model_dump()['params']['includeEmptyRows'] is False
+
+
 async def test_intervals_dimension_with_custom_intervals() -> None:
     """Test intervals dimension with custom intervals."""
     metric_config = {'aggregation': 'count', 'id': '87416118-6032-41a2-aaf9-173fc0e525eb'}

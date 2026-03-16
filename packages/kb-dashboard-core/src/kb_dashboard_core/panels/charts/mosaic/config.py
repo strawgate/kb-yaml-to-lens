@@ -5,9 +5,9 @@ similar to treemaps but with a different visual arrangement. They are part of th
 Kibana Lens partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
-from typing import Literal
+from typing import Any, Literal, cast
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -65,6 +65,41 @@ class BaseMosaicChart(BaseChart):
 
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_legacy_value_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        legacy_titles_and_text = normalized_data.pop('titles_and_text', None)
+        if not isinstance(legacy_titles_and_text, dict):
+            return normalized_data
+
+        legacy_values: dict[str, Any] = {}
+        if 'value_format' in legacy_titles_and_text:
+            legacy_values['format'] = legacy_titles_and_text['value_format']
+        if 'value_decimal_places' in legacy_titles_and_text:
+            legacy_values['decimal_places'] = legacy_titles_and_text['value_decimal_places']
+        if not legacy_values:
+            return normalized_data
+
+        appearance = normalized_data.get('appearance')
+        if appearance is None:
+            normalized_data['appearance'] = {'values': legacy_values}
+            return normalized_data
+        if not isinstance(appearance, dict):
+            return normalized_data
+
+        normalized_appearance = dict(cast('dict[str, Any]', appearance))
+        appearance_values = normalized_appearance.get('values')
+        if appearance_values is None:
+            normalized_appearance['values'] = legacy_values
+        elif isinstance(appearance_values, dict):
+            normalized_appearance['values'] = {**legacy_values, **cast('dict[str, Any]', appearance_values)}
+        normalized_data['appearance'] = normalized_appearance
+        return normalized_data
 
 
 class LensMosaicChart(BaseMosaicChart):

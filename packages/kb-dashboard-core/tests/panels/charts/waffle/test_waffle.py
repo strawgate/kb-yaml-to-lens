@@ -95,6 +95,41 @@ async def test_waffle_chart_breakdown_goes_to_primary_groups() -> None:
     assert layer.secondaryGroups is None
 
 
+def test_waffle_legacy_titles_and_text_maps_to_appearance_values() -> None:
+    """Legacy titles_and_text value fields should map into appearance.values."""
+    chart = LensWaffleChart.model_validate(
+        {
+            'type': 'waffle',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'breakdown': {'type': 'values', 'field': 'service.name'},
+            'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
+        }
+    )
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'value'
+    assert chart.appearance.values.decimal_places == 4
+
+
+def test_waffle_appearance_values_override_legacy_titles_and_text() -> None:
+    """Explicit appearance.values should win over legacy titles_and_text values."""
+    chart = LensWaffleChart.model_validate(
+        {
+            'type': 'waffle',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'breakdown': {'type': 'values', 'field': 'service.name'},
+            'titles_and_text': {'value_format': 'hide', 'value_decimal_places': 1},
+            'appearance': {'values': {'format': 'percent', 'decimal_places': 5}},
+        }
+    )
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'percent'
+    assert chart.appearance.values.decimal_places == 5
+
+
 async def test_waffle_chart_with_legend_options() -> None:
     """Test waffle chart with legend configuration."""
     lens_config = {

@@ -8,6 +8,41 @@ from kb_dashboard_core.panels.charts.mosaic.compile import compile_esql_mosaic_c
 from kb_dashboard_core.panels.charts.mosaic.config import LensMosaicChart
 
 
+def test_mosaic_legacy_titles_and_text_maps_to_appearance_values() -> None:
+    """Legacy titles_and_text value fields should map into appearance.values."""
+    chart = LensMosaicChart.model_validate(
+        {
+            'type': 'mosaic',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'dimension': {'type': 'values', 'field': 'service.name'},
+            'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
+        }
+    )
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'value'
+    assert chart.appearance.values.decimal_places == 4
+
+
+def test_mosaic_appearance_values_override_legacy_titles_and_text() -> None:
+    """Explicit appearance.values should win over legacy titles_and_text values."""
+    chart = LensMosaicChart.model_validate(
+        {
+            'type': 'mosaic',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'dimension': {'type': 'values', 'field': 'service.name'},
+            'titles_and_text': {'value_format': 'hide', 'value_decimal_places': 1},
+            'appearance': {'values': {'format': 'percent', 'decimal_places': 5}},
+        }
+    )
+    assert chart.appearance is not None
+    assert chart.appearance.values is not None
+    assert chart.appearance.values.format == 'percent'
+    assert chart.appearance.values.decimal_places == 5
+
+
 async def test_basic_mosaic_chart() -> None:
     """Test basic mosaic chart."""
     lens_config = {
