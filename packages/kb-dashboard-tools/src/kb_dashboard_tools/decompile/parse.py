@@ -6,6 +6,7 @@ fallback when panel parsing fails.
 
 import json
 import logging
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Any, cast
 
@@ -97,17 +98,6 @@ def get_bool(source: dict[str, Any], key: str) -> bool | None:
     """Extract a bool-valued key from a dict source."""
     value = source.get(key)
     return value if isinstance(value, bool) else None
-
-
-def get_dict_path(source: dict[str, Any], *path: str) -> dict[str, Any] | None:
-    """Walk nested dict keys and return the final dict, or None if any segment is missing."""
-    current: dict[str, Any] = source
-    for key in path:
-        next_value = as_dict(current.get(key))
-        if next_value is None:
-            return None
-        current = next_value
-    return current
 
 
 def _validate_view_model(model_cls: type[Any], data: object) -> object | None:
@@ -481,6 +471,34 @@ def _collect_accessor_ids(source: dict[str, Any], scalar_keys: tuple[str, ...]) 
     return _dedupe_ids(ids)
 
 
+def _iter_named_dict_entries(source: dict[str, Any]) -> Iterator[tuple[str, dict[str, Any]]]:
+    """Yield (name, dict-value) items, skipping non-dict entries."""
+    for key, value in cast('list[tuple[str, object]]', list(source.items())):
+        item = as_dict(value)
+        if item is not None:
+            yield key, item
+
+
+def _get_datasource_layers(state: dict[str, Any], datasource_key: str) -> dict[str, Any] | None:
+    """Return datasource layer map for a datasource key."""
+    ds_states = get_dict(state, 'datasourceStates')
+    if ds_states is None:
+        return None
+    datasource = get_dict(ds_states, datasource_key)
+    if datasource is None:
+        return None
+    return get_dict(datasource, 'layers')
+
+
+def _iter_raw_references(references: list[RawReference | object] | None) -> Iterator[RawReference]:
+    """Iterate only valid RawReference entries from a permissive list."""
+    if references is None:
+        return
+    for ref in references:
+        if isinstance(ref, RawReference):
+            yield ref
+
+
 def _parse_visualization_view_model(
     visualization_type: str | None,
     visualization: dict[str, Any],
@@ -565,21 +583,12 @@ def _parse_visualization_state(embeddable_attributes: RawEmbeddableAttributes, *
 
 
 def _parse_form_based_layers(state: dict[str, Any]) -> dict[str, ParsedFormLayer]:
-    ds_states = get_dict(state, 'datasourceStates')
-    if ds_states is None:
-        return {}
-    form_based = get_dict(ds_states, 'formBased')
-    if form_based is None:
-        return {}
-    layers_raw = get_dict(form_based, 'layers')
+    layers_raw = _get_datasource_layers(state, 'formBased')
     if layers_raw is None:
         return {}
 
     layers: dict[str, ParsedFormLayer] = {}
-    for layer_id, layer_value in layers_raw.items():  # pyright: ignore[reportAny]
-        layer = as_dict(layer_value)  # pyright: ignore[reportAny]
-        if layer is None:
-            continue
+    for layer_id, layer in _iter_named_dict_entries(layers_raw):
         parsed_layer = ParsedFormLayer(
             layer_id=layer_id,
             index_pattern_id=get_str(layer, 'indexPatternId'),
@@ -588,24 +597,15 @@ def _parse_form_based_layers(state: dict[str, Any]) -> dict[str, ParsedFormLayer
         if column_order is not None:
             parsed_layer.column_order = [c for c in column_order if isinstance(c, str)]
 
-        columns_raw = get_dict(layer, 'columns')
-        if columns_raw is not None:
-            for col_id, col_value in columns_raw.items():  # pyright: ignore[reportAny]
-                col = as_dict(col_value)  # pyright: ignore[reportAny]
-                if col is not None:
-                    parsed_layer.columns[col_id] = _parse_column(col_id, col)
+        columns_raw = get_dict(layer, 'columns') or {}
+        for col_id, col in _iter_named_dict_entries(columns_raw):
+            parsed_layer.columns[col_id] = _parse_column(col_id, col)
         layers[layer_id] = parsed_layer
     return layers
 
 
 def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
-    ds_states = get_dict(state, 'datasourceStates')
-    if ds_states is None:
-        return {}
-    text_based = get_dict(ds_states, 'textBased')
-    if text_based is None:
-        return {}
-    layers_raw = get_dict(text_based, 'layers')
+    layers_raw = _get_datasource_layers(state, 'textBased')
     if layers_raw is None:
         return {}
 
@@ -613,10 +613,7 @@ def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
     top_esql = _extract_esql_query_from_state(state)
 
     layers: dict[str, ParsedESQLLayer] = {}
-    for layer_id, layer_value in layers_raw.items():  # pyright: ignore[reportAny]
-        layer = as_dict(layer_value)  # pyright: ignore[reportAny]
-        if layer is None:
-            continue
+    for layer_id, layer in _iter_named_dict_entries(layers_raw):
         query_obj = get_dict(layer, 'query')
         esql = get_str(query_obj, 'esql') if query_obj is not None else None
         if esql is None:
@@ -694,9 +691,7 @@ def _extract_esql_query_from_state(state: dict[str, Any]) -> str | None:
 
 
 def _extract_data_view_from_refs(refs: list[RawReference | object]) -> str | None:
-    for ref in refs:
-        if not isinstance(ref, RawReference):
-            continue
+    for ref in _iter_raw_references(refs):
         if ref.type == 'index-pattern' and ref.id is not None:
             return ref.id
     return None
@@ -726,9 +721,7 @@ def _parse_lens_panel(panel: RawPanel, raw_panel_type: str) -> ParsedLensPanel:
     data_view = _extract_data_view_from_refs(refs)
 
     parsed_refs: list[ParsedReference] = []
-    for ref in refs:
-        if not isinstance(ref, RawReference):
-            continue
+    for ref in _iter_raw_references(refs):
         name = ref.name
         ref_type = ref.type
         ref_id = ref.id
@@ -776,6 +769,25 @@ def _parse_simple_panel(panel: RawPanel, panel_raw: dict[str, Any], panel_type: 
     )
 
 
+def _assign_lens_panel(parsed: ParsedPanel, raw_panel: RawPanel, _panel_raw: dict[str, Any], panel_type: str) -> None:
+    try:
+        parsed.lens = _parse_lens_panel(raw_panel, panel_type)
+    except Exception as exc:
+        logger.warning('Failed to parse lens panel %s: %s', parsed.panel_index, exc)
+        parsed.error = f'parse error: {exc}'
+
+
+def _assign_simple_panel(parsed: ParsedPanel, raw_panel: RawPanel, panel_raw: dict[str, Any], panel_type: str) -> None:
+    parsed.simple = _parse_simple_panel(raw_panel, panel_raw, panel_type)
+
+
+PanelParseHandler = Callable[[ParsedPanel, RawPanel, dict[str, Any], str], None]
+PANEL_PARSE_HANDLERS: dict[str, PanelParseHandler] = {
+    'lens': _assign_lens_panel,
+    'esql': _assign_lens_panel,
+}
+
+
 def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
     raw_panel = RawPanel.model_validate(panel)
     parsed = ParsedPanel()
@@ -795,16 +807,8 @@ def _parse_panel(panel: dict[str, Any]) -> ParsedPanel:
         parsed.error = 'missing panel type'
         return parsed
 
-    if panel_type in {'lens', 'esql'}:
-        try:
-            parsed.lens = _parse_lens_panel(raw_panel, panel_type)
-        except Exception as exc:
-            logger.warning('Failed to parse lens panel %s: %s', parsed.panel_index, exc)
-            parsed.error = f'parse error: {exc}'
-    elif panel_type in {'markdown', 'search', 'links', 'image', 'vega', 'visualization', 'map'}:
-        parsed.simple = _parse_simple_panel(raw_panel, panel, panel_type)
-    else:
-        parsed.simple = _parse_simple_panel(raw_panel, panel, panel_type)
+    handler = PANEL_PARSE_HANDLERS.get(panel_type, _assign_simple_panel)
+    handler(parsed, raw_panel, panel, panel_type)
 
     return parsed
 
@@ -894,6 +898,30 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
             return 0
         return get_int(panel, 'order') or 0
 
+    def _resolve_control_data_view(
+        control_type: str | None,
+        panel_id: str,
+        explicit_input: dict[str, Any],
+    ) -> str | None:
+        direct = get_str(explicit_input, 'dataViewId')
+        if direct is not None:
+            return direct
+
+        ref_suffix = {
+            'optionsListControl': 'optionsListDataView',
+            'rangeSliderControl': 'rangeSliderDataView',
+            'timeSliderControl': 'timeSliderDataView',
+            'esqlControl': 'esqlControlDataView',
+        }.get(control_type or '')
+        if ref_suffix is None:
+            return None
+
+        ref_name = f'controlGroup_{panel_id}:{ref_suffix}'
+        resolved = reference_lookup.get(ref_name)
+        if resolved is not None:
+            return resolved
+        return get_str(attributes, ref_name)
+
     result: list[ParsedControl] = []
     for panel_id, panel_value in sorted(panels_json.items(), key=_order):  # pyright: ignore[reportAny]
         panel = as_dict(panel_value)  # pyright: ignore[reportAny]
@@ -908,25 +936,9 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
             title = get_str(explicit_input, 'title')
             if title is not None:
                 ctrl.title = title
-            dv = get_str(explicit_input, 'dataViewId')
+            dv = _resolve_control_data_view(ctrl.control_type, panel_id, explicit_input)
             if dv is not None:
                 ctrl.data_view_id = dv
-            else:
-                ref_suffix = {
-                    'optionsListControl': 'optionsListDataView',
-                    'rangeSliderControl': 'rangeSliderDataView',
-                    'timeSliderControl': 'timeSliderDataView',
-                    'esqlControl': 'esqlControlDataView',
-                }.get(ctrl.control_type or '')
-                if ref_suffix is not None:
-                    ref_name = f'controlGroup_{panel_id}:{ref_suffix}'
-                    resolved = reference_lookup.get(ref_name)
-                    if resolved is not None:
-                        ctrl.data_view_id = resolved
-                    else:
-                        attr_ref = get_str(attributes, ref_name)
-                        if attr_ref is not None:
-                            ctrl.data_view_id = attr_ref
         normalized_panel = _normalize_control_for_view(panel_id, panel)
         normalized_explicit = get_dict(normalized_panel, 'explicitInput')
         if normalized_explicit is not None and ctrl.data_view_id is not None and 'dataViewId' not in normalized_explicit:
@@ -947,11 +959,7 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
 
 def _extract_reference_lookup(references: list[RawReference | object] | None) -> dict[str, str]:
     lookup: dict[str, str] = {}
-    if references is None:
-        return lookup
-    for ref in references:
-        if not isinstance(ref, RawReference):
-            continue
+    for ref in _iter_raw_references(references):
         name = ref.name
         target_id = ref.id
         if name is not None and target_id is not None:
