@@ -123,7 +123,12 @@ def compile_color_range_mapping(color_config: ColorRangeMapping | None) -> KbnRa
     # Build stops (END of each band) from user thresholds.
     stops = [KbnRangePaletteStop(color=entry.color, stop=entry.up_to) for entry in user_thresholds]
     percent_max = float(PERCENT_MAX)
-    if color_config.range_type == 'percent' and stops[-1].stop != percent_max:
+    if range_max is not None:
+        range_max_value = float(range_max)
+        last_stop = stops[-1].stop
+        if last_stop is not None and last_stop < range_max_value:
+            stops.append(KbnRangePaletteStop(color=stops[-1].color, stop=range_max_value))
+    elif color_config.range_type == 'percent' and stops[-1].stop != percent_max:
         stops.append(KbnRangePaletteStop(color=stops[-1].color, stop=percent_max))
 
     # colorStops mirrors stops so threshold boundaries are preserved in both arrays.

@@ -438,8 +438,29 @@ class TestCompileColorRangeMapping:
         assert result.params.rangeMin == -10.0
         assert result.params.rangeMax == 100.0
         assert result.params.continuity == 'none'
-        assert [entry.stop for entry in result.params.colorStops] == [4.25, 5.0, 6.0]
-        assert [entry.stop for entry in result.params.stops] == [4.25, 5.0, 6.0]
+        assert [entry.stop for entry in result.params.colorStops] == [4.25, 5.0, 6.0, 100.0]
+        assert [entry.stop for entry in result.params.stops] == [4.25, 5.0, 6.0, 100.0]
+
+    def test_compiles_number_range_mapping_extends_last_stop_to_range_max(self) -> None:
+        """Test number range appends a terminal stop when explicit range_max exceeds last threshold."""
+        color_config = ColorRangeMapping(
+            range_type='number',
+            range_min=0,
+            range_max=100,
+            continuity='above',
+            thresholds=[
+                ColorThreshold(up_to=25, color='#00BF6F'),
+                ColorThreshold(up_to=50, color='#FFA500'),
+                ColorThreshold(up_to=75, color='#BD271E'),
+            ],
+        )
+
+        result = compile_color_range_mapping(color_config)
+
+        assert result is not None
+        assert [entry.stop for entry in result.params.stops] == [25.0, 50.0, 75.0, 100.0]
+        assert [entry.stop for entry in result.params.colorStops] == [25.0, 50.0, 75.0, 100.0]
+        assert result.params.stops[-1].color == '#BD271E'
 
     def test_compiles_number_range_mapping_with_open_bounds(self) -> None:
         """Test number range can emit open bounds with null lower start-point."""

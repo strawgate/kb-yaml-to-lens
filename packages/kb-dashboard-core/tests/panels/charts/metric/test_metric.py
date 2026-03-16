@@ -1341,3 +1341,51 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
         {'color': '#fcd883', 'stop': 80.0},
         {'color': '#f6726a', 'stop': 100.0},
     ]
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_type: str) -> None:
+    """Metrics should append terminal stop at range_max when last threshold is lower."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'above',
+                'thresholds': [
+                    {'up_to': 25, 'color': '#24c292'},
+                    {'up_to': 50, 'color': '#fcd883'},
+                    {'up_to': 75, 'color': '#f6726a'},
+                ],
+            },
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'color': {
+                'range_type': 'number',
+                'range_min': 0,
+                'range_max': 100,
+                'continuity': 'above',
+                'thresholds': [
+                    {'up_to': 25, 'color': '#24c292'},
+                    {'up_to': 50, 'color': '#fcd883'},
+                    {'up_to': 75, 'color': '#f6726a'},
+                ],
+            },
+        }
+
+    result = compile_metric_chart_snapshot(config, chart_type)
+
+    assert result['palette']['params']['rangeMax'] == 100.0
+    assert result['palette']['params']['stops'] == [
+        {'color': '#24c292', 'stop': 25.0},
+        {'color': '#fcd883', 'stop': 50.0},
+        {'color': '#f6726a', 'stop': 75.0},
+        {'color': '#f6726a', 'stop': 100.0},
+    ]
