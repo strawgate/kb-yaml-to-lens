@@ -1,10 +1,8 @@
 """View models for Search panels."""
 
-from typing import Any, Literal
+from typing import Literal
 
-from pydantic import BaseModel, Field
-
-from kb_dashboard_core.panels.view import KbnBasePanel
+from kb_dashboard_core.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
 
 # Model Relationships:
 # - KbnSearchPanel
@@ -12,8 +10,7 @@ from kb_dashboard_core.panels.view import KbnBasePanel
 
 
 # Define nested models for Search panel embeddableConfig based on samples
-class KbnSearchEmbeddableConfig(BaseModel):
-    enhancements: dict[str, Any] = Field(default_factory=dict)
+class KbnSearchEmbeddableConfig(KbnBasePanelEmbeddableConfig):
     savedObjectId: str
 
 

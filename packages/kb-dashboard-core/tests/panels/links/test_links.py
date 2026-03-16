@@ -47,6 +47,33 @@ def test_compile_links_panel_basic_url() -> None:
     )
 
 
+def test_compile_links_panel_title_and_hide_title() -> None:
+    """Test links panel title and hide_title are mapped to embeddable config."""
+    references, result = compile_links_panel_snapshot(
+        {
+            'title': 'Links Base Title',
+            'hide_title': False,
+            'links': {
+                'items': [
+                    {'url': 'https://elastic.co'},
+                ],
+            },
+        }
+    )
+    assert references == snapshot([])
+    assert result == snapshot(
+        {
+            'title': 'Links Base Title',
+            'hidePanelTitles': False,
+            'attributes': {
+                'layout': 'horizontal',
+                'links': [{'label': '', 'type': 'externalLink', 'id': IsUUID, 'destination': 'https://elastic.co', 'order': 0}],
+            },
+            'enhancements': {},
+        }
+    )
+
+
 def test_compile_links_panel_custom_id() -> None:
     """Test the compilation of a custom ID (note: URL links currently ignore provided IDs)."""
     references, result = compile_links_panel_snapshot(

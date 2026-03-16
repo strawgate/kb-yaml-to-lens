@@ -32,6 +32,7 @@ class KbnGridData(BaseVwModel):
 class KbnBasePanelEmbeddableConfig(BaseVwModel):
     """Base model for embeddable configuration in Kibana panels."""
 
+    title: Annotated[str | None, OmitIfNone()] = Field(default=None)
     enhancements: dict[str, Any] = Field(default_factory=dict)
     description: Annotated[str | None, OmitIfNone()] = Field(default=None)
     hidePanelTitles: Annotated[bool | None, OmitIfNone()] = None

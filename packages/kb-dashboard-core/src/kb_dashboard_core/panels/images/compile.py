@@ -30,6 +30,7 @@ def compile_image_panel_config(image_panel: ImagePanel) -> tuple[list[KbnReferen
     )
 
     embeddable_config = KbnImageEmbeddableConfig(
+        title=image_panel.title or None,
         hidePanelTitles=image_panel.hide_title,
         enhancements={'dynamicActions': {'events': []}},
         imageConfig=image_config,

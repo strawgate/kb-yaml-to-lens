@@ -154,6 +154,7 @@ def compile_links_panel_config(links_panel: LinksPanel) -> tuple[list[KbnReferen
     kbn_references, kbn_links = compile_links(links_panel.links_config.items)
 
     return kbn_references, KbnLinksPanelEmbeddableConfig(
+        title=links_panel.title or None,
         hidePanelTitles=links_panel.hide_title,
         attributes=KbnLinksPanelAttributes(
             layout=links_panel.links_config.layout or 'horizontal',

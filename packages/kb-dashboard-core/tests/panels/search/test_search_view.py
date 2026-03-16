@@ -24,6 +24,18 @@ class TestKbnSearchEmbeddableConfig:
         config = KbnSearchEmbeddableConfig(savedObjectId='test-id', enhancements=enhancements)
         assert config.model_dump() == snapshot({'enhancements': {'dynamicActions': {'events': []}}, 'savedObjectId': 'test-id'})
 
+    def test_includes_title_and_hide_panel_titles(self) -> None:
+        """Test that title and hidePanelTitles are serialized when set."""
+        config = KbnSearchEmbeddableConfig(savedObjectId='test-id', title='Search Title', hidePanelTitles=False)
+        assert config.model_dump() == snapshot(
+            {
+                'title': 'Search Title',
+                'enhancements': {},
+                'hidePanelTitles': False,
+                'savedObjectId': 'test-id',
+            }
+        )
+
     def test_requires_saved_object_id(self) -> None:
         """Test that savedObjectId is required."""
         with pytest.raises(ValidationError, match='savedObjectId'):

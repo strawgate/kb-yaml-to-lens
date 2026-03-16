@@ -52,6 +52,8 @@ class TestCompileDashboardPanel:
     def test_compiles_links_panel(self) -> None:
         """Test that a LinksPanel is compiled correctly."""
         panel = LinksPanel(
+            title='Links Base Title',
+            hide_title=False,
             links=LinksPanelConfig(items=[UrlLink(url='https://example.com', label='Example')]),
             position={'x': 0, 'y': 0},
             size={'w': 12, 'h': 4},
@@ -65,7 +67,9 @@ class TestCompileDashboardPanel:
             {
                 'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
                 'embeddableConfig': {
+                    'title': 'Links Base Title',
                     'enhancements': {},
+                    'hidePanelTitles': False,
                     'attributes': {
                         'layout': 'horizontal',
                         'links': [
@@ -87,7 +91,11 @@ class TestCompileDashboardPanel:
     def test_compiles_image_panel(self) -> None:
         """Test that an ImagePanel is compiled correctly."""
         panel = ImagePanel(
-            image=ImagePanelConfig(from_url='https://example.com/image.png'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4}
+            title='Image Base Title',
+            hide_title=False,
+            image=ImagePanelConfig(from_url='https://example.com/image.png'),
+            position={'x': 0, 'y': 0},
+            size={'w': 12, 'h': 4},
         )
         assert panel.position.x is not None
         assert panel.position.y is not None
@@ -98,6 +106,8 @@ class TestCompileDashboardPanel:
             {
                 'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
                 'embeddableConfig': {
+                    'title': 'Image Base Title',
+                    'hidePanelTitles': False,
                     'enhancements': {'dynamicActions': {'events': []}},
                     'imageConfig': {
                         'altText': '',
@@ -113,7 +123,13 @@ class TestCompileDashboardPanel:
 
     def test_compiles_search_panel(self) -> None:
         """Test that a SearchPanel is compiled correctly."""
-        panel = SearchPanel(search=SearchPanelConfig(saved_search_id='search-id'), position={'x': 0, 'y': 0}, size={'w': 12, 'h': 4})
+        panel = SearchPanel(
+            title='Search Base Title',
+            hide_title=False,
+            search=SearchPanelConfig(saved_search_id='search-id'),
+            position={'x': 0, 'y': 0},
+            size={'w': 12, 'h': 4},
+        )
         assert panel.position.x is not None
         assert panel.position.y is not None
         grid = Grid(x=panel.position.x, y=panel.position.y, w=panel.size.w, h=panel.size.h)
@@ -123,7 +139,9 @@ class TestCompileDashboardPanel:
             {
                 'gridData': {'x': 0, 'y': 0, 'w': 12, 'h': 4, 'i': IsUUID},
                 'embeddableConfig': {
+                    'title': 'Search Base Title',
                     'enhancements': {},
+                    'hidePanelTitles': False,
                     'savedObjectId': 'search-id',
                 },
                 'panelRefName': IsStr(regex=r'panel_[a-f0-9-]+'),

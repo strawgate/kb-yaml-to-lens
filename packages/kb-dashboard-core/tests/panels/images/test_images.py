@@ -33,6 +33,30 @@ def test_compile_image_panel_url() -> None:
     )
 
 
+def test_compile_image_panel_title_and_hide_title() -> None:
+    """Test image panel title and hide_title are mapped to embeddable config."""
+    result = compile_image_panel_snapshot(
+        {
+            'title': 'Image Base Title',
+            'hide_title': False,
+            'image': {'from_url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg'},
+        }
+    )
+    assert result == snapshot(
+        {
+            'title': 'Image Base Title',
+            'hidePanelTitles': False,
+            'enhancements': {'dynamicActions': {'events': []}},
+            'imageConfig': {
+                'src': {'type': 'url', 'url': 'https://4.img-dpreview.com/files/p/E~TS1180x0~articles/3925134721/0266554465.jpeg'},
+                'altText': '',
+                'backgroundColor': '',
+                'sizing': {'objectFit': 'contain'},
+            },
+        }
+    )
+
+
 def test_compile_image_panel_url_sizing_cover() -> None:
     """Test the compilation of an image panel with URL and cover sizing."""
     result = compile_image_panel_snapshot(

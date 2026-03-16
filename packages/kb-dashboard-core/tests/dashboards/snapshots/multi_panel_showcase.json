@@ -55,6 +55,7 @@
         },
         "type": "links",
         "embeddableConfig": {
+          "title": "Quick Links",
           "enhancements": {},
           "attributes": {
             "layout": "horizontal",

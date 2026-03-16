@@ -27,6 +27,10 @@ def compile_search_panel_config(panel: SearchPanel, panel_index: str) -> tuple[l
         )
     ]
 
-    embeddable_config = KbnSearchEmbeddableConfig(savedObjectId=panel.search.saved_search_id)
+    embeddable_config = KbnSearchEmbeddableConfig(
+        title=panel.title or None,
+        hidePanelTitles=panel.hide_title,
+        savedObjectId=panel.search.saved_search_id,
+    )
 
     return references, embeddable_config, panel_ref_name
