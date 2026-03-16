@@ -5,13 +5,14 @@ square represents a proportion of the whole. They are part of the Kibana Lens
 partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
-from typing import Literal
+import warnings
+from typing import Any, Literal, cast
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -73,7 +74,7 @@ class LensWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     where each square represents a proportion of the whole.
-    Waffle charts support exactly one metric and one dimension.
+    Waffle charts support exactly one metric and one breakdown.
 
     Examples:
         Simple waffle chart showing request distribution:
@@ -81,7 +82,7 @@ class LensWaffleChart(BaseWaffleChart):
         lens:
           type: waffle
           data_view: "logs-*"
-          dimension:
+          breakdown:
             field: "http.request.method"
             type: values
           metric:
@@ -93,7 +94,7 @@ class LensWaffleChart(BaseWaffleChart):
         lens:
           type: waffle
           data_view: "metrics-*"
-          dimension:
+          breakdown:
             field: "service.name"
             type: values
           metric:
@@ -112,7 +113,7 @@ class LensWaffleChart(BaseWaffleChart):
         lens:
           type: waffle
           data_view: "logs-*"
-          dimension:
+          breakdown:
             field: "http.request.method"
             type: values
           metric:
@@ -129,8 +130,30 @@ class LensWaffleChart(BaseWaffleChart):
     metric: LensMetricTypes = Field(default=...)
     """Metric that determines the size of squares. Waffle charts support only one metric."""
 
-    dimension: LensDimensionTypes = Field(default=...)
-    """Primary dimension for grouping data. Waffle charts support only one dimension."""
+    breakdown: LensBreakdownTypes = Field(default=...)
+    """Breakdown for grouping data. Waffle charts support only one breakdown."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimension' in normalized_data and 'breakdown' not in normalized_data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['breakdown'] = normalized_data.pop('dimension')
+        elif 'dimension' in normalized_data and 'breakdown' in normalized_data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is ignored because 'breakdown' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimension')
+        return normalized_data
 
 
 class ESQLWaffleChart(BaseWaffleChart):
@@ -138,7 +161,7 @@ class ESQLWaffleChart(BaseWaffleChart):
 
     Waffle charts visualize categorical data as a grid of colored squares,
     using ES|QL queries to aggregate and group the data.
-    Waffle charts support exactly one metric and one dimension.
+    Waffle charts support exactly one metric and one breakdown.
 
     Examples:
         ES|QL waffle chart with STATS query:
@@ -150,7 +173,7 @@ class ESQLWaffleChart(BaseWaffleChart):
             | STATS count = COUNT(*) BY http.request.method
           metric:
             field: "count"
-          dimension:
+          breakdown:
             field: "http.request.method"
         ```
 
@@ -159,5 +182,27 @@ class ESQLWaffleChart(BaseWaffleChart):
     metric: ESQLMetricTypes = Field(default=...)
     """Metric that determines the size of squares. Waffle charts support only one metric."""
 
-    dimension: ESQLDimensionTypes = Field(default=...)
-    """Primary dimension for grouping data. Waffle charts support only one dimension."""
+    breakdown: ESQLDimensionTypes = Field(default=...)
+    """Breakdown for grouping data. Waffle charts support only one breakdown."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimension' in normalized_data and 'breakdown' not in normalized_data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is deprecated, use 'breakdown' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['breakdown'] = normalized_data.pop('dimension')
+        elif 'dimension' in normalized_data and 'breakdown' in normalized_data:
+            warnings.warn(
+                "Waffle chart field 'dimension' is ignored because 'breakdown' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimension')
+        return normalized_data

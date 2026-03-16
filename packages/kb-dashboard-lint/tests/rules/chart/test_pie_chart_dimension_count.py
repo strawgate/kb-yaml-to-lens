@@ -4,7 +4,7 @@ from dashboard_lint.rules.chart import PieChartDimensionCountRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensPanel, LensPiePanelConfig
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 
@@ -24,9 +24,9 @@ class TestPieChartDimensionCountRule:
                         type='pie',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        dimensions=[
-                            LensTermsDimension(field='host.name'),
-                            LensTermsDimension(field='service.name'),
+                        breakdowns=[
+                            LensTermsBreakdown(field='host.name'),
+                            LensTermsBreakdown(field='service.name'),
                         ],
                     ),
                 ),
@@ -39,7 +39,7 @@ class TestPieChartDimensionCountRule:
         assert len(violations) == 1
         assert violations[0].rule_id == 'pie-chart-dimension-count'
         assert violations[0].severity == Severity.INFO
-        assert '2 dimensions' in violations[0].message
+        assert '2 breakdowns' in violations[0].message
 
     def test_passes_single_dimension_pie(self) -> None:
         """Should not flag pie charts with single dimension."""
@@ -53,7 +53,7 @@ class TestPieChartDimensionCountRule:
                         type='pie',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        dimensions=[LensTermsDimension(field='host.name')],
+                        breakdowns=[LensTermsBreakdown(field='host.name')],
                     ),
                 ),
             ],
@@ -76,10 +76,10 @@ class TestPieChartDimensionCountRule:
                         type='pie',
                         data_view='logs-*',
                         metrics=[LensCountAggregatedMetric(aggregation='count')],
-                        dimensions=[
-                            LensTermsDimension(field='host.name'),
-                            LensTermsDimension(field='service.name'),
-                            LensTermsDimension(field='log.level'),
+                        breakdowns=[
+                            LensTermsBreakdown(field='host.name'),
+                            LensTermsBreakdown(field='service.name'),
+                            LensTermsBreakdown(field='log.level'),
                         ],
                     ),
                 ),

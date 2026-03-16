@@ -279,7 +279,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: k8s.deployment.name
               type: values
               size: 20
@@ -308,7 +308,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: k8s.statefulset.name
               type: values
               size: 20

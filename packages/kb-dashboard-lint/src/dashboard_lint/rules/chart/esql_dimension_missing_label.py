@@ -47,7 +47,7 @@ class ESQLDimensionMissingLabelRule(ChartRule[ESQLDatatablePanelConfig, EmptyOpt
         """
         violations: list[Violation] = []
 
-        for idx, dimension in enumerate(config.dimensions):
+        for idx, dimension in enumerate(config.breakdowns):
             if dimension.label is None or len(dimension.label) == 0:
                 violations.append(
                     Violation(
@@ -56,7 +56,7 @@ class ESQLDimensionMissingLabelRule(ChartRule[ESQLDatatablePanelConfig, EmptyOpt
                         severity=self.default_severity,
                         dashboard_name=context.dashboard_name,
                         panel_title=context.panel_title,
-                        location=context.location(f'dimensions[{idx}]'),
+                        location=context.location(f'breakdowns[{idx}]'),
                     )
                 )
 

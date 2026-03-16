@@ -1,12 +1,15 @@
+import warnings
 from enum import StrEnum
-from typing import Literal, Self
+from typing import Any, Literal, Self, cast
 
 from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart
+from kb_dashboard_core.panels.charts.datatable.breakdowns import ESQLDatatableBreakdownTypes, LensDatatableBreakdownTypes
 from kb_dashboard_core.panels.charts.datatable.dimensions import ESQLDatatableDimensionTypes, LensDatatableDimensionTypes
 from kb_dashboard_core.panels.charts.datatable.metrics import ESQLDatatableMetricTypes, LensDatatableMetricTypes
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -74,7 +77,7 @@ class LensDatatableChart(BaseChart):
     pagination, and formatting options.
 
     Examples:
-        Simple datatable with metrics and dimensions:
+        Simple datatable with metrics and breakdowns:
         ```yaml
         lens:
           type: datatable
@@ -83,7 +86,7 @@ class LensDatatableChart(BaseChart):
             - id: "service-count"
               field: "service.name"
               aggregation: count
-          dimensions:
+          breakdowns:
             - id: "service-breakdown"
               type: values
               field: "service.name"
@@ -99,7 +102,7 @@ class LensDatatableChart(BaseChart):
               aggregation: count
               filter:
                 kql: "log.level:error"
-          dimensions:
+          breakdowns:
             - id: "service"
               type: values
               field: "service.name"
@@ -121,11 +124,11 @@ class LensDatatableChart(BaseChart):
     metrics: list[LensDatatableMetricTypes | LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    dimensions: list[LensDatatableDimensionTypes | LensDimensionTypes] = Field(default_factory=list)
-    """List of dimensions to use as row groupings."""
+    breakdowns: list[LensDatatableBreakdownTypes | LensBreakdownTypes] = Field(default_factory=list)
+    """List of breakdowns to use as row groupings."""
 
-    dimensions_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
-    """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
+    metrics_split_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
+    """Optional split-metrics-by dimensions (creates separate metric columns for each dimension value)."""
 
     appearance: DatatableAppearance | None = Field(default=None)
     """Appearance settings for the datatable."""
@@ -136,15 +139,47 @@ class LensDatatableChart(BaseChart):
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
 
-    @model_validator(mode='after')
-    def validate_has_metrics_or_dimensions(self) -> Self:
-        """Validate that datatable has at least one metric or dimension.
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
+        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is ignored because 'breakdowns' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimensions')
+        if 'dimensions_by' in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if 'metrics_split_by' not in normalized_data:
+                normalized_data['metrics_split_by'] = normalized_data.pop('dimensions_by')
+            else:
+                normalized_data.pop('dimensions_by')
+        return normalized_data
 
-        Kibana requires datatables to have either metrics or dimensions (or both).
+    @model_validator(mode='after')
+    def validate_has_metrics_or_breakdowns(self) -> Self:
+        """Validate that datatable has at least one metric or breakdown.
+
+        Kibana requires datatables to have either metrics or breakdowns (or both).
         An empty datatable with neither will render as a blank panel.
         """
-        if len(self.metrics) == 0 and len(self.dimensions) == 0:
-            msg = 'Datatable must have at least one metric or one dimension'
+        if len(self.metrics) == 0 and len(self.breakdowns) == 0:
+            msg = 'Datatable must have at least one metric or one breakdown'
             raise ValueError(msg)
         return self
 
@@ -165,7 +200,7 @@ class ESQLDatatableChart(BaseChart):
               field: "count"
             - id: "avg-cpu"
               field: "avg_cpu"
-          dimensions:
+          breakdowns:
             - id: "service"
               field: "service.name"
           sorting:
@@ -180,11 +215,11 @@ class ESQLDatatableChart(BaseChart):
     metrics: list[ESQLDatatableMetricTypes | ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    dimensions: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] = Field(default_factory=list)
-    """List of ESQL dimensions to use as row groupings."""
+    breakdowns: list[ESQLDatatableBreakdownTypes | ESQLDimensionTypes] = Field(default_factory=list)
+    """List of ESQL breakdowns to use as row groupings."""
 
-    dimensions_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
-    """Optional split metrics by dimensions (creates separate metric columns for each dimension value)."""
+    metrics_split_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
+    """Optional split-metrics-by dimensions (creates separate metric columns for each dimension value)."""
 
     appearance: DatatableAppearance | None = Field(default=None)
     """Appearance settings for the datatable."""
@@ -195,10 +230,42 @@ class ESQLDatatableChart(BaseChart):
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
 
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
+        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions' (row groupings) is ignored because 'breakdowns' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimensions')
+        if 'dimensions_by' in normalized_data:
+            warnings.warn(
+                "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if 'metrics_split_by' not in normalized_data:
+                normalized_data['metrics_split_by'] = normalized_data.pop('dimensions_by')
+            else:
+                normalized_data.pop('dimensions_by')
+        return normalized_data
+
     @model_validator(mode='after')
-    def validate_has_metrics_or_dimensions(self) -> Self:
-        """Validate that datatable has at least one metric or dimension."""
-        if len(self.metrics) == 0 and len(self.dimensions) == 0:
-            msg = 'Datatable must have at least one metric or one dimension'
+    def validate_has_metrics_or_breakdowns(self) -> Self:
+        """Validate that datatable has at least one metric or breakdown."""
+        if len(self.metrics) == 0 and len(self.breakdowns) == 0:
+            msg = 'Datatable must have at least one metric or one breakdown'
             raise ValueError(msg)
         return self

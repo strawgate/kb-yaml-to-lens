@@ -19,6 +19,11 @@ At release time, update this header to `0.2.7 -> 0.3.0`.
 - Metric charts (Lens + ES|QL): rename `color_mode` to `apply_to`.
 - Datatable validation: ensure each datatable has at least one metric or one dimension.
 - Range color mappings: rename `stops` to `thresholds` and nested `stop` to `up_to`.
+- Pie charts (Lens + ES|QL): rename `dimensions` to `breakdowns`. Old name emits `DeprecationWarning`.
+- Treemap charts (Lens + ES|QL): rename `dimensions` to `breakdowns`. Treemap now requires 1–2 breakdowns. Old name emits `DeprecationWarning`.
+- Waffle charts (Lens + ES|QL): rename `dimension` to `breakdown`. The secondary `breakdown` field has been removed; waffle charts support exactly one breakdown. Old name emits `DeprecationWarning`.
+- Datatable charts (Lens + ES|QL): rename `dimensions` (row groupings) to `breakdowns`, and rename `dimensions_by` (split metrics by) to `metrics_split_by`. Old names emit `DeprecationWarning`.
+- All Lens charts: `collapse` is now only valid on breakdown fields (pie, treemap, waffle breakdowns; mosaic `breakdown`). The `collapse` field has been removed from plain dimension types used in XY chart `dimension`/`breakdown` axes.
 
 ### Range Color Mapping Threshold Rename
 

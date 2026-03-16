@@ -7,7 +7,7 @@ from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLPanel, ESQLPiePanelConfig, LensPanel, LensPiePanelConfig
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimension, ESQLMetric
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensTermsDimension
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
 
 
@@ -23,8 +23,8 @@ def dashboard_with_lens_pie_no_size() -> Dashboard:
                     type='pie',
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
-                    dimensions=[
-                        LensTermsDimension(field='status'),  # No size set
+                    breakdowns=[
+                        LensTermsBreakdown(field='status'),  # No size set
                     ],
                 ),
             ),
@@ -44,8 +44,8 @@ def dashboard_with_lens_pie_good_size() -> Dashboard:
                     type='pie',
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
-                    dimensions=[
-                        LensTermsDimension(field='status', size=5),
+                    breakdowns=[
+                        LensTermsBreakdown(field='status', size=5),
                     ],
                 ),
             ),
@@ -65,8 +65,8 @@ def dashboard_with_lens_pie_excessive_size() -> Dashboard:
                     type='pie',
                     data_view='logs-*',
                     metrics=[LensCountAggregatedMetric(aggregation='count')],
-                    dimensions=[
-                        LensTermsDimension(field='status', size=20),
+                    breakdowns=[
+                        LensTermsBreakdown(field='status', size=20),
                     ],
                 ),
             ),
@@ -86,7 +86,7 @@ def dashboard_with_esql_pie_no_limit() -> Dashboard:
                     type='pie',
                     query='FROM logs-* | STATS count = COUNT(*) BY status',
                     metrics=[ESQLMetric(field='count')],
-                    dimensions=[ESQLDimension(field='status')],
+                    breakdowns=[ESQLDimension(field='status')],
                 ),
             ),
         ],
@@ -105,7 +105,7 @@ def dashboard_with_esql_pie_good_limit() -> Dashboard:
                     type='pie',
                     query='FROM logs-* | STATS count = COUNT(*) BY status | LIMIT 5',
                     metrics=[ESQLMetric(field='count')],
-                    dimensions=[ESQLDimension(field='status')],
+                    breakdowns=[ESQLDimension(field='status')],
                 ),
             ),
         ],

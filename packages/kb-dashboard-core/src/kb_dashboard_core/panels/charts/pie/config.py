@@ -1,11 +1,12 @@
+import warnings
 from enum import StrEnum
-from typing import Literal
+from typing import Any, Literal, cast
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -107,7 +108,7 @@ class LensPieChart(BasePieChart):
         lens:
           type: pie
           data_view: "logs-*"
-          dimensions:
+          breakdowns:
             - field: "source.geo.country_name"
               type: values
           metrics:
@@ -119,7 +120,7 @@ class LensPieChart(BasePieChart):
         lens:
           type: pie
           data_view: "metrics-*"
-          dimensions:
+          breakdowns:
             - field: "resource.attributes.os.type"
               type: values
           metrics:
@@ -141,8 +142,30 @@ class LensPieChart(BasePieChart):
     metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
-    dimensions: list[LensDimensionTypes] = Field(default=...)
-    """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
+    breakdowns: list[LensBreakdownTypes] = Field(default=...)
+    """The breakdowns that determine the slices of the pie chart. First breakdown is primary, additional breakdowns are secondary."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
+            warnings.warn(
+                "Pie chart field 'dimensions' is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
+        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
+            warnings.warn(
+                "Pie chart field 'dimensions' is ignored because 'breakdowns' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimensions')
+        return normalized_data
 
 
 class ESQLPieChart(BasePieChart):
@@ -158,7 +181,7 @@ class ESQLPieChart(BasePieChart):
             | STATS count = COUNT(*) BY service.name
           metrics:
             - field: "count"
-          dimensions:
+          breakdowns:
             - field: "service.name"
         ```
     """
@@ -166,5 +189,27 @@ class ESQLPieChart(BasePieChart):
     metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
-    dimensions: list[ESQLDimensionTypes] = Field(default=...)
-    """The dimensions that determine the slices of the pie chart. First dimension is primary, additional dimensions are secondary."""
+    breakdowns: list[ESQLDimensionTypes] = Field(default=...)
+    """The breakdowns that determine the slices of the pie chart. First breakdown is primary, additional breakdowns are secondary."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _warn_deprecated_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
+            warnings.warn(
+                "Pie chart field 'dimensions' is deprecated, use 'breakdowns' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
+        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
+            warnings.warn(
+                "Pie chart field 'dimensions' is ignored because 'breakdowns' is already set.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            normalized_data.pop('dimensions')
+        return normalized_data

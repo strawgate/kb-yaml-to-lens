@@ -64,7 +64,7 @@ dashboards:
         lens:
           type: pie
           data_view: "logs-*"
-          dimensions:
+          breakdowns:
             - field: "traffic.source"
               type: values
           metrics:
@@ -228,7 +228,7 @@ lens:
 lens:
   type: pie
   data_view: "logs-*"
-  dimensions:
+  breakdowns:
     - field: "service.name"
       type: values
     - field: "http.response.status_code"

@@ -65,9 +65,6 @@ class LensFiltersDimension(BaseLensDimension):
     filters: list[LensFiltersDimensionFilter] = Field(default=...)
     """The filters to use for the dimension."""
 
-    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
-
 
 class LensIntervalsDimensionInterval(BaseCfgModel):
     """A single interval for an intervals dimension."""
@@ -99,9 +96,6 @@ class LensIntervalsDimension(BaseLensDimension):
     granularity: int | None = Field(default=None, ge=1, le=7)
     """Interval granularity divides the field into evenly spaced intervals based on the minimum and maximum values for the field.
     Kibana defaults to 4 if not specified."""
-
-    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
     empty_bucket: bool | None = Field(default=None)
     """If `true`, show a bucket for documents with a missing value for the field. Defaults to `false`."""
@@ -138,9 +132,6 @@ class BaseLensTermsDimension(BaseLensDimension):
 
     exclude_is_regex: bool | None = Field(default=None)
     """If `true`, treat the values in the `exclude` list as regular expressions. Defaults to `false`."""
-
-    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""
 
 
 class LensTermsDimension(BaseLensTermsDimension):
@@ -180,6 +171,3 @@ class LensDateHistogramDimension(BaseLensDimension):
 
     partial_intervals: bool | None = Field(default=None)
     """If `true`, show partial intervals. Kibana defaults to `true` if not specified."""
-
-    collapse: CollapseAggregationEnum | None = Field(default=None, strict=False)
-    """The collapse function to apply to this dimension (sum, avg, min, max)."""

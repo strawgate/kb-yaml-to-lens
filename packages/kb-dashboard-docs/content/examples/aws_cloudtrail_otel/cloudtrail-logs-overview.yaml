@@ -56,7 +56,7 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-          dimensions:
+          breakdowns:
             - field: rpc.service
               label: Service
             - field: rpc.method
@@ -81,7 +81,7 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-          dimensions:
+          breakdowns:
             - field: agent
               label: User Agent
           appearance:
@@ -102,7 +102,7 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-          dimensions:
+          breakdowns:
             - field: rpc.system
               label: Event Type
           appearance:
@@ -124,7 +124,7 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-          dimensions:
+          breakdowns:
             - field: aws.error.code
               label: Error Code
           appearance:
@@ -137,7 +137,7 @@ dashboards:
           type: datatable
           query: |
             FROM logs*
-          dimensions:
+          breakdowns:
             - id: timestamp
               field: '@timestamp'
               label: Timestamp
@@ -171,7 +171,7 @@ dashboards:
             | KEEP aws.access_key.id
             | STATS total = COUNT() by aws.access_key.id
             | SORT total DESC
-          dimensions:
+          breakdowns:
             - id: user-id
               field: aws.access_key.id
               label: Access Key ID

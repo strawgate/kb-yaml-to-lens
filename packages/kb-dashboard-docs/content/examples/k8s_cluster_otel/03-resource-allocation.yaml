@@ -191,7 +191,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: k8s.pod.name
               type: values
               size: 25

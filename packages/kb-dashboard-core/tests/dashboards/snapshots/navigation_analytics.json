@@ -67,23 +67,23 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-c1bf4c4a-f532-7e51-f8d0-80f3b0384a01"
+                "name": "indexpattern-datasource-layer-a36bc865-bbac-0ca0-a244-32227067b67d"
               }
             ],
             "state": {
               "visualization": {
                 "layers": [
                   {
-                    "layerId": "c1bf4c4a-f532-7e51-f8d0-80f3b0384a01",
+                    "layerId": "a36bc865-bbac-0ca0-a244-32227067b67d",
                     "accessors": [
                       "cdceb520-d498-363b-8576-f1288ef35443"
                     ],
                     "layerType": "data",
                     "seriesType": "area",
-                    "xAccessor": "a01376ce-7bfd-f032-8917-96da6803fcc4",
+                    "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
                     "position": "top",
                     "showGridlines": false,
-                    "splitAccessor": "d2f02501-c900-d7f2-7b71-8fd9e345eacf",
+                    "splitAccessor": "6ad36107-aa81-fa33-e6cb-2fe53960b467",
                     "colorMapping": {
                       "assignments": [],
                       "specialAssignments": [
@@ -118,9 +118,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "c1bf4c4a-f532-7e51-f8d0-80f3b0384a01": {
+                    "a36bc865-bbac-0ca0-a244-32227067b67d": {
                       "columns": {
-                        "a01376ce-7bfd-f032-8917-96da6803fcc4": {
+                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
                           "label": "@timestamp",
                           "dataType": "date",
                           "operationType": "date_histogram",
@@ -133,7 +133,7 @@
                           },
                           "sourceField": "@timestamp"
                         },
-                        "d2f02501-c900-d7f2-7b71-8fd9e345eacf": {
+                        "6ad36107-aa81-fa33-e6cb-2fe53960b467": {
                           "label": "Top 3 values of log.level",
                           "dataType": "string",
                           "operationType": "terms",
@@ -171,8 +171,8 @@
                         }
                       },
                       "columnOrder": [
-                        "a01376ce-7bfd-f032-8917-96da6803fcc4",
-                        "d2f02501-c900-d7f2-7b71-8fd9e345eacf",
+                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
+                        "6ad36107-aa81-fa33-e6cb-2fe53960b467",
                         "cdceb520-d498-363b-8576-f1288ef35443"
                       ],
                       "incompleteColumns": {},
@@ -225,13 +225,13 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-b4cdba00-4fb1-77e4-d2b9-83071ca16761"
+                "name": "indexpattern-datasource-layer-5c7021ee-7573-a80e-c791-1828d2998518"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "b4cdba00-4fb1-77e4-d2b9-83071ca16761",
-                "tagAccessor": "f2ab652f-915b-24ab-8a93-fdc5697d0fa5",
+                "layerId": "5c7021ee-7573-a80e-c791-1828d2998518",
+                "tagAccessor": "ec585097-cdd8-4f50-d22c-00f9ab6fe69e",
                 "valueAccessor": "3c2bc97d-1a0d-764c-e652-addeb8aaff00",
                 "maxFontSize": 72,
                 "minFontSize": 12,
@@ -264,9 +264,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "b4cdba00-4fb1-77e4-d2b9-83071ca16761": {
+                    "5c7021ee-7573-a80e-c791-1828d2998518": {
                       "columns": {
-                        "f2ab652f-915b-24ab-8a93-fdc5697d0fa5": {
+                        "ec585097-cdd8-4f50-d22c-00f9ab6fe69e": {
                           "label": "Top 3 values of tags",
                           "dataType": "string",
                           "operationType": "terms",
@@ -304,7 +304,7 @@
                         }
                       },
                       "columnOrder": [
-                        "f2ab652f-915b-24ab-8a93-fdc5697d0fa5",
+                        "ec585097-cdd8-4f50-d22c-00f9ab6fe69e",
                         "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
                       ],
                       "incompleteColumns": {},
@@ -389,12 +389,12 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-c1bf4c4a-f532-7e51-f8d0-80f3b0384a01"
+      "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-a36bc865-bbac-0ca0-a244-32227067b67d"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "956a0f02-c11f-1dfa-2e83-3981d36d0045:indexpattern-datasource-layer-b4cdba00-4fb1-77e4-d2b9-83071ca16761"
+      "name": "956a0f02-c11f-1dfa-2e83-3981d36d0045:indexpattern-datasource-layer-5c7021ee-7573-a80e-c791-1828d2998518"
     }
   ],
   "type": "dashboard",

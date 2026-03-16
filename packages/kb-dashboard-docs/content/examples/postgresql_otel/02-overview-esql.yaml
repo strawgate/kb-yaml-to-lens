@@ -110,7 +110,7 @@ dashboards:
             - KEEP database, backends_count, size_bytes, commit_total, rollback_total, blocks_read_total
             - SORT database ASC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: database
               label: Database
           metrics:
@@ -286,7 +286,7 @@ dashboards:
               format:
                 type: bytes
                 decimals: 2
-          dimensions:
+          breakdowns:
             - field: database
               label: Database
           appearance:
@@ -309,7 +309,7 @@ dashboards:
               format:
                 type: number
                 decimals: 0
-          dimensions:
+          breakdowns:
             - field: state
               label: State
           appearance:
@@ -329,7 +329,7 @@ dashboards:
             - KEEP database, instance
             - SORT database ASC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: database
               label: Database
             - field: instance

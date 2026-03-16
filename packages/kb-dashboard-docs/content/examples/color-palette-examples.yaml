@@ -11,7 +11,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: attributes.state
               type: values
           metrics:
@@ -114,7 +114,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: attributes.mountpoint
               type: values
           metrics:
@@ -130,7 +130,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: resource.attributes.os.type
               type: values
           metrics:

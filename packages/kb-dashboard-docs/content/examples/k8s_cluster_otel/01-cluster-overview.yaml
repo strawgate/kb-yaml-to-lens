@@ -114,7 +114,7 @@ dashboards:
         lens:
           type: pie
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: k8s.pod.phase
               type: values
               label: Status
@@ -242,7 +242,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - field: k8s.deployment.name
               type: values
               size: 25

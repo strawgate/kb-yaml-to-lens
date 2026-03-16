@@ -142,7 +142,7 @@ def test_deterministic_compilation_from_dict() -> None:
                 'lens': {
                     'type': 'pie',
                     'data_view': 'metrics-*',
-                    'dimensions': [{'field': 'host.name', 'type': 'values', 'size': 5}],
+                    'breakdowns': [{'field': 'host.name', 'type': 'values', 'size': 5}],
                     'metrics': [{'aggregation': 'count'}],
                 },
             },

@@ -72,7 +72,7 @@ dashboards:
             | LIMIT 5
           metrics:
             - field: "event_count"
-          dimensions:
+          breakdowns:
             - field: "event.category"
 ```
 
@@ -175,7 +175,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `type` | `Literal['pie']` | Specifies the chart type as an ESQL Pie visualization. | `pie` | Yes |
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `metrics` | `ESQLMetric \| list[ESQLMetric]` object | A single metric or list of metrics that determine the size of each slice. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
-| `dimensions` | `list of ESQLDimension` objects | One or more dimensions that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
+| `breakdowns` | `list of ESQLDimension` objects | One or more breakdowns that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-formatting-titles_and_text-field) (shared with Lens). | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens). | `None` | No |
@@ -199,7 +199,7 @@ dashboards:
             | LIMIT 10
           metrics:
             - field: "error_count"
-          dimensions:
+          breakdowns:
             - field: "error_type"
           appearance:
             donut: "small"
@@ -333,7 +333,7 @@ dashboards:
 
 ## ESQL Columns
 
-For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metrics`, `dimensions` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
+For ESQL panels, the `primary`, `secondary`, `maximum` (in metric charts) and `metrics`, `breakdowns` (in pie charts) fields refer to columns that **must be present in the output of your ESQL query**.
 
 !!! note "Static values in ES|QL charts"
     ES|QL chart metric fields must reference query result columns. If you need a constant value (for example, a gauge goal), add it in the query with `EVAL`, then reference that field in your chart config.
@@ -447,7 +447,6 @@ Used to specify a dimension/grouping column from your ESQL query result.
 | `field` | `string` | The name of the column in your ESQL query result that represents the dimension. | N/A | Yes |
 | `label` | `string` | An optional display label for the dimension. If not provided, the field name is used. | `None` | No |
 | `data_type` | `Literal['date'] \| None` | The data type of the field. Set to `'date'` for time/date fields to enable proper sorting and formatting in Kibana. This is particularly useful when using `BUCKET()` to create time series. | `None` | No |
-| `collapse` | `Literal['sum', 'avg', 'min', 'max'] \| None` | Aggregation function to apply when collapsing dimension values (e.g., for multi-value fields or breakdowns). | `None` | No |
 
 **Example using label and data_type for time series:**
 

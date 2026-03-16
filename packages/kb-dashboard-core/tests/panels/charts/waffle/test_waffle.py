@@ -1,9 +1,7 @@
 """Test the compilation of Lens waffle charts from config models to view models."""
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
-from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.config import ESQLWafflePanelConfig
 from kb_dashboard_core.panels.charts.waffle.compile import compile_esql_waffle_chart, compile_lens_waffle_chart
@@ -16,14 +14,14 @@ async def test_basic_waffle_chart() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
     esql_config = {
         'type': 'waffle',
         'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
         'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -80,19 +78,21 @@ async def test_basic_waffle_chart() -> None:
     )
 
 
-async def test_waffle_chart_rejects_breakdown() -> None:
-    """Test waffle chart rejects breakdown because Kibana only supports one dimension."""
+async def test_waffle_chart_breakdown_goes_to_primary_groups() -> None:
+    """Test waffle chart breakdown is compiled into primaryGroups."""
     lens_config = {
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
+        'breakdown': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
-    with pytest.raises(ValidationError, match='breakdown'):
-        LensWaffleChart.model_validate(lens_config)
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    layer = kbn_state_visualization.layers[0]
+    assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
+    assert layer.secondaryGroups is None
 
 
 async def test_waffle_chart_with_legend_options() -> None:
@@ -101,7 +101,7 @@ async def test_waffle_chart_with_legend_options() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'legend': {'visible': 'show', 'width': 'extra_large', 'nested': True},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -139,7 +139,7 @@ async def test_waffle_chart_with_value_display() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'titles_and_text': {'value_format': 'value'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -176,7 +176,7 @@ async def test_waffle_chart_with_hidden_values() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'titles_and_text': {'value_format': 'hidden'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -194,7 +194,7 @@ async def test_waffle_chart_with_collapse_functions() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -225,13 +225,38 @@ async def test_waffle_chart_with_collapse_functions() -> None:
     )
 
 
+def test_waffle_deprecated_dimension_does_not_override_explicit_breakdown() -> None:
+    """Explicit breakdown should win over deprecated dimension for both chart modes."""
+    lens_chart = LensWaffleChart.model_validate(
+        {
+            'type': 'waffle',
+            'data_view': 'logs-*',
+            'metric': {'aggregation': 'count'},
+            'breakdown': {'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'},
+            'dimension': {'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'},
+        }
+    )
+    assert lens_chart.breakdown.id == 'new-breakdown'
+
+    esql_chart = ESQLWafflePanelConfig.model_validate(
+        {
+            'type': 'waffle',
+            'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+            'metric': {'field': 'c'},
+            'breakdown': {'field': 'service.name', 'id': 'new-breakdown'},
+            'dimension': {'field': 'host.name', 'id': 'legacy-dimension'},
+        }
+    )
+    assert esql_chart.breakdown.id == 'new-breakdown'
+
+
 async def test_waffle_chart_with_custom_colors() -> None:
     """Test waffle chart with custom color assignments."""
     lens_config = {
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {
             'palette': 'eui_amsterdam_color_blind',
             'assignments': [
@@ -256,7 +281,7 @@ async def test_waffle_chart_with_legend_position() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'legend': {'visible': 'show', 'position': 'bottom'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -269,19 +294,21 @@ async def test_waffle_chart_with_legend_position() -> None:
     assert layer.legendDisplay == 'show'
 
 
-async def test_esql_waffle_chart_rejects_breakdown() -> None:
-    """Test ES|QL waffle chart rejects breakdown because Kibana only supports one dimension."""
+async def test_esql_waffle_chart_breakdown_goes_to_primary_groups() -> None:
+    """Test ES|QL waffle chart breakdown is compiled into primaryGroups."""
     esql_config = {
         'type': 'waffle',
-        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method, service.name',
+        'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
         'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
-        'breakdown': {'field': 'service.name', 'id': '7f84397c-95f0-5454-bd88-c8ff3fe1b4eg'},
+        'breakdown': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
-    with pytest.raises(ValidationError, match='breakdown'):
-        ESQLWafflePanelConfig.model_validate(esql_config)
+    esql_chart = ESQLWafflePanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_waffle_chart(esql_waffle_chart=esql_chart)
+    layer = kbn_state_visualization.layers[0]
+    assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
+    assert layer.secondaryGroups is None
 
 
 async def test_waffle_chart_with_value_decimal_places() -> None:
@@ -290,7 +317,7 @@ async def test_waffle_chart_with_value_decimal_places() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'titles_and_text': {'value_decimal_places': 5},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -298,7 +325,7 @@ async def test_waffle_chart_with_value_decimal_places() -> None:
         'type': 'waffle',
         'query': 'FROM logs-* | STATS count = COUNT(*) BY http.request.method',
         'metric': {'field': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'titles_and_text': {'value_decimal_places': 5},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -362,7 +389,7 @@ async def test_waffle_chart_without_value_decimal_places() -> None:
         'type': 'waffle',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'http.request.method', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 

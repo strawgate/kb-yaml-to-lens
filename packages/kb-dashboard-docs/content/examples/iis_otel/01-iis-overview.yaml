@@ -471,7 +471,7 @@ dashboards:
             | KEEP site, connections, queue, threads, uptime_hrs
             | SORT site ASC
             | LIMIT 100
-          dimensions:
+          breakdowns:
             - field: site
               label: Site
             - field: connections

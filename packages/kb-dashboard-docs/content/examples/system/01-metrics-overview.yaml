@@ -53,7 +53,7 @@ dashboards:
         lens:
           type: datatable
           data_view: metrics-*
-          dimensions:
+          breakdowns:
             - id: host
               type: values
               field: host.name

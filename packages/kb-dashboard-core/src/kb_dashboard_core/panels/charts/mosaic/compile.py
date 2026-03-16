@@ -142,8 +142,8 @@ def compile_lens_mosaic_chart(
         breakdown_id = next(iter(compiled_breakdown.keys()))
         breakdown_columns = dict(compiled_breakdown)
 
-    # Build collapse functions
-    collapse_dimensions = [(dimension_id, lens_mosaic_chart.dimension.collapse)]
+    # Build collapse functions — only breakdowns support collapse, not the primary dimension
+    collapse_dimensions: list[tuple[str, str | None]] = []
     if lens_mosaic_chart.breakdown is not None and breakdown_id is not None:
         collapse_dimensions.append((breakdown_id, lens_mosaic_chart.breakdown.collapse))
     collapse_fns = build_collapse_fns(collapse_dimensions)
@@ -197,8 +197,8 @@ def compile_esql_mosaic_chart(
         breakdown_id = compiled_breakdown[0].columnId
         breakdown_columns = list(compiled_breakdown)
 
-    # Build collapse functions
-    collapse_dimensions = [(dimension_id, esql_mosaic_chart.dimension.collapse)]
+    # Build collapse functions — only breakdowns support collapse, not the primary dimension
+    collapse_dimensions: list[tuple[str, str | None]] = []
     if esql_mosaic_chart.breakdown is not None and breakdown_id is not None:
         collapse_dimensions.append((breakdown_id, esql_mosaic_chart.breakdown.collapse))
     collapse_fns = build_collapse_fns(collapse_dimensions)

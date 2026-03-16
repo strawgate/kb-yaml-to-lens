@@ -23,7 +23,7 @@ def compile_waffle_chart_visualization_state(
     *,
     layer_id: str,
     chart: LensWaffleChart | ESQLWaffleChart,
-    dimension_id: str,
+    breakdown_id: str,
     metric_id: str,
     collapse_fns: dict[str, str] | None,
 ) -> KbnWaffleVisualizationState:
@@ -32,7 +32,7 @@ def compile_waffle_chart_visualization_state(
     Args:
         layer_id: The ID of the layer.
         chart: The WaffleChart config object.
-        dimension_id: The ID of the primary dimension.
+        breakdown_id: The ID of the breakdown dimension.
         metric_id: The ID of the metric.
         collapse_fns: Mapping of dimension ID to collapse function.
 
@@ -81,7 +81,7 @@ def compile_waffle_chart_visualization_state(
 
     kbn_layer_visualization = KbnWaffleStateVisualizationLayer(
         layerId=layer_id,
-        primaryGroups=[dimension_id],
+        primaryGroups=[breakdown_id],
         secondaryGroups=None,
         metrics=[metric_id],
         allowMultipleMetrics=False,
@@ -128,15 +128,13 @@ def compile_lens_waffle_chart(
     kbn_metric_column_by_id[metric_id] = metric
     kbn_metric_column_by_id.update(result.helper_columns)
 
-    # Compile the dimension
-    dimension_columns = compile_lens_dimensions(dimensions=[lens_waffle_chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
-    dimension_id = next(iter(dimension_columns.keys()))
+    # Compile the breakdown
+    breakdown_columns = compile_lens_dimensions(dimensions=[lens_waffle_chart.breakdown], kbn_metric_column_by_id=kbn_metric_column_by_id)
+    breakdown_id = next(iter(breakdown_columns.keys()))
 
-    # Build collapse functions
-    collapse_dimensions = [(dimension_id, lens_waffle_chart.dimension.collapse)]
-    collapse_fns = build_collapse_fns(collapse_dimensions)
+    collapse_fns = build_collapse_fns([(breakdown_id, lens_waffle_chart.breakdown.collapse)])
 
-    kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(dimension_columns), **kbn_metric_column_by_id}
+    kbn_columns: dict[str, KbnLensColumnTypes] = {**dict(breakdown_columns), **kbn_metric_column_by_id}
 
     return (
         layer_id,
@@ -144,7 +142,7 @@ def compile_lens_waffle_chart(
         compile_waffle_chart_visualization_state(
             layer_id=layer_id,
             chart=lens_waffle_chart,
-            dimension_id=dimension_id,
+            breakdown_id=breakdown_id,
             metric_id=metric_id,
             collapse_fns=collapse_fns,
         ),
@@ -172,15 +170,13 @@ def compile_esql_waffle_chart(
     metric = compile_esql_metric(esql_waffle_chart.metric)
     metric_id = metric.columnId
 
-    # Compile the dimension
-    dimensions = compile_esql_dimensions(dimensions=[esql_waffle_chart.dimension])
-    dimension_id = dimensions[0].columnId
+    # Compile the breakdown
+    breakdown_columns = compile_esql_dimensions(dimensions=[esql_waffle_chart.breakdown])
+    breakdown_id = breakdown_columns[0].columnId
 
-    # Build collapse functions
-    collapse_dimensions = [(dimension_id, esql_waffle_chart.dimension.collapse)]
-    collapse_fns = build_collapse_fns(collapse_dimensions)
+    collapse_fns = build_collapse_fns([(breakdown_id, esql_waffle_chart.breakdown.collapse)])
 
-    kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(dimensions)]
+    kbn_columns: list[KbnESQLColumnTypes] = [metric, *list(breakdown_columns)]
 
     return (
         layer_id,
@@ -188,7 +184,7 @@ def compile_esql_waffle_chart(
         compile_waffle_chart_visualization_state(
             layer_id=layer_id,
             chart=esql_waffle_chart,
-            dimension_id=dimension_id,
+            breakdown_id=breakdown_id,
             metric_id=metric_id,
             collapse_fns=collapse_fns,
         ),

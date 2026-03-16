@@ -108,7 +108,7 @@ dashboards:
             - KEEP node, namespaces, memory_free, connections
             - SORT node ASC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
             - field: namespaces
@@ -189,7 +189,7 @@ dashboards:
               format:
                 type: number
                 suffix: '%'
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
           appearance:
@@ -210,7 +210,7 @@ dashboards:
               label: Connections
               format:
                 type: number
-          dimensions:
+          breakdowns:
             - field: node
               label: Node
           appearance:

@@ -338,7 +338,7 @@ dashboards:
               format:
                 type: number
                 pattern: 0,0
-          dimensions:
+          breakdowns:
             - field: state
               label: Worker State
           appearance:
@@ -413,7 +413,7 @@ dashboards:
             - KEEP server_name, server_port, connections, cpu_load_pct, load_1m, busy_workers
             - SORT server_name ASC
             - LIMIT 100
-          dimensions:
+          breakdowns:
             - field: server_name
               label: Server Name
             - field: server_port

@@ -61,8 +61,8 @@ dashboards:
             aggregation: unique_count
             field: host.name
             label: Hosts
-      - title: Error Rate
-        description: Percentage of error-level logs
+      - title: Error Events
+        description: Total number of error-level logs
         size:
           w: 12
           h: 6
@@ -78,8 +78,8 @@ dashboards:
           filters:
             - field: log.level
               equals: error
-      - title: Warning Rate
-        description: Percentage of warning-level logs
+      - title: Warning Events
+        description: Total number of warning-level logs
         size:
           w: 12
           h: 6
@@ -170,7 +170,7 @@ dashboards:
         lens:
           type: pie
           data_view: logs-*
-          dimensions:
+          breakdowns:
             - field: log.level
               type: values
               size: 10

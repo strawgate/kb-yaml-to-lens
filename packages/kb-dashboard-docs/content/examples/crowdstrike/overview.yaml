@@ -91,7 +91,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: event.action
               type: values
               size: 10
@@ -118,7 +118,7 @@ dashboards:
           data_view: logs-*
           appearance:
             donut: medium
-          dimensions:
+          breakdowns:
             - field: event.action
               type: values
               size: 10

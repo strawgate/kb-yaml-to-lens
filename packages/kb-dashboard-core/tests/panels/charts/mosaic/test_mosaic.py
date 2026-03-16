@@ -214,12 +214,13 @@ async def test_mosaic_chart_with_hidden_values() -> None:
 
 
 async def test_mosaic_chart_with_collapse_functions() -> None:
-    """Test mosaic chart with collapse functions."""
+    """Test mosaic chart with collapse function on the breakdown."""
     lens_config = {
         'type': 'mosaic',
         'data_view': 'logs-*',
         'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
-        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df', 'collapse': 'sum'},
+        'dimension': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'breakdown': {'type': 'values', 'field': 'http.request.method', 'id': 'bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33', 'collapse': 'sum'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
 
@@ -238,10 +239,10 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
                 'colorMode': {'type': 'categorical'},
             },
             'primaryGroups': ['6e73286b-85cf-4343-9676-b7ee2ed0a3df'],
-            'secondaryGroups': [],
+            'secondaryGroups': ['bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33'],
             'metrics': ['8f020607-379e-4b54-bc9e-e5550e84f5d5'],
             'allowMultipleMetrics': False,
-            'collapseFns': {'6e73286b-85cf-4343-9676-b7ee2ed0a3df': 'sum'},
+            'collapseFns': {'bd8f1e2a-99c4-4af0-9bcd-e4a712cafe33': 'sum'},
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
@@ -249,6 +250,21 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
             'nestedLegend': False,
         }
     )
+
+
+async def test_esql_mosaic_ignores_primary_dimension_collapse() -> None:
+    """ES|QL mosaic should only emit collapseFns for breakdowns, not primary dimension."""
+    esql_config = {
+        'type': 'mosaic',
+        'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+        'metric': {'field': 'c', 'id': 'metric-id'},
+        'dimension': {'field': 'service.name', 'id': 'primary-dimension', 'collapse': 'sum'},
+    }
+
+    esql_chart = ESQLMosaicPanelConfig.model_validate(esql_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_mosaic_chart(esql_mosaic_chart=esql_chart)
+    layer = kbn_state_visualization.layers[0]
+    assert layer.collapseFns is None
 
 
 async def test_mosaic_chart_with_custom_colors() -> None:

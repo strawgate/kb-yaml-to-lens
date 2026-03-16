@@ -1,5 +1,6 @@
 """Test the compilation of Lens treemap charts from config models to view models."""
 
+import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -14,7 +15,7 @@ async def test_basic_treemap_chart() -> None:
         'type': 'treemap',
         'data_view': 'metrics-*',
         'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -22,7 +23,7 @@ async def test_basic_treemap_chart() -> None:
         'type': 'treemap',
         'query': 'FROM metrics-* | STATS count(*) by service.name',
         'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
-        'dimensions': [{'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
+        'breakdowns': [{'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
     }
@@ -83,7 +84,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
             'type': 'treemap',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'dimensions': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
+            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
             'titles_and_text': {'slice_labels': 'show'},
         }
     )
@@ -95,7 +96,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
             'type': 'treemap',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'dimensions': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
+            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
             'titles_and_text': {'slice_labels': 'hide'},
         }
     )
@@ -136,3 +137,30 @@ async def test_treemap_with_two_dimensions_uses_primary_groups_only() -> None:
     esql_layer = esql_state.layers[0]
     assert esql_layer.primaryGroups == ['group1', 'group2']
     assert esql_layer.secondaryGroups is None
+
+
+def test_treemap_deprecated_dimensions_does_not_override_explicit_breakdowns() -> None:
+    """Explicit breakdowns should win over deprecated dimensions."""
+    with pytest.warns(DeprecationWarning, match="ignored because 'breakdowns' is already set"):
+        lens_chart = LensTreemapChart.model_validate(
+            {
+                'type': 'treemap',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
+            }
+        )
+    assert [breakdown.id for breakdown in lens_chart.breakdowns] == ['new-breakdown']
+
+    with pytest.warns(DeprecationWarning, match="ignored because 'breakdowns' is already set"):
+        esql_chart = ESQLTreemapPanelConfig.model_validate(
+            {
+                'type': 'treemap',
+                'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+                'metrics': [{'field': 'c'}],
+                'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
+            }
+        )
+    assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']

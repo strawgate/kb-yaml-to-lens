@@ -68,7 +68,7 @@ dashboards:
           metrics:
             - aggregation: "count"
               label: "Sessions"
-          dimensions:
+          breakdowns:
             - type: values
               field: "source.medium"
               label: "Traffic Source"
@@ -109,7 +109,7 @@ Displays a single primary metric, optionally with a secondary metric, a maximum 
 | `primary` | `LensMetricTypes` object | The primary metric to display. This is the main value shown. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
 | `secondary` | `LensMetricTypes` object | An optional secondary metric to display alongside the primary. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
 | `maximum` | `LensMetricTypes` object | An optional maximum metric, used for progress bar scale or context. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | `None` | No |
-| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | `None` | No |
+| `breakdown` | `LensDimensionTypes` object | An optional dimension to break down the metric by (e.g., showing primary metric per country). See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-breakdowns-for-pie). | `None` | No |
 | `appearance` | `MetricAppearance` object | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
 | `titles_and_text` | `MetricTitlesAndText` object | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
 
@@ -189,7 +189,7 @@ Visualizes proportions of categories using slices of a pie or a donut chart.
 | `id` | `string` | An optional unique identifier for this specific chart layer. | Generated ID | No |
 | `data_view` | `string` | The ID or title of the data view (index pattern) for this pie chart. | N/A | Yes |
 | `metrics` | `LensMetricTypes \| list[LensMetricTypes]` object | A single metric or list of metrics that determine the size of each slice. See [Lens Metrics](#lens-metrics-primary-secondary-maximum-for-metric-metrics-for-pie). | N/A | Yes |
-| `dimensions` | `list of LensDimensionTypes` objects | One or more dimensions that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-dimensions-for-pie). | N/A | Yes |
+| `breakdowns` | `list of LensBreakdownTypes` objects | One or more breakdowns that determine how the pie is sliced. See [Lens Dimensions](#lens-dimensions-breakdown-for-metric-breakdowns-for-pie). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-appearance-field). | `None` | No |
 | `titles_and_text` | `PieTitlesAndText` object | Formatting options for slice labels and values. See [Pie Titles and Text](#pie-titles-and-text-titles_and_text-field). | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-legend-field). | `None` | No |
@@ -211,7 +211,7 @@ dashboards:
             - aggregation: "average"
               field: "metrics.system.disk.operations"
               label: "Avg Disk Operations"
-          dimensions:
+          breakdowns:
             - type: values
               field: "resource.attributes.device"
               size: 5
@@ -228,7 +228,7 @@ dashboards:
 
 ---
 
-## Lens Dimensions (`breakdown` for Metric, `dimensions` for Pie)
+## Lens Dimensions (`breakdown` for Metric, `breakdowns` for Pie)
 
 Dimensions define how data is grouped or bucketed in Lens visualizations.
 
@@ -262,7 +262,7 @@ Groups data by the most frequent unique values of one or more fields. Supports b
 **Example - Single Field:**
 
 ```yaml
-dimensions:
+breakdowns:
   - type: values
     field: agent.name
     size: 5
@@ -271,7 +271,7 @@ dimensions:
 **Example - Multi-Field:**
 
 ```yaml
-dimensions:
+breakdowns:
   - type: values
     fields:
       - agent.name

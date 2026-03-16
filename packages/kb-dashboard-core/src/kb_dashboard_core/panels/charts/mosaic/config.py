@@ -11,6 +11,7 @@ from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping, LegendVisibleEnum, LegendWidthEnum
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -147,8 +148,8 @@ class LensMosaicChart(BaseMosaicChart):
     dimension: LensDimensionTypes = Field(default=...)
     """Primary dimension for grouping data. Mosaic charts support only one dimension."""
 
-    breakdown: LensDimensionTypes | None = Field(default=None)
-    """Optional secondary dimension for breaking down the mosaic into sub-groups."""
+    breakdown: LensBreakdownTypes | None = Field(default=None)
+    """Optional secondary breakdown for splitting the mosaic into sub-groups."""
 
 
 class ESQLMosaicChart(BaseMosaicChart):
