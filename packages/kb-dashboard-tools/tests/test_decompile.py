@@ -2339,3 +2339,493 @@ def test_decompile_panel_description_from_panel_level() -> None:
     }
     result = _decompile_single_panel(panel)
     assert result['description'] == 'Top-level panel description'
+
+
+# --- Legend extraction ---
+
+
+def test_decompile_xy_legend_hidden() -> None:
+    """XY legend with isVisible=false maps to visible=hide."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': False, 'position': 'right'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['visible'] == 'hide'
+
+
+def test_decompile_xy_legend_shown() -> None:
+    """XY legend with isVisible=true maps to visible=show."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': True, 'position': 'right'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['visible'] == 'show'
+
+
+def test_decompile_xy_legend_position() -> None:
+    """XY legend position is extracted when non-default."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'bar',
+                'legend': {'isVisible': True, 'position': 'bottom'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['position'] == 'bottom'
+
+
+def test_decompile_xy_legend_default_position_omitted() -> None:
+    """XY legend with default position='right' is omitted."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': False, 'position': 'right'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'position' not in result['lens']['legend']
+
+
+def test_decompile_xy_legend_show_single_series() -> None:
+    """XY legend showSingleSeries=true is preserved."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': True, 'position': 'right', 'showSingleSeries': True},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['show_single_series'] is True
+
+
+def test_decompile_xy_legend_size() -> None:
+    """XY legend size xlarge maps to extra_large."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': True, 'position': 'right', 'legendSize': 'xlarge'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['width'] == 'extra_large'
+
+
+def test_decompile_xy_legend_truncate_disabled() -> None:
+    """XY legend shouldTruncate=false maps to truncate_labels=0."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': True, 'position': 'right', 'shouldTruncate': False},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['truncate_labels'] == 0
+
+
+def test_decompile_xy_legend_max_lines() -> None:
+    """XY legend maxLines=3 maps to truncate_labels=3."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'isVisible': True, 'position': 'right', 'maxLines': 3},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['truncate_labels'] == 3
+
+
+def test_decompile_xy_no_legend_when_defaults() -> None:
+    """XY legend with all defaults produces no legend key."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'legend' not in result['lens']
+
+
+def test_decompile_partition_legend_hidden() -> None:
+    """Pie chart legendDisplay=hide maps to visible=hide."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [
+                    {
+                        'layerId': 'layer1',
+                        'legendDisplay': 'hide',
+                        'legendPosition': 'right',
+                        'primaryGroups': ['col1'],
+                        'metrics': ['col2'],
+                    }
+                ],
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['visible'] == 'hide'
+
+
+def test_decompile_partition_legend_position() -> None:
+    """Pie chart legendPosition=bottom is extracted."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [
+                    {
+                        'layerId': 'layer1',
+                        'legendDisplay': 'show',
+                        'legendPosition': 'bottom',
+                        'primaryGroups': ['col1'],
+                        'metrics': ['col2'],
+                    }
+                ],
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['visible'] == 'show'
+    assert result['lens']['legend']['position'] == 'bottom'
+
+
+def test_decompile_partition_legend_size() -> None:
+    """Pie chart legendSize=large maps to width=large."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [
+                    {
+                        'layerId': 'layer1',
+                        'legendDisplay': 'show',
+                        'legendSize': 'large',
+                        'primaryGroups': ['col1'],
+                        'metrics': ['col2'],
+                    }
+                ],
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['width'] == 'large'
+
+
+# --- Appearance extraction ---
+
+
+def test_decompile_xy_missing_values() -> None:
+    """XY appearance fittingFunction=Linear maps to missing_values=linear."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'fittingFunction': 'Linear',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['missing_values'] == 'linear'
+
+
+def test_decompile_xy_fitting_none_omitted() -> None:
+    """XY appearance fittingFunction=None is omitted (default)."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'fittingFunction': 'None',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'appearance' not in result['lens']
+
+
+def test_decompile_xy_fill_opacity() -> None:
+    """XY area chart fillOpacity is extracted when non-default."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'area',
+                'legend': {'position': 'right'},
+                'fillOpacity': 0.5,
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['fill_opacity'] == 0.5
+
+
+def test_decompile_xy_fill_opacity_default_omitted() -> None:
+    """XY area chart fillOpacity=0.3 (default) is omitted."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'area',
+                'legend': {'position': 'right'},
+                'fillOpacity': 0.3,
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'appearance' not in result['lens']
+
+
+def test_decompile_xy_curve_type_smooth() -> None:
+    """XY line chart curveType=CURVE_MONOTONE_X maps to line_style=monotone-x."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'curveType': 'CURVE_MONOTONE_X',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['line_style'] == 'monotone-x'
+
+
+def test_decompile_xy_y_left_scale_log() -> None:
+    """XY appearance yLeftScale=log is extracted."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'yLeftScale': 'log',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['y_left_axis']['scale'] == 'log'
+
+
+def test_decompile_xy_axis_titles() -> None:
+    """XY custom axis titles are extracted."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'bar',
+                'legend': {'position': 'right'},
+                'yTitle': 'Requests per second',
+                'xTitle': 'Time',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['y_left_axis']['title'] == 'Requests per second'
+    assert result['lens']['appearance']['x_axis']['title'] == 'Time'
+
+
+def test_decompile_xy_axis_title_hidden() -> None:
+    """XY axis title visibility false is extracted."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'axisTitlesVisibilitySettings': {'x': False, 'yLeft': True, 'yRight': True},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['x_axis']['title'] is False
+
+
+def test_decompile_xy_extent_data_bounds() -> None:
+    """XY y-left extent dataBounds mode maps to data_bounds."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'yLeftExtent': {'mode': 'dataBounds'},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['y_left_axis']['extent']['mode'] == 'data_bounds'
+
+
+def test_decompile_xy_extent_custom_bounds() -> None:
+    """XY custom extent mode includes min/max bounds."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'yLeftExtent': {'mode': 'custom', 'lowerBound': 0, 'upperBound': 100},
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    extent = result['lens']['appearance']['y_left_axis']['extent']
+    assert extent['mode'] == 'custom'
+    assert extent['min'] == 0
+    assert extent['max'] == 100
+
+
+def test_decompile_xy_min_bar_height() -> None:
+    """XY bar chart minBarHeight is extracted."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'bar',
+                'legend': {'position': 'right'},
+                'minBarHeight': 2.0,
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['min_bar_height'] == 2.0
+
+
+def test_decompile_xy_appearance_not_on_bar_for_line_fields() -> None:
+    """XY bar chart ignores line-specific fields like fittingFunction."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'bar',
+                'legend': {'position': 'right'},
+                'fittingFunction': 'Linear',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert 'appearance' not in result['lens']
+
+
+def test_decompile_xy_value_labels_show() -> None:
+    """XY valueLabels=show maps to appearance.values.visible=true."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'bar',
+                'legend': {'position': 'right'},
+                'valueLabels': 'show',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['values']['visible'] is True
+
+
+# --- Round-trip test ---
+
+
+def test_decompile_legend_appearance_round_trip(tmp_path: Path) -> None:
+    """Compile YAML with legend/appearance, decompile, verify fields preserved."""
+    yaml_text = """\
+dashboards:
+  - name: Round Trip Legend Test
+    id: round-trip-legend-test
+    panels:
+      - title: Area Chart
+        size: {w: 24, h: 15}
+        lens:
+          type: area
+          data_view: "logs-*"
+          mode: stacked
+          dimension:
+            type: date_histogram
+            field: "@timestamp"
+          metrics:
+            - aggregation: count
+          legend:
+            visible: hide
+            position: bottom
+            show_single_series: true
+            width: large
+            truncate_labels: 3
+          appearance:
+            missing_values: linear
+            fill_opacity: 0.7
+            line_style: monotone-x
+            y_left_axis:
+              title: 'Request Rate'
+              scale: log
+            x_axis:
+              title: 'Time Period'
+"""
+    yaml_file = tmp_path / 'test_roundtrip.yaml'
+    yaml_file.write_text(yaml_text)
+
+    dashboards = load(str(yaml_file))
+    assert len(dashboards) > 0
+
+    compiled = render(dashboards[0])
+    kibana_json = compiled.model_dump(by_alias=True)
+
+    decompiled = decompile_dashboard(kibana_json)
+    decompiled_panel = decompiled['dashboards'][0]['panels'][0]
+    chart = decompiled_panel['lens']
+
+    # Legend fields
+    assert chart['legend']['visible'] == 'hide'
+    assert chart['legend']['position'] == 'bottom'
+    assert chart['legend']['show_single_series'] is True
+    assert chart['legend']['width'] == 'large'
+    assert chart['legend']['truncate_labels'] == 3
+
+    # Appearance fields
+    assert chart['appearance']['missing_values'] == 'linear'
+    assert chart['appearance']['fill_opacity'] == 0.7
+    assert chart['appearance']['line_style'] == 'monotone-x'
+    assert chart['appearance']['y_left_axis']['title'] == 'Request Rate'
+    assert chart['appearance']['y_left_axis']['scale'] == 'log'
+    assert chart['appearance']['x_axis']['title'] == 'Time Period'

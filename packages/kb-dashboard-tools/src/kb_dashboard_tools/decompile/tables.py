@@ -74,3 +74,42 @@ CONTROL_TYPE_MAP: dict[str, str] = {
     'rangeSliderControl': 'range',
     'timeSliderControl': 'time',
 }
+
+# ---------------------------------------------------------------------------
+# Reverse mapping tables: Kibana JSON → YAML config values
+# ---------------------------------------------------------------------------
+
+KIBANA_FITTING_FUNCTION_TO_YAML: dict[str, str] = {
+    'Linear': 'linear',
+    'Carry': 'carry',
+    'Lookahead': 'lookahead',
+    'Average': 'average',
+    'Nearest': 'nearest',
+}
+
+KIBANA_END_VALUE_TO_YAML: dict[str, str] = {
+    'Zero': 'zero',
+    'Nearest': 'nearest',
+}
+
+KIBANA_CURVE_TYPE_TO_YAML: dict[str, str] = {
+    'CURVE_MONOTONE_X': 'monotone-x',
+    'CURVE_STEP_AFTER': 'step-after',
+}
+
+KIBANA_LEGEND_SIZE_TO_YAML: dict[str, str] = {
+    'small': 'small',
+    'medium': 'medium',
+    'large': 'large',
+    'xlarge': 'extra_large',
+}
+
+KIBANA_AXIS_EXTENT_MODE_TO_YAML: dict[str, str] = {
+    'dataBounds': 'data_bounds',
+    'full': 'full',
+    'custom': 'custom',
+}
+
+PARTITION_CHART_TYPES = frozenset({'pie', 'treemap', 'waffle', 'mosaic'})
+
+KIBANA_DEFAULT_FILL_OPACITY = 0.3

@@ -24,8 +24,15 @@ from .parse import (
 )
 from .tables import (
     CONTROL_TYPE_MAP,
+    KIBANA_AXIS_EXTENT_MODE_TO_YAML,
+    KIBANA_CURVE_TYPE_TO_YAML,
+    KIBANA_DEFAULT_FILL_OPACITY,
+    KIBANA_END_VALUE_TO_YAML,
+    KIBANA_FITTING_FUNCTION_TO_YAML,
+    KIBANA_LEGEND_SIZE_TO_YAML,
     LENS_VISUALIZATION_TYPES,
     OPERATION_TYPE_MAP,
+    PARTITION_CHART_TYPES,
     PIE_SHAPES,
     SKIP_OPERATION_TYPES,
     XY_SERIES_TYPES,
@@ -285,6 +292,203 @@ def _classify_esql_columns(
 
 
 # ---------------------------------------------------------------------------
+# Legend extraction
+# ---------------------------------------------------------------------------
+
+
+def _extract_xy_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Extract legend settings from an XY visualization state."""
+    legend_raw = as_dict(vis_raw.get('legend'))
+    if legend_raw is None:
+        return None
+
+    legend: dict[str, Any] = {}
+
+    is_visible = legend_raw.get('isVisible')
+    if isinstance(is_visible, bool):
+        legend['visible'] = 'show' if is_visible else 'hide'
+
+    position = legend_raw.get('position')
+    if isinstance(position, str) and position != 'right':
+        legend['position'] = position
+
+    show_single = legend_raw.get('showSingleSeries')
+    if isinstance(show_single, bool) and show_single:
+        legend['show_single_series'] = True
+
+    legend_size = legend_raw.get('legendSize')
+    if isinstance(legend_size, str) and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
+        legend['width'] = KIBANA_LEGEND_SIZE_TO_YAML[legend_size]
+
+    should_truncate = legend_raw.get('shouldTruncate')
+    max_lines = legend_raw.get('maxLines')
+    if isinstance(should_truncate, bool) and not should_truncate:
+        legend['truncate_labels'] = 0
+    elif isinstance(max_lines, int) and max_lines > 0:
+        legend['truncate_labels'] = max_lines
+
+    return legend if legend else None
+
+
+def _extract_partition_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Extract legend settings from a partition chart (pie, waffle, mosaic, treemap) visualization layer."""
+    layers = vis_raw.get('layers')
+    if not isinstance(layers, list) or len(layers) == 0:  # pyright: ignore[reportUnknownArgumentType]
+        return None
+    layer = as_dict(layers[0])  # pyright: ignore[reportUnknownArgumentType]
+    if layer is None:
+        return None
+
+    legend: dict[str, Any] = {}
+
+    legend_display = layer.get('legendDisplay')
+    if isinstance(legend_display, str):
+        if legend_display == 'hide':
+            legend['visible'] = 'hide'
+        elif legend_display == 'show':
+            legend['visible'] = 'show'
+
+    legend_position = layer.get('legendPosition')
+    if isinstance(legend_position, str) and legend_position != 'right':
+        legend['position'] = legend_position
+
+    show_single = layer.get('showSingleSeries')
+    if isinstance(show_single, bool) and show_single:
+        legend['show_single_series'] = True
+
+    legend_size = layer.get('legendSize')
+    if isinstance(legend_size, str) and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
+        legend['width'] = KIBANA_LEGEND_SIZE_TO_YAML[legend_size]
+
+    truncate_legend = layer.get('truncateLegend')
+    legend_max_lines = layer.get('legendMaxLines')
+    if isinstance(truncate_legend, bool) and not truncate_legend:
+        legend['truncate_labels'] = 0
+    elif isinstance(legend_max_lines, int) and legend_max_lines > 0:
+        legend['truncate_labels'] = legend_max_lines
+
+    return legend if legend else None
+
+
+# ---------------------------------------------------------------------------
+# XY Appearance extraction
+# ---------------------------------------------------------------------------
+
+
+def _extract_axis_config(
+    vis_raw: dict[str, Any],
+    scale_key: str,
+    title_key: str,
+    extent_key: str,
+    title_visibility_axis: str,
+) -> dict[str, Any] | None:
+    """Extract axis configuration (scale, title, extent) for a single axis."""
+    axis: dict[str, Any] = {}
+
+    # Axis title visibility
+    axis_vis_settings = as_dict(vis_raw.get('axisTitlesVisibilitySettings'))
+    if axis_vis_settings is not None:
+        show_title = axis_vis_settings.get(title_visibility_axis)
+        if isinstance(show_title, bool) and not show_title:
+            axis['title'] = False
+
+    # Custom axis title
+    title_val = vis_raw.get(title_key)
+    if isinstance(title_val, str) and len(title_val) > 0:
+        axis['title'] = title_val
+
+    # Scale
+    scale_val = vis_raw.get(scale_key)
+    if isinstance(scale_val, str) and scale_val != 'linear':
+        axis['scale'] = scale_val
+
+    # Extent
+    extent_raw = as_dict(vis_raw.get(extent_key))
+    if extent_raw is not None:
+        mode = extent_raw.get('mode')
+        if isinstance(mode, str) and mode != 'full':
+            extent: dict[str, Any] = {}
+            yaml_mode = KIBANA_AXIS_EXTENT_MODE_TO_YAML.get(mode, mode)
+            extent['mode'] = yaml_mode
+            if mode == 'custom':
+                lower = extent_raw.get('lowerBound')
+                upper = extent_raw.get('upperBound')
+                if isinstance(lower, (int, float)):
+                    extent['min'] = lower
+                if isinstance(upper, (int, float)):
+                    extent['max'] = upper
+            axis['extent'] = extent
+
+    return axis if axis else None
+
+
+def _extract_xy_appearance(vis_raw: dict[str, Any], chart_type: str | None) -> dict[str, Any] | None:
+    """Extract appearance settings from an XY visualization state."""
+    appearance: dict[str, Any] = {}
+
+    # Missing values (fitting function) -- line/area only
+    if chart_type in {'line', 'area'}:
+        fitting = vis_raw.get('fittingFunction')
+        if isinstance(fitting, str) and fitting in KIBANA_FITTING_FUNCTION_TO_YAML:
+            appearance['missing_values'] = KIBANA_FITTING_FUNCTION_TO_YAML[fitting]
+
+        emphasize = vis_raw.get('emphasizeFitting')
+        if isinstance(emphasize, bool) and emphasize:
+            appearance['show_as_dotted'] = True
+
+        end_value = vis_raw.get('endValue')
+        if isinstance(end_value, str) and end_value in KIBANA_END_VALUE_TO_YAML:
+            appearance['end_values'] = KIBANA_END_VALUE_TO_YAML[end_value]
+
+        curve_type = vis_raw.get('curveType')
+        if isinstance(curve_type, str) and curve_type in KIBANA_CURVE_TYPE_TO_YAML:
+            appearance['line_style'] = KIBANA_CURVE_TYPE_TO_YAML[curve_type]
+
+        show_time_marker = vis_raw.get('showCurrentTimeMarker')
+        if isinstance(show_time_marker, bool) and show_time_marker:
+            appearance['show_current_time_marker'] = True
+
+        hide_endzones = vis_raw.get('hideEndzones')
+        if isinstance(hide_endzones, bool) and hide_endzones:
+            appearance['hide_endzones'] = True
+
+    # Fill opacity -- area only
+    if chart_type == 'area':
+        fill_opacity = vis_raw.get('fillOpacity')
+        if isinstance(fill_opacity, (int, float)) and fill_opacity != KIBANA_DEFAULT_FILL_OPACITY:
+            appearance['fill_opacity'] = fill_opacity
+
+    # Min bar height -- bar only
+    if chart_type == 'bar':
+        min_bar_height = vis_raw.get('minBarHeight')
+        if isinstance(min_bar_height, (int, float)) and min_bar_height > 0:
+            appearance['min_bar_height'] = min_bar_height
+
+    # Value labels
+    value_labels = vis_raw.get('valueLabels')
+    if isinstance(value_labels, str) and value_labels == 'show':
+        appearance.setdefault('values', {})['visible'] = True
+
+    # Axis configs
+    y_left = _extract_axis_config(vis_raw, 'yLeftScale', 'yTitle', 'yLeftExtent', 'yLeft')
+    if y_left is None:
+        # Also check yLeftTitle (newer Kibana)
+        y_left = _extract_axis_config(vis_raw, 'yLeftScale', 'yLeftTitle', 'yLeftExtent', 'yLeft')
+    if y_left is not None:
+        appearance['y_left_axis'] = y_left
+
+    y_right = _extract_axis_config(vis_raw, 'yRightScale', 'yRightTitle', 'yRightExtent', 'yRight')
+    if y_right is not None:
+        appearance['y_right_axis'] = y_right
+
+    x_axis = _extract_axis_config(vis_raw, 'xScale', 'xTitle', 'xExtent', 'x')
+    if x_axis is not None:
+        appearance['x_axis'] = x_axis
+
+    return appearance if appearance else None
+
+
+# ---------------------------------------------------------------------------
 # Panel inference
 # ---------------------------------------------------------------------------
 
@@ -309,6 +513,31 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
     if chart_type is None:
         chart_type = 'metric'
         chart['type'] = chart_type
+
+    # Extract legend and appearance from visualization state
+    if vis_state is not None:
+        vis_raw = vis_state.raw
+        is_xy = chart_type in {'line', 'bar', 'area'}
+
+        # Legend extraction
+        if is_xy:
+            legend = _extract_xy_legend(vis_raw)
+        elif chart_type in PARTITION_CHART_TYPES:
+            legend = _extract_partition_legend(vis_raw)
+        else:
+            legend = None
+        if legend is not None:
+            chart['legend'] = legend
+
+        # XY appearance extraction
+        if is_xy:
+            xy_appearance = _extract_xy_appearance(vis_raw, chart_type)
+            if xy_appearance is not None:
+                existing = chart.get('appearance')
+                if isinstance(existing, dict):
+                    existing.update(xy_appearance)  # pyright: ignore[reportUnknownMemberType]
+                else:
+                    chart['appearance'] = xy_appearance
 
     # Data view / query
     if parsed.panel_type == 'lens' and parsed.data_view_id is not None:
