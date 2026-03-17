@@ -532,3 +532,126 @@ class TestColorStopsLowerBounds:
         assert result is not None
         assert [entry.stop for entry in result.params.colorStops] == [0.0, 25.0]
         assert [entry.stop for entry in result.params.stops] == [25.0, 100.0]
+
+
+class TestCompilePartitionNumberDisplay:
+    """Tests for compile_partition_number_display helper."""
+
+    def test_returns_percent_when_none(self) -> None:
+        """Default number display is 'percent' when no format is specified."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_number_display
+
+        assert compile_partition_number_display(None) == 'percent'
+
+    def test_maps_hide_to_hidden(self) -> None:
+        """The YAML 'hide' value maps to Kibana 'hidden'."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_number_display
+
+        assert compile_partition_number_display('hide') == 'hidden'
+
+    def test_passes_through_other_formats(self) -> None:
+        """Non-hide format strings are passed through unchanged."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_number_display
+
+        assert compile_partition_number_display('percent') == 'percent'
+        assert compile_partition_number_display('value') == 'value'
+
+
+class TestCompilePartitionLegendOptions:
+    """Tests for compile_partition_legend_options helper."""
+
+    def test_returns_defaults_when_none(self) -> None:
+        """All legend options use Kibana defaults when legend is None."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+
+        result = compile_partition_legend_options(None)
+        assert result.legend_display == 'default'
+        assert result.legend_position == 'right'
+        assert result.legend_size is None
+        assert result.truncate_legend is None
+        assert result.legend_max_lines is None
+        assert result.nested_legend is None
+        assert result.show_single_series is None
+
+    def test_maps_auto_visible_to_default(self) -> None:
+        """Legend visible='auto' maps to legend_display='default'."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.mosaic.config import MosaicLegend
+
+        legend = MosaicLegend(visible='auto')
+        result = compile_partition_legend_options(legend)
+        assert result.legend_display == 'default'
+
+    def test_maps_show_visible(self) -> None:
+        """Legend visible='show' passes through."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.waffle.config import WaffleLegend
+
+        legend = WaffleLegend(visible='show')
+        result = compile_partition_legend_options(legend)
+        assert result.legend_display == 'show'
+
+    def test_maps_hide_visible(self) -> None:
+        """Legend visible='hide' passes through."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.mosaic.config import MosaicLegend
+
+        legend = MosaicLegend(visible='hide')
+        result = compile_partition_legend_options(legend)
+        assert result.legend_display == 'hide'
+
+    def test_maps_legend_position(self) -> None:
+        """Legend position is mapped correctly."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.mosaic.config import MosaicLegend
+
+        legend = MosaicLegend(position='bottom')
+        result = compile_partition_legend_options(legend)
+        assert result.legend_position == 'bottom'
+
+    def test_maps_legend_width(self) -> None:
+        """Legend width enum maps to Kibana legend size."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.waffle.config import WaffleLegend
+
+        legend = WaffleLegend(width='large')
+        result = compile_partition_legend_options(legend)
+        assert result.legend_size == 'large'
+
+    def test_truncate_labels_zero_disables_truncation(self) -> None:
+        """Setting truncate_labels to 0 disables truncation."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.mosaic.config import MosaicLegend
+
+        legend = MosaicLegend(truncate_labels=0)
+        result = compile_partition_legend_options(legend)
+        assert result.truncate_legend is False
+        assert result.legend_max_lines is None
+
+    def test_truncate_labels_nonzero_sets_max_lines(self) -> None:
+        """Setting truncate_labels to a positive value sets legend_max_lines."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.mosaic.config import MosaicLegend
+
+        legend = MosaicLegend(truncate_labels=3)
+        result = compile_partition_legend_options(legend)
+        assert result.truncate_legend is None
+        assert result.legend_max_lines == 3
+
+    def test_maps_nested_legend(self) -> None:
+        """Nested legend flag is mapped."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.waffle.config import WaffleLegend
+
+        legend = WaffleLegend(nested=True)
+        result = compile_partition_legend_options(legend)
+        assert result.nested_legend is True
+
+    def test_maps_show_single_series(self) -> None:
+        """Show single series flag is mapped."""
+        from kb_dashboard_core.panels.charts.base.compile import compile_partition_legend_options
+        from kb_dashboard_core.panels.charts.mosaic.config import MosaicLegend
+
+        legend = MosaicLegend(show_single_series=True)
+        result = compile_partition_legend_options(legend)
+        assert result.show_single_series is True

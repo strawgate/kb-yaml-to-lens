@@ -1,6 +1,11 @@
 """Compile Lens waffle visualizations into their Kibana view models."""
 
-from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping, map_legend_size
+from kb_dashboard_core.panels.charts.base.compile import (
+    build_collapse_fns,
+    compile_color_value_mapping,
+    compile_partition_legend_options,
+    compile_partition_number_display,
+)
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -40,39 +45,13 @@ def compile_waffle_chart_visualization_state(
         The compiled visualization state for the waffle chart.
 
     """
-    number_display = 'percent'
-    if chart.appearance is not None and chart.appearance.values is not None and chart.appearance.values.format is not None:
-        fmt = chart.appearance.values.format
-        number_display = 'hidden' if fmt == 'hide' else fmt
+    number_display = compile_partition_number_display(
+        chart.appearance.values.format if chart.appearance is not None and chart.appearance.values is not None else None,
+    )
 
     category_display = 'default'
 
-    legend_display = 'default'
-    legend_size = None
-    truncate_legend = None
-    legend_max_lines = None
-    nested_legend = None
-    show_single_series = None
-    legend_position = 'right'
-
-    if chart.legend is not None:
-        if chart.legend.visible is not None:
-            legend_display = 'default' if chart.legend.visible == 'auto' else chart.legend.visible
-        if chart.legend.width is not None:
-            legend_size = map_legend_size(chart.legend.width)
-        if chart.legend.truncate_labels is not None:
-            # Kibana mapping: 0 explicitly disables truncation (truncateLegend=False),
-            # otherwise set legendMaxLines and let Kibana use its default truncation behavior
-            if chart.legend.truncate_labels == 0:
-                truncate_legend = False
-            else:
-                legend_max_lines = chart.legend.truncate_labels
-        if chart.legend.nested is not None:
-            nested_legend = chart.legend.nested
-        if chart.legend.show_single_series is not None:
-            show_single_series = chart.legend.show_single_series
-        if chart.legend.position is not None:
-            legend_position = chart.legend.position
+    legend = compile_partition_legend_options(chart.legend)
 
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
@@ -89,15 +68,15 @@ def compile_waffle_chart_visualization_state(
         collapseFns=collapse_fns if collapse_fns is not None and len(collapse_fns) > 0 else None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
-        legendDisplay=legend_display,
-        legendPosition=legend_position,
-        nestedLegend=default_false(nested_legend),
+        legendDisplay=legend.legend_display,
+        legendPosition=legend.legend_position,
+        nestedLegend=default_false(legend.nested_legend),
         layerType='data',
         colorMapping=kbn_color_mapping,
-        legendSize=legend_size,
-        truncateLegend=False if truncate_legend is False else None,
-        legendMaxLines=legend_max_lines,
-        showSingleSeries=show_single_series,
+        legendSize=legend.legend_size,
+        truncateLegend=False if legend.truncate_legend is False else None,
+        legendMaxLines=legend.legend_max_lines,
+        showSingleSeries=legend.show_single_series,
         percentDecimals=percent_decimals,
     )
 

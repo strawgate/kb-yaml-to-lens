@@ -1,6 +1,8 @@
 """Compilation utilities for base chart components."""
 
 from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Literal, Protocol
 
 from kb_dashboard_core.panels.charts.base.config import PERCENT_MAX, ColorRangeMapping, ColorValueMapping, LegendWidthEnum
 from kb_dashboard_core.panels.charts.base.view import (
@@ -34,6 +36,96 @@ def map_legend_size(size: LegendWidthEnum | None) -> KbnLegendSize | None:
             return 'large'
         case LegendWidthEnum.EXTRA_LARGE:
             return 'xlarge'
+
+
+class PartitionLegendModel(Protocol):
+    """Structural interface for partition chart legend config models.
+
+    Both ``MosaicLegend`` and ``WaffleLegend`` satisfy this protocol.
+    """
+
+    visible: Literal['show', 'hide', 'auto'] | None
+    position: Literal['top', 'right', 'bottom', 'left'] | None
+    width: LegendWidthEnum | None
+    truncate_labels: int | None
+    nested: bool | None
+    show_single_series: bool | None
+
+
+@dataclass(frozen=True)
+class PartitionLegendOptions:
+    """Compiled legend options for partition chart visualization layers."""
+
+    legend_display: str
+    legend_position: str
+    legend_size: KbnLegendSize | None
+    truncate_legend: bool | None
+    legend_max_lines: int | None
+    nested_legend: bool | None
+    show_single_series: bool | None
+
+
+def compile_partition_number_display(values_format: str | None) -> str:
+    """Compile a partition chart number-display value from a values format string.
+
+    Args:
+        values_format: The ``appearance.values.format`` field, or ``None`` for default behaviour.
+
+    Returns:
+        The Kibana ``numberDisplay`` value (``'percent'``, ``'hidden'``, or the raw format string).
+
+    """
+    if values_format is None:
+        return 'percent'
+    return 'hidden' if values_format == 'hide' else values_format
+
+
+def compile_partition_legend_options(legend: PartitionLegendModel | None) -> PartitionLegendOptions:
+    """Compile partition chart legend options from a legend config model.
+
+    Args:
+        legend: The legend config model, or ``None`` when the chart has no legend section.
+
+    Returns:
+        Compiled legend options with Kibana-compatible defaults.
+
+    """
+    legend_display = 'default'
+    legend_size: KbnLegendSize | None = None
+    truncate_legend: bool | None = None
+    legend_max_lines: int | None = None
+    nested_legend: bool | None = None
+    show_single_series: bool | None = None
+    legend_position = 'right'
+
+    if legend is not None:
+        if legend.visible is not None:
+            legend_display = 'default' if legend.visible == 'auto' else legend.visible
+        if legend.width is not None:
+            legend_size = map_legend_size(legend.width)
+        if legend.truncate_labels is not None:
+            # Kibana mapping: 0 explicitly disables truncation (truncateLegend=False),
+            # otherwise set legendMaxLines and let Kibana use its default truncation behavior
+            if legend.truncate_labels == 0:
+                truncate_legend = False
+            else:
+                legend_max_lines = legend.truncate_labels
+        if legend.nested is not None:
+            nested_legend = legend.nested
+        if legend.show_single_series is not None:
+            show_single_series = legend.show_single_series
+        if legend.position is not None:
+            legend_position = legend.position
+
+    return PartitionLegendOptions(
+        legend_display=legend_display,
+        legend_position=legend_position,
+        legend_size=legend_size,
+        truncate_legend=truncate_legend,
+        legend_max_lines=legend_max_lines,
+        nested_legend=nested_legend,
+        show_single_series=show_single_series,
+    )
 
 
 def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLayerColorMapping:
