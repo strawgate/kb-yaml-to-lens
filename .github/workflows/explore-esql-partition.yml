@@ -1,5 +1,5 @@
 ---
-name: 'Explore: ES|QL Partition (Waffle/Mosaic)'
+name: 'Explore: ES|QL Partition (Waffle/Mosaic/Treemap)'
 on:
   schedule:
     - cron: 0 13 * * 1-5
@@ -51,7 +51,7 @@ jobs:
         and all instruction files it references BEFORE starting any work.
 
         ## Mission
-        Systematically test every config option for ES|QL **waffle and mosaic**
+        Systematically test every config option for ES|QL **waffle, mosaic, and treemap**
         charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
@@ -95,12 +95,23 @@ jobs:
         - `appearance.values.format` — `percent`, `value`, `hidden`
         - `appearance.values.decimal_places` — 0-10
 
+        ### Treemap chart (`type: treemap`)
+        - `breakdowns` — one or two grouping levels (required)
+        - `metrics` — one or more metrics for rectangle sizing
+        - `color.palette` and `color.assignments`
+        - `legend` — `visible`, `position`, `width`, `truncate_labels`, `nested`, `show_single_series`
+        - `appearance.categories.position` — `show` / `hide`
+        - `appearance.values.format` — `hide`, `integer`, `percent`
+        - `appearance.values.decimal_places` — 0-10
+
         ## Creative exploration
         - ES|QL waffle with `STATS count = COUNT() BY status`
         - ES|QL mosaic with two grouping columns + count metric
         - ES|QL waffle with custom color assignments per value
         - ES|QL mosaic with `value_format: percent` + 2 decimal places
-        - Both chart types with `legend.nested: true`
+        - ES|QL treemap with two grouping columns + sum metric
+        - ES|QL treemap with custom color assignments
+        - All three chart types with `legend.nested: true`
         - Compare ES|QL partition vs equivalent Lens partition side-by-side
 
         ## Issue title
