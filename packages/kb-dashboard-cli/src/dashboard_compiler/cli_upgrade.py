@@ -225,19 +225,35 @@ def _migrate_tagcloud(chart: YamlMap, stats: Counter[str]) -> None:
         stats['tagcloud:show-label'] += 1
 
 
-def _migrate_gauge(chart: YamlMap, stats: Counter[str]) -> None:
-    appearance = _as_map(chart.get('appearance'))
-    if appearance is None:
+def _migrate_gauge_color_stops(chart: YamlMap, stats: Counter[str]) -> None:
+    color = _as_map(chart.get('color'))
+    if color is None:
         return
 
-    palette = appearance.pop('palette', None)
-    if palette is None:
+    stops = _as_seq(color.get('stops'))
+    if stops is None:
         return
-    if 'color' not in chart:
-        chart['color'] = palette
-        stats['gauge:palette'] += 1
-    else:
-        stats['gauge:palette-skipped'] += 1
+
+    for entry in stops:
+        entry_map = _as_map(entry)
+        if entry_map is not None:
+            _rename_key(entry_map, 'stop', 'up_to', stats, 'gauge:stop-to-up-to')
+
+    _rename_key(color, 'stops', 'thresholds', stats, 'gauge:stops-to-thresholds')
+
+
+def _migrate_gauge(chart: YamlMap, stats: Counter[str]) -> None:
+    appearance = _as_map(chart.get('appearance'))
+    if appearance is not None:
+        palette = appearance.pop('palette', None)
+        if palette is not None:
+            if 'color' not in chart:
+                chart['color'] = palette
+                stats['gauge:palette'] += 1
+            else:
+                stats['gauge:palette-skipped'] += 1
+
+    _migrate_gauge_color_stops(chart, stats)
 
 
 def _normalize_xy_enums(chart: YamlMap, stats: Counter[str]) -> None:
