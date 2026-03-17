@@ -547,12 +547,6 @@ class TestCompilePartitionNumberDisplay:
 
         assert compile_partition_number_display('hide') == 'hidden'
 
-    def test_maps_hidden_to_hidden(self) -> None:
-        """The YAML 'hidden' alias also maps to Kibana 'hidden'."""
-        from kb_dashboard_core.panels.charts.base.compile import compile_partition_number_display
-
-        assert compile_partition_number_display('hidden') == 'hidden'
-
     def test_passes_through_other_formats(self) -> None:
         """Non-hide format strings are passed through unchanged."""
         from kb_dashboard_core.panels.charts.base.compile import compile_partition_number_display

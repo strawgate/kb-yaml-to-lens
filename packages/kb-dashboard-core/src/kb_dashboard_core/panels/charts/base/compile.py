@@ -83,7 +83,7 @@ def compile_partition_number_display(values_format: str | None) -> str:
     """
     if values_format is None:
         return 'percent'
-    return 'hidden' if values_format in ('hide', 'hidden') else values_format
+    return 'hidden' if values_format == 'hide' else values_format
 
 
 def compile_partition_legend_options(legend: PartitionLegendModel | None) -> PartitionLegendOptions:
