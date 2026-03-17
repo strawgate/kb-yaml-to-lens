@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 from collections.abc import Callable, Iterator
@@ -15,6 +16,8 @@ from ruamel.yaml import YAML
 from kb_dashboard_tools.decompile import decompile_dashboard
 
 from .integrations_targets import INTEGRATIONS_DASHBOARD_TARGETS, INTEGRATIONS_PINNED_SHA
+
+_SHA_PATTERN = re.compile(r'^[0-9a-fA-F]{7,40}$')
 
 INTEGRATIONS_REPO_URL = 'https://github.com/elastic/integrations.git'
 GIT_BIN = shutil.which('git')
@@ -73,13 +76,17 @@ def integrations_repo_path(request: pytest.FixtureRequest, tmp_path_factory: pyt
     pinned_sha = str(request.config.getoption('--integrations-sha')).strip()
     if len(pinned_sha) == 0:
         pytest.skip('set --integrations-sha (or KB_INTEGRATIONS_SHA) to pin fixture source')
+    if _SHA_PATTERN.match(pinned_sha) is None:
+        pytest.fail('--integrations-sha must be a valid commit SHA (7-40 hex characters)')
 
     repo_url = str(request.config.getoption('--integrations-repo-url')).strip() or INTEGRATIONS_REPO_URL
     cache_root = tmp_path_factory.getbasetemp().parent / 'integrations-cache'
     cache_root.mkdir(parents=True, exist_ok=True)
     repo_path = cache_root / pinned_sha
 
-    if not repo_path.exists():
+    if not (repo_path / '.git').exists():
+        if repo_path.exists():
+            shutil.rmtree(repo_path)
         _run_git(['clone', '--filter=blob:none', '--sparse', repo_url, str(repo_path)])
     _run_git(['fetch', '--depth=1', 'origin', pinned_sha], cwd=repo_path)
     _run_git(['checkout', '--force', pinned_sha], cwd=repo_path)
