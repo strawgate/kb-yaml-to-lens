@@ -154,6 +154,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
                                                 'numberDisplay': 'percent',
                                                 'categoryDisplay': 'default',
                                                 'legendDisplay': 'default',
+                                                'legendPosition': 'right',
                                                 'nestedLegend': False,
                                             }
                                         ],

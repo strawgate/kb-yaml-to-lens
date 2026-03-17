@@ -12,8 +12,6 @@ Usage:
     python scripts/bump-version.py patch --dry-run   # Preview changes
 """
 
-
-
 import json
 import re
 import subprocess
@@ -86,7 +84,7 @@ def write_version(path: Path, file_format: str, old_version: str, new_version: s
 def check_all_dependencies_pinned(root: Path) -> None:
     """Check that all internal package dependencies are pinned (have version specifiers)."""
     internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli', 'kb-dashboard-docs']
-    
+
     # Files that might have internal dependencies
     files_with_deps = [
         'packages/kb-dashboard-tools/pyproject.toml',
@@ -95,29 +93,36 @@ def check_all_dependencies_pinned(root: Path) -> None:
         'packages/kb-dashboard-docs/pyproject.toml',
         'pyproject.toml',
     ]
-    
+
     unpinned_deps = []
-    
+
     for file_path in files_with_deps:
         full_path = root / file_path
         if not full_path.exists():
             continue
-            
+
         content = full_path.read_text(encoding='utf-8')
         lines = content.split('\n')
-        
+
         for line_num, line in enumerate(lines, start=1):
             # Skip name fields
             if 'name =' in line:
                 continue
-            
+
             for pkg in internal_packages:
                 # Check for unpinned dependency: "pkg" followed by comma or closing bracket
                 # But not "pkg==" or "pkg>=" or "pkg<=" etc.
                 unpinned_pattern = re.compile(r'"' + re.escape(pkg) + r'"(?=\s*[,)])')
-                if unpinned_pattern.search(line) and '==' not in line and '>=' not in line and '<=' not in line and '~=' not in line and '!=' not in line:
+                if (
+                    unpinned_pattern.search(line)
+                    and '==' not in line
+                    and '>=' not in line
+                    and '<=' not in line
+                    and '~=' not in line
+                    and '!=' not in line
+                ):
                     unpinned_deps.append((file_path, line_num, pkg))
-    
+
     if unpinned_deps:
         click.echo('\nError: Found unpinned internal package dependencies:', err=True)
         for file_path, line_num, pkg in unpinned_deps:
@@ -129,7 +134,7 @@ def check_all_dependencies_pinned(root: Path) -> None:
 def update_internal_dependencies(root: Path, old_version: str, new_version: str, dry_run: bool) -> None:
     """Update internal package dependencies to exact versions."""
     internal_packages = ['kb-dashboard-core', 'kb-dashboard-tools', 'kb-dashboard-lint', 'kb-dashboard-cli', 'kb-dashboard-docs']
-    
+
     # Files that might have internal dependencies
     files_with_deps = [
         'packages/kb-dashboard-tools/pyproject.toml',
@@ -138,35 +143,35 @@ def update_internal_dependencies(root: Path, old_version: str, new_version: str,
         'packages/kb-dashboard-docs/pyproject.toml',
         'pyproject.toml',
     ]
-    
+
     click.echo('\nUpdating internal package dependencies...')
-    
+
     for file_path in files_with_deps:
         full_path = root / file_path
         if not full_path.exists():
             continue
-            
+
         content = full_path.read_text(encoding='utf-8')
         updated = False
         new_content = content
-        
+
         for pkg in internal_packages:
             # Only match pinned dependencies (safe - won't match name fields):
             # "kb-dashboard-core==0.1.10",
             # "kb-dashboard-core>=0.1.10",
-            
+
             # Pattern 1: Pinned to old version (safe to replace directly - won't match name field)
             pinned_pattern = f'"{pkg}=={old_version}"'
             if pinned_pattern in new_content:
                 new_content = new_content.replace(pinned_pattern, f'"{pkg}=={new_version}"')
                 updated = True
-            
+
             # Pattern 2: Minimum version (safe to replace directly - won't match name field)
             min_version_pattern = f'"{pkg}>={old_version}"'
             if min_version_pattern in new_content:
                 new_content = new_content.replace(min_version_pattern, f'"{pkg}=={new_version}"')
                 updated = True
-        
+
         if updated:
             if not dry_run:
                 full_path.write_text(new_content, encoding='utf-8')
@@ -197,7 +202,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
             write_version(full_path, file_format, old_ver, new_version)
         status = '(dry-run)' if dry_run else 'OK'
         click.echo(f'  {file_path}: {old_ver} -> {new_version} {status}')
-        
+
         if file_path == 'packages/vscode-extension/package.json':
             package_json_updated = True
         if file_path.endswith('pyproject.toml'):
@@ -205,7 +210,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
 
     # Check that all internal dependencies are pinned before updating
     check_all_dependencies_pinned(root)
-    
+
     # Update internal package dependencies
     if not dry_run:
         update_internal_dependencies(root, current_version, new_version, dry_run)
@@ -234,7 +239,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
     # Update uv.lock files by running uv lock
     if pyproject_updated and not dry_run:
         click.echo('\nUpdating uv.lock files...')
-        
+
         # Update root uv.lock
         try:
             subprocess.run(
@@ -249,7 +254,7 @@ def update_versions(new_version: str, dry_run: bool) -> None:
             click.echo(f'  Warning: Failed to update root uv.lock: {e.stderr}', err=True)
         except FileNotFoundError:
             click.echo('  Warning: uv not found. Skipping uv.lock update.', err=True)
-        
+
         # Update CLI uv.lock (workspace uses root lock, but keep for compatibility)
         # Note: In a workspace, uv.lock is managed at root, but we check CLI directory
         cli_dir = root / 'packages/kb-dashboard-cli'

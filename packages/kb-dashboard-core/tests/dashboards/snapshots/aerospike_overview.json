@@ -967,6 +967,7 @@
                                         "numberDisplay": "percent",
                                         "categoryDisplay": "default",
                                         "legendDisplay": "default",
+                                        "legendPosition": "right",
                                         "nestedLegend": false,
                                         "emptySizeRatio": 0.5
                                     }
@@ -1113,6 +1114,7 @@
                                         "numberDisplay": "percent",
                                         "categoryDisplay": "default",
                                         "legendDisplay": "default",
+                                        "legendPosition": "right",
                                         "nestedLegend": false,
                                         "emptySizeRatio": 0.5
                                     }

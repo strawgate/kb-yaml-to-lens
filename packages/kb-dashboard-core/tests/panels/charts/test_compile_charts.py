@@ -655,6 +655,7 @@ class TestCompileLensChartState:
                         'layerId': IsUUID,
                         'layerType': 'data',
                         'legendDisplay': 'default',
+                        'legendPosition': 'right',
                         'metrics': ['metric1'],
                         'nestedLegend': False,
                         'numberDisplay': 'percent',

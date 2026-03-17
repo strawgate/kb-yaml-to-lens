@@ -87,7 +87,7 @@ typecheck:
 # Testing
 test-unit:
     just _print-start "Running pytest"
-    uv run pytest -o addopts="" --tb=line --no-header -q
+    uv run pytest -o addopts="" --inline-snapshot=short-report --tb=line --no-header -q
     just _print-end "Tests passed"
 
 test-e2e:

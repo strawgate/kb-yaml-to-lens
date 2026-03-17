@@ -36,7 +36,7 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
-addopts = "-vv --inline-snapshot=short-report"
+addopts = "-vv"
 
 [tool.inline-snapshot]
 format-command = "ruff format"
