@@ -46,7 +46,6 @@ def compile_treemap_chart_visualization_state(
     legend_options = compile_partition_legend_options(chart.legend)
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
-    allow_multiple_metrics = True if len(metric_ids) > 1 else None
     percent_decimals = None
     if values is not None and values.decimal_places is not None:
         percent_decimals = values.decimal_places
@@ -56,7 +55,7 @@ def compile_treemap_chart_visualization_state(
         primaryGroups=slice_by_ids,
         secondaryGroups=None,
         metrics=metric_ids,
-        allowMultipleMetrics=allow_multiple_metrics,
+        allowMultipleMetrics=None,
         collapseFns=collapse_fns or None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
@@ -83,14 +82,11 @@ def compile_lens_treemap_chart(
     layer_id = lens_treemap_chart.get_id()
 
     kbn_metric_column_by_id: dict[str, KbnLensMetricColumnTypes] = {}
-    metric_ids: list[str] = []
-    for metric_config in lens_treemap_chart.metrics:
-        result = compile_lens_metric(metric=metric_config)
-        metric_id = result.primary_id
-        metric = result.primary_column
-        kbn_metric_column_by_id[metric_id] = metric
-        kbn_metric_column_by_id.update(result.helper_columns)
-        metric_ids.append(metric_id)
+    result = compile_lens_metric(metric=lens_treemap_chart.metric)
+    metric_id = result.primary_id
+    kbn_metric_column_by_id[metric_id] = result.primary_column
+    kbn_metric_column_by_id.update(result.helper_columns)
+    metric_ids = [metric_id]
 
     slices_by_ids = compile_lens_dimensions(dimensions=lens_treemap_chart.breakdowns, kbn_metric_column_by_id=kbn_metric_column_by_id)
     all_dimension_ids = list(slices_by_ids.keys())
@@ -123,8 +119,8 @@ def compile_esql_treemap_chart(
     """Compile an ESQLTreemapChart config object into a Kibana treemap visualization state."""
     layer_id = esql_treemap_chart.get_id()
 
-    metrics = [compile_esql_metric(m) for m in esql_treemap_chart.metrics]
-    metric_ids = [m.columnId for m in metrics]
+    metric = compile_esql_metric(esql_treemap_chart.metric)
+    metric_ids = [metric.columnId]
 
     dimensions = compile_esql_dimensions(dimensions=esql_treemap_chart.breakdowns)
     all_dimension_ids = [d.columnId for d in dimensions]
@@ -132,7 +128,7 @@ def compile_esql_treemap_chart(
     # ES|QL treemap breakdowns do not support collapse
     collapse_fns = build_collapse_fns([])
 
-    kbn_columns: list[KbnESQLColumnTypes] = [*metrics, *dimensions]
+    kbn_columns: list[KbnESQLColumnTypes] = [metric, *dimensions]
 
     return (
         layer_id,

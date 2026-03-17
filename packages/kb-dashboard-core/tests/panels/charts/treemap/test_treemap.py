@@ -13,7 +13,7 @@ async def test_basic_treemap_chart() -> None:
     lens_config = {
         'type': 'treemap',
         'data_view': 'metrics-*',
-        'metrics': [{'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -21,7 +21,7 @@ async def test_basic_treemap_chart() -> None:
     esql_config = {
         'type': 'treemap',
         'query': 'FROM metrics-* | STATS count(*) by service.name',
-        'metrics': [{'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'}],
+        'metric': {'field': 'count(*)', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
         'breakdowns': [{'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'}],
         'legend': {'width': 'extra_large'},
         'color': {'palette': 'eui_amsterdam_color_blind'},
@@ -84,7 +84,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
         {
             'type': 'treemap',
             'data_view': 'metrics-*',
-            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            'metric': {'aggregation': 'count', 'id': 'metric1'},
             'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
             'appearance': {'categories': {'position': 'show'}},
         }
@@ -96,7 +96,7 @@ async def test_treemap_show_hide_label_mapping() -> None:
         {
             'type': 'treemap',
             'data_view': 'metrics-*',
-            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            'metric': {'aggregation': 'count', 'id': 'metric1'},
             'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'group1'}],
             'appearance': {'categories': {'position': 'hide'}},
         }
@@ -111,7 +111,7 @@ async def test_treemap_with_two_breakdowns_uses_primary_groups_only() -> None:
         {
             'type': 'treemap',
             'data_view': 'metrics-*',
-            'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+            'metric': {'aggregation': 'count', 'id': 'metric1'},
             'breakdowns': [
                 {'type': 'values', 'field': 'service.name', 'id': 'group1'},
                 {'type': 'values', 'field': 'service.environment', 'id': 'group2'},
@@ -127,7 +127,7 @@ async def test_treemap_with_two_breakdowns_uses_primary_groups_only() -> None:
         {
             'type': 'treemap',
             'query': 'FROM metrics-* | STATS c = count(*) by service.name, service.environment',
-            'metrics': [{'field': 'c', 'id': 'metric1'}],
+            'metric': {'field': 'c', 'id': 'metric1'},
             'breakdowns': [
                 {'field': 'service.name', 'id': 'group1'},
                 {'field': 'service.environment', 'id': 'group2'},

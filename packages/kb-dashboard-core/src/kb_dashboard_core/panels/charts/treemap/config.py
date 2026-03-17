@@ -76,8 +76,8 @@ class LensTreemapChart(BaseTreemapChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the treemap chart."""
 
-    metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
-    """Metrics that determine the rectangle sizes."""
+    metric: LensMetricTypes = Field(default=...)
+    """Metric that determines the rectangle sizes. Treemap supports only one metric."""
 
     breakdowns: list[LensBreakdownTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
@@ -95,8 +95,8 @@ class LensTreemapChart(BaseTreemapChart):
 class ESQLTreemapChart(BaseTreemapChart):
     """Represents a Treemap chart configuration within an ES|QL panel."""
 
-    metrics: list[ESQLMetricTypes] = Field(default=..., min_length=1)
-    """Metrics that determine the rectangle sizes."""
+    metric: ESQLMetricTypes = Field(default=...)
+    """Metric that determines the rectangle sizes. Treemap supports only one metric."""
 
     breakdowns: list[ESQLTreemapBreakdownTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""

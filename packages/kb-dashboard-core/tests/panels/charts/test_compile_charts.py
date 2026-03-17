@@ -77,7 +77,7 @@ class TestChartTypeToKbnTypeLens:
                 'type': 'treemap',
                 'data_view': 'metrics-*',
                 'breakdowns': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
-                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -89,7 +89,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'treemap',
                 'breakdowns': [{'field': 'status', 'id': 'group1'}],
-                'metrics': [{'field': 'count(*)', 'id': 'metric1'}],
+                'metric': {'field': 'count(*)', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -678,7 +678,7 @@ class TestCompileLensChartState:
                 'type': 'treemap',
                 'data_view': 'metrics-*',
                 'breakdowns': [{'type': 'values', 'field': 'status', 'id': 'group1'}],
-                'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[treemap_chart])

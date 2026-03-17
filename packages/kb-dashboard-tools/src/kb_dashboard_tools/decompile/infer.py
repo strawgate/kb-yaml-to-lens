@@ -50,10 +50,10 @@ logger = logging.getLogger(__name__)
 
 # Chart-type classification sets (reused across functions)
 _XY_CHART_TYPES = frozenset({'line', 'bar', 'area'})
-_SINGULAR_METRIC_TYPES = frozenset({'gauge', 'tagcloud', 'waffle', 'mosaic'})
+_SINGULAR_METRIC_TYPES = frozenset({'gauge', 'tagcloud', 'waffle', 'mosaic', 'treemap'})
 _SINGULAR_DIM_TYPES = frozenset({'metric', 'tagcloud', 'waffle', 'mosaic'})
 _PARTITION_TYPES = frozenset({'pie', 'treemap'})
-_PLURAL_METRIC_TYPES = frozenset({'pie', 'treemap', 'datatable', 'line', 'bar', 'area'})
+_PLURAL_METRIC_TYPES = frozenset({'pie', 'datatable', 'line', 'bar', 'area'})
 
 # Sentinel field name Kibana uses for record-count metrics
 _RECORDS_FIELD = 'Records'
@@ -722,7 +722,7 @@ def _fill_required_defaults(
     if is_xy and 'metrics' not in chart:
         chart['metrics'] = [default_metric]
     if is_partition:
-        if 'metrics' not in chart:
+        if chart_type != 'treemap' and 'metrics' not in chart:
             chart['metrics'] = [default_metric]
         if 'breakdowns' not in chart:
             chart['breakdowns'] = [default_dim]
