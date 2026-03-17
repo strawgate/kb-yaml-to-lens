@@ -47,7 +47,8 @@ def map_legend_size(size: LegendWidthEnum | None) -> KbnLegendSize | None:
 class PartitionLegendModel(Protocol):
     """Structural interface for partition chart legend config models.
 
-    Both ``MosaicLegend`` and ``WaffleLegend`` satisfy this protocol.
+    All partition chart legends (``PieLegend``, ``TreemapLegend``,
+    ``MosaicLegend``, ``WaffleLegend``) satisfy this protocol.
     """
 
     visible: LegendVisibleEnum | None

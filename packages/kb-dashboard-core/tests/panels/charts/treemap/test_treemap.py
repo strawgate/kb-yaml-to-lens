@@ -46,6 +46,7 @@ async def test_basic_treemap_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'legendSize': 'xlarge',
         }
@@ -70,6 +71,7 @@ async def test_basic_treemap_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'legendSize': 'xlarge',
         }
