@@ -79,10 +79,10 @@ def test_compile_heatmap_chart_1d_lens() -> None:
         {
             'gridConfig': {
                 'isCellLabelVisible': False,
-                'isXAxisLabelVisible': False,
-                'isXAxisTitleVisible': False,
-                'isYAxisLabelVisible': False,
-                'isYAxisTitleVisible': False,
+                'isXAxisLabelVisible': True,
+                'isXAxisTitleVisible': True,
+                'isYAxisLabelVisible': True,
+                'isYAxisTitleVisible': True,
                 'type': 'heatmap_grid',
             },
             'layerId': IsUUID,
@@ -134,10 +134,10 @@ def test_compile_heatmap_chart_2d_lens() -> None:
             'gridConfig': {
                 'type': 'heatmap_grid',
                 'isCellLabelVisible': False,
-                'isXAxisLabelVisible': False,
-                'isXAxisTitleVisible': False,
-                'isYAxisLabelVisible': False,
-                'isYAxisTitleVisible': False,
+                'isXAxisLabelVisible': True,
+                'isXAxisTitleVisible': True,
+                'isYAxisLabelVisible': True,
+                'isYAxisTitleVisible': True,
             },
             'legend': {
                 'type': 'heatmap_legend',
@@ -168,10 +168,10 @@ def test_compile_heatmap_chart_1d_esql() -> None:
         {
             'gridConfig': {
                 'isCellLabelVisible': False,
-                'isXAxisLabelVisible': False,
-                'isXAxisTitleVisible': False,
-                'isYAxisLabelVisible': False,
-                'isYAxisTitleVisible': False,
+                'isXAxisLabelVisible': True,
+                'isXAxisTitleVisible': True,
+                'isYAxisLabelVisible': True,
+                'isYAxisTitleVisible': True,
                 'type': 'heatmap_grid',
             },
             'layerId': IsUUID,
@@ -219,10 +219,10 @@ def test_compile_heatmap_chart_2d_esql() -> None:
             'gridConfig': {
                 'type': 'heatmap_grid',
                 'isCellLabelVisible': False,
-                'isXAxisLabelVisible': False,
-                'isXAxisTitleVisible': False,
-                'isYAxisLabelVisible': False,
-                'isYAxisTitleVisible': False,
+                'isXAxisLabelVisible': True,
+                'isXAxisTitleVisible': True,
+                'isYAxisLabelVisible': True,
+                'isYAxisTitleVisible': True,
             },
             'legend': {
                 'type': 'heatmap_legend',
@@ -356,10 +356,10 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
         {
             'gridConfig': {
                 'isCellLabelVisible': False,
-                'isXAxisLabelVisible': False,
-                'isXAxisTitleVisible': False,
-                'isYAxisLabelVisible': False,
-                'isYAxisTitleVisible': False,
+                'isXAxisLabelVisible': True,
+                'isXAxisTitleVisible': True,
+                'isYAxisLabelVisible': True,
+                'isYAxisTitleVisible': True,
                 'type': 'heatmap_grid',
             },
             'layerId': IsUUID,
@@ -601,10 +601,10 @@ def test_compile_heatmap_chart_partial_visibility_config() -> None:
 
     # Should fill in defaults for unspecified fields
     assert result['gridConfig']['isCellLabelVisible'] is True
-    assert result['gridConfig']['isXAxisLabelVisible'] is False
-    assert result['gridConfig']['isXAxisTitleVisible'] is False
-    assert result['gridConfig']['isYAxisLabelVisible'] is False
-    assert result['gridConfig']['isYAxisTitleVisible'] is False
+    assert result['gridConfig']['isXAxisLabelVisible'] is True
+    assert result['gridConfig']['isXAxisTitleVisible'] is True
+    assert result['gridConfig']['isYAxisLabelVisible'] is True
+    assert result['gridConfig']['isYAxisTitleVisible'] is True
 
 
 def test_compile_heatmap_chart_partial_legend_config() -> None:

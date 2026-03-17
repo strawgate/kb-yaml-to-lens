@@ -26,17 +26,17 @@ class KbnHeatmapGridConfig(BaseVwModel):
     isCellLabelVisible: bool = Field(default=False)
     """Whether to show labels inside heatmap cells. Defaults to false."""
 
-    isXAxisLabelVisible: bool = Field(default=False)
-    """Whether to show X-axis labels. Defaults to false."""
+    isXAxisLabelVisible: bool = Field(default=True)
+    """Whether to show X-axis labels. Defaults to true."""
 
-    isXAxisTitleVisible: bool = Field(default=False)
-    """Whether to show X-axis title. Defaults to false."""
+    isXAxisTitleVisible: bool = Field(default=True)
+    """Whether to show X-axis title. Defaults to true."""
 
-    isYAxisLabelVisible: bool = Field(default=False)
-    """Whether to show Y-axis labels. Defaults to false."""
+    isYAxisLabelVisible: bool = Field(default=True)
+    """Whether to show Y-axis labels. Defaults to true."""
 
-    isYAxisTitleVisible: bool = Field(default=False)
-    """Whether to show Y-axis title. Defaults to false."""
+    isYAxisTitleVisible: bool = Field(default=True)
+    """Whether to show Y-axis title. Defaults to true."""
 
 
 class KbnHeatmapLegendConfig(BaseVwModel):

@@ -12,7 +12,7 @@ from kb_dashboard_core.panels.charts.heatmap.view import (
 )
 from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
-from kb_dashboard_core.shared.defaults import default_false
+from kb_dashboard_core.shared.defaults import default_false, default_true
 
 if TYPE_CHECKING:
     from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
@@ -45,31 +45,27 @@ def compile_heatmap_chart_visualization_state(
         appearance = chart.appearance
         cell_labels = default_false(appearance.values.visible) if appearance.values is not None else False
         x_axis_labels = (
-            default_false(appearance.x_axis.labels.visible)
+            default_true(appearance.x_axis.labels.visible)
             if appearance.x_axis is not None and appearance.x_axis.labels is not None
-            else False
+            else True
         )
         x_axis_title = (
-            default_false(appearance.x_axis.title.visible)
-            if appearance.x_axis is not None and appearance.x_axis.title is not None
-            else False
+            default_true(appearance.x_axis.title.visible) if appearance.x_axis is not None and appearance.x_axis.title is not None else True
         )
         y_axis_labels = (
-            default_false(appearance.y_axis.labels.visible)
+            default_true(appearance.y_axis.labels.visible)
             if appearance.y_axis is not None and appearance.y_axis.labels is not None
-            else False
+            else True
         )
         y_axis_title = (
-            default_false(appearance.y_axis.title.visible)
-            if appearance.y_axis is not None and appearance.y_axis.title is not None
-            else False
+            default_true(appearance.y_axis.title.visible) if appearance.y_axis is not None and appearance.y_axis.title is not None else True
         )
     else:
         cell_labels = False
-        x_axis_labels = False
-        x_axis_title = False
-        y_axis_labels = False
-        y_axis_title = False
+        x_axis_labels = True
+        x_axis_title = True
+        y_axis_labels = True
+        y_axis_title = True
 
     grid_config = KbnHeatmapGridConfig(
         isCellLabelVisible=cell_labels,

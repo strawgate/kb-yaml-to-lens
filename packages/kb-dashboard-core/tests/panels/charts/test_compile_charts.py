@@ -494,10 +494,10 @@ class TestCompileLensChartState:
             {
                 'gridConfig': {
                     'isCellLabelVisible': False,
-                    'isXAxisLabelVisible': False,
-                    'isXAxisTitleVisible': False,
-                    'isYAxisLabelVisible': False,
-                    'isYAxisTitleVisible': False,
+                    'isXAxisLabelVisible': True,
+                    'isXAxisTitleVisible': True,
+                    'isYAxisLabelVisible': True,
+                    'isYAxisTitleVisible': True,
                     'type': 'heatmap_grid',
                 },
                 'layerId': IsUUID,
