@@ -37,12 +37,6 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=[],
         help='Relative dashboard file path(s) under integrations repo. Can be repeated.',
     )
-    parser.addoption(
-        '--update-integrations-snapshots',
-        action='store_true',
-        default=False,
-        help='Rewrite integrations decompile snapshot files for the selected SHA.',
-    )
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
