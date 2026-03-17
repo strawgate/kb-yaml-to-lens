@@ -104,15 +104,40 @@ def _build_metric_dict(col: ParsedColumn) -> dict[str, Any] | None:
     """Build a metric config dict from a form-based column. Returns None if skipped."""
     if col.operation_type in SKIP_OPERATION_TYPES:
         return None
+
+    # Formula metrics bypass the normal aggregation mapping
+    if col.operation_type == 'formula':
+        formula_str = col.params.get('formula')
+        if not isinstance(formula_str, str):
+            return None
+        metric: dict[str, Any] = {'formula': formula_str}
+        if col.label is not None and len(col.label) > 0:
+            metric['label'] = col.label
+        fmt = _extract_metric_format(col)
+        if fmt is not None:
+            metric['format'] = fmt
+        return metric
+
     aggregation = OPERATION_TYPE_MAP.get(col.operation_type)
     if aggregation is None:
         return None
 
-    metric: dict[str, Any] = {'aggregation': aggregation}
+    metric = {'aggregation': aggregation}
     if col.source_field is not None and col.source_field != 'Records':
         metric['field'] = col.source_field
     if col.label is not None and len(col.label) > 0:
         metric['label'] = col.label
+
+    # Extract percentile-specific parameters
+    if col.operation_type == 'percentile':
+        percentile_val = col.params.get('percentile')
+        if isinstance(percentile_val, (int, float)):
+            metric['percentile'] = int(percentile_val)
+    elif col.operation_type == 'percentile_rank':
+        rank_val = col.params.get('value')
+        if isinstance(rank_val, (int, float)):
+            metric['rank'] = int(rank_val)
+
     filt = _extract_metric_filter(col)
     if filt is not None:
         metric['filter'] = filt
@@ -704,6 +729,10 @@ def _infer_panel(panel: ParsedPanel, ref_lookup: dict[str, str]) -> tuple[str, d
     if panel.panel_index is not None:
         wrapper['id'] = panel.panel_index
     wrapper['title'] = panel.title
+    if panel.hide_title is True:
+        wrapper['hide_title'] = True
+    if panel.description is not None and len(panel.description) > 0:
+        wrapper['description'] = panel.description
 
     if panel.grid is not None:
         g = panel.grid

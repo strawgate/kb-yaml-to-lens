@@ -2107,3 +2107,235 @@ def test_parse_panel_ref_name_without_embedded_attributes_sets_error() -> None:
     assert parsed.panels[0].error == 'unresolved panel reference: panel_ref_0'
     assert parsed.panels[0].lens is None
     assert parsed.panels[0].simple is None
+
+
+# --- Formula metric extraction (#1522) ---
+
+
+def test_decompile_formula_metric() -> None:
+    """Extract formula metric from form-based columns."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'formula',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                    'params': {
+                                        'formula': 'count() / 100',
+                                    },
+                                },
+                                'col1X0': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                                'col1X1': {
+                                    'operationType': 'math',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    primary = result['lens']['primary']
+    assert primary['formula'] == 'count() / 100'
+    assert 'aggregation' not in primary
+
+
+def test_decompile_formula_metric_with_label_and_format() -> None:
+    """Extract formula metric preserving label and format."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'formula',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                    'label': 'Error Rate',
+                                    'customLabel': True,
+                                    'params': {
+                                        'formula': "count(kql='status:error') / count() * 100",
+                                        'format': {'id': 'percent', 'params': {'decimals': 1}},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    primary = result['lens']['primary']
+    assert primary['formula'] == "count(kql='status:error') / count() * 100"
+    assert primary['label'] == 'Error Rate'
+    assert primary['format']['type'] == 'percent'
+    assert primary['format']['decimals'] == 1
+
+
+def test_decompile_math_columns_skipped() -> None:
+    """Math columns (intermediate formula references) are skipped."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'math',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    primary = result['lens']['primary']
+    assert primary['aggregation'] == 'sum'
+    assert primary['field'] == 'TODO_unsupported_metric_field'
+
+
+# --- Percentile extraction (#1524) ---
+
+
+def test_decompile_percentile_metric() -> None:
+    """Extract percentile metric with percentile value from params."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'percentile',
+                                    'isBucketed': False,
+                                    'sourceField': 'response.latency',
+                                    'params': {'percentile': 95},
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    primary = result['lens']['primary']
+    assert primary['aggregation'] == 'percentile'
+    assert primary['field'] == 'response.latency'
+    assert primary['percentile'] == 95
+
+
+def test_decompile_percentile_rank_metric() -> None:
+    """Extract percentile_rank metric with rank value from params."""
+    panel = _make_lens_panel(
+        'lnsMetric',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'percentile_rank',
+                                    'isBucketed': False,
+                                    'sourceField': 'response.time',
+                                    'params': {'value': 500},
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    primary = result['lens']['primary']
+    assert primary['aggregation'] == 'percentile_rank'
+    assert primary['field'] == 'response.time'
+    assert primary['rank'] == 500
+
+
+# --- Panel hide_title and description (#1526) ---
+
+
+def test_decompile_panel_hide_title() -> None:
+    """Extract hidePanelTitles from embeddableConfig."""
+    panel: dict[str, object] = {
+        'panelIndex': 'p1',
+        'type': 'lens',
+        'title': 'My Panel',
+        'embeddableConfig': {
+            'hidePanelTitles': True,
+            'attributes': {'visualizationType': 'lnsMetric'},
+        },
+    }
+    result = _decompile_single_panel(panel)
+    assert result['hide_title'] is True
+
+
+def test_decompile_panel_hide_title_false_omitted() -> None:
+    """hidePanelTitles=False is not emitted in the output."""
+    panel: dict[str, object] = {
+        'panelIndex': 'p1',
+        'type': 'lens',
+        'title': 'My Panel',
+        'embeddableConfig': {
+            'hidePanelTitles': False,
+            'attributes': {'visualizationType': 'lnsMetric'},
+        },
+    }
+    result = _decompile_single_panel(panel)
+    assert 'hide_title' not in result
+
+
+def test_decompile_panel_description_from_embeddable_config() -> None:
+    """Extract description from embeddableConfig."""
+    panel: dict[str, object] = {
+        'panelIndex': 'p1',
+        'type': 'lens',
+        'embeddableConfig': {
+            'description': 'Panel-level description text',
+            'attributes': {'visualizationType': 'lnsMetric'},
+        },
+    }
+    result = _decompile_single_panel(panel)
+    assert result['description'] == 'Panel-level description text'
+
+
+def test_decompile_panel_description_from_panel_level() -> None:
+    """Extract description from panel-level field when not in embeddableConfig."""
+    panel: dict[str, object] = {
+        'panelIndex': 'p1',
+        'type': 'lens',
+        'description': 'Top-level panel description',
+        'embeddableConfig': {
+            'attributes': {'visualizationType': 'lnsMetric'},
+        },
+    }
+    result = _decompile_single_panel(panel)
+    assert result['description'] == 'Top-level panel description'

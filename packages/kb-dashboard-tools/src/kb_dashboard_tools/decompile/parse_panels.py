@@ -22,6 +22,7 @@ from .parse_models import (
 from .parse_shared import (
     SIMPLE_PANEL_VIEW_MODEL_MAP,
     as_dict,
+    get_bool,
     get_dict,
     get_list,
     get_str,
@@ -434,6 +435,17 @@ def parse_panel(panel: dict[str, Any]) -> ParsedPanel:
     parsed.title = _parse_panel_title(raw_panel)
     if raw_panel.grid_data is not None:
         parsed.grid = _parse_grid_data(raw_panel.grid_data)
+
+    # Extract per-panel hidePanelTitles and description from embeddableConfig
+    embeddable_cfg = get_dict(panel, 'embeddableConfig') or {}
+    hide_panel_titles = get_bool(embeddable_cfg, 'hidePanelTitles')
+    if hide_panel_titles is True:
+        parsed.hide_title = True
+    panel_description = get_str(embeddable_cfg, 'description')
+    if panel_description is None:
+        panel_description = get_str(panel, 'description')
+    if panel_description is not None and len(panel_description) > 0:
+        parsed.description = panel_description
 
     panel_type = raw_panel.type
     if panel_type is None:

@@ -64,9 +64,10 @@ OPERATION_TYPE_MAP: dict[str, str] = {
     'unique_count': 'unique_count',
     'last_value': 'last_value',
     'percentile': 'percentile',
+    'percentile_rank': 'percentile_rank',
 }
 
-SKIP_OPERATION_TYPES = frozenset({'formula', 'differences', 'math', 'cumulative_sum', 'counter_rate', 'moving_average'})
+SKIP_OPERATION_TYPES = frozenset({'differences', 'math', 'cumulative_sum', 'counter_rate', 'moving_average'})
 
 CONTROL_TYPE_MAP: dict[str, str] = {
     'optionsListControl': 'options',
