@@ -66,9 +66,9 @@ jobs:
         - Pie (default) — no donut setting or `appearance.donut` omitted
         - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
 
-        ### Dimension types (`dimensions:`)
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude`
+        ### Breakdown types (`breakdowns:`)
+        - `type: values` — top values/terms with `field`, `size`, `show_other_bucket`,
+          `include_missing_values`, `include`/`exclude`
         - `type: date_histogram` — with `field`, `minimum_interval`
         - `type: intervals` — numeric ranges
         - `type: filters` — KQL filter-based
@@ -79,10 +79,10 @@ jobs:
         `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
         `standard_deviation`, `formula`
 
-        ### Slice labels and values (`titles_and_text:`)
-        - `slice_labels` — `hide`, `inside`, `auto` (default: auto)
-        - `slice_values` — `hide`, `integer`, `percent` (default: percent)
-        - `value_decimal_places` — 0-10 (default: 2)
+        ### Slice labels and values (`appearance.categories` and `appearance.values`)
+        - `appearance.categories.position` — `hide`, `inside`, `auto` (default: auto)
+        - `appearance.values.format` — `hide`, `integer`, `percent` (default: percent)
+        - `appearance.values.decimal_places` — 0-10 (default: 2)
 
         ### Legend (`legend:`)
         - `visible` — `show`, `hide`, `auto`
@@ -101,7 +101,7 @@ jobs:
         - Donut with 2 nested ring dimensions + custom color assignments
         - Pie with filters dimension (e.g. error vs warning vs info)
         - Large donut with `slice_labels: inside` + `slice_values: percent`
-        - Pie with `other_bucket: true` + small `size` to show grouping
+        - Pie with `show_other_bucket: true` + small `size` to show grouping
         - Multiple metrics on a single pie (test emptySizeRatio behavior)
         - Formula-based metric as pie slice size
         - Pie chart inside a collapsible section
