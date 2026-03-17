@@ -240,7 +240,7 @@ def _migrate_esql_gauge_static_bounds(chart: YamlMap, stats: Counter[str]) -> No
     eval_parts: list[str] = []
     for key, field_name in bound_fields:
         value = chart.get(key)
-        if isinstance(value, (int, float)):
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
             eval_parts.append(f'{field_name} = {value}')
             chart[key] = CommentedMap({'field': field_name})
             stats[f'gauge:esql-static-{key}'] += 1
@@ -270,6 +270,12 @@ def _migrate_gauge_color_stops(chart: YamlMap, stats: Counter[str]) -> None:
 
     stops = _as_seq(color.get('stops'))
     if stops is None:
+        return
+
+    if 'thresholds' in color:
+        # Both keys present — drop the deprecated one
+        del color['stops']
+        stats['gauge:stops-dropped-duplicate'] += 1
         return
 
     for entry in stops:
