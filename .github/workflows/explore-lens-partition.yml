@@ -1,5 +1,5 @@
 ---
-name: 'Explore: Lens Partition (Waffle/Mosaic)'
+name: 'Explore: Lens Partition (Waffle/Mosaic/Treemap)'
 on:
   schedule:
     - cron: 40 11 * * 1-5
@@ -51,7 +51,7 @@ jobs:
         and all instruction files it references BEFORE starting any work.
 
         ## Mission
-        Systematically test every config option for **waffle and mosaic** Lens
+        Systematically test every config option for **waffle, mosaic, and treemap** Lens
         charts against **Kibana ${{ matrix.kibana_version }}**. Author YAML configs,
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
@@ -84,6 +84,15 @@ jobs:
         - `appearance.values.format` — `percent`, `value`, `hidden`
         - `appearance.values.decimal_places` — 0-10
 
+        ### Treemap chart (`type: treemap`)
+        - `breakdowns` — one or two grouping levels (required)
+        - `metrics` — one or more metrics for rectangle sizing
+        - `color.palette` and `color.assignments`
+        - `legend` — `visible`, `position`, `width`, `truncate_labels`, `nested`, `show_single_series`
+        - `appearance.categories.position` — `show` / `hide`
+        - `appearance.values.format` — `hide`, `integer`, `percent`
+        - `appearance.values.decimal_places` — 0-10
+
         ### Shared dimension types
         - `type: values` — top values with `field`, `size`, `show_other_bucket`
         - `type: date_histogram` — time bucketing
@@ -101,7 +110,9 @@ jobs:
         - Mosaic with two terms dimensions + count metric
         - Waffle with formula metric
         - Mosaic with `value_format: percent` + 2 decimal places
-        - Both chart types with `legend.nested: true`
+        - Treemap with two breakdowns + sum metric
+        - Treemap with custom color assignments
+        - All three chart types with `legend.nested: true`
         - Partition charts inside collapsible sections
 
         ## Issue title
