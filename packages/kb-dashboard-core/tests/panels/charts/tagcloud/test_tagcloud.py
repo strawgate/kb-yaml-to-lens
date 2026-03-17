@@ -368,7 +368,6 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
     )
 
 
-
 def test_tagcloud_deprecated_show_label_warns_and_maps() -> None:
     """Legacy appearance.show_label is rejected in 0.4.0."""
     with pytest.raises(ValidationError, match='show_label'):
