@@ -1,6 +1,5 @@
 """Provides functions to load, render, and dump YAML-to-Lens Dashboards."""
 
-import warnings
 from pathlib import Path
 
 import yaml
@@ -18,35 +17,19 @@ def load(path: str, allow_deprecated: bool = False) -> list[Dashboard]:
 
     Args:
         path (str): The path to the YAML file containing the dashboard configuration.
-        allow_deprecated (bool): Whether deprecated compatibility translations are allowed.
+        allow_deprecated (bool): Deprecated flag retained for API compatibility (no-op in 0.4.0+).
 
     Returns:
         list[Dashboard]: The loaded Dashboard objects.
 
     """
     load_path = Path(path)
+    _ = allow_deprecated
 
     with load_path.open(encoding='utf-8') as file:
         config_data = yaml.safe_load(file)  # pyright: ignore[reportAny]
 
-    if allow_deprecated:
-        config = DashboardConfig.model_validate(config_data)
-    else:
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            warnings.simplefilter('always', DeprecationWarning)
-            config = DashboardConfig.model_validate(config_data)
-
-        deprecated_messages = [
-            str(caught_warning.message) for caught_warning in caught_warnings if issubclass(caught_warning.category, DeprecationWarning)
-        ]
-        if len(deprecated_messages) > 0:
-            details = '\n'.join(f'  - {message}' for message in deprecated_messages)
-            msg = (
-                'Deprecated configuration fields were detected and are disabled by default.\n'
-                'Use --allow-deprecated (or allow_deprecated=True) to enable compatibility translations.\n'
-                f'{details}'
-            )
-            raise ValueError(msg)
+    config = DashboardConfig.model_validate(config_data)
 
     for dashboard in config.dashboards:
         logger.info('Loaded dashboard: %s', dashboard.name)

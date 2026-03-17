@@ -5,10 +5,9 @@ similar to treemaps but with a different visual arrangement. They are part of th
 Kibana Lens partition chart family (pie, donut, treemap, waffle, mosaic).
 """
 
-import warnings
-from typing import Any, Literal, cast
+from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLDimensionTypes, ESQLMetricTypes
@@ -66,64 +65,6 @@ class BaseMosaicChart(BaseChart):
 
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-
-        def as_dict(value: object) -> dict[str, Any]:
-            return dict(cast('dict[str, Any]', value)) if isinstance(value, dict) else {}
-
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
-        if legacy_raw is None:
-            return normalized_data
-        if not isinstance(legacy_raw, dict):
-            return normalized_data
-        legacy_titles_and_text = as_dict(cast('object', legacy_raw))
-        normalized_data.pop('titles_and_text')
-
-        appearance = as_dict(cast('object', normalized_data.get('appearance')))
-        values = as_dict(cast('object', appearance.get('values')))
-
-        if 'value_format' in legacy_titles_and_text:
-            mapped_format = cast('object', legacy_titles_and_text['value_format'])
-            if mapped_format == 'hidden':
-                mapped_format = 'hide'
-            if 'format' not in values:
-                values['format'] = mapped_format
-            else:
-                warnings.warn(
-                    "Mosaic chart field 'titles_and_text.value_format' is ignored because 'appearance.values.format' is already set.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-        if 'value_decimal_places' in legacy_titles_and_text:
-            if 'decimal_places' not in values:
-                values['decimal_places'] = legacy_titles_and_text['value_decimal_places']
-            else:
-                warnings.warn(
-                    (
-                        "Mosaic chart field 'titles_and_text.value_decimal_places' is ignored because "
-                        "'appearance.values.decimal_places' is already set."
-                    ),
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-        if values:
-            appearance['values'] = values
-            normalized_data['appearance'] = appearance
-
-        warnings.warn(
-            "Mosaic chart field 'titles_and_text' is deprecated, use 'appearance.values' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return normalized_data
 
 
 class LensMosaicChart(BaseMosaicChart):

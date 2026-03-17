@@ -271,26 +271,24 @@ class TestColorRangeMappingValidation:
         assert len(mapping.thresholds) == 3
 
     def test_accepts_legacy_continuity_alias(self) -> None:
-        """Test that legacy continuity input is accepted and ignored."""
-        with pytest.warns(DeprecationWarning, match='continuity'):
-            mapping = ColorRangeMapping.model_validate(
+        """Legacy continuity input is rejected in 0.4.0."""
+        with pytest.raises(ValidationError, match='continuity'):
+            ColorRangeMapping.model_validate(
                 {
                     'continuity': 'all',
                     'thresholds': [{'up_to': 50, 'color': '#FFA500'}],
                 }
             )
-        assert mapping.thresholds[0].up_to == 50
 
     def test_extend_beyond_range_is_accepted_and_ignored(self) -> None:
-        """Test extend_beyond_range input is accepted as deprecated and ignored."""
-        with pytest.warns(DeprecationWarning, match='extend_beyond_range'):
-            mapping = ColorRangeMapping.model_validate(
+        """Legacy extend_beyond_range input is rejected in 0.4.0."""
+        with pytest.raises(ValidationError, match='extend_beyond_range'):
+            ColorRangeMapping.model_validate(
                 {
                     'extend_beyond_range': 'none',
                     'thresholds': [{'up_to': 50, 'color': '#FFA500'}],
                 }
             )
-        assert mapping.thresholds[0].up_to == 50
 
     def test_number_type_allows_values_outside_percent_bounds(self) -> None:
         """Test that number range type allows values outside 0-100."""

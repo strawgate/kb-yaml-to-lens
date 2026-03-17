@@ -343,15 +343,13 @@ def test_compile_gauge_chart_with_range_palette() -> None:
             'id': 'metric_accessor',
             'aggregation': 'average',
         },
-        'appearance': {
-            'palette': {
-                'range_type': 'percent',
-                'thresholds': [
-                    {'up_to': 80, 'color': '#00BF6F'},
-                    {'up_to': 95, 'color': '#FFA500'},
-                    {'up_to': 100, 'color': '#BD271E'},
-                ],
-            },
+        'color': {
+            'range_type': 'percent',
+            'thresholds': [
+                {'up_to': 80, 'color': '#00BF6F'},
+                {'up_to': 95, 'color': '#FFA500'},
+                {'up_to': 100, 'color': '#BD271E'},
+            ],
         },
     }
 
@@ -414,14 +412,12 @@ def test_compile_gauge_chart_preserves_thresholds_in_color_stops(
             'id': 'metric_accessor',
             'aggregation': 'average',
         },
-        'appearance': {
-            'palette': {
-                'range_type': range_type,
-                'thresholds': [
-                    {'up_to': threshold_stops[0], 'color': '#000000'},
-                    {'up_to': threshold_stops[1], 'color': '#ffffff'},
-                ],
-            },
+        'color': {
+            'range_type': range_type,
+            'thresholds': [
+                {'up_to': threshold_stops[0], 'color': '#000000'},
+                {'up_to': threshold_stops[1], 'color': '#ffffff'},
+            ],
         },
     }
 

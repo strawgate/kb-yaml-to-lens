@@ -1,8 +1,7 @@
-import warnings
 from enum import StrEnum
-from typing import Any, Literal, cast
+from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -67,14 +66,6 @@ class PieValuesConfig(BaseCfgModel):
     """Controls the number of decimal places for values in the pie chart. Kibana defaults to 2 if not specified."""
 
 
-class PieTitlesAndText(BaseCfgModel):
-    """Legacy pie titles/text settings (deprecated; use appearance.categories/values)."""
-
-    slice_labels: PieSliceLabelsEnum | None = Field(default=None, strict=False)
-    slice_values: PieSliceValuesEnum | None = Field(default=None, strict=False)
-    value_decimal_places: int | None = Field(default=None, ge=0, le=10)
-
-
 class PieChartAppearance(BaseCfgModel):
     """Represents chart appearance formatting options for Pie charts."""
 
@@ -101,54 +92,6 @@ class BasePieChart(BaseChart):
 
     color: ColorValueMapping | None = Field(default=None)
     """Formatting options for the chart color."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
-        if legacy_raw is None:
-            return normalized_data
-        if not isinstance(legacy_raw, dict):
-            return normalized_data
-        normalized_data.pop('titles_and_text')
-        legacy = cast('dict[str, Any]', legacy_raw)
-
-        appearance_raw = normalized_data.get('appearance')
-        appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
-        categories = dict(cast('dict[str, Any]', appearance.get('categories'))) if isinstance(appearance.get('categories'), dict) else {}
-        values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
-        legacy_mappings = (
-            ('slice_labels', categories, 'position', 'appearance.categories.position'),
-            ('slice_values', values, 'format', 'appearance.values.format'),
-            ('value_decimal_places', values, 'decimal_places', 'appearance.values.decimal_places'),
-        )
-        for old_key, target, new_key, new_path in legacy_mappings:
-            if old_key not in legacy:
-                continue
-            if new_key in target:
-                warnings.warn(
-                    f"Pie chart field 'titles_and_text.{old_key}' is ignored because '{new_path}' is already set.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                continue
-            target[new_key] = legacy[old_key]
-
-        for appearance_key, target in (('categories', categories), ('values', values)):
-            if target:
-                appearance[appearance_key] = target
-        if appearance:
-            normalized_data['appearance'] = appearance
-
-        warnings.warn(
-            "Pie chart field 'titles_and_text' is deprecated, use 'appearance.categories' and 'appearance.values' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return normalized_data
 
 
 class LensPieChart(BasePieChart):
@@ -199,28 +142,6 @@ class LensPieChart(BasePieChart):
     breakdowns: list[LensBreakdownTypes] = Field(default=...)
     """The breakdowns that determine the slices of the pie chart. First breakdown is primary, additional breakdowns are secondary."""
 
-    @model_validator(mode='before')
-    @classmethod
-    def _warn_deprecated_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
-            warnings.warn(
-                "Pie chart field 'dimensions' is deprecated, use 'breakdowns' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
-        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
-            warnings.warn(
-                "Pie chart field 'dimensions' is ignored because 'breakdowns' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data.pop('dimensions')
-        return normalized_data
-
 
 class ESQLPieChart(BasePieChart):
     """Represents a Pie chart configuration within an ES|QL panel.
@@ -245,25 +166,3 @@ class ESQLPieChart(BasePieChart):
 
     breakdowns: list[ESQLDimensionTypes] = Field(default=...)
     """The breakdowns that determine the slices of the pie chart. First breakdown is primary, additional breakdowns are secondary."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _warn_deprecated_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
-            warnings.warn(
-                "Pie chart field 'dimensions' is deprecated, use 'breakdowns' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
-        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
-            warnings.warn(
-                "Pie chart field 'dimensions' is ignored because 'breakdowns' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data.pop('dimensions')
-        return normalized_data

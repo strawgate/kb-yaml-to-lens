@@ -1,6 +1,5 @@
-import warnings
 from enum import StrEnum
-from typing import Any, Literal, Self, cast
+from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
@@ -139,38 +138,6 @@ class LensDatatableChart(BaseChart):
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
 
-    @model_validator(mode='before')
-    @classmethod
-    def _warn_deprecated_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
-            warnings.warn(
-                "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
-        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
-            warnings.warn(
-                "Datatable field 'dimensions' (row groupings) is ignored because 'breakdowns' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data.pop('dimensions')
-        if 'dimensions_by' in normalized_data:
-            warnings.warn(
-                "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if 'metrics_split_by' not in normalized_data:
-                normalized_data['metrics_split_by'] = normalized_data.pop('dimensions_by')
-            else:
-                normalized_data.pop('dimensions_by')
-        return normalized_data
-
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:
         """Validate that datatable has at least one metric or breakdown.
@@ -229,38 +196,6 @@ class ESQLDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _warn_deprecated_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
-            warnings.warn(
-                "Datatable field 'dimensions' (row groupings) is deprecated, use 'breakdowns' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
-        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
-            warnings.warn(
-                "Datatable field 'dimensions' (row groupings) is ignored because 'breakdowns' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data.pop('dimensions')
-        if 'dimensions_by' in normalized_data:
-            warnings.warn(
-                "Datatable field 'dimensions_by' is deprecated, use 'metrics_split_by' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if 'metrics_split_by' not in normalized_data:
-                normalized_data['metrics_split_by'] = normalized_data.pop('dimensions_by')
-            else:
-                normalized_data.pop('dimensions_by')
-        return normalized_data
 
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:

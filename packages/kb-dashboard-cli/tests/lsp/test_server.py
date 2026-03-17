@@ -259,7 +259,7 @@ class TestCompileCustom(unittest.TestCase):
         self.assertIn('dashboard_index', result.error)
 
     def test_compile_custom_rejects_deprecated_fields_by_default(self) -> None:
-        """Deprecated fields should fail unless allow_deprecated is true."""
+        """Legacy fields should fail by default."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -282,10 +282,10 @@ class TestCompileCustom(unittest.TestCase):
 
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
-        self.assertIn('--allow-deprecated', result.error)
+        self.assertIn('titles_and_text', result.error)
 
     def test_compile_custom_accepts_deprecated_fields_with_opt_in(self) -> None:
-        """allow_deprecated=true should preserve compatibility path in LSP."""
+        """allow_deprecated=true is a no-op for removed compatibility shims."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -306,7 +306,9 @@ class TestCompileCustom(unittest.TestCase):
 
         result = compile_custom({'path': str(self.temp_file), 'dashboard_index': 0, 'allow_deprecated': True})
 
-        self.assertTrue(result.success)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('titles_and_text', result.error)
 
 
 class TestGetDashboardsCustom(unittest.TestCase):
@@ -433,7 +435,7 @@ class TestGetDashboardsCustom(unittest.TestCase):
         self.assertTrue(result.success)
 
     def test_get_dashboards_rejects_deprecated_fields_by_default(self) -> None:
-        """Deprecated fields should fail unless allow_deprecated is true."""
+        """Legacy fields should fail by default."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -456,10 +458,10 @@ class TestGetDashboardsCustom(unittest.TestCase):
 
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
-        self.assertIn('--allow-deprecated', result.error)
+        self.assertIn('titles_and_text', result.error)
 
     def test_get_dashboards_accepts_deprecated_fields_with_opt_in(self) -> None:
-        """allow_deprecated=true should preserve compatibility path in LSP."""
+        """allow_deprecated=true is a no-op for removed compatibility shims."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -480,8 +482,9 @@ class TestGetDashboardsCustom(unittest.TestCase):
 
         result = get_dashboards_custom({'path': str(self.temp_file), 'allow_deprecated': True})
 
-        self.assertTrue(result.success)
-        self.assertIsNotNone(result.data)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('titles_and_text', result.error)
 
 
 class TestGetGridLayoutCustom(unittest.TestCase):
@@ -780,7 +783,7 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         self.assertIn('dashboard_index', result.error)
 
     def test_get_grid_layout_rejects_deprecated_fields_by_default(self) -> None:
-        """Deprecated fields should fail unless allow_deprecated is true."""
+        """Legacy fields should fail by default."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -803,10 +806,10 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
-        self.assertIn('--allow-deprecated', result.error)
+        self.assertIn('titles_and_text', result.error)
 
     def test_get_grid_layout_accepts_deprecated_fields_with_opt_in(self) -> None:
-        """allow_deprecated=true should preserve compatibility path in LSP."""
+        """allow_deprecated=true is a no-op for removed compatibility shims."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -827,7 +830,9 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         result = get_grid_layout_custom({'path': str(self.temp_file), 'allow_deprecated': True})
 
-        self.assertTrue(result.success)
+        self.assertFalse(result.success)
+        self.assertIsNotNone(result.error)
+        self.assertIn('titles_and_text', result.error)
 
 
 if __name__ == '__main__':

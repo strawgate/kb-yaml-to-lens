@@ -11,38 +11,32 @@ from kb_dashboard_core.panels.charts.mosaic.config import LensMosaicChart
 
 
 def test_mosaic_legacy_titles_and_text_maps_to_appearance_values() -> None:
-    """Legacy titles_and_text value fields should map into appearance.values."""
-    chart = LensMosaicChart.model_validate(
-        {
-            'type': 'mosaic',
-            'data_view': 'logs-*',
-            'metric': {'aggregation': 'count'},
-            'dimension': {'type': 'values', 'field': 'service.name'},
-            'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
-        }
-    )
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'value'
-    assert chart.appearance.values.decimal_places == 4
+    """Legacy titles_and_text input is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensMosaicChart.model_validate(
+            {
+                'type': 'mosaic',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'dimension': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
+            }
+        )
 
 
 def test_mosaic_appearance_values_override_legacy_titles_and_text() -> None:
-    """Explicit appearance.values should win over legacy titles_and_text values."""
-    chart = LensMosaicChart.model_validate(
-        {
-            'type': 'mosaic',
-            'data_view': 'logs-*',
-            'metric': {'aggregation': 'count'},
-            'dimension': {'type': 'values', 'field': 'service.name'},
-            'titles_and_text': {'value_format': 'hide', 'value_decimal_places': 1},
-            'appearance': {'values': {'format': 'percent', 'decimal_places': 5}},
-        }
-    )
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'percent'
-    assert chart.appearance.values.decimal_places == 5
+    """Legacy titles_and_text is rejected even when appearance.values is provided."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensMosaicChart.model_validate(
+            {
+                'type': 'mosaic',
+                'data_view': 'logs-*',
+                'metric': {'aggregation': 'count'},
+                'dimension': {'type': 'values', 'field': 'service.name'},
+                'titles_and_text': {'value_format': 'hide', 'value_decimal_places': 1},
+                'appearance': {'values': {'format': 'percent', 'decimal_places': 5}},
+            }
+        )
 
 
 def test_mosaic_invalid_legacy_titles_and_text_type_is_rejected() -> None:
@@ -501,9 +495,9 @@ async def test_mosaic_chart_without_value_decimal_places() -> None:
 
 
 def test_mosaic_deprecated_titles_and_text_warns_and_maps() -> None:
-    """Deprecated titles_and_text should warn and map to appearance.values."""
-    with pytest.warns(DeprecationWarning, match='titles_and_text'):
-        chart = LensMosaicChart.model_validate(
+    """Legacy titles_and_text is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensMosaicChart.model_validate(
             {
                 'type': 'mosaic',
                 'data_view': 'logs-*',
@@ -513,16 +507,11 @@ def test_mosaic_deprecated_titles_and_text_warns_and_maps() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'value'
-    assert chart.appearance.values.decimal_places == 3
-
 
 def test_mosaic_deprecated_titles_and_text_warns_when_ignored() -> None:
-    """Deprecated titles_and_text fields should warn when overridden by appearance.values."""
-    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.values.format' is already set"):
-        chart = LensMosaicChart.model_validate(
+    """Legacy titles_and_text remains rejected when appearance.values is present."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensMosaicChart.model_validate(
             {
                 'type': 'mosaic',
                 'data_view': 'logs-*',
@@ -532,7 +521,3 @@ def test_mosaic_deprecated_titles_and_text_warns_when_ignored() -> None:
                 'titles_and_text': {'value_format': 'value'},
             }
         )
-
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'hide'

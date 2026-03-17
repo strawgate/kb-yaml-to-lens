@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard_compiler import load
 
@@ -31,18 +32,16 @@ dashboards:
 
 
 def test_load_rejects_deprecated_fields_by_default(tmp_path: Path) -> None:
-    """Deprecated translation paths should be opt-in."""
+    """Legacy fields are rejected by default."""
     yaml_path = _write_deprecated_dashboard_yaml(tmp_path)
 
-    with pytest.raises(ValueError, match='--allow-deprecated'):
+    with pytest.raises(ValidationError, match='titles_and_text'):
         _ = load(str(yaml_path))
 
 
 def test_load_accepts_deprecated_fields_when_opted_in(tmp_path: Path) -> None:
-    """allow_deprecated=True should preserve compatibility behavior."""
+    """allow_deprecated flag is a no-op once compatibility shims are removed."""
     yaml_path = _write_deprecated_dashboard_yaml(tmp_path)
 
-    dashboards = load(str(yaml_path), allow_deprecated=True)
-
-    assert len(dashboards) == 1
-    assert dashboards[0].name == 'Deprecated Dashboard'
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        _ = load(str(yaml_path), allow_deprecated=True)

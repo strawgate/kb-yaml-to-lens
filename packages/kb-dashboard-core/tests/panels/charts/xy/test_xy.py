@@ -1708,9 +1708,9 @@ def test_esql_xy_no_collapse_without_breakdown() -> None:
 
 
 def test_xy_axis_deprecated_show_title_warns_and_maps() -> None:
-    """Deprecated axis.show_title should warn and map to title bool."""
-    with pytest.warns(DeprecationWarning, match='show_title'):
-        chart = LensLineChart.model_validate(
+    """Legacy axis.show_title is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='show_title'):
+        LensLineChart.model_validate(
             {
                 'type': 'line',
                 'data_view': 'metrics-*',
@@ -1720,15 +1720,11 @@ def test_xy_axis_deprecated_show_title_warns_and_maps() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.x_axis is not None
-    assert chart.appearance.x_axis.title is False
-
 
 def test_xy_deprecated_titles_and_text_value_labels_maps_to_appearance_values() -> None:
-    """Deprecated titles_and_text.value_labels should warn and map to appearance.values.visible."""
-    with pytest.warns(DeprecationWarning, match='titles_and_text.value_labels'):
-        chart = LensBarChart.model_validate(
+    """Legacy titles_and_text.value_labels is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensBarChart.model_validate(
             {
                 'type': 'bar',
                 'mode': 'stacked',
@@ -1739,15 +1735,11 @@ def test_xy_deprecated_titles_and_text_value_labels_maps_to_appearance_values() 
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.visible is True
-
 
 def test_xy_appearance_values_visible_wins_over_deprecated_titles_and_text() -> None:
-    """Explicit appearance values visibility should win over deprecated value_labels."""
-    with pytest.warns(DeprecationWarning, match='ignored'):
-        chart = LensBarChart.model_validate(
+    """Legacy titles_and_text remains rejected even with explicit appearance.values."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensBarChart.model_validate(
             {
                 'type': 'bar',
                 'mode': 'stacked',
@@ -1758,10 +1750,6 @@ def test_xy_appearance_values_visible_wins_over_deprecated_titles_and_text() -> 
                 'titles_and_text': {'value_labels': 'show'},
             }
         )
-
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.visible is False
 
 
 def test_xy_invalid_legacy_titles_and_text_type_is_rejected() -> None:

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from dirty_equals import IsStr, IsUUID
 from inline_snapshot import snapshot
+from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
@@ -393,9 +394,9 @@ def test_tagcloud_static_metric_uses_alphabetical_terms_ordering() -> None:
 
 
 def test_tagcloud_deprecated_show_label_warns_and_maps() -> None:
-    """Deprecated appearance.show_label should warn and map to labels.visible."""
-    with pytest.warns(DeprecationWarning, match='show_label'):
-        chart = LensTagcloudChart.model_validate(
+    """Legacy appearance.show_label is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='show_label'):
+        LensTagcloudChart.model_validate(
             {
                 'type': 'tagcloud',
                 'data_view': 'logs-*',
@@ -405,15 +406,11 @@ def test_tagcloud_deprecated_show_label_warns_and_maps() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.labels is not None
-    assert chart.appearance.labels.visible is False
-
 
 def test_tagcloud_deprecated_show_label_warns_when_ignored() -> None:
-    """Deprecated show_label should warn when ignored by explicit labels.visible."""
-    with pytest.warns(DeprecationWarning, match="ignored because 'labels.visible' is already set"):
-        chart = LensTagcloudChart.model_validate(
+    """Legacy show_label is rejected even when labels.visible is present."""
+    with pytest.raises(ValidationError, match='show_label'):
+        LensTagcloudChart.model_validate(
             {
                 'type': 'tagcloud',
                 'data_view': 'logs-*',
@@ -422,10 +419,6 @@ def test_tagcloud_deprecated_show_label_warns_when_ignored() -> None:
                 'appearance': {'show_label': False, 'labels': {'visible': True}},
             }
         )
-
-    assert chart.appearance is not None
-    assert chart.appearance.labels is not None
-    assert chart.appearance.labels.visible is True
 
 
 def test_tagcloud_all_orientations_esql(compile_tagcloud_chart_snapshot: CompileTagcloudSnapshot) -> None:

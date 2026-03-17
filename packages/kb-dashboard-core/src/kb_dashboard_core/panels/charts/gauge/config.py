@@ -1,9 +1,8 @@
 """Configuration models for gauge chart visualizations."""
 
-import warnings
-from typing import Any, Literal, cast
+from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
@@ -66,32 +65,6 @@ class BaseGaugeChart(BaseCfgModel):
 
     titles_and_text: GaugeTitlesAndText | None = Field(default=None)
     """Title and subtitle options mapped to gauge `label_major` and `label_minor`."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_appearance_palette(cls, data: object) -> object:
-        """Migrate deprecated ``appearance.palette`` to chart-level ``color``."""
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        appearance_raw = normalized_data.get('appearance')
-        if not isinstance(appearance_raw, dict):
-            return normalized_data
-        appearance = dict(cast('dict[str, Any]', appearance_raw))
-        palette = cast('object', appearance.pop('palette', None))
-        if palette is None:
-            return normalized_data
-        normalized_data['appearance'] = appearance
-        if normalized_data.get('color') is not None:
-            msg = "Gauge chart fields 'appearance.palette' and 'color' are mutually exclusive. Use 'color' only."
-            raise ValueError(msg)
-        warnings.warn(
-            "Gauge chart field 'appearance.palette' is deprecated, use 'color' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        normalized_data['color'] = palette
-        return normalized_data
 
 
 class LensGaugeChart(BaseChart, BaseGaugeChart):

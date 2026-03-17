@@ -678,38 +678,32 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
 
 
 def test_lens_datatable_deprecated_keys_do_not_override_explicit_new_fields() -> None:
-    """Explicit new keys should win when legacy aliases are also provided."""
-    chart = LensDatatableChart.model_validate(
-        {
-            'type': 'datatable',
-            'data_view': 'logs-*',
-            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
-            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
-            'metrics_split_by': [{'type': 'values', 'field': 'cloud.region', 'id': 'new-split-by'}],
-            'dimensions_by': [{'type': 'values', 'field': 'host.os.name', 'id': 'legacy-split-by'}],
-        }
-    )
-
-    assert [breakdown.id for breakdown in chart.breakdowns] == ['new-breakdown']
-    assert chart.metrics_split_by is not None
-    assert [dimension.id for dimension in chart.metrics_split_by] == ['new-split-by']
+    """Legacy dimensions/dimensions_by keys are rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='dimensions'):
+        LensDatatableChart.model_validate(
+            {
+                'type': 'datatable',
+                'data_view': 'logs-*',
+                'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
+                'metrics_split_by': [{'type': 'values', 'field': 'cloud.region', 'id': 'new-split-by'}],
+                'dimensions_by': [{'type': 'values', 'field': 'host.os.name', 'id': 'legacy-split-by'}],
+            }
+        )
 
 
 def test_esql_datatable_deprecated_keys_do_not_override_explicit_new_fields() -> None:
-    """Explicit new keys should win for ES|QL datatables too."""
-    chart = ESQLDatatableChart.model_validate(
-        {
-            'type': 'datatable',
-            'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
-            'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
-            'metrics_split_by': [{'field': 'cloud.region', 'id': 'new-split-by'}],
-            'dimensions_by': [{'field': 'host.os.name', 'id': 'legacy-split-by'}],
-        }
-    )
-
-    assert [breakdown.id for breakdown in chart.breakdowns] == ['new-breakdown']
-    assert chart.metrics_split_by is not None
-    assert [dimension.id for dimension in chart.metrics_split_by] == ['new-split-by']
+    """Legacy dimensions/dimensions_by keys are rejected for ES|QL datatables too."""
+    with pytest.raises(ValidationError, match='dimensions'):
+        ESQLDatatableChart.model_validate(
+            {
+                'type': 'datatable',
+                'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
+                'metrics_split_by': [{'field': 'cloud.region', 'id': 'new-split-by'}],
+                'dimensions_by': [{'field': 'host.os.name', 'id': 'legacy-split-by'}],
+            }
+        )
 
 
 @pytest.mark.parametrize(

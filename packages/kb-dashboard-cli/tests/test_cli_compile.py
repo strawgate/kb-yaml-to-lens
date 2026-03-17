@@ -218,7 +218,7 @@ dashboards:
         assert output_files[0].name == 'apache_otel-overview.json'
 
     def test_compile_rejects_deprecated_fields_without_flag(self, tmp_path: Path) -> None:
-        """Compile should fail when deprecated fields are present and flag is not set."""
+        """Compile should fail when legacy fields are present."""
         input_dir = tmp_path / 'input'
         output_dir = tmp_path / 'output'
         input_dir.mkdir()
@@ -256,10 +256,10 @@ dashboards:
         )
 
         assert result.exit_code == 1
-        assert '--allow-deprecated' in result.output
+        assert 'titles_and_text' in result.output
 
     def test_compile_accepts_deprecated_fields_with_flag(self, tmp_path: Path) -> None:
-        """Compile should succeed for deprecated fields when --allow-deprecated is set."""
+        """--allow-deprecated no longer enables legacy compatibility."""
         input_dir = tmp_path / 'input'
         output_dir = tmp_path / 'output'
         input_dir.mkdir()
@@ -297,5 +297,5 @@ dashboards:
             ],
         )
 
-        assert result.exit_code == 0
-        assert (output_dir / 'compiled_dashboards.ndjson').exists()
+        assert result.exit_code == 1
+        assert 'titles_and_text' in result.output

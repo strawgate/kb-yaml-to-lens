@@ -545,9 +545,9 @@ def test_compile_lens_heatmap_formula_includes_helper_columns() -> None:
 
 
 def test_heatmap_deprecated_grid_config_warns_and_maps() -> None:
-    """Deprecated grid_config should warn and map to appearance visibility fields."""
-    with pytest.warns(DeprecationWarning, match='grid_config'):
-        chart = LensHeatmapChart.model_validate(
+    """Legacy grid_config is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='grid_config'):
+        LensHeatmapChart.model_validate(
             {
                 'type': 'heatmap',
                 'data_view': 'metrics-*',
@@ -561,25 +561,11 @@ def test_heatmap_deprecated_grid_config_warns_and_maps() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.visible is True
-    assert chart.appearance.x_axis is not None
-    assert chart.appearance.x_axis.labels is not None
-    assert chart.appearance.x_axis.labels.visible is True
-    assert chart.appearance.x_axis.title is not None
-    assert chart.appearance.x_axis.title.visible is False
-    assert chart.appearance.y_axis is not None
-    assert chart.appearance.y_axis.labels is not None
-    assert chart.appearance.y_axis.labels.visible is False
-    assert chart.appearance.y_axis.title is not None
-    assert chart.appearance.y_axis.title.visible is True
-
 
 def test_heatmap_deprecated_legend_warns_when_ignored() -> None:
-    """Deprecated top-level legend should warn when appearance.legend is present."""
-    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.legend' is already set"):
-        chart = LensHeatmapChart.model_validate(
+    """Legacy top-level legend is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='legend'):
+        LensHeatmapChart.model_validate(
             {
                 'type': 'heatmap',
                 'data_view': 'metrics-*',
@@ -589,10 +575,6 @@ def test_heatmap_deprecated_legend_warns_when_ignored() -> None:
                 'legend': {'visible': 'hide'},
             }
         )
-
-    assert chart.appearance is not None
-    assert chart.appearance.legend is not None
-    assert chart.appearance.legend.visible == 'show'
 
 
 def test_compile_heatmap_chart_partial_visibility_config() -> None:

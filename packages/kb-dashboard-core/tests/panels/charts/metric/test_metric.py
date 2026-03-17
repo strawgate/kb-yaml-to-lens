@@ -429,7 +429,7 @@ def test_compile_metric_chart_apply_to_omitted(chart_type: str) -> None:
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 def test_metric_chart_top_level_apply_to_warns_deprecated(chart_type: str) -> None:
-    """Top-level apply_to remains supported but emits a deprecation warning."""
+    """Legacy top-level apply_to is rejected in 0.4.0."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
@@ -450,14 +450,13 @@ def test_metric_chart_top_level_apply_to_warns_deprecated(chart_type: str) -> No
             'apply_to': 'value',
         }
 
-    with pytest.warns(DeprecationWarning, match="apply_to'.*primary.color.apply_to"):
-        result = compile_metric_chart_snapshot(config, chart_type)
-    assert result['applyColorTo'] == 'value'
+    with pytest.raises(ValidationError, match='apply_to'):
+        compile_metric_chart_snapshot(config, chart_type)
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 def test_metric_chart_nested_apply_to_overrides_top_level(chart_type: str) -> None:
-    """appearance.color.apply_to takes precedence over deprecated top-level apply_to."""
+    """Legacy top-level apply_to is rejected even with nested color config."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
@@ -480,9 +479,8 @@ def test_metric_chart_nested_apply_to_overrides_top_level(chart_type: str) -> No
             'appearance': {'color': {'apply_to': 'value'}},
         }
 
-    with pytest.warns(DeprecationWarning, match='appearance.color.apply_to.*primary.color.apply_to'):
-        result = compile_metric_chart_snapshot(config, chart_type)
-    assert result['applyColorTo'] == 'value'
+    with pytest.raises(ValidationError, match='apply_to'):
+        compile_metric_chart_snapshot(config, chart_type)
 
 
 def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
@@ -680,9 +678,9 @@ def test_compile_metric_chart_secondary_label_position_after(chart_type: str) ->
 
 
 def test_metric_deprecated_secondary_label_string_warns_and_maps() -> None:
-    """Deprecated secondary.label string should warn and map to label.text."""
-    with pytest.warns(DeprecationWarning, match="label'.*string"):
-        chart = LensMetricChart.model_validate(
+    """Legacy secondary.label string input is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match=r'appearance\.secondary\.label'):
+        LensMetricChart.model_validate(
             {
                 'type': 'metric',
                 'data_view': 'metrics-*',
@@ -692,16 +690,11 @@ def test_metric_deprecated_secondary_label_string_warns_and_maps() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.secondary is not None
-    assert chart.appearance.secondary.label is not None
-    assert chart.appearance.secondary.label.text == 'legacy text'
-
 
 def test_metric_deprecated_label_position_warns_when_ignored() -> None:
-    """Deprecated secondary.label_position should warn when nested position is present."""
-    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.secondary.label.position' is already set"):
-        chart = LensMetricChart.model_validate(
+    """Legacy secondary.label_position is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='label_position'):
+        LensMetricChart.model_validate(
             {
                 'type': 'metric',
                 'data_view': 'metrics-*',
@@ -711,16 +704,11 @@ def test_metric_deprecated_label_position_warns_when_ignored() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.secondary is not None
-    assert chart.appearance.secondary.label is not None
-    assert chart.appearance.secondary.label.position == 'after'
-
 
 def test_metric_deprecated_label_position_only_maps_to_nested_label() -> None:
-    """Deprecated secondary.label_position should map when label is omitted."""
-    with pytest.warns(DeprecationWarning, match='label_position'):
-        chart = LensMetricChart.model_validate(
+    """Legacy secondary.label_position is rejected when label is omitted."""
+    with pytest.raises(ValidationError, match='label_position'):
+        LensMetricChart.model_validate(
             {
                 'type': 'metric',
                 'data_view': 'metrics-*',
@@ -730,16 +718,11 @@ def test_metric_deprecated_label_position_only_maps_to_nested_label() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.secondary is not None
-    assert chart.appearance.secondary.label is not None
-    assert chart.appearance.secondary.label.position == 'before'
-
 
 def test_metric_deprecated_label_position_merges_with_label_text() -> None:
-    """Deprecated secondary.label_position should merge into nested label when position missing."""
-    with pytest.warns(DeprecationWarning, match='label_position'):
-        chart = LensMetricChart.model_validate(
+    """Legacy secondary.label_position is rejected even when label text exists."""
+    with pytest.raises(ValidationError, match='label_position'):
+        LensMetricChart.model_validate(
             {
                 'type': 'metric',
                 'data_view': 'metrics-*',
@@ -748,12 +731,6 @@ def test_metric_deprecated_label_position_merges_with_label_text() -> None:
                 'appearance': {'secondary': {'label': {'text': 'legacy label'}, 'label_position': 'after'}},
             }
         )
-
-    assert chart.appearance is not None
-    assert chart.appearance.secondary is not None
-    assert chart.appearance.secondary.label is not None
-    assert chart.appearance.secondary.label.text == 'legacy label'
-    assert chart.appearance.secondary.label.position == 'after'
 
 
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])

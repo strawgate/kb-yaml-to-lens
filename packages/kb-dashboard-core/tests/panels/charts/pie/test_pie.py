@@ -158,34 +158,34 @@ async def test_basic_donut_chart() -> None:
 
 
 def test_pie_deprecated_dimensions_does_not_override_explicit_breakdowns() -> None:
-    """Explicit breakdowns should win over deprecated dimensions for both chart modes."""
-    lens_chart = LensPieChart.model_validate(
-        {
-            'type': 'pie',
-            'data_view': 'logs-*',
-            'metrics': [{'aggregation': 'count'}],
-            'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
-            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
-        }
-    )
-    assert [breakdown.id for breakdown in lens_chart.breakdowns] == ['new-breakdown']
+    """Legacy dimensions key is rejected for both chart modes in 0.4.0."""
+    with pytest.raises(ValidationError, match='dimensions'):
+        LensPieChart.model_validate(
+            {
+                'type': 'pie',
+                'data_view': 'logs-*',
+                'metrics': [{'aggregation': 'count'}],
+                'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
+            }
+        )
 
-    esql_chart = ESQLPiePanelConfig.model_validate(
-        {
-            'type': 'pie',
-            'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
-            'metrics': [{'field': 'c'}],
-            'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
-            'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
-        }
-    )
-    assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']
+    with pytest.raises(ValidationError, match='dimensions'):
+        ESQLPiePanelConfig.model_validate(
+            {
+                'type': 'pie',
+                'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
+                'metrics': [{'field': 'c'}],
+                'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
+                'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
+            }
+        )
 
 
 def test_pie_deprecated_titles_and_text_maps_to_appearance() -> None:
-    """Deprecated pie titles_and_text should warn and map to appearance."""
-    with pytest.warns(DeprecationWarning, match='titles_and_text'):
-        chart = LensPieChart.model_validate(
+    """Legacy pie titles_and_text is rejected in 0.4.0."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensPieChart.model_validate(
             {
                 'type': 'pie',
                 'data_view': 'logs-*',
@@ -199,18 +199,11 @@ def test_pie_deprecated_titles_and_text_maps_to_appearance() -> None:
             }
         )
 
-    assert chart.appearance is not None
-    assert chart.appearance.categories is not None
-    assert chart.appearance.categories.position == 'inside'
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'integer'
-    assert chart.appearance.values.decimal_places == 3
-
 
 def test_pie_appearance_wins_over_deprecated_titles_and_text() -> None:
-    """Explicit appearance should win over deprecated pie titles_and_text values."""
-    with pytest.warns(DeprecationWarning, match='ignored'):
-        chart = LensPieChart.model_validate(
+    """Legacy pie titles_and_text stays rejected when appearance is present."""
+    with pytest.raises(ValidationError, match='titles_and_text'):
+        LensPieChart.model_validate(
             {
                 'type': 'pie',
                 'data_view': 'logs-*',
@@ -220,11 +213,6 @@ def test_pie_appearance_wins_over_deprecated_titles_and_text() -> None:
                 'titles_and_text': {'slice_values': 'integer', 'value_decimal_places': 4},
             }
         )
-
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'percent'
-    assert chart.appearance.values.decimal_places == 1
 
 
 def test_pie_invalid_legacy_titles_and_text_type_is_rejected() -> None:

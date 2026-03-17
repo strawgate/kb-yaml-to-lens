@@ -1,6 +1,5 @@
-import warnings
 from enum import StrEnum
-from typing import Any, Literal, cast
+from typing import Literal
 
 from pydantic import Field, model_validator
 
@@ -121,29 +120,6 @@ class ColorRangeMapping(BaseCfgModel):
 
     thresholds: list[ColorThreshold] = Field(min_length=1)
     """Ordered threshold bands used to build gauge-style color palettes."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_legacy_continuity(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_continuity = cast('object', normalized_data.pop('continuity', None))
-        legacy_extend = cast('object', normalized_data.pop('extend_beyond_range', None))
-        if legacy_continuity is not None:
-            warnings.warn(
-                "Color mapping field 'continuity' is deprecated and ignored.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if legacy_extend is not None:
-            warnings.warn(
-                "Color mapping field 'extend_beyond_range' is deprecated and ignored.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        return normalized_data
 
     @model_validator(mode='after')
     def validate_thresholds(self) -> 'ColorRangeMapping':

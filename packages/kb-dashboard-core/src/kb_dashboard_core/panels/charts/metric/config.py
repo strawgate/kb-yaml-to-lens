@@ -1,5 +1,4 @@
-import warnings
-from typing import Any, Literal, cast
+from typing import Literal
 
 from pydantic import Field, model_validator
 
@@ -73,53 +72,6 @@ class MetricSecondaryAppearance(BaseCfgModel):
     label: 'MetricSecondaryLabelAppearance | None' = Field(default=None)
     """Custom secondary label configuration."""
 
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_label_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_label_position = cast('object', normalized_data.pop('label_position', None))
-
-        label: object = normalized_data.get('label')
-        if isinstance(label, str):
-            normalized_data['label'] = {'text': label}
-            warnings.warn(
-                "Metric field 'appearance.secondary.label' as a string is deprecated, use 'appearance.secondary.label.text' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            label = normalized_data['label']
-
-        if legacy_label_position is not None:
-            if label is None:
-                normalized_data['label'] = {'position': legacy_label_position}
-                warnings.warn(
-                    "Metric field 'appearance.secondary.label_position' is deprecated, use 'appearance.secondary.label.position' instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            elif isinstance(label, dict) and 'position' not in label:
-                merged_label: dict[str, Any] = dict(cast('dict[str, Any]', label))
-                merged_label['position'] = legacy_label_position
-                normalized_data['label'] = merged_label
-                warnings.warn(
-                    "Metric field 'appearance.secondary.label_position' is deprecated, use 'appearance.secondary.label.position' instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            else:
-                warnings.warn(
-                    (
-                        "Metric field 'appearance.secondary.label_position' is ignored because "
-                        "'appearance.secondary.label.position' is already set."
-                    ),
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-        return normalized_data
-
 
 class MetricSecondaryLabelAppearance(BaseCfgModel):
     """Secondary metric label appearance options."""
@@ -169,88 +121,6 @@ class BaseMetricChart(BaseChart):
 
     titles_and_text: MetricTitlesAndText | None = Field(default=None)
     """Formatting options for the chart titles and text."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_color_fields(cls, data: object) -> object:  # noqa: PLR0912
-        """Migrate deprecated chart-level color/apply_to to primary metric fields.
-
-        Deprecated locations (mutually exclusive with their canonical replacements):
-        - ``color`` (chart level) → ``primary.color``
-        - ``apply_to`` (chart level) → ``primary.color.apply_to``
-        - ``appearance.color.apply_to`` → ``primary.color.apply_to``
-        """
-        if not isinstance(data, dict):
-            return data
-
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-
-        chart_color = cast('object', normalized_data.pop('color', None))
-        chart_apply_to = cast('object', normalized_data.pop('apply_to', None))
-
-        appearance_color_apply_to: object = None
-        appearance_raw = normalized_data.get('appearance')
-        if isinstance(appearance_raw, dict):
-            appearance = dict(cast('dict[str, Any]', appearance_raw))
-            color_raw = cast('object', appearance.pop('color', None))
-            if isinstance(color_raw, dict):
-                color_dict = dict(cast('dict[str, Any]', color_raw))
-                appearance_color_apply_to = color_dict.get('apply_to')
-            normalized_data['appearance'] = appearance
-
-        has_deprecated = chart_color is not None or chart_apply_to is not None or appearance_color_apply_to is not None
-        primary_raw = normalized_data.get('primary')
-        primary: dict[str, Any] = dict(cast('dict[str, Any]', primary_raw)) if isinstance(primary_raw, dict) else {}
-        has_primary = isinstance(primary_raw, dict)
-
-        if chart_color is not None:
-            if 'color' in primary:
-                msg = "Metric chart fields 'color' and 'primary.color' are mutually exclusive. Use 'primary.color' only."
-                raise ValueError(msg)
-            warnings.warn(
-                "Metric chart field 'color' is deprecated, use 'primary.color' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            primary['color'] = chart_color
-
-        resolved_apply_to: object = None
-        if appearance_color_apply_to is not None:
-            warnings.warn(
-                "Metric field 'appearance.color.apply_to' is deprecated, use 'primary.color.apply_to' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            resolved_apply_to = appearance_color_apply_to
-        if chart_apply_to is not None:
-            warnings.warn(
-                "Metric field 'apply_to' is deprecated, use 'primary.color.apply_to' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if resolved_apply_to is None:
-                resolved_apply_to = chart_apply_to
-
-        if resolved_apply_to is not None:
-            primary_color = primary.get('color')
-            if isinstance(primary_color, dict) and 'apply_to' in primary_color:
-                msg = (
-                    "Deprecated metric color fields ('apply_to' or 'appearance.color.apply_to') "
-                    "and 'primary.color.apply_to' are mutually exclusive. Use 'primary.color.apply_to' only."
-                )
-                raise ValueError(msg)
-            if isinstance(primary_color, dict):
-                primary_color['apply_to'] = resolved_apply_to
-            else:
-                migrated_color: dict[str, object] = {'apply_to': resolved_apply_to}
-                if primary_color is not None:
-                    migrated_color['color'] = primary_color
-                primary['color'] = migrated_color
-
-        if has_deprecated or has_primary:
-            normalized_data['primary'] = primary
-
-        return normalized_data
 
 
 class LensMetricChart(BaseMetricChart):

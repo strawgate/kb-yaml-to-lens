@@ -1,10 +1,9 @@
 """Tagcloud chart configuration models."""
 
-import warnings
 from enum import StrEnum
-from typing import Any, Literal, cast
+from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -43,45 +42,6 @@ class TagcloudAppearance(BaseCfgModel):
 
     labels: 'TagcloudLabelsConfig | None' = Field(default=None)
     """Label visibility configuration."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_show_label(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'show_label' not in normalized_data:
-            return normalized_data
-
-        show_label = cast('object', normalized_data.pop('show_label'))
-        labels = normalized_data.get('labels')
-
-        if labels is None:
-            warnings.warn(
-                "Tagcloud appearance field 'show_label' is deprecated, use 'labels.visible' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['labels'] = {'visible': show_label}
-            return normalized_data
-
-        if isinstance(labels, dict) and 'visible' not in labels:
-            warnings.warn(
-                "Tagcloud appearance field 'show_label' is deprecated, use 'labels.visible' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            merged_labels: dict[str, Any] = dict(cast('dict[str, Any]', labels))
-            merged_labels['visible'] = show_label
-            normalized_data['labels'] = merged_labels
-            return normalized_data
-
-        warnings.warn(
-            "Tagcloud appearance field 'show_label' is ignored because 'labels.visible' is already set.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return normalized_data
 
 
 class TagcloudLabelsConfig(BaseCfgModel):

@@ -1,5 +1,4 @@
-import warnings
-from typing import Any, Literal, Self, cast
+from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
@@ -142,31 +141,6 @@ class AxisConfig(BaseCfgModel):
     extent: AxisExtent | None = Field(default=None)
     """Extent/bounds configuration for the axis."""
 
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_show_title(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'show_title' not in normalized_data:
-            return normalized_data
-
-        legacy_show_title = cast('object', normalized_data.pop('show_title'))
-        if 'title' not in normalized_data:
-            warnings.warn(
-                "XY axis field 'show_title' is deprecated, use 'title: true|false|<string>' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['title'] = legacy_show_title
-        else:
-            warnings.warn(
-                "XY axis field 'show_title' is ignored because 'title' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        return normalized_data
-
     @model_validator(mode='after')
     def validate_title(self) -> Self:
         """Validate title input."""
@@ -193,12 +167,6 @@ class XYValuesConfig(BaseCfgModel):
 
     visible: bool | None = Field(default=None)
     """Controls whether value labels are shown on data points (e.g., on top of bars). Kibana defaults to hidden if not specified."""
-
-
-class XYTitlesAndText(BaseCfgModel):
-    """Legacy XY titles/text settings (deprecated; use appearance.values)."""
-
-    value_labels: Literal['show', 'hide'] | None = Field(default=None)
 
 
 class BaseXYChartAppearance(BaseCfgModel):
@@ -283,42 +251,6 @@ class BaseXYChart(BaseChart):
         None,
         description='Formatting options for the chart color palette.',
     )
-
-    @model_validator(mode='before')
-    @classmethod
-    def _translate_deprecated_titles_and_text(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        legacy_raw = cast('object', normalized_data.get('titles_and_text'))
-        if legacy_raw is None:
-            return normalized_data
-        if not isinstance(legacy_raw, dict):
-            return normalized_data
-        normalized_data.pop('titles_and_text')
-        legacy = cast('dict[str, Any]', legacy_raw)
-        if 'value_labels' not in legacy:
-            return normalized_data
-
-        appearance_raw = normalized_data.get('appearance')
-        appearance = dict(cast('dict[str, Any]', appearance_raw)) if isinstance(appearance_raw, dict) else {}
-        values = dict(cast('dict[str, Any]', appearance.get('values'))) if isinstance(appearance.get('values'), dict) else {}
-        if 'visible' not in values:
-            values['visible'] = legacy['value_labels'] == 'show'
-        else:
-            warnings.warn(
-                "XY chart field 'titles_and_text.value_labels' is ignored because 'appearance.values.visible' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        appearance['values'] = values
-        normalized_data['appearance'] = appearance
-        warnings.warn(
-            "XY chart field 'titles_and_text.value_labels' is deprecated, use 'appearance.values.visible' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return normalized_data
 
 
 class LensXYChartMixin(BaseCfgModel):
