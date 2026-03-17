@@ -68,6 +68,8 @@ Run these from the **repository root**:
 | `just lint-markdown-check` | Check markdown linting (repo-wide) |
 | `just lint-yaml-check` | Check YAML linting (repo-wide) |
 | `just docs ci` | Check documentation (markdown lint + link verification) |
+| `just explore-bootstrap [version]` | Bootstrap ES/Kibana containers and seed explore data |
+| `just release-prep [version]` | Open GitHub issues for pre-release review tasks |
 | `kb-dashboard-lint check --input-file <file>` | Check dashboard YAML for best practices |
 
 **Troubleshooting CI failures:** Run `just all ci` + lint commands locally to reproduce CI checks.
@@ -78,7 +80,7 @@ Run any component-specific target from the repository root:
 
 | Command | Purpose |
 | ------- | ------- |
-| `just all <target>` | Run target in all components (cli + core + lint + tools + vscode) |
+| `just all <target>` | Run target in all components (cli + core + lint + tools + vscode + docs) |
 | `just cli <target>` | Run target in `packages/kb-dashboard-cli/` |
 | `just core <target>` | Run target in `packages/kb-dashboard-core/` |
 | `just lint <target>` | Run target in `packages/kb-dashboard-lint/` |
@@ -90,7 +92,7 @@ Run any component-specific target from the repository root:
 
 ```bash
 # Run across all components (parallel)
-just all ci           # Run CI in cli + core + lint + tools + vscode
+just all ci           # Run CI in cli + core + lint + tools + vscode + docs
 just all fix          # Auto-fix linting in all components
 just all clean        # Clean all components
 

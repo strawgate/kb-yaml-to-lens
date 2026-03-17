@@ -41,7 +41,7 @@ for revision.
 
 1. **YAML samples MUST compile successfully.** Every sample YAML included in the
    PR must compile without errors against the current schema. Run
-   `just cli compile <file>` and confirm it succeeds before submitting. Never
+   `uv run kb-dashboard compile --input-file <file>` and confirm it succeeds before submitting. Never
    submit YAML that has not been verified to compile.
 2. **Include both sample YAML AND verification instructions.** The PR must
    contain a complete, self-contained YAML configuration that exercises the
@@ -49,7 +49,7 @@ for revision.
    the behavior.
 3. **Verification instructions must include exact commands and expected
    outcomes.** Provide the specific bash commands a reviewer should run (e.g.,
-   `just cli compile examples/my-change.yaml`) and describe what the compiled
+   `uv run kb-dashboard compile --input-file examples/my-change.yaml`) and describe what the compiled
    output should contain or how the resulting dashboard should behave in Kibana.
 4. **Describe the expected compilation outcome.** Explain what the compiled
    NDJSON should look like, what Kibana UI elements should reflect, or what

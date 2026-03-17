@@ -11,10 +11,11 @@ It converts human-friendly YAML dashboard definitions into Kibana NDJSON format:
 ## Features
 
 - **YAML-based Dashboard Definition** – Define dashboards, panels, filters, and queries in simple YAML
-- **Rich Panel Support** – Lens visualizations (metric, pie, XY charts), Markdown, Links, Image panels, and more
+- **Rich Panel Support** – Lens visualizations including metric, pie, XY (line, bar, area), gauge, heatmap, datatable, tag cloud, waffle, mosaic, and treemap — plus ES|QL variants of each
 - **Advanced Controls** – Control groups with options lists, range sliders, and time sliders with chaining
 - **Filter Support** – Exists, phrase, range, and custom DSL with AND/OR/NOT operators
 - **Direct Upload** – Optional direct upload to Kibana with authentication support
+- **Full CLI Toolkit** – Commands for compile, upgrade, decompile, disassemble, compare, fetch, screenshot, and LSP server
 
 ## Prerequisites
 
