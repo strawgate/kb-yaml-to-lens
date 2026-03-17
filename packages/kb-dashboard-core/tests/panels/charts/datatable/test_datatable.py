@@ -509,16 +509,18 @@ def test_lens_datatable_validation_with_only_breakdowns_succeeds() -> None:
     assert len(chart.breakdowns) == 1
 
 
-def test_esql_datatable_validation_requires_metrics_or_rows() -> None:
-    """Test that ESQL datatable validation fails when both metrics and rows are empty."""
+def test_esql_datatable_allows_empty_metrics_and_breakdowns() -> None:
+    """ESQL datatables render all query columns when metrics and breakdowns are omitted."""
     config = {
         'type': 'datatable',
         'metrics': [],
         'breakdowns': [],
     }
 
-    with pytest.raises(ValidationError, match='at least one metric or one breakdown'):
-        ESQLDatatableChart.model_validate(config)
+    chart = ESQLDatatableChart.model_validate(config)
+    assert chart is not None
+    assert len(chart.metrics) == 0
+    assert len(chart.breakdowns) == 0
 
 
 def test_esql_datatable_validation_with_only_metrics_succeeds() -> None:

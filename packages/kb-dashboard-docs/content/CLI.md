@@ -138,7 +138,7 @@ Export a dashboard from Kibana and create a pre-filled GitHub issue:
 uvx kb-dashboard-cli export-for-issue --dashboard-id <id>
 ```
 
-This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard JSON.
+This will export the dashboard and open your browser with a pre-filled GitHub issue containing the dashboard NDJSON export.
 
 ### Disassemble Dashboards
 
