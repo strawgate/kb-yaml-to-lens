@@ -38,8 +38,11 @@ jobs:
 
         yaml_files = sorted(
             p for p in integrations.rglob("*")
-            if p.suffix in {".yml", ".yaml"} and "/kibana/dashboard/" in p.as_posix()
+            if p.suffix in {".yml", ".yaml"} and "/_dev/shared/" in p.as_posix()
         )
+
+        if not yaml_files:
+            raise SystemExit("FATAL: discovered 0 YAML dashboard files — check the file selector")
 
         summary_csv = audit_dir / "summary.csv"
         summary_json = audit_dir / "summary.json"
