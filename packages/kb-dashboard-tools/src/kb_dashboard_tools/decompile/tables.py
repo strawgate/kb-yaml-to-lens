@@ -113,3 +113,26 @@ KIBANA_AXIS_EXTENT_MODE_TO_YAML: dict[str, str] = {
 PARTITION_CHART_TYPES = frozenset({'pie', 'treemap', 'waffle', 'mosaic'})
 
 KIBANA_DEFAULT_FILL_OPACITY = 0.3
+
+KIBANA_GAUGE_SHAPE_TO_YAML: dict[str, str] = {
+    'horizontalBullet': 'horizontal_bullet',
+    'verticalBullet': 'vertical_bullet',
+    'arc': 'arc',
+    'circle': 'circle',
+    'semiCircle': 'semi_circle',
+}
+
+# Default Kibana gauge shape — omit from YAML when present
+KIBANA_GAUGE_DEFAULT_SHAPE = 'horizontalBullet'
+
+KIBANA_PIE_NUMBER_DISPLAY_TO_YAML: dict[str, str] = {
+    'percent': 'percent',
+    'value': 'integer',
+    'hidden': 'hide',
+}
+
+KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML: dict[str, str] = {
+    'default': 'auto',
+    'inside': 'inside',
+    'hide': 'hide',
+}
