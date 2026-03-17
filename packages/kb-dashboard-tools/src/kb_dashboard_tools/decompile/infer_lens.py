@@ -58,6 +58,18 @@ _PLURAL_METRIC_TYPES = frozenset({'pie', 'datatable', 'line', 'bar', 'area'})
 # Sentinel field name Kibana uses for record-count metrics
 _RECORDS_FIELD = 'Records'
 
+
+def _merge_appearance(chart: dict[str, Any], new_appearance: dict[str, Any] | None) -> None:
+    """Merge appearance settings into chart, updating existing if present."""
+    if new_appearance is None:
+        return
+    existing = as_dict(chart.get('appearance'))
+    if existing is not None:
+        existing.update(new_appearance)
+    else:
+        chart['appearance'] = new_appearance
+
+
 # ---------------------------------------------------------------------------
 # Chart type resolution
 # ---------------------------------------------------------------------------
@@ -263,8 +275,6 @@ def _classify_form_columns(
             metric = _build_metric_dict(col)
             if metric is not None:
                 metrics.append(metric)
-            elif col.operation_type in SKIP_OPERATION_TYPES:
-                skipped.append(col.operation_type)
             else:
                 skipped.append(col.operation_type)
 
@@ -788,35 +798,18 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
 
         # XY appearance extraction
         if chart_type in _XY_CHART_TYPES:
-            xy_appearance = _extract_xy_appearance(vis_raw, chart_type)
-            if xy_appearance is not None:
-                existing = as_dict(chart.get('appearance'))
-                if existing is not None:
-                    existing.update(xy_appearance)
-                else:
-                    chart['appearance'] = xy_appearance
+            _merge_appearance(chart, _extract_xy_appearance(vis_raw, chart_type))
 
         # Gauge appearance + titles_and_text
         elif chart_type == 'gauge':
             gauge_appearance, gauge_titles = _extract_gauge_settings(vis_raw)
-            if gauge_appearance is not None:
-                existing = as_dict(chart.get('appearance'))
-                if existing is not None:
-                    existing.update(gauge_appearance)
-                else:
-                    chart['appearance'] = gauge_appearance
+            _merge_appearance(chart, gauge_appearance)
             if gauge_titles is not None:
                 chart['titles_and_text'] = gauge_titles
 
         # Partition chart appearance (pie/treemap/waffle/mosaic)
         elif chart_type in PARTITION_CHART_TYPES:
-            partition_appearance = _extract_partition_appearance(vis_raw)
-            if partition_appearance is not None:
-                existing = as_dict(chart.get('appearance'))
-                if existing is not None:
-                    existing.update(partition_appearance)
-                else:
-                    chart['appearance'] = partition_appearance
+            _merge_appearance(chart, _extract_partition_appearance(vis_raw))
 
         # Datatable sorting / paging / appearance
         elif chart_type == 'datatable':
