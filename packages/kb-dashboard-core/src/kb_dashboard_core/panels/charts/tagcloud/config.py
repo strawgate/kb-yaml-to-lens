@@ -8,8 +8,10 @@ from pydantic import Field
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensAggregatedMetricTypes, LensFormulaMetric
 from kb_dashboard_core.shared.config import BaseCfgModel
+
+type LensTagcloudMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes
 
 
 class TagcloudOrientationEnum(StrEnum):
@@ -118,8 +120,8 @@ class LensTagcloudChart(BaseTagcloudChart):
     dimension: LensDimensionTypes = Field(default=...)
     """The dimension for grouping (terms). This determines the tags shown in the cloud."""
 
-    metric: LensMetricTypes = Field(default=...)
-    """The metric for sizing. This determines the size of each tag."""
+    metric: LensTagcloudMetricTypes = Field(default=...)
+    """The metric for sizing. Static values are not supported for tagcloud metrics."""
 
 
 class ESQLTagcloudChart(BaseTagcloudChart):

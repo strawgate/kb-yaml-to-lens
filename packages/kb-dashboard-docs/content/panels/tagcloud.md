@@ -51,6 +51,30 @@ Their data in words, big and free!
       show_root_heading: false
       heading_level: 3
 
+### Label Visibility
+
+Use `appearance.labels.visible` to control tag labels.
+
+```yaml
+lens:
+  type: tagcloud
+  data_view: "logs-*"
+  dimension:
+    type: values
+    field: "service.name"
+  metric:
+    aggregation: count
+  appearance:
+    labels:
+      visible: false
+```
+
+`appearance.show_label` is not supported.
+
+### Metric Support
+
+Tag cloud metrics must be an aggregation or formula. Static metrics (`metric.value`) are not supported.
+
 ### Orientation Options
 
 ::: kb_dashboard_core.panels.charts.tagcloud.config.TagcloudOrientationEnum
