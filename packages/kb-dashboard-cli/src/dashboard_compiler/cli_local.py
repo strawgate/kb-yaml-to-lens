@@ -7,6 +7,7 @@ import logging
 import sys
 import webbrowser
 from pathlib import Path
+from typing import Any, cast
 
 import rich_click as click
 import yaml
@@ -87,6 +88,60 @@ def _write_ndjson(output_path: Path, lines: list[str], overwrite: bool = True) -
     with output_path.open('w', encoding='utf-8') as f:
         for line in lines:
             _ = f.write(line + '\n')
+
+
+def _parse_stringified_json_field(parent: dict[str, Any], key: str) -> None:
+    """Parse a known JSON-string field in-place for elastic-integrations output."""
+    value = parent.get(key)
+    if isinstance(value, str):
+        parent[key] = json.loads(value)
+
+
+def _elastic_integrations_json(kbn_dashboard: KbnDashboard) -> str:
+    """Render dashboard saved object with nested JSON fields unwrapped."""
+    dashboard_obj = kbn_dashboard.model_dump(by_alias=True)
+    attributes_raw = dashboard_obj.get('attributes')
+    if not isinstance(attributes_raw, dict):
+        msg = 'Dashboard attributes must be a JSON object'
+        raise click.ClickException(msg)
+    attributes = cast('dict[str, Any]', attributes_raw)
+
+    _parse_stringified_json_field(attributes, 'panelsJSON')
+    _parse_stringified_json_field(attributes, 'optionsJSON')
+
+    kibana_saved_object_meta_raw = attributes.get('kibanaSavedObjectMeta')
+    if isinstance(kibana_saved_object_meta_raw, dict):
+        kibana_saved_object_meta = cast('dict[str, Any]', kibana_saved_object_meta_raw)
+        _parse_stringified_json_field(kibana_saved_object_meta, 'searchSourceJSON')
+
+    control_group_input_raw = attributes.get('controlGroupInput')
+    if isinstance(control_group_input_raw, dict):
+        control_group_input = cast('dict[str, Any]', control_group_input_raw)
+        _parse_stringified_json_field(control_group_input, 'ignoreParentSettingsJSON')
+        _parse_stringified_json_field(control_group_input, 'panelsJSON')
+
+    return json.dumps(dashboard_obj, indent=4, ensure_ascii=False)
+
+
+def _derive_elastic_package_name(yaml_file: Path, input_dir: Path) -> str:
+    """Derive Elastic package name from input path."""
+    # Common integrations layout: <pkg>/kibana/dashboard/<file>.y(a)ml
+    parts = yaml_file.parts
+    if 'kibana' in parts:
+        kibana_index = parts.index('kibana')
+        if kibana_index > 0:
+            return _sanitize_filename(parts[kibana_index - 1])
+
+    # If compiling from a directory, use first segment under input dir.
+    try:
+        relative = yaml_file.relative_to(input_dir)
+    except ValueError:
+        relative = None
+    if relative is not None and len(relative.parts) > 1:
+        return _sanitize_filename(relative.parts[0])
+
+    # Fallback to parent directory name.
+    return _sanitize_filename(yaml_file.parent.name)
 
 
 def compile_yaml_to_json(yaml_path: Path, allow_deprecated: bool = False) -> tuple[list[str], list[KbnDashboard], str | None]:
@@ -226,9 +281,19 @@ async def _upload_to_kibana(
 @click.option(
     '--format',
     'output_format',
-    type=click.Choice(['ndjson', 'json'], case_sensitive=False),
+    type=click.Choice(['ndjson', 'json', 'elastic-integrations'], case_sensitive=False),
     default='ndjson',
-    help='Output format: "ndjson" for combined files (default), "json" for individual pretty-printed files named by dashboard ID.',
+    help=(
+        'Output format: "ndjson" for combined files (default), "json" for individual pretty-printed files named by '
+        'dashboard ID, or "elastic-integrations" for individual JSON files with unwrapped nested JSON fields '
+        '(panelsJSON/optionsJSON/etc).'
+    ),
+)
+@click.option(
+    '--elastic-package-name',
+    type=str,
+    default=None,
+    help='Package name prefix for --format elastic-integrations output filenames. If omitted, inferred from input path.',
 )
 @click.option(
     '--upload',
@@ -264,6 +329,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     output_dir: Path,
     output_file: str,
     output_format: str,
+    elastic_package_name: str | None,
     upload: bool,
     no_browser: bool,
     overwrite: bool,
@@ -282,6 +348,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     The --format option controls output format:
     - ndjson (default): Groups dashboards by directory into NDJSON files
     - json: Creates individual pretty-printed JSON files named by dashboard ID
+    - elastic-integrations: Creates individual JSON files with nested saved-object JSON fields unwrapped
 
     By default, the command exits with code 0 on success. Use --exit-non-zero-on-change
     to enable CI sync detection mode, where the exit code equals the number of files
@@ -358,18 +425,30 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             )
 
             if len(compiled_jsons) > 0:
-                if output_format_lower == 'json':
+                if output_format_lower in {'json', 'elastic-integrations'}:
                     for kbn_dashboard in kbn_dashboards:
                         if not kbn_dashboard.id:
                             msg = f'Dashboard ID is required for JSON output: {yaml_file}'
                             raise click.ClickException(msg)
-                        safe_name = _sanitize_filename(kbn_dashboard.id)
+                        safe_dashboard_id = _sanitize_filename(kbn_dashboard.id)
+                        if output_format_lower == 'elastic-integrations':
+                            resolved_package_name = (
+                                _sanitize_filename(elastic_package_name)
+                                if elastic_package_name is not None
+                                else _derive_elastic_package_name(yaml_file, input_dir)
+                            )
+                            safe_name = f'{resolved_package_name}-{safe_dashboard_id}'
+                        else:
+                            safe_name = safe_dashboard_id
                         if safe_name in json_filenames_seen:
                             msg = f'Duplicate dashboard ID after sanitization: {kbn_dashboard.id}'
                             raise click.ClickException(msg)
                         json_filenames_seen.add(safe_name)
                         json_file = output_dir / f'{safe_name}.json'
-                        pretty_json = kbn_dashboard.model_dump_json(by_alias=True, indent=2)
+                        if output_format_lower == 'elastic-integrations':
+                            pretty_json = _elastic_integrations_json(kbn_dashboard)
+                        else:
+                            pretty_json = kbn_dashboard.model_dump_json(by_alias=True, indent=2)
                         json_files_to_write.append((json_file, pretty_json))
                 else:
                     filename = yaml_file.parent.stem
@@ -383,7 +462,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
             progress.advance(task)
 
-    if output_format_lower == 'json':
+    if output_format_lower in {'json', 'elastic-integrations'}:
         for json_file, json_content in json_files_to_write:
             if _file_content_changed(json_file, json_content):
                 changed_files_count += 1
@@ -408,7 +487,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
         print_error('No valid YAML configurations found or compiled.')
         ctx.exit(1)
 
-    if output_format_lower == 'json':
+    if output_format_lower in {'json', 'elastic-integrations'}:
         print_success(f'Wrote {len(json_files_to_write)} individual JSON file(s)')
     else:
         combined_file = output_dir / output_file
@@ -428,8 +507,8 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
         print_success('No files changed')
 
     if upload is True:
-        if output_format_lower == 'json':
-            print_warning('Upload is not supported with --format json')
+        if output_format_lower in {'json', 'elastic-integrations'}:
+            print_warning(f'Upload is not supported with --format {output_format_lower}')
         else:
             if cli_context.kibana_client is None:
                 msg = 'Kibana client not configured'

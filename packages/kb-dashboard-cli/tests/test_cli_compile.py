@@ -1,5 +1,6 @@
 """Tests for compile command failure exit behavior."""
 
+import json
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -99,6 +100,117 @@ dashboards:
 
         assert result.exit_code == 0
         assert len(list(output_dir.glob('*.json'))) == 1
+
+    def test_compile_writes_elastic_integrations_json_with_unwrapped_fields(self, tmp_path: Path) -> None:
+        """Compile should write integrations-style JSON with parsed nested fields."""
+        input_dir = tmp_path / 'input'
+        output_dir = tmp_path / 'output'
+        input_dir.mkdir()
+
+        valid_yaml = input_dir / 'valid.yaml'
+        valid_yaml.write_text("""
+dashboards:
+  - name: Test Dashboard
+    panels:
+      - markdown:
+          content: Hello
+""")
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                'compile',
+                '--input-dir',
+                str(input_dir),
+                '--output-dir',
+                str(output_dir),
+                '--format',
+                'elastic-integrations',
+            ],
+        )
+
+        assert result.exit_code == 0
+        output_files = list(output_dir.glob('*.json'))
+        assert len(output_files) == 1
+        assert output_files[0].name.startswith('input-')
+
+        compiled = json.loads(output_files[0].read_text(encoding='utf-8'))
+        assert isinstance(compiled['attributes']['panelsJSON'], list)
+        assert isinstance(compiled['attributes']['optionsJSON'], dict)
+        assert isinstance(compiled['attributes']['kibanaSavedObjectMeta']['searchSourceJSON'], dict)
+        assert isinstance(compiled['attributes']['controlGroupInput']['ignoreParentSettingsJSON'], dict)
+        assert isinstance(compiled['attributes']['controlGroupInput']['panelsJSON'], dict)
+
+    def test_compile_elastic_integrations_uses_explicit_package_name(self, tmp_path: Path) -> None:
+        """Explicit package name should prefix elastic-integrations filenames."""
+        input_dir = tmp_path / 'input'
+        output_dir = tmp_path / 'output'
+        input_dir.mkdir()
+
+        valid_yaml = input_dir / 'valid.yaml'
+        valid_yaml.write_text("""
+dashboards:
+  - name: Test Dashboard
+    panels:
+      - markdown:
+          content: Hello
+""")
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                'compile',
+                '--input-dir',
+                str(input_dir),
+                '--output-dir',
+                str(output_dir),
+                '--format',
+                'elastic-integrations',
+                '--elastic-package-name',
+                'nginx_otel',
+            ],
+        )
+
+        assert result.exit_code == 0
+        output_files = list(output_dir.glob('*.json'))
+        assert len(output_files) == 1
+        assert output_files[0].name.startswith('nginx_otel-')
+
+    def test_compile_elastic_integrations_input_file_uses_parent_directory_name(self, tmp_path: Path) -> None:
+        """When --input-file is outside --input-dir, use parent directory as package prefix."""
+        package_dir = tmp_path / 'system_otel'
+        output_dir = tmp_path / 'output'
+        package_dir.mkdir()
+
+        valid_yaml = package_dir / 'valid.yaml'
+        valid_yaml.write_text("""
+dashboards:
+  - name: Test Dashboard
+    panels:
+      - markdown:
+          content: Hello
+""")
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                'compile',
+                '--input-file',
+                str(valid_yaml),
+                '--output-dir',
+                str(output_dir),
+                '--format',
+                'elastic-integrations',
+            ],
+        )
+
+        assert result.exit_code == 0
+        output_files = list(output_dir.glob('*.json'))
+        assert len(output_files) == 1
+        assert output_files[0].name.startswith('system_otel-')
 
     def test_compile_rejects_deprecated_fields_without_flag(self, tmp_path: Path) -> None:
         """Compile should fail when deprecated fields are present and flag is not set."""
