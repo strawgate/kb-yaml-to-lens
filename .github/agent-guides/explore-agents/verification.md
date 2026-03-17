@@ -113,7 +113,7 @@ In your report, use this exact heading and table:
 | Feature | YAML | Panel renders? | Editor correct? | Status |
 |---------|------|---------------|-----------------|--------|
 | count metric | `primary: {aggregation: count}` | Yes | Yes — shows "Count of records" | PASS |
-| formula heatmap | `value: {formula: 'counter_rate(...)'}` | No — "requires date histogram" | N/A | BUG |
+| formula heatmap | `metric: {formula: 'counter_rate(...)'}` | No — "requires date histogram" | N/A | BUG |
 ```
 
 ---
