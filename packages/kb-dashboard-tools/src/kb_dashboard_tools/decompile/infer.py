@@ -648,6 +648,13 @@ def _partition_vis_raw_from_view_model(vis_state: ParsedVisualizationState) -> d
     return vis_state.raw
 
 
+def _visualization_payload_for_chart(vis_state: ParsedVisualizationState, chart_type: str) -> dict[str, Any]:
+    """Select visualization payload for inference (view-model-first for partition charts)."""
+    if chart_type in PARTITION_CHART_TYPES:
+        return _partition_vis_raw_from_view_model(vis_state)
+    return vis_state.raw
+
+
 # ---------------------------------------------------------------------------
 # Metrics / dimensions / defaults assignment
 # ---------------------------------------------------------------------------
@@ -785,14 +792,13 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
 
     # Extract legend and appearance from visualization state
     if vis_state is not None:
-        vis_raw = vis_state.raw
+        vis_raw = _visualization_payload_for_chart(vis_state, chart_type)
 
         # Legend extraction
         if chart_type in _XY_CHART_TYPES:
             legend = _extract_xy_legend(vis_raw)
         elif chart_type in PARTITION_CHART_TYPES:
-            partition_vis_raw = _partition_vis_raw_from_view_model(vis_state)
-            legend = _extract_partition_legend(partition_vis_raw)
+            legend = _extract_partition_legend(vis_raw)
         else:
             legend = None
         if legend is not None:
@@ -822,8 +828,7 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
 
         # Partition chart appearance (pie/treemap/waffle/mosaic)
         elif chart_type in PARTITION_CHART_TYPES:
-            partition_vis_raw = _partition_vis_raw_from_view_model(vis_state)
-            partition_appearance = _extract_partition_appearance(partition_vis_raw)
+            partition_appearance = _extract_partition_appearance(vis_raw)
             if partition_appearance is not None:
                 existing = chart.get('appearance')
                 if isinstance(existing, dict):

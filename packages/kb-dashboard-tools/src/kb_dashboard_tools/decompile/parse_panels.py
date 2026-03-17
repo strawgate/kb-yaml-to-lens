@@ -382,23 +382,32 @@ def _parse_lens_panel(panel: RawPanel, raw_panel_type: str) -> ParsedLensPanel:
     )
 
 
+def _normalize_search_panel_for_view_model(panel: RawPanel, panel_raw: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(panel_raw)
+    normalized.setdefault('panelRefName', f'{panel.panel_index or "search"}_saved_search')
+    grid_data = get_dict(normalized, 'gridData')
+    if grid_data is not None and get_str(grid_data, 'i') is None:
+        grid_data = dict(grid_data)
+        grid_data['i'] = panel.panel_index or 'search'
+        normalized['gridData'] = grid_data
+    embeddable_config = get_dict(normalized, 'embeddableConfig') or {}
+    if get_str(embeddable_config, 'savedObjectId') is None:
+        fallback_saved_search_id = get_str(normalized, 'savedSearchId')
+        if fallback_saved_search_id is not None:
+            embeddable_config = dict(embeddable_config)
+            embeddable_config['savedObjectId'] = fallback_saved_search_id
+            normalized['embeddableConfig'] = embeddable_config
+    return normalized
+
+
+def _parse_search_panel_view(panel: RawPanel, panel_raw: dict[str, Any]) -> SimplePanelViewModel | None:
+    normalized = _normalize_search_panel_for_view_model(panel, panel_raw)
+    return cast('SimplePanelViewModel | None', validate_view_model(KbnSearchPanel, normalized))
+
+
 def _parse_simple_panel_view(panel: RawPanel, panel_raw: dict[str, Any], panel_type: str) -> SimplePanelViewModel | None:
     if panel_type == 'search':
-        normalized = dict(panel_raw)
-        normalized.setdefault('panelRefName', f'{panel.panel_index or "search"}_saved_search')
-        grid_data = get_dict(normalized, 'gridData')
-        if grid_data is not None and get_str(grid_data, 'i') is None:
-            grid_data = dict(grid_data)
-            grid_data['i'] = panel.panel_index or 'search'
-            normalized['gridData'] = grid_data
-        embeddable_config = get_dict(normalized, 'embeddableConfig') or {}
-        if get_str(embeddable_config, 'savedObjectId') is None:
-            fallback_saved_search_id = get_str(normalized, 'savedSearchId')
-            if fallback_saved_search_id is not None:
-                embeddable_config = dict(embeddable_config)
-                embeddable_config['savedObjectId'] = fallback_saved_search_id
-                normalized['embeddableConfig'] = embeddable_config
-        return cast('SimplePanelViewModel | None', validate_view_model(KbnSearchPanel, normalized))
+        return _parse_search_panel_view(panel, panel_raw)
 
     model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(panel_type)
     if model_cls is not None:
