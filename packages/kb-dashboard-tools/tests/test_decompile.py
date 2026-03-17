@@ -890,6 +890,98 @@ def test_decompile_lnspie_treemap() -> None:
     assert result['lens']['type'] == 'treemap'
 
 
+def test_decompile_lnswaffle_uses_breakdown_key() -> None:
+    """Waffle maps singular bucket to breakdown (not dimension)."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'waffle',
+                'layerId': 'layer1',
+                'metricAccessor': 'col_metric',
+                'accessor': 'col_breakdown',
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                                'col_breakdown': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 8},
+                                },
+                            },
+                            'columnOrder': ['col_breakdown', 'col_metric'],
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+    assert lens['type'] == 'waffle'
+    assert lens['breakdown']['field'] == 'host.name'
+    assert lens['breakdown']['size'] == 8
+    assert 'dimension' not in lens
+
+
+def test_decompile_lnsmosaic_maps_primary_and_secondary_groups() -> None:
+    """Mosaic maps first bucket to dimension and second to breakdown."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'mosaic',
+                'layerId': 'layer1',
+                'metricAccessor': 'col_metric',
+                'xAccessor': 'col_time',
+                'splitAccessor': 'col_host',
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                                'col_time': {
+                                    'operationType': 'date_histogram',
+                                    'isBucketed': True,
+                                    'sourceField': '@timestamp',
+                                    'params': {'interval': '1h'},
+                                },
+                                'col_host': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 5},
+                                },
+                            },
+                            'columnOrder': ['col_time', 'col_host', 'col_metric'],
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+    assert lens['type'] == 'mosaic'
+    assert lens['dimension']['field'] == '@timestamp'
+    assert lens['breakdown']['field'] == 'host.name'
+
+
 # --- Data view extraction ---
 
 
@@ -1429,6 +1521,118 @@ def test_decompile_datatable_type() -> None:
     panel = _make_lens_panel('lnsDatatable')
     result = _decompile_single_panel(panel)
     assert result['lens']['type'] == 'datatable'
+
+
+def test_decompile_datatable_emits_breakdowns_for_bucketed_columns() -> None:
+    """Datatable with bucketed columns emits plural breakdowns key."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={
+            'visualization': {
+                'layerId': 'layer1',
+                'accessors': ['col_breakdown', 'col_metric'],
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_breakdown': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'service.name',
+                                    'params': {'size': 6},
+                                },
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                            'columnOrder': ['col_breakdown', 'col_metric'],
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+    assert lens['type'] == 'datatable'
+    assert lens['breakdowns'][0]['field'] == 'service.name'
+    assert lens['breakdowns'][0]['size'] == 6
+    assert 'dimensions' not in lens
+
+
+def test_decompile_partition_defaults_breakdowns_when_missing() -> None:
+    """Partition charts default to breakdowns placeholder when none are present."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layerId': 'layer1',
+                'metricAccessor': 'col_metric',
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                            'columnOrder': ['col_metric'],
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+    assert lens['type'] == 'pie'
+    assert lens['breakdowns'][0]['type'] == 'values'
+    assert lens['breakdowns'][0]['field'] == 'TODO_field'
+
+
+def test_decompile_waffle_defaults_breakdown_when_missing() -> None:
+    """Waffle charts default to singular breakdown placeholder when none are present."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'waffle',
+                'layerId': 'layer1',
+                'metricAccessor': 'col_metric',
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                            'columnOrder': ['col_metric'],
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+    assert lens['type'] == 'waffle'
+    assert lens['breakdown']['type'] == 'values'
+    assert lens['breakdown']['field'] == 'TODO_field'
+    assert 'dimension' not in lens
 
 
 def test_decompile_metric_with_label() -> None:

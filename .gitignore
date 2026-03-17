@@ -19,3 +19,5 @@ htmlcov/
 .coverage
 coverage.json
 publish-to-pypi.sh
+package-lock.json
+.npm-ci.stamp

@@ -15,7 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "kb-dashboard-core==0.3.2",
-    "aiohttp>=3.13",
+    "aiohttp>=3.13.3",
     "prison>=0.2.1",
     "pydantic>=2.12",
 ]
