@@ -1,406 +1,406 @@
 {
-  "attributes": {
-    "title": "[Example] Navigation - Analytics Dashboard",
-    "description": "Advanced analytics with multiple visualizations",
-    "panelsJSON": [
-      {
-        "panelIndex": "25381616-81af-f361-7791-ce327e0007da",
-        "gridData": {
-          "x": 0,
-          "y": 0,
-          "w": 48,
-          "h": 2,
-          "i": "25381616-81af-f361-7791-ce327e0007da"
-        },
-        "type": "links",
-        "embeddableConfig": {
-          "title": "Dashboard Navigation",
-          "enhancements": {},
-          "attributes": {
-            "layout": "horizontal",
-            "links": [
-              {
-                "id": "3af4ba12-6f83-488a-bdc9-0c7216a22d73",
-                "order": 0,
-                "label": "Overview",
-                "type": "dashboardLink",
-                "destinationRefName": "link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
-              },
-              {
-                "id": "d419ac44-d077-1fda-684c-98797145d4be",
-                "order": 1,
-                "label": "Details",
-                "type": "dashboardLink",
-                "destinationRefName": "link_d419ac44-d077-1fda-684c-98797145d4be_dashboard"
-              },
-              {
-                "id": "abe184d7-c1f5-b182-7bed-566396e603de",
-                "order": 2,
-                "label": "Analytics",
-                "type": "dashboardLink",
-                "destinationRefName": "link_abe184d7-c1f5-b182-7bed-566396e603de_dashboard"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "panelIndex": "f522e08d-ce33-647b-539a-418e1562b1f3",
-        "gridData": {
-          "x": 0,
-          "y": 2,
-          "w": 24,
-          "h": 15,
-          "i": "f522e08d-ce33-647b-539a-418e1562b1f3"
-        },
-        "type": "lens",
-        "embeddableConfig": {
-          "enhancements": {
-            "dynamicActions": {
-              "events": []
-            }
-          },
-          "attributes": {
-            "title": "Cumulative Event Volume",
-            "visualizationType": "lnsXY",
-            "type": "lens",
-            "references": [
-              {
-                "type": "index-pattern",
-                "id": "logs-*",
-                "name": "indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
-              }
-            ],
-            "state": {
-              "visualization": {
-                "layers": [
-                  {
-                    "layerId": "16c3c093-76cf-c263-9145-6f57744b86ae",
-                    "accessors": [
-                      "cdceb520-d498-363b-8576-f1288ef35443"
-                    ],
-                    "layerType": "data",
-                    "seriesType": "area",
-                    "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
-                    "position": "top",
-                    "showGridlines": false,
-                    "splitAccessor": "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
-                    "colorMapping": {
-                      "assignments": [],
-                      "specialAssignments": [
-                        {
-                          "rule": {
-                            "type": "other"
-                          },
-                          "color": {
-                            "type": "loop"
-                          },
-                          "touched": false
-                        }
-                      ],
-                      "paletteId": "eui_amsterdam_color_blind",
-                      "colorMode": {
-                        "type": "categorical"
-                      }
-                    }
-                  }
-                ],
-                "preferredSeriesType": "area",
-                "legend": {
-                  "position": "right"
+    "attributes": {
+        "title": "[Example] Navigation - Analytics Dashboard",
+        "description": "Advanced analytics with multiple visualizations",
+        "panelsJSON": [
+            {
+                "panelIndex": "25381616-81af-f361-7791-ce327e0007da",
+                "gridData": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 48,
+                    "h": 2,
+                    "i": "25381616-81af-f361-7791-ce327e0007da"
                 },
-                "valueLabels": "hide"
-              },
-              "query": {
-                "query": "",
-                "language": "kuery"
-              },
-              "filters": [],
-              "datasourceStates": {
-                "formBased": {
-                  "layers": {
-                    "16c3c093-76cf-c263-9145-6f57744b86ae": {
-                      "columns": {
-                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
-                          "label": "@timestamp",
-                          "dataType": "date",
-                          "operationType": "date_histogram",
-                          "isBucketed": true,
-                          "scale": "interval",
-                          "params": {
-                            "interval": "auto",
-                            "includeEmptyRows": true,
-                            "dropPartials": false
-                          },
-                          "sourceField": "@timestamp"
-                        },
-                        "ac2350d6-3da8-5120-08d8-9904a56c2ecd": {
-                          "label": "Top 3 values of log.level",
-                          "dataType": "string",
-                          "operationType": "terms",
-                          "isBucketed": true,
-                          "scale": "ordinal",
-                          "params": {
-                            "size": 3,
-                            "orderBy": {
-                              "type": "column",
-                              "columnId": "cdceb520-d498-363b-8576-f1288ef35443"
+                "type": "links",
+                "embeddableConfig": {
+                    "title": "Dashboard Navigation",
+                    "enhancements": {},
+                    "attributes": {
+                        "layout": "horizontal",
+                        "links": [
+                            {
+                                "id": "3af4ba12-6f83-488a-bdc9-0c7216a22d73",
+                                "order": 0,
+                                "label": "Overview",
+                                "type": "dashboardLink",
+                                "destinationRefName": "link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
                             },
-                            "orderDirection": "desc",
-                            "otherBucket": true,
-                            "missingBucket": false,
-                            "parentFormat": {
-                              "id": "terms"
+                            {
+                                "id": "d419ac44-d077-1fda-684c-98797145d4be",
+                                "order": 1,
+                                "label": "Details",
+                                "type": "dashboardLink",
+                                "destinationRefName": "link_d419ac44-d077-1fda-684c-98797145d4be_dashboard"
                             },
-                            "include": [],
-                            "exclude": [],
-                            "includeIsRegex": false,
-                            "excludeIsRegex": false
-                          },
-                          "sourceField": "log.level"
-                        },
-                        "cdceb520-d498-363b-8576-f1288ef35443": {
-                          "label": "Count of records",
-                          "dataType": "number",
-                          "operationType": "count",
-                          "isBucketed": false,
-                          "scale": "ratio",
-                          "sourceField": "___records___",
-                          "params": {
-                            "emptyAsNull": true
-                          }
-                        }
-                      },
-                      "columnOrder": [
-                        "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
-                        "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
-                        "cdceb520-d498-363b-8576-f1288ef35443"
-                      ],
-                      "incompleteColumns": {},
-                      "sampling": 1
+                            {
+                                "id": "abe184d7-c1f5-b182-7bed-566396e603de",
+                                "order": 2,
+                                "label": "Analytics",
+                                "type": "dashboardLink",
+                                "destinationRefName": "link_abe184d7-c1f5-b182-7bed-566396e603de_dashboard"
+                            }
+                        ]
                     }
-                  }
-                },
-                "indexpattern": {
-                  "layers": {}
-                },
-                "textBased": {
-                  "layers": {}
                 }
-              },
-              "internalReferences": [],
-              "adHocDataViews": {}
-            }
-          },
-          "syncTooltips": false,
-          "syncColors": false,
-          "syncCursor": true,
-          "filters": [],
-          "query": {
-            "query": "",
-            "language": "kuery"
-          }
-        }
-      },
-      {
-        "panelIndex": "956a0f02-c11f-1dfa-2e83-3981d36d0045",
-        "gridData": {
-          "x": 24,
-          "y": 2,
-          "w": 24,
-          "h": 15,
-          "i": "956a0f02-c11f-1dfa-2e83-3981d36d0045"
-        },
-        "type": "lens",
-        "embeddableConfig": {
-          "enhancements": {
-            "dynamicActions": {
-              "events": []
-            }
-          },
-          "attributes": {
-            "title": "Common Tags",
-            "visualizationType": "lnsTagcloud",
-            "type": "lens",
-            "references": [
-              {
-                "type": "index-pattern",
-                "id": "logs-*",
-                "name": "indexpattern-datasource-layer-0ca58879-1504-e330-23f2-11862277147d"
-              }
-            ],
-            "state": {
-              "visualization": {
-                "layerId": "0ca58879-1504-e330-23f2-11862277147d",
-                "tagAccessor": "a69b857f-8c12-cc13-1ebd-a8962cce7a31",
-                "valueAccessor": "3c2bc97d-1a0d-764c-e652-addeb8aaff00",
-                "maxFontSize": 72,
-                "minFontSize": 12,
-                "orientation": "single",
-                "showLabel": true,
-                "colorMapping": {
-                  "assignments": [],
-                  "specialAssignments": [
-                    {
-                      "rule": {
-                        "type": "other"
-                      },
-                      "color": {
-                        "type": "loop"
-                      },
-                      "touched": false
-                    }
-                  ],
-                  "paletteId": "eui_amsterdam_color_blind",
-                  "colorMode": {
-                    "type": "categorical"
-                  }
-                }
-              },
-              "query": {
-                "query": "",
-                "language": "kuery"
-              },
-              "filters": [],
-              "datasourceStates": {
-                "formBased": {
-                  "layers": {
-                    "0ca58879-1504-e330-23f2-11862277147d": {
-                      "columns": {
-                        "a69b857f-8c12-cc13-1ebd-a8962cce7a31": {
-                          "label": "Top 3 values of tags",
-                          "dataType": "string",
-                          "operationType": "terms",
-                          "isBucketed": true,
-                          "scale": "ordinal",
-                          "params": {
-                            "size": 3,
-                            "orderBy": {
-                              "type": "column",
-                              "columnId": "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
-                            },
-                            "orderDirection": "desc",
-                            "otherBucket": true,
-                            "missingBucket": false,
-                            "parentFormat": {
-                              "id": "terms"
-                            },
-                            "include": [],
-                            "exclude": [],
-                            "includeIsRegex": false,
-                            "excludeIsRegex": false
-                          },
-                          "sourceField": "tags"
-                        },
-                        "3c2bc97d-1a0d-764c-e652-addeb8aaff00": {
-                          "label": "Count of records",
-                          "dataType": "number",
-                          "operationType": "count",
-                          "isBucketed": false,
-                          "scale": "ratio",
-                          "sourceField": "___records___",
-                          "params": {
-                            "emptyAsNull": true
-                          }
+            },
+            {
+                "panelIndex": "f522e08d-ce33-647b-539a-418e1562b1f3",
+                "gridData": {
+                    "x": 0,
+                    "y": 2,
+                    "w": 24,
+                    "h": 15,
+                    "i": "f522e08d-ce33-647b-539a-418e1562b1f3"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
                         }
-                      },
-                      "columnOrder": [
-                        "a69b857f-8c12-cc13-1ebd-a8962cce7a31",
-                        "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
-                      ],
-                      "incompleteColumns": {},
-                      "sampling": 1
+                    },
+                    "attributes": {
+                        "title": "Cumulative Event Volume",
+                        "visualizationType": "lnsXY",
+                        "type": "lens",
+                        "references": [
+                            {
+                                "type": "index-pattern",
+                                "id": "logs-*",
+                                "name": "indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
+                            }
+                        ],
+                        "state": {
+                            "visualization": {
+                                "layers": [
+                                    {
+                                        "layerId": "16c3c093-76cf-c263-9145-6f57744b86ae",
+                                        "accessors": [
+                                            "cdceb520-d498-363b-8576-f1288ef35443"
+                                        ],
+                                        "layerType": "data",
+                                        "seriesType": "area",
+                                        "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
+                                        "position": "top",
+                                        "showGridlines": false,
+                                        "splitAccessor": "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "preferredSeriesType": "area",
+                                "legend": {
+                                    "position": "right"
+                                },
+                                "valueLabels": "hide"
+                            },
+                            "query": {
+                                "query": "",
+                                "language": "kuery"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "formBased": {
+                                    "layers": {
+                                        "16c3c093-76cf-c263-9145-6f57744b86ae": {
+                                            "columns": {
+                                                "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
+                                                    "label": "@timestamp",
+                                                    "dataType": "date",
+                                                    "operationType": "date_histogram",
+                                                    "isBucketed": true,
+                                                    "scale": "interval",
+                                                    "params": {
+                                                        "interval": "auto",
+                                                        "includeEmptyRows": true,
+                                                        "dropPartials": false
+                                                    },
+                                                    "sourceField": "@timestamp"
+                                                },
+                                                "ac2350d6-3da8-5120-08d8-9904a56c2ecd": {
+                                                    "label": "Top 3 values of log.level",
+                                                    "dataType": "string",
+                                                    "operationType": "terms",
+                                                    "isBucketed": true,
+                                                    "scale": "ordinal",
+                                                    "params": {
+                                                        "size": 3,
+                                                        "orderBy": {
+                                                            "type": "column",
+                                                            "columnId": "cdceb520-d498-363b-8576-f1288ef35443"
+                                                        },
+                                                        "orderDirection": "desc",
+                                                        "otherBucket": true,
+                                                        "missingBucket": false,
+                                                        "parentFormat": {
+                                                            "id": "terms"
+                                                        },
+                                                        "include": [],
+                                                        "exclude": [],
+                                                        "includeIsRegex": false,
+                                                        "excludeIsRegex": false
+                                                    },
+                                                    "sourceField": "log.level"
+                                                },
+                                                "cdceb520-d498-363b-8576-f1288ef35443": {
+                                                    "label": "Count of records",
+                                                    "dataType": "number",
+                                                    "operationType": "count",
+                                                    "isBucketed": false,
+                                                    "scale": "ratio",
+                                                    "sourceField": "___records___",
+                                                    "params": {
+                                                        "emptyAsNull": true
+                                                    }
+                                                }
+                                            },
+                                            "columnOrder": [
+                                                "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
+                                                "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
+                                                "cdceb520-d498-363b-8576-f1288ef35443"
+                                            ],
+                                            "incompleteColumns": {},
+                                            "sampling": 1
+                                        }
+                                    }
+                                },
+                                "indexpattern": {
+                                    "layers": {}
+                                },
+                                "textBased": {
+                                    "layers": {}
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
                     }
-                  }
-                },
-                "indexpattern": {
-                  "layers": {}
-                },
-                "textBased": {
-                  "layers": {}
                 }
-              },
-              "internalReferences": [],
-              "adHocDataViews": {}
+            },
+            {
+                "panelIndex": "956a0f02-c11f-1dfa-2e83-3981d36d0045",
+                "gridData": {
+                    "x": 24,
+                    "y": 2,
+                    "w": 24,
+                    "h": 15,
+                    "i": "956a0f02-c11f-1dfa-2e83-3981d36d0045"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Common Tags",
+                        "visualizationType": "lnsTagcloud",
+                        "type": "lens",
+                        "references": [
+                            {
+                                "type": "index-pattern",
+                                "id": "logs-*",
+                                "name": "indexpattern-datasource-layer-0ca58879-1504-e330-23f2-11862277147d"
+                            }
+                        ],
+                        "state": {
+                            "visualization": {
+                                "layerId": "0ca58879-1504-e330-23f2-11862277147d",
+                                "tagAccessor": "a69b857f-8c12-cc13-1ebd-a8962cce7a31",
+                                "valueAccessor": "3c2bc97d-1a0d-764c-e652-addeb8aaff00",
+                                "maxFontSize": 72,
+                                "minFontSize": 12,
+                                "orientation": "single",
+                                "showLabel": true,
+                                "colorMapping": {
+                                    "assignments": [],
+                                    "specialAssignments": [
+                                        {
+                                            "rule": {
+                                                "type": "other"
+                                            },
+                                            "color": {
+                                                "type": "loop"
+                                            },
+                                            "touched": false
+                                        }
+                                    ],
+                                    "paletteId": "eui_amsterdam_color_blind",
+                                    "colorMode": {
+                                        "type": "categorical"
+                                    }
+                                }
+                            },
+                            "query": {
+                                "query": "",
+                                "language": "kuery"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "formBased": {
+                                    "layers": {
+                                        "0ca58879-1504-e330-23f2-11862277147d": {
+                                            "columns": {
+                                                "a69b857f-8c12-cc13-1ebd-a8962cce7a31": {
+                                                    "label": "Top 3 values of tags",
+                                                    "dataType": "string",
+                                                    "operationType": "terms",
+                                                    "isBucketed": true,
+                                                    "scale": "ordinal",
+                                                    "params": {
+                                                        "size": 3,
+                                                        "orderBy": {
+                                                            "type": "column",
+                                                            "columnId": "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
+                                                        },
+                                                        "orderDirection": "desc",
+                                                        "otherBucket": true,
+                                                        "missingBucket": false,
+                                                        "parentFormat": {
+                                                            "id": "terms"
+                                                        },
+                                                        "include": [],
+                                                        "exclude": [],
+                                                        "includeIsRegex": false,
+                                                        "excludeIsRegex": false
+                                                    },
+                                                    "sourceField": "tags"
+                                                },
+                                                "3c2bc97d-1a0d-764c-e652-addeb8aaff00": {
+                                                    "label": "Count of records",
+                                                    "dataType": "number",
+                                                    "operationType": "count",
+                                                    "isBucketed": false,
+                                                    "scale": "ratio",
+                                                    "sourceField": "___records___",
+                                                    "params": {
+                                                        "emptyAsNull": true
+                                                    }
+                                                }
+                                            },
+                                            "columnOrder": [
+                                                "a69b857f-8c12-cc13-1ebd-a8962cce7a31",
+                                                "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
+                                            ],
+                                            "incompleteColumns": {},
+                                            "sampling": 1
+                                        }
+                                    }
+                                },
+                                "indexpattern": {
+                                    "layers": {}
+                                },
+                                "textBased": {
+                                    "layers": {}
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
             }
-          },
-          "syncTooltips": false,
-          "syncColors": false,
-          "syncCursor": true,
-          "filters": [],
-          "query": {
-            "query": "",
-            "language": "kuery"
-          }
+        ],
+        "optionsJSON": {
+            "useMargins": true,
+            "syncColors": false,
+            "syncCursor": true,
+            "syncTooltips": false,
+            "hidePanelTitles": false
+        },
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": {
+                "filter": [],
+                "query": {
+                    "query": "",
+                    "language": "kuery"
+                }
+            }
+        },
+        "timeRestore": false,
+        "version": 1,
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": {
+                "ignoreFilters": false,
+                "ignoreQuery": false,
+                "ignoreTimerange": false,
+                "ignoreValidations": false
+            },
+            "panelsJSON": {},
+            "showApplySelections": false
         }
-      }
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2023-10-01T00:00:00Z",
+    "created_by": "admin",
+    "id": "nav-analytics-001",
+    "managed": false,
+    "references": [
+        {
+            "type": "dashboard",
+            "id": "nav-overview-001",
+            "name": "25381616-81af-f361-7791-ce327e0007da:link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
+        },
+        {
+            "type": "dashboard",
+            "id": "nav-details-001",
+            "name": "25381616-81af-f361-7791-ce327e0007da:link_d419ac44-d077-1fda-684c-98797145d4be_dashboard"
+        },
+        {
+            "type": "dashboard",
+            "id": "nav-analytics-001",
+            "name": "25381616-81af-f361-7791-ce327e0007da:link_abe184d7-c1f5-b182-7bed-566396e603de_dashboard"
+        },
+        {
+            "type": "index-pattern",
+            "id": "logs-*",
+            "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
+        },
+        {
+            "type": "index-pattern",
+            "id": "logs-*",
+            "name": "956a0f02-c11f-1dfa-2e83-3981d36d0045:indexpattern-datasource-layer-0ca58879-1504-e330-23f2-11862277147d"
+        }
     ],
-    "optionsJSON": {
-      "useMargins": true,
-      "syncColors": false,
-      "syncCursor": true,
-      "syncTooltips": false,
-      "hidePanelTitles": false
-    },
-    "kibanaSavedObjectMeta": {
-      "searchSourceJSON": {
-        "filter": [],
-        "query": {
-          "query": "",
-          "language": "kuery"
-        }
-      }
-    },
-    "timeRestore": false,
-    "version": 1,
-    "controlGroupInput": {
-      "chainingSystem": "HIERARCHICAL",
-      "controlStyle": "oneLine",
-      "ignoreParentSettingsJSON": {
-        "ignoreFilters": false,
-        "ignoreQuery": false,
-        "ignoreTimerange": false,
-        "ignoreValidations": false
-      },
-      "panelsJSON": {},
-      "showApplySelections": false
-    }
-  },
-  "coreMigrationVersion": "8.8.0",
-  "created_at": "2023-10-01T00:00:00Z",
-  "created_by": "admin",
-  "id": "nav-analytics-001",
-  "managed": false,
-  "references": [
-    {
-      "type": "dashboard",
-      "id": "nav-overview-001",
-      "name": "25381616-81af-f361-7791-ce327e0007da:link_3af4ba12-6f83-488a-bdc9-0c7216a22d73_dashboard"
-    },
-    {
-      "type": "dashboard",
-      "id": "nav-details-001",
-      "name": "25381616-81af-f361-7791-ce327e0007da:link_d419ac44-d077-1fda-684c-98797145d4be_dashboard"
-    },
-    {
-      "type": "dashboard",
-      "id": "nav-analytics-001",
-      "name": "25381616-81af-f361-7791-ce327e0007da:link_abe184d7-c1f5-b182-7bed-566396e603de_dashboard"
-    },
-    {
-      "type": "index-pattern",
-      "id": "logs-*",
-      "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
-    },
-    {
-      "type": "index-pattern",
-      "id": "logs-*",
-      "name": "956a0f02-c11f-1dfa-2e83-3981d36d0045:indexpattern-datasource-layer-0ca58879-1504-e330-23f2-11862277147d"
-    }
-  ],
-  "type": "dashboard",
-  "typeMigrationVersion": "10.2.0",
-  "updated_at": "2023-10-01T00:00:00Z",
-  "updated_by": "admin",
-  "version": "1"
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2023-10-01T00:00:00Z",
+    "updated_by": "admin",
+    "version": "1"
 }
