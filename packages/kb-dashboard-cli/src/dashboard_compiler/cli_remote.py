@@ -15,8 +15,8 @@ from kb_dashboard_core.dashboard_compiler import load
 from kb_dashboard_core.utils import extract_dashboard_id_from_url
 from kb_dashboard_tools.kibana_client import KibanaClient
 
+from dashboard_compiler.cli_common import PROJECT_ROOT, get_yaml_files
 from dashboard_compiler.cli_context import CliContext
-from dashboard_compiler.cli_local import PROJECT_ROOT, get_yaml_files
 from dashboard_compiler.cli_options import elasticsearch_options, kibana_options
 from dashboard_compiler.cli_output import (
     create_progress,

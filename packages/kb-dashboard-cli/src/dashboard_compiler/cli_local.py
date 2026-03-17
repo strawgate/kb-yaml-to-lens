@@ -21,6 +21,7 @@ from kb_dashboard_tools.decompile import decompile_dashboard
 from kb_dashboard_tools.kibana_client import KibanaClient
 from pydantic import ValidationError
 
+from dashboard_compiler.cli_common import DEFAULT_INPUT_DIR, DEFAULT_OUTPUT_DIR, PROJECT_ROOT, get_yaml_files
 from dashboard_compiler.cli_context import CliContext
 from dashboard_compiler.cli_options import kibana_options
 from dashboard_compiler.cli_output import (
@@ -40,9 +41,6 @@ from dashboard_compiler.cli_output import (
 )
 
 # Constants
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DEFAULT_INPUT_DIR = PROJECT_ROOT / 'inputs'
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / 'output'
 MAX_EXIT_CODE = 125
 
 
@@ -151,31 +149,6 @@ def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], list[KbnDashboard]
         return [], [], f'Error compiling {yaml_path}: {e}'
     else:
         return json_lines, kbn_dashboards, None
-
-
-def get_yaml_files(directory: Path) -> list[Path]:
-    """Get all YAML files from a directory recursively.
-
-    Args:
-        directory: Directory to search for YAML files.
-
-    Returns:
-        List of Path objects pointing to YAML files.
-
-    Raises:
-        click.ClickException: If directory is not found.
-
-    """
-    if not directory.is_dir():
-        msg = f'Directory not found: {directory}'
-        raise click.ClickException(msg)
-
-    yaml_files = sorted(directory.rglob('*.yaml'))
-
-    if len(yaml_files) == 0:
-        print_warning(f'No YAML files found in {directory}')
-
-    return yaml_files
 
 
 async def _upload_to_kibana(

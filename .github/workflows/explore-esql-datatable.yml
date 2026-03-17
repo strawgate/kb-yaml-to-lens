@@ -72,7 +72,7 @@ jobs:
         ### Config slots
         - **metrics** (optional) — metric columns
         - **dimensions** (optional) — row grouping columns
-        - **dimensions_by** (optional) — split metrics by dimension values
+        - **metrics_split_by** (optional) — split metrics by breakdown values
         - At least one metric OR dimension is required
 
         ### Per-column appearance (metrics and dimensions)

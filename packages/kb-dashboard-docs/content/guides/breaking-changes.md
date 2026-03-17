@@ -8,10 +8,10 @@ Use the CLI to access this guide from a local install:
 
 ## 0.2.7 -> 0.4.0
 
-> [!IMPORTANT]
-> Starting with `0.4.0`, we only support compatibility from `0.2.7` directly to `0.4.0`.
-> Compatibility behavior specific to intermediate `0.3.x` releases is intentionally dropped.
-> Use `kb-dashboard upgrade` to rewrite legacy `0.2.7` YAML into the canonical `0.4.0` schema.
+!!! important
+    Starting with `0.4.0`, we only support compatibility from `0.2.7` directly to `0.4.0`.
+    Compatibility behavior specific to intermediate `0.3.x` releases is intentionally dropped.
+    Use `kb-dashboard upgrade` to rewrite legacy `0.2.7` YAML into the canonical `0.4.0` schema.
 
 ### Migration Checklist
 
