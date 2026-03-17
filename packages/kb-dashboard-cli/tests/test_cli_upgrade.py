@@ -393,6 +393,40 @@ dashboards:
         assert 'No upgrades needed' in result.output
         assert input_file.read_text(encoding='utf-8') == before
 
+    def test_upgrade_renames_heatmap_value_to_metric(self, tmp_path: Path) -> None:
+        """Heatmap `value:` field is renamed to `metric:`."""
+        input_file = tmp_path / 'heatmap.yaml'
+        input_file.write_text(
+            """
+dashboards:
+  - id: heatmap-test
+    name: Heatmap Test
+    panels:
+      - lens:
+          type: heatmap
+          data_view: logs-*
+          x_axis:
+            field: host.name
+            type: values
+          value:
+            aggregation: count
+""".strip()
+            + '\n',
+            encoding='utf-8',
+        )
+
+        result = CliRunner().invoke(cli, ['upgrade', '--input-file', str(input_file), '--write'])
+        assert result.exit_code == 0
+        assert 'Upgraded' in result.output
+
+        upgraded = _read_yaml(input_file)
+        dashboards = cast('list[dict[str, Any]]', upgraded['dashboards'])
+        panels = cast('list[dict[str, Any]]', dashboards[0]['panels'])
+        chart = cast('dict[str, Any]', panels[0]['lens'])
+
+        assert 'value' not in chart
+        assert chart['metric'] == {'aggregation': 'count'}
+
     def test_upgrade_wraps_write_errors_in_click_exception(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Write failures should be surfaced as friendly click errors."""
         input_file = tmp_path / 'legacy.yaml'
