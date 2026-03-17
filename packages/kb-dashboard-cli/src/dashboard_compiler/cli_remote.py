@@ -351,8 +351,8 @@ def export_for_issue(
 ) -> None:
     r"""Export a dashboard from Kibana and create a pre-filled GitHub issue.
 
-    This command downloads a dashboard's JSON from Kibana and generates a GitHub
-    issue URL with the dashboard JSON pre-filled in the body. You can then submit
+    This command downloads a dashboard export (NDJSON) from Kibana and generates a GitHub
+    issue URL with the dashboard NDJSON pre-filled in the body. You can then submit
     the issue to request support for compiling the dashboard from YAML.
 
     \b
@@ -414,9 +414,9 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
 ### Dashboard ID
 `{dashboard_id}`
 
-### Exported Dashboard JSON
+### Exported Dashboard NDJSON
 
-```json
+```ndjson
 {ndjson_data}
 ```
 
