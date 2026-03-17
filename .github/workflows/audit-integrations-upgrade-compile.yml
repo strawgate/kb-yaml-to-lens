@@ -37,7 +37,7 @@ jobs:
 
         yaml_files = sorted(
             p for p in integrations.rglob("*")
-            if p.suffix in {".yml", ".yaml"} and "/_dev/shared/kibana/" in p.as_posix()
+            if p.suffix in {".yml", ".yaml"} and "/_dev/shared/" in p.as_posix()
         )
 
         if not yaml_files:
