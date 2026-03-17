@@ -1,5 +1,8 @@
 ---
 name: Checks
+permissions:
+  contents: read
+  pull-requests: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -16,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup just
         uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
@@ -34,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup just
         uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
@@ -56,7 +59,7 @@ jobs:
           - macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup just
         uses: extractions/setup-just@v2
       - name: Setup Node.js Environment
@@ -75,7 +78,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup just
         uses: extractions/setup-just@v2
       - name: Setup Python Environment
@@ -84,7 +87,7 @@ jobs:
         shell: bash
         run: just cli test-coverage
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: coverage-report
@@ -118,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup just
         uses: extractions/setup-just@v2
       - name: Setup Python Environment
@@ -137,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup just
         uses: extractions/setup-just@v2
       - name: Setup Node.js Environment

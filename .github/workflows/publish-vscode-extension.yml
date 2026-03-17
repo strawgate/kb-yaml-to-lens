@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - v*
+permissions:
+  contents: read
+concurrency:
+  group: publish-vscode
+  cancel-in-progress: false
 jobs:
   build:
     strategy:
@@ -37,9 +42,6 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    concurrency:
-      group: publish-vscode-extension
-      cancel-in-progress: false
     steps:
       - name: Download all VSIX artifacts
         uses: actions/download-artifact@v6

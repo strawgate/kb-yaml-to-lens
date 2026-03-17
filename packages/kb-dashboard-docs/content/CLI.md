@@ -1,6 +1,6 @@
 # Dashboard Compiler CLI
 
-The `kb-dashboard` CLI tool allows you to compile YAML dashboard configurations to Kibana's NDJSON format and optionally upload them directly to Kibana.
+The `kb-dashboard-cli` CLI tool allows you to compile YAML dashboard configurations to Kibana's NDJSON format and optionally upload them directly to Kibana.
 
 ## Prerequisites
 
@@ -246,7 +246,7 @@ uvx kb-dashboard-cli compile --upload
 
 ## Command Reference
 
-The following commands are available in the `kb-dashboard` CLI. For detailed information about each command and its options, see the auto-generated reference below.
+The following commands are available in the `kb-dashboard-cli` CLI. For detailed information about each command and its options, see the auto-generated reference below.
 
 ::: mkdocs-click
     :module: dashboard_compiler.cli

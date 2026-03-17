@@ -102,6 +102,8 @@ extra:
     - panels/mosaic.md
     - panels/pie.md
     - panels/tagcloud.md
+    - panels/treemap.md
+    - panels/waffle.md
     - panels/xy.md
     - panels/image.md
     - panels/search.md
@@ -156,6 +158,8 @@ nav:
           - Mosaic Chart: panels/mosaic.md
           - Pie Chart: panels/pie.md
           - Tag Cloud Chart: panels/tagcloud.md
+          - Treemap Chart: panels/treemap.md
+          - Waffle Chart: panels/waffle.md
           - XY Chart: panels/xy.md
       - Other Panels:
           - Auto-Layout Guide: panels/auto-layout.md
@@ -181,6 +185,7 @@ nav:
           - ES|QL "views": guides/esql-views.md
   - Developer Guide:
       - Programmatic Usage: programmatic-usage.md
+      - Architecture: architecture.md
       - API Reference:
           - api/index.md
           - Dashboard API: api/dashboard.md
