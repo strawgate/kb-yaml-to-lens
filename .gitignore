@@ -18,4 +18,5 @@ dashboards.ndjson
 htmlcov/
 .coverage
 coverage.json
-publish-to-pypi.shpackage-lock.json
+publish-to-pypi.sh
+package-lock.json
