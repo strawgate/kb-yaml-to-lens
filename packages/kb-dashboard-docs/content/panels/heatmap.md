@@ -118,6 +118,20 @@ dashboards:
             label: "Events"
 ```
 
+## Appearance Visibility Defaults
+
+When visibility fields are omitted under `appearance`, the compiler applies Kibana-aligned defaults:
+
+| Field | Default when omitted |
+| ----- | -------------------- |
+| `appearance.values.visible` | `false` (cell labels hidden) |
+| `appearance.x_axis.labels.visible` | `true` |
+| `appearance.x_axis.title.visible` | `true` |
+| `appearance.y_axis.labels.visible` | `true` |
+| `appearance.y_axis.title.visible` | `true` |
+
+Set these fields explicitly to override the defaults.
+
 ## Lens Heatmap Chart
 
 ::: kb_dashboard_core.panels.charts.heatmap.config.LensHeatmapChart
