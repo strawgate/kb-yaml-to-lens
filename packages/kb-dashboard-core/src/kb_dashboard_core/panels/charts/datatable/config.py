@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Literal, Self
 
-from pydantic import AliasChoices, Field, model_validator
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart
 from kb_dashboard_core.panels.charts.datatable.breakdowns import ESQLDatatableBreakdownTypes, LensDatatableBreakdownTypes
@@ -136,10 +136,7 @@ class LensDatatableChart(BaseChart, BaseDatatableChart):
     metrics: list[LensDatatableMetricTypes | LensMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
-    breakdowns: list[LensDatatableBreakdownTypes | LensBreakdownTypes] = Field(
-        default_factory=list,
-        validation_alias=AliasChoices('breakdowns', 'dimensions'),
-    )
+    breakdowns: list[LensDatatableBreakdownTypes | LensBreakdownTypes] = Field(default_factory=list)
     """List of breakdowns to use as row groupings."""
 
     metrics_split_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
@@ -196,10 +193,7 @@ class ESQLDatatableChart(BaseChart, BaseDatatableChart):
     metrics: list[ESQLDatatableMetricTypes | ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
-    breakdowns: list[ESQLDatatableBreakdownTypes | ESQLDimensionTypes] = Field(
-        default_factory=list,
-        validation_alias=AliasChoices('breakdowns', 'dimensions'),
-    )
+    breakdowns: list[ESQLDatatableBreakdownTypes | ESQLDimensionTypes] = Field(default_factory=list)
     """List of ESQL breakdowns to use as row groupings."""
 
     metrics_split_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
