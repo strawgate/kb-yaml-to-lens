@@ -90,7 +90,7 @@ After installation, confirm the extension is working:
 3. **Troubleshooting:**
    - If commands don't appear: Restart VS Code
    - If snippets don't work: Ensure file extension is `.yaml`
-   - Check Output panel: View → Output → "Kibana Dashboard Compiler"
+   - Check Output panel: View → Output → "Dashboard Compiler LSP"
 
 ### For Extension Developers
 

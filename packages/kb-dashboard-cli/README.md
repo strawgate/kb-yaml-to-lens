@@ -59,7 +59,7 @@ After installation, verify the extension is working:
 3. Create a test file: `test-dashboard.yaml`
 4. Type `dashboard` and press Tab - a snippet should insert
 
-If commands don't appear, restart VS Code and check the Output panel (View → Output → "Kibana Dashboard Compiler").
+If commands don't appear, restart VS Code and check the Output panel (View → Output → "Dashboard Compiler LSP").
 
 #### Your First Dashboard in VS Code
 
