@@ -21,10 +21,13 @@ from typing import Any
 
 
 def parse_ndjson(content: str) -> dict[str, Any]:
-    """Parse NDJSON content and extract the dashboard object.
+    """Parse NDJSON or single-object JSON content and extract the dashboard object.
+
+    Supports both NDJSON format (one JSON object per line, used by Kibana exports)
+    and single pretty-printed JSON (used by elastic/integrations repo).
 
     Args:
-        content: NDJSON content (newline-delimited JSON objects)
+        content: NDJSON or single-object JSON content
 
     Returns:
         The dashboard object (first object with type='dashboard')
@@ -32,14 +35,29 @@ def parse_ndjson(content: str) -> dict[str, Any]:
     Raises:
         ValueError: If no dashboard object is found
     """
+    # Try NDJSON (one object per line)
     for line in content.strip().split('\n'):
-        if len(line.strip()) == 0:
+        stripped = line.strip()
+        if len(stripped) == 0:
             continue
-        obj = json.loads(line)
+        if not stripped.startswith('{'):
+            continue
+        try:
+            obj = json.loads(stripped)
+        except json.JSONDecodeError:
+            break  # Not single-line JSON — try as a whole document
         if obj.get('type') == 'dashboard':
             return obj
 
-    msg = 'No dashboard object found in NDJSON file'
+    # Try as a single pretty-printed JSON document
+    try:
+        obj = json.loads(content)
+        if isinstance(obj, dict) and obj.get('type') == 'dashboard':
+            return obj
+    except json.JSONDecodeError:
+        pass
+
+    msg = 'No dashboard object found in input file'
     raise ValueError(msg)
 
 
