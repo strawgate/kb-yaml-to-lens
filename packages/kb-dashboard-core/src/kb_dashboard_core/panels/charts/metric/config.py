@@ -242,7 +242,10 @@ class BaseMetricChart(BaseChart):
             if isinstance(primary_color, dict):
                 primary_color['apply_to'] = resolved_apply_to
             else:
-                primary['color'] = {'apply_to': resolved_apply_to}
+                migrated_color: dict[str, object] = {'apply_to': resolved_apply_to}
+                if primary_color is not None:
+                    migrated_color['color'] = primary_color
+                primary['color'] = migrated_color
 
         if has_deprecated or has_primary:
             normalized_data['primary'] = primary
