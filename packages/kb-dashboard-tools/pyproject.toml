@@ -33,6 +33,9 @@ dev = [
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 addopts = "-vv"
+markers = [
+    "integrations: tests that pull fixtures from elastic/integrations (opt-in)",
+]
 
 [build-system]
 requires = ["uv_build>=0.8.2,<0.9.0"]

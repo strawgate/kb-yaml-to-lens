@@ -1,0 +1,101 @@
+"""Pytest fixtures and options for kb-dashboard-tools tests."""
+
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+import pytest
+
+INTEGRATIONS_REPO_URL = 'https://github.com/elastic/integrations.git'
+GIT_BIN = shutil.which('git')
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register opt-in integrations test flags."""
+    parser.addoption(
+        '--run-integrations',
+        action='store_true',
+        default=False,
+        help='Enable tests that clone and read dashboards from elastic/integrations.',
+    )
+    parser.addoption(
+        '--integrations-repo-url',
+        action='store',
+        default=INTEGRATIONS_REPO_URL,
+        help='Git URL for elastic/integrations fixture source.',
+    )
+    parser.addoption(
+        '--integrations-sha',
+        action='store',
+        default=os.getenv('KB_INTEGRATIONS_SHA', ''),
+        help='Pinned commit SHA to checkout for integrations-backed tests.',
+    )
+    parser.addoption(
+        '--integrations-dashboard',
+        action='append',
+        default=[],
+        help='Relative dashboard file path(s) under integrations repo. Can be repeated.',
+    )
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """Skip integrations-marked tests unless explicitly enabled."""
+    if config.getoption('--run-integrations'):
+        return
+    skip_marker = pytest.mark.skip(reason='requires --run-integrations')
+    for item in items:
+        if 'integrations' in item.keywords:
+            item.add_marker(skip_marker)
+
+
+def _run_git(command: list[str], cwd: Path | None = None) -> None:
+    if GIT_BIN is None:
+        pytest.skip('git executable is required for integrations tests')
+    subprocess.run(  # noqa: S603
+        [GIT_BIN, *command],
+        cwd=str(cwd) if cwd is not None else None,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _current_head(repo_path: Path) -> str | None:
+    if GIT_BIN is None:
+        return None
+    try:
+        result = subprocess.run(  # noqa: S603
+            [GIT_BIN, 'rev-parse', 'HEAD'],
+            cwd=str(repo_path),
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError:
+        return None
+    return result.stdout.strip()
+
+
+@pytest.fixture(scope='session')
+def integrations_repo_path(request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Clone elastic/integrations at a pinned SHA (session cached)."""
+    if not request.config.getoption('--run-integrations'):
+        pytest.skip('requires --run-integrations')
+
+    pinned_sha = str(request.config.getoption('--integrations-sha')).strip()
+    if len(pinned_sha) == 0:
+        pytest.skip('set --integrations-sha (or KB_INTEGRATIONS_SHA) to pin fixture source')
+
+    repo_url = str(request.config.getoption('--integrations-repo-url')).strip() or INTEGRATIONS_REPO_URL
+    cache_root = tmp_path_factory.getbasetemp().parent / 'integrations-cache'
+    cache_root.mkdir(parents=True, exist_ok=True)
+    repo_path = cache_root / pinned_sha
+
+    if not repo_path.exists():
+        _run_git(['git', 'clone', '--filter=blob:none', '--no-checkout', repo_url, str(repo_path)])
+    if _current_head(repo_path) != pinned_sha:
+        _run_git(['git', 'fetch', '--depth=1', 'origin', pinned_sha], cwd=repo_path)
+        _run_git(['git', 'checkout', '--force', pinned_sha], cwd=repo_path)
+
+    return repo_path
