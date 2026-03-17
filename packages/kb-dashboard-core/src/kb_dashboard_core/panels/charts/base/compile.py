@@ -63,7 +63,7 @@ class PartitionLegendOptions:
     """Compiled legend options for partition chart visualization layers."""
 
     legend_display: str
-    legend_position: Literal['top', 'right', 'bottom', 'left']
+    legend_position: Literal['top', 'right', 'bottom', 'left'] | None
     legend_size: KbnLegendSize | None
     truncate_legend: bool | None
     legend_max_lines: int | None
@@ -78,12 +78,29 @@ def compile_partition_number_display(values_format: str | None) -> str:
         values_format: The ``appearance.values.format`` field, or ``None`` for default behaviour.
 
     Returns:
-        The Kibana ``numberDisplay`` value (``'percent'``, ``'hidden'``, or the raw format string).
+        The Kibana ``numberDisplay`` value (``'percent'``, ``'value'``, ``'hidden'``, or the raw format string).
 
     """
     if values_format is None:
         return 'percent'
+    if values_format == 'integer':
+        return 'value'
     return 'hidden' if values_format == 'hide' else values_format
+
+
+def compile_partition_category_display(position: str | None) -> str:
+    """Compile a partition chart category-display value from a position string.
+
+    Args:
+        position: The ``appearance.categories.position`` field, or ``None`` for default behaviour.
+
+    Returns:
+        The Kibana ``categoryDisplay`` value (``'default'``, ``'inside'``, ``'hide'``, or the raw position string).
+
+    """
+    if position is None:
+        return 'default'
+    return 'default' if position in ('auto', 'show') else position
 
 
 def compile_partition_legend_options(legend: PartitionLegendModel | None) -> PartitionLegendOptions:
@@ -102,7 +119,7 @@ def compile_partition_legend_options(legend: PartitionLegendModel | None) -> Par
     legend_max_lines: int | None = None
     nested_legend: bool | None = None
     show_single_series: bool | None = None
-    legend_position = 'right'
+    legend_position: Literal['top', 'right', 'bottom', 'left'] | None = None
 
     if legend is not None:
         if legend.visible is not None:

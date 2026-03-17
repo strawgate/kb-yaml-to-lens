@@ -1,9 +1,12 @@
 """Compile Lens treemap visualizations into their Kibana view models."""
 
-from dataclasses import dataclass
-
-from kb_dashboard_core.panels.charts.base.compile import build_collapse_fns, compile_color_value_mapping, map_legend_size
-from kb_dashboard_core.panels.charts.base.view import KbnLegendSize
+from kb_dashboard_core.panels.charts.base.compile import (
+    build_collapse_fns,
+    compile_color_value_mapping,
+    compile_partition_category_display,
+    compile_partition_legend_options,
+    compile_partition_number_display,
+)
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimensions, compile_esql_metric
 from kb_dashboard_core.panels.charts.esql.columns.view import KbnESQLColumnTypes
 from kb_dashboard_core.panels.charts.lens.columns.view import (
@@ -19,79 +22,8 @@ from kb_dashboard_core.panels.charts.pie.view import (
 from kb_dashboard_core.panels.charts.treemap.config import (
     ESQLTreemapChart,
     LensTreemapChart,
-    TreemapCategoriesConfig,
-    TreeMapLegend,
-    TreemapValuesConfig,
 )
 from kb_dashboard_core.shared.defaults import default_false
-
-
-@dataclass
-class LegendOptions:
-    """Compiled legend options for treemap visualization."""
-
-    display: str
-    position: str | None
-    size: KbnLegendSize | None
-    truncate: bool | None
-    max_lines: int | None
-    nested: bool | None
-    show_single_series: bool | None
-
-
-def _compile_number_display(values: TreemapValuesConfig | None) -> str:
-    """Compile number display setting from YAML config to Kibana format."""
-    if values is None or values.format is None:
-        return 'percent'
-    slice_values = values.format
-    if slice_values == 'integer':
-        return 'value'
-    if slice_values == 'hide':
-        return 'hidden'
-    return slice_values
-
-
-def _compile_category_display(categories: TreemapCategoriesConfig | None) -> str:
-    """Compile category display setting from YAML config to Kibana format."""
-    if categories is None or categories.position is None:
-        return 'default'
-    return 'default' if categories.position == 'show' else 'hide'
-
-
-def _compile_legend_options(legend: TreeMapLegend | None) -> LegendOptions:
-    """Compile legend options from YAML config to Kibana format."""
-    if legend is None:
-        return LegendOptions(
-            display='default',
-            position=None,
-            size=None,
-            truncate=None,
-            max_lines=None,
-            nested=None,
-            show_single_series=None,
-        )
-
-    legend_display = 'default'
-    if legend.visible is not None:
-        legend_display = 'default' if legend.visible == 'auto' else legend.visible
-
-    truncate_legend = None
-    legend_max_lines = None
-    if isinstance(legend.truncate_labels, int):
-        if legend.truncate_labels == 0:
-            truncate_legend = False
-        else:
-            legend_max_lines = legend.truncate_labels
-
-    return LegendOptions(
-        display=legend_display,
-        position=legend.position,
-        size=map_legend_size(legend.width),
-        truncate=truncate_legend,
-        max_lines=legend_max_lines,
-        nested=legend.nested,
-        show_single_series=legend.show_single_series,
-    )
 
 
 def compile_treemap_chart_visualization_state(
@@ -105,9 +37,13 @@ def compile_treemap_chart_visualization_state(
     """Compile a TreemapChart config object into a Kibana treemap visualization state."""
     values = chart.appearance.values if chart.appearance is not None else None
     categories = chart.appearance.categories if chart.appearance is not None else None
-    number_display = _compile_number_display(values)
-    category_display = _compile_category_display(categories)
-    legend_options = _compile_legend_options(chart.legend)
+    number_display = compile_partition_number_display(
+        values.format if values is not None else None,
+    )
+    category_display = compile_partition_category_display(
+        categories.position if categories is not None else None,
+    )
+    legend_options = compile_partition_legend_options(chart.legend)
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     allow_multiple_metrics = True if len(metric_ids) > 1 else None
@@ -124,15 +60,15 @@ def compile_treemap_chart_visualization_state(
         collapseFns=collapse_fns or None,
         numberDisplay=number_display,
         categoryDisplay=category_display,
-        legendDisplay=legend_options.display,
-        legendPosition=legend_options.position,
-        nestedLegend=default_false(legend_options.nested),
+        legendDisplay=legend_options.legend_display,
+        legendPosition=legend_options.legend_position,
+        nestedLegend=default_false(legend_options.nested_legend),
         layerType='data',
         colorMapping=kbn_color_mapping,
         emptySizeRatio=None,
-        legendSize=legend_options.size,
-        truncateLegend=False if legend_options.truncate is False else None,
-        legendMaxLines=legend_options.max_lines,
+        legendSize=legend_options.legend_size,
+        truncateLegend=False if legend_options.truncate_legend is False else None,
+        legendMaxLines=legend_options.legend_max_lines,
         showSingleSeries=legend_options.show_single_series,
         percentDecimals=percent_decimals,
     )

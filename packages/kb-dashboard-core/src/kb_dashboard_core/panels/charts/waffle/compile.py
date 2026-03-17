@@ -71,7 +71,7 @@ def compile_waffle_chart_visualization_state(
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend.legend_display,
-        legendPosition=legend.legend_position,
+        legendPosition=legend.legend_position or 'right',
         nestedLegend=default_false(legend.nested_legend),
         layerType='data',
         colorMapping=kbn_color_mapping,

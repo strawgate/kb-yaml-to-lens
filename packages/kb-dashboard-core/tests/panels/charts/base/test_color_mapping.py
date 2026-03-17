@@ -564,7 +564,7 @@ class TestCompilePartitionLegendOptions:
 
         result = compile_partition_legend_options(None)
         assert result.legend_display == 'default'
-        assert result.legend_position == 'right'
+        assert result.legend_position is None
         assert result.legend_size is None
         assert result.truncate_legend is None
         assert result.legend_max_lines is None
