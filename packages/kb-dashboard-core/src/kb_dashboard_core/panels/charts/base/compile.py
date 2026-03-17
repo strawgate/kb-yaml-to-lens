@@ -4,7 +4,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
-from kb_dashboard_core.panels.charts.base.config import PERCENT_MAX, ColorRangeMapping, ColorValueMapping, LegendWidthEnum
+from kb_dashboard_core.panels.charts.base.config import (
+    PERCENT_MAX,
+    ColorRangeMapping,
+    ColorValueMapping,
+    LegendVisibleEnum,
+    LegendWidthEnum,
+)
 from kb_dashboard_core.panels.charts.base.view import (
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE,
     KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE_COLOR_CODE,
@@ -44,7 +50,7 @@ class PartitionLegendModel(Protocol):
     Both ``MosaicLegend`` and ``WaffleLegend`` satisfy this protocol.
     """
 
-    visible: Literal['show', 'hide', 'auto'] | None
+    visible: LegendVisibleEnum | None
     position: Literal['top', 'right', 'bottom', 'left'] | None
     width: LegendWidthEnum | None
     truncate_labels: int | None
@@ -57,7 +63,7 @@ class PartitionLegendOptions:
     """Compiled legend options for partition chart visualization layers."""
 
     legend_display: str
-    legend_position: str
+    legend_position: Literal['top', 'right', 'bottom', 'left']
     legend_size: KbnLegendSize | None
     truncate_legend: bool | None
     legend_max_lines: int | None
