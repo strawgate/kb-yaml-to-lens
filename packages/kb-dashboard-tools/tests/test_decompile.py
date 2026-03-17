@@ -1081,6 +1081,118 @@ def test_decompile_terms_breakdown() -> None:
     assert bd['size'] == 10
 
 
+# --- Waffle, mosaic, pie dimension/breakdown naming ---
+
+
+def test_decompile_waffle_uses_breakdown_key() -> None:
+    """Waffle chart uses 'breakdown' instead of 'dimension' for bucketed columns."""
+    panel = _make_lens_panel(
+        'lnsWaffle',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'service.name',
+                                    'params': {'size': 5},
+                                },
+                                'col2': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'waffle'
+    assert 'dimension' not in result['lens']
+    assert result['lens']['breakdown']['field'] == 'service.name'
+
+
+def test_decompile_mosaic_uses_dimension_and_breakdown_keys() -> None:
+    """Mosaic chart uses 'dimension' for first bucketed col and 'breakdown' for second."""
+    panel = _make_lens_panel(
+        'lnsMosaic',
+        state={
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 5},
+                                },
+                                'col2': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'service.name',
+                                    'params': {'size': 5},
+                                },
+                                'col3': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'mosaic'
+    assert result['lens']['dimension']['field'] == 'host.name'
+    assert result['lens']['breakdown']['field'] == 'service.name'
+
+
+def test_decompile_pie_uses_breakdowns_key() -> None:
+    """Pie chart uses 'breakdowns' (plural) for bucketed columns."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {'shape': 'pie'},
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col1': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 10},
+                                },
+                                'col2': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['type'] == 'pie'
+    assert 'dimensions' not in result['lens']
+    assert result['lens']['breakdowns'][0]['field'] == 'host.name'
+
+
 # --- Formula panels are skipped ---
 
 
