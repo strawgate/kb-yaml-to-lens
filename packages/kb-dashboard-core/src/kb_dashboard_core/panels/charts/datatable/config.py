@@ -154,8 +154,11 @@ class LensDatatableChart(BaseChart):
 class ESQLDatatableChart(BaseChart):
     """Represents a Datatable chart configuration within an ESQL panel.
 
+    ESQL datatables can define explicit metrics and breakdowns, or omit them entirely
+    to render all columns returned by the ESQL query.
+
     Examples:
-        ES|QL datatable with STATS query:
+        ES|QL datatable with explicit columns:
         ```yaml
         esql:
           type: datatable
@@ -173,6 +176,13 @@ class ESQLDatatableChart(BaseChart):
           sorting:
             column_id: "count"
             direction: desc
+        ```
+
+        ES|QL datatable with no explicit columns (renders all query result columns):
+        ```yaml
+        esql:
+          type: datatable
+          query: "FROM redis-* | STATS count=COUNT(*) BY host.name"
         ```
     """
 
@@ -196,11 +206,3 @@ class ESQLDatatableChart(BaseChart):
 
     paging: DatatablePagingConfig | None = Field(default=None)
     """Optional pagination configuration."""
-
-    @model_validator(mode='after')
-    def validate_has_metrics_or_breakdowns(self) -> Self:
-        """Validate that datatable has at least one metric or breakdown."""
-        if len(self.metrics) == 0 and len(self.breakdowns) == 0:
-            msg = 'Datatable must have at least one metric or one breakdown'
-            raise ValueError(msg)
-        return self
