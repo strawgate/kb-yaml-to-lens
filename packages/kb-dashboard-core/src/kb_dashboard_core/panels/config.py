@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -60,13 +60,16 @@ class Size(BaseCfgModel):
     Width accepts semantic values ('whole', 'half', etc.) or integers.
     """
 
-    w: int | SemanticWidth = Field(default=GRID_WIDTH_QUARTER)
+    w: int | SemanticWidth = Field(
+        default=GRID_WIDTH_QUARTER,
+        validation_alias=AliasChoices('w', 'width'),
+    )
     """The width of the panel in grid units.
 
     Defaults to 12 (quarter width). Accepts semantic values ('whole', 'half', 'third', 'quarter', 'sixth', 'eighth') or integers (1-48).
     """
 
-    h: int = Field(default=8, gt=0)
+    h: int = Field(default=8, gt=0, validation_alias=AliasChoices('h', 'height'))
     """The height of the panel in grid units. Defaults to 8."""
 
     @property
@@ -91,10 +94,10 @@ class Position(BaseCfgModel):
     If not specified, the panel will be auto-positioned.
     """
 
-    x: int | None = Field(default=None, ge=0, le=KIBANA_GRID_WIDTH)
+    x: int | None = Field(default=None, ge=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('x', 'from_left'))
     """The horizontal starting position of the panel on the grid (0-based). If None, position will be auto-calculated."""
 
-    y: int | None = Field(default=None, ge=0)
+    y: int | None = Field(default=None, ge=0, validation_alias=AliasChoices('y', 'from_top'))
     """The vertical starting position of the panel on the grid (0-based). If None, position will be auto-calculated."""
 
 
@@ -104,16 +107,16 @@ class Grid(BaseCfgModel):
     This determines the panel's position and size on the dashboard grid.
     """
 
-    x: int = Field(..., ge=0, le=KIBANA_GRID_WIDTH)
+    x: int = Field(..., ge=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('x', 'from_left'))
     """The horizontal starting position of the panel on the grid (0-based)."""
 
-    y: int = Field(..., ge=0)
+    y: int = Field(..., ge=0, validation_alias=AliasChoices('y', 'from_top'))
     """The vertical starting position of the panel on the grid (0-based)."""
 
-    w: int = Field(..., gt=0, le=KIBANA_GRID_WIDTH)
+    w: int = Field(..., gt=0, le=KIBANA_GRID_WIDTH, validation_alias=AliasChoices('w', 'width'))
     """The width of the panel in grid units."""
 
-    h: int = Field(..., gt=0)
+    h: int = Field(..., gt=0, validation_alias=AliasChoices('h', 'height'))
     """The height of the panel in grid units."""
 
     @model_validator(mode='after')

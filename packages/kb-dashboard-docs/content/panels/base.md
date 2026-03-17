@@ -106,18 +106,18 @@ size:
 
 # Or with numeric value:
 size:
-  w: 24
-  h: 12
+  width: 24   # Numeric value
+  height: 12
 ```
 
 ### Position Object Configuration (`position`)
 
 The `position` object defines the panel's x/y coordinates on the dashboard grid. This field is **optional** - when omitted, the panel will be automatically positioned using the dashboard's layout algorithm.
 
-| YAML Key | Data Type | Description | Default | Required |
-| -------- | --------- | ------------------------------------------------------------ | ------- | -------- |
-| `x` | `integer` or `None` | The horizontal starting position (0-based, 0-48). If `None`, position is auto-calculated. | `None` | No |
-| `y` | `integer` or `None` | The vertical starting position (0-based). If `None`, position is auto-calculated. | `None` | No |
+| YAML Key | Verbose Alternative | Data Type | Description | Default | Required |
+| -------- | ------------------- | --------- | ------------------------------------------------------------ | ------- | -------- |
+| `x` | `from_left` | `integer` or `None` | The horizontal starting position (0-based, 0-48). If `None`, position is auto-calculated. | `None` | No |
+| `y` | `from_top` | `integer` or `None` | The vertical starting position (0-based). If `None`, position is auto-calculated. | `None` | No |
 
 **Example with fixed position:**
 
@@ -125,6 +125,11 @@ The `position` object defines the panel's x/y coordinates on the dashboard grid.
 position:
   x: 0
   y: 0
+
+# Or verbose:
+position:
+  from_left: 24
+  from_top: 10
 ```
 
 **Example with auto-positioning (omit position entirely):**

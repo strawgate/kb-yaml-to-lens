@@ -57,15 +57,15 @@ class TestSize:
         assert size.width == 12
         assert size.h == 20
 
-    def test_size_width_alias_rejected(self) -> None:
-        """Test legacy 'width' key is rejected."""
-        with pytest.raises(ValidationError):
-            _ = Size(width=30)
+    def test_size_width_alias(self) -> None:
+        """Test 'width' alias works for 'w'."""
+        size = Size(width=30)
+        assert size.width == 30
 
-    def test_size_height_alias_rejected(self) -> None:
-        """Test legacy 'height' key is rejected."""
-        with pytest.raises(ValidationError):
-            _ = Size(height=15)
+    def test_size_height_alias(self) -> None:
+        """Test 'height' alias works for 'h'."""
+        size = Size(height=15)
+        assert size.h == 15
 
     def test_size_zero_width_rejected(self) -> None:
         """Test that zero width is rejected."""
@@ -131,15 +131,15 @@ class TestPosition:
         assert pos.x == 0
         assert pos.y == 0
 
-    def test_position_from_left_alias_rejected(self) -> None:
-        """Test legacy 'from_left' key is rejected."""
-        with pytest.raises(ValidationError):
-            _ = Position(from_left=12)
+    def test_position_from_left_alias(self) -> None:
+        """Test 'from_left' alias works for 'x'."""
+        pos = Position(from_left=12)
+        assert pos.x == 12
 
-    def test_position_from_top_alias_rejected(self) -> None:
-        """Test legacy 'from_top' key is rejected."""
-        with pytest.raises(ValidationError):
-            _ = Position(from_top=8)
+    def test_position_from_top_alias(self) -> None:
+        """Test 'from_top' alias works for 'y'."""
+        pos = Position(from_top=8)
+        assert pos.y == 8
 
     def test_position_negative_x_rejected(self) -> None:
         """Test that negative x is rejected."""

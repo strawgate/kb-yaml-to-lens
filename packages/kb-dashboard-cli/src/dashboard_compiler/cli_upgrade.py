@@ -260,25 +260,6 @@ def _normalize_legend_visible_bool(legend: YamlMap, stats: Counter[str]) -> None
         stats['legend:visible-bool'] += 1
 
 
-def _migrate_layout_aliases(mapping: YamlMap, stats: Counter[str]) -> None:
-    size = _as_map(mapping.get('size'))
-    if size is not None:
-        _rename_key(size, 'width', 'w', stats, 'layout:size-width')
-        _rename_key(size, 'height', 'h', stats, 'layout:size-height')
-
-    position = _as_map(mapping.get('position'))
-    if position is not None:
-        _rename_key(position, 'from_left', 'x', stats, 'layout:position-from-left')
-        _rename_key(position, 'from_top', 'y', stats, 'layout:position-from-top')
-
-    grid = _as_map(mapping.get('grid'))
-    if grid is not None:
-        _rename_key(grid, 'from_left', 'x', stats, 'layout:grid-from-left')
-        _rename_key(grid, 'from_top', 'y', stats, 'layout:grid-from-top')
-        _rename_key(grid, 'width', 'w', stats, 'layout:grid-width')
-        _rename_key(grid, 'height', 'h', stats, 'layout:grid-height')
-
-
 def _migrate_pie_titles_and_text(chart: YamlMap, stats: Counter[str]) -> None:
     legacy = _as_map(chart.pop('titles_and_text', None))
     if legacy is None:
@@ -345,7 +326,6 @@ def _migrate_chart_map(mapping: YamlMap, stats: Counter[str]) -> None:
 def _visit_node(node: object, stats: Counter[str]) -> None:
     mapping = _as_map(node)
     if mapping is not None:
-        _migrate_layout_aliases(mapping, stats)
         _strip_legacy_color_continuity(mapping, stats)
         _migrate_dimension_legacy_fields(mapping, stats)
         legend = _as_map(mapping.get('legend'))

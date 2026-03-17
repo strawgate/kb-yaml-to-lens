@@ -249,6 +249,20 @@ dashboards:
 
 The auto-layout algorithm respects locked panels and positions auto panels around them.
 
+## Field Aliases
+
+Both `size` and `position` support verbose aliases for readability:
+
+```yaml
+size:
+  width: 24   # Same as 'w'
+  height: 12  # Same as 'h'
+
+position:
+  from_left: 0  # Same as 'x'
+  from_top: 10  # Same as 'y'
+```
+
 ## Common Patterns
 
 ### Full-Width Header with Grid Below
