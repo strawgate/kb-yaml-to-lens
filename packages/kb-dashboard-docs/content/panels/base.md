@@ -181,7 +181,7 @@ Manual color assignments are an advanced feature. For an introduction and exampl
 
 ### ColorRangeMapping Object
 
-Range-based color mapping is used for threshold-oriented visualizations (for example, gauge palettes). Use this with `gauge.appearance.palette`; it is not accepted by the generic chart `color` field.
+Range-based color mapping is used for threshold-oriented visualizations (for example, gauge palettes). Use this with the gauge chart `color` field.
 
 ::: kb_dashboard_core.panels.charts.base.config.ColorRangeMapping
     options:
