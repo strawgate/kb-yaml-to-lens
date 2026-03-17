@@ -31,10 +31,10 @@ def compile_tagcloud_chart_snapshot() -> CompileTagcloudSnapshot:
     def _compile(config: dict[str, Any], chart_type: str = 'lens') -> dict[str, Any]:
         if chart_type == 'lens':
             lens_chart = LensTagcloudChart.model_validate(config)
-            _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(chart=lens_chart)
+            _layer_id, _kbn_columns_by_id, kbn_state_visualization = compile_lens_tagcloud_chart(lens_tagcloud_chart=lens_chart)
         else:  # esql
             esql_chart = ESQLTagcloudPanelConfig.model_validate(config)
-            _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(chart=esql_chart)
+            _layer_id, _kbn_columns, kbn_state_visualization = compile_esql_tagcloud_chart(esql_tagcloud_chart=esql_chart)
 
         assert kbn_state_visualization is not None
         # Tagcloud visualization state is flat (no layers array)
@@ -386,7 +386,7 @@ def test_tagcloud_static_metric_uses_alphabetical_terms_ordering() -> None:
         }
     )
 
-    _layer_id, columns, _visualization_state = compile_lens_tagcloud_chart(chart=chart)
+    _layer_id, columns, _visualization_state = compile_lens_tagcloud_chart(lens_tagcloud_chart=chart)
     terms_column = columns['tag-dimension'].model_dump()
 
     assert terms_column['operationType'] == 'terms'

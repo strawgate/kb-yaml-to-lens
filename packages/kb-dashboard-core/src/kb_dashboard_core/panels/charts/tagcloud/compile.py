@@ -59,61 +59,61 @@ def compile_tagcloud_chart_visualization_state(
 
 
 def compile_lens_tagcloud_chart(
-    chart: LensTagcloudChart,
+    lens_tagcloud_chart: LensTagcloudChart,
 ) -> tuple[str, dict[str, KbnLensColumnTypes], KbnTagcloudVisualizationState]:
     """Compile Lens tagcloud chart.
 
     Args:
-        chart (LensTagcloudChart): The LensTagcloudChart config object.
+        lens_tagcloud_chart (LensTagcloudChart): The LensTagcloudChart config object.
 
     Returns:
         tuple[str, dict[str, KbnLensColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
     # Compile metric first
-    result = compile_lens_metric(metric=chart.metric)
+    result = compile_lens_metric(metric=lens_tagcloud_chart.metric)
     metric_id = result.primary_id
     metric_column = result.primary_column
     kbn_metric_column_by_id = {metric_id: metric_column}
     kbn_metric_column_by_id.update(result.helper_columns)
 
     # Compile dimension (pass metrics for proper ordering)
-    dimension_columns = compile_lens_dimensions(dimensions=[chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
+    dimension_columns = compile_lens_dimensions(dimensions=[lens_tagcloud_chart.dimension], kbn_metric_column_by_id=kbn_metric_column_by_id)
     tag_accessor_id = next(iter(dimension_columns.keys()))
 
     kbn_columns = {**dimension_columns, **kbn_metric_column_by_id}
 
-    layer_id = chart.get_id()
+    layer_id = lens_tagcloud_chart.get_id()
 
-    visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
+    visualization_state = compile_tagcloud_chart_visualization_state(layer_id, lens_tagcloud_chart, tag_accessor_id, metric_id)
 
     return (layer_id, kbn_columns, visualization_state)
 
 
 def compile_esql_tagcloud_chart(
-    chart: ESQLTagcloudChart,
+    esql_tagcloud_chart: ESQLTagcloudChart,
 ) -> tuple[str, list[KbnESQLColumnTypes], KbnTagcloudVisualizationState]:
     """Compile ES|QL tagcloud chart.
 
     Args:
-        chart (ESQLTagcloudChart): The ESQLTagcloudChart config object.
+        esql_tagcloud_chart (ESQLTagcloudChart): The ESQLTagcloudChart config object.
 
     Returns:
         tuple[str, list[KbnESQLColumnTypes], KbnTagcloudVisualizationState]: The layer ID, columns, and visualization state.
 
     """
     # Compile dimension to get tag_accessor_id for visualization state
-    dimensions = compile_esql_dimensions(dimensions=[chart.dimension])
+    dimensions = compile_esql_dimensions(dimensions=[esql_tagcloud_chart.dimension])
     tag_accessor_id = dimensions[0].columnId
 
     # Compile metric
-    metric = compile_esql_metric(chart.metric)
+    metric = compile_esql_metric(esql_tagcloud_chart.metric)
     metric_id = metric.columnId
 
     kbn_columns: list[KbnESQLColumnTypes] = [*dimensions, metric]
 
-    layer_id = chart.get_id()
+    layer_id = esql_tagcloud_chart.get_id()
 
-    visualization_state = compile_tagcloud_chart_visualization_state(layer_id, chart, tag_accessor_id, metric_id)
+    visualization_state = compile_tagcloud_chart_visualization_state(layer_id, esql_tagcloud_chart, tag_accessor_id, metric_id)
 
     return (layer_id, kbn_columns, visualization_state)
