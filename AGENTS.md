@@ -71,10 +71,10 @@ Specialized guides for LLM-driven dashboard creation tasks:
 
 | Workflow | When to Use |
 | -------- | ----------- |
-| [OTel Dashboard Guide](packages/kb-dashboard-docs/content/llm-workflows/otel-dashboard-guide.md) | Creating dashboards from OpenTelemetry Collector receiver data |
-| [ES\|QL Language Reference](packages/kb-dashboard-docs/content/llm-workflows/esql-language-reference.md) | Writing ES\|QL queries for dashboard panels |
-| [Dashboard Decompiling Guide](packages/kb-dashboard-docs/content/dashboard-decompiling-guide.md) | Converting existing Kibana JSON dashboards to YAML |
-| [Dashboard Style Guide](packages/kb-dashboard-docs/content/dashboard-style-guide.md) | Layout, sizing, and design patterns |
+| [OTel Dashboard Guide](packages/kb-dashboard-docs/content/guides/otel-dashboard-guide.md) | Creating dashboards from OpenTelemetry Collector receiver data |
+| [ES\|QL Language Reference](packages/kb-dashboard-docs/content/guides/esql-language-reference.md) | Writing ES\|QL queries for dashboard panels |
+| [Dashboard Decompiling Guide](packages/kb-dashboard-docs/content/guides/dashboard-decompiling-guide.md) | Converting existing Kibana JSON dashboards to YAML |
+| [Dashboard Style Guide](packages/kb-dashboard-docs/content/guides/dashboard-style-guide.md) | Layout, sizing, and design patterns |
 
 ---
 

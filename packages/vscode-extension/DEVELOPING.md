@@ -53,8 +53,7 @@ For all commands, see `just vscode help`.
 | ---- | ------- |
 | `src/extension.ts` | Main entry, command registration |
 | `src/compiler.ts` | Python subprocess management |
-| `src/previewPanel.ts` | Webview preview panel |
-| `src/gridEditorPanel.ts` | Visual grid editor |
+| `src/previewPanel.ts` | Webview preview panel with layout editing |
 | `packages/kb-dashboard-cli/src/dashboard_compiler/lsp/server.py` | Stdio-based LSP server (in CLI component) |
 
 ### Extension Commands
@@ -63,7 +62,7 @@ For all commands, see `just vscode help`.
 | ------- | ----------- |
 | `yamlDashboard.compile` | Compile current file |
 | `yamlDashboard.preview` | Open preview panel |
-| `yamlDashboard.editLayout` | Open visual grid editor |
+| `yamlDashboard.editLayout` | Open layout editor in preview panel |
 | `yamlDashboard.export` | Export to NDJSON |
 
 ## Testing

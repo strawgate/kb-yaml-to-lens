@@ -15,8 +15,8 @@ from kb_dashboard_core.dashboard_compiler import load
 from kb_dashboard_core.utils import extract_dashboard_id_from_url
 from kb_dashboard_tools.kibana_client import KibanaClient
 
+from dashboard_compiler.cli_common import PROJECT_ROOT, get_yaml_files
 from dashboard_compiler.cli_context import CliContext
-from dashboard_compiler.cli_local import PROJECT_ROOT, get_yaml_files
 from dashboard_compiler.cli_options import elasticsearch_options, kibana_options
 from dashboard_compiler.cli_output import (
     create_progress,
@@ -351,8 +351,8 @@ def export_for_issue(
 ) -> None:
     r"""Export a dashboard from Kibana and create a pre-filled GitHub issue.
 
-    This command downloads a dashboard's JSON from Kibana and generates a GitHub
-    issue URL with the dashboard JSON pre-filled in the body. You can then submit
+    This command downloads a dashboard export (NDJSON) from Kibana and generates a GitHub
+    issue URL with the dashboard NDJSON pre-filled in the body. You can then submit
     the issue to request support for compiling the dashboard from YAML.
 
     \b
@@ -414,9 +414,9 @@ I'd like to compile this dashboard using kb-yaml-to-lens.
 ### Dashboard ID
 `{dashboard_id}`
 
-### Exported Dashboard JSON
+### Exported Dashboard NDJSON
 
-```json
+```ndjson
 {ndjson_data}
 ```
 
