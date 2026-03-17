@@ -19,3 +19,4 @@ htmlcov/
 .coverage
 coverage.json
 publish-to-pypi.sh
+.npm-ci.stamp
