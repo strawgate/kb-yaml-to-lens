@@ -412,10 +412,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
                             msg = f'Dashboard ID is required for JSON output: {yaml_file}'
                             raise click.ClickException(msg)
                         safe_dashboard_id = _sanitize_filename(kbn_dashboard.id)
-                        if output_format_lower == 'elastic-integrations':
-                            safe_name = safe_dashboard_id
-                        else:
-                            safe_name = safe_dashboard_id
+                        safe_name = safe_dashboard_id
                         if safe_name in json_filenames_seen:
                             msg = f'Duplicate dashboard ID after sanitization: {kbn_dashboard.id}'
                             raise click.ClickException(msg)
