@@ -16,7 +16,7 @@ jobs:
       title-prefix: '[integrations-upgrade-audit]'
       setup-commands: |
         command -v just >/dev/null 2>&1 || make install-just
-        uv sync
+        just all install
         rm -rf .audit/integrations integrations
         mkdir -p .audit/integrations
         git clone --depth=1 https://github.com/elastic/integrations.git integrations

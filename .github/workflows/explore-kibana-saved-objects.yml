@@ -22,7 +22,7 @@ jobs:
       title-prefix: '[explore-kibana-saved-objects]'
       setup-commands: |
         make install-just
-        uv sync
+        just all install
         npx playwright install chromium
         just explore-bootstrap 9.3.0
       additional-instructions: |

@@ -21,7 +21,7 @@ jobs:
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-pr-review-addresser.lock.yml@main
     with:
       allowed-bot-users: coderabbitai[bot],github-actions[bot]
-      setup-commands: make install-just && uv sync
+      setup-commands: make install-just && just all install
       additional-instructions: |
         Focus on minor and straightforward fixes only. Address feedback that involves:
         - Typos, naming, and formatting issues

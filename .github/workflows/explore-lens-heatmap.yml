@@ -43,7 +43,7 @@ jobs:
       title-prefix: '[explore-lens-heatmap-${{ matrix.kibana_version }}]'
       setup-commands: |
         make install-just
-        uv sync
+        just all install
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |

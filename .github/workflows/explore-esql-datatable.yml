@@ -43,7 +43,7 @@ jobs:
       title-prefix: '[explore-esql-datatable-${{ matrix.kibana_version }}]'
       setup-commands: |
         command -v just >/dev/null 2>&1 || make install-just
-        uv sync
+        just all install
         npx playwright install chromium
         just explore-bootstrap ${{ matrix.kibana_version }}
       additional-instructions: |

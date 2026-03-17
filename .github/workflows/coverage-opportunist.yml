@@ -27,7 +27,7 @@ jobs:
       title-prefix: '[coverage-opportunist]'
       setup-commands: |
         command -v just >/dev/null 2>&1 || make install-just
-        uv sync
+        just all install
       additional-instructions: |
         You are the scheduled coverage opportunist for kb-yaml-to-lens.
         Keep changes surgical and behavior-preserving.

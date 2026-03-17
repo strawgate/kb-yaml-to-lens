@@ -20,7 +20,7 @@ jobs:
       (github.event.issue.pull_request != null || github.event_name == 'pull_request_review_comment')
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-mention-in-pr-no-sandbox.lock.yml@main
     with:
-      setup-commands: make install-just && uv sync
+      setup-commands: make install-just && just all install
     secrets:
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
       EXTRA_COMMIT_GITHUB_TOKEN: ${{ secrets.COMMIT_GITHUB_TOKEN }}

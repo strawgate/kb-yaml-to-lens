@@ -22,7 +22,7 @@ jobs:
       title-prefix: '[explore-kibana-saved-objects-8.19]'
       setup-commands: |
         make install-just
-        uv sync
+        just all install
         npx playwright install chromium
         just explore-bootstrap 8.19.0
       additional-instructions: |
