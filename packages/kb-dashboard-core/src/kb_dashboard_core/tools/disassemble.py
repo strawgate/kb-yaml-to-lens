@@ -45,8 +45,8 @@ def parse_ndjson(content: str) -> dict[str, Any]:
         try:
             obj = json.loads(stripped)
         except json.JSONDecodeError:
-            break  # Not single-line JSON — try as a whole document
-        if obj.get('type') == 'dashboard':
+            continue  # Skip malformed lines, keep scanning
+        if isinstance(obj, dict) and obj.get('type') == 'dashboard':
             return obj
 
     # Try as a single pretty-printed JSON document

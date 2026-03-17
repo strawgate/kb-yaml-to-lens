@@ -161,7 +161,7 @@ def _build_metric_dict(col: ParsedColumn) -> dict[str, Any] | None:
     elif col.operation_type == 'percentile_rank':
         rank_val = col.params.get('value')
         if isinstance(rank_val, (int, float)):
-            metric['rank'] = int(rank_val)
+            metric['rank'] = rank_val
 
     filt = _extract_metric_filter(col)
     if filt is not None:
