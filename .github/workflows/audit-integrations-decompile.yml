@@ -18,7 +18,7 @@ jobs:
         command -v just >/dev/null 2>&1 || make install-just
         just all install
         git clone --depth=1 --filter=blob:none --sparse https://github.com/elastic/integrations.git integrations
-        cd integrations && git sparse-checkout set 'packages/*/kibana/dashboard' && cd ..
+        (cd integrations && git sparse-checkout set --no-cone 'packages/*/kibana/dashboard')
         uv run python scripts/audit-decompile.py integrations -o .audit/decompile
       additional-instructions: |
         You are auditing the kb-yaml-to-lens decompiler against all JSON dashboards in elastic/integrations.
