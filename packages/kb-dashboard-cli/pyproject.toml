@@ -1,6 +1,6 @@
 [project]
 name = "kb-dashboard-cli"
-version = "0.3.0"
+version = "0.3.1"
 description = "CLI, LSP, and future MCP server for kb-yaml-to-lens dashboard compiler"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,9 +14,9 @@ classifiers = [
     "Topic :: Software Development :: Code Generators",
 ]
 dependencies = [
-    "kb-dashboard-core==0.3.0",
-    "kb-dashboard-tools==0.3.0",
-    "kb-dashboard-docs==0.3.0",
+    "kb-dashboard-core==0.3.1",
+    "kb-dashboard-tools==0.3.1",
+    "kb-dashboard-docs==0.3.1",
     "click>=8.3",
     "rich-click>=1.9.0",
     "elasticsearch>=8.16.2",
