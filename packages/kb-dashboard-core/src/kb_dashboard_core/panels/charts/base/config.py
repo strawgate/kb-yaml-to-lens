@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import AliasChoices, Field, model_validator
 
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel
 
@@ -99,7 +99,7 @@ class ColorValueMapping(BaseCfgModel):
 class ColorThreshold(BaseCfgModel):
     """Single threshold band in a range-based color map."""
 
-    up_to: float = Field(...)
+    up_to: float = Field(..., validation_alias=AliasChoices('up_to', 'stop'))
     """Upper bound for this threshold band."""
 
     color: str = Field(...)

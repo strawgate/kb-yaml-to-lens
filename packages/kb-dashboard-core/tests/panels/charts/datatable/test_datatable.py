@@ -679,9 +679,23 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
     )
 
 
-def test_lens_datatable_deprecated_keys_do_not_override_explicit_new_fields() -> None:
-    """Legacy dimensions/dimensions_by keys are rejected in 0.4.0."""
-    with pytest.raises(ValidationError, match='dimensions'):
+def test_lens_datatable_legacy_dimensions_maps_to_breakdowns() -> None:
+    """Legacy dimensions key is accepted as an alias for breakdowns."""
+    chart = LensDatatableChart.model_validate(
+        {
+            'type': 'datatable',
+            'data_view': 'logs-*',
+            'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
+        }
+    )
+
+    assert len(chart.breakdowns) == 1
+    assert chart.breakdowns[0].model_dump()['field'] == 'host.name'
+
+
+def test_lens_datatable_legacy_keys_do_not_override_explicit_new_fields() -> None:
+    """Unsupported dimensions_by remains rejected when new keys are present."""
+    with pytest.raises(ValidationError, match='dimensions_by'):
         LensDatatableChart.model_validate(
             {
                 'type': 'datatable',
@@ -694,9 +708,22 @@ def test_lens_datatable_deprecated_keys_do_not_override_explicit_new_fields() ->
         )
 
 
-def test_esql_datatable_deprecated_keys_do_not_override_explicit_new_fields() -> None:
-    """Legacy dimensions/dimensions_by keys are rejected for ES|QL datatables too."""
-    with pytest.raises(ValidationError, match='dimensions'):
+def test_esql_datatable_legacy_dimensions_maps_to_breakdowns() -> None:
+    """Legacy dimensions key is accepted as an alias for ESQL breakdowns."""
+    chart = ESQLDatatableChart.model_validate(
+        {
+            'type': 'datatable',
+            'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
+        }
+    )
+
+    assert len(chart.breakdowns) == 1
+    assert chart.breakdowns[0].model_dump()['field'] == 'host.name'
+
+
+def test_esql_datatable_legacy_keys_do_not_override_explicit_new_fields() -> None:
+    """Unsupported dimensions_by remains rejected for ES|QL datatables."""
+    with pytest.raises(ValidationError, match='dimensions_by'):
         ESQLDatatableChart.model_validate(
             {
                 'type': 'datatable',
@@ -807,8 +834,8 @@ def test_datatable_metric_color_thresholds_empty_list_is_invalid() -> None:
         },
     ],
 )
-def test_datatable_metric_color_legacy_stops_keys_are_invalid(legacy_color_config: dict[str, object]) -> None:
-    """Test that legacy stops/stop keys are rejected."""
+def test_datatable_metric_color_legacy_stops_keys_are_accepted(legacy_color_config: dict[str, object]) -> None:
+    """Legacy stops/stop keys are accepted as aliases for thresholds/up_to."""
     config = {
         'type': 'datatable',
         'data_view': 'metrics-*',
@@ -822,8 +849,10 @@ def test_datatable_metric_color_legacy_stops_keys_are_invalid(legacy_color_confi
         ],
     }
 
-    with pytest.raises(ValidationError, match='Extra inputs are not permitted'):
-        LensDatatableChart.model_validate(config)
+    chart = LensDatatableChart.model_validate(config)
+    metric = chart.metrics[0].model_dump()
+    assert metric['color']['thresholds'][0]['up_to'] == 50
+    assert metric['color']['thresholds'][0]['color'] == '#00BF6F'
 
 
 def test_compile_datatable_chart_percent_thresholds_append_terminal_100() -> None:

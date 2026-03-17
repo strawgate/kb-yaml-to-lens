@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 
 from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping, ColorThreshold
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -65,7 +65,11 @@ class DatatableMetricColor(BaseCfgModel):
     range_max: float | None = Field(default=None)
     """Optional upper bound for the palette domain."""
 
-    thresholds: list[ColorThreshold] | None = Field(default=None, min_length=1)
+    thresholds: list[ColorThreshold] | None = Field(
+        default=None,
+        min_length=1,
+        validation_alias=AliasChoices('thresholds', 'stops'),
+    )
     """Ordered threshold bands used to build datatable palettes."""
 
     def to_range_mapping(self) -> ColorRangeMapping | None:
