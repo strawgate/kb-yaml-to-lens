@@ -92,6 +92,9 @@ Do NOT flag them as bugs in explore workflow reports or triage issues:
 - **Collapsible sections on Kibana < 9.1** — `section` panels require
   Kibana 9.1+; do not tell agents to add or test them on older stacks
 - **Nested collapsible sections** — sections cannot contain sections
+- **Palette `continuity` configuration** — Kibana does not expose
+  `continuity` in its palette editor UI; the compiler hardcodes it
+  to `above` which matches Kibana's own default behavior
 
 ## Saved Object content that seems like it matters but doesn't
 
