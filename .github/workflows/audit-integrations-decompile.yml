@@ -19,74 +19,7 @@ jobs:
         just all install
         git clone --depth=1 --filter=blob:none --sparse https://github.com/elastic/integrations.git integrations
         cd integrations && git sparse-checkout set 'packages/*/kibana/dashboard' && cd ..
-        python <<'PY'
-        import csv
-        import json
-        import traceback
-        from collections import defaultdict
-        from pathlib import Path
-
-        from kb_dashboard_tools.decompile import decompile_dashboard
-
-        root = Path.cwd()
-        integrations = root / "integrations"
-        audit_dir = root / ".audit" / "decompile"
-        audit_dir.mkdir(parents=True, exist_ok=True)
-
-        json_files = sorted(integrations.glob("packages/*/kibana/dashboard/*.json"))
-
-        if not json_files:
-            raise SystemExit("FATAL: discovered 0 JSON dashboard files — check the sparse checkout")
-
-        successes = 0
-        failures = 0
-        error_rows = []
-        error_groups = defaultdict(lambda: {"count": 0, "message": "", "example_files": []})
-        full_tracebacks = []
-
-        for json_file in json_files:
-            rel = json_file.relative_to(integrations).as_posix()
-            try:
-                dashboard = json.loads(json_file.read_text(encoding="utf-8"))
-                decompile_dashboard(dashboard)
-                successes += 1
-            except Exception as exc:
-                failures += 1
-                etype = type(exc).__name__
-                emsg = str(exc)
-                group_key = f"{etype}: {emsg[:200]}"
-                error_rows.append({"file": rel, "error_type": etype, "error_message": emsg})
-                g = error_groups[group_key]
-                g["count"] += 1
-                if not g["message"]:
-                    g["message"] = emsg
-                if len(g["example_files"]) < 5:
-                    g["example_files"].append(rel)
-                full_tracebacks.append(f"\n=== {rel} ===\n{traceback.format_exc()}")
-
-        total = len(json_files)
-        rate = f"{successes * 100 // total}%" if total else "n/a"
-        summary = {
-            "total": total,
-            "successes": successes,
-            "failures": failures,
-            "success_rate": rate,
-            "unique_error_types": len(error_groups),
-        }
-        (audit_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-        sorted_groups = dict(sorted(error_groups.items(), key=lambda x: x[1]["count"], reverse=True))
-        (audit_dir / "errors_by_type.json").write_text(json.dumps(sorted_groups, indent=2), encoding="utf-8")
-
-        with (audit_dir / "failures.csv").open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=["file", "error_type", "error_message"])
-            writer.writeheader()
-            writer.writerows(error_rows)
-
-        (audit_dir / "errors.log").write_text("\n".join(full_tracebacks).strip() + "\n" if full_tracebacks else "", encoding="utf-8")
-
-        print(json.dumps(summary, indent=2))
-        PY
+        uv run python scripts/audit-decompile.py integrations -o .audit/decompile
       additional-instructions: |
         You are auditing the kb-yaml-to-lens decompiler against all JSON dashboards in elastic/integrations.
         Setup has already cloned integrations and run `kb-dashboard decompile` on every dashboard.
