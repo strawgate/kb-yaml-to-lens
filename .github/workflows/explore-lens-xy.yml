@@ -69,8 +69,8 @@ jobs:
         - `type: area` with `mode: stacked` (default), `unstacked`, `percentage`
 
         ### Dimension types (`dimension:` and `breakdown:`)
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude` (regex support), `collapse`
+        - `type: values` — top values/terms with `field`, `size`, `show_other_bucket`,
+          `include_missing_values`, `include`/`exclude` (regex support), `collapse`
         - `type: date_histogram` — with `field`, `minimum_interval`,
           `partial_intervals`
         - `type: intervals` — numeric ranges with `granularity`, `empty_bucket`
