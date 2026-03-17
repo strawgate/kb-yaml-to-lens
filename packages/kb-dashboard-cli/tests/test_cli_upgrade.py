@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
 import yaml
 from click.testing import CliRunner
 
@@ -52,6 +53,7 @@ dashboards:
 
         assert result.exit_code == 1
         assert 'Upgrade needed:' in result.output
+        assert 'would be applied' in result.output
         assert input_file.read_text(encoding='utf-8') == before
 
     def test_upgrade_write_migrates_legacy_fields(self, tmp_path: Path) -> None:
@@ -250,3 +252,71 @@ dashboards:
         assert chart['appearance']['values']['format'] == 'percent'
         assert chart['appearance']['values']['decimal_places'] == 1
         assert chart['legend']['visible'] == 'show'
+
+    def test_upgrade_preserves_legacy_key_when_target_key_already_exists(self, tmp_path: Path) -> None:
+        """When target key already exists, skip rename without dropping legacy key data."""
+        input_file = tmp_path / 'conflict.yaml'
+        input_file.write_text(
+            """
+dashboards:
+  - id: conflict
+    name: Conflict
+    panels:
+      - lens:
+          type: datatable
+          data_view: logs-*
+          breakdowns:
+            - id: new-breakdown
+              type: values
+              field: service.name
+          dimensions:
+            - id: legacy-dimension
+              type: values
+              field: host.name
+          metrics:
+            - aggregation: count
+""".strip()
+            + '\n',
+            encoding='utf-8',
+        )
+
+        result = CliRunner().invoke(cli, ['upgrade', '--input-file', str(input_file), '--write'])
+        assert result.exit_code == 0
+
+        upgraded = _read_yaml(input_file)
+        dashboards = cast('list[dict[str, Any]]', upgraded['dashboards'])
+        panels = cast('list[dict[str, Any]]', dashboards[0]['panels'])
+        chart = cast('dict[str, Any]', panels[0]['lens'])
+        assert chart['breakdowns'][0]['id'] == 'new-breakdown'
+        assert chart['dimensions'][0]['id'] == 'legacy-dimension'
+
+    def test_upgrade_wraps_write_errors_in_click_exception(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Write failures should be surfaced as friendly click errors."""
+        input_file = tmp_path / 'legacy.yaml'
+        input_file.write_text(
+            """
+dashboards:
+  - id: demo
+    name: Demo
+    panels:
+      - lens:
+          type: pie
+          data_view: logs-*
+          dimensions:
+            - type: values
+              field: service.name
+          metrics:
+            - aggregation: count
+""".strip()
+            + '\n',
+            encoding='utf-8',
+        )
+
+        def _raise_write_error(_document: object, _path: str) -> None:
+            msg = 'disk full'
+            raise OSError(msg)
+
+        monkeypatch.setattr('dashboard_compiler.cli_upgrade.dump_roundtrip', _raise_write_error)
+        result = CliRunner().invoke(cli, ['upgrade', '--input-file', str(input_file), '--write'])
+        assert result.exit_code == 1
+        assert 'Error upgrading' in result.output

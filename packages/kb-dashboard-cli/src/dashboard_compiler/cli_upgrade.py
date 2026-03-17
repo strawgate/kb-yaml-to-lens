@@ -35,11 +35,11 @@ def _insert_preserving_order(mapping: YamlMap, index: int, key: str, value: obje
 def _rename_key(mapping: YamlMap, old_key: str, new_key: str, stats: Counter[str], stat_name: str) -> None:
     if old_key not in mapping:
         return
-    old_index = list(mapping.keys()).index(old_key)
-    value = mapping.pop(old_key)
     if new_key in mapping:
         stats[f'{stat_name}:skipped'] += 1
         return
+    old_index = list(mapping.keys()).index(old_key)
+    value = mapping.pop(old_key)
     _insert_preserving_order(mapping, old_index, new_key, value)
     stats[stat_name] += 1
 
@@ -395,11 +395,16 @@ def _upgrade_file(yaml_file: Path, write: bool) -> bool:
         return False
 
     if write:
-        dump_roundtrip(document, str(yaml_file))
+        try:
+            dump_roundtrip(document, str(yaml_file))
+        except OSError as e:
+            msg = f'Error upgrading {yaml_file}: {e}'
+            raise click.ClickException(msg) from e
         print_success(f'Upgraded {yaml_file}')
+        print_dim_bullet(f'{stats.total()} change(s) applied')
     else:
         print_warning(f'Upgrade needed: {yaml_file}')
-    print_dim_bullet(f'{stats.total()} change(s) applied')
+        print_dim_bullet(f'{stats.total()} change(s) would be applied')
     return True
 
 

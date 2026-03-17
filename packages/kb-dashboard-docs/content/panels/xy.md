@@ -107,7 +107,7 @@ dashboards:
               visible: true
 ```
 
-`titles_and_text.value_labels` is still accepted for backward compatibility, but it is deprecated and emits `DeprecationWarning`.
+`titles_and_text.value_labels` is not accepted in `0.4.0`; use `appearance.values.visible` (or run `kb-dashboard upgrade`).
 
 ## Axis Configuration
 

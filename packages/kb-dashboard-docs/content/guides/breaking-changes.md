@@ -15,6 +15,20 @@ Use the CLI to access this guide from a local install:
 
 ### Migration Checklist
 
+#### Run the upgrader first
+
+Run the schema upgrader before compiling:
+
+```bash
+kb-dashboard upgrade --input-dir inputs --write
+```
+
+For CI validation (without writing files):
+
+```bash
+kb-dashboard upgrade --input-dir inputs --fail-on-change
+```
+
 #### Datatable
 
 - Remove `columns` and `metric_columns` lists. Display settings (width, alignment, hidden, etc.) now live directly on each metric or breakdown under `appearance`.

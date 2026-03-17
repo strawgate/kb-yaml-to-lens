@@ -81,7 +81,7 @@ dashboards:
 | `appearance` | `MetricAppearance \| None` | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
 | `titles_and_text` | `MetricTitlesAndText \| None` | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
 
-Color thresholds and `apply_to` are configured on the primary metric's `color` field (e.g., `primary.color.thresholds`, `primary.color.apply_to`). Deprecated chart-level `color` and `apply_to` fields are supported for backward compatibility and emit deprecation warnings. Do not set chart-level and `primary.color.*` variants together; they are mutually exclusive.
+Color thresholds and `apply_to` are configured on the primary metric's `color` field (e.g., `primary.color.thresholds`, `primary.color.apply_to`). Legacy chart-level `color` and `apply_to` are not accepted in `0.4.0`; run `kb-dashboard upgrade` to migrate old files.
 
 #### Metric Appearance
 
@@ -172,7 +172,7 @@ primary:
 | `appearance` | `MetricAppearance \| None` | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
 | `titles_and_text` | `MetricTitlesAndText \| None` | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
 
-Color thresholds and `apply_to` are configured on the primary metric's `color` field (e.g., `primary.color.thresholds`, `primary.color.apply_to`). Deprecated chart-level `color` and `apply_to` fields are supported for backward compatibility and emit deprecation warnings. Do not set chart-level and `primary.color.*` variants together; they are mutually exclusive.
+Color thresholds and `apply_to` are configured on the primary metric's `color` field (e.g., `primary.color.thresholds`, `primary.color.apply_to`). Legacy chart-level `color` and `apply_to` are not accepted in `0.4.0`; run `kb-dashboard upgrade` to migrate old files.
 
 #### ESQL Metric Types
 
