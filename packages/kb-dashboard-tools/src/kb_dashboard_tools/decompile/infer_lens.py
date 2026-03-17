@@ -515,9 +515,12 @@ def _extract_xy_appearance(vis_raw: dict[str, Any], chart_type: str | None) -> d
 
     # Axis configs
     y_left = _extract_axis_config(vis_raw, 'yLeftScale', 'yTitle', 'yLeftExtent', 'yLeft')
-    if y_left is None:
-        # Also check yLeftTitle (newer Kibana)
-        y_left = _extract_axis_config(vis_raw, 'yLeftScale', 'yLeftTitle', 'yLeftExtent', 'yLeft')
+    y_left_fallback = _extract_axis_config(vis_raw, 'yLeftScale', 'yLeftTitle', 'yLeftExtent', 'yLeft')
+    if y_left is not None and y_left_fallback is not None:
+        # Prefer yLeftTitle when present (newer Kibana), while preserving scale/extent fields.
+        y_left.update(y_left_fallback)
+    elif y_left_fallback is not None:
+        y_left = y_left_fallback
     if y_left is not None:
         appearance['y_left_axis'] = y_left
 

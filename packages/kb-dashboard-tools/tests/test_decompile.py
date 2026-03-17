@@ -2671,6 +2671,24 @@ def test_decompile_xy_axis_titles() -> None:
     assert result['lens']['appearance']['x_axis']['title'] == 'Time'
 
 
+def test_decompile_xy_y_left_title_fallback_with_scale() -> None:
+    """XY yLeftTitle is retained even when yLeftScale already emits y_left_axis."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'line',
+                'legend': {'position': 'right'},
+                'yLeftScale': 'log',
+                'yLeftTitle': 'Requests per second',
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['y_left_axis']['scale'] == 'log'
+    assert result['lens']['appearance']['y_left_axis']['title'] == 'Requests per second'
+
+
 def test_decompile_xy_axis_title_hidden() -> None:
     """XY axis title visibility false is extracted."""
     panel = _make_lens_panel(
