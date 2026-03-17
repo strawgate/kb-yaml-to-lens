@@ -403,17 +403,20 @@ def _extract_axis_config(
     """Extract axis configuration (scale, title, extent) for a single axis."""
     axis: dict[str, Any] = {}
 
-    # Axis title visibility
+    # Axis title visibility — False hides the title regardless of custom text
+    title_hidden = False
     axis_vis_settings = as_dict(vis_raw.get('axisTitlesVisibilitySettings'))
     if axis_vis_settings is not None:
         show_title = axis_vis_settings.get(title_visibility_axis)
         if isinstance(show_title, bool) and not show_title:
             axis['title'] = False
+            title_hidden = True
 
-    # Custom axis title
-    title_val = vis_raw.get(title_key)
-    if isinstance(title_val, str) and len(title_val) > 0:
-        axis['title'] = title_val
+    # Custom axis title (skip if visibility is explicitly hidden)
+    if not title_hidden:
+        title_val = vis_raw.get(title_key)
+        if isinstance(title_val, str) and len(title_val) > 0:
+            axis['title'] = title_val
 
     # Scale
     scale_val = vis_raw.get(scale_key)
