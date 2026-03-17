@@ -69,7 +69,23 @@ class DatatableAppearance(BaseCfgModel):
     """Grid density setting."""
 
 
-class LensDatatableChart(BaseChart):
+class BaseDatatableChart(BaseCfgModel):
+    """Shared fields for all datatable chart configurations."""
+
+    type: Literal['datatable'] = Field(default='datatable')
+    """The type of chart, which is 'datatable' for this visualization."""
+
+    appearance: DatatableAppearance | None = Field(default=None)
+    """Appearance settings for the datatable."""
+
+    sorting: DatatableSortingConfig | None = Field(default=None)
+    """Optional sorting configuration."""
+
+    paging: DatatablePagingConfig | None = Field(default=None)
+    """Optional pagination configuration."""
+
+
+class LensDatatableChart(BaseChart, BaseDatatableChart):
     """Represents a Datatable chart configuration within a Lens panel.
 
     Datatable charts display tabular data with customizable columns, sorting,
@@ -114,9 +130,6 @@ class LensDatatableChart(BaseChart):
         ```
     """
 
-    type: Literal['datatable'] = Field(default='datatable')
-    """The type of chart, which is 'datatable' for this visualization."""
-
     data_view: str = Field(default=...)
     """The data view that determines the data for the datatable chart."""
 
@@ -128,15 +141,6 @@ class LensDatatableChart(BaseChart):
 
     metrics_split_by: list[LensDatatableDimensionTypes | LensDimensionTypes] | None = Field(default=None)
     """Optional split-metrics-by dimensions (creates separate metric columns for each dimension value)."""
-
-    appearance: DatatableAppearance | None = Field(default=None)
-    """Appearance settings for the datatable."""
-
-    sorting: DatatableSortingConfig | None = Field(default=None)
-    """Optional sorting configuration."""
-
-    paging: DatatablePagingConfig | None = Field(default=None)
-    """Optional pagination configuration."""
 
     @model_validator(mode='after')
     def validate_has_metrics_or_breakdowns(self) -> Self:
@@ -151,7 +155,7 @@ class LensDatatableChart(BaseChart):
         return self
 
 
-class ESQLDatatableChart(BaseChart):
+class ESQLDatatableChart(BaseChart, BaseDatatableChart):
     """Represents a Datatable chart configuration within an ESQL panel.
 
     ESQL datatables can define explicit metrics and breakdowns, or omit them entirely
@@ -186,9 +190,6 @@ class ESQLDatatableChart(BaseChart):
         ```
     """
 
-    type: Literal['datatable'] = Field(default='datatable')
-    """The type of chart, which is 'datatable' for this visualization."""
-
     metrics: list[ESQLDatatableMetricTypes | ESQLMetricTypes] = Field(default_factory=list)
     """List of ESQL metrics to display as columns."""
 
@@ -197,12 +198,3 @@ class ESQLDatatableChart(BaseChart):
 
     metrics_split_by: list[ESQLDatatableDimensionTypes | ESQLDimensionTypes] | None = Field(default=None)
     """Optional split-metrics-by dimensions (creates separate metric columns for each dimension value)."""
-
-    appearance: DatatableAppearance | None = Field(default=None)
-    """Appearance settings for the datatable."""
-
-    sorting: DatatableSortingConfig | None = Field(default=None)
-    """Optional sorting configuration."""
-
-    paging: DatatablePagingConfig | None = Field(default=None)
-    """Optional pagination configuration."""
