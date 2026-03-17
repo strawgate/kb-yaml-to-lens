@@ -250,7 +250,7 @@ class TestChartTypeToKbnTypeLens:
                 'type': 'heatmap',
                 'data_view': 'metrics-*',
                 'x_axis': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'x1'},
-                'value': {'aggregation': 'count', 'id': 'metric1'},
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -262,7 +262,7 @@ class TestChartTypeToKbnTypeLens:
             {
                 'type': 'heatmap',
                 'x_axis': {'field': '@timestamp', 'id': 'x1'},
-                'value': {'field': 'count(*)', 'id': 'metric1'},
+                'metric': {'field': 'count(*)', 'id': 'metric1'},
             }
         )
         result = chart_type_to_kbn_type_lens(chart)
@@ -456,7 +456,7 @@ class TestCompileLensChartState:
                 'type': 'heatmap',
                 'data_view': 'metrics-*',
                 'x_axis': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'x1'},
-                'value': {'aggregation': 'count', 'id': 'metric1'},
+                'metric': {'aggregation': 'count', 'id': 'metric1'},
             }
         )
         state, references = compile_lens_chart_state(query=None, filters=None, charts=[heatmap_chart])
@@ -978,7 +978,7 @@ class TestCompileESQLChartState:
                 'type': 'heatmap',
                 'query': 'FROM logs-* | STATS count() BY @timestamp, status',
                 'x_axis': {'field': '@timestamp', 'id': 'x1'},
-                'value': {'field': 'count(*)', 'id': 'metric1'},
+                'metric': {'field': 'count(*)', 'id': 'metric1'},
             },
             # Pie
             {
@@ -1239,7 +1239,7 @@ class TestESQLDataTypeDate:
                     'query': 'FROM logs-* | STATS count() BY time_bucket, status',
                     'x_axis': {'field': 'time_bucket', 'id': 'x1', 'data_type': 'date'},
                     'y_axis': {'field': 'status', 'id': 'y1'},
-                    'value': {'field': 'count(*)', 'id': 'metric1'},
+                    'metric': {'field': 'count(*)', 'id': 'metric1'},
                 },
             }
         )

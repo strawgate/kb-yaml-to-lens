@@ -208,6 +208,8 @@ def _migrate_heatmap(chart: YamlMap, stats: Counter[str]) -> None:
             appearance['legend'] = legend
             stats['heatmap:legend'] += 1
 
+    _rename_key(chart, 'value', 'metric', stats, 'heatmap:value-to-metric')
+
 
 def _migrate_tagcloud(chart: YamlMap, stats: Counter[str]) -> None:
     appearance = _as_map(chart.get('appearance'))

@@ -106,7 +106,7 @@ dashboards:
           y_axis:
             field: "service.name"
             type: values
-          value:
+          metric:
             aggregation: count
           appearance:
             legend:
@@ -255,7 +255,7 @@ lens:
   y_axis:
     field: "host.name"
     type: values
-  value:
+  metric:
     aggregation: average
     field: "cpu.usage"
   appearance:

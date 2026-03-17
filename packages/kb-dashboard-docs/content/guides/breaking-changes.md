@@ -48,6 +48,10 @@ kb-dashboard upgrade --input-dir inputs --fail-on-change
 
 - Rename `dimensions` to `breakdowns`.
 
+#### Heatmap
+
+- Rename `value` to `metric` on heatmap charts. The `value` field is now `metric` to align with other chart types.
+
 #### Dimensions / Breakdowns
 
 - `collapse` is now only valid on breakdown fields. If you had `collapse` on a plain dimension (e.g., XY `dimension`), move it to a breakdown instead.

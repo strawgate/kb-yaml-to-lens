@@ -349,7 +349,7 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
             chart['secondary'] = all_metrics[1]
     elif is_heatmap:
         if len(all_metrics) > 0:
-            chart['value'] = all_metrics[0]
+            chart['metric'] = all_metrics[0]
     elif is_singular_metric:
         # gauge, tagcloud, waffle, mosaic use singular 'metric'
         if len(all_metrics) > 0:
@@ -405,8 +405,8 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if is_heatmap:
             if 'x_axis' not in chart:
                 chart['x_axis'] = default_lens_dim
-            if 'value' not in chart:
-                chart['value'] = lens_metric_fallback
+            if 'metric' not in chart:
+                chart['metric'] = lens_metric_fallback
         if is_singular_metric and 'metric' not in chart:
             chart['metric'] = lens_metric_fallback
         if is_singular_dim:
@@ -430,8 +430,8 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if is_heatmap:
             if 'x_axis' not in chart:
                 chart['x_axis'] = default_esql_dim
-            if 'value' not in chart:
-                chart['value'] = default_esql_metric
+            if 'metric' not in chart:
+                chart['metric'] = default_esql_metric
         if is_singular_metric and 'metric' not in chart:
             chart['metric'] = default_esql_metric
         if is_singular_dim:

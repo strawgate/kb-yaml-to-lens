@@ -49,7 +49,7 @@ dashboards:
             field: "host.name"
             type: values
             label: "Server"
-          value:
+          metric:
             aggregation: count
             label: "Request Count"
 ```
@@ -73,7 +73,7 @@ dashboards:
           y_axis:
             field: "service.name"
             type: values
-          value:
+          metric:
             aggregation: average
             field: "response.time"
             format:
@@ -113,7 +113,7 @@ dashboards:
             field: "@timestamp"
             type: date_histogram
             label: "Hour"
-          value:
+          metric:
             aggregation: count
             label: "Events"
 ```

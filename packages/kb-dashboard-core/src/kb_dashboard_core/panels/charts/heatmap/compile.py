@@ -124,8 +124,8 @@ def compile_lens_heatmap_chart(
     """
     kbn_columns_by_id: 'dict[str, KbnLensColumnTypes]' = {}  # noqa: UP037
 
-    # Compile value metric first (dimensions may reference it)
-    result = compile_lens_metric(lens_heatmap_chart.value)
+    # Compile metric first (dimensions may reference it)
+    result = compile_lens_metric(lens_heatmap_chart.metric)
     value_id = result.primary_id
     value_column = result.primary_column
     kbn_metric_columns_by_id: 'dict[str, KbnLensMetricColumnTypes]' = {value_id: value_column}  # noqa: UP037
@@ -196,8 +196,8 @@ def compile_esql_heatmap_chart(
         y_id = y_column.columnId
         kbn_columns.append(y_column)
 
-    # Compile value metric (required)
-    value_column = compile_esql_metric(esql_heatmap_chart.value)
+    # Compile metric (required)
+    value_column = compile_esql_metric(esql_heatmap_chart.metric)
     value_id = value_column.columnId
     kbn_columns.append(value_column)
 

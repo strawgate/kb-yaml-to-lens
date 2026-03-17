@@ -110,7 +110,7 @@ class LensHeatmapChart(BaseChart, BaseHeatmapChart):
     y_axis: LensDimensionTypes | None = Field(default=None)
     """The dimension to display on the Y-axis (vertical). Optional for 1D heatmaps."""
 
-    value: LensMetricTypes = Field(...)
+    metric: LensMetricTypes = Field(...)
     """The metric that determines cell color intensity."""
 
 
@@ -127,5 +127,5 @@ class ESQLHeatmapChart(BaseChart, BaseHeatmapChart):
     y_axis: ESQLDimensionTypes | None = Field(default=None)
     """The dimension to display on the Y-axis (vertical). Optional for 1D heatmaps."""
 
-    value: ESQLMetricTypes = Field(...)
+    metric: ESQLMetricTypes = Field(...)
     """The metric that determines cell color intensity."""

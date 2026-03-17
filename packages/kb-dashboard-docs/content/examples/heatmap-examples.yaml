@@ -41,7 +41,7 @@ dashboards:
             sort:
               by: Request Count
               direction: desc
-          value:
+          metric:
             aggregation: count
             label: Request Count
 
@@ -61,7 +61,7 @@ dashboards:
             field: '@timestamp'
             type: date_histogram
             label: Time
-          value:
+          metric:
             aggregation: count
             label: Events
           appearance:
@@ -91,7 +91,7 @@ dashboards:
             type: values
             label: Server
             size: 8
-          value:
+          metric:
             aggregation: average
             field: response.time
             label: Avg Response (ms)
@@ -135,7 +135,7 @@ dashboards:
             type: values
             label: Service
             size: 10
-          value:
+          metric:
             formula: count(kql='log.level:error') / count()
             label: Error Rate (%)
             format:
@@ -160,7 +160,7 @@ dashboards:
             field: hour
           y_axis:
             field: region
-          value:
+          metric:
             field: user_count
             label: Unique Users
 
@@ -189,7 +189,7 @@ dashboards:
             type: values
             label: Status Code
             size: 10
-          value:
+          metric:
             aggregation: count
             label: Request Count
           filters:
@@ -217,7 +217,7 @@ dashboards:
             type: values
             label: Service
             size: 8
-          value:
+          metric:
             aggregation: percentile
             field: response.time
             percentile: 95
@@ -259,7 +259,7 @@ dashboards:
             type: values
             label: Host
             size: 10
-          value:
+          metric:
             aggregation: max
             field: system.memory.used.pct
             label: Max Memory %

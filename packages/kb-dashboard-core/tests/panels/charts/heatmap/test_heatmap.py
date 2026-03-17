@@ -66,7 +66,7 @@ def test_compile_heatmap_chart_1d_lens() -> None:
             'field': 'host.name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'sum',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -114,7 +114,7 @@ def test_compile_heatmap_chart_2d_lens() -> None:
             'field': 'service.name',
             'id': 'y_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'average',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -156,7 +156,7 @@ def test_compile_heatmap_chart_1d_esql() -> None:
             'field': 'host_name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
@@ -200,7 +200,7 @@ def test_compile_heatmap_chart_2d_esql() -> None:
             'field': 'service_name',
             'id': 'y_accessor',
         },
-        'value': {
+        'metric': {
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
@@ -243,7 +243,7 @@ def test_compile_heatmap_chart_with_axis_and_value_config_lens() -> None:
             'field': 'host.name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'average',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -289,7 +289,7 @@ def test_compile_heatmap_chart_with_axis_and_value_config_esql() -> None:
             'field': 'host_name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
@@ -336,7 +336,7 @@ def test_compile_heatmap_chart_with_legend_config_lens() -> None:
             'field': 'host.name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'average',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -390,7 +390,7 @@ def test_compile_heatmap_chart_with_legend_positions() -> None:
                 'field': 'host.name',
                 'id': 'x_accessor',
             },
-            'value': {
+            'metric': {
                 'aggregation': 'average',
                 'field': 'system.cpu.total.pct',
                 'id': 'value_accessor',
@@ -424,7 +424,7 @@ def test_compile_heatmap_chart_with_all_axis_and_value_options_lens() -> None:
             'field': 'service.name',
             'id': 'y_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'average',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -479,7 +479,7 @@ def test_compile_heatmap_chart_with_all_axis_and_value_options_esql() -> None:
             'field': 'service_name',
             'id': 'y_accessor',
         },
-        'value': {
+        'metric': {
             'field': 'avg_cpu',
             'id': 'value_accessor',
         },
@@ -528,7 +528,7 @@ def test_compile_lens_heatmap_formula_includes_helper_columns() -> None:
             'type': 'heatmap',
             'data_view': 'metrics-*',
             'x_axis': {'type': 'values', 'field': 'host.name', 'id': 'x_accessor'},
-            'value': {
+            'metric': {
                 'id': 'value_accessor',
                 'formula': 'counter_rate(max(in.bytes)) + counter_rate(max(out.bytes))',
             },
@@ -552,7 +552,7 @@ def test_heatmap_deprecated_grid_config_warns_and_maps() -> None:
                 'type': 'heatmap',
                 'data_view': 'metrics-*',
                 'x_axis': {'type': 'values', 'field': 'host.name'},
-                'value': {'aggregation': 'count'},
+                'metric': {'aggregation': 'count'},
                 'grid_config': {
                     'cells': {'show_labels': True},
                     'x_axis': {'show_labels': True, 'show_title': False},
@@ -570,7 +570,7 @@ def test_heatmap_deprecated_legend_warns_when_ignored() -> None:
                 'type': 'heatmap',
                 'data_view': 'metrics-*',
                 'x_axis': {'type': 'values', 'field': 'host.name'},
-                'value': {'aggregation': 'count'},
+                'metric': {'aggregation': 'count'},
                 'appearance': {'legend': {'visible': 'show'}},
                 'legend': {'visible': 'hide'},
             }
@@ -587,7 +587,7 @@ def test_compile_heatmap_chart_partial_visibility_config() -> None:
             'field': 'host.name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'average',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -617,7 +617,7 @@ def test_compile_heatmap_chart_partial_legend_config() -> None:
             'field': 'host.name',
             'id': 'x_accessor',
         },
-        'value': {
+        'metric': {
             'aggregation': 'average',
             'field': 'system.cpu.total.pct',
             'id': 'value_accessor',
@@ -658,7 +658,7 @@ def test_heatmap_chart_dashboard_references_bubble_up() -> None:
                         'field': 'host.name',
                         'id': 'x_accessor',
                     },
-                    'value': {
+                    'metric': {
                         'aggregation': 'count',
                         'id': 'value_accessor',
                     },
@@ -689,7 +689,7 @@ def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
             'type': 'heatmap',
             'data_view': 'metrics-*',
             'x_axis': {'type': 'values', 'field': 'host.name', 'id': 'x_accessor'},
-            'value': {'aggregation': 'average', 'field': 'system.cpu.total.pct', 'id': 'value_accessor'},
+            'metric': {'aggregation': 'average', 'field': 'system.cpu.total.pct', 'id': 'value_accessor'},
             'color': {
                 'range_type': 'number',
                 'range_min': 0,
@@ -705,7 +705,7 @@ def test_compile_heatmap_chart_color_range_palette(chart_type: str) -> None:
         config = {
             'type': 'heatmap',
             'x_axis': {'field': 'host_name', 'id': 'x_accessor'},
-            'value': {'field': 'avg_cpu', 'id': 'value_accessor'},
+            'metric': {'field': 'avg_cpu', 'id': 'value_accessor'},
             'color': {
                 'range_type': 'number',
                 'range_min': 0,
