@@ -85,10 +85,10 @@ jobs:
         - Pie (default) — no donut setting
         - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
 
-        ### Slice labels and values (`titles_and_text:`)
-        - `slice_labels` — `hide`, `inside`, `auto` (default: auto)
-        - `slice_values` — `hide`, `integer`, `percent` (default: percent)
-        - `value_decimal_places` — 0-10 (default: 2)
+        ### Slice labels and values (`appearance:`)
+        - `appearance.categories` — `hide`, `inside`, `auto` (default: auto)
+        - `appearance.values.visible` — `hide`, `integer`, `percent` (default: percent)
+        - `appearance.values.decimal_places` — 0-10 (default: 2)
 
         ### Legend (`legend:`)
         - `visible` — `show`, `hide`, `auto`
