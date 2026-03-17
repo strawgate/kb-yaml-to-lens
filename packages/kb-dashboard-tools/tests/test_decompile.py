@@ -2915,7 +2915,12 @@ def test_decompile_pie_number_display_integer() -> None:
     """Pie with numberDisplay=value emits appearance.values.format=integer."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'value', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'value', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['appearance']['values']['format'] == 'integer'
@@ -2925,7 +2930,12 @@ def test_decompile_pie_number_display_hidden() -> None:
     """Pie with numberDisplay=hidden emits appearance.values.format=hide."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'hidden', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'hidden', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['appearance']['values']['format'] == 'hide'
@@ -2935,7 +2945,12 @@ def test_decompile_pie_number_display_percent_omitted() -> None:
     """Pie with default numberDisplay=percent does not emit values.format."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     appearance = result['lens'].get('appearance', {})
@@ -2946,7 +2961,20 @@ def test_decompile_pie_percent_decimals() -> None:
     """Pie with percentDecimals emits appearance.values.decimal_places."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False, 'percentDecimals': 1}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [
+                    {
+                        'numberDisplay': 'percent',
+                        'categoryDisplay': 'default',
+                        'legendDisplay': 'default',
+                        'nestedLegend': False,
+                        'percentDecimals': 1,
+                    }
+                ],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['appearance']['values']['decimal_places'] == 1
@@ -2956,7 +2984,12 @@ def test_decompile_pie_category_display_inside() -> None:
     """Pie with categoryDisplay=inside emits appearance.categories.position=inside."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'inside', 'legendDisplay': 'default', 'nestedLegend': False}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'inside', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['appearance']['categories']['position'] == 'inside'
@@ -2966,7 +2999,12 @@ def test_decompile_pie_category_display_hide() -> None:
     """Pie with categoryDisplay=hide emits appearance.categories.position=hide."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'hide', 'legendDisplay': 'default', 'nestedLegend': False}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'hide', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['appearance']['categories']['position'] == 'hide'
@@ -2976,7 +3014,12 @@ def test_decompile_pie_nested_legend() -> None:
     """Pie with nestedLegend=True emits legend.nested=True."""
     panel = _make_lens_panel(
         'lnsPie',
-        state={'visualization': {'shape': 'pie', 'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': True}]}},
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': True}],
+            }
+        },
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['legend']['nested'] is True
@@ -3045,3 +3088,23 @@ def test_decompile_datatable_row_height_single() -> None:
     )
     result = _decompile_single_panel(panel)
     assert result['lens']['appearance']['row_height'] == 'single'
+
+
+def test_decompile_datatable_header_row_height_single() -> None:
+    """Datatable with headerRowHeight=single emits appearance.header_row_height=single."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'headerRowHeight': 'single', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['header_row_height'] == 'single'
+
+
+def test_decompile_datatable_header_row_height_auto_omitted() -> None:
+    """Datatable with default headerRowHeight=auto does not emit appearance.header_row_height."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'headerRowHeight': 'auto', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens'].get('appearance') is None or 'header_row_height' not in result['lens'].get('appearance', {})

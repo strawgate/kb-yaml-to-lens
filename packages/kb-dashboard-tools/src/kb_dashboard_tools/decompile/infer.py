@@ -548,9 +548,7 @@ def _extract_gauge_settings(
     label_major = vis_raw.get('labelMajor')
     if label_major_mode == 'none':
         titles['title'] = False
-    elif label_major_mode == 'custom' and isinstance(label_major, str) and len(label_major) > 0:
-        titles['title'] = label_major
-    elif label_major_mode is None and isinstance(label_major, str) and len(label_major) > 0:
+    elif label_major_mode in ('custom', None) and isinstance(label_major, str) and len(label_major) > 0:
         titles['title'] = label_major
 
     label_minor = vis_raw.get('labelMinor')
