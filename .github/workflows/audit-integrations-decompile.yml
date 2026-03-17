@@ -31,13 +31,14 @@ jobs:
           total=$((total + 1))
           rel="${f#integrations/}"
           out=".audit/decompile/output/$(basename "$f" .json).yaml"
-          if uv run kb-dashboard decompile "$f" -o "$out" 2>/dev/null; then
+          if output=$(uv run kb-dashboard decompile "$f" -o "$out" 2>&1); then
             successes=$((successes + 1))
           else
             failures=$((failures + 1))
-            errmsg=$(uv run kb-dashboard decompile "$f" -o "$out" 2>&1 | tail -1 || true)
+            errmsg=$(printf '%s\n' "$output" | grep -v '^[[:space:]]*$' | tail -1 || true)
+            [ -z "$errmsg" ] && errmsg="UNKNOWN_ERROR_NO_MESSAGE (exit code non-zero, no output)"
             echo "FAIL: $rel -- $errmsg" >> .audit/decompile/errors.log
-            echo "\"$rel\",\"$errmsg\"" >> .audit/decompile/failures.csv
+            printf '%s,"%s"\n' "\"$rel\"" "$errmsg" >> .audit/decompile/failures.csv
           fi
         done
 
