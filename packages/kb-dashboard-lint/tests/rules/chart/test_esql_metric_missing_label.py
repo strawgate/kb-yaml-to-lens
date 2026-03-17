@@ -19,7 +19,7 @@ def dashboard_esql_metric_no_label() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM metrics-* | STATS count = COUNT(*), avg_cpu = AVG(cpu)',
-                    dimensions=[
+                    breakdowns=[
                         ESQLDimension(field='server_name', label='Server Name'),
                     ],
                     metrics=[
@@ -43,7 +43,7 @@ def dashboard_esql_metric_with_label() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM metrics-* | STATS count = COUNT(*), avg_cpu = AVG(cpu)',
-                    dimensions=[
+                    breakdowns=[
                         ESQLDimension(field='server_name', label='Server Name'),
                     ],
                     metrics=[
@@ -67,7 +67,7 @@ def dashboard_esql_metric_empty_label() -> Dashboard:
                 esql=ESQLDatatablePanelConfig(
                     type='datatable',
                     query='FROM metrics-* | STATS count = COUNT(*)',
-                    dimensions=[
+                    breakdowns=[
                         ESQLDimension(field='server_name', label='Server Name'),
                     ],
                     metrics=[
