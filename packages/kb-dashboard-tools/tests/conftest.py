@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from .integrations_targets import INTEGRATIONS_DASHBOARD_TARGETS, INTEGRATIONS_PINNED_SHA
+
 INTEGRATIONS_REPO_URL = 'https://github.com/elastic/integrations.git'
 GIT_BIN = shutil.which('git')
 
@@ -28,14 +30,8 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         '--integrations-sha',
         action='store',
-        default=os.getenv('KB_INTEGRATIONS_SHA', ''),
+        default=os.getenv('KB_INTEGRATIONS_SHA', INTEGRATIONS_PINNED_SHA),
         help='Pinned commit SHA to checkout for integrations-backed tests.',
-    )
-    parser.addoption(
-        '--integrations-dashboard',
-        action='append',
-        default=[],
-        help='Relative dashboard file path(s) under integrations repo. Can be repeated.',
     )
 
 
@@ -61,22 +57,6 @@ def _run_git(command: list[str], cwd: Path | None = None) -> None:
     )
 
 
-def _current_head(repo_path: Path) -> str | None:
-    if GIT_BIN is None:
-        return None
-    try:
-        result = subprocess.run(  # noqa: S603
-            [GIT_BIN, 'rev-parse', 'HEAD'],
-            cwd=str(repo_path),
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except subprocess.CalledProcessError:
-        return None
-    return result.stdout.strip()
-
-
 @pytest.fixture(scope='session')
 def integrations_repo_path(request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Clone elastic/integrations at a pinned SHA (session cached)."""
@@ -93,10 +73,11 @@ def integrations_repo_path(request: pytest.FixtureRequest, tmp_path_factory: pyt
     repo_path = cache_root / pinned_sha
 
     if not repo_path.exists():
-        _run_git(['clone', '--filter=blob:none', '--no-checkout', repo_url, str(repo_path)])
-    if _current_head(repo_path) != pinned_sha:
-        _run_git(['fetch', '--depth=1', 'origin', pinned_sha], cwd=repo_path)
-        _run_git(['checkout', '--force', pinned_sha], cwd=repo_path)
+        _run_git(['clone', '--filter=blob:none', '--sparse', repo_url, str(repo_path)])
+    _run_git(['fetch', '--depth=1', 'origin', pinned_sha], cwd=repo_path)
+    _run_git(['checkout', '--force', pinned_sha], cwd=repo_path)
+    _run_git(['sparse-checkout', 'init', '--no-cone'], cwd=repo_path)
+    _run_git(['sparse-checkout', 'set', '--skip-checks', *INTEGRATIONS_DASHBOARD_TARGETS], cwd=repo_path)
 
     return repo_path
 
