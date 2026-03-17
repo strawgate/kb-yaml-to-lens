@@ -173,6 +173,22 @@ This command emits:
 - Panel stubs with `id`, `title`, `size`, and `position`
 - TODO comments containing original panel JSON for non-trivial manual conversion
 
+### Upgrade Legacy YAML Schema
+
+Upgrade legacy dashboard YAML from `0.2.7` format to canonical `0.4.0` schema:
+
+```bash
+uvx kb-dashboard-cli upgrade --input-dir ./dashboards --write
+```
+
+Run in check mode (no writes) and fail CI if upgrades are needed:
+
+```bash
+uvx kb-dashboard-cli upgrade --input-dir ./dashboards --fail-on-change
+```
+
+`kb-dashboard upgrade` targets `0.2.7 -> 0.4.0` only; `0.3.x` compatibility is intentionally not preserved.
+
 ## Configuration
 
 ### Environment Variables

@@ -27,6 +27,7 @@ from dashboard_compiler.cli_remote import (
     load_sample_data_command,
     screenshot_dashboard,
 )
+from dashboard_compiler.cli_upgrade import upgrade_dashboards
 
 # Disable rich_click colors when generating documentation or when NO_COLOR is set
 # This prevents ANSI escape sequences from appearing in mkdocs-click generated docs
@@ -71,6 +72,7 @@ def cli(ctx: click.Context, loglevel: str) -> None:
         5. Disassemble dashboard:  kb-dashboard disassemble dashboard.ndjson -o output_dir
         6. Decompile dashboard:    kb-dashboard decompile dashboard.ndjson -o dashboard.yaml
         7. Compare disassembly:    kb-dashboard compare original_disassembled compiled_disassembled
+        8. Upgrade YAML schema:    kb-dashboard upgrade --input-dir ./dashboards --write
 
     \b
     Authentication:
@@ -96,6 +98,7 @@ cli.add_command(disassemble)
 cli.add_command(decompile)
 cli.add_command(compare_disassembled, name='compare')
 cli.add_command(lsp)
+cli.add_command(upgrade_dashboards, name='upgrade')
 
 # Register remote Kibana/Elasticsearch commands
 cli.add_command(screenshot_dashboard, name='screenshot')

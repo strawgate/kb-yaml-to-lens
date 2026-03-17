@@ -428,7 +428,9 @@ panel = LensPanel(
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
-        primary=MetricLensOtherAggregatedMetric(aggregation='average', field='response_time'),
+        primary=MetricLensOtherAggregatedMetric(
+            aggregation='average', field='response_time'
+        ),
     ),
 )
 ```
