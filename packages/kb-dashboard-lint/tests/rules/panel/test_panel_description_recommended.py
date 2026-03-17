@@ -4,7 +4,7 @@ from dashboard_lint.rules.panel import PanelDescriptionRecommendedRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensMetricPanelConfig, LensPanel
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 from kb_dashboard_core.panels.markdown import MarkdownPanel
 from kb_dashboard_core.panels.markdown.config import MarkdownPanelConfig
@@ -24,7 +24,7 @@ class TestPanelDescriptionRecommendedRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],
@@ -50,7 +50,7 @@ class TestPanelDescriptionRecommendedRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],
@@ -90,7 +90,7 @@ class TestPanelDescriptionRecommendedRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],

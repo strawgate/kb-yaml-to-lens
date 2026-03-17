@@ -5,9 +5,8 @@ import pytest
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.filters import PhraseFilter
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel, LensMetricPanelConfig, LensPanel
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric, MetricLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 from kb_dashboard_core.panels.markdown import MarkdownPanel
 from kb_dashboard_core.panels.markdown.config import MarkdownPanelConfig
@@ -76,7 +75,7 @@ def dashboard_with_esql_no_where() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -94,7 +93,7 @@ def dashboard_with_esql_where() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | WHERE status == 200 | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -112,7 +111,7 @@ def dashboard_with_redundant_label() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(
+                    primary=MetricLensCountAggregatedMetric(
                         aggregation='count',
                         label='Total Requests',  # Same as title
                     ),
@@ -134,7 +133,7 @@ def dashboard_with_hidden_title() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(
+                    primary=MetricLensCountAggregatedMetric(
                         aggregation='count',
                         label='Total Requests',  # Same as title but hidden
                     ),
@@ -155,7 +154,7 @@ def dashboard_with_dimension_no_label() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     breakdown=LensTermsBreakdown(
                         field='host.name',
                         # No label set
@@ -177,7 +176,7 @@ def dashboard_with_dimension_label() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     breakdown=LensTermsBreakdown(
                         field='host.name',
                         label='Host Name',

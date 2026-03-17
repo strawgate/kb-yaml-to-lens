@@ -6,7 +6,7 @@ from dashboard_lint.rules.chart import ESQLGroupBySyntaxRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def dashboard_with_group_by() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*) GROUP BY host.name',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -38,7 +38,7 @@ def dashboard_with_correct_by() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*) BY host.name',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],

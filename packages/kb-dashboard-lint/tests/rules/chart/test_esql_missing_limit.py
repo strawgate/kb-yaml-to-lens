@@ -7,6 +7,7 @@ from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLDatatablePanelConfig, ESQLMetricPanelConfig, ESQLPanel
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric
 
 
 @pytest.fixture
@@ -58,7 +59,7 @@ def dashboard_without_sort_desc() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],

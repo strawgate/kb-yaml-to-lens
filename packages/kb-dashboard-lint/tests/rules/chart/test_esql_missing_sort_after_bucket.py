@@ -6,7 +6,8 @@ from dashboard_lint.rules.chart import ESQLMissingSortAfterBucketRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLLinePanelConfig, ESQLMetricPanelConfig, ESQLPanel
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimension, ESQLMetric
+from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimension
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric
 from kb_dashboard_core.panels.charts.xy.metrics import XYESQLMetric
 
 
@@ -59,7 +60,7 @@ def dashboard_without_bucket() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],

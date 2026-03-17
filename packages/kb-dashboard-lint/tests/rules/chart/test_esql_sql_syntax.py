@@ -6,7 +6,7 @@ from dashboard_lint.rules.chart import ESQLSqlSyntaxRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def dashboard_with_order_by() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*) | ORDER BY count DESC',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -38,7 +38,7 @@ def dashboard_with_select() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='SELECT COUNT(*) FROM logs-*',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -56,7 +56,7 @@ def dashboard_with_single_equals() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | WHERE status = 200 | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -74,7 +74,7 @@ def dashboard_with_percent_wildcard() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query="FROM logs-* | WHERE status == 200 AND message LIKE '%error%' | STATS count = COUNT(*)",
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -92,7 +92,7 @@ def dashboard_with_valid_esql() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | WHERE status == 200 | STATS count = COUNT(*) | SORT count DESC',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],

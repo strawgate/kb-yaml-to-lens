@@ -3,7 +3,7 @@
 from dashboard_lint.rules.chart import MetricMultipleMetricsWidthRule, MetricRedundantLabelRule
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensMetricPanelConfig, LensPanel
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 
 
@@ -21,8 +21,8 @@ class TestMetricMultipleMetricsWidthRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count', label='Count'),
-                        secondary=LensCountAggregatedMetric(aggregation='count', label='Secondary'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count', label='Count'),
+                        secondary=MetricLensCountAggregatedMetric(aggregation='count', label='Secondary'),
                     ),
                 ),
             ],
@@ -46,9 +46,9 @@ class TestMetricMultipleMetricsWidthRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
-                        secondary=LensCountAggregatedMetric(aggregation='count'),
-                        maximum=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
+                        secondary=MetricLensCountAggregatedMetric(aggregation='count'),
+                        maximum=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],
@@ -71,8 +71,8 @@ class TestMetricMultipleMetricsWidthRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
-                        secondary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
+                        secondary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],
@@ -95,8 +95,8 @@ class TestMetricMultipleMetricsWidthRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
-                        secondary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
+                        secondary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],
@@ -118,7 +118,7 @@ class TestMetricMultipleMetricsWidthRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],
@@ -152,7 +152,7 @@ class TestMetricRedundantLabelRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(
+                        primary=MetricLensCountAggregatedMetric(
                             aggregation='count',
                             label='cpu usage',  # Label with different case
                         ),
@@ -177,7 +177,7 @@ class TestMetricRedundantLabelRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(
+                        primary=MetricLensCountAggregatedMetric(
                             aggregation='count',
                             label='Some Label',
                         ),

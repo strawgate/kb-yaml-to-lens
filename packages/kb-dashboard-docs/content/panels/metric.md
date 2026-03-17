@@ -392,8 +392,8 @@ from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from kb_dashboard_core.panels.charts.lens.metrics.config import (
-    LensCountAggregatedMetric,
+from kb_dashboard_core.panels.charts.metric.metrics import (
+    MetricLensCountAggregatedMetric,
 )
 from kb_dashboard_core.panels.config import Position, Size
 
@@ -404,7 +404,7 @@ panel = LensPanel(
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
-        primary=LensCountAggregatedMetric(),
+        primary=MetricLensCountAggregatedMetric(),
     ),
 )
 ```
@@ -416,8 +416,8 @@ from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from kb_dashboard_core.panels.charts.lens.metrics.config import (
-    LensOtherAggregatedMetric,
+from kb_dashboard_core.panels.charts.metric.metrics import (
+    MetricLensOtherAggregatedMetric,
 )
 from kb_dashboard_core.panels.config import Position, Size
 
@@ -428,7 +428,7 @@ panel = LensPanel(
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
-        primary=LensOtherAggregatedMetric(aggregation='average', field='response_time'),
+        primary=MetricLensOtherAggregatedMetric(aggregation='average', field='response_time'),
     ),
 )
 ```
@@ -440,10 +440,8 @@ from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from kb_dashboard_core.panels.charts.lens.metrics.config import (
-    LensFormulaMetric,
-    LensMetricFormat,
-)
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricFormat
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensFormulaMetric
 from kb_dashboard_core.panels.config import Position, Size
 
 panel = LensPanel(
@@ -453,7 +451,7 @@ panel = LensPanel(
     lens=LensMetricPanelConfig(
         type='metric',
         data_view='logs-*',
-        primary=LensFormulaMetric(
+        primary=MetricLensFormulaMetric(
             formula="count(kql='status:error') / count() * 100",
             label='Error Rate %',
             format=LensMetricFormat(type='percent'),

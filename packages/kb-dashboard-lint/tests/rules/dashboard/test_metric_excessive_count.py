@@ -6,7 +6,7 @@ from dashboard_lint.rules.dashboard import MetricExcessiveCountRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensMetricPanelConfig, LensPanel
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensCountAggregatedMetric
 
 
 def create_metric_panel(title: str) -> LensPanel:
@@ -16,7 +16,7 @@ def create_metric_panel(title: str) -> LensPanel:
         lens=LensMetricPanelConfig(
             type='metric',
             data_view='logs-*',
-            primary=LensCountAggregatedMetric(aggregation='count'),
+            primary=MetricLensCountAggregatedMetric(aggregation='count'),
         ),
     )
 

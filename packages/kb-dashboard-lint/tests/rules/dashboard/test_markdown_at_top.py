@@ -6,7 +6,7 @@ from dashboard_lint.rules.dashboard import MarkdownAtTopRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensMetricPanelConfig, LensPanel
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Position, Size
 from kb_dashboard_core.panels.markdown import MarkdownPanel
 from kb_dashboard_core.panels.markdown.config import MarkdownPanelConfig
@@ -29,7 +29,7 @@ def dashboard_with_markdown_at_top() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                 ),
                 position=Position(x=0, y=3),
             ),
@@ -48,7 +48,7 @@ def dashboard_with_markdown_not_at_top() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                 ),
                 position=Position(x=0, y=0),
             ),
@@ -73,7 +73,7 @@ def dashboard_with_plain_markdown() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                 ),
                 position=Position(x=0, y=0),
             ),

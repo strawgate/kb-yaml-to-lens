@@ -83,15 +83,15 @@ dashboards:
 
 ## Column Colors
 
-Datatable metric columns support range-based coloring to highlight values based on numeric thresholds. Configure `appearance.color.apply_to` and optional range settings under `appearance.color`.
-Range palettes are emitted only when `appearance.color.thresholds` is configured; without `thresholds`, no range palette is generated even if other range fields are set.
+Datatable metric columns support range-based coloring to highlight values based on numeric thresholds. Configure `color.apply_to` and optional range settings under `color`.
+Range palettes are emitted only when `color.thresholds` is configured; without `thresholds`, no range palette is generated even if other range fields are set.
 
 ### Color Configuration Fields
 
 | Field | Description |
 | ----- | ----------- |
-| `appearance.color.apply_to` | How generated range colors are applied: `cell` (background color) or `text` (text color) |
-| `appearance.color` | Optional range settings (`range_type`, `range_min`, `range_max`, `thresholds`) |
+| `color.apply_to` | How generated range colors are applied: `cell` (background color) or `text` (text color) |
+| `color` | Optional range settings (`range_type`, `range_min`, `range_max`, `thresholds`) |
 
 ### Example: CPU Usage Thresholds
 
@@ -113,19 +113,18 @@ dashboards:
               field: "system.cpu.total.pct"
               aggregation: average
               label: "CPU %"
-              appearance:
-                color:
-                  apply_to: cell
-                  range_type: percent
-                  range_min: 0
-                  range_max: 100
-                  thresholds:
-                    - up_to: 50
-                      color: '#00BF6F'  # Green for low usage
-                    - up_to: 80
-                      color: '#FFA500'  # Orange for moderate
-                    - up_to: 100
-                      color: '#BD271E'  # Red for high usage
+              color:
+                apply_to: cell
+                range_type: percent
+                range_min: 0
+                range_max: 100
+                thresholds:
+                  - up_to: 50
+                    color: '#00BF6F'  # Green for low usage
+                  - up_to: 80
+                    color: '#FFA500'  # Orange for moderate
+                  - up_to: 100
+                    color: '#BD271E'  # Red for high usage
 ```
 
 For detailed `ColorRangeMapping` configuration options, see the [Color Assignments documentation](../guides/color-assignments.md).

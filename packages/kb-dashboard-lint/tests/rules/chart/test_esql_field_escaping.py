@@ -6,7 +6,7 @@ from dashboard_lint.rules.chart import ESQLFieldEscapingRule
 from dashboard_lint.types import Severity
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric
 
 
 @pytest.fixture
@@ -20,7 +20,7 @@ def dashboard_with_unescaped_numeric_field() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM metrics-* | WHERE apache.load.1 IS NOT NULL | STATS avg_load = AVG(apache.load.1)',
-                    primary=ESQLMetric(field='avg_load'),
+                    primary=MetricESQLMetric(field='avg_load'),
                 ),
             ),
         ],
@@ -38,7 +38,7 @@ def dashboard_with_multiple_unescaped_fields() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM metrics-* | WHERE apache.load.1 IS NOT NULL AND apache.load.5 IS NOT NULL',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],
@@ -56,7 +56,7 @@ def dashboard_with_escaped_numeric_field() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM metrics-* | WHERE `apache.load.1` IS NOT NULL | STATS avg_load = AVG(`apache.load.1`)',
-                    primary=ESQLMetric(field='avg_load'),
+                    primary=MetricESQLMetric(field='avg_load'),
                 ),
             ),
         ],
@@ -74,7 +74,7 @@ def dashboard_with_regular_fields() -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | WHERE host.name IS NOT NULL | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             ),
         ],

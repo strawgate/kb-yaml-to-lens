@@ -371,16 +371,23 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         elif len(all_dimensions) > 1:
             chart['y_axis'] = all_dimensions[1]
     elif is_singular_dim:
-        # tagcloud, waffle use singular 'dimension'
+        # tagcloud, mosaic use 'dimension'; waffle uses 'breakdown'
         merged = [*all_dimensions, *all_breakdowns]
         if len(merged) > 0:
-            chart['dimension'] = merged[0]
+            if chart_type == 'waffle':
+                chart['breakdown'] = merged[0]
+            else:
+                chart['dimension'] = merged[0]
         if chart_type == 'mosaic' and len(merged) > 1:
             chart['breakdown'] = merged[1]
     else:
+        # pie uses 'dimensions' (backward compat); treemap uses 'breakdowns'
         merged = [*all_dimensions, *all_breakdowns]
         if len(merged) > 0:
-            chart['dimensions'] = merged
+            if chart_type == 'treemap':
+                chart['breakdowns'] = merged
+            else:
+                chart['dimensions'] = merged
 
     # Fill in required defaults for incomplete panels
     is_lens = parsed.panel_type == 'lens'
@@ -395,7 +402,10 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if is_partition:
             if 'metrics' not in chart:
                 chart['metrics'] = [lens_metric_fallback]
-            if 'dimensions' not in chart:
+            if chart_type == 'treemap':
+                if 'breakdowns' not in chart:
+                    chart['breakdowns'] = [default_lens_dim]
+            elif 'dimensions' not in chart:
                 chart['dimensions'] = [default_lens_dim]
         if chart_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
             chart['metrics'] = [lens_metric_fallback]
@@ -406,8 +416,12 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
                 chart['value'] = lens_metric_fallback
         if is_singular_metric and 'metric' not in chart:
             chart['metric'] = lens_metric_fallback
-        if is_singular_dim and 'dimension' not in chart:
-            chart['dimension'] = default_lens_dim
+        if is_singular_dim:
+            if chart_type == 'waffle':
+                if 'breakdown' not in chart:
+                    chart['breakdown'] = default_lens_dim
+            elif 'dimension' not in chart:
+                chart['dimension'] = default_lens_dim
     else:
         if is_metric_chart and 'primary' not in chart:
             chart['primary'] = default_esql_metric
@@ -416,7 +430,10 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if is_partition:
             if 'metrics' not in chart:
                 chart['metrics'] = [default_esql_metric]
-            if 'dimensions' not in chart:
+            if chart_type == 'treemap':
+                if 'breakdowns' not in chart:
+                    chart['breakdowns'] = [default_esql_dim]
+            elif 'dimensions' not in chart:
                 chart['dimensions'] = [default_esql_dim]
         if chart_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
             chart['metrics'] = [default_esql_metric]
@@ -427,8 +444,12 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
                 chart['value'] = default_esql_metric
         if is_singular_metric and 'metric' not in chart:
             chart['metric'] = default_esql_metric
-        if is_singular_dim and 'dimension' not in chart:
-            chart['dimension'] = default_esql_dim
+        if is_singular_dim:
+            if chart_type == 'waffle':
+                if 'breakdown' not in chart:
+                    chart['breakdown'] = default_esql_dim
+            elif 'dimension' not in chart:
+                chart['dimension'] = default_esql_dim
 
     return chart
 

@@ -112,8 +112,8 @@ from kb_dashboard_core.panels.charts.config import (
     LensMetricPanelConfig,
     LensPanel,
 )
-from kb_dashboard_core.panels.charts.lens.metrics.config import (
-    LensOtherAggregatedMetric,
+from kb_dashboard_core.panels.charts.metric.metrics import (
+    MetricLensOtherAggregatedMetric,
 )
 from kb_dashboard_core.panels.config import Size
 
@@ -135,7 +135,7 @@ for metric in metrics_config:
         lens=LensMetricPanelConfig(
             type='metric',
             data_view='metrics-*',
-            primary=LensOtherAggregatedMetric(
+            primary=MetricLensOtherAggregatedMetric(
                 aggregation='average', field=metric['field']
             ),
         ),
@@ -155,7 +155,7 @@ def create_metric_panel(title: str, field: str) -> LensPanel:
         lens=LensMetricPanelConfig(
             type='metric',
             data_view='logs-*',
-            primary=LensOtherAggregatedMetric(aggregation='average', field=field),
+            primary=MetricLensOtherAggregatedMetric(aggregation='average', field=field),
         ),
     )
 

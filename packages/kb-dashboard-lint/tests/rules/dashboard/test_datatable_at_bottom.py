@@ -12,6 +12,7 @@ from kb_dashboard_core.panels.charts.config import (
 )
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensTermsBreakdown
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Position
 
 
@@ -26,7 +27,7 @@ def dashboard_with_datatable_at_bottom() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                 ),
                 position=Position(x=0, y=0),
             ),
@@ -65,7 +66,7 @@ def dashboard_with_datatable_above_other() -> Dashboard:
                 lens=LensMetricPanelConfig(
                     type='metric',
                     data_view='logs-*',
-                    primary=LensCountAggregatedMetric(aggregation='count'),
+                    primary=MetricLensCountAggregatedMetric(aggregation='count'),
                 ),
                 position=Position(x=0, y=10),
             ),
@@ -140,7 +141,7 @@ class TestDatatableAtBottomRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                     position=Position(x=0, y=10),
                 ),
@@ -184,7 +185,7 @@ class TestDatatableAtBottomRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                     position=Position(x=24, y=10),
                 ),

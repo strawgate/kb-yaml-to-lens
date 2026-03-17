@@ -4,6 +4,7 @@ from dashboard_lint.rules.chart import PanelHeightForContentRule
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import LensDatatablePanelConfig, LensMetricPanelConfig, LensPanel
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensCountAggregatedMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricLensCountAggregatedMetric
 from kb_dashboard_core.panels.config import Size
 
 
@@ -68,7 +69,7 @@ class TestPanelHeightForContentRule:
                     lens=LensMetricPanelConfig(
                         type='metric',
                         data_view='logs-*',
-                        primary=LensCountAggregatedMetric(aggregation='count'),
+                        primary=MetricLensCountAggregatedMetric(aggregation='count'),
                     ),
                 ),
             ],

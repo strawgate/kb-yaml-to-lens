@@ -192,7 +192,7 @@ class BaseMetricChart(BaseChart):
         appearance_raw = normalized_data.get('appearance')
         if isinstance(appearance_raw, dict):
             appearance = dict(cast('dict[str, Any]', appearance_raw))
-            color_raw = appearance.pop('color', None)
+            color_raw = cast('object', appearance.pop('color', None))
             if isinstance(color_raw, dict):
                 color_dict = dict(cast('dict[str, Any]', color_raw))
                 appearance_color_apply_to = color_dict.get('apply_to')

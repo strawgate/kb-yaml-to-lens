@@ -3,7 +3,7 @@
 from dashboard_lint.rules.dashboard import ESQLMinimumKibanaVersionRule
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.panels.charts.config import ESQLMetricPanelConfig, ESQLPanel
-from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
+from kb_dashboard_core.panels.charts.metric.metrics import MetricESQLMetric
 from kb_dashboard_core.panels.collapsible import CollapsiblePanel, SectionConfig
 from kb_dashboard_core.panels.markdown import MarkdownPanel
 from kb_dashboard_core.panels.markdown.config import MarkdownPanelConfig
@@ -19,7 +19,7 @@ def _dashboard_with_esql_panel(minimum_kibana_version: str | None) -> Dashboard:
                 esql=ESQLMetricPanelConfig(
                     type='metric',
                     query='FROM logs-* | STATS count = COUNT(*)',
-                    primary=ESQLMetric(field='count'),
+                    primary=MetricESQLMetric(field='count'),
                 ),
             )
         ],
@@ -40,7 +40,7 @@ def _dashboard_with_esql_in_section(minimum_kibana_version: str | None) -> Dashb
                             esql=ESQLMetricPanelConfig(
                                 type='metric',
                                 query='FROM logs-* | STATS count = COUNT(*)',
-                                primary=ESQLMetric(field='count'),
+                                primary=MetricESQLMetric(field='count'),
                             ),
                         )
                     ]
