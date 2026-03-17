@@ -1,5 +1,6 @@
 """Opt-in integrations-backed decompiler tests."""
 
+import io
 import json
 from collections.abc import Iterator
 from pathlib import Path
@@ -8,10 +9,12 @@ from typing import Any, cast
 import pytest
 from kb_dashboard_core.dashboard_compiler import load, render
 from kb_dashboard_core.loader import DashboardConfig
+from ruamel.yaml import YAML
 
 from kb_dashboard_tools.decompile import decompile_dashboard
 
 _MAX_AUTO_TARGETS = 12
+_SNAPSHOT_ROOT = Path(__file__).resolve().parent / 'snapshots' / 'decompile_integrations'
 
 
 def _dashboard_files(repo_path: Path) -> list[Path]:
@@ -46,6 +49,24 @@ def _iter_dashboard_objects(path: Path) -> Iterator[dict[str, Any]]:
         for obj in parsed:
             if isinstance(obj, dict) and obj.get('type') == 'dashboard':
                 yield cast('dict[str, Any]', obj)
+
+
+def _dashboard_case_id(source: Path, dashboard: dict[str, Any], index: int) -> str:
+    name = cast('str | None', dashboard.get('id')) or cast('str | None', dashboard.get('attributes', {}).get('title'))
+    suffix = (name or f'dashboard-{index}').replace('/', '-').replace(' ', '-')
+    stem = source.stem.replace('.', '-')
+    return f'{stem}--{suffix}'
+
+
+def _decompile_yaml_text(dashboard: dict[str, Any]) -> str:
+    # Snapshot canonical YAML content only (strip ruamel comments/TODO JSON blobs).
+    canonical = json.loads(json.dumps(decompile_dashboard(dashboard)))
+    yaml = YAML(typ='safe')
+    yaml_any = cast('Any', yaml)
+    yaml_any.sort_base_mapping_type_on_output = False
+    stream = io.StringIO()
+    yaml.dump(canonical, stream)
+    return stream.getvalue()
 
 
 def _panel_keys(panel: dict[str, Any]) -> set[str]:
@@ -103,3 +124,31 @@ def test_integrations_decompile_output_is_compiler_loadable(integrations_target_
             assert len(rendered) > 0
             break
     assert checked > 0
+
+
+@pytest.mark.integrations
+def test_integrations_decompile_matches_full_snapshots(
+    request: pytest.FixtureRequest,
+    integrations_target_files: list[Path],
+    integrations_pinned_sha: str,
+) -> None:
+    """Snapshot full decompiled YAML for selected integrations dashboards."""
+    update_mode = bool(request.config.getoption('--update-integrations-snapshots'))
+    snapshot_dir = _SNAPSHOT_ROOT / integrations_pinned_sha
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+
+    compared = 0
+    for source in integrations_target_files:
+        for index, dashboard in enumerate(_iter_dashboard_objects(source)):
+            case_id = _dashboard_case_id(source, dashboard, index)
+            snapshot_path = snapshot_dir / f'{case_id}.yaml'
+            actual = _decompile_yaml_text(dashboard)
+            if update_mode:
+                snapshot_path.write_text(actual, encoding='utf-8')
+            else:
+                assert snapshot_path.exists(), f'missing snapshot: {snapshot_path}'
+                expected = snapshot_path.read_text(encoding='utf-8')
+                assert actual == expected
+            compared += 1
+            break
+    assert compared > 0

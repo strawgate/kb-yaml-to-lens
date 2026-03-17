@@ -37,6 +37,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=[],
         help='Relative dashboard file path(s) under integrations repo. Can be repeated.',
     )
+    parser.addoption(
+        '--update-integrations-snapshots',
+        action='store_true',
+        default=False,
+        help='Rewrite integrations decompile snapshot files for the selected SHA.',
+    )
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
@@ -93,9 +99,18 @@ def integrations_repo_path(request: pytest.FixtureRequest, tmp_path_factory: pyt
     repo_path = cache_root / pinned_sha
 
     if not repo_path.exists():
-        _run_git(['git', 'clone', '--filter=blob:none', '--no-checkout', repo_url, str(repo_path)])
+        _run_git(['clone', '--filter=blob:none', '--no-checkout', repo_url, str(repo_path)])
     if _current_head(repo_path) != pinned_sha:
-        _run_git(['git', 'fetch', '--depth=1', 'origin', pinned_sha], cwd=repo_path)
-        _run_git(['git', 'checkout', '--force', pinned_sha], cwd=repo_path)
+        _run_git(['fetch', '--depth=1', 'origin', pinned_sha], cwd=repo_path)
+        _run_git(['checkout', '--force', pinned_sha], cwd=repo_path)
 
     return repo_path
+
+
+@pytest.fixture(scope='session')
+def integrations_pinned_sha(request: pytest.FixtureRequest) -> str:
+    """Return pinned integrations SHA used for fixture checkout."""
+    pinned_sha = str(request.config.getoption('--integrations-sha')).strip()
+    if len(pinned_sha) == 0:
+        pytest.skip('set --integrations-sha (or KB_INTEGRATIONS_SHA) to pin fixture source')
+    return pinned_sha
