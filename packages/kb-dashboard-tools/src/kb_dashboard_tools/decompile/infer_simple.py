@@ -8,7 +8,14 @@ from typing import Any
 
 from .parse import (
     ParsedSimplePanel,
+)
+from .parse_shared import (
     as_dict,
+    get_bool,
+    get_dict,
+    get_int,
+    get_list,
+    get_str,
 )
 
 __all__ = ['_SIMPLE_PANEL_BUILDERS']
@@ -19,25 +26,25 @@ def _infer_markdown_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]
     config: dict[str, Any] = {}
     ec = simple.embeddable_config
 
-    content = ec.get('markdown')
-    if not isinstance(content, str):
-        saved_vis = as_dict(ec.get('savedVis'))
+    content = get_str(ec, 'markdown')
+    if content is None:
+        saved_vis = get_dict(ec, 'savedVis')
         if saved_vis is not None:
-            params = as_dict(saved_vis.get('params'))
+            params = get_dict(saved_vis, 'params')
             if params is not None:
-                content = params.get('markdown')
+                content = get_str(params, 'markdown')
 
-    config['content'] = content if isinstance(content, str) else 'TODO(decompile): provide markdown content'
+    config['content'] = content if content is not None else 'TODO(decompile): provide markdown content'
 
-    saved_vis = as_dict(ec.get('savedVis'))
+    saved_vis = get_dict(ec, 'savedVis')
     if saved_vis is not None:
-        params = as_dict(saved_vis.get('params'))
+        params = get_dict(saved_vis, 'params')
         if params is not None:
-            font_size = params.get('fontSize')
-            if isinstance(font_size, int):
+            font_size = get_int(params, 'fontSize')
+            if font_size is not None:
                 config['font_size'] = font_size
-            links_in_new_tab = params.get('openLinksInNewTab')
-            if isinstance(links_in_new_tab, bool):
+            links_in_new_tab = get_bool(params, 'openLinksInNewTab')
+            if links_in_new_tab is not None:
                 config['links_in_new_tab'] = links_in_new_tab
 
     return config
@@ -46,14 +53,14 @@ def _infer_markdown_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]
 def _infer_search_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) -> dict[str, Any]:
     """Infer search panel config from parsed simple panel."""
     panel = simple.raw
-    saved_search_id = panel.get('savedSearchId')
-    if isinstance(saved_search_id, str):
+    saved_search_id = get_str(panel, 'savedSearchId')
+    if saved_search_id is not None:
         return {'saved_search_id': saved_search_id}
 
-    ec = as_dict(panel.get('embeddableConfig'))
+    ec = get_dict(panel, 'embeddableConfig')
     if ec is not None:
-        ref_name = ec.get('savedSearchRefName')
-        if isinstance(ref_name, str):
+        ref_name = get_str(ec, 'savedSearchRefName')
+        if ref_name is not None:
             resolved = ref_lookup.get(ref_name)
             if isinstance(resolved, str):
                 return {'saved_search_id': resolved}
@@ -66,23 +73,23 @@ def _infer_image_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]) -
     config: dict[str, Any] = {}
     ec = simple.embeddable_config
 
-    image_config = as_dict(ec.get('imageConfig'))
+    image_config = get_dict(ec, 'imageConfig')
     if image_config is not None:
-        src = as_dict(image_config.get('src'))
+        src = get_dict(image_config, 'src')
         if src is not None:
-            url = src.get('url')
-            if isinstance(url, str):
+            url = get_str(src, 'url')
+            if url is not None:
                 config['from_url'] = url
-        sizing = as_dict(image_config.get('sizing'))
+        sizing = get_dict(image_config, 'sizing')
         if sizing is not None:
-            fit = sizing.get('objectFit')
-            if isinstance(fit, str) and fit in {'contain', 'cover', 'fill', 'none'}:
+            fit = get_str(sizing, 'objectFit')
+            if fit is not None and fit in {'contain', 'cover', 'fill', 'none'}:
                 config['fit'] = fit
-        alt = image_config.get('altText')
-        if isinstance(alt, str) and len(alt) > 0:
+        alt = get_str(image_config, 'altText')
+        if alt is not None and len(alt) > 0:
             config['description'] = alt
-        bg = image_config.get('backgroundColor')
-        if isinstance(bg, str) and len(bg) > 0:
+        bg = get_str(image_config, 'backgroundColor')
+        if bg is not None and len(bg) > 0:
             config['background_color'] = bg
 
     if 'from_url' not in config:
@@ -93,11 +100,11 @@ def _infer_image_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]) -
 def _build_link_common(raw_link: dict[str, Any]) -> dict[str, Any]:
     """Extract common link fields (id, label) shared by external and dashboard links."""
     item: dict[str, Any] = {}
-    link_id = raw_link.get('id')
-    if isinstance(link_id, str):
+    link_id = get_str(raw_link, 'id')
+    if link_id is not None:
         item['id'] = link_id
-    label = raw_link.get('label')
-    if isinstance(label, str):
+    label = get_str(raw_link, 'label')
+    if label is not None:
         item['label'] = label
     return item
 
@@ -106,52 +113,52 @@ def _infer_links_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) ->
     """Infer links panel config from parsed simple panel."""
     attrs = simple.embeddable_attributes
     if not attrs:
-        attrs = as_dict(simple.embeddable_config.get('attributes')) or {}
+        attrs = get_dict(simple.embeddable_config, 'attributes') or {}
 
     config: dict[str, Any] = {}
-    layout = attrs.get('layout')
-    if isinstance(layout, str) and layout in {'horizontal', 'vertical'}:
+    layout = get_str(attrs, 'layout')
+    if layout is not None and layout in {'horizontal', 'vertical'}:
         config['layout'] = layout
 
     items: list[dict[str, Any]] = []
-    raw_links = attrs.get('links')
-    if isinstance(raw_links, list):
-        for raw_item in raw_links:  # pyright: ignore[reportUnknownVariableType]
-            raw_link = as_dict(raw_item)  # pyright: ignore[reportUnknownArgumentType]
+    raw_links = get_list(attrs, 'links')
+    if raw_links is not None:
+        for raw_item in raw_links:
+            raw_link = as_dict(raw_item)
             if raw_link is None:
                 continue
-            options = as_dict(raw_link.get('options')) or {}
-            link_type = raw_link.get('type')
+            options = get_dict(raw_link, 'options') or {}
+            link_type = get_str(raw_link, 'type')
 
             if link_type == 'externalLink':
-                dest = raw_link.get('destination')
-                if not isinstance(dest, str):
+                dest = get_str(raw_link, 'destination')
+                if dest is None:
                     continue
                 item = _build_link_common(raw_link)
                 item['url'] = dest
-                new_tab = options.get('openInNewTab')
-                if isinstance(new_tab, bool):
+                new_tab = get_bool(options, 'openInNewTab')
+                if new_tab is not None:
                     item['new_tab'] = new_tab
-                encode = options.get('encodeUrl')
-                if isinstance(encode, bool):
+                encode = get_bool(options, 'encodeUrl')
+                if encode is not None:
                     item['encode'] = encode
                 items.append(item)
 
             elif link_type == 'dashboardLink':
-                dest_ref = raw_link.get('destinationRefName')
-                if not isinstance(dest_ref, str):
+                dest_ref = get_str(raw_link, 'destinationRefName')
+                if dest_ref is None:
                     continue
                 item = _build_link_common(raw_link)
                 dashboard_id = ref_lookup.get(dest_ref)
                 item['dashboard'] = dashboard_id if isinstance(dashboard_id, str) else f'TODO_dashboard_id_for_{dest_ref}'
-                new_tab = options.get('openInNewTab')
-                if isinstance(new_tab, bool):
+                new_tab = get_bool(options, 'openInNewTab')
+                if new_tab is not None:
                     item['new_tab'] = new_tab
-                with_time = options.get('useCurrentDateRange')
-                if isinstance(with_time, bool):
+                with_time = get_bool(options, 'useCurrentDateRange')
+                if with_time is not None:
                     item['with_time'] = with_time
-                with_filters = options.get('useCurrentFilters')
-                if isinstance(with_filters, bool):
+                with_filters = get_bool(options, 'useCurrentFilters')
+                if with_filters is not None:
                     item['with_filters'] = with_filters
                 items.append(item)
 

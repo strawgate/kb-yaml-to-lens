@@ -79,6 +79,14 @@ def get_bool(source: dict[str, Any], key: str) -> bool | None:
     return value if isinstance(value, bool) else None
 
 
+def get_number(source: dict[str, Any], key: str) -> int | float | None:
+    """Extract a numeric (int or float, not bool) key from a dict source."""
+    value = source.get(key)
+    if isinstance(value, bool):
+        return None
+    return value if isinstance(value, (int, float)) else None
+
+
 def validate_view_model(model_cls: type[Any], data: object) -> object | None:
     """Best-effort validation into an existing Kbn* view model."""
     try:

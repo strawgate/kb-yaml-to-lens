@@ -20,7 +20,12 @@ from .parse import (
     ParsedDashboard,
     ParsedFilter,
     ParsedPanel,
-    as_dict,
+)
+from .parse_shared import (
+    get_bool,
+    get_dict,
+    get_list,
+    get_str,
 )
 from .tables import (
     CONTROL_TYPE_MAP,
@@ -74,9 +79,9 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
         f['exists'] = pf.key
     elif pf.filter_type == 'phrase':
         f['field'] = pf.key
-        params = pf.meta.get('params')
-        if isinstance(params, dict):
-            query = params.get('query')  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+        params = get_dict(pf.meta, 'params')
+        if params is not None:
+            query = params.get('query')
             if isinstance(query, (str, int, float, bool)):
                 f['equals'] = query
         else:
@@ -85,14 +90,14 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
                 f['equals'] = value
     elif pf.filter_type == 'phrases':
         f['field'] = pf.key
-        params = pf.meta.get('params')
-        if isinstance(params, list):
-            f['in'] = [p for p in params if isinstance(p, (str, int, float, bool))]  # pyright: ignore[reportUnknownVariableType]
+        params = get_list(pf.meta, 'params')
+        if params is not None:
+            f['in'] = [p for p in params if isinstance(p, (str, int, float, bool))]
     elif pf.filter_type == 'range':
         f['field'] = pf.key
-        range_params = as_dict(pf.raw.get('range'))
+        range_params = get_dict(pf.raw, 'range')
         if range_params is not None:
-            field_range = as_dict(range_params.get(pf.key))
+            field_range = get_dict(range_params, pf.key)
             if field_range is not None:
                 for bound in ('gte', 'gt', 'lte', 'lt'):
                     val = field_range.get(bound)
@@ -102,11 +107,11 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
         f['field'] = pf.key
 
     # Apply metadata
-    disabled = pf.meta.get('disabled')
-    if isinstance(disabled, bool) and disabled:
+    disabled = get_bool(pf.meta, 'disabled')
+    if disabled is not None and disabled:
         f['disabled'] = True
-    alias = pf.meta.get('alias')
-    if isinstance(alias, str) and len(alias) > 0:
+    alias = get_str(pf.meta, 'alias')
+    if alias is not None and len(alias) > 0:
         f['alias'] = alias
 
     return f

@@ -16,7 +16,15 @@ from .parse import (
     ParsedLensPanel,
     ParsedVisualizationLayerRole,
     ParsedVisualizationState,
+)
+from .parse_shared import (
     as_dict,
+    get_bool,
+    get_dict,
+    get_int,
+    get_list,
+    get_number,
+    get_str,
 )
 from .tables import (
     KIBANA_AXIS_EXTENT_MODE_TO_YAML,
@@ -97,22 +105,22 @@ def _extract_metric_filter(col: ParsedColumn) -> dict[str, str] | None:
             return {'kql': col.filter_query}
         if col.filter_language == 'lucene':
             return {'lucene': col.filter_query}
-    kql = col.params.get('kql')
-    if isinstance(kql, str) and len(kql) > 0:
+    kql = get_str(col.params, 'kql')
+    if kql is not None and len(kql) > 0:
         return {'kql': kql}
     return None
 
 
 def _extract_metric_format(col: ParsedColumn) -> dict[str, Any] | None:
     """Extract number/byte/percent format configuration from a column."""
-    format_config = as_dict(col.params.get('format'))
+    format_config = get_dict(col.params, 'format')
     if format_config is None:
         return None
-    format_type = format_config.get('id')
-    if not (isinstance(format_type, str) and format_type in {'number', 'bytes', 'bits', 'percent', 'duration', 'custom'}):
+    format_type = get_str(format_config, 'id')
+    if format_type is None or format_type not in {'number', 'bytes', 'bits', 'percent', 'duration', 'custom'}:
         return None
     fmt: dict[str, Any] = {'type': format_type}
-    format_params = as_dict(format_config.get('params'))
+    format_params = get_dict(format_config, 'params')
     if format_params is None:
         return fmt
     for key in ('decimals', 'suffix', 'compact', 'pattern'):
@@ -129,8 +137,8 @@ def _build_metric_dict(col: ParsedColumn) -> dict[str, Any] | None:
 
     # Formula metrics bypass the normal aggregation mapping
     if col.operation_type == 'formula':
-        formula_str = col.params.get('formula')
-        if not isinstance(formula_str, str):
+        formula_str = get_str(col.params, 'formula')
+        if formula_str is None:
             return None
         metric: dict[str, Any] = {'formula': formula_str}
         if col.label is not None and len(col.label) > 0:
@@ -152,12 +160,12 @@ def _build_metric_dict(col: ParsedColumn) -> dict[str, Any] | None:
 
     # Extract percentile-specific parameters
     if col.operation_type == 'percentile':
-        percentile_val = col.params.get('percentile')
-        if isinstance(percentile_val, (int, float)):
+        percentile_val = get_number(col.params, 'percentile')
+        if percentile_val is not None:
             metric['percentile'] = int(percentile_val)
     elif col.operation_type == 'percentile_rank':
-        rank_val = col.params.get('value')
-        if isinstance(rank_val, (int, float)):
+        rank_val = get_number(col.params, 'value')
+        if rank_val is not None:
             metric['rank'] = rank_val
 
     filt = _extract_metric_filter(col)
@@ -175,8 +183,8 @@ def _build_dimension_dict(col: ParsedColumn) -> tuple[str, dict[str, Any]] | Non
         dim: dict[str, Any] = {'type': 'date_histogram'}
         if col.source_field is not None:
             dim['field'] = col.source_field
-        interval = col.params.get('interval')
-        if isinstance(interval, str) and interval not in {'auto', ''}:
+        interval = get_str(col.params, 'interval')
+        if interval is not None and interval not in {'auto', ''}:
             # Kibana stores bare units like 'm'; compiler expects '1m'
             if re.match(r'^(ms|s|m|h|d|w|M|q|y)$', interval):
                 interval = f'1{interval}'
@@ -187,26 +195,27 @@ def _build_dimension_dict(col: ParsedColumn) -> tuple[str, dict[str, Any]] | Non
         bd: dict[str, Any] = {'type': 'values'}
         if col.source_field is not None:
             bd['field'] = col.source_field
-        size = col.params.get('size')
-        if isinstance(size, int):
+        size = get_int(col.params, 'size')
+        if size is not None:
             bd['size'] = size
         return 'breakdown', bd
 
     if col.operation_type == 'filters':
         filters_list: list[dict[str, Any]] = []
-        raw_filters = col.params.get('filters')
-        if isinstance(raw_filters, list):
-            for f in raw_filters:  # pyright: ignore[reportUnknownVariableType]
-                if isinstance(f, dict):
+        raw_filters = get_list(col.params, 'filters')
+        if raw_filters is not None:
+            for f in raw_filters:
+                f_dict = as_dict(f)
+                if f_dict is not None:
                     f_entry: dict[str, Any] = {}
-                    label = f.get('label')  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
-                    if isinstance(label, str):
+                    label = get_str(f_dict, 'label')
+                    if label is not None:
                         f_entry['label'] = label
-                    inp = f.get('input')  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
-                    if isinstance(inp, dict):
-                        query = inp.get('query')  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
-                        language = inp.get('language')  # pyright: ignore[reportUnknownMemberType,reportUnknownVariableType]
-                        if isinstance(query, str):
+                    inp = get_dict(f_dict, 'input')
+                    if inp is not None:
+                        query = get_str(inp, 'query')
+                        language = get_str(inp, 'language')
+                        if query is not None:
                             if language == 'lucene':
                                 f_entry['query'] = {'lucene': query}
                             else:
@@ -316,33 +325,33 @@ def _classify_esql_columns(
 
 def _extract_xy_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
     """Extract legend settings from an XY visualization state."""
-    legend_raw = as_dict(vis_raw.get('legend'))
+    legend_raw = get_dict(vis_raw, 'legend')
     if legend_raw is None:
         return None
 
     legend: dict[str, Any] = {}
 
-    is_visible = legend_raw.get('isVisible')
-    if isinstance(is_visible, bool):
+    is_visible = get_bool(legend_raw, 'isVisible')
+    if is_visible is not None:
         legend['visible'] = 'show' if is_visible else 'hide'
 
-    position = legend_raw.get('position')
-    if isinstance(position, str) and position != 'right':
+    position = get_str(legend_raw, 'position')
+    if position is not None and position != 'right':
         legend['position'] = position
 
-    show_single = legend_raw.get('showSingleSeries')
-    if isinstance(show_single, bool) and show_single:
+    show_single = get_bool(legend_raw, 'showSingleSeries')
+    if show_single is not None and show_single:
         legend['show_single_series'] = True
 
-    legend_size = legend_raw.get('legendSize')
-    if isinstance(legend_size, str) and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
+    legend_size = get_str(legend_raw, 'legendSize')
+    if legend_size is not None and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
         legend['width'] = KIBANA_LEGEND_SIZE_TO_YAML[legend_size]
 
-    should_truncate = legend_raw.get('shouldTruncate')
-    max_lines = legend_raw.get('maxLines')
-    if isinstance(should_truncate, bool) and not should_truncate:
+    should_truncate = get_bool(legend_raw, 'shouldTruncate')
+    max_lines = get_int(legend_raw, 'maxLines')
+    if should_truncate is not None and not should_truncate:
         legend['truncate_labels'] = 0
-    elif isinstance(max_lines, int) and max_lines > 0:
+    elif max_lines is not None and max_lines > 0:
         legend['truncate_labels'] = max_lines
 
     return legend if legend else None
@@ -350,43 +359,43 @@ def _extract_xy_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
 
 def _extract_partition_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
     """Extract legend settings from a partition chart (pie, waffle, mosaic, treemap) visualization layer."""
-    layers = vis_raw.get('layers')
-    if not isinstance(layers, list) or len(layers) == 0:  # pyright: ignore[reportUnknownArgumentType]
+    layers = get_list(vis_raw, 'layers')
+    if layers is None or len(layers) == 0:
         return None
-    layer = as_dict(layers[0])  # pyright: ignore[reportUnknownArgumentType]
+    layer = as_dict(layers[0])
     if layer is None:
         return None
 
     legend: dict[str, Any] = {}
 
-    legend_display = layer.get('legendDisplay')
-    if isinstance(legend_display, str):
+    legend_display = get_str(layer, 'legendDisplay')
+    if legend_display is not None:
         if legend_display == 'hide':
             legend['visible'] = 'hide'
         elif legend_display == 'show':
             legend['visible'] = 'show'
 
-    legend_position = layer.get('legendPosition')
-    if isinstance(legend_position, str) and legend_position != 'right':
+    legend_position = get_str(layer, 'legendPosition')
+    if legend_position is not None and legend_position != 'right':
         legend['position'] = legend_position
 
-    show_single = layer.get('showSingleSeries')
-    if isinstance(show_single, bool) and show_single:
+    show_single = get_bool(layer, 'showSingleSeries')
+    if show_single is not None and show_single:
         legend['show_single_series'] = True
 
-    legend_size = layer.get('legendSize')
-    if isinstance(legend_size, str) and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
+    legend_size = get_str(layer, 'legendSize')
+    if legend_size is not None and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
         legend['width'] = KIBANA_LEGEND_SIZE_TO_YAML[legend_size]
 
-    truncate_legend = layer.get('truncateLegend')
-    legend_max_lines = layer.get('legendMaxLines')
-    if isinstance(truncate_legend, bool) and not truncate_legend:
+    truncate_legend = get_bool(layer, 'truncateLegend')
+    legend_max_lines = get_int(layer, 'legendMaxLines')
+    if truncate_legend is not None and not truncate_legend:
         legend['truncate_labels'] = 0
-    elif isinstance(legend_max_lines, int) and legend_max_lines > 0:
+    elif legend_max_lines is not None and legend_max_lines > 0:
         legend['truncate_labels'] = legend_max_lines
 
-    nested_legend = layer.get('nestedLegend')
-    if isinstance(nested_legend, bool) and nested_legend:
+    nested_legend = get_bool(layer, 'nestedLegend')
+    if nested_legend is not None and nested_legend:
         legend['nested'] = True
 
     return legend if legend else None
@@ -409,38 +418,38 @@ def _extract_axis_config(
 
     # Axis title visibility — False hides the title regardless of custom text
     title_hidden = False
-    axis_vis_settings = as_dict(vis_raw.get('axisTitlesVisibilitySettings'))
+    axis_vis_settings = get_dict(vis_raw, 'axisTitlesVisibilitySettings')
     if axis_vis_settings is not None:
-        show_title = axis_vis_settings.get(title_visibility_axis)
-        if isinstance(show_title, bool) and not show_title:
+        show_title = get_bool(axis_vis_settings, title_visibility_axis)
+        if show_title is not None and not show_title:
             axis['title'] = False
             title_hidden = True
 
     # Custom axis title (skip if visibility is explicitly hidden)
     if not title_hidden:
-        title_val = vis_raw.get(title_key)
-        if isinstance(title_val, str) and len(title_val) > 0:
+        title_val = get_str(vis_raw, title_key)
+        if title_val is not None and len(title_val) > 0:
             axis['title'] = title_val
 
     # Scale
-    scale_val = vis_raw.get(scale_key)
-    if isinstance(scale_val, str) and scale_val != 'linear':
+    scale_val = get_str(vis_raw, scale_key)
+    if scale_val is not None and scale_val != 'linear':
         axis['scale'] = scale_val
 
     # Extent
-    extent_raw = as_dict(vis_raw.get(extent_key))
+    extent_raw = get_dict(vis_raw, extent_key)
     if extent_raw is not None:
-        mode = extent_raw.get('mode')
-        if isinstance(mode, str) and mode != 'full':
+        mode = get_str(extent_raw, 'mode')
+        if mode is not None and mode != 'full':
             extent: dict[str, Any] = {}
             yaml_mode = KIBANA_AXIS_EXTENT_MODE_TO_YAML.get(mode, mode)
             extent['mode'] = yaml_mode
             if mode == 'custom':
-                lower = extent_raw.get('lowerBound')
-                upper = extent_raw.get('upperBound')
-                if isinstance(lower, (int, float)):
+                lower = get_number(extent_raw, 'lowerBound')
+                upper = get_number(extent_raw, 'upperBound')
+                if lower is not None:
                     extent['min'] = lower
-                if isinstance(upper, (int, float)):
+                if upper is not None:
                     extent['max'] = upper
             axis['extent'] = extent
 
@@ -453,45 +462,45 @@ def _extract_xy_appearance(vis_raw: dict[str, Any], chart_type: str | None) -> d
 
     # Missing values (fitting function) -- line/area only
     if chart_type in {'line', 'area'}:
-        fitting = vis_raw.get('fittingFunction')
-        if isinstance(fitting, str) and fitting in KIBANA_FITTING_FUNCTION_TO_YAML:
+        fitting = get_str(vis_raw, 'fittingFunction')
+        if fitting is not None and fitting in KIBANA_FITTING_FUNCTION_TO_YAML:
             appearance['missing_values'] = KIBANA_FITTING_FUNCTION_TO_YAML[fitting]
 
-        emphasize = vis_raw.get('emphasizeFitting')
-        if isinstance(emphasize, bool) and emphasize:
+        emphasize = get_bool(vis_raw, 'emphasizeFitting')
+        if emphasize is not None and emphasize:
             appearance['show_as_dotted'] = True
 
-        end_value = vis_raw.get('endValue')
-        if isinstance(end_value, str) and end_value in KIBANA_END_VALUE_TO_YAML:
+        end_value = get_str(vis_raw, 'endValue')
+        if end_value is not None and end_value in KIBANA_END_VALUE_TO_YAML:
             appearance['end_values'] = KIBANA_END_VALUE_TO_YAML[end_value]
 
-        curve_type = vis_raw.get('curveType')
-        if isinstance(curve_type, str) and curve_type in KIBANA_CURVE_TYPE_TO_YAML:
+        curve_type = get_str(vis_raw, 'curveType')
+        if curve_type is not None and curve_type in KIBANA_CURVE_TYPE_TO_YAML:
             appearance['line_style'] = KIBANA_CURVE_TYPE_TO_YAML[curve_type]
 
-        show_time_marker = vis_raw.get('showCurrentTimeMarker')
-        if isinstance(show_time_marker, bool) and show_time_marker:
+        show_time_marker = get_bool(vis_raw, 'showCurrentTimeMarker')
+        if show_time_marker is not None and show_time_marker:
             appearance['show_current_time_marker'] = True
 
-        hide_endzones = vis_raw.get('hideEndzones')
-        if isinstance(hide_endzones, bool) and hide_endzones:
+        hide_endzones = get_bool(vis_raw, 'hideEndzones')
+        if hide_endzones is not None and hide_endzones:
             appearance['hide_endzones'] = True
 
     # Fill opacity -- area only
     if chart_type == 'area':
-        fill_opacity = vis_raw.get('fillOpacity')
-        if isinstance(fill_opacity, (int, float)) and fill_opacity != KIBANA_DEFAULT_FILL_OPACITY:
+        fill_opacity = get_number(vis_raw, 'fillOpacity')
+        if fill_opacity is not None and fill_opacity != KIBANA_DEFAULT_FILL_OPACITY:
             appearance['fill_opacity'] = fill_opacity
 
     # Min bar height -- bar only
     if chart_type == 'bar':
-        min_bar_height = vis_raw.get('minBarHeight')
-        if isinstance(min_bar_height, (int, float)) and min_bar_height > 0:
+        min_bar_height = get_number(vis_raw, 'minBarHeight')
+        if min_bar_height is not None and min_bar_height > 0:
             appearance['min_bar_height'] = min_bar_height
 
     # Value labels
-    value_labels = vis_raw.get('valueLabels')
-    if isinstance(value_labels, str) and value_labels == 'show':
+    value_labels = get_str(vis_raw, 'valueLabels')
+    if value_labels is not None and value_labels == 'show':
         appearance.setdefault('values', {})['visible'] = True
 
     # Axis configs
@@ -528,23 +537,23 @@ def _extract_gauge_settings(
     appearance: dict[str, Any] = {}
     titles: dict[str, Any] = {}
 
-    shape = vis_raw.get('shape')
-    if isinstance(shape, str) and shape in KIBANA_GAUGE_SHAPE_TO_YAML and shape != KIBANA_GAUGE_DEFAULT_SHAPE:
+    shape = get_str(vis_raw, 'shape')
+    if shape is not None and shape in KIBANA_GAUGE_SHAPE_TO_YAML and shape != KIBANA_GAUGE_DEFAULT_SHAPE:
         appearance['shape'] = KIBANA_GAUGE_SHAPE_TO_YAML[shape]
 
-    ticks_pos = vis_raw.get('ticksPosition')
-    if isinstance(ticks_pos, str) and ticks_pos != 'auto':
+    ticks_pos = get_str(vis_raw, 'ticksPosition')
+    if ticks_pos is not None and ticks_pos != 'auto':
         appearance['ticks_position'] = ticks_pos
 
     label_major_mode = vis_raw.get('labelMajorMode')
-    label_major = vis_raw.get('labelMajor')
+    label_major = get_str(vis_raw, 'labelMajor')
     if label_major_mode == 'none':
         titles['title'] = False
-    elif label_major_mode in ('custom', None) and isinstance(label_major, str) and len(label_major) > 0:
+    elif label_major_mode in ('custom', None) and label_major is not None and len(label_major) > 0:
         titles['title'] = label_major
 
-    label_minor = vis_raw.get('labelMinor')
-    if isinstance(label_minor, str) and len(label_minor) > 0:
+    label_minor = get_str(vis_raw, 'labelMinor')
+    if label_minor is not None and len(label_minor) > 0:
         titles['subtitle'] = label_minor
 
     return (appearance if appearance else None), (titles if titles else None)
@@ -552,27 +561,27 @@ def _extract_gauge_settings(
 
 def _extract_partition_appearance(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
     """Extract appearance settings from a partition chart (pie/treemap/waffle/mosaic) visualization state."""
-    layers = vis_raw.get('layers')
-    if not isinstance(layers, list) or len(layers) == 0:  # pyright: ignore[reportUnknownArgumentType]
+    layers = get_list(vis_raw, 'layers')
+    if layers is None or len(layers) == 0:
         return None
-    layer = as_dict(layers[0])  # pyright: ignore[reportUnknownArgumentType]
+    layer = as_dict(layers[0])
     if layer is None:
         return None
 
     appearance: dict[str, Any] = {}
 
-    number_display = layer.get('numberDisplay')
-    if isinstance(number_display, str) and number_display in KIBANA_PIE_NUMBER_DISPLAY_TO_YAML:
+    number_display = get_str(layer, 'numberDisplay')
+    if number_display is not None and number_display in KIBANA_PIE_NUMBER_DISPLAY_TO_YAML:
         yaml_val = KIBANA_PIE_NUMBER_DISPLAY_TO_YAML[number_display]
         if yaml_val != 'percent':  # percent is Kibana default — omit
             appearance.setdefault('values', {})['format'] = yaml_val
 
-    percent_decimals = layer.get('percentDecimals')
-    if isinstance(percent_decimals, int):
+    percent_decimals = get_int(layer, 'percentDecimals')
+    if percent_decimals is not None:
         appearance.setdefault('values', {})['decimal_places'] = percent_decimals
 
-    category_display = layer.get('categoryDisplay')
-    if isinstance(category_display, str) and category_display in KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML:
+    category_display = get_str(layer, 'categoryDisplay')
+    if category_display is not None and category_display in KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML:
         yaml_val = KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML[category_display]
         if yaml_val != 'auto':  # auto is Kibana default — omit
             appearance.setdefault('categories', {})['position'] = yaml_val
@@ -591,38 +600,38 @@ def _extract_datatable_options(
     paging: dict[str, Any] | None = None
     appearance: dict[str, Any] = {}
 
-    sorting_raw = as_dict(vis_raw.get('sorting'))
+    sorting_raw = get_dict(vis_raw, 'sorting')
     if sorting_raw is not None:
-        col_id = sorting_raw.get('columnId')
-        direction = sorting_raw.get('direction')
-        if isinstance(col_id, str) and isinstance(direction, str) and direction != 'none':
+        col_id = get_str(sorting_raw, 'columnId')
+        direction = get_str(sorting_raw, 'direction')
+        if col_id is not None and direction is not None and direction != 'none':
             sorting = {'column_id': col_id, 'direction': direction}
 
-    paging_raw = as_dict(vis_raw.get('paging'))
+    paging_raw = get_dict(vis_raw, 'paging')
     if paging_raw is not None:
-        enabled = paging_raw.get('enabled')
-        size = paging_raw.get('size')
-        if isinstance(enabled, bool) and isinstance(size, int):
+        enabled = get_bool(paging_raw, 'enabled')
+        size = get_int(paging_raw, 'size')
+        if enabled is not None and size is not None:
             paging = {'enabled': enabled, 'page_size': size}
 
-    row_height = vis_raw.get('rowHeight')
-    if isinstance(row_height, str) and row_height != 'auto':
+    row_height = get_str(vis_raw, 'rowHeight')
+    if row_height is not None and row_height != 'auto':
         appearance['row_height'] = row_height
 
-    row_height_lines = vis_raw.get('rowHeightLines')
-    if isinstance(row_height_lines, int):
+    row_height_lines = get_int(vis_raw, 'rowHeightLines')
+    if row_height_lines is not None:
         appearance['row_height_lines'] = row_height_lines
 
-    header_row_height = vis_raw.get('headerRowHeight')
-    if isinstance(header_row_height, str) and header_row_height != 'auto':
+    header_row_height = get_str(vis_raw, 'headerRowHeight')
+    if header_row_height is not None and header_row_height != 'auto':
         appearance['header_row_height'] = header_row_height
 
-    header_row_height_lines = vis_raw.get('headerRowHeightLines')
-    if isinstance(header_row_height_lines, int):
+    header_row_height_lines = get_int(vis_raw, 'headerRowHeightLines')
+    if header_row_height_lines is not None:
         appearance['header_row_height_lines'] = header_row_height_lines
 
-    density = vis_raw.get('density')
-    if isinstance(density, str) and density != 'normal':
+    density = get_str(vis_raw, 'density')
+    if density is not None and density != 'normal':
         appearance['density'] = density
 
     return sorting, paging, (appearance if appearance else None)
@@ -781,9 +790,9 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if chart_type in _XY_CHART_TYPES:
             xy_appearance = _extract_xy_appearance(vis_raw, chart_type)
             if xy_appearance is not None:
-                existing = chart.get('appearance')
-                if isinstance(existing, dict):
-                    existing.update(xy_appearance)  # pyright: ignore[reportUnknownMemberType]
+                existing = as_dict(chart.get('appearance'))
+                if existing is not None:
+                    existing.update(xy_appearance)
                 else:
                     chart['appearance'] = xy_appearance
 
@@ -791,9 +800,9 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         elif chart_type == 'gauge':
             gauge_appearance, gauge_titles = _extract_gauge_settings(vis_raw)
             if gauge_appearance is not None:
-                existing = chart.get('appearance')
-                if isinstance(existing, dict):
-                    existing.update(gauge_appearance)  # pyright: ignore[reportUnknownMemberType]
+                existing = as_dict(chart.get('appearance'))
+                if existing is not None:
+                    existing.update(gauge_appearance)
                 else:
                     chart['appearance'] = gauge_appearance
             if gauge_titles is not None:
@@ -803,9 +812,9 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         elif chart_type in PARTITION_CHART_TYPES:
             partition_appearance = _extract_partition_appearance(vis_raw)
             if partition_appearance is not None:
-                existing = chart.get('appearance')
-                if isinstance(existing, dict):
-                    existing.update(partition_appearance)  # pyright: ignore[reportUnknownMemberType]
+                existing = as_dict(chart.get('appearance'))
+                if existing is not None:
+                    existing.update(partition_appearance)
                 else:
                     chart['appearance'] = partition_appearance
 
