@@ -381,13 +381,9 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if chart_type == 'mosaic' and len(merged) > 1:
             chart['breakdown'] = merged[1]
     else:
-        # pie uses 'dimensions' (backward compat); treemap uses 'breakdowns'
         merged = [*all_dimensions, *all_breakdowns]
         if len(merged) > 0:
-            if chart_type == 'treemap':
-                chart['breakdowns'] = merged
-            else:
-                chart['dimensions'] = merged
+            chart['breakdowns'] = merged
 
     # Fill in required defaults for incomplete panels
     is_lens = parsed.panel_type == 'lens'
@@ -402,12 +398,9 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if is_partition:
             if 'metrics' not in chart:
                 chart['metrics'] = [lens_metric_fallback]
-            if chart_type == 'treemap':
-                if 'breakdowns' not in chart:
-                    chart['breakdowns'] = [default_lens_dim]
-            elif 'dimensions' not in chart:
-                chart['dimensions'] = [default_lens_dim]
-        if chart_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
+            if 'breakdowns' not in chart:
+                chart['breakdowns'] = [default_lens_dim]
+        if chart_type == 'datatable' and 'metrics' not in chart and 'breakdowns' not in chart:
             chart['metrics'] = [lens_metric_fallback]
         if is_heatmap:
             if 'x_axis' not in chart:
@@ -430,12 +423,9 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
         if is_partition:
             if 'metrics' not in chart:
                 chart['metrics'] = [default_esql_metric]
-            if chart_type == 'treemap':
-                if 'breakdowns' not in chart:
-                    chart['breakdowns'] = [default_esql_dim]
-            elif 'dimensions' not in chart:
-                chart['dimensions'] = [default_esql_dim]
-        if chart_type == 'datatable' and 'metrics' not in chart and 'dimensions' not in chart:
+            if 'breakdowns' not in chart:
+                chart['breakdowns'] = [default_esql_dim]
+        if chart_type == 'datatable' and 'metrics' not in chart and 'breakdowns' not in chart:
             chart['metrics'] = [default_esql_metric]
         if is_heatmap:
             if 'x_axis' not in chart:
