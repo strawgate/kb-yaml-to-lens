@@ -83,8 +83,8 @@ jobs:
 
         ### Appearance (`appearance:`)
         - `apply_to` — color target: `value` or `background` (default: `background`)
-        - `title_position` — `top` or `bottom`
-        - `value_font_size` — `default`, `xs`, `s`, `m`, `l`, `xl`, `xxl`
+        - `primary.position` — `top` or `bottom`
+        - `primary.font_size` — `default`, `xs`, `s`, `m`, `l`, `xl`, `xxl`
 
         ### Color (`color:`)
         - `palette` — categorical or range color palette
@@ -96,8 +96,8 @@ jobs:
         ### Titles and text (`titles_and_text:`)
         - `prefix` — text before the value
         - `suffix` — text after the value
-        - `secondary_prefix` — text before secondary metric
-        - `secondary_suffix` — text after secondary metric
+        - `secondary.format.prefix` — text before secondary metric
+        - `secondary.format.suffix` — text after secondary metric
 
         ## Creative exploration
         - ES|QL metric with `STATS count = COUNT()` as primary

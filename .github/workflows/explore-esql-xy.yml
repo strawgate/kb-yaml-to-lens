@@ -100,8 +100,7 @@ jobs:
 
         ### Axis configuration (`appearance:`)
         - `x_axis`, `y_left_axis`, `y_right_axis`:
-          - `title` — axis label text
-          - `show_title` — boolean
+          - `title` — boolean (false=hidden, true=auto) or string (custom label)
           - `scale` — `linear`, `log`, `sqrt`, `time`
           - `extent.mode` — `full`, `custom`, `data_bounds`
           - `extent.min`, `extent.max` — custom bounds
@@ -127,11 +126,11 @@ jobs:
         - `visible` — `show`, `hide`, `auto`
         - `position` — `top`, `bottom`, `left`, `right`
         - `show_single_series` — boolean
-        - `size` — `small`, `medium`, `large`, `extra_large`
+        - `width` — `small`, `medium`, `large`, `extra_large`
         - `truncate_labels` — 0-5 lines
 
-        ### Value labels (`titles_and_text:`)
-        - `value_labels` — `hide` or `show`
+        ### Value labels (`appearance.values:`)
+        - `visible` — boolean (`true` to show, `false` to hide)
 
         ### Color (`color:`)
         - `palette` — categorical color scheme
