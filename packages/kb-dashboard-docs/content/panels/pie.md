@@ -53,13 +53,6 @@ For comprehensive guidance on legend configuration, see the [Legend Configuratio
       show_root_heading: false
       heading_level: 3
 
-## Pie Chart Titles and Text
-
-::: kb_dashboard_core.panels.charts.pie.config.PieTitlesAndText
-    options:
-      show_root_heading: false
-      heading_level: 3
-
 ## ES|QL Pie Charts
 
 ::: kb_dashboard_core.panels.charts.pie.config.ESQLPieChart

@@ -26,7 +26,7 @@ help:
     @echo ""
     @echo "Linting:"
     @echo "  lint             - Check linting (compiles first)"
-    @echo "  lint-check       - Alias for lint"
+    @echo "  lint-check       - Check linting (no compile, for CI)"
     @echo "  lint-only        - Check linting (no compile, for CI)"
     @echo ""
     @echo "Type Checking:"
@@ -60,8 +60,29 @@ help:
 
 install:
     just _print-start "Installing VSCode extension dependencies"
-    npm ci
+    npm ci --no-audit --no-fund
+    touch .npm-ci.stamp
     just _print-end "VSCode extension dependencies installed"
+
+[private]
+_ensure-install:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "node_modules" ] || [ ! -f ".npm-ci.stamp" ] || [ "package-lock.json" -nt ".npm-ci.stamp" ] || [ "package.json" -nt ".npm-ci.stamp" ]; then
+        just install
+    else
+        printf "✓ VSCode extension dependencies already installed\n"
+    fi
+
+[private]
+_ensure-compiled:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -f "out/extension.js" ] || [ ! -f "out/test/runTest.js" ] || [ "tsconfig.json" -nt "out/extension.js" ] || find src -type f \( -name '*.ts' -o -name '*.tsx' \) -newer out/extension.js -print -quit | grep -q .; then
+        just compile
+    else
+        printf "✓ TypeScript output already compiled\n"
+    fi
 
 all: ci
 
@@ -73,12 +94,12 @@ ci: install compile test-e2e
 
 check: ci
 
-fix: install
+fix: _ensure-install
     just _print-start "Running ESLint --fix"
     npm run lint -- --fix
     just _print-end "TypeScript linting complete (with auto-fix)"
 
-test: install
+test: _ensure-install
     just _print-start "Running VSCode extension tests"
     npm test
     just _print-end "VSCode extension tests passed"
@@ -95,7 +116,7 @@ test-unit-only:
     ./node_modules/.bin/mocha out/test/unit/**/*.test.js --ui tdd
     just _print-end "Unit tests passed"
 
-test-unit: install compile test-unit-only
+test-unit: _ensure-install _ensure-compiled test-unit-only
 
 # Non-compiling target for use in CI after compile has already run
 test-e2e-only:
@@ -103,14 +124,14 @@ test-e2e-only:
     node ./out/test/runTest.js
     just _print-end "E2E tests passed"
 
-test-e2e: install compile test-e2e-only
+test-e2e: _ensure-install _ensure-compiled test-e2e-only
 
-compile: install
+compile: _ensure-install
     just _print-start "Compiling TypeScript"
     npm run compile
     just _print-end "TypeScript compiled"
 
-watch: install
+watch: _ensure-install
     just _print-start "Starting watch mode"
     @printf "  (Press Ctrl+C to stop)\n"
     npm run watch
@@ -121,16 +142,16 @@ lint-only:
     npm run lint
     just _print-end "ESLint checks passed"
 
-lint: install compile lint-only
+lint: _ensure-install compile lint-only
 
-lint-check: lint
+lint-check: _ensure-install lint-only
 
-typecheck: install
+typecheck: _ensure-install
     just _print-start "Running TypeScript type checking"
     npx tsc --noEmit
     just _print-end "Type checking passed"
 
-package: install
+package: _ensure-install
     just _print-start "Creating .vsix package"
     npm run package
     just _print-end ".vsix package created"
@@ -194,28 +215,28 @@ prepare-macos-arm64:
 prepare-windows:
     just _prepare-extension "win32-x64" win32-x64 "Extension prepared for Windows x64"
 
-package-linux: install prepare-linux
+package-linux: _ensure-install prepare-linux
     just _print-start "Creating Linux x64 .vsix package"
     npm run package:linux
     just _print-end "Linux x64 .vsix package created"
 
-package-macos-x64: install prepare-macos-x64
+package-macos-x64: _ensure-install prepare-macos-x64
     just _print-start "Creating macOS x64 .vsix package"
     npm run package:macos-x64
     just _print-end "macOS x64 .vsix package created"
 
-package-macos-arm64: install prepare-macos-arm64
+package-macos-arm64: _ensure-install prepare-macos-arm64
     just _print-start "Creating macOS ARM64 .vsix package"
     npm run package:macos-arm64
     just _print-end "macOS ARM64 .vsix package created"
 
-package-windows: install prepare-windows
+package-windows: _ensure-install prepare-windows
     just _print-start "Creating Windows x64 .vsix package"
     npm run package:windows
     just _print-end "Windows x64 .vsix package created"
 
 # Build all platform-specific packages (for release)
-package-all-platforms: install
+package-all-platforms: _ensure-install
     just _print-start "Building all platform-specific packages"
     rm -rf bin/ *.vsix 2>/dev/null || true
     just package-linux

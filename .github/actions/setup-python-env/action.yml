@@ -15,14 +15,14 @@ runs:
         python-version: '3.12'
     - name: Install UV
       uses: astral-sh/setup-uv@v7
-    - name: Install root Python dependencies
+      with:
+        enable-cache: true
+        cache-dependency-glob: |
+          uv.lock
+          **/pyproject.toml
+    - name: Install Python dependencies
       shell: bash
-      run: uv sync --group dev
-    - name: Install just
-      uses: extractions/setup-just@v2
-    - name: Install CLI Python dependencies
-      shell: bash
-      run: just cli install
+      run: uv sync --all-packages --group dev
     - name: Setup Xvfb
       if: inputs.setup-xvfb == 'true'
       shell: bash
