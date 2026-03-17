@@ -225,6 +225,44 @@ def _migrate_tagcloud(chart: YamlMap, stats: Counter[str]) -> None:
         stats['tagcloud:show-label'] += 1
 
 
+def _migrate_esql_gauge_static_bounds(chart: YamlMap, stats: Counter[str]) -> None:
+    """Convert numeric minimum/maximum/goal to EVAL expressions in the ESQL query."""
+    query = chart.get('query')
+    if query is None:
+        return
+
+    bound_fields = (
+        ('minimum', '_gauge_min'),
+        ('maximum', '_gauge_max'),
+        ('goal', '_gauge_goal'),
+    )
+
+    eval_parts: list[str] = []
+    for key, field_name in bound_fields:
+        value = chart.get(key)
+        if isinstance(value, (int, float)):
+            eval_parts.append(f'{field_name} = {value}')
+            chart[key] = CommentedMap({'field': field_name})
+            stats[f'gauge:esql-static-{key}'] += 1
+
+    if len(eval_parts) == 0:
+        return
+
+    eval_clause = ' EVAL ' + ', '.join(eval_parts)
+
+    if isinstance(query, str):
+        chart['query'] = query.rstrip() + ' |' + eval_clause
+    elif isinstance(query, CommentedSeq):
+        if len(query) > 0:
+            last = query[-1]
+            if isinstance(last, str):
+                query[-1] = last.rstrip() + ' |' + eval_clause
+            else:
+                query.append('|' + eval_clause)
+        else:
+            query.append(eval_clause.lstrip())
+
+
 def _migrate_gauge_color_stops(chart: YamlMap, stats: Counter[str]) -> None:
     color = _as_map(chart.get('color'))
     if color is None:
@@ -275,6 +313,7 @@ def _migrate_gauge(chart: YamlMap, stats: Counter[str]) -> None:
 
     _migrate_gauge_color_stops(chart, stats)
     _migrate_gauge_shape(chart, stats)
+    _migrate_esql_gauge_static_bounds(chart, stats)
 
 
 def _normalize_xy_enums(chart: YamlMap, stats: Counter[str]) -> None:

@@ -290,6 +290,109 @@ dashboards:
         assert chart['breakdowns'][0]['id'] == 'new-breakdown'
         assert chart['dimensions'][0]['id'] == 'legacy-dimension'
 
+    def test_upgrade_migrates_esql_gauge_static_bounds(self, tmp_path: Path) -> None:
+        """Numeric minimum/maximum/goal on ESQL gauge are converted to EVAL expressions."""
+        input_file = tmp_path / 'esql-gauge.yaml'
+        input_file.write_text(
+            """
+dashboards:
+  - id: esql-gauge
+    name: ESQL Gauge
+    panels:
+      - esql:
+          type: gauge
+          query: "FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct)"
+          metric:
+            field: avg_cpu
+          minimum: 0
+          maximum: 100
+          goal: 95
+""".strip()
+            + '\n',
+            encoding='utf-8',
+        )
+
+        result = CliRunner().invoke(cli, ['upgrade', '--input-file', str(input_file), '--write'])
+        assert result.exit_code == 0
+        assert 'Upgraded' in result.output
+
+        upgraded = _read_yaml(input_file)
+        dashboards = cast('list[dict[str, Any]]', upgraded['dashboards'])
+        panels = cast('list[dict[str, Any]]', dashboards[0]['panels'])
+        chart = cast('dict[str, Any]', panels[0]['esql'])
+
+        assert '| EVAL _gauge_min = 0, _gauge_max = 100, _gauge_goal = 95' in chart['query']
+        assert chart['minimum'] == {'field': '_gauge_min'}
+        assert chart['maximum'] == {'field': '_gauge_max'}
+        assert chart['goal'] == {'field': '_gauge_goal'}
+
+    def test_upgrade_migrates_esql_gauge_static_bounds_list_query(self, tmp_path: Path) -> None:
+        """Numeric bounds migration works when the ESQL query is a list of strings."""
+        input_file = tmp_path / 'esql-gauge-list.yaml'
+        input_file.write_text(
+            """
+dashboards:
+  - id: esql-gauge-list
+    name: ESQL Gauge List
+    panels:
+      - esql:
+          type: gauge
+          query:
+            - FROM metrics-*
+            - STATS avg_cpu = AVG(system.cpu.total.pct)
+          metric:
+            field: avg_cpu
+          minimum: 0
+          maximum: 1.0
+""".strip()
+            + '\n',
+            encoding='utf-8',
+        )
+
+        result = CliRunner().invoke(cli, ['upgrade', '--input-file', str(input_file), '--write'])
+        assert result.exit_code == 0
+
+        upgraded = _read_yaml(input_file)
+        dashboards = cast('list[dict[str, Any]]', upgraded['dashboards'])
+        panels = cast('list[dict[str, Any]]', dashboards[0]['panels'])
+        chart = cast('dict[str, Any]', panels[0]['esql'])
+
+        query_parts = chart['query']
+        assert isinstance(query_parts, list)
+        last_part = query_parts[-1]
+        assert '_gauge_min = 0' in last_part
+        assert '_gauge_max = 1.0' in last_part
+        assert chart['minimum'] == {'field': '_gauge_min'}
+        assert chart['maximum'] == {'field': '_gauge_max'}
+        assert chart.get('goal') is None
+
+    def test_upgrade_skips_esql_gauge_when_bounds_are_already_fields(self, tmp_path: Path) -> None:
+        """No migration when minimum/maximum/goal are already field references."""
+        input_file = tmp_path / 'esql-gauge-fields.yaml'
+        input_file.write_text(
+            """
+dashboards:
+  - id: esql-gauge-fields
+    name: ESQL Gauge Fields
+    panels:
+      - esql:
+          type: gauge
+          query: "FROM metrics-* | STATS avg_cpu = AVG(system.cpu.total.pct), min_cpu = MIN(system.cpu.total.pct)"
+          metric:
+            field: avg_cpu
+          minimum:
+            field: min_cpu
+""".strip()
+            + '\n',
+            encoding='utf-8',
+        )
+
+        before = input_file.read_text(encoding='utf-8')
+        result = CliRunner().invoke(cli, ['upgrade', '--input-file', str(input_file), '--fail-on-change'])
+        assert result.exit_code == 0
+        assert 'No upgrades needed' in result.output
+        assert input_file.read_text(encoding='utf-8') == before
+
     def test_upgrade_wraps_write_errors_in_click_exception(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Write failures should be surfaced as friendly click errors."""
         input_file = tmp_path / 'legacy.yaml'
