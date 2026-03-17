@@ -67,8 +67,8 @@ jobs:
         - Donut — `appearance.donut: small` (0.3), `medium` (0.5), `large` (0.7)
 
         ### Dimension types (`dimensions:`)
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude`
+        - `type: values` — top values/terms with `field`, `size`, `show_other_bucket`,
+          `include_missing_values`, `include`/`exclude`
         - `type: date_histogram` — with `field`, `minimum_interval`
         - `type: intervals` — numeric ranges
         - `type: filters` — KQL filter-based
@@ -101,7 +101,7 @@ jobs:
         - Donut with 2 nested ring dimensions + custom color assignments
         - Pie with filters dimension (e.g. error vs warning vs info)
         - Large donut with `slice_labels: inside` + `slice_values: percent`
-        - Pie with `other_bucket: true` + small `size` to show grouping
+        - Pie with `show_other_bucket: true` + small `size` to show grouping
         - Multiple metrics on a single pie (test emptySizeRatio behavior)
         - Formula-based metric as pie slice size
         - Pie chart inside a collapsible section

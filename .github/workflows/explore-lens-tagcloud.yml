@@ -63,8 +63,8 @@ jobs:
         - **metric** (required) — determines tag size
 
         ### Dimension types
-        - `type: values` — top values/terms with `field`, `size`, `other_bucket`,
-          `missing_bucket`, `include`/`exclude` (regex support), `collapse`
+        - `type: values` — top values/terms with `field`, `size`, `show_other_bucket`,
+          `include_missing_values`, `include`/`exclude` (regex support), `collapse`
         - `type: date_histogram` — with `field`, `minimum_interval`,
           `partial_intervals`
         - `type: intervals` — numeric ranges with `granularity`

@@ -64,11 +64,11 @@ jobs:
         - **value** (required) — cell color intensity metric
 
         ### Grid configuration (`grid_config:`)
-        - `cells.show_labels` — show value labels in cells (boolean)
-        - `x_axis.show_labels` — show x-axis labels (boolean)
-        - `x_axis.show_title` — show x-axis title (boolean)
-        - `y_axis.show_labels` — show y-axis labels (boolean)
-        - `y_axis.show_title` — show y-axis title (boolean)
+        - `values.visible` — show value labels in cells (boolean)
+        - `x_axis.labels.visible` — show x-axis labels (boolean)
+        - `x_axis.title.visible` — show x-axis title (boolean)
+        - `y_axis.labels.visible` — show y-axis labels (boolean)
+        - `y_axis.title.visible` — show y-axis title (boolean)
 
         ### Legend (`legend:`)
         - `visible` — `show` or `hide` (NOTE: heatmap does NOT support `auto`)

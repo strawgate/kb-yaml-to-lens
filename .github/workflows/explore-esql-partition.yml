@@ -78,8 +78,8 @@ jobs:
         - `color.assignments` — manual value-to-color mappings
         - `legend` — `visible`, `position`, `width`, `truncate_labels`, `nested`,
           `show_single_series`
-        - `titles_and_text.value_format` — `percent`, `value`, `hidden`
-        - `titles_and_text.value_decimal_places` — 0-10
+        - `appearance.values.format` — `percent`, `value`, `hidden`
+        - `appearance.values.decimal_places` — 0-10
         **Known Kibana limitations for Waffle:**
         - Waffle does NOT have a Maximum value slot (unlike Metric)
         - Waffle does NOT have a Breakdown slot — using `breakdown` may
@@ -92,8 +92,8 @@ jobs:
         - `color.palette` — categorical color palette
         - `color.assignments` — manual value-to-color mappings
         - `legend` — same options as waffle
-        - `titles_and_text.value_format` — `percent`, `value`, `hidden`
-        - `titles_and_text.value_decimal_places` — 0-10
+        - `appearance.values.format` — `percent`, `value`, `hidden`
+        - `appearance.values.decimal_places` — 0-10
 
         ## Creative exploration
         - ES|QL waffle with `STATS count = COUNT() BY status`
