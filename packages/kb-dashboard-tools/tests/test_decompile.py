@@ -219,6 +219,29 @@ def test_decompile_dashboard_extracts_additional_easy_panel_fields() -> None:
     assert panels[3]['links']['items'][1]['with_filters'] is False
 
 
+def test_decompile_search_panel_uses_view_model_normalization() -> None:
+    """Decompile resolves search id via normalized KbnSearchPanel view model."""
+    dashboard = {
+        'attributes': {
+            'title': 'Search view model',
+            'panelsJSON': json.dumps(
+                [
+                    {
+                        'panelIndex': 'search-vm-panel',
+                        'type': 'search',
+                        'gridData': {'x': 0, 'y': 0, 'w': 24, 'h': 10},
+                        'embeddableConfig': {'savedObjectId': 'saved-search-from-embeddable-config'},
+                    }
+                ]
+            ),
+        }
+    }
+
+    result = decompile_dashboard(dashboard)
+    panel = result['dashboards'][0]['panels'][0]
+    assert panel['search']['saved_search_id'] == 'saved-search-from-embeddable-config'
+
+
 def test_decompile_dashboard_missing_attributes() -> None:
     """Decompile handles missing or non-dict attributes gracefully."""
     result = decompile_dashboard({'type': 'dashboard'})
@@ -888,6 +911,53 @@ def test_decompile_lnspie_treemap() -> None:
     panel = _make_lens_panel('lnsPie', state={'visualization': {'shape': 'treemap'}})
     result = _decompile_single_panel(panel)
     assert result['lens']['type'] == 'treemap'
+
+
+def test_decompile_lnspie_view_model_coerces_legend_flags() -> None:
+    """Pie legend extraction should use validated view-model coercion."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [
+                    {
+                        'layerId': 'layer1',
+                        'layerType': 'data',
+                        'primaryGroups': ['col_breakdown'],
+                        'metrics': ['col_metric'],
+                        'numberDisplay': 'percent',
+                        'categoryDisplay': 'default',
+                        'legendDisplay': 'show',
+                        'nestedLegend': False,
+                        'showSingleSeries': 'true',
+                    }
+                ],
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                                'col_breakdown': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                },
+                            }
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['show_single_series'] is True
 
 
 def test_decompile_lnswaffle_uses_breakdown_key() -> None:
