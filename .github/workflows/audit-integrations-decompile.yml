@@ -17,7 +17,8 @@ jobs:
       setup-commands: |
         command -v just >/dev/null 2>&1 || make install-just
         just all install
-        git clone --depth=1 https://github.com/elastic/integrations.git integrations
+        git clone --depth=1 --filter=blob:none --sparse https://github.com/elastic/integrations.git integrations
+        cd integrations && git sparse-checkout set 'packages/*/kibana/dashboard' && cd ..
         mkdir -p .audit/decompile/output
 
         total=0; successes=0; failures=0

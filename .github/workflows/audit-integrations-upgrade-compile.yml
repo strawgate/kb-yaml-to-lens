@@ -19,7 +19,8 @@ jobs:
         just all install
         rm -rf .audit/integrations integrations
         mkdir -p .audit/integrations
-        git clone --depth=1 https://github.com/elastic/integrations.git integrations
+        git clone --depth=1 --filter=blob:none --sparse https://github.com/elastic/integrations.git integrations
+        cd integrations && git sparse-checkout set 'packages/*/_dev/shared' && cd ..
 
         python <<'PY'
         import csv
