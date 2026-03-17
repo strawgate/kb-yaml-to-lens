@@ -99,7 +99,7 @@ def compile_pie_chart_visualization_state(  # noqa: PLR0913
         numberDisplay=number_display,
         categoryDisplay=category_display,
         legendDisplay=legend_options.legend_display,
-        legendPosition=legend_options.legend_position,
+        legendPosition=legend_options.legend_position or 'right',
         nestedLegend=default_false(legend_options.nested_legend),
         layerType='data',
         colorMapping=kbn_color_mapping,

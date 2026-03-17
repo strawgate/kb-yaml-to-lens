@@ -59,6 +59,7 @@ async def test_basic_pie_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -82,6 +83,7 @@ async def test_basic_pie_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -126,6 +128,7 @@ async def test_basic_donut_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'emptySizeRatio': 0.5,
         }
@@ -151,6 +154,7 @@ async def test_basic_donut_chart() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'emptySizeRatio': 0.5,
         }
@@ -286,6 +290,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
             'numberDisplay': 'value',
             'categoryDisplay': 'inside',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -309,6 +314,7 @@ async def test_pie_chart_with_inside_labels_and_integer_values() -> None:
             'numberDisplay': 'value',
             'categoryDisplay': 'inside',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -421,6 +427,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'show',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'legendSize': 'xlarge',
             'truncateLegend': False,
@@ -446,6 +453,7 @@ async def test_pie_chart_with_large_legend_and_no_label_truncation() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'show',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'legendSize': 'xlarge',
             'truncateLegend': False,
@@ -496,6 +504,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -520,6 +529,7 @@ async def test_pie_chart_with_secondary_groups() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -568,6 +578,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'emptySizeRatio': 0.0,
         }
@@ -593,6 +604,7 @@ async def test_pie_chart_with_multiple_metrics() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'emptySizeRatio': 0.0,
         }
@@ -640,6 +652,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -664,6 +677,7 @@ async def test_pie_chart_with_collapse_functions() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -721,6 +735,7 @@ async def test_pie_chart_with_show_single_series() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'showSingleSeries': True,
         }
@@ -759,6 +774,7 @@ async def test_pie_chart_with_show_single_series_false() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'showSingleSeries': False,
         }
@@ -796,6 +812,7 @@ async def test_pie_chart_with_show_single_series_omitted() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
         }
     )
@@ -839,6 +856,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'percentDecimals': 5,
         }
@@ -863,6 +881,7 @@ async def test_pie_chart_with_value_decimal_places() -> None:
             'numberDisplay': 'percent',
             'categoryDisplay': 'default',
             'legendDisplay': 'default',
+            'legendPosition': 'right',
             'nestedLegend': False,
             'percentDecimals': 5,
         }
