@@ -1,11 +1,18 @@
 """Pytest fixtures and options for kb-dashboard-tools tests."""
 
+import io
+import json
 import os
 import shutil
 import subprocess
+from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
+from ruamel.yaml import YAML
+
+from kb_dashboard_tools.decompile import decompile_dashboard
 
 from .integrations_targets import INTEGRATIONS_DASHBOARD_TARGETS, INTEGRATIONS_PINNED_SHA
 
@@ -89,3 +96,71 @@ def integrations_pinned_sha(request: pytest.FixtureRequest) -> str:
     if len(pinned_sha) == 0:
         pytest.skip('set --integrations-sha (or KB_INTEGRATIONS_SHA) to pin fixture source')
     return pinned_sha
+
+
+def _iter_dashboard_objects(path: Path) -> Iterator[dict[str, Any]]:
+    text = path.read_text(encoding='utf-8')
+    if path.suffix == '.ndjson':
+        for raw_line in text.splitlines():
+            stripped = raw_line.strip()
+            if len(stripped) == 0:
+                continue
+            obj = json.loads(stripped)
+            if isinstance(obj, dict) and obj.get('type') == 'dashboard':
+                yield cast('dict[str, Any]', obj)
+        return
+
+    parsed = json.loads(text)
+    if isinstance(parsed, dict):
+        if parsed.get('type') == 'dashboard':
+            yield cast('dict[str, Any]', parsed)
+            return
+        objects = parsed.get('objects')
+        if isinstance(objects, list):
+            for obj in objects:
+                if isinstance(obj, dict) and obj.get('type') == 'dashboard':
+                    yield cast('dict[str, Any]', obj)
+            return
+    if isinstance(parsed, list):
+        for obj in parsed:
+            if isinstance(obj, dict) and obj.get('type') == 'dashboard':
+                yield cast('dict[str, Any]', obj)
+
+
+def _decompile_yaml_text(dashboard: dict[str, Any]) -> str:
+    canonical = json.loads(json.dumps(decompile_dashboard(dashboard)))
+    yaml = YAML(typ='safe')
+    yaml_any = cast('Any', yaml)
+    yaml_any.sort_base_mapping_type_on_output = False
+    stream = io.StringIO()
+    yaml.dump(canonical, stream)
+    return stream.getvalue()
+
+
+@pytest.fixture(scope='session')
+def integrations_target_files(integrations_repo_path: Path, integrations_pinned_sha: str) -> dict[str, Path]:
+    """Resolve hardcoded dashboard files to test from integrations fixture clone."""
+    if integrations_pinned_sha != INTEGRATIONS_PINNED_SHA:
+        message_template = 'inline snapshots are pinned to {pinned}; got {got}. Use --integrations-sha {pinned}.'
+        message = message_template.format(pinned=INTEGRATIONS_PINNED_SHA, got=integrations_pinned_sha)
+        pytest.skip(message)
+
+    resolved = {rel: integrations_repo_path / rel for rel in INTEGRATIONS_DASHBOARD_TARGETS}
+    missing = [path for path in resolved.values() if not path.exists()]
+    if missing:
+        pytest.fail(f'missing hardcoded integrations dashboards: {missing}')
+    return resolved
+
+
+@pytest.fixture(scope='session')
+def integrations_yaml_for(integrations_target_files: dict[str, Path]) -> Callable[[str], str]:
+    """Return decompiled YAML text for a hardcoded integrations dashboard path."""
+
+    def _yaml_for_target(source_rel: str) -> str:
+        source_path = integrations_target_files[source_rel]
+        first_dashboard = next(_iter_dashboard_objects(source_path), None)
+        if first_dashboard is None:
+            pytest.fail(f'no dashboard object found in {source_rel}')
+        return _decompile_yaml_text(first_dashboard)
+
+    return _yaml_for_target
