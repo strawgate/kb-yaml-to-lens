@@ -18,34 +18,34 @@ jobs:
         command -v just >/dev/null 2>&1 || make install-just
         just all install
         git clone --depth=1 https://github.com/elastic/integrations.git integrations
-        mkdir -p .audit/decompile
+        mkdir -p .audit/decompile/output
 
         total=0; successes=0; failures=0
         > .audit/decompile/errors.log
+        > .audit/decompile/failures.csv
+
+        echo "file,error_message" >> .audit/decompile/failures.csv
 
         for f in integrations/packages/*/kibana/dashboard/*.json; do
           [ -f "$f" ] || continue
           total=$((total + 1))
           rel="${f#integrations/}"
-          if kb-dashboard decompile "$f" -o /dev/null 2>/dev/null; then
+          out=".audit/decompile/output/$(basename "$f" .json).yaml"
+          if uv run kb-dashboard decompile "$f" -o "$out" 2>/dev/null; then
             successes=$((successes + 1))
           else
             failures=$((failures + 1))
-            echo "FAIL: $rel" >> .audit/decompile/errors.log
-            kb-dashboard decompile "$f" -o /dev/null 2>> .audit/decompile/errors.log || true
-            echo "" >> .audit/decompile/errors.log
+            errmsg=$(uv run kb-dashboard decompile "$f" -o "$out" 2>&1 | tail -1 || true)
+            echo "FAIL: $rel -- $errmsg" >> .audit/decompile/errors.log
+            echo "\"$rel\",\"$errmsg\"" >> .audit/decompile/failures.csv
           fi
         done
 
-        if [ "$total" -gt 0 ]; then
-          rate=$((successes * 100 / total))
-        else
-          rate=0
-        fi
+        rate=0
+        [ "$total" -gt 0 ] && rate=$((successes * 100 / total))
 
-        cat > .audit/decompile/summary.json <<EOF
-        {"total": $total, "successes": $successes, "failures": $failures, "success_rate": "${rate}%"}
-        EOF
+        printf '{"total": %d, "successes": %d, "failures": %d, "success_rate": "%d%%"}\n' \
+          "$total" "$successes" "$failures" "$rate" > .audit/decompile/summary.json
 
         echo "Decompiled $successes/$total dashboards ($rate% success, $failures failures)"
       additional-instructions: |
@@ -54,21 +54,23 @@ jobs:
 
         Artifacts:
         - `.audit/decompile/summary.json` — total/success/failure counts
-        - `.audit/decompile/errors.log` — CLI error output for each failure
+        - `.audit/decompile/failures.csv` — each failure with file path and error message
+        - `.audit/decompile/errors.log` — one-line-per-failure log
+        - `.audit/decompile/output/` — successfully decompiled YAML files
 
         ## Mission
         Produce one high-signal issue that summarizes decompiler fuzz results.
 
         ## Required process
         - Read `summary.json` for the overview.
-        - Read `errors.log` and group failures by error type/message.
+        - Read `failures.csv` and group by error message.
         - Classify each error group as: decompiler bug, unsupported feature, or malformed input.
         - Prioritize by count (most frequent first).
         - Do not open PRs; open a single issue only.
 
         ## Issue content
         1. **Summary table:** total dashboards, successes, failures, success rate
-        2. **Grouped errors table:** error type, count, example files, likely root cause
+        2. **Grouped errors table:** error message, count, example files, likely root cause
         3. **Actionable recommendations** prioritized by impact
 
         ## Issue title
