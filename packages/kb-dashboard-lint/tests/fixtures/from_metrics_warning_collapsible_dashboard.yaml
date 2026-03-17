@@ -1,9 +1,9 @@
 ---
 dashboards:
   - id: from-metrics-warning-collapsible
-    name: "[Test] FROM metrics warning in section"
+    name: '[Test] FROM metrics warning in section'
     description: Dashboard fixture to verify FROM metrics-* lint warning inside section panels.
-    minimum_kibana_version: "9.2.0"
+    minimum_kibana_version: 9.2.0
     panels:
       - title: Section A
         section:
