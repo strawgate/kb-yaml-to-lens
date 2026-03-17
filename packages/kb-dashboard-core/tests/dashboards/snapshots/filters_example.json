@@ -281,7 +281,7 @@
                         }
                     },
                     "attributes": {
-                        "title": "Slow Requests (≥500ms)",
+                        "title": "Slow Requests (\u2265500ms)",
                         "visualizationType": "lnsMetric",
                         "type": "lens",
                         "references": [
@@ -917,14 +917,14 @@
                             {
                                 "type": "index-pattern",
                                 "id": "logs-*",
-                                "name": "indexpattern-datasource-layer-296382a4-3074-0304-de25-d251e30afd21"
+                                "name": "indexpattern-datasource-layer-73f64757-8062-976a-91bc-0b53e40e8ef8"
                             }
                         ],
                         "state": {
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "296382a4-3074-0304-de25-d251e30afd21",
+                                        "layerId": "73f64757-8062-976a-91bc-0b53e40e8ef8",
                                         "accessors": [
                                             "cdceb520-d498-363b-8576-f1288ef35443"
                                         ],
@@ -933,7 +933,7 @@
                                         "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
                                         "position": "top",
                                         "showGridlines": false,
-                                        "splitAccessor": "0793e7fa-21ed-3d60-9a75-3765fa2cac6f",
+                                        "splitAccessor": "dc1490eb-98dd-8d1a-53b2-4a73efe91973",
                                         "colorMapping": {
                                             "assignments": [],
                                             "specialAssignments": [
@@ -1029,7 +1029,7 @@
                             "datasourceStates": {
                                 "formBased": {
                                     "layers": {
-                                        "296382a4-3074-0304-de25-d251e30afd21": {
+                                        "73f64757-8062-976a-91bc-0b53e40e8ef8": {
                                             "columns": {
                                                 "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
                                                     "label": "@timestamp",
@@ -1044,7 +1044,7 @@
                                                     },
                                                     "sourceField": "@timestamp"
                                                 },
-                                                "0793e7fa-21ed-3d60-9a75-3765fa2cac6f": {
+                                                "dc1490eb-98dd-8d1a-53b2-4a73efe91973": {
                                                     "label": "Top 3 values of http.request.method",
                                                     "dataType": "string",
                                                     "operationType": "terms",
@@ -1083,7 +1083,7 @@
                                             },
                                             "columnOrder": [
                                                 "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
-                                                "0793e7fa-21ed-3d60-9a75-3765fa2cac6f",
+                                                "dc1490eb-98dd-8d1a-53b2-4a73efe91973",
                                                 "cdceb520-d498-363b-8576-f1288ef35443"
                                             ],
                                             "incompleteColumns": {},
@@ -1136,14 +1136,14 @@
                             {
                                 "type": "index-pattern",
                                 "id": "logs-*",
-                                "name": "indexpattern-datasource-layer-40f074c4-deb4-ff9b-e855-a8e9fa896085"
+                                "name": "indexpattern-datasource-layer-40953c38-c573-e719-a46c-b95a52906e3e"
                             }
                         ],
                         "state": {
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "40f074c4-deb4-ff9b-e855-a8e9fa896085",
+                                        "layerId": "40953c38-c573-e719-a46c-b95a52906e3e",
                                         "accessors": [
                                             "7b90b2bc-12e3-df8a-72ea-7744d00da7f4"
                                         ],
@@ -1152,7 +1152,7 @@
                                         "xAccessor": "d08489ac-fbda-405c-71b5-f0a4618e5599",
                                         "position": "top",
                                         "showGridlines": false,
-                                        "splitAccessor": "85336fd9-e6f1-d21f-8c8f-eec7058c5cce",
+                                        "splitAccessor": "258d9cbb-774d-18e5-b642-ed02a989da49",
                                         "colorMapping": {
                                             "assignments": [],
                                             "specialAssignments": [
@@ -1209,7 +1209,7 @@
                             "datasourceStates": {
                                 "formBased": {
                                     "layers": {
-                                        "40f074c4-deb4-ff9b-e855-a8e9fa896085": {
+                                        "40953c38-c573-e719-a46c-b95a52906e3e": {
                                             "columns": {
                                                 "d08489ac-fbda-405c-71b5-f0a4618e5599": {
                                                     "label": "Time",
@@ -1225,7 +1225,7 @@
                                                     },
                                                     "sourceField": "@timestamp"
                                                 },
-                                                "85336fd9-e6f1-d21f-8c8f-eec7058c5cce": {
+                                                "258d9cbb-774d-18e5-b642-ed02a989da49": {
                                                     "label": "Top 5 values of log.level",
                                                     "dataType": "string",
                                                     "operationType": "terms",
@@ -1265,7 +1265,7 @@
                                             },
                                             "columnOrder": [
                                                 "d08489ac-fbda-405c-71b5-f0a4618e5599",
-                                                "85336fd9-e6f1-d21f-8c8f-eec7058c5cce",
+                                                "258d9cbb-774d-18e5-b642-ed02a989da49",
                                                 "7b90b2bc-12e3-df8a-72ea-7744d00da7f4"
                                             ],
                                             "incompleteColumns": {},
@@ -1365,12 +1365,12 @@
         {
             "type": "index-pattern",
             "id": "logs-*",
-            "name": "3d17546d-4870-2458-2abc-b49d134e13cc:indexpattern-datasource-layer-296382a4-3074-0304-de25-d251e30afd21"
+            "name": "3d17546d-4870-2458-2abc-b49d134e13cc:indexpattern-datasource-layer-73f64757-8062-976a-91bc-0b53e40e8ef8"
         },
         {
             "type": "index-pattern",
             "id": "logs-*",
-            "name": "f3927c7b-f493-63d8-1c66-2e8b8b05ed09:indexpattern-datasource-layer-40f074c4-deb4-ff9b-e855-a8e9fa896085"
+            "name": "f3927c7b-f493-63d8-1c66-2e8b8b05ed09:indexpattern-datasource-layer-40953c38-c573-e719-a46c-b95a52906e3e"
         }
     ],
     "type": "dashboard",

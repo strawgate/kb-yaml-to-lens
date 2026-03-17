@@ -68,14 +68,14 @@
                             {
                                 "type": "index-pattern",
                                 "id": "logs-*",
-                                "name": "indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
+                                "name": "indexpattern-datasource-layer-ac82ea52-b38b-0ef8-50fe-72fc22ca902a"
                             }
                         ],
                         "state": {
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "16c3c093-76cf-c263-9145-6f57744b86ae",
+                                        "layerId": "ac82ea52-b38b-0ef8-50fe-72fc22ca902a",
                                         "accessors": [
                                             "cdceb520-d498-363b-8576-f1288ef35443"
                                         ],
@@ -84,7 +84,7 @@
                                         "xAccessor": "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
                                         "position": "top",
                                         "showGridlines": false,
-                                        "splitAccessor": "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
+                                        "splitAccessor": "5f6c1a91-ad04-52b8-8b15-c1f5c1d60784",
                                         "colorMapping": {
                                             "assignments": [],
                                             "specialAssignments": [
@@ -119,7 +119,7 @@
                             "datasourceStates": {
                                 "formBased": {
                                     "layers": {
-                                        "16c3c093-76cf-c263-9145-6f57744b86ae": {
+                                        "ac82ea52-b38b-0ef8-50fe-72fc22ca902a": {
                                             "columns": {
                                                 "8d8b7676-c4af-9ec1-d403-657f98d8eab3": {
                                                     "label": "@timestamp",
@@ -134,7 +134,7 @@
                                                     },
                                                     "sourceField": "@timestamp"
                                                 },
-                                                "ac2350d6-3da8-5120-08d8-9904a56c2ecd": {
+                                                "5f6c1a91-ad04-52b8-8b15-c1f5c1d60784": {
                                                     "label": "Top 3 values of log.level",
                                                     "dataType": "string",
                                                     "operationType": "terms",
@@ -173,7 +173,7 @@
                                             },
                                             "columnOrder": [
                                                 "8d8b7676-c4af-9ec1-d403-657f98d8eab3",
-                                                "ac2350d6-3da8-5120-08d8-9904a56c2ecd",
+                                                "5f6c1a91-ad04-52b8-8b15-c1f5c1d60784",
                                                 "cdceb520-d498-363b-8576-f1288ef35443"
                                             ],
                                             "incompleteColumns": {},
@@ -390,7 +390,7 @@
         {
             "type": "index-pattern",
             "id": "logs-*",
-            "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-16c3c093-76cf-c263-9145-6f57744b86ae"
+            "name": "f522e08d-ce33-647b-539a-418e1562b1f3:indexpattern-datasource-layer-ac82ea52-b38b-0ef8-50fe-72fc22ca902a"
         },
         {
             "type": "index-pattern",

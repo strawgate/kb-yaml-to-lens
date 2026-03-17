@@ -4,7 +4,7 @@ from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLMetricTypes
-from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensFormulaMetric, LensMetricTypes
 from kb_dashboard_core.panels.charts.lens.metrics.formula_parser import parse_formula
 from kb_dashboard_core.panels.charts.metric.metrics import ESQLMetricChartMetricTypes, LensMetricChartMetricTypes
@@ -194,7 +194,7 @@ class LensMetricChart(BaseMetricChart):
     maximum: LensMetricTypes | None = Field(default=None)
     """An optional maximum metric to display, often used for comparison or thresholds."""
 
-    breakdown: LensDimensionTypes | None = Field(default=None)
+    breakdown: LensBreakdownTypes | None = Field(default=None)
     """An optional breakdown dimension to split metric values by category."""
 
     @staticmethod

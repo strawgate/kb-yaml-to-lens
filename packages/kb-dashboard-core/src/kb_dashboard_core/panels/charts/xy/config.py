@@ -4,6 +4,7 @@ from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLDimensionTypes
+from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions import LensDimensionTypes
 from kb_dashboard_core.panels.charts.xy.metrics import ESQLXYMetricTypes, LensXYMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel, BaseIdentifiableModel
@@ -265,10 +266,10 @@ class LensXYChartMixin(BaseCfgModel):
         min_length=1,
         description='Defines the metrics for the chart. At least one metric is required.',
     )
-    breakdown: LensDimensionTypes | None = Field(
+    breakdown: LensBreakdownTypes | None = Field(
         None,
         description=(
-            'An optional dimension to split the series by. If provided, it will be used to break down the data into multiple series.'
+            'An optional breakdown to split the series by. If provided, it will be used to break down the data into multiple series.'
         ),
     )
 
