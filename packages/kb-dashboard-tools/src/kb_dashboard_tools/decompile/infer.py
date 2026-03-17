@@ -9,11 +9,8 @@ import re
 from typing import Any
 
 from kb_dashboard_core.dashboard.config import Dashboard
-from kb_dashboard_core.panels.charts.mosaic.view import KbnMosaicVisualizationState
-from kb_dashboard_core.panels.charts.pie.view import KbnPieVisualizationState
-from kb_dashboard_core.panels.charts.waffle.view import KbnWaffleVisualizationState
-from kb_dashboard_core.panels.search.view import KbnSearchPanel
 
+from .adapters import extract_search_saved_object_id, normalize_partition_visualization
 from .parse import (
     ParsedColumn,
     ParsedControl,
@@ -640,18 +637,10 @@ def _extract_datatable_options(
     return sorting, paging, (appearance if appearance else None)
 
 
-def _partition_vis_raw_from_view_model(vis_state: ParsedVisualizationState) -> dict[str, Any]:
-    """Prefer validated partition view-model payload; fallback to raw visualization dict."""
-    view_model = vis_state.view_model
-    if isinstance(view_model, (KbnPieVisualizationState, KbnMosaicVisualizationState, KbnWaffleVisualizationState)):
-        return view_model.model_dump(exclude_none=True, by_alias=True)
-    return vis_state.raw
-
-
 def _visualization_payload_for_chart(vis_state: ParsedVisualizationState, chart_type: str) -> dict[str, Any]:
-    """Select visualization payload for inference (view-model-first for partition charts)."""
+    """Select normalized visualization payload for chart inference."""
     if chart_type in PARTITION_CHART_TYPES:
-        return _partition_vis_raw_from_view_model(vis_state)
+        return normalize_partition_visualization(vis_state.raw)
     return vis_state.raw
 
 
@@ -920,14 +909,11 @@ def _infer_markdown_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]
 
 def _infer_search_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) -> dict[str, Any]:
     """Infer search panel config from parsed simple panel."""
-    if isinstance(simple.view_panel, KbnSearchPanel):
-        return {'saved_search_id': simple.view_panel.embeddableConfig.savedObjectId}
+    saved_object_id = extract_search_saved_object_id(simple.raw)
+    if saved_object_id is not None:
+        return {'saved_search_id': saved_object_id}
 
     panel = simple.raw
-    saved_search_id = panel.get('savedSearchId')
-    if isinstance(saved_search_id, str):
-        return {'saved_search_id': saved_search_id}
-
     ec = as_dict(panel.get('embeddableConfig'))
     if ec is not None:
         ref_name = ec.get('savedSearchRefName')

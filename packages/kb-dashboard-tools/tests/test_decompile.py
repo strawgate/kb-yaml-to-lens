@@ -219,8 +219,8 @@ def test_decompile_dashboard_extracts_additional_easy_panel_fields() -> None:
     assert panels[3]['links']['items'][1]['with_filters'] is False
 
 
-def test_decompile_search_panel_uses_view_model_normalization() -> None:
-    """Decompile resolves search id via normalized KbnSearchPanel view model."""
+def test_decompile_search_panel_uses_adapter_normalization() -> None:
+    """Decompile resolves search id via adapter normalization of raw panel payload."""
     dashboard = {
         'attributes': {
             'title': 'Search view model',
@@ -240,6 +240,28 @@ def test_decompile_search_panel_uses_view_model_normalization() -> None:
     result = decompile_dashboard(dashboard)
     panel = result['dashboards'][0]['panels'][0]
     assert panel['search']['saved_search_id'] == 'saved-search-from-embeddable-config'
+
+
+def test_decompile_search_panel_uses_saved_search_id_fallback() -> None:
+    """Decompile resolves search id from legacy savedSearchId field."""
+    dashboard = {
+        'attributes': {
+            'title': 'Search legacy fallback',
+            'panelsJSON': json.dumps(
+                [
+                    {
+                        'panelIndex': 'search-legacy-panel',
+                        'type': 'search',
+                        'savedSearchId': 'saved-search-from-legacy-field',
+                    }
+                ]
+            ),
+        }
+    }
+
+    result = decompile_dashboard(dashboard)
+    panel = result['dashboards'][0]['panels'][0]
+    assert panel['search']['saved_search_id'] == 'saved-search-from-legacy-field'
 
 
 def test_decompile_dashboard_missing_attributes() -> None:
@@ -913,8 +935,8 @@ def test_decompile_lnspie_treemap() -> None:
     assert result['lens']['type'] == 'treemap'
 
 
-def test_decompile_lnspie_view_model_coerces_legend_flags() -> None:
-    """Pie legend extraction should use validated view-model coercion."""
+def test_decompile_lnspie_adapter_coerces_legend_flags() -> None:
+    """Pie legend extraction should coerce raw string boolean flags."""
     panel = _make_lens_panel(
         'lnsPie',
         state={
