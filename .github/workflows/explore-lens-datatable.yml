@@ -56,6 +56,11 @@ jobs:
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## Complete field reference
+        Read `packages/kb-dashboard-docs/content/panels/datatable.md` for the
+        full, always-current field reference and examples. This is the authoritative
+        source — the inline notes below are a summary only.
+
         ## Compiler-supported features to test
 
         ### Config slots
@@ -75,8 +80,8 @@ jobs:
         - `appearance.color` — cell/text coloring:
           - `apply_to` — `none`, `cell`, `text`
           - `range_type` — `number` or `percent`
-          - `range_min`, `range_max`, `continuity`
-          - `stops` — color range `[{stop, color}]`
+          - `range_min`, `range_max`
+          - `thresholds` — color range `[{up_to, color}]`
 
         ### Table layout (`appearance:`)
         - `row_height` — `auto`, `single`, `custom`

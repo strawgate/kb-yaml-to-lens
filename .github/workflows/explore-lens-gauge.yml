@@ -57,6 +57,11 @@ jobs:
         correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## Complete field reference
+        Read `packages/kb-dashboard-docs/content/panels/gauge.md` for the
+        full, always-current field reference and examples. This is the authoritative
+        source — the inline notes below are a summary only.
+
         ## Compiler-supported features to test
 
         ### Config slots (Kibana editor drop zones)
@@ -72,21 +77,20 @@ jobs:
         - `circle` — full circle
         - `semi_circle` — half circle
 
-        ### Titles and text
-        - `label_major` — main title text (maps to Kibana Title: Auto/Custom/None)
-        - `label_minor` — subtitle text (maps to Kibana Subtitle: Custom/None)
+        ### Titles and text (`titles_and_text:`)
+        - `title` — main title: string for custom text, `false` to hide, omit for auto
+        - `subtitle` — subtitle: string for custom text, omit to hide
 
         ### Tick marks (`appearance.ticks_position`)
         - `auto` — Kibana default
         - `bands` — show at color band boundaries
         - `hidden` — no tick marks
 
-        ### Color palette (`appearance.palette`)
-        Color range-based mapping for gauge bands:
+        ### Color (`color:`)
+        Range-based color mapping for gauge bands. Top-level field, not under `appearance`:
         - `range_type` — `number` or `percent`
         - `range_min`, `range_max` — bounds (null for open)
-        - `continuity` — `above`, `below`, `all`, `none`
-        - `stops` — list of `{stop, color}` objects (must be ascending)
+        - `thresholds` — list of `{up_to, color}` objects (must be ascending)
 
         ### Metric aggregation types
         All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
@@ -105,7 +109,7 @@ jobs:
         - Semi-circle with formula metric `average(field='cpu.pct') * 100`
         - Gauge with static minimum=0, static maximum=100, dynamic goal
         - All 5 shapes side-by-side on one dashboard
-        - Color bands with `continuity: none` vs `continuity: all`
+        - Color bands with 2 thresholds (green/yellow/red) using `thresholds: [{up_to, color}]`
 
         ## Issue title
         The workflow automatically prefixes your title. Just provide the

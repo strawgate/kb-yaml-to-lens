@@ -56,6 +56,11 @@ jobs:
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## Complete field reference
+        Read `packages/kb-dashboard-docs/content/panels/metric.md` for the
+        full, always-current field reference and examples. This is the authoritative
+        source — the inline notes below are a summary only.
+
         ## ES|QL query configuration
         Queries can be specified as:
         - A single string: `query: "FROM logs-* | STATS count = COUNT()"`
@@ -87,11 +92,10 @@ jobs:
         - `primary.font_size` — `default`, `xs`, `s`, `m`, `l`, `xl`, `xxl`
 
         ### Color (`color:`)
-        - `palette` — categorical or range color palette
+        - `apply_to` — `value` or `background` (default: `background`)
         - `range_type` — `number` or `percent`
         - `range_min`, `range_max` — custom range bounds
-        - `continuity` — `above`, `below`, `all`, `none`
-        - `stops` — list of `{stop, color}` for threshold coloring
+        - `thresholds` — list of `{up_to, color}` for threshold coloring
 
         ### Titles and text (`titles_and_text:`)
         - `prefix` — text before the value

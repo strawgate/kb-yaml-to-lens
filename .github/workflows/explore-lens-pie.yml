@@ -56,6 +56,11 @@ jobs:
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## Complete field reference
+        Read `packages/kb-dashboard-docs/content/panels/pie.md` for the
+        full, always-current field reference and examples. This is the authoritative
+        source — the inline notes below are a summary only.
+
         ## Compiler-supported features to test
 
         ### Config slots (Kibana editor drop zones)
@@ -80,8 +85,8 @@ jobs:
         `standard_deviation`, `formula`
 
         ### Slice labels and values (`appearance:`)
-        - `appearance.categories` — `hide`, `inside`, `auto` (default: auto)
-        - `appearance.values.visible` — `hide`, `integer`, `percent` (default: percent)
+        - `appearance.categories.position` — `hide`, `inside`, `auto` (default: auto)
+        - `appearance.values.format` — `hide`, `integer`, `percent` (default: percent)
         - `appearance.values.decimal_places` — 0-10 (default: 2)
 
         ### Legend (`legend:`)
@@ -100,7 +105,7 @@ jobs:
         After covering the feature matrix, try interesting combinations:
         - Donut with 2 nested ring breakdowns + custom color assignments
         - Pie with filters breakdown (e.g. error vs warning vs info)
-        - Large donut with `slice_labels: inside` + `slice_values: percent`
+        - Large donut with `appearance.categories.position: inside` + `appearance.values.format: percent`
         - Pie with `show_other_bucket: true` + small `size` to show grouping
         - Multiple metrics on a single pie (test emptySizeRatio behavior)
         - Formula-based metric as pie slice size
