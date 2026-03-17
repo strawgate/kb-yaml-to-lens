@@ -59,6 +59,7 @@ def _replace_dynamic_ids(result: dict[str, Any]) -> dict[str, Any]:
     """Replace dynamic IDs with placeholders for consistent snapshots."""
     # Replace top-level dynamic fields
     result['id'] = 'DYNAMIC_ID'
+    result['compiler_version'] = 'DYNAMIC_COMPILER_VERSION'
     result['created_at'] = 'DYNAMIC_TIMESTAMP'
     result['created_by'] = 'DYNAMIC_USER'
     result['updated_at'] = 'DYNAMIC_TIMESTAMP'
@@ -246,6 +247,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
                     'showApplySelections': False,
                 },
             },
+            'compiler_version': 'DYNAMIC_COMPILER_VERSION',
             'coreMigrationVersion': '8.8.0',
             'created_at': 'DYNAMIC_TIMESTAMP',
             'created_by': 'DYNAMIC_USER',
@@ -310,6 +312,7 @@ async def test_dashboard_with_one_query() -> None:
                     'showApplySelections': False,
                 },
             },
+            'compiler_version': 'DYNAMIC_COMPILER_VERSION',
             'coreMigrationVersion': '8.8.0',
             'created_at': 'DYNAMIC_TIMESTAMP',
             'created_by': 'DYNAMIC_USER',
@@ -393,6 +396,7 @@ async def test_dashboard_with_one_filter() -> None:
                     'showApplySelections': False,
                 },
             },
+            'compiler_version': 'DYNAMIC_COMPILER_VERSION',
             'coreMigrationVersion': '8.8.0',
             'created_at': 'DYNAMIC_TIMESTAMP',
             'created_by': 'DYNAMIC_USER',
@@ -493,6 +497,7 @@ async def test_dashboard_with_custom_options() -> None:
                     'showApplySelections': False,
                 },
             },
+            'compiler_version': 'DYNAMIC_COMPILER_VERSION',
             'coreMigrationVersion': '8.8.0',
             'created_at': 'DYNAMIC_TIMESTAMP',
             'created_by': 'DYNAMIC_USER',
@@ -584,6 +589,7 @@ async def test_dashboard_with_default_options() -> None:
                     'showApplySelections': False,
                 },
             },
+            'compiler_version': 'DYNAMIC_COMPILER_VERSION',
             'coreMigrationVersion': '8.8.0',
             'created_at': 'DYNAMIC_TIMESTAMP',
             'created_by': 'DYNAMIC_USER',

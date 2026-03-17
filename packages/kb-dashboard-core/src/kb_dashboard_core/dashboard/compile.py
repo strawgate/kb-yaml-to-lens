@@ -1,6 +1,8 @@
 """Compile a Dashboard into its Kibana view model representation."""
 
 from collections.abc import Sequence
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as pkg_version
 
 from kb_dashboard_core.controls.compile import compile_control_group
 from kb_dashboard_core.dashboard.config import Dashboard, DashboardPanelTypes, DashboardSettings
@@ -29,6 +31,14 @@ from kb_dashboard_core.shared.view import KbnReference
 
 CORE_MIGRATION_VERSION: str = '8.8.0'
 TYPE_MIGRATION_VERSION: str = '10.2.0'
+
+
+def _get_compiler_version() -> str:
+    """Return the kb-dashboard-core package version, or a dev fallback."""
+    try:
+        return pkg_version('kb-dashboard-core')
+    except PackageNotFoundError:
+        return '0.0.0-dev'
 
 
 @log_compile
@@ -198,6 +208,7 @@ def compile_dashboard(dashboard: Dashboard) -> KbnDashboard:
 
     return KbnDashboard(
         attributes=attributes,
+        compiler_version=_get_compiler_version(),
         coreMigrationVersion=CORE_MIGRATION_VERSION,
         created_at='2023-10-01T00:00:00Z',
         created_by='admin',

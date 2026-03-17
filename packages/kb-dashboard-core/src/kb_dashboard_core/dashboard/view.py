@@ -67,6 +67,7 @@ class KbnDashboard(BaseModel):
     """Represents the top-level Kibana dashboard JSON structure."""
 
     attributes: KbnDashboardAttributes
+    compiler_version: str
     coreMigrationVersion: str
     created_at: str
     created_by: str
