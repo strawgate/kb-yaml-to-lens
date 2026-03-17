@@ -1,5 +1,5 @@
 ---
-# PR  # 1219 Verification Dashboard
+# PR-1219 Verification Dashboard
 # Tests two bug fixes:
 # 1. Maximum metric compilation (previously silently ignored)
 # 2. Custom format with pattern, suffix, compact (pattern was incorrectly on standard formats)
@@ -7,7 +7,7 @@ dashboards:
   - id: pr-1219-verification
     name: '[Test] PR 1219 - Metric Bug Fixes Verification'
     description: |
-      Verifies the fixes in PR  # 1219:
+      Verifies the fixes in PR-1219:
       - Maximum metric now compiles to maxAccessor
       - Custom formats correctly support pattern, suffix, and compact
     panels:
