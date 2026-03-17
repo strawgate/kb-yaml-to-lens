@@ -13,7 +13,6 @@ from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
     LensPercentileAggregatedMetric,
     LensPercentileRankAggregatedMetric,
-    LensStaticValue,
     LensSumAggregatedMetric,
 )
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -84,10 +83,6 @@ class MetricLensFormulaMetric(LensFormulaMetric, MetricChartColorMixin):
     """Metric chart formula metric with color options."""
 
 
-class MetricLensStaticValue(LensStaticValue, MetricChartColorMixin):
-    """Metric chart static value with color options."""
-
-
 class MetricESQLMetric(ESQLMetric, MetricChartColorMixin):
     """Metric chart ES|QL metric with color options."""
 
@@ -100,7 +95,6 @@ type LensMetricChartMetricTypes = (
     | MetricLensLastValueAggregatedMetric
     | MetricLensPercentileRankAggregatedMetric
     | MetricLensPercentileAggregatedMetric
-    | MetricLensStaticValue
 )
 
 type ESQLMetricChartMetricTypes = MetricESQLMetric

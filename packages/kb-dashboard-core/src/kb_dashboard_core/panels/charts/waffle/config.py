@@ -12,7 +12,7 @@ from pydantic import Field
 from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensDataMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -124,7 +124,7 @@ class LensWaffleChart(BaseWaffleChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the waffle chart."""
 
-    metric: LensMetricTypes = Field(default=...)
+    metric: LensDataMetricTypes = Field(default=...)
     """Metric that determines the size of squares. Waffle charts support only one metric."""
 
     breakdown: LensBreakdownTypes | None = Field(default=None)

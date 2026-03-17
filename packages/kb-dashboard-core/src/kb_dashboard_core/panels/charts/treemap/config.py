@@ -6,7 +6,7 @@ from pydantic import Field, field_validator
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensDataMetricTypes
 from kb_dashboard_core.panels.charts.pie.config import PieLegend, PieSliceValuesEnum
 from kb_dashboard_core.shared.config import BaseCfgModel
 
@@ -76,7 +76,7 @@ class LensTreemapChart(BaseTreemapChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the treemap chart."""
 
-    metric: LensMetricTypes = Field(default=...)
+    metric: LensDataMetricTypes = Field(default=...)
     """Metric that determines the rectangle sizes. Treemap supports only one metric."""
 
     breakdowns: list[LensBreakdownTypes] = Field(default=..., max_length=2)

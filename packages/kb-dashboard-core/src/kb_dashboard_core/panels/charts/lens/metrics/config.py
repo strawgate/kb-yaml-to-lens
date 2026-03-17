@@ -26,6 +26,8 @@ class LensStaticValue(BaseMetric):
     """Optional label for the static value."""
 
 
+type LensDataMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes
+
 type LensMetricTypes = LensFormulaMetric | LensAggregatedMetricTypes | LensStaticValue
 
 type LensMetricFormatTypes = LensMetricFormat | LensCustomMetricFormat

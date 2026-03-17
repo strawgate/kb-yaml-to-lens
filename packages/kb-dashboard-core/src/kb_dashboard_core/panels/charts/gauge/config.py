@@ -6,7 +6,7 @@ from pydantic import Field
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensDataMetricTypes, LensMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -113,7 +113,7 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the gauge chart."""
 
-    metric: LensMetricTypes = Field(default=...)
+    metric: LensDataMetricTypes = Field(default=...)
     """The primary metric to display in the gauge. This is the main value shown."""
 
     minimum: LensMetricTypes | int | float | None = Field(default=None)

@@ -10,7 +10,7 @@ from kb_dashboard_core.panels.charts.datatable.metrics import ESQLDatatableMetri
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensDataMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -133,7 +133,7 @@ class LensDatatableChart(BaseChart, BaseDatatableChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the datatable chart."""
 
-    metrics: list[LensDatatableMetricTypes | LensMetricTypes] = Field(default_factory=list)
+    metrics: list[LensDatatableMetricTypes | LensDataMetricTypes] = Field(default_factory=list)
     """List of metrics to display as columns."""
 
     breakdowns: list[LensDatatableBreakdownTypes | LensBreakdownTypes] = Field(default_factory=list)

@@ -13,7 +13,7 @@ from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, C
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensDataMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -140,7 +140,7 @@ class LensMosaicChart(BaseMosaicChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the mosaic chart."""
 
-    metric: LensMetricTypes = Field(default=...)
+    metric: LensDataMetricTypes = Field(default=...)
     """Metric that determines the size of rectangles. Mosaic charts support only one metric."""
 
     dimension: LensDimensionTypes = Field(default=...)

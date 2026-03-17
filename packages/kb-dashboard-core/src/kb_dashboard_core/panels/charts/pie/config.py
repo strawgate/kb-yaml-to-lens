@@ -6,7 +6,7 @@ from pydantic import Field
 from kb_dashboard_core.panels.charts.base.config import BaseChart, BaseLegend, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.breakdowns.config import LensBreakdownTypes
-from kb_dashboard_core.panels.charts.lens.metrics.config import LensMetricTypes
+from kb_dashboard_core.panels.charts.lens.metrics.config import LensDataMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -136,7 +136,7 @@ class LensPieChart(BasePieChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the pie chart."""
 
-    metrics: list[LensMetricTypes] = Field(default=..., min_length=1)
+    metrics: list[LensDataMetricTypes] = Field(default=..., min_length=1)
     """Metrics that determine the size of slices."""
 
     breakdowns: list[LensBreakdownTypes] = Field(default=...)

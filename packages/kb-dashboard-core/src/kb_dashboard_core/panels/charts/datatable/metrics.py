@@ -9,7 +9,6 @@ from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
     LensPercentileAggregatedMetric,
     LensPercentileRankAggregatedMetric,
-    LensStaticValue,
     LensSumAggregatedMetric,
 )
 
@@ -42,10 +41,6 @@ class DatatableLensFormulaMetric(LensFormulaMetric, DatatableMetricAppearanceMix
     """Datatable formula metric with appearance options."""
 
 
-class DatatableLensStaticValue(LensStaticValue, DatatableMetricAppearanceMixin):
-    """Datatable static-value metric with appearance options."""
-
-
 class DatatableESQLMetric(ESQLMetric, DatatableMetricAppearanceMixin):
     """Datatable ES|QL metric with appearance options."""
 
@@ -58,7 +53,6 @@ type LensDatatableMetricTypes = (
     | DatatableLensLastValueAggregatedMetric
     | DatatableLensPercentileRankAggregatedMetric
     | DatatableLensPercentileAggregatedMetric
-    | DatatableLensStaticValue
 )
 
 type ESQLDatatableMetricTypes = DatatableESQLMetric
