@@ -242,6 +242,26 @@ def _migrate_gauge_color_stops(chart: YamlMap, stats: Counter[str]) -> None:
     _rename_key(color, 'stops', 'thresholds', stats, 'gauge:stops-to-thresholds')
 
 
+def _migrate_gauge_shape(chart: YamlMap, stats: Counter[str]) -> None:
+    appearance = _as_map(chart.get('appearance'))
+    if appearance is None:
+        return
+
+    shape = appearance.get('shape')
+    if not isinstance(shape, str):
+        return
+
+    camel_to_snake: dict[str, str] = {
+        'horizontalBullet': 'horizontal_bullet',
+        'verticalBullet': 'vertical_bullet',
+        'semiCircle': 'semi_circle',
+    }
+    normalized = camel_to_snake.get(shape)
+    if normalized is not None:
+        appearance['shape'] = normalized
+        stats['gauge:shape-normalize'] += 1
+
+
 def _migrate_gauge(chart: YamlMap, stats: Counter[str]) -> None:
     appearance = _as_map(chart.get('appearance'))
     if appearance is not None:
@@ -254,6 +274,7 @@ def _migrate_gauge(chart: YamlMap, stats: Counter[str]) -> None:
                 stats['gauge:palette-skipped'] += 1
 
     _migrate_gauge_color_stops(chart, stats)
+    _migrate_gauge_shape(chart, stats)
 
 
 def _normalize_xy_enums(chart: YamlMap, stats: Counter[str]) -> None:
