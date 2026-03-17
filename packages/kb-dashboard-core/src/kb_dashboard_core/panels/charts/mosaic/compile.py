@@ -47,8 +47,10 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
         The compiled visualization state for the mosaic chart.
 
     """
+    values_config = chart.appearance.values if chart.appearance is not None else None
+
     number_display = compile_partition_number_display(
-        chart.appearance.values.format if chart.appearance is not None and chart.appearance.values is not None else None,
+        values_config.format if values_config is not None else None,
     )
 
     category_display = 'default'
@@ -58,8 +60,8 @@ def compile_mosaic_chart_visualization_state(  # noqa: PLR0913
     kbn_color_mapping = compile_color_value_mapping(chart.color)
 
     percent_decimals = None
-    if chart.appearance is not None and chart.appearance.values is not None and chart.appearance.values.decimal_places is not None:
-        percent_decimals = chart.appearance.values.decimal_places
+    if values_config is not None and values_config.decimal_places is not None:
+        percent_decimals = values_config.decimal_places
 
     kbn_layer_visualization = KbnMosaicStateVisualizationLayer(
         layerId=layer_id,
