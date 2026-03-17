@@ -184,15 +184,15 @@ class TestAutoLayoutIntegration:
         assert kbn_panels[2].gridData.w == 16
         assert kbn_panels[2].gridData.x == 32
 
-    def test_size_and_position_field_aliases(self) -> None:
-        """Test that field aliases work for size and position."""
+    def test_size_and_position_require_canonical_keys(self) -> None:
+        """Test canonical size/position keys are honored."""
         dashboard = Dashboard(
             name='Alias Test',
             panels=[
                 MarkdownPanel(
                     title='Alias Test',
-                    size={'width': 20, 'height': 10},
-                    position={'from_left': 5, 'from_top': 3},
+                    size={'w': 20, 'h': 10},
+                    position={'x': 5, 'y': 3},
                     markdown={'content': 'Test'},
                 ),
             ],

@@ -54,3 +54,10 @@ kb-dashboard upgrade --input-dir inputs --fail-on-change
 - ES|QL: `collapse` has moved from `ESQLDimension` to `ESQLBreakdown`. Move `dimension.collapse` to `breakdown.collapse`.
 - Lens top values: rename `other_bucket` to `show_other_bucket` and `missing_bucket` to `include_missing_values`.
 - Lens intervals: rename `empty_bucket` to `include_empty_intervals`.
+
+#### Panel Layout
+
+- Use canonical panel layout keys only:
+  - `size.w` and `size.h` (not `size.width`/`size.height`)
+  - `position.x` and `position.y` (not `position.from_left`/`position.from_top`)
+  - `grid.x`, `grid.y`, `grid.w`, and `grid.h` (not `grid.from_left`/`grid.from_top`/`grid.width`/`grid.height`)
