@@ -48,7 +48,8 @@ dashboards:
         valid_yaml = input_dir / 'valid.yaml'
         valid_yaml.write_text("""
 dashboards:
-  - name: Test Dashboard
+  - id: apache_otel-overview
+    name: Test Dashboard
     panels:
       - markdown:
           content: Hello
@@ -78,7 +79,8 @@ dashboards:
         valid_yaml = input_dir / 'valid.yaml'
         valid_yaml.write_text("""
 dashboards:
-  - name: Test Dashboard
+  - id: apache_otel-overview
+    name: Test Dashboard
     panels:
       - markdown:
           content: Hello
@@ -110,7 +112,8 @@ dashboards:
         valid_yaml = input_dir / 'valid.yaml'
         valid_yaml.write_text("""
 dashboards:
-  - name: Test Dashboard
+  - id: apache_otel-overview
+    name: Test Dashboard
     panels:
       - markdown:
           content: Hello
@@ -133,7 +136,7 @@ dashboards:
         assert result.exit_code == 0
         output_files = list(output_dir.glob('*.json'))
         assert len(output_files) == 1
-        assert output_files[0].name.startswith('input-')
+        assert output_files[0].name == 'apache_otel-overview.json'
 
         compiled = json.loads(output_files[0].read_text(encoding='utf-8'))
         assert isinstance(compiled['attributes']['panelsJSON'], list)
@@ -142,8 +145,8 @@ dashboards:
         assert isinstance(compiled['attributes']['controlGroupInput']['ignoreParentSettingsJSON'], dict)
         assert isinstance(compiled['attributes']['controlGroupInput']['panelsJSON'], dict)
 
-    def test_compile_elastic_integrations_uses_explicit_package_name(self, tmp_path: Path) -> None:
-        """Explicit package name should prefix elastic-integrations filenames."""
+    def test_compile_elastic_integrations_ignores_explicit_package_name(self, tmp_path: Path) -> None:
+        """Explicit package name should not affect elastic-integrations filenames."""
         input_dir = tmp_path / 'input'
         output_dir = tmp_path / 'output'
         input_dir.mkdir()
@@ -151,7 +154,8 @@ dashboards:
         valid_yaml = input_dir / 'valid.yaml'
         valid_yaml.write_text("""
 dashboards:
-  - name: Test Dashboard
+  - id: apache_otel-overview
+    name: Test Dashboard
     panels:
       - markdown:
           content: Hello
@@ -176,10 +180,10 @@ dashboards:
         assert result.exit_code == 0
         output_files = list(output_dir.glob('*.json'))
         assert len(output_files) == 1
-        assert output_files[0].name.startswith('nginx_otel-')
+        assert output_files[0].name == 'apache_otel-overview.json'
 
-    def test_compile_elastic_integrations_input_file_uses_parent_directory_name(self, tmp_path: Path) -> None:
-        """When --input-file is outside --input-dir, use parent directory as package prefix."""
+    def test_compile_elastic_integrations_input_file_uses_dashboard_id(self, tmp_path: Path) -> None:
+        """When using --input-file, elastic-integrations filenames should still use dashboard IDs."""
         package_dir = tmp_path / 'system_otel'
         output_dir = tmp_path / 'output'
         package_dir.mkdir()
@@ -187,7 +191,8 @@ dashboards:
         valid_yaml = package_dir / 'valid.yaml'
         valid_yaml.write_text("""
 dashboards:
-  - name: Test Dashboard
+  - id: apache_otel-overview
+    name: Test Dashboard
     panels:
       - markdown:
           content: Hello
@@ -210,7 +215,7 @@ dashboards:
         assert result.exit_code == 0
         output_files = list(output_dir.glob('*.json'))
         assert len(output_files) == 1
-        assert output_files[0].name.startswith('system_otel-')
+        assert output_files[0].name == 'apache_otel-overview.json'
 
     def test_compile_rejects_deprecated_fields_without_flag(self, tmp_path: Path) -> None:
         """Compile should fail when deprecated fields are present and flag is not set."""

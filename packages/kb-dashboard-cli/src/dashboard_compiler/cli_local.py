@@ -123,27 +123,6 @@ def _elastic_integrations_json(kbn_dashboard: KbnDashboard) -> str:
     return json.dumps(dashboard_obj, indent=4, ensure_ascii=False)
 
 
-def _derive_elastic_package_name(yaml_file: Path, input_dir: Path) -> str:
-    """Derive Elastic package name from input path."""
-    # Common integrations layout: <pkg>/kibana/dashboard/<file>.y(a)ml
-    parts = yaml_file.parts
-    if 'kibana' in parts:
-        kibana_index = parts.index('kibana')
-        if kibana_index > 0:
-            return _sanitize_filename(parts[kibana_index - 1])
-
-    # If compiling from a directory, use first segment under input dir.
-    try:
-        relative = yaml_file.relative_to(input_dir)
-    except ValueError:
-        relative = None
-    if relative is not None and len(relative.parts) > 1:
-        return _sanitize_filename(relative.parts[0])
-
-    # Fallback to parent directory name.
-    return _sanitize_filename(yaml_file.parent.name)
-
-
 def compile_yaml_to_json(yaml_path: Path, allow_deprecated: bool = False) -> tuple[list[str], list[KbnDashboard], str | None]:
     """Compile dashboard YAML to JSON strings for NDJSON.
 
@@ -293,7 +272,7 @@ async def _upload_to_kibana(
     '--elastic-package-name',
     type=str,
     default=None,
-    help='Package name prefix for --format elastic-integrations output filenames. If omitted, inferred from input path.',
+    help='Deprecated for filename generation. elastic-integrations output filenames are now based on dashboard IDs.',
 )
 @click.option(
     '--upload',
@@ -389,6 +368,8 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
 
     # Normalize output format once for consistent comparisons
     output_format_lower = output_format.lower()
+    if output_format_lower == 'elastic-integrations' and elastic_package_name is not None:
+        print_warning('--elastic-package-name is ignored for elastic-integrations output; filenames are based on dashboard IDs')
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -432,12 +413,7 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
                             raise click.ClickException(msg)
                         safe_dashboard_id = _sanitize_filename(kbn_dashboard.id)
                         if output_format_lower == 'elastic-integrations':
-                            resolved_package_name = (
-                                _sanitize_filename(elastic_package_name)
-                                if elastic_package_name is not None
-                                else _derive_elastic_package_name(yaml_file, input_dir)
-                            )
-                            safe_name = f'{resolved_package_name}-{safe_dashboard_id}'
+                            safe_name = safe_dashboard_id
                         else:
                             safe_name = safe_dashboard_id
                         if safe_name in json_filenames_seen:
