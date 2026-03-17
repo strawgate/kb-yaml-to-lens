@@ -1,0 +1,138 @@
+---
+name: 'Audit: Integrations Decompile Fuzz'
+on:
+  schedule:
+    - cron: 30 12 * * 3
+  workflow_dispatch: null
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+jobs:
+  run:
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[integrations-decompile-fuzz]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        just all install
+        rm -rf .audit/decompile integrations
+        mkdir -p .audit/decompile
+        git clone --depth=1 https://github.com/elastic/integrations.git integrations
+
+        python <<'PY'
+        import csv
+        import json
+        import traceback
+        from collections import defaultdict
+        from pathlib import Path
+
+        root = Path.cwd()
+        integrations = root / "integrations"
+        audit_dir = root / ".audit" / "decompile"
+        audit_dir.mkdir(parents=True, exist_ok=True)
+
+        from kb_dashboard_tools.decompile import decompile_dashboard
+
+        json_files = sorted(
+            p for p in integrations.glob("packages/*/kibana/dashboard/*.json")
+        )
+
+        if not json_files:
+            summary = {
+                "total": 0,
+                "successes": 0,
+                "failures": 0,
+                "success_rate": "n/a",
+                "unique_error_types": 0,
+            }
+            (audit_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+            (audit_dir / "errors_by_type.json").write_text("{}", encoding="utf-8")
+            (audit_dir / "all_errors.csv").write_text("file,error_type,error_message\n", encoding="utf-8")
+            (audit_dir / "errors.log").write_text("", encoding="utf-8")
+            print(json.dumps(summary, indent=2))
+            raise SystemExit(0)
+
+        successes = 0
+        failures = 0
+        error_rows = []
+        error_groups = defaultdict(lambda: {"count": 0, "message": "", "example_files": []})
+        full_tracebacks = []
+
+        for json_file in json_files:
+            rel = json_file.relative_to(integrations).as_posix()
+            try:
+                with open(json_file, encoding="utf-8") as f:
+                    dashboard = json.load(f)
+                decompile_dashboard(dashboard)
+                successes += 1
+            except Exception as exc:
+                failures += 1
+                etype = type(exc).__name__
+                emsg = str(exc)
+                group_key = f"{etype}: {emsg[:200]}"
+                error_rows.append({"file": rel, "error_type": etype, "error_message": emsg})
+                g = error_groups[group_key]
+                g["count"] += 1
+                if not g["message"]:
+                    g["message"] = emsg
+                if len(g["example_files"]) < 5:
+                    g["example_files"].append(rel)
+                full_tracebacks.append(f"\n=== {rel} ===\n{traceback.format_exc()}")
+
+        summary = {
+            "total": len(json_files),
+            "successes": successes,
+            "failures": failures,
+            "success_rate": f"{successes / len(json_files) * 100:.1f}%",
+            "unique_error_types": len(error_groups),
+        }
+        (audit_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+        sorted_groups = dict(sorted(error_groups.items(), key=lambda x: x[1]["count"], reverse=True))
+        (audit_dir / "errors_by_type.json").write_text(json.dumps(sorted_groups, indent=2), encoding="utf-8")
+
+        with (audit_dir / "all_errors.csv").open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=["file", "error_type", "error_message"])
+            writer.writeheader()
+            writer.writerows(error_rows)
+
+        (audit_dir / "errors.log").write_text("\n".join(full_tracebacks).strip() + "\n", encoding="utf-8")
+
+        print(json.dumps(summary, indent=2))
+        PY
+      additional-instructions: |
+        You are auditing the kb-yaml-to-lens decompiler against all JSON dashboards in elastic/integrations.
+        Setup has already cloned integrations and produced these artifacts:
+
+        - `.audit/decompile/summary.json` (total counts and per-error-type counts)
+        - `.audit/decompile/errors_by_type.json` (grouped errors with counts and example files)
+        - `.audit/decompile/all_errors.csv` (every failure: file, error_type, error_message)
+        - `.audit/decompile/errors.log` (full tracebacks for each failure)
+
+        ## Mission
+        Produce one high-signal issue that summarizes decompiler fuzz results.
+
+        ## Required process
+        - Read `summary.json` first for the overview.
+        - Read `errors_by_type.json` for grouped error analysis.
+        - For each error group, analyze the root cause and classify it as:
+          - **Decompiler bug** — the decompiler should handle this but doesn't
+          - **Unsupported feature** — a Kibana feature the decompiler doesn't yet support
+          - **Malformed input** — the dashboard JSON is invalid or uses a non-standard structure
+        - Prioritize by count (most frequent errors first).
+        - Sample `all_errors.csv` and `errors.log` for representative tracebacks.
+        - Do not open PRs in this workflow; open a single issue only.
+
+        ## Issue content
+        Include in the issue body:
+        1. **Summary table:** total dashboards, successes, failures, success rate
+        2. **Grouped errors table:** error type, count, example files, likely root cause
+        3. **Actionable recommendations** prioritized by impact (most frequent errors first)
+
+        ## Issue title
+        The workflow prefixes your title. Use this format:
+        `N dashboards tested, X succeeded, Y failed across Z error types`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
