@@ -284,8 +284,8 @@ class TestCompileCustom(unittest.TestCase):
         self.assertIsNotNone(result.error)
         self.assertIn('titles_and_text', result.error)
 
-    def test_compile_custom_accepts_deprecated_fields_with_opt_in(self) -> None:
-        """allow_deprecated=true is a no-op for removed compatibility shims."""
+    def test_compile_custom_rejects_removed_allow_deprecated_param(self) -> None:
+        """allow_deprecated request parameter is rejected."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -308,7 +308,7 @@ class TestCompileCustom(unittest.TestCase):
 
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
-        self.assertIn('titles_and_text', result.error)
+        self.assertIn('allow_deprecated', result.error)
 
 
 class TestGetDashboardsCustom(unittest.TestCase):
@@ -460,8 +460,8 @@ class TestGetDashboardsCustom(unittest.TestCase):
         self.assertIsNotNone(result.error)
         self.assertIn('titles_and_text', result.error)
 
-    def test_get_dashboards_accepts_deprecated_fields_with_opt_in(self) -> None:
-        """allow_deprecated=true is a no-op for removed compatibility shims."""
+    def test_get_dashboards_rejects_removed_allow_deprecated_param(self) -> None:
+        """allow_deprecated request parameter is rejected."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -484,7 +484,7 @@ class TestGetDashboardsCustom(unittest.TestCase):
 
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
-        self.assertIn('titles_and_text', result.error)
+        self.assertIn('allow_deprecated', result.error)
 
 
 class TestGetGridLayoutCustom(unittest.TestCase):
@@ -808,8 +808,8 @@ class TestGetGridLayoutCustom(unittest.TestCase):
         self.assertIsNotNone(result.error)
         self.assertIn('titles_and_text', result.error)
 
-    def test_get_grid_layout_accepts_deprecated_fields_with_opt_in(self) -> None:
-        """allow_deprecated=true is a no-op for removed compatibility shims."""
+    def test_get_grid_layout_rejects_removed_allow_deprecated_param(self) -> None:
+        """allow_deprecated request parameter is rejected."""
         self.temp_file.write_text("""dashboards:
 - name: Deprecated Dashboard
   panels:
@@ -832,7 +832,7 @@ class TestGetGridLayoutCustom(unittest.TestCase):
 
         self.assertFalse(result.success)
         self.assertIsNotNone(result.error)
-        self.assertIn('titles_and_text', result.error)
+        self.assertIn('allow_deprecated', result.error)
 
 
 if __name__ == '__main__':

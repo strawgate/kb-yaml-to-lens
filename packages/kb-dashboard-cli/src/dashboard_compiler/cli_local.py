@@ -123,19 +123,18 @@ def _elastic_integrations_json(kbn_dashboard: KbnDashboard) -> str:
     return json.dumps(dashboard_obj, indent=4, ensure_ascii=False)
 
 
-def compile_yaml_to_json(yaml_path: Path, allow_deprecated: bool = False) -> tuple[list[str], list[KbnDashboard], str | None]:
+def compile_yaml_to_json(yaml_path: Path) -> tuple[list[str], list[KbnDashboard], str | None]:
     """Compile dashboard YAML to JSON strings for NDJSON.
 
     Args:
         yaml_path: Path to the dashboard YAML configuration file.
-        allow_deprecated: Whether deprecated compatibility translations are enabled.
 
     Returns:
         Tuple of (list of JSON strings for NDJSON lines, list of dashboard models, error message or None).
 
     """
     try:
-        dashboards = load(str(yaml_path), allow_deprecated=allow_deprecated)
+        dashboards = load(str(yaml_path))
         json_lines: list[str] = []
         kbn_dashboards: list[KbnDashboard] = []
         for dashboard in dashboards:
@@ -295,12 +294,6 @@ async def _upload_to_kibana(
     is_flag=True,
     help='Exit with non-zero code when files change (useful for CI sync detection).',
 )
-@click.option(
-    '--allow-deprecated',
-    is_flag=True,
-    default=False,
-    help='Allow deprecated YAML field names (e.g. dimensions instead of breakdowns). Deprecated fields will compile with a warning.',
-)
 def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     ctx: click.Context,
     input_dir: Path,
@@ -313,7 +306,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
     no_browser: bool,
     overwrite: bool,
     exit_non_zero_on_change: bool,
-    allow_deprecated: bool,
 ) -> None:
     r"""Compile YAML dashboard configurations to NDJSON format.
 
@@ -402,7 +394,6 @@ def compile_dashboards(  # noqa: PLR0913, PLR0912, PLR0915
             progress.update(task, description=f'Compiling: {display_path}')
             compiled_jsons, kbn_dashboards, error = compile_yaml_to_json(
                 yaml_file,
-                allow_deprecated=allow_deprecated,
             )
 
             if len(compiled_jsons) > 0:

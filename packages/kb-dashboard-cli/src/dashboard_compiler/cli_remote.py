@@ -514,7 +514,7 @@ def load_sample_data_command(
     dashboards_with_sample_data: list[tuple[Path, list[Dashboard]]] = []
 
     for yaml_file in yaml_files:
-        dashboards = load(str(yaml_file), allow_deprecated=True)
+        dashboards = load(str(yaml_file))
         for dashboard in dashboards:
             if dashboard.sample_data is not None:
                 dashboards_with_sample_data.append((yaml_file, dashboards))

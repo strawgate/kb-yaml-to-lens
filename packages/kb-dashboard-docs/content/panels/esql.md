@@ -176,7 +176,6 @@ Visualizes proportions of categories using slices of a pie or a donut chart, wit
 | `metrics` | `ESQLMetric \| list[ESQLMetric]` object | A single metric or list of metrics that determine the size of each slice. Each `field` refers to an ESQL result column. See [ESQL Metric Column](#esql-metric-column). | N/A | Yes |
 | `breakdowns` | `list of ESQLDimension` objects | One or more breakdowns that determine how the pie is sliced. Each `field` refers to an ESQL result column. See [ESQL Dimension Column](#esql-dimension-column). | N/A | Yes |
 | `appearance` | `PieChartAppearance` object | Formatting options for the chart appearance. See [Pie Chart Appearance](#pie-chart-appearance-formatting-appearance-field) (shared with Lens). | `None` | No |
-| `titles_and_text` | `PieTitlesAndText` object | Deprecated alias for slice labels/values. Prefer `appearance.categories` and `appearance.values`. | `None` | No |
 | `legend` | `PieLegend` object | Formatting options for the chart legend. See [Pie Legend](#pie-legend-formatting-legend-field) (shared with Lens). | `None` | No |
 | `color` | `ColorValueMapping` object | Formatting options for the chart color palette. See [Color Mapping](#color-mapping-formatting-color-field) (shared with Lens). | `None` | No |
 

@@ -258,8 +258,8 @@ dashboards:
         assert result.exit_code == 1
         assert 'titles_and_text' in result.output
 
-    def test_compile_accepts_deprecated_fields_with_flag(self, tmp_path: Path) -> None:
-        """--allow-deprecated no longer enables legacy compatibility."""
+    def test_compile_rejects_removed_allow_deprecated_flag(self, tmp_path: Path) -> None:
+        """Removed --allow-deprecated flag should return usage error."""
         input_dir = tmp_path / 'input'
         output_dir = tmp_path / 'output'
         input_dir.mkdir()
@@ -297,5 +297,6 @@ dashboards:
             ],
         )
 
-        assert result.exit_code == 1
-        assert 'titles_and_text' in result.output
+        assert result.exit_code == 2
+        assert 'No such option' in result.output
+        assert '--allow-deprecated' in result.output
