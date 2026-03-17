@@ -56,6 +56,11 @@ jobs:
         compile them, import into Kibana, and verify every setting renders correctly.
         Data views: `logs-*`, `metrics-*`.
 
+        ## Complete field reference
+        Read `packages/kb-dashboard-docs/content/panels/gauge.md` for the
+        full, always-current field reference and examples. This is the authoritative
+        source — the inline notes below are a summary only.
+
         ## ES|QL query configuration
         Queries can be specified as:
         - A single string: `query: "FROM logs-* | STATS count = COUNT()"`
@@ -92,12 +97,10 @@ jobs:
         - `ticks_position` — `auto`, `bands`, `hidden`
         - `labels` — show/hide value labels
 
-        ### Color palette (`color:`)
-        - `palette` — color palette for gauge bands
+        ### Color (`color:`)
         - `range_type` — `number` or `percent`
-        - `range_min`, `range_max` — band boundaries
-        - `continuity` — `above`, `below`, `all`, `none`
-        - `stops` — list of `{stop, color}` for band thresholds
+        - `range_min`, `range_max` — band boundaries (null for open)
+        - `thresholds` — list of `{up_to, color}` for band coloring (ascending order)
 
         ### Titles and text (`titles_and_text:`)
         - `subtitle` — text below the gauge title
