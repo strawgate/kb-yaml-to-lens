@@ -1,0 +1,215 @@
+---
+name: 'Audit: Integrations Upgrade + Compile'
+on:
+  schedule:
+    - cron: 30 10 * * 2
+  workflow_dispatch: null
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+jobs:
+  run:
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[integrations-upgrade-audit]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+        rm -rf .audit/integrations integrations
+        mkdir -p .audit/integrations
+        git clone --depth=1 https://github.com/elastic/integrations.git integrations
+
+        python <<'PY'
+        import csv
+        import hashlib
+        import json
+        import shutil
+        import subprocess
+        from pathlib import Path
+
+        root = Path.cwd()
+        integrations = root / "integrations"
+        audit_dir = root / ".audit" / "integrations"
+        temp_dir = audit_dir / "tmp"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+
+        yaml_files = sorted(
+            p for p in integrations.rglob("*")
+            if p.suffix in {".yml", ".yaml"} and "/kibana/dashboard/" in p.as_posix()
+        )
+
+        summary_csv = audit_dir / "summary.csv"
+        summary_json = audit_dir / "summary.json"
+        errors_log = audit_dir / "errors.log"
+        diffs_dir = audit_dir / "diffs"
+        diffs_dir.mkdir(parents=True, exist_ok=True)
+
+        def normalize(value):
+            if isinstance(value, dict):
+                return {
+                    k: normalize(v)
+                    for k, v in value.items()
+                    if k not in {"id", "originId", "updated_at", "version"}
+                }
+            if isinstance(value, list):
+                return [normalize(v) for v in value]
+            return value
+
+        def hash_ndjson(path: Path):
+            payload = []
+            for line in path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                payload.append(normalize(json.loads(line)))
+            encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            return hashlib.sha256(encoded).hexdigest()
+
+        def run(cmd):
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            return proc.returncode, proc.stdout, proc.stderr
+
+        rows = []
+        error_lines = []
+
+        for idx, source in enumerate(yaml_files, start=1):
+            rel = source.relative_to(integrations).as_posix()
+            work_orig = temp_dir / f"{idx:05d}-orig"
+            work_up = temp_dir / f"{idx:05d}-up"
+            work_orig.mkdir(parents=True, exist_ok=True)
+            work_up.mkdir(parents=True, exist_ok=True)
+
+            upgraded_copy = work_up / source.name
+            shutil.copy2(source, upgraded_copy)
+
+            upgrade_cmd = ["uv", "run", "kb-dashboard", "upgrade", "--input-file", str(upgraded_copy), "--write"]
+            up_rc, up_out, up_err = run(upgrade_cmd)
+
+            orig_out = work_orig / "compiled.ndjson"
+            up_out_file = work_up / "compiled.ndjson"
+
+            orig_cmd = [
+                "uv", "run", "kb-dashboard", "compile",
+                "--input-file", str(source),
+                "--output-dir", str(work_orig),
+                "--output-file", "compiled.ndjson",
+            ]
+            up_cmd = [
+                "uv", "run", "kb-dashboard", "compile",
+                "--input-file", str(upgraded_copy),
+                "--output-dir", str(work_up),
+                "--output-file", "compiled.ndjson",
+            ]
+
+            orig_rc, orig_stdout, orig_stderr = run(orig_cmd)
+            upc_rc, upc_stdout, upc_stderr = run(up_cmd)
+
+            orig_status = "ok" if orig_rc == 0 else "fail"
+            upgraded_status = "ok" if upc_rc == 0 else "fail"
+
+            diff_status = "n/a"
+            hash_orig = ""
+            hash_up = ""
+            if orig_status == "ok" and upgraded_status == "ok":
+                hash_orig = hash_ndjson(orig_out)
+                hash_up = hash_ndjson(up_out_file)
+                if hash_orig == hash_up:
+                    diff_status = "same"
+                else:
+                    diff_status = "different"
+                    sample_dir = diffs_dir / f"{idx:05d}"
+                    sample_dir.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, sample_dir / "source.yaml")
+                    shutil.copy2(upgraded_copy, sample_dir / "upgraded.yaml")
+                    shutil.copy2(orig_out, sample_dir / "original.ndjson")
+                    shutil.copy2(up_out_file, sample_dir / "upgraded.ndjson")
+            elif orig_status == "fail" and upgraded_status == "ok":
+                diff_status = "works_after_upgrade"
+            elif orig_status == "ok" and upgraded_status == "fail":
+                diff_status = "regression_after_upgrade"
+            elif orig_status == "fail" and upgraded_status == "fail":
+                diff_status = "still_fails"
+
+            row = {
+                "file": rel,
+                "upgrade_rc": str(up_rc),
+                "original_compile": orig_status,
+                "upgraded_compile": upgraded_status,
+                "diff_status": diff_status,
+                "orig_hash": hash_orig,
+                "upgraded_hash": hash_up,
+            }
+            rows.append(row)
+
+            if orig_rc != 0 or upc_rc != 0 or up_rc != 0:
+                error_lines.append(f"\n=== {rel} ===")
+                if up_rc != 0:
+                    error_lines.append("[upgrade]")
+                    error_lines.append(up_err.strip() or up_out.strip())
+                if orig_rc != 0:
+                    error_lines.append("[compile-original]")
+                    error_lines.append(orig_stderr.strip() or orig_stdout.strip())
+                if upc_rc != 0:
+                    error_lines.append("[compile-upgraded]")
+                    error_lines.append(upc_stderr.strip() or upc_stdout.strip())
+
+            shutil.rmtree(work_orig, ignore_errors=True)
+            shutil.rmtree(work_up, ignore_errors=True)
+
+        fieldnames = [
+            "file",
+            "upgrade_rc",
+            "original_compile",
+            "upgraded_compile",
+            "diff_status",
+            "orig_hash",
+            "upgraded_hash",
+        ]
+        with summary_csv.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        counts = {
+            "total": len(rows),
+            "original_ok": sum(1 for r in rows if r["original_compile"] == "ok"),
+            "upgraded_ok": sum(1 for r in rows if r["upgraded_compile"] == "ok"),
+            "works_after_upgrade": sum(1 for r in rows if r["diff_status"] == "works_after_upgrade"),
+            "regression_after_upgrade": sum(1 for r in rows if r["diff_status"] == "regression_after_upgrade"),
+            "still_fails": sum(1 for r in rows if r["diff_status"] == "still_fails"),
+            "different_json": sum(1 for r in rows if r["diff_status"] == "different"),
+        }
+        summary_json.write_text(json.dumps(counts, indent=2), encoding="utf-8")
+        errors_log.write_text("\n".join(error_lines).strip() + "\n", encoding="utf-8")
+        print(json.dumps(counts, indent=2))
+        PY
+      additional-instructions: |
+        You are auditing kb-yaml-to-lens compatibility against dashboard YAMLs in elastic/integrations.
+        Setup has already cloned integrations and produced these artifacts:
+
+        - `.audit/integrations/summary.json` (totals by category)
+        - `.audit/integrations/summary.csv` (per-file outcomes)
+        - `.audit/integrations/errors.log` (upgrade/compile failures)
+        - `.audit/integrations/diffs/**` (only cases where pre/post-upgrade compiled JSON differs)
+
+        ## Mission
+        Produce one high-signal issue that summarizes:
+        1. How many files compile as-is vs only after upgrade vs still fail
+        2. Any upgrade regressions (`regression_after_upgrade`)
+        3. Whether JSON diffs look suspicious or expected based on schema migration
+        4. Actionable recommendations (bug fixes, upgrader tweaks, docs, or tests)
+
+        ## Required process
+        - Read `summary.json` first, then analyze `summary.csv`.
+        - Prioritize all regression and failure cases.
+        - For `different_json` cases, inspect representative samples from `.audit/integrations/diffs/`.
+        - Call out recurring root causes with concrete file examples.
+        - Do not open PRs in this workflow; open a single issue only.
+
+        ## Issue title
+        The workflow prefixes your title. Use a concise summary such as:
+        `N files checked, X require upgrade, Y still failing, Z suspicious diffs`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
