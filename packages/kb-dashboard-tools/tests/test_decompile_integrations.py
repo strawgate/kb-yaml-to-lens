@@ -52,7 +52,7 @@ def _iter_dashboard_objects(path: Path) -> Iterator[dict[str, Any]]:
 
 
 def _dashboard_case_id(source: Path, dashboard: dict[str, Any], index: int) -> str:
-    name = cast('str | None', dashboard.get('id')) or cast('str | None', dashboard.get('attributes', {}).get('title'))
+    name = cast('str | None', dashboard.get('id')) or cast('str | None', (dashboard.get('attributes') or {}).get('title'))
     suffix = (name or f'dashboard-{index}').replace('/', '-').replace(' ', '-')
     stem = source.stem.replace('.', '-')
     return f'{stem}--{suffix}'
