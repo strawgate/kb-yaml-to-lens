@@ -32,7 +32,11 @@ from .tables import (
     KIBANA_DEFAULT_FILL_OPACITY,
     KIBANA_END_VALUE_TO_YAML,
     KIBANA_FITTING_FUNCTION_TO_YAML,
+    KIBANA_GAUGE_DEFAULT_SHAPE,
+    KIBANA_GAUGE_SHAPE_TO_YAML,
     KIBANA_LEGEND_SIZE_TO_YAML,
+    KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML,
+    KIBANA_PIE_NUMBER_DISPLAY_TO_YAML,
     LENS_VISUALIZATION_TYPES,
     OPERATION_TYPE_MAP,
     PARTITION_CHART_TYPES,
@@ -389,6 +393,10 @@ def _extract_partition_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
     elif isinstance(legend_max_lines, int) and legend_max_lines > 0:
         legend['truncate_labels'] = legend_max_lines
 
+    nested_legend = layer.get('nestedLegend')
+    if isinstance(nested_legend, bool) and nested_legend:
+        legend['nested'] = True
+
     return legend if legend else None
 
 
@@ -511,6 +519,121 @@ def _extract_xy_appearance(vis_raw: dict[str, Any], chart_type: str | None) -> d
         appearance['x_axis'] = x_axis
 
     return appearance if appearance else None
+
+
+# ---------------------------------------------------------------------------
+# Gauge / partition / datatable appearance extraction
+# ---------------------------------------------------------------------------
+
+
+def _extract_gauge_settings(
+    vis_raw: dict[str, Any],
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Extract gauge appearance and titles_and_text from visualization state raw dict.
+
+    Returns (appearance_dict, titles_and_text_dict) — either may be None.
+    """
+    appearance: dict[str, Any] = {}
+    titles: dict[str, Any] = {}
+
+    shape = vis_raw.get('shape')
+    if isinstance(shape, str) and shape in KIBANA_GAUGE_SHAPE_TO_YAML and shape != KIBANA_GAUGE_DEFAULT_SHAPE:
+        appearance['shape'] = KIBANA_GAUGE_SHAPE_TO_YAML[shape]
+
+    ticks_pos = vis_raw.get('ticksPosition')
+    if isinstance(ticks_pos, str) and ticks_pos != 'auto':
+        appearance['ticks_position'] = ticks_pos
+
+    label_major_mode = vis_raw.get('labelMajorMode')
+    label_major = vis_raw.get('labelMajor')
+    if label_major_mode == 'none':
+        titles['title'] = False
+    elif label_major_mode in ('custom', None) and isinstance(label_major, str) and len(label_major) > 0:
+        titles['title'] = label_major
+
+    label_minor = vis_raw.get('labelMinor')
+    if isinstance(label_minor, str) and len(label_minor) > 0:
+        titles['subtitle'] = label_minor
+
+    return (appearance if appearance else None), (titles if titles else None)
+
+
+def _extract_partition_appearance(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Extract appearance settings from a partition chart (pie/treemap/waffle/mosaic) visualization state."""
+    layers = vis_raw.get('layers')
+    if not isinstance(layers, list) or len(layers) == 0:  # pyright: ignore[reportUnknownArgumentType]
+        return None
+    layer = as_dict(layers[0])  # pyright: ignore[reportUnknownArgumentType]
+    if layer is None:
+        return None
+
+    appearance: dict[str, Any] = {}
+
+    number_display = layer.get('numberDisplay')
+    if isinstance(number_display, str) and number_display in KIBANA_PIE_NUMBER_DISPLAY_TO_YAML:
+        yaml_val = KIBANA_PIE_NUMBER_DISPLAY_TO_YAML[number_display]
+        if yaml_val != 'percent':  # percent is Kibana default — omit
+            appearance.setdefault('values', {})['format'] = yaml_val
+
+    percent_decimals = layer.get('percentDecimals')
+    if isinstance(percent_decimals, int):
+        appearance.setdefault('values', {})['decimal_places'] = percent_decimals
+
+    category_display = layer.get('categoryDisplay')
+    if isinstance(category_display, str) and category_display in KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML:
+        yaml_val = KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML[category_display]
+        if yaml_val != 'auto':  # auto is Kibana default — omit
+            appearance.setdefault('categories', {})['position'] = yaml_val
+
+    return appearance if appearance else None
+
+
+def _extract_datatable_options(
+    vis_raw: dict[str, Any],
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+    """Extract sorting, paging, and appearance from datatable visualization state.
+
+    Returns (sorting_dict, paging_dict, appearance_dict) — any may be None.
+    """
+    sorting: dict[str, Any] | None = None
+    paging: dict[str, Any] | None = None
+    appearance: dict[str, Any] = {}
+
+    sorting_raw = as_dict(vis_raw.get('sorting'))
+    if sorting_raw is not None:
+        col_id = sorting_raw.get('columnId')
+        direction = sorting_raw.get('direction')
+        if isinstance(col_id, str) and isinstance(direction, str) and direction != 'none':
+            sorting = {'column_id': col_id, 'direction': direction}
+
+    paging_raw = as_dict(vis_raw.get('paging'))
+    if paging_raw is not None:
+        enabled = paging_raw.get('enabled')
+        size = paging_raw.get('size')
+        if isinstance(enabled, bool) and isinstance(size, int):
+            paging = {'enabled': enabled, 'page_size': size}
+
+    row_height = vis_raw.get('rowHeight')
+    if isinstance(row_height, str) and row_height != 'auto':
+        appearance['row_height'] = row_height
+
+    row_height_lines = vis_raw.get('rowHeightLines')
+    if isinstance(row_height_lines, int):
+        appearance['row_height_lines'] = row_height_lines
+
+    header_row_height = vis_raw.get('headerRowHeight')
+    if isinstance(header_row_height, str) and header_row_height != 'auto':
+        appearance['header_row_height'] = header_row_height
+
+    header_row_height_lines = vis_raw.get('headerRowHeightLines')
+    if isinstance(header_row_height_lines, int):
+        appearance['header_row_height_lines'] = header_row_height_lines
+
+    density = vis_raw.get('density')
+    if isinstance(density, str) and density != 'normal':
+        appearance['density'] = density
+
+    return sorting, paging, (appearance if appearance else None)
 
 
 # ---------------------------------------------------------------------------
@@ -671,6 +794,38 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
                     existing.update(xy_appearance)  # pyright: ignore[reportUnknownMemberType]
                 else:
                     chart['appearance'] = xy_appearance
+
+        # Gauge appearance + titles_and_text
+        elif chart_type == 'gauge':
+            gauge_appearance, gauge_titles = _extract_gauge_settings(vis_raw)
+            if gauge_appearance is not None:
+                existing = chart.get('appearance')
+                if isinstance(existing, dict):
+                    existing.update(gauge_appearance)  # pyright: ignore[reportUnknownMemberType]
+                else:
+                    chart['appearance'] = gauge_appearance
+            if gauge_titles is not None:
+                chart['titles_and_text'] = gauge_titles
+
+        # Partition chart appearance (pie/treemap/waffle/mosaic)
+        elif chart_type in PARTITION_CHART_TYPES:
+            partition_appearance = _extract_partition_appearance(vis_raw)
+            if partition_appearance is not None:
+                existing = chart.get('appearance')
+                if isinstance(existing, dict):
+                    existing.update(partition_appearance)  # pyright: ignore[reportUnknownMemberType]
+                else:
+                    chart['appearance'] = partition_appearance
+
+        # Datatable sorting / paging / appearance
+        elif chart_type == 'datatable':
+            dt_sorting, dt_paging, dt_appearance = _extract_datatable_options(vis_raw)
+            if dt_sorting is not None:
+                chart['sorting'] = dt_sorting
+            if dt_paging is not None:
+                chart['paging'] = dt_paging
+            if dt_appearance is not None:
+                chart['appearance'] = dt_appearance
 
     # Data view / query
     if parsed.panel_type == 'lens' and parsed.data_view_id is not None:

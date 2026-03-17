@@ -2834,3 +2834,277 @@ dashboards:
     assert chart['appearance']['y_left_axis']['title'] == 'Request Rate'
     assert chart['appearance']['y_left_axis']['scale'] == 'log'
     assert chart['appearance']['x_axis']['title'] == 'Time Period'
+
+
+# --- Gauge appearance extraction ---
+
+
+def test_decompile_gauge_arc_shape() -> None:
+    """Gauge with shape=arc emits appearance.shape=arc (non-default)."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'shape': 'arc', 'ticksPosition': 'auto'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['shape'] == 'arc'
+
+
+def test_decompile_gauge_default_shape_omitted() -> None:
+    """Gauge with default shape (horizontalBullet) does not emit appearance.shape."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'shape': 'horizontalBullet'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens'].get('appearance') is None or 'shape' not in result['lens'].get('appearance', {})
+
+
+def test_decompile_gauge_semi_circle_shape() -> None:
+    """Gauge with shape=semiCircle maps to semi_circle."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'shape': 'semiCircle'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['shape'] == 'semi_circle'
+
+
+def test_decompile_gauge_ticks_position_bands() -> None:
+    """Gauge with ticksPosition=bands emits appearance.ticks_position=bands."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'ticksPosition': 'bands'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['ticks_position'] == 'bands'
+
+
+def test_decompile_gauge_ticks_position_auto_omitted() -> None:
+    """Gauge with default ticksPosition=auto does not emit ticks_position."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'ticksPosition': 'auto'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens'].get('appearance') is None or 'ticks_position' not in result['lens'].get('appearance', {})
+
+
+def test_decompile_gauge_titles_custom_label_major() -> None:
+    """Gauge with labelMajorMode=custom emits titles_and_text.title."""
+    panel = _make_lens_panel(
+        'lnsGauge',
+        state={'visualization': {'labelMajorMode': 'custom', 'labelMajor': 'My Gauge'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['titles_and_text']['title'] == 'My Gauge'
+
+
+def test_decompile_gauge_titles_none_mode() -> None:
+    """Gauge with labelMajorMode=none emits titles_and_text.title=False."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'labelMajorMode': 'none'}})
+    result = _decompile_single_panel(panel)
+    assert result['lens']['titles_and_text']['title'] is False
+
+
+def test_decompile_gauge_titles_auto_omitted() -> None:
+    """Gauge with labelMajorMode=auto does not emit titles_and_text."""
+    panel = _make_lens_panel('lnsGauge', state={'visualization': {'labelMajorMode': 'auto'}})
+    result = _decompile_single_panel(panel)
+    assert 'titles_and_text' not in result['lens']
+
+
+def test_decompile_gauge_subtitle() -> None:
+    """Gauge with labelMinor emits titles_and_text.subtitle."""
+    panel = _make_lens_panel(
+        'lnsGauge',
+        state={'visualization': {'labelMinor': 'avg over 5m'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['titles_and_text']['subtitle'] == 'avg over 5m'
+
+
+# --- Pie / partition appearance extraction ---
+
+
+def test_decompile_pie_number_display_integer() -> None:
+    """Pie with numberDisplay=value emits appearance.values.format=integer."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'value', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['values']['format'] == 'integer'
+
+
+def test_decompile_pie_number_display_hidden() -> None:
+    """Pie with numberDisplay=hidden emits appearance.values.format=hide."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'hidden', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['values']['format'] == 'hide'
+
+
+def test_decompile_pie_number_display_percent_omitted() -> None:
+    """Pie with default numberDisplay=percent does not emit values.format."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    appearance = result['lens'].get('appearance', {})
+    assert 'values' not in appearance or 'format' not in appearance.get('values', {})
+
+
+def test_decompile_pie_percent_decimals() -> None:
+    """Pie with percentDecimals emits appearance.values.decimal_places."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [
+                    {
+                        'numberDisplay': 'percent',
+                        'categoryDisplay': 'default',
+                        'legendDisplay': 'default',
+                        'nestedLegend': False,
+                        'percentDecimals': 1,
+                    }
+                ],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['values']['decimal_places'] == 1
+
+
+def test_decompile_pie_category_display_inside() -> None:
+    """Pie with categoryDisplay=inside emits appearance.categories.position=inside."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'inside', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['categories']['position'] == 'inside'
+
+
+def test_decompile_pie_category_display_hide() -> None:
+    """Pie with categoryDisplay=hide emits appearance.categories.position=hide."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'hide', 'legendDisplay': 'default', 'nestedLegend': False}],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['categories']['position'] == 'hide'
+
+
+def test_decompile_pie_nested_legend() -> None:
+    """Pie with nestedLegend=True emits legend.nested=True."""
+    panel = _make_lens_panel(
+        'lnsPie',
+        state={
+            'visualization': {
+                'shape': 'pie',
+                'layers': [{'numberDisplay': 'percent', 'categoryDisplay': 'default', 'legendDisplay': 'default', 'nestedLegend': True}],
+            }
+        },
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['legend']['nested'] is True
+
+
+# --- Datatable sorting / paging / appearance ---
+
+
+def test_decompile_datatable_sorting() -> None:
+    """Datatable with sorting emits sorting.column_id and direction."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'sorting': {'columnId': 'col-1', 'direction': 'desc'}, 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['sorting']['column_id'] == 'col-1'
+    assert result['lens']['sorting']['direction'] == 'desc'
+
+
+def test_decompile_datatable_sorting_none_omitted() -> None:
+    """Datatable with direction=none does not emit sorting."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'sorting': {'columnId': 'col-1', 'direction': 'none'}, 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert 'sorting' not in result['lens']
+
+
+def test_decompile_datatable_paging() -> None:
+    """Datatable with paging emits paging.enabled and page_size."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'paging': {'enabled': True, 'size': 25}, 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['paging']['enabled'] is True
+    assert result['lens']['paging']['page_size'] == 25
+
+
+def test_decompile_datatable_density_compact() -> None:
+    """Datatable with density=compact emits appearance.density=compact."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'density': 'compact', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['density'] == 'compact'
+
+
+def test_decompile_datatable_density_normal_omitted() -> None:
+    """Datatable with default density=normal does not emit appearance.density."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'density': 'normal', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens'].get('appearance') is None or 'density' not in result['lens'].get('appearance', {})
+
+
+def test_decompile_datatable_row_height_single() -> None:
+    """Datatable with rowHeight=single emits appearance.row_height=single."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'rowHeight': 'single', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['row_height'] == 'single'
+
+
+def test_decompile_datatable_header_row_height_single() -> None:
+    """Datatable with headerRowHeight=single emits appearance.header_row_height=single."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'headerRowHeight': 'single', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens']['appearance']['header_row_height'] == 'single'
+
+
+def test_decompile_datatable_header_row_height_auto_omitted() -> None:
+    """Datatable with default headerRowHeight=auto does not emit appearance.header_row_height."""
+    panel = _make_lens_panel(
+        'lnsDatatable',
+        state={'visualization': {'headerRowHeight': 'auto', 'columns': [], 'layerId': 'layer-1'}},
+    )
+    result = _decompile_single_panel(panel)
+    assert result['lens'].get('appearance') is None or 'header_row_height' not in result['lens'].get('appearance', {})
