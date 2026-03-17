@@ -108,7 +108,7 @@ jobs:
         - Dynamic coloring with color range stops
 
         ### Dimension types for breakdown
-        - `type: values` — top values / terms with `field`, `size`, `other_bucket`
+        - `type: values` — top values / terms with `field`, `size`, `show_other_bucket`
         - `type: date_histogram` — with `minimum_interval`
         - `type: intervals` — numeric ranges
         - `type: filters` — KQL filter-based dimension
