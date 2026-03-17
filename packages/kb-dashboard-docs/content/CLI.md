@@ -85,23 +85,32 @@ When `--input-file` is provided, `--input-dir` is ignored.
 
 ### Export Individual JSON Files
 
-For workflows that require individual JSON files per dashboard (e.g., Fleet integration):
+For workflows that require one JSON file per dashboard, choose the format based on your target workflow:
 
 ```bash
+# Generic per-dashboard JSON export
 uvx kb-dashboard-cli compile --format json --output-dir ./output
+
+# Elastic integrations/Fleet package workflow (recommended for integrations)
+uvx kb-dashboard-cli compile --format elastic-integrations --output-dir ./output
 ```
 
-This will:
+Format differences:
 
-- Create one pretty-printed JSON file per dashboard
-- Name files based on the dashboard ID (sanitized for filesystem safety)
+- `--format json`: Pretty-printed JSON files named by dashboard ID, with nested saved-object fields (for example `panelsJSON`/`optionsJSON`) kept as JSON strings.
+- `--format elastic-integrations`: JSON files named by dashboard ID with nested saved-object fields unwrapped as JSON objects/arrays, matching Elastic integrations packaging expectations.
+
+Migration guidance for Fleet/integration workflows:
+
+- If your pipeline currently uses `--format json` for Elastic integrations assets, switch to `--format elastic-integrations`.
+- `--elastic-package-name` is deprecated for filename generation and is ignored with `--format elastic-integrations` (filenames are dashboard-ID-based).
 
 ### CI Sync Detection
 
 Use the `--exit-non-zero-on-change` flag to detect when YAML and JSON files are out of sync in CI pipelines:
 
 ```bash
-uvx kb-dashboard-cli compile --format json --output-dir ./dashboards --exit-non-zero-on-change
+uvx kb-dashboard-cli compile --format elastic-integrations --output-dir ./dashboards --exit-non-zero-on-change
 if [ $? -ne 0 ]; then
     echo "Dashboard JSON files are out of sync with YAML sources"
     exit 1
