@@ -1,6 +1,5 @@
 """Test the compilation of Lens treemap charts from config models to view models."""
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
 
@@ -104,14 +103,14 @@ async def test_treemap_show_hide_label_mapping() -> None:
     assert hide_state.layers[0].categoryDisplay == 'hide'
 
 
-async def test_treemap_with_two_dimensions_uses_primary_groups_only() -> None:
+async def test_treemap_with_two_breakdowns_uses_primary_groups_only() -> None:
     """Treemap should keep all grouping levels in primaryGroups for Kibana compatibility."""
     lens_chart = LensTreemapChart.model_validate(
         {
             'type': 'treemap',
             'data_view': 'metrics-*',
             'metrics': [{'aggregation': 'count', 'id': 'metric1'}],
-            'dimensions': [
+            'breakdowns': [
                 {'type': 'values', 'field': 'service.name', 'id': 'group1'},
                 {'type': 'values', 'field': 'service.environment', 'id': 'group2'},
             ],
@@ -127,7 +126,7 @@ async def test_treemap_with_two_dimensions_uses_primary_groups_only() -> None:
             'type': 'treemap',
             'query': 'FROM metrics-* | STATS c = count(*) by service.name, service.environment',
             'metrics': [{'field': 'c', 'id': 'metric1'}],
-            'dimensions': [
+            'breakdowns': [
                 {'field': 'service.name', 'id': 'group1'},
                 {'field': 'service.environment', 'id': 'group2'},
             ],
@@ -137,30 +136,3 @@ async def test_treemap_with_two_dimensions_uses_primary_groups_only() -> None:
     esql_layer = esql_state.layers[0]
     assert esql_layer.primaryGroups == ['group1', 'group2']
     assert esql_layer.secondaryGroups is None
-
-
-def test_treemap_deprecated_dimensions_does_not_override_explicit_breakdowns() -> None:
-    """Explicit breakdowns should win over deprecated dimensions."""
-    with pytest.warns(DeprecationWarning, match="ignored because 'breakdowns' is already set"):
-        lens_chart = LensTreemapChart.model_validate(
-            {
-                'type': 'treemap',
-                'data_view': 'logs-*',
-                'metrics': [{'aggregation': 'count'}],
-                'breakdowns': [{'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'}],
-                'dimensions': [{'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'}],
-            }
-        )
-    assert [breakdown.id for breakdown in lens_chart.breakdowns] == ['new-breakdown']
-
-    with pytest.warns(DeprecationWarning, match="ignored because 'breakdowns' is already set"):
-        esql_chart = ESQLTreemapPanelConfig.model_validate(
-            {
-                'type': 'treemap',
-                'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
-                'metrics': [{'field': 'c'}],
-                'breakdowns': [{'field': 'service.name', 'id': 'new-breakdown'}],
-                'dimensions': [{'field': 'host.name', 'id': 'legacy-dimension'}],
-            }
-        )
-    assert [breakdown.id for breakdown in esql_chart.breakdowns] == ['new-breakdown']

@@ -377,7 +377,7 @@ def test_compile_metric_chart_column_order_with_breakdown_primary_only() -> None
 @pytest.mark.parametrize('chart_type', ['lens', 'esql'])
 @pytest.mark.parametrize('apply_to', ['value', 'background'])
 def test_compile_metric_chart_apply_to(chart_type: str, apply_to: str) -> None:
-    """Test metric apply_to compilation for Lens and ES|QL charts."""
+    """Test primary.color.apply_to compilation for Lens and ES|QL charts."""
     if chart_type == 'lens':
         config = {
             'type': 'metric',
@@ -385,8 +385,8 @@ def test_compile_metric_chart_apply_to(chart_type: str, apply_to: str) -> None:
             'primary': {
                 'aggregation': 'count',
                 'id': 'primary-metric',
+                'color': {'apply_to': apply_to},
             },
-            'apply_to': apply_to,
         }
     else:
         config = {
@@ -394,8 +394,8 @@ def test_compile_metric_chart_apply_to(chart_type: str, apply_to: str) -> None:
             'primary': {
                 'field': 'count(*)',
                 'id': 'primary-metric',
+                'color': {'apply_to': apply_to},
             },
-            'apply_to': apply_to,
         }
 
     result = compile_metric_chart_snapshot(config, chart_type)
@@ -425,6 +425,64 @@ def test_compile_metric_chart_apply_to_omitted(chart_type: str) -> None:
 
     result = compile_metric_chart_snapshot(config, chart_type)
     assert result['applyColorTo'] == 'background'
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_metric_chart_top_level_apply_to_warns_deprecated(chart_type: str) -> None:
+    """Top-level apply_to remains supported but emits a deprecation warning."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {
+                'aggregation': 'count',
+                'id': 'primary-metric',
+            },
+            'apply_to': 'value',
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {
+                'field': 'count(*)',
+                'id': 'primary-metric',
+            },
+            'apply_to': 'value',
+        }
+
+    with pytest.warns(DeprecationWarning, match="apply_to'.*primary.color.apply_to"):
+        result = compile_metric_chart_snapshot(config, chart_type)
+    assert result['applyColorTo'] == 'value'
+
+
+@pytest.mark.parametrize('chart_type', ['lens', 'esql'])
+def test_metric_chart_nested_apply_to_overrides_top_level(chart_type: str) -> None:
+    """appearance.color.apply_to takes precedence over deprecated top-level apply_to."""
+    if chart_type == 'lens':
+        config = {
+            'type': 'metric',
+            'data_view': 'metrics-*',
+            'primary': {
+                'aggregation': 'count',
+                'id': 'primary-metric',
+            },
+            'apply_to': 'background',
+            'appearance': {'color': {'apply_to': 'value'}},
+        }
+    else:
+        config = {
+            'type': 'metric',
+            'primary': {
+                'field': 'count(*)',
+                'id': 'primary-metric',
+            },
+            'apply_to': 'background',
+            'appearance': {'color': {'apply_to': 'value'}},
+        }
+
+    with pytest.warns(DeprecationWarning, match='appearance.color.apply_to.*primary.color.apply_to'):
+        result = compile_metric_chart_snapshot(config, chart_type)
+    assert result['applyColorTo'] == 'value'
 
 
 def test_compile_metric_chart_with_maximum_and_secondary_lens() -> None:
@@ -901,18 +959,24 @@ def test_metric_color_assignments_are_rejected(chart_type: str) -> None:
         config: dict[str, Any] = {
             'type': 'metric',
             'data_view': 'metrics-*',
-            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+            'primary': {
+                'aggregation': 'count',
+                'id': 'primary-metric',
+                'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+            },
         }
-        with pytest.raises(ValidationError, match=r'color\.assignments'):
+        with pytest.raises(ValidationError, match=r'assignments'):
             LensMetricChart.model_validate(config)
     else:
         config = {
             'type': 'metric',
-            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+            'primary': {
+                'field': 'count(*)',
+                'id': 'primary-metric',
+                'color': {'assignments': [{'value': 'critical', 'color': '#FF0000'}]},
+            },
         }
-        with pytest.raises(ValidationError, match=r'color\.assignments'):
+        with pytest.raises(ValidationError, match=r'assignments'):
             ESQLMetricChart.model_validate(config)
 
 
@@ -1123,10 +1187,9 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
-            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
+            'primary': {'aggregation': 'count', 'id': 'primary-metric', 'color': {'apply_to': 'background'}},
             'secondary': {'aggregation': 'count', 'id': 'secondary-metric'},
             'maximum': {'value': 100, 'id': 'max-metric'},
-            'apply_to': 'background',
             'appearance': {
                 'primary': {
                     'icon': 'compute',
@@ -1148,10 +1211,9 @@ def test_compile_metric_chart_all_styling_options(chart_type: str) -> None:
     else:
         config = {
             'type': 'metric',
-            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
+            'primary': {'field': 'count(*)', 'id': 'primary-metric', 'color': {'apply_to': 'background'}},
             'secondary': {'field': 'prev_count', 'id': 'secondary-metric'},
             'maximum': {'field': 'max_val', 'id': 'max-metric'},
-            'apply_to': 'background',
             'appearance': {
                 'primary': {
                     'icon': 'compute',
@@ -1443,31 +1505,37 @@ def test_compile_metric_chart_color_range_palette(chart_type: str) -> None:
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
-            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'color': {
-                'range_type': 'number',
-                'range_min': 0,
-                'range_max': 100,
-                'thresholds': [
-                    {'up_to': 50, 'color': '#24c292'},
-                    {'up_to': 80, 'color': '#fcd883'},
-                    {'up_to': 100, 'color': '#f6726a'},
-                ],
+            'primary': {
+                'aggregation': 'count',
+                'id': 'primary-metric',
+                'color': {
+                    'range_type': 'number',
+                    'range_min': 0,
+                    'range_max': 100,
+                    'thresholds': [
+                        {'up_to': 50, 'color': '#24c292'},
+                        {'up_to': 80, 'color': '#fcd883'},
+                        {'up_to': 100, 'color': '#f6726a'},
+                    ],
+                },
             },
         }
     else:
         config = {
             'type': 'metric',
-            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'color': {
-                'range_type': 'number',
-                'range_min': 0,
-                'range_max': 100,
-                'thresholds': [
-                    {'up_to': 50, 'color': '#24c292'},
-                    {'up_to': 80, 'color': '#fcd883'},
-                    {'up_to': 100, 'color': '#f6726a'},
-                ],
+            'primary': {
+                'field': 'count(*)',
+                'id': 'primary-metric',
+                'color': {
+                    'range_type': 'number',
+                    'range_min': 0,
+                    'range_max': 100,
+                    'thresholds': [
+                        {'up_to': 50, 'color': '#24c292'},
+                        {'up_to': 80, 'color': '#fcd883'},
+                        {'up_to': 100, 'color': '#f6726a'},
+                    ],
+                },
             },
         }
 
@@ -1498,31 +1566,37 @@ def test_compile_metric_chart_color_range_palette_extends_to_range_max(chart_typ
         config = {
             'type': 'metric',
             'data_view': 'metrics-*',
-            'primary': {'aggregation': 'count', 'id': 'primary-metric'},
-            'color': {
-                'range_type': 'number',
-                'range_min': 0,
-                'range_max': 100,
-                'thresholds': [
-                    {'up_to': 25, 'color': '#24c292'},
-                    {'up_to': 50, 'color': '#fcd883'},
-                    {'up_to': 75, 'color': '#f6726a'},
-                ],
+            'primary': {
+                'aggregation': 'count',
+                'id': 'primary-metric',
+                'color': {
+                    'range_type': 'number',
+                    'range_min': 0,
+                    'range_max': 100,
+                    'thresholds': [
+                        {'up_to': 25, 'color': '#24c292'},
+                        {'up_to': 50, 'color': '#fcd883'},
+                        {'up_to': 75, 'color': '#f6726a'},
+                    ],
+                },
             },
         }
     else:
         config = {
             'type': 'metric',
-            'primary': {'field': 'count(*)', 'id': 'primary-metric'},
-            'color': {
-                'range_type': 'number',
-                'range_min': 0,
-                'range_max': 100,
-                'thresholds': [
-                    {'up_to': 25, 'color': '#24c292'},
-                    {'up_to': 50, 'color': '#fcd883'},
-                    {'up_to': 75, 'color': '#f6726a'},
-                ],
+            'primary': {
+                'field': 'count(*)',
+                'id': 'primary-metric',
+                'color': {
+                    'range_type': 'number',
+                    'range_min': 0,
+                    'range_max': 100,
+                    'thresholds': [
+                        {'up_to': 25, 'color': '#24c292'},
+                        {'up_to': 50, 'color': '#fcd883'},
+                        {'up_to': 75, 'color': '#f6726a'},
+                    ],
+                },
             },
         }
 

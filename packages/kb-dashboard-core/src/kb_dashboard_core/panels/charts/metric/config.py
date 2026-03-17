@@ -3,11 +3,12 @@ from typing import Any, Literal, cast
 
 from pydantic import Field, model_validator
 
-from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
+from kb_dashboard_core.panels.charts.base.config import BaseChart
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLBreakdownTypes, ESQLMetricTypes
 from kb_dashboard_core.panels.charts.lens.dimensions.config import LensDimensionTypes
 from kb_dashboard_core.panels.charts.lens.metrics.config import LensFormulaMetric, LensMetricTypes
 from kb_dashboard_core.panels.charts.lens.metrics.formula_parser import parse_formula
+from kb_dashboard_core.panels.charts.metric.metrics import ESQLMetricChartMetricTypes, LensMetricChartMetricTypes
 from kb_dashboard_core.shared.config import BaseCfgModel
 
 
@@ -163,17 +164,90 @@ class BaseMetricChart(BaseChart):
     type: Literal['metric'] = Field(default='metric')
     """The type of chart, which is 'metric' for this visualization."""
 
-    color: ColorRangeMapping | None = Field(default=None)
-    """Formatting options for the chart color palette."""
-
-    apply_to: Literal['value', 'background'] = Field(default='background')
-    """Controls where metric colors are applied: value text or background."""
-
     appearance: MetricAppearance | None = Field(default=None)
     """Visual appearance configuration for the metric."""
 
     titles_and_text: MetricTitlesAndText | None = Field(default=None)
     """Formatting options for the chart titles and text."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_color_fields(cls, data: object) -> object:  # noqa: PLR0912
+        """Migrate deprecated chart-level color/apply_to to primary metric fields.
+
+        Deprecated locations (mutually exclusive with their canonical replacements):
+        - ``color`` (chart level) → ``primary.color``
+        - ``apply_to`` (chart level) → ``primary.color.apply_to``
+        - ``appearance.color.apply_to`` → ``primary.color.apply_to``
+        """
+        if not isinstance(data, dict):
+            return data
+
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+
+        chart_color = cast('object', normalized_data.pop('color', None))
+        chart_apply_to = cast('object', normalized_data.pop('apply_to', None))
+
+        appearance_color_apply_to: object = None
+        appearance_raw = normalized_data.get('appearance')
+        if isinstance(appearance_raw, dict):
+            appearance = dict(cast('dict[str, Any]', appearance_raw))
+            color_raw = appearance.pop('color', None)
+            if isinstance(color_raw, dict):
+                color_dict = dict(cast('dict[str, Any]', color_raw))
+                appearance_color_apply_to = color_dict.get('apply_to')
+            normalized_data['appearance'] = appearance
+
+        has_deprecated = chart_color is not None or chart_apply_to is not None or appearance_color_apply_to is not None
+        primary_raw = normalized_data.get('primary')
+        primary: dict[str, Any] = dict(cast('dict[str, Any]', primary_raw)) if isinstance(primary_raw, dict) else {}
+        has_primary = isinstance(primary_raw, dict)
+
+        if chart_color is not None:
+            if 'color' in primary:
+                msg = "Metric chart fields 'color' and 'primary.color' are mutually exclusive. Use 'primary.color' only."
+                raise ValueError(msg)
+            warnings.warn(
+                "Metric chart field 'color' is deprecated, use 'primary.color' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            primary['color'] = chart_color
+
+        resolved_apply_to: object = None
+        if appearance_color_apply_to is not None:
+            warnings.warn(
+                "Metric field 'appearance.color.apply_to' is deprecated, use 'primary.color.apply_to' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            resolved_apply_to = appearance_color_apply_to
+        if chart_apply_to is not None:
+            warnings.warn(
+                "Metric field 'apply_to' is deprecated, use 'primary.color.apply_to' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if resolved_apply_to is None:
+                resolved_apply_to = chart_apply_to
+
+        if resolved_apply_to is not None:
+            primary_color = primary.get('color')
+            if isinstance(primary_color, dict) and 'apply_to' in primary_color:
+                msg = (
+                    "Deprecated metric color fields ('apply_to' or 'appearance.color.apply_to') "
+                    "and 'primary.color.apply_to' are mutually exclusive. Use 'primary.color.apply_to' only."
+                )
+                raise ValueError(msg)
+            if isinstance(primary_color, dict):
+                primary_color['apply_to'] = resolved_apply_to
+            else:
+                primary['color'] = {'apply_to': resolved_apply_to}
+
+        if has_deprecated or has_primary:
+            normalized_data['primary'] = primary
+
+        return normalized_data
 
 
 class LensMetricChart(BaseMetricChart):
@@ -238,10 +312,10 @@ class LensMetricChart(BaseMetricChart):
     data_view: str = Field(default=...)
     """The data view that determines the data for the metric chart."""
 
-    primary: LensMetricTypes = Field(default=...)
+    primary: LensMetricChartMetricTypes = Field(default=...)
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: LensMetricTypes | None = Field(default=None)
+    secondary: LensMetricChartMetricTypes | None = Field(default=None)
     """An optional secondary metric to display alongside the primary metric."""
 
     maximum: LensMetricTypes | None = Field(default=None)
@@ -251,7 +325,7 @@ class LensMetricChart(BaseMetricChart):
     """An optional breakdown dimension to split metric values by category."""
 
     @staticmethod
-    def _metric_shifts(metric: LensMetricTypes) -> set[str | None]:
+    def _metric_shifts(metric: LensMetricChartMetricTypes | LensMetricTypes) -> set[str | None]:
         """Return all normalized time-shift values referenced by the metric."""
         if not isinstance(metric, LensFormulaMetric):
             return {None}
@@ -322,10 +396,10 @@ class ESQLMetricChart(BaseMetricChart):
         ```
     """
 
-    primary: ESQLMetricTypes = Field(default=...)
+    primary: ESQLMetricChartMetricTypes = Field(default=...)
     """The primary metric to display in the chart. This is the main value shown in the metric visualization."""
 
-    secondary: ESQLMetricTypes | None = Field(default=None)
+    secondary: ESQLMetricChartMetricTypes | None = Field(default=None)
     """An optional secondary metric to display alongside the primary metric."""
 
     maximum: ESQLMetricTypes | None = Field(default=None)

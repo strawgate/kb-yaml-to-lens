@@ -109,14 +109,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-ec8ab9e5-f71f-fb93-ff28-47b12584dc9a"
+                "name": "indexpattern-datasource-layer-05254931-9ef7-c314-b169-0ab5eab4c6ed"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "ec8ab9e5-f71f-fb93-ff28-47b12584dc9a",
+                "layerId": "05254931-9ef7-c314-b169-0ab5eab4c6ed",
                 "layerType": "data",
-                "metricAccessor": "3c2bc97d-1a0d-764c-e652-addeb8aaff00",
+                "metricAccessor": "bb074a6a-e029-66f8-5c5a-a387269e9b58",
                 "secondaryTrend": {
                   "type": "none"
                 },
@@ -131,9 +131,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "ec8ab9e5-f71f-fb93-ff28-47b12584dc9a": {
+                    "05254931-9ef7-c314-b169-0ab5eab4c6ed": {
                       "columns": {
-                        "3c2bc97d-1a0d-764c-e652-addeb8aaff00": {
+                        "bb074a6a-e029-66f8-5c5a-a387269e9b58": {
                           "label": "Count of records",
                           "dataType": "number",
                           "operationType": "count",
@@ -146,7 +146,7 @@
                         }
                       },
                       "columnOrder": [
-                        "3c2bc97d-1a0d-764c-e652-addeb8aaff00"
+                        "bb074a6a-e029-66f8-5c5a-a387269e9b58"
                       ],
                       "incompleteColumns": {},
                       "sampling": 1
@@ -921,7 +921,7 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "c1ee38e3-9d3b-806c-a978-1f4bca7556c1:indexpattern-datasource-layer-ec8ab9e5-f71f-fb93-ff28-47b12584dc9a"
+      "name": "c1ee38e3-9d3b-806c-a978-1f4bca7556c1:indexpattern-datasource-layer-05254931-9ef7-c314-b169-0ab5eab4c6ed"
     },
     {
       "type": "index-pattern",

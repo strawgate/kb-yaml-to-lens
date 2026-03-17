@@ -557,18 +557,16 @@ def test_compile_datatable_chart_with_range_colors_esql() -> None:
             {
                 'field': 'avg(cpu_usage)',
                 'id': 'cpu-metric',
-                'appearance': {
-                    'color': {
-                        'apply_to': 'cell',
-                        'range_type': 'percent',
-                        'range_min': 0,
-                        'range_max': 100,
-                        'thresholds': [
-                            {'up_to': 50, 'color': '#00BF6F'},
-                            {'up_to': 80, 'color': '#FFA500'},
-                            {'up_to': 100, 'color': '#BD271E'},
-                        ],
-                    },
+                'color': {
+                    'apply_to': 'cell',
+                    'range_type': 'percent',
+                    'range_min': 0,
+                    'range_max': 100,
+                    'thresholds': [
+                        {'up_to': 50, 'color': '#00BF6F'},
+                        {'up_to': 80, 'color': '#FFA500'},
+                        {'up_to': 100, 'color': '#BD271E'},
+                    ],
                 },
             }
         ],
@@ -627,17 +625,15 @@ def test_compile_datatable_chart_with_range_colors_lens() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'cpu-metric',
                 'aggregation': 'average',
-                'appearance': {
-                    'color': {
-                        'apply_to': 'text',
-                        'range_type': 'number',
-                        'range_min': 0,
-                        'thresholds': [
-                            {'up_to': 0.5, 'color': '#00BF6F'},
-                            {'up_to': 0.8, 'color': '#FFA500'},
-                            {'up_to': 1.0, 'color': '#BD271E'},
-                        ],
-                    },
+                'color': {
+                    'apply_to': 'text',
+                    'range_type': 'number',
+                    'range_min': 0,
+                    'thresholds': [
+                        {'up_to': 0.5, 'color': '#00BF6F'},
+                        {'up_to': 0.8, 'color': '#FFA500'},
+                        {'up_to': 1.0, 'color': '#BD271E'},
+                    ],
                 },
             }
         ],
@@ -735,15 +731,13 @@ def test_compile_datatable_chart_preserves_thresholds_in_color_stops(
                 'field': 'system.cpu.total.pct',
                 'id': 'cpu-metric',
                 'aggregation': 'average',
-                'appearance': {
-                    'color': {
-                        'apply_to': 'text',
-                        'range_type': range_type,
-                        'thresholds': [
-                            {'up_to': threshold_stops[0], 'color': '#000000'},
-                            {'up_to': threshold_stops[1], 'color': '#ffffff'},
-                        ],
-                    }
+                'color': {
+                    'apply_to': 'text',
+                    'range_type': range_type,
+                    'thresholds': [
+                        {'up_to': threshold_stops[0], 'color': '#000000'},
+                        {'up_to': threshold_stops[1], 'color': '#ffffff'},
+                    ],
                 },
             }
         ],
@@ -765,7 +759,7 @@ def test_compile_datatable_chart_without_color_omits_palette() -> None:
                 'field': 'system.cpu.total.pct',
                 'id': 'cpu-metric',
                 'aggregation': 'average',
-                'appearance': {'color': {'apply_to': 'cell'}},
+                'color': {'apply_to': 'cell'},
             }
         ],
     }
@@ -788,11 +782,9 @@ def test_datatable_metric_color_thresholds_empty_list_is_invalid() -> None:
                 'id': 'cpu-metric',
                 'field': 'system.cpu.total.pct',
                 'aggregation': 'average',
-                'appearance': {
-                    'color': {
-                        'apply_to': 'text',
-                        'thresholds': [],
-                    }
+                'color': {
+                    'apply_to': 'text',
+                    'thresholds': [],
                 },
             }
         ],
@@ -829,9 +821,7 @@ def test_datatable_metric_color_legacy_stops_keys_are_invalid(legacy_color_confi
                 'id': 'cpu-metric',
                 'field': 'system.cpu.total.pct',
                 'aggregation': 'average',
-                'appearance': {
-                    'color': legacy_color_config,
-                },
+                'color': legacy_color_config,
             }
         ],
     }
@@ -850,15 +840,13 @@ def test_compile_datatable_chart_percent_thresholds_append_terminal_100() -> Non
                 'field': 'system.cpu.total.pct',
                 'id': 'cpu-metric',
                 'aggregation': 'average',
-                'appearance': {
-                    'color': {
-                        'apply_to': 'text',
-                        'range_type': 'percent',
-                        'thresholds': [
-                            {'up_to': 50, 'color': '#00BF6F'},
-                            {'up_to': 80, 'color': '#ffffff'},
-                        ],
-                    }
+                'color': {
+                    'apply_to': 'text',
+                    'range_type': 'percent',
+                    'thresholds': [
+                        {'up_to': 50, 'color': '#00BF6F'},
+                        {'up_to': 80, 'color': '#ffffff'},
+                    ],
                 },
             }
         ],

@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 from kb_dashboard_core.panels.charts.datatable.appearance import (
     DatatableColumnAppearanceMixin,
+    DatatableMetricAppearance,
     DatatableMetricAppearanceMixin,
 )
 from kb_dashboard_core.panels.charts.datatable.breakdowns import (
@@ -128,7 +129,12 @@ def _build_datatable_column_state(
     ),
     is_transposed: bool = False,
 ) -> KbnDatatableColumnState:
-    metric_appearance = config.appearance if is_metric and isinstance(config, DatatableMetricAppearanceMixin) else None
+    metric_appearance: DatatableMetricAppearance | None = None
+    metric_color = None
+    if is_metric and isinstance(config, DatatableMetricAppearanceMixin):
+        metric_appearance = config.appearance
+        metric_color = config.color
+
     if metric_appearance is not None:
         column_appearance = metric_appearance
     elif isinstance(config, DatatableColumnAppearanceMixin):
@@ -138,7 +144,6 @@ def _build_datatable_column_state(
 
     summary_row = metric_appearance.summary_row if metric_appearance is not None else None
     summary_label = metric_appearance.summary_label if metric_appearance is not None else None
-    metric_color = metric_appearance.color if metric_appearance is not None else None
     palette = compile_color_range_mapping(metric_color.to_range_mapping()) if metric_color is not None else None
     hidden = column_appearance.hidden if column_appearance is not None else False
     one_click_filter = column_appearance.one_click_filter if column_appearance is not None else False

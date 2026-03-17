@@ -1,8 +1,7 @@
-import warnings
 from enum import StrEnum
-from typing import Any, Literal, cast
+from typing import Literal
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorValueMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLDimensionTypes, ESQLMetricTypes
@@ -83,28 +82,6 @@ class LensTreemapChart(BaseTreemapChart):
     breakdowns: list[LensBreakdownTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
 
-    @model_validator(mode='before')
-    @classmethod
-    def _warn_deprecated_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
-            warnings.warn(
-                "Treemap field 'dimensions' is deprecated, use 'breakdowns' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
-        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
-            warnings.warn(
-                "Treemap field 'dimensions' is ignored because 'breakdowns' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data.pop('dimensions')
-        return normalized_data
-
     @field_validator('breakdowns')
     @classmethod
     def validate_breakdowns_count(cls, v: list[LensBreakdownTypes]) -> list[LensBreakdownTypes]:
@@ -123,28 +100,6 @@ class ESQLTreemapChart(BaseTreemapChart):
 
     breakdowns: list[ESQLTreemapBreakdownTypes] = Field(default=..., max_length=2)
     """Breakdowns that determine treemap grouping levels. Maximum 2 breakdowns supported."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def _warn_deprecated_fields(cls, data: object) -> object:
-        if not isinstance(data, dict):
-            return data
-        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
-        if 'dimensions' in normalized_data and 'breakdowns' not in normalized_data:
-            warnings.warn(
-                "Treemap field 'dimensions' is deprecated, use 'breakdowns' instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data['breakdowns'] = normalized_data.pop('dimensions')
-        elif 'dimensions' in normalized_data and 'breakdowns' in normalized_data:
-            warnings.warn(
-                "Treemap field 'dimensions' is ignored because 'breakdowns' is already set.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            normalized_data.pop('dimensions')
-        return normalized_data
 
     @field_validator('breakdowns')
     @classmethod

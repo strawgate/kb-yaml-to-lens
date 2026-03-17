@@ -1,8 +1,9 @@
 """Configuration models for gauge chart visualizations."""
 
-from typing import Literal
+import warnings
+from typing import Any, Literal, cast
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from kb_dashboard_core.panels.charts.base.config import BaseChart, ColorRangeMapping
 from kb_dashboard_core.panels.charts.esql.columns.config import ESQLMetric
@@ -14,7 +15,7 @@ class GaugeAppearance(BaseCfgModel):
     """Appearance configuration for gauge visualizations.
 
     Groups all visual styling options for gauge charts including shape, tick positioning,
-    labels, and palette configuration.
+    and label configuration.
     """
 
     shape: Literal['horizontal_bullet', 'vertical_bullet', 'arc', 'circle', 'semi_circle'] | None = Field(default=None)
@@ -28,9 +29,6 @@ class GaugeAppearance(BaseCfgModel):
 
     label_minor: str | None = Field(default=None)
     """Minor label text to display on the gauge."""
-
-    palette: ColorRangeMapping | None = Field(default=None)
-    """Range-based palette configuration for gauge thresholds. When set, enables palette color mode."""
 
 
 class GaugeTitlesAndText(BaseCfgModel):
@@ -60,11 +58,40 @@ class BaseGaugeChart(BaseCfgModel):
     type: Literal['gauge'] = Field(default='gauge')
     """The type of chart, which is 'gauge' for this visualization."""
 
+    color: ColorRangeMapping | None = Field(default=None)
+    """Range-based palette configuration for gauge thresholds. When set, enables palette color mode."""
+
     appearance: GaugeAppearance | None = Field(default=None)
     """Visual appearance configuration for the gauge."""
 
     titles_and_text: GaugeTitlesAndText | None = Field(default=None)
     """Title and subtitle options mapped to gauge `label_major` and `label_minor`."""
+
+    @model_validator(mode='before')
+    @classmethod
+    def _translate_deprecated_appearance_palette(cls, data: object) -> object:
+        """Migrate deprecated ``appearance.palette`` to chart-level ``color``."""
+        if not isinstance(data, dict):
+            return data
+        normalized_data: dict[str, Any] = dict(cast('dict[str, Any]', data))
+        appearance_raw = normalized_data.get('appearance')
+        if not isinstance(appearance_raw, dict):
+            return normalized_data
+        appearance = dict(cast('dict[str, Any]', appearance_raw))
+        palette = cast('object', appearance.pop('palette', None))
+        if palette is None:
+            return normalized_data
+        normalized_data['appearance'] = appearance
+        if normalized_data.get('color') is not None:
+            msg = "Gauge chart fields 'appearance.palette' and 'color' are mutually exclusive. Use 'color' only."
+            raise ValueError(msg)
+        warnings.warn(
+            "Gauge chart field 'appearance.palette' is deprecated, use 'color' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        normalized_data['color'] = palette
+        return normalized_data
 
 
 class LensGaugeChart(BaseChart, BaseGaugeChart):
@@ -87,7 +114,7 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
           goal: 80
         ```
 
-        Gauge with custom appearance and palette:
+        Gauge with custom appearance and color:
         ```yaml
         lens:
           type: gauge
@@ -98,15 +125,15 @@ class LensGaugeChart(BaseChart, BaseGaugeChart):
           minimum: 0
           maximum: 1000
           goal: 500
+          color:
+            range_type: percent
+            thresholds:
+              - up_to: 0
+                color: "#00BF6F"
+              - up_to: 80
+                color: "#FFA500"
           appearance:
             shape: arc
-            palette:
-              range_type: percent
-              thresholds:
-                - up_to: 0
-                  color: "#00BF6F"
-                - up_to: 80
-                  color: "#FFA500"
         ```
     """
 

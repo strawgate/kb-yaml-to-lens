@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 from kb_dashboard_core.panels.charts.base.compile import compile_color_range_mapping
-from kb_dashboard_core.panels.charts.base.config import ColorRangeMapping
 from kb_dashboard_core.panels.charts.base.view import KbnRangePalette
 from kb_dashboard_core.panels.charts.esql.columns.compile import compile_esql_dimension, compile_esql_metric
 
@@ -25,12 +24,15 @@ from kb_dashboard_core.panels.charts.lens.columns.view import (
 from kb_dashboard_core.panels.charts.lens.dimensions.compile import compile_lens_dimension
 from kb_dashboard_core.panels.charts.lens.metrics.compile import compile_lens_metric
 from kb_dashboard_core.panels.charts.metric.config import BaseMetricChart, ESQLMetricChart, LensMetricChart
+from kb_dashboard_core.panels.charts.metric.metrics import MetricChartColorMixin
 from kb_dashboard_core.panels.charts.metric.view import (
     KbnESQLMetricVisualizationState,
     KbnMetricVisualizationState,
     KbnSecondaryTrendNone,
 )
 from kb_dashboard_core.shared.config import stable_id_generator
+
+DEFAULT_APPLY_TO: Literal['background'] = 'background'
 
 
 @dataclass
@@ -41,10 +43,12 @@ class MetricVisualStyle:
     progress_direction: Literal['horizontal', 'vertical'] | None
     secondary_label_position: Literal['before', 'after'] | None
     palette: KbnRangePalette | None
+    apply_to: Literal['value', 'background']
 
 
 def _compile_metric_visual_style(
     chart: BaseMetricChart,
+    primary_metric: MetricChartColorMixin,
     *,
     default_show_bar: bool | None,
     default_secondary_label_position: Literal['before', 'after'] | None,
@@ -73,13 +77,19 @@ def _compile_metric_visual_style(
     if secondary_label_position is None:
         secondary_label_position = default_secondary_label_position
 
-    palette = compile_color_range_mapping(chart.color) if isinstance(chart.color, ColorRangeMapping) else None
+    metric_color = primary_metric.color
+    range_mapping = metric_color.to_range_mapping() if metric_color is not None else None
+    palette = compile_color_range_mapping(range_mapping) if range_mapping is not None else None
+    apply_to: Literal['value', 'background'] = (
+        metric_color.apply_to if metric_color is not None and metric_color.apply_to is not None else DEFAULT_APPLY_TO
+    )
 
     return MetricVisualStyle(
         show_bar=show_bar,
         progress_direction=progress_direction,
         secondary_label_position=secondary_label_position,
         palette=palette,
+        apply_to=apply_to,
     )
 
 
@@ -87,22 +97,22 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
     *,
     layer_id: str,
     chart: BaseMetricChart,
+    primary_metric: MetricChartColorMixin,
     primary_metric_id: str,
     secondary_metric_id: str | None,
     max_metric_id: str | None,
     breakdown_dimension_id: str | None,
-    apply_to: Literal['value', 'background'],
 ) -> KbnMetricVisualizationState:
     """Compile a metric chart config object into a Kibana Lens Metric visualization state.
 
     Args:
         layer_id (str): The ID of the layer.
         chart (BaseMetricChart): The source chart configuration containing optional style fields.
+        primary_metric (MetricChartColorMixin): The primary metric with color settings.
         primary_metric_id (str): The ID of the primary metric.
         secondary_metric_id (str | None): The ID of the secondary metric.
         max_metric_id (str | None): The ID of the maximum metric.
         breakdown_dimension_id (str | None): The ID of the breakdown dimension.
-        apply_to (Literal['value', 'background']): Where Kibana applies metric color styling.
 
     Returns:
         KbnMetricVisualizationState: The compiled visualization state.
@@ -117,6 +127,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
 
     style = _compile_metric_visual_style(
         chart,
+        primary_metric,
         default_show_bar=None,
         default_secondary_label_position='before',
     )
@@ -141,7 +152,7 @@ def compile_metric_chart_visualization_state(  # noqa: PLR0913
         secondaryMetricAccessor=secondary_metric_id,
         maxAccessor=max_metric_id,
         breakdownByAccessor=breakdown_dimension_id,
-        applyColorTo=apply_to,
+        applyColorTo=style.apply_to,
         icon=primary.icon if primary is not None else None,
         iconAlign=primary.icon_position if primary is not None else None,
         showBar=style.show_bar,
@@ -263,11 +274,11 @@ def compile_lens_metric_chart(
         compile_metric_chart_visualization_state(
             layer_id=layer_id,
             chart=lens_metric_chart,
+            primary_metric=lens_metric_chart.primary,
             primary_metric_id=primary_metric_id,
             secondary_metric_id=secondary_metric_id,
             max_metric_id=max_metric_id,
             breakdown_dimension_id=breakdown_dimension_id,
-            apply_to=lens_metric_chart.apply_to,
         ),
     )
 
@@ -330,6 +341,7 @@ def compile_esql_metric_chart(
 
     style = _compile_metric_visual_style(
         esql_metric_chart,
+        esql_metric_chart.primary,
         default_show_bar=False,
         default_secondary_label_position=None,
     )
@@ -344,7 +356,7 @@ def compile_esql_metric_chart(
             secondaryMetricAccessor=secondary_metric_id,
             maxAccessor=max_metric_id,
             breakdownByAccessor=breakdown_dimension_id,
-            applyColorTo=esql_metric_chart.apply_to,
+            applyColorTo=style.apply_to,
             icon=primary.icon if primary is not None else None,
             iconAlign=primary.icon_position if primary is not None else None,
             showBar=style.show_bar,

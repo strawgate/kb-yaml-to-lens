@@ -67,14 +67,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-96556f08-8386-f6cb-8197-5d6f4d798147"
+                "name": "indexpattern-datasource-layer-b681b1b6-3888-3a18-e494-06e2be21add3"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "96556f08-8386-f6cb-8197-5d6f4d798147",
+                "layerId": "b681b1b6-3888-3a18-e494-06e2be21add3",
                 "layerType": "data",
-                "metricAccessor": "01277afe-417d-009a-a4b3-ec14061a870e",
+                "metricAccessor": "2299f471-58d7-9e23-38e0-59a988516955",
                 "secondaryTrend": {
                   "type": "none"
                 },
@@ -89,9 +89,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "96556f08-8386-f6cb-8197-5d6f4d798147": {
+                    "b681b1b6-3888-3a18-e494-06e2be21add3": {
                       "columns": {
-                        "01277afe-417d-009a-a4b3-ec14061a870e": {
+                        "2299f471-58d7-9e23-38e0-59a988516955": {
                           "label": "Filtered Events",
                           "dataType": "number",
                           "customLabel": true,
@@ -105,7 +105,7 @@
                         }
                       },
                       "columnOrder": [
-                        "01277afe-417d-009a-a4b3-ec14061a870e"
+                        "2299f471-58d7-9e23-38e0-59a988516955"
                       ],
                       "incompleteColumns": {},
                       "sampling": 1
@@ -157,14 +157,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-522d3815-efbd-c50a-b542-ecaffb54c0df"
+                "name": "indexpattern-datasource-layer-7e7d8759-8ba9-3d1c-daff-0dde2ee9044a"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "522d3815-efbd-c50a-b542-ecaffb54c0df",
+                "layerId": "7e7d8759-8ba9-3d1c-daff-0dde2ee9044a",
                 "layerType": "data",
-                "metricAccessor": "37332a63-6e60-0320-4c23-76b81060c0b8",
+                "metricAccessor": "001ecd4a-c155-25f2-ab12-ee440c215995",
                 "secondaryTrend": {
                   "type": "none"
                 },
@@ -179,9 +179,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "522d3815-efbd-c50a-b542-ecaffb54c0df": {
+                    "7e7d8759-8ba9-3d1c-daff-0dde2ee9044a": {
                       "columns": {
-                        "37332a63-6e60-0320-4c23-76b81060c0b8": {
+                        "001ecd4a-c155-25f2-ab12-ee440c215995": {
                           "label": "Hosts",
                           "dataType": "number",
                           "customLabel": true,
@@ -195,7 +195,7 @@
                         }
                       },
                       "columnOrder": [
-                        "37332a63-6e60-0320-4c23-76b81060c0b8"
+                        "001ecd4a-c155-25f2-ab12-ee440c215995"
                       ],
                       "incompleteColumns": {},
                       "sampling": 1
@@ -247,14 +247,14 @@
               {
                 "type": "index-pattern",
                 "id": "logs-*",
-                "name": "indexpattern-datasource-layer-7d9a63bf-9163-459c-3239-ffeb27214ae3"
+                "name": "indexpattern-datasource-layer-a4c4ca78-97c7-714c-b28e-165192181d22"
               }
             ],
             "state": {
               "visualization": {
-                "layerId": "7d9a63bf-9163-459c-3239-ffeb27214ae3",
+                "layerId": "a4c4ca78-97c7-714c-b28e-165192181d22",
                 "layerType": "data",
-                "metricAccessor": "995b7492-b8f8-db73-67e1-bcb1b69207ea",
+                "metricAccessor": "19620c96-baae-3d03-22e9-6b510d8c44fa",
                 "secondaryTrend": {
                   "type": "none"
                 },
@@ -288,9 +288,9 @@
               "datasourceStates": {
                 "formBased": {
                   "layers": {
-                    "7d9a63bf-9163-459c-3239-ffeb27214ae3": {
+                    "a4c4ca78-97c7-714c-b28e-165192181d22": {
                       "columns": {
-                        "995b7492-b8f8-db73-67e1-bcb1b69207ea": {
+                        "19620c96-baae-3d03-22e9-6b510d8c44fa": {
                           "label": "Avg Response (ms)",
                           "dataType": "number",
                           "customLabel": true,
@@ -302,7 +302,7 @@
                         }
                       },
                       "columnOrder": [
-                        "995b7492-b8f8-db73-67e1-bcb1b69207ea"
+                        "19620c96-baae-3d03-22e9-6b510d8c44fa"
                       ],
                       "incompleteColumns": {},
                       "sampling": 1
@@ -846,17 +846,17 @@
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "b3040adc-4522-ef84-ce1a-f68a9755fc66:indexpattern-datasource-layer-96556f08-8386-f6cb-8197-5d6f4d798147"
+      "name": "b3040adc-4522-ef84-ce1a-f68a9755fc66:indexpattern-datasource-layer-b681b1b6-3888-3a18-e494-06e2be21add3"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "45dbe035-2479-247c-9d13-442ecf737198:indexpattern-datasource-layer-522d3815-efbd-c50a-b542-ecaffb54c0df"
+      "name": "45dbe035-2479-247c-9d13-442ecf737198:indexpattern-datasource-layer-7e7d8759-8ba9-3d1c-daff-0dde2ee9044a"
     },
     {
       "type": "index-pattern",
       "id": "logs-*",
-      "name": "61cdb623-3088-fe6d-0b1e-5797cb923468:indexpattern-datasource-layer-7d9a63bf-9163-459c-3239-ffeb27214ae3"
+      "name": "61cdb623-3088-fe6d-0b1e-5797cb923468:indexpattern-datasource-layer-a4c4ca78-97c7-714c-b28e-165192181d22"
     },
     {
       "type": "index-pattern",

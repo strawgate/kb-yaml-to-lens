@@ -56,7 +56,7 @@ def compile_gauge_chart_visualization_state(  # noqa: PLR0913
     titles_and_text = chart.titles_and_text
     label_major = appearance.label_major if appearance is not None else None
     label_minor = appearance.label_minor if appearance is not None else None
-    palette = compile_color_range_mapping(appearance.palette) if appearance is not None else None
+    palette = compile_color_range_mapping(chart.color) if chart.color is not None else None
 
     # Infer color_mode from palette presence
     color_mode = 'palette' if palette is not None else None

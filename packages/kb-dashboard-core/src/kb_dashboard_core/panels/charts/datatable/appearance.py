@@ -89,9 +89,6 @@ class DatatableMetricAppearance(DatatableColumnAppearance):
     summary_label: str | None = Field(default=None)
     """Custom label for the summary row."""
 
-    color: DatatableMetricColor | None = Field(default=None)
-    """Color display mode and optional range mapping."""
-
 
 class DatatableColumnAppearanceMixin(BaseCfgModel):
     """Mixin that nests dimension appearance."""
@@ -101,7 +98,10 @@ class DatatableColumnAppearanceMixin(BaseCfgModel):
 
 
 class DatatableMetricAppearanceMixin(BaseCfgModel):
-    """Mixin that nests metric appearance."""
+    """Mixin that nests metric appearance and color settings."""
 
     appearance: DatatableMetricAppearance | None = Field(default=None)
-    """Presentation options for this metric."""
+    """Presentation options for this metric (width, alignment, summary row, etc.)."""
+
+    color: DatatableMetricColor | None = Field(default=None)
+    """Color display mode and optional range mapping for this metric."""

@@ -1,9 +1,7 @@
 """Test the compilation of Lens waffle charts from config models to view models."""
 
-import pytest
 from dirty_equals import IsUUID
 from inline_snapshot import snapshot
-from pydantic import ValidationError
 
 from kb_dashboard_core.panels.charts.config import ESQLWafflePanelConfig
 from kb_dashboard_core.panels.charts.waffle.compile import compile_esql_waffle_chart, compile_lens_waffle_chart
@@ -95,55 +93,6 @@ async def test_waffle_chart_breakdown_goes_to_primary_groups() -> None:
     layer = kbn_state_visualization.layers[0]
     assert layer.primaryGroups == ['6e73286b-85cf-4343-9676-b7ee2ed0a3df']
     assert layer.secondaryGroups is None
-
-
-def test_waffle_invalid_legacy_titles_and_text_type_is_rejected() -> None:
-    """Malformed titles_and_text should fail validation instead of being silently dropped."""
-    with pytest.raises(ValidationError, match='titles_and_text'):
-        LensWaffleChart.model_validate(
-            {
-                'type': 'waffle',
-                'data_view': 'logs-*',
-                'metric': {'aggregation': 'count'},
-                'breakdown': {'type': 'values', 'field': 'service.name'},
-                'titles_and_text': 'invalid',
-            }
-        )
-
-
-def test_waffle_legacy_titles_and_text_maps_to_appearance_values() -> None:
-    """Legacy titles_and_text value fields should map into appearance.values."""
-    chart = LensWaffleChart.model_validate(
-        {
-            'type': 'waffle',
-            'data_view': 'logs-*',
-            'metric': {'aggregation': 'count'},
-            'breakdown': {'type': 'values', 'field': 'service.name'},
-            'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
-        }
-    )
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'value'
-    assert chart.appearance.values.decimal_places == 4
-
-
-def test_waffle_appearance_values_override_legacy_titles_and_text() -> None:
-    """Explicit appearance.values should win over legacy titles_and_text values."""
-    chart = LensWaffleChart.model_validate(
-        {
-            'type': 'waffle',
-            'data_view': 'logs-*',
-            'metric': {'aggregation': 'count'},
-            'breakdown': {'type': 'values', 'field': 'service.name'},
-            'titles_and_text': {'value_format': 'hide', 'value_decimal_places': 1},
-            'appearance': {'values': {'format': 'percent', 'decimal_places': 5}},
-        }
-    )
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'percent'
-    assert chart.appearance.values.decimal_places == 5
 
 
 async def test_waffle_chart_with_legend_options() -> None:
@@ -274,33 +223,6 @@ async def test_waffle_chart_with_collapse_functions() -> None:
             'nestedLegend': False,
         }
     )
-
-
-def test_waffle_deprecated_dimension_does_not_override_explicit_breakdown() -> None:
-    """Explicit breakdown should win over deprecated dimension for both chart modes."""
-    lens_chart = LensWaffleChart.model_validate(
-        {
-            'type': 'waffle',
-            'data_view': 'logs-*',
-            'metric': {'aggregation': 'count'},
-            'breakdown': {'type': 'values', 'field': 'service.name', 'id': 'new-breakdown'},
-            'dimension': {'type': 'values', 'field': 'host.name', 'id': 'legacy-dimension'},
-        }
-    )
-    assert lens_chart.breakdown is not None
-    assert lens_chart.breakdown.id == 'new-breakdown'
-
-    esql_chart = ESQLWafflePanelConfig.model_validate(
-        {
-            'type': 'waffle',
-            'query': 'FROM logs-* | STATS c = COUNT(*) BY service.name',
-            'metric': {'field': 'c'},
-            'breakdown': {'field': 'service.name', 'id': 'new-breakdown'},
-            'dimension': {'field': 'host.name', 'id': 'legacy-dimension'},
-        }
-    )
-    assert esql_chart.breakdown is not None
-    assert esql_chart.breakdown.id == 'new-breakdown'
 
 
 async def test_waffle_chart_with_custom_colors() -> None:
@@ -506,41 +428,3 @@ async def test_waffle_chart_without_value_decimal_places() -> None:
     layer = kbn_state_visualization.layers[0]
     dumped = layer.model_dump()
     assert 'percentDecimals' not in dumped
-
-
-def test_waffle_deprecated_titles_and_text_warns_and_maps() -> None:
-    """Deprecated titles_and_text should warn and map to appearance.values."""
-    with pytest.warns(DeprecationWarning, match='titles_and_text'):
-        chart = LensWaffleChart.model_validate(
-            {
-                'type': 'waffle',
-                'data_view': 'logs-*',
-                'metric': {'aggregation': 'count'},
-                'breakdown': {'type': 'values', 'field': 'service.name'},
-                'titles_and_text': {'value_format': 'value', 'value_decimal_places': 4},
-            }
-        )
-
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'value'
-    assert chart.appearance.values.decimal_places == 4
-
-
-def test_waffle_deprecated_titles_and_text_warns_when_ignored() -> None:
-    """Deprecated titles_and_text fields should warn when overridden by appearance.values."""
-    with pytest.warns(DeprecationWarning, match="ignored because 'appearance.values.format' is already set"):
-        chart = LensWaffleChart.model_validate(
-            {
-                'type': 'waffle',
-                'data_view': 'logs-*',
-                'metric': {'aggregation': 'count'},
-                'breakdown': {'type': 'values', 'field': 'service.name'},
-                'appearance': {'values': {'format': 'hide'}},
-                'titles_and_text': {'value_format': 'value'},
-            }
-        )
-
-    assert chart.appearance is not None
-    assert chart.appearance.values is not None
-    assert chart.appearance.values.format == 'hide'

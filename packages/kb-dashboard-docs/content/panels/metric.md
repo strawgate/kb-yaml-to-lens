@@ -78,10 +78,10 @@ dashboards:
 | `secondary` | `LensMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
 | `maximum` | `LensMetricTypes \| None` | Optional maximum metric for comparison or progress bar scale. | `None` | No |
 | `breakdown` | `LensDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
-| `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
-| `apply_to` | `Literal['value', 'background']` | Controls where metric colors are applied. | `'background'` | No |
 | `appearance` | `MetricAppearance \| None` | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
 | `titles_and_text` | `MetricTitlesAndText \| None` | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
+
+Color thresholds and `apply_to` are configured on the primary metric's `color` field (e.g., `primary.color.thresholds`, `primary.color.apply_to`). Deprecated chart-level `color` and `apply_to` fields are supported for backward compatibility and emit deprecation warnings. Do not set chart-level and `primary.color.*` variants together; they are mutually exclusive.
 
 #### Metric Appearance
 
@@ -169,10 +169,10 @@ primary:
 | `secondary` | `ESQLMetricTypes \| None` | Optional secondary metric to display alongside the primary. | `None` | No |
 | `maximum` | `ESQLMetricTypes \| None` | Optional maximum metric for comparison or progress bar scale. | `None` | No |
 | `breakdown` | `ESQLDimensionTypes \| None` | Optional breakdown dimension for splitting the metric. | `None` | No |
-| `color` | `ColorValueMapping \| None` | Color palette mapping for the metric. See [Color Mapping Configuration](base.md#color-mapping-configuration). | `None` | No |
-| `apply_to` | `Literal['value', 'background']` | Controls where metric colors are applied. | `'background'` | No |
 | `appearance` | `MetricAppearance \| None` | Visual appearance configuration. See [Metric Appearance](#metric-appearance). | `None` | No |
 | `titles_and_text` | `MetricTitlesAndText \| None` | Titles and text formatting options. See [Metric Titles and Text](#metric-titles-and-text). | `None` | No |
+
+Color thresholds and `apply_to` are configured on the primary metric's `color` field (e.g., `primary.color.thresholds`, `primary.color.apply_to`). Deprecated chart-level `color` and `apply_to` fields are supported for backward compatibility and emit deprecation warnings. Do not set chart-level and `primary.color.*` variants together; they are mutually exclusive.
 
 #### ESQL Metric Types
 
@@ -209,7 +209,7 @@ The ESQL query determines what metrics are available - each column in your STATS
 
 ## Color Mode
 
-Use `apply_to` to control how metric colors are applied:
+Use `primary.color.apply_to` to control how metric colors are applied:
 
 - `value`: apply colors to metric value text
 - `background`: apply colors to metric background (default)
@@ -223,10 +223,11 @@ dashboards:
         lens:
           type: metric
           data_view: "logs-*"
-          apply_to: value
           primary:
             formula: "count(kql='event.outcome:failure') / count() * 100"
             label: "Error Rate"
+            color:
+              apply_to: value
             format:
               type: percent
 
@@ -236,10 +237,11 @@ dashboards:
         lens:
           type: metric
           data_view: "logs-*"
-          apply_to: background
           primary:
             formula: "count(kql='event.outcome:success') / count() * 100"
             label: "Availability"
+            color:
+              apply_to: background
             format:
               type: percent
 ```
