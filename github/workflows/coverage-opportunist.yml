@@ -1,0 +1,67 @@
+---
+name: 'Scheduled: Coverage Opportunist'
+on:
+  schedule:
+    - cron: 0 15 * * 1
+  workflow_dispatch:
+    inputs:
+      target_package:
+        description: Optional package scope (cli|core|lint|tools|docs|all)
+        required: false
+        type: string
+        default: all
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+  issues: write
+  discussions: write
+  id-token: write
+concurrency:
+  group: coverage-opportunist-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  run:
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-internal-gemini-cli.lock.yml@main
+    with:
+      title-prefix: '[coverage-opportunist]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        uv sync
+      additional-instructions: |
+        You are the scheduled coverage opportunist for kb-yaml-to-lens.
+        Keep changes surgical and behavior-preserving.
+
+        ## Scope
+        - Respect `target_package: ${{ inputs.target_package }}` when provided.
+        - If `target_package` is `all`, pick one package where meaningful coverage gains are practical in this run.
+
+        ## Mission
+        Materially improve automated test coverage with light refactors only when needed to enable robust tests.
+
+        ## Hard constraints
+        - Do not make broad architectural changes.
+        - Do not add new external dependencies.
+        - Avoid style-only churn.
+        - Keep the PR focused and reviewable.
+
+        ## Required process
+        1. Establish a baseline using existing coverage commands/tests.
+        2. Identify low-coverage modules with important logic.
+        3. Add targeted tests for real behavior/edge cases.
+        4. Apply minimal refactors only when they directly unlock better testing.
+        5. Re-run relevant CI commands and coverage checks.
+
+        ## Success criteria
+        - Coverage increases in the touched scope.
+        - Tests are deterministic and meaningful (not assertion padding).
+        - Existing checks pass.
+
+        ## Deliverable
+        Open exactly one pull request with:
+        - Coverage before/after summary
+        - What was tested and why
+        - Any tiny refactors done to improve testability
+        If no safe improvement is possible, open one issue documenting blockers and next best targets instead of forcing low-value changes.
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
