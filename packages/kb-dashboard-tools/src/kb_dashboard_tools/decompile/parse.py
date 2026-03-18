@@ -1,6 +1,6 @@
 """Compatibility facade for decompiler parse modules."""
 
-from .parse_dashboard import parse_dashboard
+from .parse_dashboard_kbn import parse_dashboard
 from .parse_models import (
     ControlViewModel,
     ParsedColumn,

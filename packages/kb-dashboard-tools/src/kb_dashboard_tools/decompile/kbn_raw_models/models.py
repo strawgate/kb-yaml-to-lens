@@ -1,17 +1,17 @@
-"""Permissive raw Pydantic models for decompiler parse boundaries."""
+"""Permissive raw Pydantic models for parsing Kibana saved-object JSON."""
 
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class RawBaseModel(BaseModel):
+class KbnRawBase(BaseModel):
     """Base permissive model for raw Kibana payload fragments."""
 
     model_config: ClassVar[ConfigDict] = ConfigDict(extra='allow', populate_by_name=True)
 
 
-class RawReference(RawBaseModel):
+class KbnReference(KbnRawBase):
     """Raw reference item from saved-object references arrays."""
 
     name: str | None = None
@@ -19,7 +19,7 @@ class RawReference(RawBaseModel):
     id: str | None = None
 
 
-class RawGridData(RawBaseModel):
+class KbnGridData(KbnRawBase):
     """Raw panel grid-data object."""
 
     x: int | None = None
@@ -29,7 +29,7 @@ class RawGridData(RawBaseModel):
     section_id: str | None = Field(default=None, alias='sectionId')
 
 
-class RawVisualizationLayer(RawBaseModel):
+class KbnVisualizationLayer(KbnRawBase):
     """Raw visualization layer object containing accessor ids."""
 
     layer_id: str | None = Field(default=None, alias='layerId')
@@ -38,7 +38,7 @@ class RawVisualizationLayer(RawBaseModel):
     split_accessor: str | None = Field(default=None, alias='splitAccessor')
 
 
-class RawVisualization(RawBaseModel):
+class KbnVisualization(KbnRawBase):
     """Raw visualization block from lens state."""
 
     preferred_series_type: str | None = Field(default=None, alias='preferredSeriesType')
@@ -48,51 +48,51 @@ class RawVisualization(RawBaseModel):
     secondary_accessor: str | None = Field(default=None, alias='secondaryAccessor')
     accessor: str | None = None
     accessors: list[object] | None = None
-    layers: list[RawVisualizationLayer] | None = None
+    layers: list[KbnVisualizationLayer] | None = None
 
 
-class RawState(RawBaseModel):
+class KbnState(KbnRawBase):
     """Raw panel state block containing query, datasource, and visualization."""
 
-    visualization: RawVisualization | None = None
+    visualization: KbnVisualization | None = None
     datasource_states: dict[str, Any] | None = Field(default=None, alias='datasourceStates')
     query: dict[str, Any] | None = None
 
 
-class RawEmbeddableAttributes(RawBaseModel):
+class KbnEmbeddableAttributes(KbnRawBase):
     """Raw embeddable attributes block."""
 
-    state: RawState | None = None
+    state: KbnState | None = None
     visualization_type: str | None = Field(default=None, alias='visualizationType')
-    references: list[RawReference | object] | None = None
+    references: list[KbnReference | object] | None = None
 
 
-class RawSavedVis(RawBaseModel):
+class KbnSavedVis(KbnRawBase):
     """Raw saved visualization metadata from visualization panels."""
 
     type: str | None = None
 
 
-class RawEmbeddableConfig(RawBaseModel):
+class KbnEmbeddableConfig(KbnRawBase):
     """Raw embeddable config block for a panel."""
 
     title: str | None = None
-    attributes: RawEmbeddableAttributes | None = None
-    references: list[RawReference | object] | None = None
-    saved_vis: RawSavedVis | None = Field(default=None, alias='savedVis')
+    attributes: KbnEmbeddableAttributes | None = None
+    references: list[KbnReference | object] | None = None
+    saved_vis: KbnSavedVis | None = Field(default=None, alias='savedVis')
 
 
-class RawPanel(RawBaseModel):
+class KbnPanel(KbnRawBase):
     """Raw dashboard panel object."""
 
     panel_index: str | None = Field(default=None, alias='panelIndex')
     title: str | None = None
     type: str | None = None
-    grid_data: RawGridData | None = Field(default=None, alias='gridData')
-    embeddable_config: RawEmbeddableConfig | None = Field(default=None, alias='embeddableConfig')
+    grid_data: KbnGridData | None = Field(default=None, alias='gridData')
+    embeddable_config: KbnEmbeddableConfig | None = Field(default=None, alias='embeddableConfig')
 
 
-class RawDashboardAttributes(RawBaseModel):
+class KbnDashboardAttributes(KbnRawBase):
     """Raw dashboard attributes object."""
 
     title: str | None = None
@@ -105,9 +105,9 @@ class RawDashboardAttributes(RawBaseModel):
     control_group_input: dict[str, Any] | None = Field(default=None, alias='controlGroupInput')
 
 
-class RawDashboard(RawBaseModel):
+class KbnDashboard(KbnRawBase):
     """Raw saved dashboard object envelope."""
 
     id: str | None = None
-    attributes: RawDashboardAttributes | None = None
-    references: list[RawReference | object] | None = None
+    attributes: KbnDashboardAttributes | None = None
+    references: list[KbnReference | object] | None = None
