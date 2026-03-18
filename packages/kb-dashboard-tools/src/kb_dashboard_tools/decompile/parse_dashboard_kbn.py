@@ -173,6 +173,9 @@ def _parse_dashboard_query(attributes: dict[str, Any]) -> dict[str, str] | None:
 def _normalize_control_for_view(panel_id: str, raw: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(raw)
     panel_type = normalized.get('type')
+    if panel_type == 'timeSliderControl':
+        normalized['type'] = 'timeSlider'
+        panel_type = 'timeSlider'
     normalized.setdefault('grow', False)
     normalized.setdefault('width', 'medium')
 
