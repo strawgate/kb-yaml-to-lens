@@ -266,46 +266,9 @@ def _replace_complex_unions(annotation: ast.expr, transformer: '_RawModelTransfo
     """Replace complex union type annotations with Any.
 
     Targets:
-    - dict[str, KbnLensColumnTypes]  → dict[str, Any]
-    - list[KbnESQLColumnTypes]        → list[Any]
     - KbnFilterMetaTypes              → Any
     - KbnControlTypes                 → Any
     """
-    # dict[str, KbnLensColumnTypes] → dict[str, Any]
-    if (
-        isinstance(annotation, ast.Subscript)
-        and isinstance(annotation.value, ast.Name)
-        and annotation.value.id == 'dict'
-        and isinstance(annotation.slice, ast.Tuple)
-        and len(annotation.slice.elts) == 2
-        and isinstance(annotation.slice.elts[1], ast.Name)
-        and annotation.slice.elts[1].id == 'KbnLensColumnTypes'
-    ):
-        transformer.any_introduced = True
-        return ast.Subscript(
-            value=ast.Name(id='dict', ctx=ast.Load()),
-            slice=ast.Tuple(
-                elts=[annotation.slice.elts[0], ast.Name(id='Any', ctx=ast.Load())],
-                ctx=ast.Load(),
-            ),
-            ctx=ast.Load(),
-        )
-
-    # list[KbnESQLColumnTypes] → list[Any]
-    if (
-        isinstance(annotation, ast.Subscript)
-        and isinstance(annotation.value, ast.Name)
-        and annotation.value.id == 'list'
-        and isinstance(annotation.slice, ast.Name)
-        and annotation.slice.id == 'KbnESQLColumnTypes'
-    ):
-        transformer.any_introduced = True
-        return ast.Subscript(
-            value=ast.Name(id='list', ctx=ast.Load()),
-            slice=ast.Name(id='Any', ctx=ast.Load()),
-            ctx=ast.Load(),
-        )
-
     # KbnFilterMetaTypes → Any
     if isinstance(annotation, ast.Name) and annotation.id == 'KbnFilterMetaTypes':
         transformer.any_introduced = True

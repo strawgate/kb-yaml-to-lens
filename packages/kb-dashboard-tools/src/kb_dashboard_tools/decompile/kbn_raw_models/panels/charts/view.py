@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from kb_dashboard_tools.decompile.kbn_raw_models.filters.view import KbnFilter
+from kb_dashboard_tools.decompile.kbn_raw_models.panels.charts.esql.columns.view import KbnESQLColumnTypes
+from kb_dashboard_tools.decompile.kbn_raw_models.panels.charts.lens.columns.view import KbnLensColumnTypes
 from kb_dashboard_tools.decompile.kbn_raw_models.panels.view import KbnBasePanel, KbnBasePanelEmbeddableConfig
 from kb_dashboard_tools.decompile.kbn_raw_models.queries.view import KbnESQLQuery, KbnQuery
 from kb_dashboard_tools.decompile.kbn_raw_models.shared.view import BaseRawVwModel, KbnReference, OmitIfNone
@@ -39,7 +41,7 @@ if TYPE_CHECKING:
 class KbnFormBasedDataSourceStateLayer(BaseRawVwModel):
     """Represents the datasource state for a single layer within a Lens panel in the Kibana JSON structure."""
 
-    columns: dict[str, Any] = Field(default_factory=dict)
+    columns: dict[str, KbnLensColumnTypes] = Field(default_factory=dict)
     columnOrder: list[str] = Field(default_factory=list)
     incompleteColumns: dict[str, Any] = Field(default_factory=dict)
     sampling: int | None = None
@@ -63,8 +65,8 @@ class KbnFormBasedDataSourceState(BaseRawVwModel):
 
 class KbnTextBasedDataSourceStateLayer(BaseRawVwModel):
     query: KbnESQLQuery | None = None
-    columns: list[Any] | None = None
-    allColumns: list[Any] | None = None
+    columns: list[KbnESQLColumnTypes] | None = None
+    allColumns: list[KbnESQLColumnTypes] | None = None
     timeField: str | None = None
 
 
