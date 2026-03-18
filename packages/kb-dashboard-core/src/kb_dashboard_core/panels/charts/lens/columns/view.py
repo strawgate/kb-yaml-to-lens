@@ -17,12 +17,12 @@ type KbnLensDimensionColumnTypes = (
 )
 
 type KbnLensMetricColumnTypes = (
-    KbnLensFieldMetricColumn
-    | KbnLensStaticValueColumn
+    KbnLensStaticValueColumn
     | KbnLensFormulaColumn
     | KbnLensMathColumn
     | KbnLensFormulaAggColumn
     | KbnLensFullReferenceColumn
+    | KbnLensFieldMetricColumn
 )
 
 type KbnLensMetricFormatTypes = KbnLensMetricFormat

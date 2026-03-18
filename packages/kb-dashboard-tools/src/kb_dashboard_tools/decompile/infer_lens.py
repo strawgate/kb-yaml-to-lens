@@ -971,9 +971,10 @@ def _extract_esql_query(panel: KbnLensPanel) -> str | None:
 def _validate_column(col_id: str, col_val: Any) -> KbnLensColumnTypes | None:
     """Validate a raw column dict to the correct typed KbnLensColumnTypes variant.
 
-    Uses operationType to pick the right class rather than relying on pydantic
-    union left-to-right resolution (which would incorrectly match permissive
-    base classes before more specific ones like KbnLensFormulaColumn).
+    If col_val is already a typed KbnLensBaseColumn instance (validated by pydantic
+    when columns: dict[str, KbnLensColumnTypes]), pass it through directly.
+    Otherwise uses operationType to pick the right class rather than relying on
+    pydantic union left-to-right resolution.
     """
     from .kbn_raw_models.panels.charts.lens.columns.view import (
         KbnLensBaseColumn,
@@ -982,6 +983,10 @@ def _validate_column(col_id: str, col_val: Any) -> KbnLensColumnTypes | None:
         KbnLensMathColumn,
         KbnLensStaticValueColumn,
     )
+
+    # Already validated by pydantic (columns: dict[str, KbnLensColumnTypes])
+    if isinstance(col_val, KbnLensBaseColumn):
+        return col_val  # pyright: ignore[reportReturnType]
 
     if not isinstance(col_val, dict):
         return None
