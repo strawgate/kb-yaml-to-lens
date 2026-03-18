@@ -14,8 +14,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Metric
         run: gh workflow run explore-lens-metric.yml
@@ -23,8 +23,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Gauge
         run: gh workflow run explore-lens-gauge.yml
@@ -32,8 +32,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Pie
         run: gh workflow run explore-lens-pie.yml
@@ -41,8 +41,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Partition (waffle, mosaic)
         run: gh workflow run explore-lens-partition.yml
@@ -50,8 +50,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Datatable
         run: gh workflow run explore-lens-datatable.yml
@@ -59,8 +59,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Heatmap
         run: gh workflow run explore-lens-heatmap.yml
@@ -68,8 +68,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Lens Tag Cloud
         run: gh workflow run explore-lens-tagcloud.yml
@@ -77,8 +77,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL XY (bar, line, area)
         run: gh workflow run explore-esql-xy.yml
@@ -86,8 +86,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Metric
         run: gh workflow run explore-esql-metric.yml
@@ -95,8 +95,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Gauge
         run: gh workflow run explore-esql-gauge.yml
@@ -104,8 +104,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Pie/Donut
         run: gh workflow run explore-esql-pie.yml
@@ -113,8 +113,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Partition (waffle, mosaic)
         run: gh workflow run explore-esql-partition.yml
@@ -122,8 +122,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Datatable
         run: gh workflow run explore-esql-datatable.yml
@@ -131,8 +131,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Heatmap
         run: gh workflow run explore-esql-heatmap.yml
@@ -140,8 +140,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger ES|QL Tag Cloud
         run: gh workflow run explore-esql-tagcloud.yml
@@ -149,8 +149,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait 5 minutes
-        run: sleep 300
+      - name: Wait 15 minutes
+        run: sleep 900
 
       - name: Trigger Content Panels (markdown, search, links, image, vega, section)
         run: gh workflow run explore-content-panels.yml

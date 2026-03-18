@@ -12,7 +12,7 @@ permissions:
   pull-requests: write
   id-token: write
 concurrency:
-  group: explore-kibana-saved-objects-8-${{ github.event.issue.number }}
+  group: explore-workflows-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   run:

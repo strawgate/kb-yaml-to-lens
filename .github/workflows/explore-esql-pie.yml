@@ -16,7 +16,7 @@ permissions:
   issues: write
   pull-requests: read
 concurrency:
-  group: explore-esql-pie-${{ github.ref }}
+  group: explore-workflows-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   generate-matrix:

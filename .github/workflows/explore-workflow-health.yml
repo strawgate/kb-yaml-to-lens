@@ -9,6 +9,9 @@ permissions:
   contents: read
   issues: write
   pull-requests: read
+concurrency:
+  group: explore-workflows-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   run:
     uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
