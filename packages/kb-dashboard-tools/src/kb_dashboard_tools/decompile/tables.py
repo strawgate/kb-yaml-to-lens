@@ -73,6 +73,7 @@ CONTROL_TYPE_MAP: dict[str, str] = {
     'optionsListControl': 'options',
     'rangeSliderControl': 'range',
     'timeSliderControl': 'time',
+    'timeSlider': 'time',
 }
 
 # ---------------------------------------------------------------------------
@@ -128,6 +129,12 @@ KIBANA_GAUGE_DEFAULT_SHAPE = 'horizontalBullet'
 KIBANA_PIE_NUMBER_DISPLAY_TO_YAML: dict[str, str] = {
     'percent': 'percent',
     'value': 'integer',
+    'hidden': 'hide',
+}
+
+KIBANA_PARTITION_NUMBER_DISPLAY_TO_YAML: dict[str, str] = {
+    'percent': 'percent',
+    'value': 'value',
     'hidden': 'hide',
 }
 

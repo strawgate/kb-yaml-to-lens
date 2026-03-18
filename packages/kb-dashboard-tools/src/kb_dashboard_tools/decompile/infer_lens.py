@@ -35,6 +35,7 @@ from .tables import (
     KIBANA_GAUGE_DEFAULT_SHAPE,
     KIBANA_GAUGE_SHAPE_TO_YAML,
     KIBANA_LEGEND_SIZE_TO_YAML,
+    KIBANA_PARTITION_NUMBER_DISPLAY_TO_YAML,
     KIBANA_PIE_CATEGORY_DISPLAY_TO_YAML,
     KIBANA_PIE_NUMBER_DISPLAY_TO_YAML,
     LENS_VISUALIZATION_TYPES,
@@ -134,11 +135,16 @@ def _extract_metric_format(col: ParsedColumn) -> dict[str, Any] | None:
     fmt: dict[str, Any] = {'type': format_type}
     format_params = get_dict(format_config, 'params')
     if format_params is None:
+        if format_type == 'custom':
+            return None
         return fmt
     for key in ('decimals', 'suffix', 'compact', 'pattern'):
         val = format_params.get(key)
         if val is not None:
             fmt[key] = val
+    # custom format requires a pattern; fall back to number if none is present
+    if format_type == 'custom' and 'pattern' not in fmt:
+        fmt['type'] = 'number'
     return fmt
 
 
@@ -572,7 +578,7 @@ def _extract_gauge_settings(
     return (appearance if appearance else None), (titles if titles else None)
 
 
-def _extract_partition_appearance(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
+def _extract_partition_appearance(vis_raw: dict[str, Any], chart_type: str | None = None) -> dict[str, Any] | None:
     """Extract appearance settings from a partition chart (pie/treemap/waffle/mosaic) visualization state."""
     layers = get_list(vis_raw, 'layers')
     if layers is None or len(layers) == 0:
@@ -584,10 +590,15 @@ def _extract_partition_appearance(vis_raw: dict[str, Any]) -> dict[str, Any] | N
     appearance: dict[str, Any] = {}
 
     number_display = get_str(layer, 'numberDisplay')
-    if number_display is not None and number_display in KIBANA_PIE_NUMBER_DISPLAY_TO_YAML:
-        yaml_val = KIBANA_PIE_NUMBER_DISPLAY_TO_YAML[number_display]
-        if yaml_val != 'percent':  # percent is Kibana default — omit
-            appearance.setdefault('values', {})['format'] = yaml_val
+    if number_display is not None:
+        # Pie and treemap use 'integer' for the raw Kibana 'value'; mosaic and waffle use 'value'
+        number_display_map = (
+            KIBANA_PIE_NUMBER_DISPLAY_TO_YAML if chart_type in (None, 'pie', 'treemap') else KIBANA_PARTITION_NUMBER_DISPLAY_TO_YAML
+        )
+        if number_display in number_display_map:
+            yaml_val = number_display_map[number_display]
+            if yaml_val != 'percent':  # percent is Kibana default — omit
+                appearance.setdefault('values', {})['format'] = yaml_val
 
     percent_decimals = get_int(layer, 'percentDecimals')
     if percent_decimals is not None:
@@ -700,7 +711,7 @@ def _assign_metrics_and_dimensions(
                 chart['dimension'] = merged[0]
         if chart_type == 'mosaic' and len(merged) > 1:
             chart['breakdown'] = merged[1]
-    else:
+    elif chart_type != 'gauge':
         merged = [*all_dimensions, *all_breakdowns]
         if len(merged) > 0:
             chart['breakdowns'] = merged
@@ -812,7 +823,7 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
 
         # Partition chart appearance (pie/treemap/waffle/mosaic)
         elif chart_type in PARTITION_CHART_TYPES:
-            _merge_appearance(chart, _extract_partition_appearance(vis_raw))
+            _merge_appearance(chart, _extract_partition_appearance(vis_raw, chart_type))
 
         # Datatable sorting / paging / appearance
         elif chart_type == 'datatable':

@@ -72,8 +72,8 @@ def _infer_time_range(parsed: ParsedDashboard) -> dict[str, str] | None:
     return tr
 
 
-def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
-    """Infer a single filter config dict."""
+def _infer_filter(pf: ParsedFilter) -> dict[str, Any] | None:
+    """Infer a single filter config dict. Returns None for unrecognized filter types."""
     f: dict[str, Any] = {}
     if pf.filter_type == 'exists':
         f['exists'] = pf.key
@@ -104,7 +104,8 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any]:
                     if isinstance(val, (str, int, float, bool)):
                         f[bound] = val
     else:
-        f['field'] = pf.key
+        # Unrecognized filter type — skip rather than emit an unvalidatable shape
+        return None
 
     # Apply metadata
     disabled = get_bool(pf.meta, 'disabled')
@@ -214,7 +215,10 @@ def infer_dashboard(parsed: ParsedDashboard) -> tuple[Dashboard, list[dict[str, 
         dashboard['time_range'] = time_range
 
     if parsed.filters:
-        dashboard['filters'] = [_infer_filter(f) for f in parsed.filters]
+        inferred_filters = [_infer_filter(f) for f in parsed.filters]
+        valid_filters = [f for f in inferred_filters if f is not None]
+        if valid_filters:
+            dashboard['filters'] = valid_filters
 
     if parsed.controls:
         dashboard['controls'] = [_infer_control(c) for c in parsed.controls]

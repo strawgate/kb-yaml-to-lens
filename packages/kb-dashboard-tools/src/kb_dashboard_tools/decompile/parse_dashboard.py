@@ -56,7 +56,7 @@ def _normalize_control_for_view(panel_id: str, raw: dict[str, Any]) -> dict[str,
         normalized_explicit.setdefault('singleSelect', False)
         normalized_explicit.setdefault('sort', {'by': '_count', 'direction': 'desc'})
         normalized_explicit.setdefault('runPastTimeout', False)
-    elif panel_type == 'rangeSliderControl':
+    elif panel_type in ('rangeSliderControl', 'timeSlider'):
         _ = normalized_explicit.setdefault('step', None)
     elif panel_type == 'esqlControl':
         normalized_explicit.setdefault('selectedOptions', [])
@@ -190,7 +190,7 @@ def _parse_controls(attributes: dict[str, Any], reference_lookup: dict[str, str]
             ctrl.view_control = cast('KbnOptionsListControl | None', validate_view_model(KbnOptionsListControl, normalized_panel))
         elif ctrl.control_type == 'rangeSliderControl':
             ctrl.view_control = cast('KbnRangeSliderControl | None', validate_view_model(KbnRangeSliderControl, normalized_panel))
-        elif ctrl.control_type == 'timeSliderControl':
+        elif ctrl.control_type in ('timeSliderControl', 'timeSlider'):
             ctrl.view_control = cast('KbnTimeSliderControl | None', validate_view_model(KbnTimeSliderControl, normalized_panel))
         elif ctrl.control_type == 'esqlControl':
             ctrl.view_control = cast('KbnESQLControl | None', validate_view_model(KbnESQLControl, normalized_panel))
