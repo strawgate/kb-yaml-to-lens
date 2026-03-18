@@ -13,15 +13,11 @@ from kb_dashboard_core.controls.view import (
 from kb_dashboard_core.dashboard.view import KbnDashboardOptions
 from kb_dashboard_core.filters.view import KbnFilter
 
-from .kbn_raw_models.models import (
-    KbnDashboard,
-    KbnDashboardAttributes,
-    KbnEmbeddableAttributes,
-    KbnEmbeddableConfig,
-    KbnPanel,
-    KbnReference,
-    KbnVisualization,
-)
+from .kbn_raw_models import KbnDashboard
+from .kbn_raw_models.dashboard.view import KbnDashboardAttributes
+from .kbn_raw_models.panels.charts.view import KbnLensPanelState
+from .kbn_raw_models.panels.view import KbnBasePanel
+from .kbn_raw_models.shared.view import KbnReference
 from .parse_models import (
     ParsedColumn,
     ParsedControl,
@@ -62,22 +58,25 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _build_reference_lookup(references: list[KbnReference | object] | None) -> dict[str, str]:
+def _build_reference_lookup(raw_references: list[object] | None) -> dict[str, str]:
     lookup: dict[str, str] = {}
-    if references is None:
+    if raw_references is None:
         return lookup
-    for ref in references:
-        if isinstance(ref, KbnReference) and ref.name is not None and ref.id is not None:
-            lookup[ref.name] = ref.id
+    for item in raw_references:
+        ref = as_dict(item)
+        if ref is None:
+            continue
+        name = get_str(ref, 'name')
+        ref_id = get_str(ref, 'id')
+        if name is not None and ref_id is not None:
+            lookup[name] = ref_id
     return lookup
 
 
-def _iter_typed_references(references: list[KbnReference | object] | None) -> Iterator[KbnReference]:
+def _iter_typed_references(references: list[KbnReference] | None) -> Iterator[KbnReference]:
     if references is None:
         return
-    for ref in references:
-        if isinstance(ref, KbnReference):
-            yield ref
+    yield from references
 
 
 # ---------------------------------------------------------------------------
@@ -273,16 +272,14 @@ def _parse_grid_data(raw: dict[str, Any]) -> ParsedGridData:
     )
 
 
-def _parse_panel_title(panel: KbnPanel) -> str:
-    if panel.title is not None:
-        return panel.title
-    if panel.embeddable_config is not None and panel.embeddable_config.title is not None:
-        return panel.embeddable_config.title
-    if panel.embeddable_config is not None:
-        embeddable_config = panel.embeddable_config.model_dump(exclude_none=True, by_alias=True)
-        embedded_title = get_str(embeddable_config, 'title')
-        if embedded_title is not None:
-            return embedded_title
+def _parse_panel_title(panel_raw: dict[str, Any]) -> str:
+    title_from_raw = get_str(panel_raw, 'title')
+    if title_from_raw is not None:
+        return title_from_raw
+    embeddable_cfg = get_dict(panel_raw, 'embeddableConfig') or {}
+    title_from_cfg = get_str(embeddable_cfg, 'title')
+    if title_from_cfg is not None:
+        return title_from_cfg
     return ''
 
 
@@ -385,26 +382,30 @@ def _parse_visualization_view_model(
     return cast('VisualizationViewModel | None', validate_view_model(model_cls, visualization))
 
 
-def _parse_multi_layer_roles(parsed: ParsedVisualizationState, visualization_model: KbnVisualization) -> None:
-    vis_layers = visualization_model.layers
-    if vis_layers is None:
+def _parse_multi_layer_roles(parsed: ParsedVisualizationState, visualization: dict[str, Any]) -> None:
+    vis_layers_raw = get_list(visualization, 'layers')
+    if vis_layers_raw is None:
         return
-    for vis_layer in vis_layers:
-        layer_id = vis_layer.layer_id
+    for vis_layer_raw in vis_layers_raw:
+        vis_layer = as_dict(vis_layer_raw)
+        if vis_layer is None:
+            continue
+        layer_id = get_str(vis_layer, 'layerId')
         if layer_id is None:
             continue
-        vis_layer_dict = vis_layer.model_dump(exclude_none=True, by_alias=True)
         role = ParsedVisualizationLayerRole(layer_id=layer_id)
-        metric_ids = vis_layer.accessors
-        if metric_ids is not None:
-            role.metric_ids = [v for v in metric_ids if isinstance(v, str)]
-        if vis_layer.x_accessor is not None:
-            role.dimension_id = vis_layer.x_accessor
-        if vis_layer.split_accessor is not None:
-            role.breakdown_id = vis_layer.split_accessor
+        metric_ids_raw = get_list(vis_layer, 'accessors')
+        if metric_ids_raw is not None:
+            role.metric_ids = [v for v in metric_ids_raw if isinstance(v, str)]
+        x_accessor = get_str(vis_layer, 'xAccessor')
+        if x_accessor is not None:
+            role.dimension_id = x_accessor
+        split_accessor = get_str(vis_layer, 'splitAccessor')
+        if split_accessor is not None:
+            role.breakdown_id = split_accessor
         role.accessors = _dedupe_ids(
             [
-                *_collect_accessor_ids(vis_layer_dict, ('xAccessor', 'splitAccessor')),
+                *_collect_accessor_ids(vis_layer, ('xAccessor', 'splitAccessor')),
                 *role.metric_ids,
             ]
         )
@@ -413,18 +414,19 @@ def _parse_multi_layer_roles(parsed: ParsedVisualizationState, visualization_mod
 
 def _parse_single_layer_roles(
     parsed: ParsedVisualizationState,
-    visualization_model: KbnVisualization,
     visualization: dict[str, Any],
 ) -> None:
-    single_layer_id = visualization_model.layer_id
+    single_layer_id = get_str(visualization, 'layerId')
     if single_layer_id is None:
         return
     role = parsed.layer_roles.setdefault(single_layer_id, ParsedVisualizationLayerRole(layer_id=single_layer_id))
-    for value in (visualization_model.metric_accessor, visualization_model.secondary_accessor, visualization_model.accessor):
+    for key in ('metricAccessor', 'secondaryAccessor', 'accessor'):
+        value = get_str(visualization, key)
         if value is not None and value not in role.metric_ids:
             role.metric_ids.append(value)
-    if visualization_model.accessors is not None:
-        for v in visualization_model.accessors:
+    accessors_raw = get_list(visualization, 'accessors')
+    if accessors_raw is not None:
+        for v in accessors_raw:
             if isinstance(v, str) and v not in role.metric_ids:
                 role.metric_ids.append(v)
     x_accessor = get_str(visualization, 'xAccessor')
@@ -440,22 +442,29 @@ def _parse_single_layer_roles(
         )
 
 
-def _parse_visualization_state(embeddable_attributes: KbnEmbeddableAttributes, *, is_esql: bool) -> ParsedVisualizationState:
-    state_raw = embeddable_attributes.state
-    vis_type = embeddable_attributes.visualization_type
+def _parse_visualization_state(
+    attributes_raw: dict[str, Any],
+    *,
+    is_esql: bool,
+) -> ParsedVisualizationState:
+    vis_type = get_str(attributes_raw, 'visualizationType')
     parsed = ParsedVisualizationState(raw_type=vis_type)
-    if state_raw is None or state_raw.visualization is None:
+    state_raw_dict = get_dict(attributes_raw, 'state')
+    if state_raw_dict is None:
+        return parsed
+    state_model = KbnLensPanelState.model_validate(state_raw_dict)
+    if state_model.visualization is None:
         return parsed
 
-    visualization_model = state_raw.visualization
-    visualization = visualization_model.model_dump(exclude_none=True, by_alias=True)
+    visualization_raw: object = cast('object', state_model.visualization)
+    visualization: dict[str, Any] = as_dict(visualization_raw) or {}
     parsed.raw = visualization
     parsed.view_model = _parse_visualization_view_model(parsed.raw_type, visualization, is_esql=is_esql)
-    parsed.preferred_series_type = visualization_model.preferred_series_type
-    parsed.shape = visualization_model.shape
+    parsed.preferred_series_type = get_str(visualization, 'preferredSeriesType')
+    parsed.shape = get_str(visualization, 'shape')
 
-    _parse_multi_layer_roles(parsed, visualization_model)
-    _parse_single_layer_roles(parsed, visualization_model, visualization)
+    _parse_multi_layer_roles(parsed, visualization)
+    _parse_single_layer_roles(parsed, visualization)
 
     return parsed
 
@@ -542,45 +551,44 @@ def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
     return layers
 
 
-def _extract_data_view_from_refs(refs: list[KbnReference | object]) -> str | None:
+def _extract_data_view_from_refs(refs: list[KbnReference]) -> str | None:
     for ref in _iter_typed_references(refs):
-        if ref.type == 'index-pattern' and ref.id is not None:
+        if ref.type == 'index-pattern':
             return ref.id
     return None
 
 
-def _saved_visualization_panel_type(panel: KbnPanel) -> str | None:
-    embeddable_config = panel.embeddable_config
-    if embeddable_config is None or embeddable_config.saved_vis is None:
+def _saved_visualization_panel_type(panel_raw: dict[str, Any]) -> str | None:
+    embeddable_config = get_dict(panel_raw, 'embeddableConfig')
+    if embeddable_config is None:
         return None
-    return embeddable_config.saved_vis.type
+    saved_vis = get_dict(embeddable_config, 'savedVis')
+    if saved_vis is None:
+        return None
+    return get_str(saved_vis, 'type')
 
 
-def _parse_lens_panel(panel: KbnPanel, raw_panel_type: str) -> ParsedLensPanel:
-    embeddable_config_model = panel.embeddable_config or KbnEmbeddableConfig()
-    embeddable_attributes_model = embeddable_config_model.attributes or KbnEmbeddableAttributes()
-    state_model = embeddable_attributes_model.state
-    state_dict: dict[str, Any] = {}
-    if state_model is not None:
-        state_dict = state_model.model_dump(exclude_none=True, by_alias=True)
+def _parse_lens_panel(panel_raw: dict[str, Any], raw_panel_type: str) -> ParsedLensPanel:
+    embeddable_config_raw = get_dict(panel_raw, 'embeddableConfig') or {}
+    attributes_raw = get_dict(embeddable_config_raw, 'attributes') or {}
+    state_raw = get_dict(attributes_raw, 'state') or {}
+    state_model = KbnLensPanelState.model_validate(state_raw)
+    state_dict: dict[str, Any] = state_model.model_dump(exclude_none=True, by_alias=True)
     is_esql = raw_panel_type == 'esql' or _has_text_based_query(state_dict)
     panel_type = 'esql' if is_esql else 'lens'
 
-    vis_state = _parse_visualization_state(embeddable_attributes_model, is_esql=is_esql)
+    vis_state = _parse_visualization_state(attributes_raw, is_esql=is_esql)
     form_layers = _parse_form_based_layers(state_dict) if not is_esql else {}
     esql_layers = _parse_esql_layers(state_dict) if is_esql else {}
     esql_query = _extract_esql_query_from_state(state_dict) if is_esql else None
 
-    refs = embeddable_attributes_model.references
-    if refs is None:
-        refs = embeddable_config_model.references or []
+    refs_raw_from_attrs = get_list(attributes_raw, 'references') or []
+    refs_raw_from_config = get_list(embeddable_config_raw, 'references') or []
+    refs_raw = refs_raw_from_attrs if refs_raw_from_attrs else refs_raw_from_config
+    refs = [KbnReference.model_validate(r) for r in refs_raw if isinstance(r, dict) and 'type' in r and 'id' in r and 'name' in r]
     data_view = _extract_data_view_from_refs(refs)
 
-    parsed_refs = [
-        ParsedReference(name=ref.name, ref_type=ref.type, ref_id=ref.id)
-        for ref in _iter_typed_references(refs)
-        if ref.name is not None and ref.type is not None and ref.id is not None
-    ]
+    parsed_refs = [ParsedReference(name=ref.name, ref_type=ref.type, ref_id=ref.id) for ref in _iter_typed_references(refs)]
 
     return ParsedLensPanel(
         panel_type=panel_type,
@@ -595,45 +603,45 @@ def _parse_lens_panel(panel: KbnPanel, raw_panel_type: str) -> ParsedLensPanel:
     )
 
 
-def _parse_simple_panel_view(panel: KbnPanel, panel_raw: dict[str, Any], panel_type: str) -> SimplePanelViewModel | None:
+def _parse_simple_panel_view(panel_raw: dict[str, Any], panel_type: str) -> SimplePanelViewModel | None:
     model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(panel_type)
     if model_cls is not None:
         return cast('SimplePanelViewModel | None', validate_view_model(model_cls, panel_raw))
     if panel_type != 'visualization':
         return None
-    saved_vis_type = _saved_visualization_panel_type(panel)
+    saved_vis_type = _saved_visualization_panel_type(panel_raw)
     model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(saved_vis_type or '')
     if model_cls is None:
         return None
     return cast('SimplePanelViewModel | None', validate_view_model(model_cls, panel_raw))
 
 
-def _parse_simple_panel(panel: KbnPanel, panel_raw: dict[str, Any], panel_type: str) -> ParsedSimplePanel:
-    embeddable_config_model = panel.embeddable_config or KbnEmbeddableConfig()
-    embeddable_attributes_model = embeddable_config_model.attributes or KbnEmbeddableAttributes()
-    resolved_panel_type = _saved_visualization_panel_type(panel) if panel_type == 'visualization' else panel_type
+def _parse_simple_panel(panel_raw: dict[str, Any], panel_type: str) -> ParsedSimplePanel:
+    embeddable_config_raw = get_dict(panel_raw, 'embeddableConfig') or {}
+    attributes_raw = get_dict(embeddable_config_raw, 'attributes') or {}
+    resolved_panel_type = _saved_visualization_panel_type(panel_raw) if panel_type == 'visualization' else panel_type
     return ParsedSimplePanel(
         panel_type=resolved_panel_type or panel_type,
         raw=panel_raw,
-        embeddable_config=embeddable_config_model.model_dump(exclude_none=True, by_alias=True),
-        embeddable_attributes=embeddable_attributes_model.model_dump(exclude_none=True, by_alias=True),
-        view_panel=_parse_simple_panel_view(panel, panel_raw, panel_type),
+        embeddable_config=embeddable_config_raw,
+        embeddable_attributes=attributes_raw,
+        view_panel=_parse_simple_panel_view(panel_raw, panel_type),
     )
 
 
-def _assign_lens_panel(parsed: ParsedPanel, kbn_panel: KbnPanel, _panel_raw: dict[str, Any], panel_type: str) -> None:
+def _assign_lens_panel(parsed: ParsedPanel, _kbn_panel: KbnBasePanel, panel_raw: dict[str, Any], panel_type: str) -> None:
     try:
-        parsed.lens = _parse_lens_panel(kbn_panel, panel_type)
+        parsed.lens = _parse_lens_panel(panel_raw, panel_type)
     except Exception as exc:
         logger.warning('Failed to parse lens panel %s: %s', parsed.panel_index, exc)
         parsed.error = f'parse error: {exc}'
 
 
-def _assign_simple_panel(parsed: ParsedPanel, kbn_panel: KbnPanel, panel_raw: dict[str, Any], panel_type: str) -> None:
-    parsed.simple = _parse_simple_panel(kbn_panel, panel_raw, panel_type)
+def _assign_simple_panel(parsed: ParsedPanel, _kbn_panel: KbnBasePanel, panel_raw: dict[str, Any], panel_type: str) -> None:
+    parsed.simple = _parse_simple_panel(panel_raw, panel_type)
 
 
-PanelParseHandler = Callable[[ParsedPanel, KbnPanel, dict[str, Any], str], None]
+PanelParseHandler = Callable[[ParsedPanel, KbnBasePanel, dict[str, Any], str], None]
 PANEL_PARSE_HANDLERS: dict[str, PanelParseHandler] = {
     'lens': _assign_lens_panel,
     'esql': _assign_lens_panel,
@@ -641,14 +649,14 @@ PANEL_PARSE_HANDLERS: dict[str, PanelParseHandler] = {
 
 
 def _parse_panel(panel_raw: dict[str, Any]) -> ParsedPanel:
-    kbn_panel = KbnPanel.model_validate(panel_raw)
+    kbn_panel = KbnBasePanel.model_validate(panel_raw)
     parsed = ParsedPanel()
 
-    if kbn_panel.panel_index is not None:
-        parsed.panel_index = kbn_panel.panel_index
-    parsed.title = _parse_panel_title(kbn_panel)
-    if kbn_panel.grid_data is not None:
-        grid_dict = kbn_panel.grid_data.model_dump(by_alias=True)
+    if kbn_panel.panelIndex is not None:
+        parsed.panel_index = kbn_panel.panelIndex
+    parsed.title = _parse_panel_title(panel_raw)
+    if kbn_panel.gridData is not None:
+        grid_dict = kbn_panel.gridData.model_dump(by_alias=True)
         parsed.grid = _parse_grid_data(grid_dict)
 
     embeddable_cfg = get_dict(panel_raw, 'embeddableConfig') or {}
@@ -661,7 +669,7 @@ def _parse_panel(panel_raw: dict[str, Any]) -> ParsedPanel:
     if panel_description is not None and len(panel_description) > 0:
         parsed.description = panel_description
 
-    panel_type = kbn_panel.type
+    panel_type = get_str(panel_raw, 'type')
     if panel_type is None:
         parsed.error = 'missing panel type'
         return parsed
@@ -683,25 +691,29 @@ def _parse_panel(panel_raw: dict[str, Any]) -> ParsedPanel:
 
 def parse_dashboard(raw: dict[str, Any]) -> ParsedDashboard:
     """Parse a raw Kibana dashboard JSON dict into a typed intermediate structure."""
-    kbn = KbnDashboard.model_validate(raw)
+    raw_references = get_list(raw, 'references')
+    reference_lookup = _build_reference_lookup(raw_references)
+    kbn = KbnDashboard.model_validate({**raw, 'references': []})
     kbn_attributes = kbn.attributes or KbnDashboardAttributes()
+    # Use model-dumped attributes for settings and controls (field names are normalized)
     attributes = kbn_attributes.model_dump(exclude_none=True, by_alias=True)
-    reference_lookup = _build_reference_lookup(kbn.references)
+    # Use raw attributes for filters and query so that raw filter fields (range, query etc.) are preserved
+    raw_attributes: dict[str, Any] = get_dict(raw, 'attributes') or {}
 
     parsed = ParsedDashboard(
         dashboard_id=kbn.id,
         title=kbn_attributes.title if kbn_attributes.title is not None else 'Untitled Dashboard',
         description=kbn_attributes.description,
-        time_from=kbn_attributes.time_from,
-        time_to=kbn_attributes.time_to,
+        time_from=kbn_attributes.timeFrom,
+        time_to=kbn_attributes.timeTo,
         settings=_parse_settings(attributes),
-        query=_parse_dashboard_query(attributes),
-        filters=_parse_filters(attributes),
+        query=_parse_dashboard_query(raw_attributes),
+        filters=_parse_filters(raw_attributes),
         controls=_parse_controls(attributes, reference_lookup),
         reference_lookup=reference_lookup,
     )
 
-    panels_json = parse_json_field(kbn_attributes.panels_json)
+    panels_json = kbn_attributes.panelsJSON
     if isinstance(panels_json, list):
         for panel_item in panels_json:  # pyright: ignore[reportAny]
             panel = as_dict(panel_item)  # pyright: ignore[reportAny]
