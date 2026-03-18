@@ -7,7 +7,7 @@ A Visual Studio Code extension that provides live compilation, preview, and visu
 - **Auto-compile on Save** – Automatically compiles your YAML dashboard files whenever you save them
 - **Live Preview Panel** – View your compiled dashboard in a side-by-side preview panel with live reload
 - **Visual Grid Layout Editor** – Drag and drop panels to rearrange them, resize panels interactively, with automatic YAML updates
-- **Export to NDJSON** – Copy or download compiled dashboards as NDJSON for direct import into Kibana
+- **Export Dashboard to NDJSON** – Copy or download compiled dashboards as NDJSON for direct import into Kibana
 - **Error Reporting** – Clear error messages when compilation fails
 - **Context Menu Integration** – Right-click commands in YAML files for quick access
 
@@ -56,7 +56,7 @@ The VS Code extension is the **easiest way to get started** with the Kibana Dash
 
 ### Installing the Extension
 
-#### Option 1: Install from OpenVSX Registry
+#### Option 1: Install from Open VSX Registry
 
 Works with Cursor, VSCodium, and other VS Code forks:
 
@@ -134,7 +134,7 @@ Configure in VS Code settings (File → Preferences → Settings, search for "Ki
 
 **`yamlDashboard.kibana.browserType`** - Browser for opening dashboards - `external` or `simple` (default: `external`)
 
-**`yamlDashboard.kibana.openOnSave`** - Auto-upload and open in Kibana on save (default: `false`)
+**`yamlDashboard.kibana.openOnSave`** - Auto-upload and open in Kibana on save; localhost and 127.0.0.1 URLs are skipped (default: `false`)
 
 **`yamlDashboard.pythonPath`** - Python interpreter path (optional - only needed for development; bundled binary is used by default)
 
@@ -190,7 +190,7 @@ Access via Command Palette (Ctrl+Shift+P):
 | **Compile Dashboard** | Manual compilation | After disabling auto-compile |
 | **Preview Dashboard** | Open live preview | First time or after closing preview |
 | **Edit Dashboard Layout** | Visual grid editor | Positioning panels visually |
-| **Export to NDJSON** | Copy to clipboard | Manual Kibana import |
+| **Export Dashboard to NDJSON** | Copy to clipboard | Manual Kibana import |
 | **Open in Kibana** | Upload + open browser | Deploy to Kibana |
 | **Set Kibana API Key** | Store credentials | One-time Kibana setup (recommended) |
 

@@ -19,7 +19,7 @@ hand-crafting complex JSON.
 **Installation:**
 
 1. **Install the extension:**
-   - **OpenVSX Registry** (Cursor, VS Code forks): Search "Kibana Dashboard Compiler"
+   - **Open VSX Registry** (Cursor, VS Code forks): Search "Kibana Dashboard Compiler"
    - **Manual**: Download `.vsix` from [releases](https://github.com/strawgate/kb-yaml-to-lens/releases)
 
 2. **Create your first dashboard:**

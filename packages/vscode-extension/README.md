@@ -37,7 +37,7 @@ Open Command Palette (`Ctrl/Cmd+Shift+P`):
 | Preview Dashboard | Open live preview panel |
 | Edit Dashboard Layout | Visual grid editor |
 | Open in Kibana | Upload and open in browser |
-| Export to NDJSON | Copy compiled output |
+| Export Dashboard to NDJSON | Copy compiled output |
 
 ## Documentation
 

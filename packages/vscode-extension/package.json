@@ -149,7 +149,7 @@
         "yamlDashboard.kibana.openOnSave": {
           "type": "boolean",
           "default": false,
-          "description": "Automatically upload and open dashboard in Kibana when YAML file is saved (requires Kibana URL and credentials to be configured)"
+          "description": "Automatically upload and open dashboard in Kibana when YAML file is saved (requires a non-local Kibana URL and credentials to be configured; localhost and 127.0.0.1 URLs are skipped)"
         }
       }
     },

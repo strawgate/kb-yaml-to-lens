@@ -63,7 +63,7 @@ For all commands, see `just vscode help`.
 | `yamlDashboard.compile` | Compile current file |
 | `yamlDashboard.preview` | Open preview panel |
 | `yamlDashboard.editLayout` | Open layout editor in preview panel |
-| `yamlDashboard.export` | Export to NDJSON |
+| `yamlDashboard.export` | Export Dashboard to NDJSON |
 
 ## Testing
 
