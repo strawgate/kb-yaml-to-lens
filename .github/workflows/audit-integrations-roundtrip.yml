@@ -1,0 +1,65 @@
+---
+name: 'Audit: Integrations Decompile → Compile Round-Trip'
+on:
+  schedule:
+    - cron: 0 13 * * 3
+  workflow_dispatch: null
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+jobs:
+  run:
+    uses: elastic/ai-github-actions/.github/workflows/gh-aw-scheduled-audit.lock.yml@main
+    with:
+      title-prefix: '[integrations-roundtrip]'
+      setup-commands: |
+        command -v just >/dev/null 2>&1 || make install-just
+        just all install
+        git clone --depth=1 --filter=blob:none --sparse https://github.com/elastic/integrations.git integrations
+        (cd integrations && git sparse-checkout set --no-cone 'packages/*/kibana/dashboard')
+        uv run python scripts/audit-roundtrip.py integrations -o .audit/roundtrip
+      additional-instructions: |
+        You are auditing the kb-yaml-to-lens **compiler** by round-tripping every
+        dashboard from elastic/integrations through the full pipeline:
+          JSON → decompile → YAML → load (config model) → compile → KbnDashboard
+
+        Setup has already run the audit script. Artifacts are in `.audit/roundtrip/`.
+
+        ## Artifacts
+        - `summary.json` — counts per stage and compiler bug totals
+        - `errors_by_type.json` — errors grouped by stage (decompile/load/compile) with counts and example files
+        - `failures.csv` — every failure with file, stage, error_type, error_message, has_todo flag
+        - `errors.log` — full tracebacks for each failure
+
+        ## Mission
+        Find **compiler bugs** — cases where the decompiler produced valid YAML
+        that the compiler then rejected or crashed on.  Ignore missing-feature
+        gaps (dashboards with `has_todo=True` in failures.csv may contain
+        unsupported panel types that are known stubs).
+
+        ## Required process
+        1. Read `summary.json` for the overview.
+        2. Read `errors_by_type.json` for grouped error analysis — focus on
+           the `load` and `compile` sections (those are compiler-side failures).
+        3. Cross-reference with `failures.csv` filtered to `has_todo=False`
+           to isolate definitive compiler bugs (fully-decompiled panels that
+           the compiler cannot round-trip).
+        4. Read relevant tracebacks from `errors.log` for the top error groups.
+        5. Classify each error group as: compiler bug, config model mismatch,
+           or known TODO gap.
+        6. Do not open PRs; open a single issue only.
+
+        ## Issue content
+        1. **Pipeline summary table:** stage, ok count, failure count
+        2. **Compiler bugs table** (load + compile failures with has_todo=False):
+           error message, count, example files, likely root cause
+        3. **Known gaps table** (load + compile failures with has_todo=True):
+           brief summary only — these are expected until decompiler coverage improves
+        4. **Actionable recommendations** for the compiler bugs, prioritized by count
+
+        ## Issue title
+        Use: `N dashboards round-tripped, X compiler bugs found`
+    secrets:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
