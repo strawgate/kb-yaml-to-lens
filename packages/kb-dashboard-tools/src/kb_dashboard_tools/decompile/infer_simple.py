@@ -26,7 +26,9 @@ def _infer_markdown_panel(_panel: KbnBasePanel, ec: dict[str, Any], _ref_lookup:
     config: dict[str, Any] = {}
 
     params = get_nested(ec, 'savedVis', 'params')
-    content = get_str(ec, 'markdown') or (get_str(params, 'markdown') if params is not None else None)
+    content = get_str(ec, 'markdown')
+    if content is None and params is not None:
+        content = get_str(params, 'markdown')
     config['content'] = content if content is not None else 'TODO(decompile): provide markdown content'
 
     if params is not None:
@@ -40,10 +42,9 @@ def _infer_markdown_panel(_panel: KbnBasePanel, ec: dict[str, Any], _ref_lookup:
     return config
 
 
-def _infer_search_panel(panel: KbnBasePanel, _ec: dict[str, Any], ref_lookup: dict[str, str]) -> dict[str, Any]:
+def _infer_search_panel(panel: KbnBasePanel, ec: dict[str, Any], ref_lookup: dict[str, str]) -> dict[str, Any]:
     """Infer search panel config."""
-    ref_name = panel.panelRefName
-    if ref_name is not None:
+    for ref_name in filter(None, [panel.panelRefName, get_str(ec, 'savedSearchRefName')]):
         resolved = ref_lookup.get(ref_name)
         if resolved is not None:
             return {'saved_search_id': resolved}
