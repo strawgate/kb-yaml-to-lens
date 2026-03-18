@@ -11,7 +11,10 @@ Chart-specific logic is delegated to sub-modules:
 import logging
 from typing import Any
 
+from kb_dashboard_core.controls.config import ControlTypes
 from kb_dashboard_core.dashboard.config import Dashboard
+from kb_dashboard_core.filters.config import FilterTypes
+from pydantic import TypeAdapter, ValidationError
 
 from .infer_lens import _infer_lens_chart  # pyright: ignore[reportPrivateUsage]
 from .infer_simple import _SIMPLE_PANEL_BUILDERS  # pyright: ignore[reportPrivateUsage]
@@ -32,6 +35,9 @@ from .tables import (
 )
 
 logger = logging.getLogger(__name__)
+
+_filter_adapter: TypeAdapter[FilterTypes] = TypeAdapter(FilterTypes)
+_control_adapter: TypeAdapter[ControlTypes] = TypeAdapter(ControlTypes)
 
 # ---------------------------------------------------------------------------
 # Dashboard-level inference
@@ -115,6 +121,7 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any] | None:
     if alias is not None and len(alias) > 0:
         f['alias'] = alias
 
+    _ = _filter_adapter.validate_python(f)
     return f
 
 
@@ -135,6 +142,7 @@ def _infer_control(pc: ParsedControl) -> dict[str, Any]:
         ctrl['data_view'] = pc.data_view_id if pc.data_view_id is not None else 'TODO_data_view'
     elif pc.data_view_id is not None:
         ctrl['data_view'] = pc.data_view_id
+    _ = _control_adapter.validate_python(ctrl)
     return ctrl
 
 
@@ -176,7 +184,11 @@ def _infer_panel(panel: ParsedPanel, ref_lookup: dict[str, str]) -> tuple[str, d
 
     # Lens/ESQL panel
     if panel.lens is not None:
-        chart = _infer_lens_chart(panel.lens)
+        try:
+            chart = _infer_lens_chart(panel.lens)
+        except (ValueError, ValidationError) as exc:
+            logger.warning('_infer_lens_chart validation failed for panel %s: %s', wrapper.get('id'), exc)
+            return 'markdown', {'content': f'TODO(decompile): panel validation failed: {exc}'}, wrapper
         return panel.lens.panel_type, chart, wrapper
 
     # Simple panels
@@ -215,13 +227,26 @@ def infer_dashboard(parsed: ParsedDashboard) -> tuple[Dashboard, list[dict[str, 
         dashboard['time_range'] = time_range
 
     if parsed.filters:
-        inferred_filters = [_infer_filter(f) for f in parsed.filters]
-        valid_filters = [f for f in inferred_filters if f is not None]
-        if valid_filters:
-            dashboard['filters'] = valid_filters
+        filters: list[dict[str, Any]] = []
+        for pf in parsed.filters:
+            try:
+                result = _infer_filter(pf)
+                if result is not None:
+                    filters.append(result)
+            except ValidationError as exc:
+                logger.warning('_infer_filter produced invalid filter dict (key=%s): %s', pf.key, exc)
+        if filters:
+            dashboard['filters'] = filters
 
     if parsed.controls:
-        dashboard['controls'] = [_infer_control(c) for c in parsed.controls]
+        controls: list[dict[str, Any]] = []
+        for pc in parsed.controls:
+            try:
+                controls.append(_infer_control(pc))
+            except ValidationError as exc:
+                logger.warning('_infer_control produced invalid control dict (type=%s): %s', pc.control_type, exc)
+        if controls:
+            dashboard['controls'] = controls
 
     if parsed.query is not None:
         dashboard['query'] = parsed.query

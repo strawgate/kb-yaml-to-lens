@@ -5,8 +5,12 @@ panels — resolving chart types, extracting metrics/dimensions/breakdowns,
 legend settings, axis configuration, and appearance options.
 """
 
+import logging
 import re
 from typing import Any
+
+from kb_dashboard_core.panels.charts.config import ESQLPanelConfig, LensPanelConfig
+from pydantic import TypeAdapter, ValidationError
 
 from .parse import (
     ParsedColumn,
@@ -48,6 +52,11 @@ from .tables import (
 )
 
 __all__ = ['_infer_lens_chart']
+
+logger = logging.getLogger(__name__)
+
+_lens_panel_adapter: TypeAdapter[LensPanelConfig] = TypeAdapter(LensPanelConfig)
+_esql_panel_adapter: TypeAdapter[ESQLPanelConfig] = TypeAdapter(ESQLPanelConfig)
 
 # Chart-type classification sets (reused across functions)
 _XY_CHART_TYPES = frozenset({'line', 'bar', 'area'})
@@ -874,5 +883,11 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
 
     _assign_metrics_and_dimensions(chart, chart_type, all_metrics, all_dimensions, all_breakdowns)
     _fill_required_defaults(chart, chart_type, parsed.panel_type, has_skipped_metrics)
+
+    try:
+        _ = _lens_panel_adapter.validate_python(chart) if parsed.panel_type == 'lens' else _esql_panel_adapter.validate_python(chart)
+    except ValidationError as exc:
+        msg = f'infer_lens_chart produced invalid chart dict (type={chart_type}): {exc}'
+        raise ValueError(msg) from exc
 
     return chart
