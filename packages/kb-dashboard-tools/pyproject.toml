@@ -117,6 +117,20 @@ ignore = [
 "src/kb_dashboard_tools/decompile/parse.py" = [
     "PLR0912", # Allow many branches in visualization state parsing
 ]
+"src/kb_dashboard_tools/decompile/kbn_raw_models/**/*.py" = [
+    "E501",   # Line too long — generated code preserves source comments/types
+    "N802",   # Function names with camelCase (validator method names match field names)
+    "N815",   # camelCase field names are required to match Kibana's JSON format
+    "D100",   # Missing docstring in public module (generated files)
+    "D101",   # Missing docstring in public class (some generated classes omit it)
+    "D102",   # Missing docstring in public method (generated validators)
+    "D104",   # Missing docstring in public package (generated __init__.py files)
+    "ANN",    # No type annotations required in generated code
+    "RUF012", # Mutable class variables in generated models
+]
+"src/kb_dashboard_tools/decompile/kbn_raw_models/**/__init__.py" = [
+    "D104",   # Missing docstring in public package
+]
 
 [tool.ruff.format]
 quote-style = "single"
