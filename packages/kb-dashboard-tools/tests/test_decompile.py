@@ -1729,9 +1729,58 @@ def test_decompile_form_based_uses_visualization_accessors() -> None:
 
     assert lens['metrics'][0]['aggregation'] == 'sum'
     assert lens['metrics'][0]['field'] == 'bytes'
+    assert len(lens['metrics']) == 1
     assert lens['dimension']['field'] == '@timestamp'
     assert lens['dimension']['minimum_interval'] == '1h'
     assert lens['breakdown']['field'] == 'host.name'
+
+
+def test_decompile_form_based_terms_dimension_from_x_accessor() -> None:
+    """Terms xAccessor is emitted as dimension instead of breakdown."""
+    panel = _make_lens_panel(
+        'lnsXY',
+        state={
+            'visualization': {
+                'preferredSeriesType': 'bar',
+                'layers': [
+                    {
+                        'layerId': 'layer1',
+                        'xAccessor': 'col_terms',
+                        'accessors': ['col_metric'],
+                    }
+                ],
+            },
+            'datasourceStates': {
+                'formBased': {
+                    'layers': {
+                        'layer1': {
+                            'columns': {
+                                'col_terms': {
+                                    'operationType': 'terms',
+                                    'isBucketed': True,
+                                    'sourceField': 'host.name',
+                                    'params': {'size': 5},
+                                },
+                                'col_metric': {
+                                    'operationType': 'count',
+                                    'isBucketed': False,
+                                    'sourceField': 'Records',
+                                },
+                            },
+                            'columnOrder': ['col_terms', 'col_metric'],
+                        }
+                    }
+                }
+            },
+        },
+    )
+    result = _decompile_single_panel(panel)
+    lens = result['lens']
+
+    assert lens['dimension']['type'] == 'values'
+    assert lens['dimension']['field'] == 'host.name'
+    assert lens['dimension']['size'] == 5
+    assert 'breakdown' not in lens
 
 
 def test_decompile_form_based_uses_top_level_visualization_accessors() -> None:

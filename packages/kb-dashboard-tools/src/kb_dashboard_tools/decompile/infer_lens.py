@@ -301,7 +301,11 @@ def _build_metric_dict(col: KbnLensColumnTypes) -> dict[str, Any] | None:
     return metric
 
 
-def _build_dimension_dict(col: KbnLensColumnTypes) -> tuple[str, dict[str, Any]] | None:
+def _build_dimension_dict(
+    col_id: str,
+    col: KbnLensColumnTypes,
+    layer_role: dict[str, Any] | None,
+) -> tuple[str, dict[str, Any]] | None:
     """Build a dimension or breakdown dict. Returns (category, dict) or None."""
     operation_type = getattr(col, 'operationType', None)
     source_field = getattr(col, 'sourceField', None)
@@ -327,7 +331,8 @@ def _build_dimension_dict(col: KbnLensColumnTypes) -> tuple[str, dict[str, Any]]
         size = getattr(params, 'size', None) if params is not None else None
         if size is not None and isinstance(size, int):
             bd['size'] = size
-        return 'breakdown', bd
+        category = 'dimension' if layer_role is not None and col_id == layer_role.get('dimension_id') else 'breakdown'
+        return category, bd
 
     if operation_type == 'filters':
         filters_list: list[dict[str, Any]] = []
@@ -352,7 +357,8 @@ def _build_dimension_dict(col: KbnLensColumnTypes) -> tuple[str, dict[str, Any]]
                     filters_list.append(f_entry)
         if not filters_list:
             filters_list = [{'query': {'kql': '*'}}]
-        return 'breakdown', {'type': 'filters', 'filters': filters_list}
+        category = 'dimension' if layer_role is not None and col_id == layer_role.get('dimension_id') else 'breakdown'
+        return category, {'type': 'filters', 'filters': filters_list}
 
     return None
 
@@ -369,8 +375,30 @@ def _classify_form_columns(
     skipped: list[str] = []
 
     # Determine iteration order: prefer visualization accessor order
-    if layer_role is not None and layer_role.get('accessors'):
-        ordered_ids = list(dict.fromkeys([*layer_role['accessors'], *column_order, *list(layer_columns.keys())]))
+    role_ordered_ids: list[str] = []
+    metric_ids: set[str] = set()
+    has_role_hints = False
+    role_dimension_id: str | None = None
+    role_breakdown_id: str | None = None
+    if layer_role is not None:
+        metric_ids = {metric_id for metric_id in layer_role.get('metric_ids', []) if isinstance(metric_id, str)}
+        role_dimension_id = layer_role.get('dimension_id') if isinstance(layer_role.get('dimension_id'), str) else None
+        role_breakdown_id = layer_role.get('breakdown_id') if isinstance(layer_role.get('breakdown_id'), str) else None
+        used_ids: list[str | None] = [
+            *[metric_id for metric_id in layer_role.get('metric_ids', []) if isinstance(metric_id, str)],
+            role_dimension_id,
+            role_breakdown_id,
+        ]
+        has_role_hints = any(col_id is not None for col_id in used_ids)
+        used_ids.extend([*column_order, *list(layer_columns.keys())])
+        for col_id in used_ids:
+            if not isinstance(col_id, str):
+                continue
+            if col_id in layer_columns and col_id not in role_ordered_ids:
+                role_ordered_ids.append(col_id)
+
+    if role_ordered_ids and has_role_hints:
+        ordered_ids = role_ordered_ids
     elif column_order:
         ordered_ids = column_order
     else:
@@ -380,9 +408,41 @@ def _classify_form_columns(
         col = layer_columns.get(col_id)
         if col is None:
             continue
+        if role_ordered_ids and has_role_hints:
+            if col_id in metric_ids:
+                metric = _build_metric_dict(col)
+                if metric is not None:
+                    metrics.append(metric)
+                    continue
+                # Some visualization accessors (e.g. partition "accessor") can point at
+                # bucketed terms/filters columns. Classify those as dimensions/breakdowns.
+                result = _build_dimension_dict(col_id, col, layer_role)
+                if result is not None:
+                    category, stub = result
+                    if category == 'dimension':
+                        dimensions.append(stub)
+                    else:
+                        breakdowns.append(stub)
+                    continue
+                operation_type = getattr(col, 'operationType', 'unknown')
+                skipped.append(operation_type)
+                continue
+            is_explicit_dimension = col_id == role_dimension_id
+            is_explicit_breakdown = col_id == role_breakdown_id
+            is_bucketed = getattr(col, 'isBucketed', False)
+            if is_explicit_dimension or is_explicit_breakdown or is_bucketed:
+                result = _build_dimension_dict(col_id, col, layer_role)
+                if result is not None:
+                    category, stub = result
+                    if category == 'dimension':
+                        dimensions.append(stub)
+                    else:
+                        breakdowns.append(stub)
+            continue
+
         is_bucketed = getattr(col, 'isBucketed', False)
         if is_bucketed:
-            result = _build_dimension_dict(col)
+            result = _build_dimension_dict(col_id, col, layer_role)
             if result is not None:
                 category, stub = result
                 if category == 'dimension':

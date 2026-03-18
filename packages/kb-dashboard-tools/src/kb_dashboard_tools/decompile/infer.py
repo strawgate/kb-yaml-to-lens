@@ -406,7 +406,7 @@ def infer_dashboard(kbn: KbnDashboard, raw_dashboard: dict[str, Any] | None = No
         actual ``kb_dashboard_core.dashboard.config.Dashboard`` instance.
     """
     if raw_dashboard is None:
-        raw_dashboard = {}
+        raw_dashboard = kbn.model_dump(exclude_none=True, by_alias=True)
     attrs = kbn.attributes
 
     dashboard: dict[str, Any] = {
