@@ -19,7 +19,7 @@ from kb_dashboard_core.filters.config import FilterTypes
 from pydantic import TypeAdapter, ValidationError
 
 from .infer_lens import _infer_lens_chart  # pyright: ignore[reportPrivateUsage]
-from .infer_simple import _SIMPLE_PANEL_BUILDERS  # pyright: ignore[reportPrivateUsage]
+from .infer_simple import _SIMPLE_PANEL_BUILDERS, SimplePanel  # pyright: ignore[reportPrivateUsage]
 from .kbn_raw_models.dashboard.view import KbnDashboard
 from .parse_shared import (
     as_dict,
@@ -358,9 +358,7 @@ def _infer_panel(panel_dict: dict[str, Any], ref_lookup: dict[str, str]) -> tupl
             return 'markdown', {'content': f'TODO(decompile): panel validation failed: {exc}'}, wrapper
         return inferred_type, chart, wrapper
 
-    # Simple panels — replicate existing logic from parse_panels / infer_simple
-    # We need to build a ParsedSimplePanel for the simple builders
-    from .parse_models import ParsedSimplePanel
+    # Simple panels
     from .parse_shared import SIMPLE_PANEL_VIEW_MODEL_MAP, validate_view_model
 
     # Resolve saved vis type for 'visualization' panels
@@ -378,12 +376,12 @@ def _infer_panel(panel_dict: dict[str, Any], ref_lookup: dict[str, str]) -> tupl
     view_panel = validate_view_model(model_cls, panel_dict) if model_cls is not None else None
 
     embeddable_attrs = as_dict(embeddable_cfg.get('attributes')) or {}
-    simple = ParsedSimplePanel(
+    simple = SimplePanel(
         panel_type=resolved_panel_type,
         raw=panel_dict,
         embeddable_config=embeddable_cfg,
         embeddable_attributes=embeddable_attrs,
-        view_panel=view_panel,  # pyright: ignore[reportArgumentType]
+        view_panel=view_panel,
     )
 
     builder = _SIMPLE_PANEL_BUILDERS.get(resolved_panel_type)

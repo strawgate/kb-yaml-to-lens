@@ -11,7 +11,7 @@ from kb_dashboard_core.loader import DashboardConfig
 from ruamel.yaml import YAML
 
 from kb_dashboard_tools.decompile import decompile_dashboard
-from kb_dashboard_tools.decompile.parse import get_int, parse_dashboard, parse_json_field
+from kb_dashboard_tools.decompile.parse_shared import get_int, parse_json_field
 
 
 def _dump_yaml(document: object) -> str:
@@ -1283,37 +1283,6 @@ def test_decompile_controls() -> None:
     assert controls[1]['data_view'] == 'logs-*'
 
 
-def test_parse_controls_view_model_uses_reference_data_view() -> None:
-    """Parse phase injects resolved data view into control view-model validation."""
-    dashboard = {
-        'references': [
-            {'name': 'controlGroup_ctrl-1:optionsListDataView', 'type': 'index-pattern', 'id': 'metrics-*'},
-        ],
-        'attributes': {
-            'title': 'Controls from references',
-            'panelsJSON': json.dumps([]),
-            'controlGroupInput': {
-                'panelsJSON': json.dumps(
-                    {
-                        'ctrl-1': {
-                            'type': 'optionsListControl',
-                            'order': 0,
-                            'explicitInput': {
-                                'fieldName': 'host.name',
-                                'title': 'Host',
-                            },
-                        },
-                    }
-                ),
-            },
-        },
-    }
-    parsed = parse_dashboard(dashboard)
-    assert parsed.controls
-    assert parsed.controls[0].data_view_id == 'metrics-*'
-    assert parsed.controls[0].view_control is not None
-
-
 # --- Filters extraction ---
 
 
@@ -1973,41 +1942,8 @@ def test_decompile_system_overview_has_metric_panels() -> None:
         assert panel['lens'].get('data_view') is not None
 
 
-def test_parse_real_dashboard_produces_typed_structure() -> None:
-    """Parse phase produces fully typed ParsedDashboard from real JSON."""
-    dashboard = _load_fixture('nginx-overview.json')
-    parsed = parse_dashboard(dashboard)
-    assert parsed.title is not None
-    assert len(parsed.panels) > 0
-    for panel in parsed.panels:
-        assert panel.error is None, f'Panel {panel.panel_index} had parse error: {panel.error}'
-        assert panel.lens is not None or panel.simple is not None
-
-
-def test_parse_system_dashboard_detects_visualization_types() -> None:
-    """Parse phase detects all visualization types in system overview."""
-    dashboard = _load_fixture('system-overview.json')
-    parsed = parse_dashboard(dashboard)
-    vis_types = set()
-    for panel in parsed.panels:
-        if panel.lens is not None and panel.lens.visualization_type is not None:
-            vis_types.add(panel.lens.visualization_type)
-    assert 'lnsMetric' in vis_types
-    assert 'lnsDatatable' in vis_types or 'lnsHeatmap' in vis_types
-
-
-def test_parse_real_dashboard_validates_visualization_view_models() -> None:
-    """Parse phase threads real Lens visualization state through Kbn* view models."""
-    dashboard = _load_fixture('system-overview.json')
-    parsed = parse_dashboard(dashboard)
-    view_models = [
-        panel.lens.view_visualization for panel in parsed.panels if panel.lens is not None and panel.lens.view_visualization is not None
-    ]
-    assert view_models
-
-
-def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -> None:
-    """Parse phase validates dashboard-level parts against Kbn* view models when available."""
+def test_decompile_dashboard_extracts_kql_query() -> None:
+    """Decompile pipeline extracts KQL query from dashboard searchSourceJSON."""
     dashboard = {
         'attributes': {
             'title': 'Typed bits',
@@ -2065,16 +2001,6 @@ def test_parse_dashboard_validates_settings_filters_and_controls_view_models() -
         }
     }
 
-    parsed = parse_dashboard(dashboard)
-
-    assert parsed.settings is not None
-    assert parsed.settings.view_options is not None
-    assert parsed.query == {'kql': 'host.name : "web-01"'}
-    assert parsed.filters
-    assert parsed.filters[0].view_filter is not None
-    assert parsed.controls
-    assert parsed.controls[0].view_control is not None
-
     result = decompile_dashboard(dashboard)
     decompiled = result['dashboards'][0]
     assert decompiled['query'] == {'kql': 'host.name : "web-01"'}
@@ -2091,8 +2017,8 @@ def test_get_int_excludes_bools() -> None:
     assert get_int({'order': 1}, 'order') == 1
 
 
-def test_parse_panel_ref_name_without_embedded_attributes_sets_error() -> None:
-    """Unresolved panel references produce explicit parse errors."""
+def test_decompile_panel_ref_name_without_embedded_attributes_produces_todo() -> None:
+    """Unresolved panel references produce a markdown TODO panel in the decompiled output."""
     dashboard = {
         'attributes': {
             'title': 'Panel references',
@@ -2107,11 +2033,11 @@ def test_parse_panel_ref_name_without_embedded_attributes_sets_error() -> None:
             ),
         }
     }
-    parsed = parse_dashboard(dashboard)
-    assert len(parsed.panels) == 1
-    assert parsed.panels[0].error == 'unresolved panel reference: panel_ref_0'
-    assert parsed.panels[0].lens is None
-    assert parsed.panels[0].simple is None
+    result = decompile_dashboard(dashboard)
+    panels = result['dashboards'][0]['panels']
+    assert len(panels) == 1
+    assert 'markdown' in panels[0]
+    assert 'panel_ref_0' in panels[0]['markdown']['content']
 
 
 # --- Formula metric extraction (#1522) ---
