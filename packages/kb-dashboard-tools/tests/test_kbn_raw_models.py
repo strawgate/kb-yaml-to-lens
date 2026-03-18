@@ -84,7 +84,7 @@ def _get_viz_types(fixture_path: Path) -> list[str]:
     raw_panels = dashboard.attributes.panelsJSON if dashboard.attributes and dashboard.attributes.panelsJSON else []
     viz_types: list[str] = []
     for rp in raw_panels:
-        if not isinstance(rp, KbnBasePanel) or rp.type != 'lens':
+        if rp.type != 'lens':
             continue
         ec = rp.embeddableConfig
         if isinstance(ec, dict):

@@ -11,7 +11,6 @@ from ruamel.yaml.comments import CommentedMap
 
 from .infer import infer_dashboard
 from .kbn_raw_models.dashboard.view import KbnDashboard
-from .kbn_raw_models.panels.view import KbnBasePanel
 from .serialize import serialize_dashboard
 
 __all__ = ['decompile_dashboard']
@@ -25,11 +24,8 @@ def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     kbn = KbnDashboard.model_validate(dashboard)
     dashboard_model, _ = infer_dashboard(kbn)
     attrs = kbn.attributes
-    raw_panels: list[dict[str, Any]] = []
-    if attrs is not None and isinstance(attrs.panelsJSON, list):
-        for item in attrs.panelsJSON:
-            if isinstance(item, KbnBasePanel):
-                raw_panels.append(item.model_dump(by_alias=True, exclude_none=True))
-            elif isinstance(item, dict):
-                raw_panels.append(item)
+    panels_json = attrs.panelsJSON if attrs is not None else None
+    raw_panels: list[dict[str, Any]] = (
+        [item.model_dump(by_alias=True, exclude_none=True) for item in panels_json] if panels_json is not None else []
+    )
     return serialize_dashboard(dashboard_model, kbn, raw_panels)

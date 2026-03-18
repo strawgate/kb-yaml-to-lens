@@ -139,8 +139,8 @@ def _infer_filter(f: KbnFilter) -> dict[str, Any] | None:
                 if val is not None:
                     result[bound] = val
         elif f.range is not None:
-            field_range = f.range.get(key) if isinstance(f.range, dict) else None
-            if isinstance(field_range, dict):
+            field_range = as_dict(f.range.get(key))
+            if field_range is not None:
                 for bound in ('gte', 'gt', 'lte', 'lt'):
                     val = get_scalar(field_range, bound)
                     if val is not None:
@@ -372,10 +372,8 @@ def infer_dashboard(kbn: KbnDashboard, raw_dashboard: dict[str, Any] | None = No
     # Panels
     panels: list[dict[str, Any]] = []
     panels_json = attrs.panelsJSON if attrs is not None else None
-    if isinstance(panels_json, list):
+    if panels_json is not None:
         for panel_item in panels_json:
-            if not isinstance(panel_item, KbnBasePanel):
-                continue
             panel_type, chart_config, panel_wrapper = _infer_panel(panel_item, reference_lookup)
             panel_wrapper[panel_type] = chart_config
             panels.append(panel_wrapper)

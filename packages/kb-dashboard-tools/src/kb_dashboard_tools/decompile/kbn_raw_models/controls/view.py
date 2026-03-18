@@ -209,5 +209,7 @@ class KbnControlGroupInput(BaseRawVwModel):
 
             v = _cast('object', _json.loads(v))
         if isinstance(v, list):
-            return [item for item in v if isinstance(item, dict)]
+            from typing import cast as _cast
+
+            return _cast('list[object]', [item for item in _cast('list[object]', v) if isinstance(item, dict)])
         return v

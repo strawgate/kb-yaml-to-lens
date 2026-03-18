@@ -422,7 +422,8 @@ def _build_list_dict_filter_validator(field_name: str) -> list[ast.stmt]:
         @classmethod
         def _filter_{field_name}_non_dicts(cls, v: object) -> object:
             if isinstance(v, list):
-                return [item for item in v if isinstance(item, dict)]
+                from typing import cast as _cast
+                return _cast(list[object], [item for item in _cast(list[object], v) if isinstance(item, dict)])
             return v
     """)
     tree = ast.parse(src)
@@ -445,7 +446,8 @@ def _build_combined_json_and_filter_validator(field_name: str) -> list[ast.stmt]
                 from typing import cast as _cast
                 v = _cast(object, _json.loads(v))
             if isinstance(v, list):
-                return [item for item in v if isinstance(item, dict)]
+                from typing import cast as _cast
+                return _cast(list[object], [item for item in _cast(list[object], v) if isinstance(item, dict)])
             return v
     """)
     tree = ast.parse(src)

@@ -62,7 +62,9 @@ class KbnDashboardAttributes(BaseRawVwModel):
 
             v = _cast('object', _json.loads(v))
         if isinstance(v, list):
-            return [item for item in v if isinstance(item, dict)]
+            from typing import cast as _cast
+
+            return _cast('list[object]', [item for item in _cast('list[object]', v) if isinstance(item, dict)])
         return v
 
     @field_validator('optionsJSON', mode='before')
@@ -96,5 +98,7 @@ class KbnDashboard(BaseRawVwModel):
     @classmethod
     def _filter_references_non_dicts(cls, v: object) -> object:
         if isinstance(v, list):
-            return [item for item in v if isinstance(item, dict)]
+            from typing import cast as _cast
+
+            return _cast('list[object]', [item for item in _cast('list[object]', v) if isinstance(item, dict)])
         return v
