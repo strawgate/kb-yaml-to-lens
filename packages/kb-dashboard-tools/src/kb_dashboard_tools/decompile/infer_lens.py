@@ -7,20 +7,13 @@ legend settings, axis configuration, and appearance options.
 
 import logging
 import re
+from dataclasses import dataclass, field
 from typing import Any
 
 from kb_dashboard_core.panels.charts.config import ESQLPanelConfig, LensPanelConfig
 from pydantic import TypeAdapter, ValidationError
 
-from .parse import (
-    ParsedColumn,
-    ParsedESQLColumn,
-    ParsedESQLLayer,
-    ParsedFormLayer,
-    ParsedLensPanel,
-    ParsedVisualizationLayerRole,
-    ParsedVisualizationState,
-)
+from .kbn_raw_models.shared.view import KbnReference
 from .parse_shared import (
     as_dict,
     get_bool,
@@ -29,6 +22,8 @@ from .parse_shared import (
     get_list,
     get_number,
     get_str,
+    validate_view_model,
+    visualization_model_type,
 )
 from .tables import (
     KIBANA_AXIS_EXTENT_MODE_TO_YAML,
@@ -69,6 +64,411 @@ _PLURAL_METRIC_TYPES = frozenset({'pie', 'datatable', 'line', 'bar', 'area'})
 _RECORDS_FIELD = 'Records'
 
 
+# ---------------------------------------------------------------------------
+# Internal parsed types (implementation details of this module)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class _ParsedColumn:
+    """A single parsed datasource column (form-based)."""
+
+    column_id: str
+    operation_type: str
+    source_field: str | None = None
+    label: str | None = None
+    custom_label: bool = False
+    is_bucketed: bool = False
+    data_type: str | None = None
+    params: dict[str, Any] = field(default_factory=dict)
+    filter_query: str | None = None
+    filter_language: str | None = None
+
+
+@dataclass
+class _ParsedESQLColumn:
+    """A single parsed ES|QL column."""
+
+    column_id: str
+    field_name: str
+    label: str | None = None
+    custom_label: bool = False
+    meta_type: str | None = None
+
+
+@dataclass
+class _ParsedFormLayer:
+    """A parsed form-based datasource layer."""
+
+    layer_id: str
+    columns: dict[str, _ParsedColumn] = field(default_factory=dict)
+    column_order: list[str] = field(default_factory=list)
+    index_pattern_id: str | None = None
+
+
+@dataclass
+class _ParsedESQLLayer:
+    """A parsed ES|QL datasource layer."""
+
+    layer_id: str
+    query: str
+    columns: list[_ParsedESQLColumn] = field(default_factory=list)
+    time_field: str = '@timestamp'
+
+
+@dataclass
+class _ParsedVisualizationLayerRole:
+    """Accessor roles for a single visualization layer."""
+
+    layer_id: str
+    metric_ids: list[str] = field(default_factory=list)
+    dimension_id: str | None = None
+    breakdown_id: str | None = None
+    accessors: list[str] = field(default_factory=list)
+
+
+@dataclass
+class _ParsedVisualizationState:
+    """Parsed visualization state with resolved chart type."""
+
+    raw_type: str | None = None
+    preferred_series_type: str | None = None
+    shape: str | None = None
+    layer_roles: dict[str, _ParsedVisualizationLayerRole] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
+    view_model: Any = None
+
+
+@dataclass
+class _InferredLensPanel:
+    """Intermediate structure for lens/esql panel inference."""
+
+    panel_type: str  # 'lens' or 'esql'
+    visualization_state: _ParsedVisualizationState | None = None
+    form_layers: dict[str, _ParsedFormLayer] = field(default_factory=dict)
+    esql_layers: dict[str, _ParsedESQLLayer] = field(default_factory=dict)
+    data_view_id: str | None = None
+    esql_query: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Panel parsing helpers (previously in parse_panels.py)
+# ---------------------------------------------------------------------------
+
+
+def _parse_column(col_id: str, col: dict[str, Any]) -> _ParsedColumn:
+    op_type = get_str(col, 'operationType')
+    data_type = get_str(col, 'dataType')
+    parsed = _ParsedColumn(
+        column_id=col_id,
+        operation_type=op_type if op_type is not None else 'unknown',
+        is_bucketed=bool(col.get('isBucketed')),
+        data_type=data_type,
+    )
+    source_field = get_str(col, 'sourceField')
+    if source_field is not None:
+        parsed.source_field = source_field
+    label = get_str(col, 'label')
+    if label is not None:
+        parsed.label = label
+    parsed.custom_label = bool(col.get('customLabel'))
+    params = get_dict(col, 'params')
+    if params is not None:
+        parsed.params = params
+
+    col_filter = get_dict(col, 'filter')
+    if col_filter is not None:
+        q = get_str(col_filter, 'query')
+        lang = get_str(col_filter, 'language')
+        if q is not None:
+            parsed.filter_query = q
+            parsed.filter_language = lang
+    return parsed
+
+
+def _parse_esql_column(raw: dict[str, Any]) -> _ParsedESQLColumn | None:
+    col_id = get_str(raw, 'columnId')
+    field_name = get_str(raw, 'fieldName')
+    if col_id is None or field_name is None:
+        return None
+    parsed = _ParsedESQLColumn(column_id=col_id, field_name=field_name)
+    label = get_str(raw, 'label')
+    if label is not None:
+        parsed.label = label
+    parsed.custom_label = bool(raw.get('customLabel'))
+    meta = get_dict(raw, 'meta')
+    if meta is not None:
+        mt = get_str(meta, 'type')
+        if mt is not None:
+            parsed.meta_type = mt
+    return parsed
+
+
+def _dedupe_ids(ids: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for i in ids:
+        if i not in seen:
+            result.append(i)
+            seen.add(i)
+    return result
+
+
+def _collect_accessor_ids(source: dict[str, Any], scalar_keys: tuple[str, ...]) -> list[str]:
+    ids: list[str] = []
+    for key in scalar_keys:
+        value = get_str(source, key)
+        if value is not None:
+            ids.append(value)
+    list_accessors = get_list(source, 'accessors')
+    if list_accessors is not None:
+        ids.extend([a for a in list_accessors if isinstance(a, str)])
+    return _dedupe_ids(ids)
+
+
+def _get_datasource_layers(state: dict[str, Any], datasource_key: str) -> dict[str, Any] | None:
+    ds_states = get_dict(state, 'datasourceStates')
+    if ds_states is None:
+        return None
+    datasource = get_dict(ds_states, datasource_key)
+    if datasource is None:
+        return None
+    return get_dict(datasource, 'layers')
+
+
+def _extract_data_view_from_refs(refs: list[KbnReference]) -> str | None:
+    for ref in refs:
+        if ref.type == 'index-pattern':
+            return ref.id
+    return None
+
+
+def _parse_multi_layer_roles(parsed_vis: _ParsedVisualizationState, visualization: dict[str, Any]) -> None:
+    vis_layers = get_list(visualization, 'layers')
+    if vis_layers is None:
+        return
+    for vis_layer_obj in vis_layers:
+        vis_layer = as_dict(vis_layer_obj)
+        if vis_layer is None:
+            continue
+        layer_id = get_str(vis_layer, 'layerId')
+        if layer_id is None:
+            continue
+        role = _ParsedVisualizationLayerRole(layer_id=layer_id)
+        raw_accessors = get_list(vis_layer, 'accessors')
+        if raw_accessors is not None:
+            role.metric_ids = [v for v in raw_accessors if isinstance(v, str)]
+        x_accessor = get_str(vis_layer, 'xAccessor')
+        if x_accessor is not None:
+            role.dimension_id = x_accessor
+        split_accessor = get_str(vis_layer, 'splitAccessor')
+        if split_accessor is not None:
+            role.breakdown_id = split_accessor
+        role.accessors = _dedupe_ids(
+            [
+                *_collect_accessor_ids(vis_layer, ('xAccessor', 'splitAccessor')),
+                *role.metric_ids,
+            ]
+        )
+        parsed_vis.layer_roles[layer_id] = role
+
+
+def _parse_single_layer_roles(
+    parsed_vis: _ParsedVisualizationState,
+    visualization: dict[str, Any],
+) -> None:
+    single_layer_id = get_str(visualization, 'layerId')
+    if single_layer_id is None:
+        return
+    role = parsed_vis.layer_roles.setdefault(single_layer_id, _ParsedVisualizationLayerRole(layer_id=single_layer_id))
+    for key in ('metricAccessor', 'secondaryAccessor', 'accessor'):
+        value = get_str(visualization, key)
+        if value is not None and value not in role.metric_ids:
+            role.metric_ids.append(value)
+    raw_accessors = get_list(visualization, 'accessors')
+    if raw_accessors is not None:
+        for v in raw_accessors:
+            if isinstance(v, str) and v not in role.metric_ids:
+                role.metric_ids.append(v)
+    x_accessor = get_str(visualization, 'xAccessor')
+    if x_accessor is not None:
+        role.dimension_id = x_accessor
+    split_accessor = get_str(visualization, 'splitAccessor')
+    if split_accessor is not None:
+        role.breakdown_id = split_accessor
+    if not role.accessors:
+        role.accessors = _collect_accessor_ids(
+            visualization,
+            ('xAccessor', 'metricAccessor', 'splitAccessor', 'secondaryAccessor', 'accessor'),
+        )
+
+
+def _parse_visualization_state(state: dict[str, Any], vis_type: str | None, *, is_esql: bool) -> _ParsedVisualizationState:
+    parsed_vis = _ParsedVisualizationState(raw_type=vis_type)
+    visualization = get_dict(state, 'visualization')
+    if visualization is None:
+        return parsed_vis
+
+    parsed_vis.raw = visualization
+    parsed_vis.preferred_series_type = get_str(visualization, 'preferredSeriesType')
+    parsed_vis.shape = get_str(visualization, 'shape')
+
+    model_cls = visualization_model_type(vis_type, visualization, is_esql=is_esql)
+    if model_cls is not None:
+        parsed_vis.view_model = validate_view_model(model_cls, visualization)
+
+    _parse_multi_layer_roles(parsed_vis, visualization)
+    _parse_single_layer_roles(parsed_vis, visualization)
+
+    return parsed_vis
+
+
+def _parse_form_based_layers(state: dict[str, Any]) -> dict[str, _ParsedFormLayer]:
+    layers_raw = _get_datasource_layers(state, 'formBased')
+    if layers_raw is None:
+        return {}
+
+    layers: dict[str, _ParsedFormLayer] = {}
+    for layer_id, layer in layers_raw.items():  # pyright: ignore[reportAny]
+        layer_dict = as_dict(layer)  # pyright: ignore[reportAny]
+        if layer_dict is None:
+            continue
+        parsed_layer = _ParsedFormLayer(layer_id=layer_id, index_pattern_id=get_str(layer_dict, 'indexPatternId'))
+        column_order = get_list(layer_dict, 'columnOrder')
+        if column_order is not None:
+            parsed_layer.column_order = [c for c in column_order if isinstance(c, str)]
+        cols = get_dict(layer_dict, 'columns') or {}
+        for col_id, col_val in cols.items():  # pyright: ignore[reportAny]
+            col = as_dict(col_val)  # pyright: ignore[reportAny]
+            if col is not None:
+                parsed_layer.columns[col_id] = _parse_column(col_id, col)
+        layers[layer_id] = parsed_layer
+    return layers
+
+
+def _extract_esql_query_from_state(state: dict[str, Any]) -> str | None:
+    top_query = get_dict(state, 'query')
+    if top_query is not None:
+        esql = get_str(top_query, 'esql')
+        if esql is not None:
+            return esql
+    layers_raw = _get_datasource_layers(state, 'textBased')
+    if layers_raw is None:
+        return None
+    for layer_obj in layers_raw.values():  # pyright: ignore[reportAny]
+        layer = as_dict(layer_obj)  # pyright: ignore[reportAny]
+        if layer is None:
+            continue
+        query = get_dict(layer, 'query')
+        if query is not None:
+            esql = get_str(query, 'esql')
+            if esql is not None:
+                return esql
+    return None
+
+
+def _has_text_based_query(state: dict[str, Any]) -> bool:
+    top_query = get_dict(state, 'query')
+    if top_query is not None and get_str(top_query, 'esql') is not None:
+        return True
+    layers_raw = _get_datasource_layers(state, 'textBased')
+    if layers_raw is None:
+        return False
+    for layer_obj in layers_raw.values():  # pyright: ignore[reportAny]
+        layer = as_dict(layer_obj)  # pyright: ignore[reportAny]
+        if layer is None:
+            continue
+        query = get_dict(layer, 'query')
+        if query is not None and get_str(query, 'esql') is not None:
+            return True
+    return False
+
+
+def _parse_esql_layers(state: dict[str, Any]) -> dict[str, _ParsedESQLLayer]:
+    layers_raw = _get_datasource_layers(state, 'textBased')
+    if layers_raw is None:
+        return {}
+
+    top_esql = _extract_esql_query_from_state(state)
+    layers: dict[str, _ParsedESQLLayer] = {}
+    for layer_id, layer_obj in layers_raw.items():  # pyright: ignore[reportAny]
+        layer = as_dict(layer_obj)  # pyright: ignore[reportAny]
+        if layer is None:
+            continue
+        query_obj = get_dict(layer, 'query')
+        esql = get_str(query_obj, 'esql') if query_obj is not None else top_esql
+        if esql is None:
+            continue
+        parsed_layer = _ParsedESQLLayer(layer_id=layer_id, query=esql)
+        time_field = get_str(layer, 'timeField')
+        if time_field is not None:
+            parsed_layer.time_field = time_field
+        for col_list_key in ('columns', 'allColumns'):
+            col_list = get_list(layer, col_list_key)
+            if col_list is None:
+                continue
+            for raw_col in col_list:
+                col = as_dict(raw_col)
+                if col is None:
+                    continue
+                parsed_col = _parse_esql_column(col)
+                if parsed_col is None:
+                    continue
+                if parsed_col.column_id not in {c.column_id for c in parsed_layer.columns}:
+                    parsed_layer.columns.append(parsed_col)
+        layers[layer_id] = parsed_layer
+    return layers
+
+
+def _build_inferred_lens_panel(panel_dict: dict[str, Any]) -> _InferredLensPanel:
+    """Extract typed intermediate data from a raw Lens or ES|QL panel dict."""
+    # Use base panel for grid/index info only; access embeddableConfig via raw dict
+    # (KbnLensPanel enforces type='lens' literal which fails for 'esql' panels)
+    ec_dict = get_dict(panel_dict, 'embeddableConfig') or {}
+    attrs_dict = get_dict(ec_dict, 'attributes') or {}
+    state_dict = get_dict(attrs_dict, 'state') or {}
+
+    raw_panel_type = get_str(panel_dict, 'type') or ''
+    is_esql = raw_panel_type == 'esql' or _has_text_based_query(state_dict)
+    panel_type = 'esql' if is_esql else 'lens'
+
+    vis_type = get_str(attrs_dict, 'visualizationType')
+
+    vis_state = _parse_visualization_state(state_dict, vis_type, is_esql=is_esql)
+    form_layers = _parse_form_based_layers(state_dict) if not is_esql else {}
+    esql_layers = _parse_esql_layers(state_dict) if is_esql else {}
+    esql_query = _extract_esql_query_from_state(state_dict) if is_esql else None
+
+    # Resolve data view from references — try attributes.references first, then embeddableConfig.references
+    refs: list[KbnReference] = []
+    for refs_source in (get_list(attrs_dict, 'references'), get_list(ec_dict, 'references')):
+        if refs_source is not None:
+            for r in refs_source:
+                r_dict = as_dict(r)
+                if r_dict is not None:
+                    try:
+                        refs.append(KbnReference.model_validate(r_dict))
+                    except ValidationError:
+                        logger.warning('Skipping malformed Kibana reference in panel payload: %s', r_dict)
+            break  # use first source that is non-None
+
+    data_view_id = _extract_data_view_from_refs(refs)
+
+    return _InferredLensPanel(
+        panel_type=panel_type,
+        visualization_state=vis_state,
+        form_layers=form_layers,
+        esql_layers=esql_layers,
+        data_view_id=data_view_id,
+        esql_query=esql_query,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Chart type resolution
+# ---------------------------------------------------------------------------
+
+
 def _merge_appearance(chart: dict[str, Any], new_appearance: dict[str, Any] | None) -> None:
     """Merge appearance settings into chart, updating existing if present."""
     if new_appearance is None:
@@ -80,12 +480,7 @@ def _merge_appearance(chart: dict[str, Any], new_appearance: dict[str, Any] | No
         chart['appearance'] = new_appearance
 
 
-# ---------------------------------------------------------------------------
-# Chart type resolution
-# ---------------------------------------------------------------------------
-
-
-def _resolve_chart_type(vis_state: ParsedVisualizationState) -> str | None:
+def _resolve_chart_type(vis_state: _ParsedVisualizationState) -> str | None:
     """Map Kibana visualization type + series preferences to a YAML chart type."""
     raw = vis_state.raw_type
     if raw is None:
@@ -105,7 +500,7 @@ def _resolve_chart_type(vis_state: ParsedVisualizationState) -> str | None:
     return normalized
 
 
-def _resolve_stacking_mode(vis_state: ParsedVisualizationState, chart_type: str | None) -> str | None:
+def _resolve_stacking_mode(vis_state: _ParsedVisualizationState, chart_type: str | None) -> str | None:
     """Determine stacking mode (stacked/percentage) for bar and area charts."""
     if chart_type not in {'bar', 'area'}:
         return None
@@ -120,7 +515,7 @@ def _resolve_stacking_mode(vis_state: ParsedVisualizationState, chart_type: str 
 # ---------------------------------------------------------------------------
 
 
-def _extract_metric_filter(col: ParsedColumn) -> dict[str, str] | None:
+def _extract_metric_filter(col: _ParsedColumn) -> dict[str, str] | None:
     """Extract the metric-level KQL/Lucene filter from a column, if present."""
     if col.filter_query is not None:
         if col.filter_language == 'kuery':
@@ -133,7 +528,7 @@ def _extract_metric_filter(col: ParsedColumn) -> dict[str, str] | None:
     return None
 
 
-def _extract_metric_format(col: ParsedColumn) -> dict[str, Any] | None:
+def _extract_metric_format(col: _ParsedColumn) -> dict[str, Any] | None:
     """Extract number/byte/percent format configuration from a column."""
     format_config = get_dict(col.params, 'format')
     if format_config is None:
@@ -157,7 +552,7 @@ def _extract_metric_format(col: ParsedColumn) -> dict[str, Any] | None:
     return fmt
 
 
-def _build_metric_dict(col: ParsedColumn) -> dict[str, Any] | None:
+def _build_metric_dict(col: _ParsedColumn) -> dict[str, Any] | None:
     """Build a metric config dict from a form-based column. Returns None if skipped."""
     if col.operation_type in SKIP_OPERATION_TYPES:
         return None
@@ -204,7 +599,7 @@ def _build_metric_dict(col: ParsedColumn) -> dict[str, Any] | None:
     return metric
 
 
-def _build_dimension_dict(col: ParsedColumn) -> tuple[str, dict[str, Any]] | None:
+def _build_dimension_dict(col: _ParsedColumn) -> tuple[str, dict[str, Any]] | None:
     """Build a dimension or breakdown dict. Returns (category, dict) or None."""
     if col.operation_type == 'date_histogram':
         dim: dict[str, Any] = {'type': 'date_histogram'}
@@ -257,8 +652,8 @@ def _build_dimension_dict(col: ParsedColumn) -> tuple[str, dict[str, Any]] | Non
 
 
 def _classify_form_columns(
-    layer: ParsedFormLayer,
-    layer_role: ParsedVisualizationLayerRole | None,
+    layer: _ParsedFormLayer,
+    layer_role: _ParsedVisualizationLayerRole | None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
     """Classify form-based columns into metrics, dimensions, breakdowns, skipped."""
     metrics: list[dict[str, Any]] = []
@@ -301,7 +696,7 @@ def _classify_form_columns(
 # ---------------------------------------------------------------------------
 
 
-def _esql_column_entry(col: ParsedESQLColumn) -> dict[str, Any]:
+def _esql_column_entry(col: _ParsedESQLColumn) -> dict[str, Any]:
     """Build an ES|QL column reference dict from a parsed column."""
     entry: dict[str, Any] = {'field': col.field_name}
     if col.label is not None and col.label != col.field_name:
@@ -310,15 +705,15 @@ def _esql_column_entry(col: ParsedESQLColumn) -> dict[str, Any]:
 
 
 def _classify_esql_columns(
-    layer: ParsedESQLLayer,
-    layer_role: ParsedVisualizationLayerRole | None,
+    layer: _ParsedESQLLayer,
+    layer_role: _ParsedVisualizationLayerRole | None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     """Classify ES|QL columns into metrics, dimensions, breakdowns using layer roles."""
     metrics: list[dict[str, Any]] = []
     dimensions: list[dict[str, Any]] = []
     breakdowns: list[dict[str, Any]] = []
 
-    columns_by_id: dict[str, ParsedESQLColumn] = {c.column_id: c for c in layer.columns}
+    columns_by_id: dict[str, _ParsedESQLColumn] = {c.column_id: c for c in layer.columns}
 
     if layer_role is None:
         return metrics, dimensions, breakdowns
@@ -781,10 +1176,16 @@ def _fill_required_defaults(
 # ---------------------------------------------------------------------------
 
 
-def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
-    """Build chart config dict from a parsed Lens/ES|QL panel."""
+def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Build (panel_type_key, chart_config) from a raw Lens/ES|QL panel dict.
+
+    Returns the inferred panel type key ('lens' or 'esql') alongside the chart
+    config dict, since a raw ``type='lens'`` panel may contain an ES|QL chart
+    when its visualization state uses textBased datasource layers.
+    """
+    inferred = _build_inferred_lens_panel(panel_dict)
     chart: dict[str, Any] = {}
-    vis_state = parsed.visualization_state
+    vis_state = inferred.visualization_state
 
     # Resolve chart type
     chart_type: str | None = None
@@ -842,15 +1243,15 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
                 chart['appearance'] = dt_appearance
 
     # Data view / query
-    if parsed.panel_type == 'lens' and parsed.data_view_id is not None:
-        chart['data_view'] = parsed.data_view_id
+    if inferred.panel_type == 'lens' and inferred.data_view_id is not None:
+        chart['data_view'] = inferred.data_view_id
 
     esql_query: str | None = None
-    if parsed.panel_type == 'esql':
+    if inferred.panel_type == 'esql':
         # Check top-level query first, then layer queries
-        esql_query = parsed.esql_query
+        esql_query = inferred.esql_query
         if esql_query is None:
-            for layer in parsed.esql_layers.values():
+            for layer in inferred.esql_layers.values():
                 esql_query = layer.query
                 break
         chart['query'] = esql_query if esql_query is not None else 'TODO_esql_query'
@@ -861,15 +1262,15 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
     all_breakdowns: list[dict[str, Any]] = []
     has_skipped_metrics = False
 
-    if parsed.panel_type == 'esql':
-        for layer_id, layer in parsed.esql_layers.items():
+    if inferred.panel_type == 'esql':
+        for layer_id, layer in inferred.esql_layers.items():
             role = vis_state.layer_roles.get(layer_id) if vis_state else None
             m, d, b = _classify_esql_columns(layer, role)
             all_metrics.extend(m)
             all_dimensions.extend(d)
             all_breakdowns.extend(b)
     else:
-        for layer_id, layer in parsed.form_layers.items():
+        for layer_id, layer in inferred.form_layers.items():
             role = vis_state.layer_roles.get(layer_id) if vis_state else None
             m, d, b, skipped = _classify_form_columns(layer, role)
             all_metrics.extend(m)
@@ -879,12 +1280,12 @@ def _infer_lens_chart(parsed: ParsedLensPanel) -> dict[str, Any]:
                 has_skipped_metrics = True
 
     _assign_metrics_and_dimensions(chart, chart_type, all_metrics, all_dimensions, all_breakdowns)
-    _fill_required_defaults(chart, chart_type, parsed.panel_type, has_skipped_metrics)
+    _fill_required_defaults(chart, chart_type, inferred.panel_type, has_skipped_metrics)
 
     try:
-        _ = _lens_panel_adapter.validate_python(chart) if parsed.panel_type == 'lens' else _esql_panel_adapter.validate_python(chart)
+        _ = _lens_panel_adapter.validate_python(chart) if inferred.panel_type == 'lens' else _esql_panel_adapter.validate_python(chart)
     except ValidationError as exc:
         msg = f'infer_lens_chart produced invalid chart dict (type={chart_type}): {exc}'
         raise ValueError(msg) from exc
 
-    return chart
+    return inferred.panel_type, chart
