@@ -4,6 +4,7 @@ Handles inference of markdown, search, image, links, and vega panels
 from typed Kibana panel models into YAML-ready config dicts.
 """
 
+from collections.abc import Callable
 from typing import Any
 
 from .kbn_raw_models.panels.view import KbnBasePanel
@@ -20,7 +21,7 @@ from .parse_shared import (
 __all__ = ['_SIMPLE_PANEL_BUILDERS']
 
 
-def _infer_markdown_panel(panel: KbnBasePanel, ec: dict[str, Any], _ref_lookup: dict[str, str]) -> dict[str, Any]:
+def _infer_markdown_panel(_panel: KbnBasePanel, ec: dict[str, Any], _ref_lookup: dict[str, str]) -> dict[str, Any]:
     """Infer markdown panel config."""
     config: dict[str, Any] = {}
 
@@ -155,7 +156,7 @@ def _infer_vega_panel(_panel: KbnBasePanel, _ec: dict[str, Any], _ref_lookup: di
     return {'spec': {}}
 
 
-type _SimplePanelBuilder = Any  # Callable[[KbnBasePanel, dict[str, Any], dict[str, str]], dict[str, Any]]
+type _SimplePanelBuilder = Callable[[KbnBasePanel, dict[str, Any], dict[str, str]], dict[str, Any]]
 
 _SIMPLE_PANEL_BUILDERS: dict[str, _SimplePanelBuilder] = {
     'markdown': _infer_markdown_panel,

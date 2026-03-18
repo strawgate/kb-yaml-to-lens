@@ -975,9 +975,7 @@ def _is_esql_panel_dict(panel_dict: dict[str, Any]) -> bool:
         if isinstance(text_based_layers, dict) and text_based_layers:
             return True
     query = get_nested(panel_dict, 'embeddableConfig', 'attributes', 'state', 'query')
-    if query is not None and isinstance(query, dict) and query.get('esql') is not None:
-        return True
-    return False
+    return query is not None and query.get('esql') is not None
 
 
 def _extract_data_view_id_dict(panel_dict: dict[str, Any]) -> str | None:

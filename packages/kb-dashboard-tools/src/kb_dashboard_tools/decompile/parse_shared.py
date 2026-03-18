@@ -85,5 +85,3 @@ def get_number(source: dict[str, Any], key: str) -> int | float | None:
     if isinstance(value, bool):
         return None
     return value if isinstance(value, (int, float)) else None
-
-

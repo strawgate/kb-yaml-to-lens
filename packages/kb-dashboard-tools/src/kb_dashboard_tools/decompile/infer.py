@@ -65,7 +65,7 @@ def _infer_settings(kbn: KbnDashboard) -> dict[str, Any] | None:
         settings['sync'] = sync
     if opts.hidePanelTitles is not None:
         settings['titles'] = not opts.hidePanelTitles
-    return settings if settings else None
+    return settings or None
 
 
 def _infer_time_range(kbn: KbnDashboard) -> dict[str, str] | None:
