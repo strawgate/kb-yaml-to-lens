@@ -186,7 +186,7 @@ def _normalize_control_for_view(panel_id: str, raw: dict[str, Any]) -> dict[str,
         normalized_explicit.setdefault('singleSelect', False)
         normalized_explicit.setdefault('sort', {'by': '_count', 'direction': 'desc'})
         normalized_explicit.setdefault('runPastTimeout', False)
-    elif panel_type in ('rangeSliderControl', 'timeSlider'):
+    elif panel_type in ('rangeSliderControl', 'timeSlider', 'timeSliderControl'):
         _ = normalized_explicit.setdefault('step', None)
     elif panel_type == 'esqlControl':
         normalized_explicit.setdefault('selectedOptions', [])
@@ -219,6 +219,7 @@ def _parse_controls(
             'optionsListControl': 'optionsListDataView',
             'rangeSliderControl': 'rangeSliderDataView',
             'timeSliderControl': 'timeSliderDataView',
+            'timeSlider': 'timeSliderDataView',
             'esqlControl': 'esqlControlDataView',
         }.get(control_type or '')
         if ref_suffix is None:
@@ -527,7 +528,7 @@ def _parse_esql_layers(state: dict[str, Any]) -> dict[str, ParsedESQLLayer]:
     layers: dict[str, ParsedESQLLayer] = {}
     for layer_id, layer in _iter_named_dict_entries(layers_raw):
         query_obj = get_dict(layer, 'query')
-        esql = get_str(query_obj, 'esql') if query_obj is not None else top_esql
+        esql = (get_str(query_obj, 'esql') if query_obj is not None else None) or top_esql
         if esql is None:
             continue
         parsed_layer = ParsedESQLLayer(layer_id=layer_id, query=esql)
@@ -582,9 +583,9 @@ def _parse_lens_panel(panel_raw: dict[str, Any], raw_panel_type: str) -> ParsedL
     esql_layers = _parse_esql_layers(state_dict) if is_esql else {}
     esql_query = _extract_esql_query_from_state(state_dict) if is_esql else None
 
-    refs_raw_from_attrs = get_list(attributes_raw, 'references') or []
+    refs_raw_from_attrs = get_list(attributes_raw, 'references')
     refs_raw_from_config = get_list(embeddable_config_raw, 'references') or []
-    refs_raw = refs_raw_from_attrs if refs_raw_from_attrs else refs_raw_from_config
+    refs_raw = refs_raw_from_attrs if refs_raw_from_attrs is not None else refs_raw_from_config
     refs = [KbnReference.model_validate(r) for r in refs_raw if isinstance(r, dict) and 'type' in r and 'id' in r and 'name' in r]
     data_view = _extract_data_view_from_refs(refs)
 

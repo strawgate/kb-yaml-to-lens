@@ -1010,6 +1010,18 @@ def test_decompile_data_view_picks_first_index_pattern() -> None:
     assert result['lens']['data_view'] == 'logs-*'
 
 
+def test_decompile_explicit_empty_attribute_references_do_not_fallback_to_embeddable_config() -> None:
+    """An explicit empty `attributes.references` list should suppress embeddableConfig references."""
+    panel = _make_lens_panel('lnsMetric', references=[])
+    embeddable = cast('dict[str, object]', panel['embeddableConfig'])
+    embeddable['references'] = [
+        {'type': 'index-pattern', 'id': 'logs-*', 'name': 'indexpattern-datasource-layer-xyz'},
+    ]
+
+    result = _decompile_single_panel(panel)
+    assert result['lens']['data_view'] == 'TODO_data_view'
+
+
 # --- Simple metric extraction ---
 
 
@@ -1233,6 +1245,36 @@ def test_decompile_esql_query() -> None:
     assert result['esql']['query'] == 'FROM logs-* | STATS count=COUNT()'
 
 
+def test_decompile_esql_layer_without_query_falls_back_to_top_level_query() -> None:
+    """Layers with missing `query.esql` should inherit top-level ES|QL query."""
+    panel = {
+        'panelIndex': 'p1',
+        'type': 'esql',
+        'embeddableConfig': {
+            'attributes': {
+                'visualizationType': 'metric',
+                'state': {
+                    'query': {'esql': 'FROM logs-* | STATS count=COUNT()'},
+                    'datasourceStates': {
+                        'textBased': {
+                            'layers': {
+                                'layer1': {
+                                    'query': {},
+                                    'columns': [{'columnId': 'col_metric', 'fieldName': 'count'}],
+                                },
+                            },
+                        },
+                    },
+                    'visualization': {'layerId': 'layer1', 'metricAccessor': 'col_metric'},
+                },
+            }
+        },
+    }
+    result = _decompile_single_panel(panel)
+    assert result['esql']['query'] == 'FROM logs-* | STATS count=COUNT()'
+    assert result['esql']['primary']['field'] == 'count'
+
+
 # --- Controls extraction ---
 
 
@@ -1312,6 +1354,36 @@ def test_parse_controls_view_model_uses_reference_data_view() -> None:
     assert parsed.controls
     assert parsed.controls[0].data_view_id == 'metrics-*'
     assert parsed.controls[0].view_control is not None
+
+
+def test_parse_controls_legacy_time_slider_uses_reference_data_view() -> None:
+    """Legacy `timeSlider` controls resolve data view references the same as `timeSliderControl`."""
+    dashboard = {
+        'references': [
+            {'name': 'controlGroup_ctrl-1:timeSliderDataView', 'type': 'index-pattern', 'id': 'logs-*'},
+        ],
+        'attributes': {
+            'title': 'Controls from references',
+            'panelsJSON': json.dumps([]),
+            'controlGroupInput': {
+                'panelsJSON': json.dumps(
+                    {
+                        'ctrl-1': {
+                            'type': 'timeSlider',
+                            'order': 0,
+                            'explicitInput': {
+                                'title': 'Time',
+                            },
+                        },
+                    }
+                ),
+            },
+        },
+    }
+    parsed = parse_dashboard(dashboard)
+    assert parsed.controls
+    assert parsed.controls[0].control_type == 'timeSlider'
+    assert parsed.controls[0].data_view_id == 'logs-*'
 
 
 # --- Filters extraction ---
