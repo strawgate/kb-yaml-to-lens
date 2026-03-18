@@ -446,7 +446,10 @@ def _build_inferred_lens_panel(panel_dict: dict[str, Any]) -> _InferredLensPanel
             for r in refs_source:
                 r_dict = as_dict(r)
                 if r_dict is not None:
-                    refs.append(KbnReference.model_validate(r_dict))
+                    try:
+                        refs.append(KbnReference.model_validate(r_dict))
+                    except ValidationError:
+                        logger.warning('Skipping malformed Kibana reference in panel payload: %s', r_dict)
             break  # use first source that is non-None
 
     data_view_id = _extract_data_view_from_refs(refs)
