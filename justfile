@@ -208,9 +208,9 @@ codegen-raw-models-check:
     # regenerate in place
     (cd packages/kb-dashboard-tools && uv run python ../../scripts/codegen_raw_models.py)
     # diff
-    if ! diff -rq packages/kb-dashboard-tools/src/kb_dashboard_tools/decompile/kbn_raw_models "$TMPDIR/before" > /dev/null 2>&1; then
+    if ! diff -rq --exclude="__pycache__" packages/kb-dashboard-tools/src/kb_dashboard_tools/decompile/kbn_raw_models "$TMPDIR/before" > /dev/null 2>&1; then
         echo "ERROR: Generated kbn_raw_models are out of date. Run 'just codegen-raw-models' to update."
-        diff -r packages/kb-dashboard-tools/src/kb_dashboard_tools/decompile/kbn_raw_models "$TMPDIR/before"
+        diff -r --exclude="__pycache__" packages/kb-dashboard-tools/src/kb_dashboard_tools/decompile/kbn_raw_models "$TMPDIR/before"
         exit 1
     fi
     echo "kbn_raw_models are up to date."
