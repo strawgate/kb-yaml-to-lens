@@ -215,6 +215,7 @@ def _infer_control(panel_id: str, raw: dict[str, Any], reference_lookup: dict[st
                 'optionsListControl': 'optionsListDataView',
                 'rangeSliderControl': 'rangeSliderDataView',
                 'timeSliderControl': 'timeSliderDataView',
+                'timeSlider': 'timeSliderDataView',
                 'esqlControl': 'esqlControlDataView',
             }.get(control_type or '')
             if ref_suffix is not None:

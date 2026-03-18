@@ -1007,7 +1007,13 @@ def _validate_column(col_id: str, col_val: Any) -> KbnLensColumnTypes | None:
     target_cls: type[Any] | None = op_type_class_map.get(op_type or '')
     if target_cls is None:
         # Check if it's a formula agg or full reference (by presence of references list)
-        if isinstance(col_val.get('references'), list):
+        params = col_val.get('params')
+        has_formula_agg_params = isinstance(params, dict) and ('shift' in params or 'reducedTimeRange' in params)
+        if has_formula_agg_params and not isinstance(col_val.get('references'), list):
+            from .kbn_raw_models.panels.charts.lens.columns.view import KbnLensFormulaAggColumn
+
+            target_cls = KbnLensFormulaAggColumn
+        elif isinstance(col_val.get('references'), list):
             target_cls = KbnLensFullReferenceColumn
         else:
             # Generic field metric column
@@ -1213,21 +1219,23 @@ def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     elif panel_type == 'lens' and state is not None:
         ds = state.datasourceStates
         if ds is not None and ds.formBased is not None:
-            for layer_id, layer in ds.formBased.layers.root.items():
-                role = layer_roles.get(layer_id)
-                column_order = layer.columnOrder
-                # columns is dict[str, Any] — validate each to the correct typed column class
-                typed_cols: dict[str, KbnLensColumnTypes] = {}
-                for col_id, col_val in layer.columns.items():
-                    col_typed = _validate_column(col_id, col_val)
-                    if col_typed is not None:
-                        typed_cols[col_id] = col_typed
-                m, d, b, skipped = _classify_form_columns(typed_cols, column_order, role)
-                all_metrics.extend(m)
-                all_dimensions.extend(d)
-                all_breakdowns.extend(b)
-                if skipped:
-                    has_skipped_metrics = True
+            form_layers = getattr(ds.formBased, 'layers', None)
+            if form_layers is not None:
+                for layer_id, layer in form_layers.root.items():
+                    role = layer_roles.get(layer_id)
+                    column_order = layer.columnOrder
+                    # columns is dict[str, Any] — validate each to the correct typed column class
+                    typed_cols: dict[str, KbnLensColumnTypes] = {}
+                    for col_id, col_val in layer.columns.items():
+                        col_typed = _validate_column(col_id, col_val)
+                        if col_typed is not None:
+                            typed_cols[col_id] = col_typed
+                    m, d, b, skipped = _classify_form_columns(typed_cols, column_order, role)
+                    all_metrics.extend(m)
+                    all_dimensions.extend(d)
+                    all_breakdowns.extend(b)
+                    if skipped:
+                        has_skipped_metrics = True
 
     _assign_metrics_and_dimensions(chart, chart_type, all_metrics, all_dimensions, all_breakdowns)
     _fill_required_defaults(chart, chart_type, panel_type, has_skipped_metrics)
