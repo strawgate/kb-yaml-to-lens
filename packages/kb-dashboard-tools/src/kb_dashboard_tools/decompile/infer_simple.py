@@ -25,15 +25,10 @@ def _infer_markdown_panel(_panel: KbnBasePanel, ec: dict[str, Any], _ref_lookup:
     """Infer markdown panel config."""
     config: dict[str, Any] = {}
 
-    content = get_str(ec, 'markdown')
-    if content is None:
-        params = get_nested(ec, 'savedVis', 'params')
-        if params is not None:
-            content = get_str(params, 'markdown')
-
+    params = get_nested(ec, 'savedVis', 'params')
+    content = get_str(ec, 'markdown') or (get_str(params, 'markdown') if params is not None else None)
     config['content'] = content if content is not None else 'TODO(decompile): provide markdown content'
 
-    params = get_nested(ec, 'savedVis', 'params')
     if params is not None:
         font_size = get_int(params, 'fontSize')
         if font_size is not None:

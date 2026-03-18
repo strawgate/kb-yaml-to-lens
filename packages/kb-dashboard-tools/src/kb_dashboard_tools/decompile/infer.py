@@ -325,19 +325,15 @@ def _infer_panel(panel: KbnBasePanel, ref_lookup: dict[str, str]) -> tuple[str, 
     return 'markdown', {'content': f'TODO(decompile): unsupported panel type `{panel_type}`'}, wrapper
 
 
-def infer_dashboard(kbn: KbnDashboard, raw_dashboard: dict[str, Any] | None = None) -> tuple[Dashboard, list[dict[str, Any]]]:
+def infer_dashboard(kbn: KbnDashboard) -> Dashboard:
     """Infer a Dashboard config model from a KbnDashboard view model.
 
     Args:
         kbn: The validated KbnDashboard model.
-        raw_dashboard: The original raw dashboard dict (used for raw filter/reference extraction).
 
     Returns:
-        Tuple of (dashboard_model, panel_originals) where dashboard_model is an
-        actual ``kb_dashboard_core.dashboard.config.Dashboard`` instance.
+        A ``kb_dashboard_core.dashboard.config.Dashboard`` instance.
     """
-    if raw_dashboard is None:
-        raw_dashboard = kbn.model_dump(exclude_none=True, by_alias=True)
     attrs = kbn.attributes
 
     dashboard: dict[str, Any] = {
@@ -379,4 +375,4 @@ def infer_dashboard(kbn: KbnDashboard, raw_dashboard: dict[str, Any] | None = No
             panels.append(panel_wrapper)
 
     dashboard['panels'] = panels
-    return Dashboard.model_validate(dashboard), []
+    return Dashboard.model_validate(dashboard)

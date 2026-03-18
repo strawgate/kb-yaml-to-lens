@@ -475,38 +475,18 @@ def _build_json_validator(field_name: str) -> list[ast.stmt]:
 # ---------------------------------------------------------------------------
 
 
-def _ensure_any_import(tree: ast.Module) -> None:
-    """Ensure `Any` is imported from typing in the module."""
+def _ensure_import(tree: ast.Module, module: str, name: str) -> None:
+    """Ensure `name` is imported from `module` in the module AST."""
     for node in tree.body:
-        if isinstance(node, ast.ImportFrom) and node.module == 'typing':
-            names = [a.name for a in node.names]
-            if 'Any' not in names:
-                node.names.append(ast.alias(name='Any'))
+        if isinstance(node, ast.ImportFrom) and node.module == module:
+            if name not in [a.name for a in node.names]:
+                node.names.append(ast.alias(name=name))
             return
-    # No typing import yet — insert one after the last import.
-    insert_pos = 0
-    for i, node in enumerate(tree.body):
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
-            insert_pos = i + 1
-    tree.body.insert(insert_pos, ast.ImportFrom(module='typing', names=[ast.alias(name='Any')], level=0))
-
-
-def _ensure_field_validator_import(tree: ast.Module) -> None:
-    """Ensure `field_validator` is imported from pydantic."""
-    for node in tree.body:
-        if isinstance(node, ast.ImportFrom) and node.module == 'pydantic':
-            names = [a.name for a in node.names]
-            if 'field_validator' not in names:
-                node.names.append(ast.alias(name='field_validator'))
-            return
-    insert_pos = 0
-    for i, node in enumerate(tree.body):
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
-            insert_pos = i + 1
-    tree.body.insert(
-        insert_pos,
-        ast.ImportFrom(module='pydantic', names=[ast.alias(name='field_validator')], level=0),
+    insert_pos = max(
+        (i + 1 for i, node in enumerate(tree.body) if isinstance(node, (ast.Import, ast.ImportFrom))),
+        default=0,
     )
+    tree.body.insert(insert_pos, ast.ImportFrom(module=module, names=[ast.alias(name=name)], level=0))
 
 
 def _override_panels_json_annotation(tree: ast.Module) -> bool:
@@ -623,13 +603,10 @@ def _transform_source(source: str, src_path: Path) -> str:
     # Add validation_alias where only serialization_alias exists.
     _add_validation_aliases(transformed)
 
-    # Ensure Any is imported if needed.
     if transformer.any_introduced:
-        _ensure_any_import(transformed)
-
-    # Ensure field_validator is imported if validators were injected.
+        _ensure_import(transformed, 'typing', 'Any')
     if transformer.needs_field_validator:
-        _ensure_field_validator_import(transformed)
+        _ensure_import(transformed, 'pydantic', 'field_validator')
 
     # Insert BaseRawVwModel import after the last existing import.
     base_import = ast.parse(BASE_CLASS_IMPORT).body[0]

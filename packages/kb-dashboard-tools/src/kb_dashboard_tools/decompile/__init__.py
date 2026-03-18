@@ -22,7 +22,7 @@ def decompile_dashboard(dashboard: dict[str, Any]) -> CommentedMap:
     Pipeline: raw JSON → KbnDashboard → Dashboard config → CommentedMap YAML
     """
     kbn = KbnDashboard.model_validate(dashboard)
-    dashboard_model, _ = infer_dashboard(kbn)
+    dashboard_model = infer_dashboard(kbn)
     attrs = kbn.attributes
     panels_json = attrs.panelsJSON if attrs is not None else None
     raw_panels: list[dict[str, Any]] = (

@@ -51,9 +51,8 @@ def _set_flow_style(cm: CommentedMap) -> None:
 
 def _strip_default_panel_layout(panel_yaml: CommentedMap, raw_panel: dict[str, Any] | None) -> None:
     """Preserve legacy omission of size/position when Kibana omitted grid data."""
-    grid_data = raw_panel.get('gridData') if raw_panel is not None else None
-    if not isinstance(grid_data, dict):
-        grid_data = None
+    grid_data_raw = raw_panel.get('gridData') if raw_panel is not None else None
+    grid_data = grid_data_raw if isinstance(grid_data_raw, dict) else None
 
     panel_yaml_any = cast('Any', panel_yaml)
     size = cast('object', panel_yaml_any.get('size'))
@@ -134,10 +133,8 @@ def serialize_dashboard(
             if not isinstance(panel_cm, CommentedMap):
                 continue
             panel_type = _detect_panel_type_key(panel_cm)
-            source_panel_type = panel_type
             raw_type = raw_panels[i].get('type') if i < len(raw_panels) else None
-            if isinstance(raw_type, str):
-                source_panel_type = raw_type
+            source_panel_type = raw_type if isinstance(raw_type, str) else panel_type
             comment = _panel_todo_comment_from_raw(raw_panels, i, source_panel_type)
             panels_seq_any.yaml_set_comment_before_after_key(i, before=comment)
 
