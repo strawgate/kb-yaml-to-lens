@@ -135,6 +135,19 @@ jobs:
       - name: Build documentation
         shell: bash
         run: just docs build
+  codegen-raw-models-check:
+    name: Codegen Raw Models Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup just
+        uses: extractions/setup-just@v2
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+      - name: Check kbn_raw_models are up to date
+        shell: bash
+        run: just codegen-raw-models-check
   test-all-e2e:
     name: Test E2E
     runs-on: ubuntu-latest
@@ -164,6 +177,7 @@ jobs:
       - test-all-packages
       - test-python-coverage
       - docs-check-and-build
+      - codegen-raw-models-check
       - test-all-e2e
     steps:
       - name: All Checks Passed
