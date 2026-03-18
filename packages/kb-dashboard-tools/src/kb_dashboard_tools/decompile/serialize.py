@@ -12,7 +12,7 @@ from typing import Any, cast
 from kb_dashboard_core.dashboard.config import Dashboard
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
-from .parse import ParsedDashboard, ParsedPanel
+from .kbn_raw_models.dashboard.view import KbnDashboard
 
 
 def _to_commented_map(d: dict[str, object]) -> CommentedMap:
@@ -49,28 +49,29 @@ def _set_flow_style(cm: CommentedMap) -> None:
         cm.fa.set_flow_style()
 
 
-def _strip_default_panel_layout(panel_yaml: CommentedMap, parsed_panel: ParsedPanel | None) -> None:
+def _strip_default_panel_layout(panel_yaml: CommentedMap, raw_panel: dict[str, Any] | None) -> None:
     """Preserve legacy omission of size/position when Kibana omitted grid data."""
-    if parsed_panel is None:
-        return
+    grid_data = raw_panel.get('gridData') if raw_panel is not None else None
+    if not isinstance(grid_data, dict):
+        grid_data = None
 
     panel_yaml_any = cast('Any', panel_yaml)
     size = cast('object', panel_yaml_any.get('size'))
-    if parsed_panel.grid is None or (parsed_panel.grid.w is None and parsed_panel.grid.h is None):
+    if grid_data is None or (grid_data.get('w') is None and grid_data.get('h') is None):
         if 'size' in panel_yaml:
             del panel_yaml['size']
     elif isinstance(size, CommentedMap):
         _set_flow_style(size)
 
     position = cast('object', panel_yaml_any.get('position'))
-    if parsed_panel.grid is None or (parsed_panel.grid.x is None and parsed_panel.grid.y is None):
+    if grid_data is None or (grid_data.get('x') is None and grid_data.get('y') is None):
         if 'position' in panel_yaml:
             del panel_yaml['position']
     elif isinstance(position, CommentedMap):
         _set_flow_style(position)
 
 
-def _format_panel_layouts(dashboard_yaml: CommentedMap, parsed: ParsedDashboard) -> None:
+def _format_panel_layouts(dashboard_yaml: CommentedMap, raw_panels: list[dict[str, Any]]) -> None:
     """Compact panel layout fields and drop model-defaulted layout when absent in source."""
     dashboard_yaml_any = cast('Any', dashboard_yaml)
     panels = cast('object', dashboard_yaml_any.get('panels'))
@@ -80,20 +81,20 @@ def _format_panel_layouts(dashboard_yaml: CommentedMap, parsed: ParsedDashboard)
     for i, panel_yaml in enumerate(cast('list[object]', panels)):
         if not isinstance(panel_yaml, CommentedMap):
             continue
-        parsed_panel = parsed.panels[i] if i < len(parsed.panels) else None
-        _strip_default_panel_layout(panel_yaml, parsed_panel)
+        raw_panel = raw_panels[i] if i < len(raw_panels) else None
+        _strip_default_panel_layout(panel_yaml, raw_panel)
 
 
 def serialize_dashboard(
     dashboard_model: Dashboard,
-    parsed: ParsedDashboard,
+    _kbn: KbnDashboard,
     raw_panels: list[dict[str, Any]],
 ) -> CommentedMap:
     """Convert an inferred Dashboard config model to a CommentedMap YAML document.
 
     Args:
         dashboard_model: The dashboard config model from infer_dashboard().
-        parsed: The parsed dashboard structure (for TODO comment generation).
+        _kbn: The KbnDashboard view model (reserved for future use).
         raw_panels: The original raw panel dicts for TODO comments.
 
     Returns:
@@ -121,24 +122,23 @@ def serialize_dashboard(
         dashboard_dict.pop('controls', None)
 
     dashboard_yaml = _to_commented_map(dashboard_dict)
-    _format_panel_layouts(dashboard_yaml, parsed)
+    _format_panel_layouts(dashboard_yaml, raw_panels)
 
     # Attach TODO comments to each panel
     dashboard_yaml_any = cast('Any', dashboard_yaml)
     panels_seq = cast('object', dashboard_yaml_any.get('panels'))
-    if isinstance(panels_seq, CommentedSeq) and len(parsed.panels) == len(panels_seq):
+    if isinstance(panels_seq, CommentedSeq) and len(raw_panels) == len(panels_seq):
         panels_seq_any = cast('Any', panels_seq)
-        for i, parsed_panel in enumerate(parsed.panels):
+        for i in range(len(raw_panels)):
             panel_cm = cast('object', panels_seq[i])
             if not isinstance(panel_cm, CommentedMap):
                 continue
             panel_type = _detect_panel_type_key(panel_cm)
             source_panel_type = panel_type
-            if i < len(raw_panels):
-                raw_type = raw_panels[i].get('type')
-                if isinstance(raw_type, str):
-                    source_panel_type = raw_type
-            comment = _panel_todo_comment_from_raw(raw_panels, i, source_panel_type, parsed_panel)
+            raw_type = raw_panels[i].get('type') if i < len(raw_panels) else None
+            if isinstance(raw_type, str):
+                source_panel_type = raw_type
+            comment = _panel_todo_comment_from_raw(raw_panels, i, source_panel_type)
             panels_seq_any.yaml_set_comment_before_after_key(i, before=comment)
 
     dashboards_any = cast('Any', dashboards)
@@ -158,14 +158,8 @@ def _panel_todo_comment_from_raw(
     raw_panels: list[dict[str, Any]],
     index: int,
     panel_type: str,
-    parsed_panel: ParsedPanel,
 ) -> str:
-    """Generate TODO comment using raw panel data when available, falling back to parsed data."""
-    if index < len(raw_panels):
-        raw = raw_panels[index]
-    elif parsed_panel.simple is not None:
-        raw = parsed_panel.simple.raw
-    else:
-        raw = {}
+    """Generate TODO comment using raw panel data."""
+    raw = raw_panels[index] if index < len(raw_panels) else {}
     raw_json = json.dumps(raw, indent=2, sort_keys=True) if raw else '{}'
     return f'TODO(decompile): complete `{panel_type}` panel config from original Kibana panel JSON.\nOriginal panel JSON:\n{raw_json}'
