@@ -179,6 +179,8 @@ class KbnVisualizationTypeEnum(StrEnum):
     HEATMAP = 'lnsHeatmap'
     DATATABLE = 'lnsDatatable'
     TAGCLOUD = 'lnsTagcloud'
+    MOSAIC = 'lnsMosaic'
+    WAFFLE = 'lnsWaffle'
 
 
 class KbnLensPanelState(BaseVwModel):

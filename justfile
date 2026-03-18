@@ -194,7 +194,7 @@ explore-bootstrap version="9.3.0":
 
 # Generate permissive KbnRaw* view models from kb_dashboard_core Kbn* models
 codegen-raw-models:
-    cd packages/kb-dashboard-tools && uv run python ../../scripts/codegen_raw_models.py
+    (cd packages/kb-dashboard-tools && uv run python ../../scripts/codegen_raw_models.py)
 
 # Check that generated KbnRaw* models are up to date (no drift)
 codegen-raw-models-check:
@@ -206,7 +206,7 @@ codegen-raw-models-check:
     # copy current generated files to tmp for comparison
     cp -r packages/kb-dashboard-tools/src/kb_dashboard_tools/decompile/kbn_raw_models "$TMPDIR/before"
     # regenerate in place
-    cd packages/kb-dashboard-tools && uv run python ../../scripts/codegen_raw_models.py
+    (cd packages/kb-dashboard-tools && uv run python ../../scripts/codegen_raw_models.py)
     # diff
     if ! diff -rq packages/kb-dashboard-tools/src/kb_dashboard_tools/decompile/kbn_raw_models "$TMPDIR/before" > /dev/null 2>&1; then
         echo "ERROR: Generated kbn_raw_models are out of date. Run 'just codegen-raw-models' to update."

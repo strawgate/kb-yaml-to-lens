@@ -13,6 +13,7 @@ Output:
 """
 
 import ast
+import shutil
 import subprocess
 import textwrap
 from pathlib import Path
@@ -572,6 +573,8 @@ def _write_shared_view(out_dir: Path) -> None:
 
 def main() -> None:
     """Generate all raw model files."""
+    if OUT_DIR.exists():
+        shutil.rmtree(OUT_DIR)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     generated: list[Path] = []
@@ -621,10 +624,9 @@ def main() -> None:
         capture_output=True,
         text=True,
     )
-    if ruff_check.returncode == 0:
-        print('ruff check --fix: OK')
-    else:
-        print(f'ruff check --fix output:\n{ruff_check.stdout[:1000]}')
+    if ruff_check.returncode != 0:
+        raise SystemExit(f'ruff check --fix failed:\n{ruff_check.stdout[:1000]}{ruff_check.stderr[:1000]}')
+    print('ruff check --fix: OK')
 
     ruff_result = subprocess.run(
         ['uv', 'run', 'ruff', 'format', str(OUT_DIR)],
@@ -632,10 +634,9 @@ def main() -> None:
         capture_output=True,
         text=True,
     )
-    if ruff_result.returncode == 0:
-        print('ruff format: OK')
-    else:
-        print(f'ruff format warning:\n{ruff_result.stderr[:500]}')
+    if ruff_result.returncode != 0:
+        raise SystemExit(f'ruff format failed:\n{ruff_result.stdout[:1000]}{ruff_result.stderr[:1000]}')
+    print('ruff format: OK')
 
 
 if __name__ == '__main__':

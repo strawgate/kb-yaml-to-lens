@@ -110,7 +110,7 @@ class KbnLensFieldMetricColumn(KbnLensBaseColumn):
 class KbnLensStaticValueColumnParams(BaseVwModel):
     """Parameters for static value columns."""
 
-    value: str
+    value: int | float | str
     """The static value - can be numeric (for gauge charts) or string (for reference lines)."""
 
 

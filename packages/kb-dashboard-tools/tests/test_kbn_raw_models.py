@@ -80,11 +80,11 @@ def test_nginx_access_errors_title_and_panel_count() -> None:
 
 def _get_viz_types(fixture_path: Path) -> list[str]:
     """Return visualization types from all Lens panels in a fixture."""
-    raw = _load_fixture(fixture_path)
-    raw_panels: list[dict[str, Any]] = raw.get('attributes', {}).get('panelsJSON', [])
+    dashboard = KbnDashboard.model_validate(_load_fixture(fixture_path))
+    raw_panels = dashboard.attributes.panelsJSON if dashboard.attributes and dashboard.attributes.panelsJSON else []
     viz_types: list[str] = []
     for rp in raw_panels:
-        if rp.get('type') == 'lens':
+        if isinstance(rp, dict) and rp.get('type') == 'lens':
             lp = KbnLensPanel.model_validate(rp)
             ec = lp.embeddableConfig
             if ec is not None and ec.attributes is not None:
@@ -123,8 +123,11 @@ def test_nginx_access_errors_viz_types() -> None:
 
 def test_lens_panel_datasource_layers_accessible() -> None:
     """KbnLensPanel: datasource layer IDs and column order are accessible."""
-    raw = _load_fixture(_FIXTURES_DIR / 'nginx-overview.json')
-    first_panel: dict[str, Any] = raw['attributes']['panelsJSON'][0]
+    dashboard = KbnDashboard.model_validate(_load_fixture(_FIXTURES_DIR / 'nginx-overview.json'))
+    assert dashboard.attributes is not None
+    assert dashboard.attributes.panelsJSON is not None
+    first_panel = dashboard.attributes.panelsJSON[0]
+    assert isinstance(first_panel, dict)
     lp = KbnLensPanel.model_validate(first_panel)
 
     assert lp.embeddableConfig is not None
