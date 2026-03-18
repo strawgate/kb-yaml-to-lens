@@ -15,6 +15,7 @@ from .parse_shared import (
     get_dict,
     get_int,
     get_list,
+    get_nested,
     get_str,
 )
 
@@ -28,24 +29,20 @@ def _infer_markdown_panel(simple: ParsedSimplePanel, _ref_lookup: dict[str, str]
 
     content = get_str(ec, 'markdown')
     if content is None:
-        saved_vis = get_dict(ec, 'savedVis')
-        if saved_vis is not None:
-            params = get_dict(saved_vis, 'params')
-            if params is not None:
-                content = get_str(params, 'markdown')
+        params = get_nested(ec, 'savedVis', 'params')
+        if params is not None:
+            content = get_str(params, 'markdown')
 
     config['content'] = content if content is not None else 'TODO(decompile): provide markdown content'
 
-    saved_vis = get_dict(ec, 'savedVis')
-    if saved_vis is not None:
-        params = get_dict(saved_vis, 'params')
-        if params is not None:
-            font_size = get_int(params, 'fontSize')
-            if font_size is not None:
-                config['font_size'] = font_size
-            links_in_new_tab = get_bool(params, 'openLinksInNewTab')
-            if links_in_new_tab is not None:
-                config['links_in_new_tab'] = links_in_new_tab
+    params = get_nested(ec, 'savedVis', 'params')
+    if params is not None:
+        font_size = get_int(params, 'fontSize')
+        if font_size is not None:
+            config['font_size'] = font_size
+        links_in_new_tab = get_bool(params, 'openLinksInNewTab')
+        if links_in_new_tab is not None:
+            config['links_in_new_tab'] = links_in_new_tab
 
     return config
 
@@ -61,8 +58,8 @@ def _infer_search_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) -
     if ec is not None:
         ref_name = get_str(ec, 'savedSearchRefName')
         if ref_name is not None:
-            resolved = ref_lookup.get(ref_name)
-            if isinstance(resolved, str):
+            resolved = get_str(ref_lookup, ref_name)
+            if resolved is not None:
                 return {'saved_search_id': resolved}
 
     return {'saved_search_id': 'TODO_saved_search_id'}
@@ -149,8 +146,8 @@ def _infer_links_panel(simple: ParsedSimplePanel, ref_lookup: dict[str, str]) ->
                 if dest_ref is None:
                     continue
                 item = _build_link_common(raw_link)
-                dashboard_id = ref_lookup.get(dest_ref)
-                item['dashboard'] = dashboard_id if isinstance(dashboard_id, str) else f'TODO_dashboard_id_for_{dest_ref}'
+                dashboard_id = get_str(ref_lookup, dest_ref)
+                item['dashboard'] = dashboard_id if dashboard_id is not None else f'TODO_dashboard_id_for_{dest_ref}'
                 new_tab = get_bool(options, 'openInNewTab')
                 if new_tab is not None:
                     item['new_tab'] = new_tab

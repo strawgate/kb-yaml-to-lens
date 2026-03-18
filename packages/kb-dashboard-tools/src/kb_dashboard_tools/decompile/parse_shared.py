@@ -79,6 +79,22 @@ def get_bool(source: dict[str, Any], key: str) -> bool | None:
     return value if isinstance(value, bool) else None
 
 
+def get_scalar(source: dict[str, Any], key: str) -> str | int | float | bool | None:
+    """Extract a scalar (str, int, float, or bool) key from a dict source."""
+    value = source.get(key)
+    return value if isinstance(value, (str, int, float, bool)) else None
+
+
+def get_nested(source: dict[str, Any], *keys: str) -> dict[str, Any] | None:
+    """Navigate nested dict keys, returning None if any intermediate key is missing or not a dict."""
+    current: dict[str, Any] | None = source
+    for key in keys:
+        if current is None:
+            return None
+        current = get_dict(current, key)
+    return current
+
+
 def get_number(source: dict[str, Any], key: str) -> int | float | None:
     """Extract a numeric (int or float, not bool) key from a dict source."""
     value = source.get(key)

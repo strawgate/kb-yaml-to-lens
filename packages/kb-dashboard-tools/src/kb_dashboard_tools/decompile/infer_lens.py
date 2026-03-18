@@ -301,6 +301,14 @@ def _classify_form_columns(
 # ---------------------------------------------------------------------------
 
 
+def _esql_column_entry(col: ParsedESQLColumn) -> dict[str, Any]:
+    """Build an ES|QL column reference dict from a parsed column."""
+    entry: dict[str, Any] = {'field': col.field_name}
+    if col.label is not None and col.label != col.field_name:
+        entry['label'] = col.label
+    return entry
+
+
 def _classify_esql_columns(
     layer: ParsedESQLLayer,
     layer_role: ParsedVisualizationLayerRole | None,
@@ -317,28 +325,18 @@ def _classify_esql_columns(
 
     for metric_id in layer_role.metric_ids:
         col = columns_by_id.get(metric_id)
-        if col is None:
-            continue
-        m: dict[str, Any] = {'field': col.field_name}
-        if col.label is not None and col.label != col.field_name:
-            m['label'] = col.label
-        metrics.append(m)
+        if col is not None:
+            metrics.append(_esql_column_entry(col))
 
     if layer_role.dimension_id is not None:
         col = columns_by_id.get(layer_role.dimension_id)
         if col is not None:
-            d: dict[str, Any] = {'field': col.field_name}
-            if col.label is not None and col.label != col.field_name:
-                d['label'] = col.label
-            dimensions.append(d)
+            dimensions.append(_esql_column_entry(col))
 
     if layer_role.breakdown_id is not None:
         col = columns_by_id.get(layer_role.breakdown_id)
         if col is not None:
-            b: dict[str, Any] = {'field': col.field_name}
-            if col.label is not None and col.label != col.field_name:
-                b['label'] = col.label
-            breakdowns.append(b)
+            breakdowns.append(_esql_column_entry(col))
 
     return metrics, dimensions, breakdowns
 
@@ -348,37 +346,58 @@ def _classify_esql_columns(
 # ---------------------------------------------------------------------------
 
 
-def _extract_xy_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
-    """Extract legend settings from an XY visualization state."""
-    legend_raw = get_dict(vis_raw, 'legend')
-    if legend_raw is None:
-        return None
+def _extract_legend_common(  # noqa: PLR0913
+    source: dict[str, Any],
+    *,
+    visible_key: str = 'isVisible',
+    visible_is_bool: bool = True,
+    position_key: str = 'position',
+    truncate_key: str = 'shouldTruncate',
+    max_lines_key: str = 'maxLines',
+) -> dict[str, Any]:
+    """Extract common legend settings from a source dict.
 
+    Returns a (possibly empty) dict of legend settings.
+    """
     legend: dict[str, Any] = {}
 
-    is_visible = get_bool(legend_raw, 'isVisible')
-    if is_visible is not None:
-        legend['visible'] = 'show' if is_visible else 'hide'
+    if visible_is_bool:
+        is_visible = get_bool(source, visible_key)
+        if is_visible is not None:
+            legend['visible'] = 'show' if is_visible else 'hide'
+    else:
+        display = get_str(source, visible_key)
+        if display in ('show', 'hide'):
+            legend['visible'] = display
 
-    position = get_str(legend_raw, 'position')
+    position = get_str(source, position_key)
     if position is not None and position != 'right':
         legend['position'] = position
 
-    show_single = get_bool(legend_raw, 'showSingleSeries')
+    show_single = get_bool(source, 'showSingleSeries')
     if show_single is not None and show_single:
         legend['show_single_series'] = True
 
-    legend_size = get_str(legend_raw, 'legendSize')
+    legend_size = get_str(source, 'legendSize')
     if legend_size is not None and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
         legend['width'] = KIBANA_LEGEND_SIZE_TO_YAML[legend_size]
 
-    should_truncate = get_bool(legend_raw, 'shouldTruncate')
-    max_lines = get_int(legend_raw, 'maxLines')
+    should_truncate = get_bool(source, truncate_key)
+    max_lines = get_int(source, max_lines_key)
     if should_truncate is not None and not should_truncate:
         legend['truncate_labels'] = 0
     elif max_lines is not None and max_lines > 0:
         legend['truncate_labels'] = max_lines
 
+    return legend
+
+
+def _extract_xy_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Extract legend settings from an XY visualization state."""
+    legend_raw = get_dict(vis_raw, 'legend')
+    if legend_raw is None:
+        return None
+    legend = _extract_legend_common(legend_raw)
     return legend if legend else None
 
 
@@ -390,39 +409,17 @@ def _extract_partition_legend(vis_raw: dict[str, Any]) -> dict[str, Any] | None:
     layer = as_dict(layers[0])
     if layer is None:
         return None
-
-    legend: dict[str, Any] = {}
-
-    legend_display = get_str(layer, 'legendDisplay')
-    if legend_display is not None:
-        if legend_display == 'hide':
-            legend['visible'] = 'hide'
-        elif legend_display == 'show':
-            legend['visible'] = 'show'
-
-    legend_position = get_str(layer, 'legendPosition')
-    if legend_position is not None and legend_position != 'right':
-        legend['position'] = legend_position
-
-    show_single = get_bool(layer, 'showSingleSeries')
-    if show_single is not None and show_single:
-        legend['show_single_series'] = True
-
-    legend_size = get_str(layer, 'legendSize')
-    if legend_size is not None and legend_size in KIBANA_LEGEND_SIZE_TO_YAML:
-        legend['width'] = KIBANA_LEGEND_SIZE_TO_YAML[legend_size]
-
-    truncate_legend = get_bool(layer, 'truncateLegend')
-    legend_max_lines = get_int(layer, 'legendMaxLines')
-    if truncate_legend is not None and not truncate_legend:
-        legend['truncate_labels'] = 0
-    elif legend_max_lines is not None and legend_max_lines > 0:
-        legend['truncate_labels'] = legend_max_lines
-
+    legend = _extract_legend_common(
+        layer,
+        visible_key='legendDisplay',
+        visible_is_bool=False,
+        position_key='legendPosition',
+        truncate_key='truncateLegend',
+        max_lines_key='legendMaxLines',
+    )
     nested_legend = get_bool(layer, 'nestedLegend')
     if nested_legend is not None and nested_legend:
         legend['nested'] = True
-
     return legend if legend else None
 
 
@@ -573,7 +570,7 @@ def _extract_gauge_settings(
     if ticks_pos is not None and ticks_pos != 'auto':
         appearance['ticks_position'] = ticks_pos
 
-    label_major_mode = vis_raw.get('labelMajorMode')
+    label_major_mode = get_str(vis_raw, 'labelMajorMode')
     label_major = get_str(vis_raw, 'labelMajor')
     if label_major_mode == 'none':
         titles['title'] = False

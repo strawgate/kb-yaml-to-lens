@@ -28,6 +28,7 @@ from .parse_shared import (
     get_bool,
     get_dict,
     get_list,
+    get_scalar,
     get_str,
 )
 from .tables import (
@@ -87,12 +88,12 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any] | None:
         f['field'] = pf.key
         params = get_dict(pf.meta, 'params')
         if params is not None:
-            query = params.get('query')
-            if isinstance(query, (str, int, float, bool)):
+            query = get_scalar(params, 'query')
+            if query is not None:
                 f['equals'] = query
         else:
-            value = pf.meta.get('value')
-            if isinstance(value, (str, int, float, bool)):
+            value = get_scalar(pf.meta, 'value')
+            if value is not None:
                 f['equals'] = value
     elif pf.filter_type == 'phrases':
         f['field'] = pf.key
@@ -106,8 +107,8 @@ def _infer_filter(pf: ParsedFilter) -> dict[str, Any] | None:
             field_range = get_dict(range_params, pf.key)
             if field_range is not None:
                 for bound in ('gte', 'gt', 'lte', 'lt'):
-                    val = field_range.get(bound)
-                    if isinstance(val, (str, int, float, bool)):
+                    val = get_scalar(field_range, bound)
+                    if val is not None:
                         f[bound] = val
     else:
         # Unrecognized filter type — skip rather than emit an unvalidatable shape
