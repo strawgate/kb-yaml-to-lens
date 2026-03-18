@@ -241,15 +241,15 @@ dashboards:
     position: {x: 24, y: 53}
     lens:
       data_view: logs-*
+      dimension: {id: de0b3e17-d944-ce94-6bc1-06952fa0056a, type: values, size: \n\
+          10, field: armis.vulnerability.user_interaction}
       metrics:
       - id: 260bd7d4-c13d-6b77-5d3d-fb658dae7311
         label: Count
         format: {type: number, decimals: 0}
         aggregation: unique_count
         field: vulnerability.id
-      breakdown: {id: 4ab783d8-08af-6325-0eb3-c5b0d3424ae3, type: values, size: \n\
-          10, field: armis.vulnerability.user_interaction}
-      id: 28026b69-d197-4962-df74-fb7caf5016ec
+      id: c670cdf4-264c-8b4f-7219-17408f040d0a
       legend: {visible: show, truncate_labels: 0}
       type: bar
       mode: stacked
@@ -259,15 +259,15 @@ dashboards:
     position: {x: 0, y: 68}
     lens:
       data_view: logs-*
+      dimension: {id: 949074e1-2f6f-703f-7798-6bc819b57b67, type: values, size: \n\
+          10, field: armis.vulnerability.scope}
       metrics:
       - id: 260bd7d4-c13d-6b77-5d3d-fb658dae7311
         label: Count
         format: {type: number, decimals: 0}
         aggregation: unique_count
         field: vulnerability.id
-      breakdown: {id: e12de2ae-6532-9e12-a0c7-a453f6f43f1a, type: values, size: \n\
-          10, field: armis.vulnerability.scope}
-      id: 88fe1705-da55-6c28-8d73-d6a2c7ddac4e
+      id: 33030e7a-89d3-5f9e-bda9-5bbf1c5554c1
       legend: {visible: show, truncate_labels: 0}
       type: bar
       mode: stacked
@@ -309,5 +309,5 @@ dashboards:
     title: Vulnerabilities Essential Details [Logs Armis]
     size: {w: 48, h: 21}
     position: {x: 0, y: 99}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_3d38e8cd-465c-4b53-a1a4-a4e040950c28'}
+    search: {saved_search_id: TODO_saved_search_id}
 """)

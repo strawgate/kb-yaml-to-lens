@@ -83,7 +83,7 @@ dashboards:
     size: {w: 7, h: 6}
     position: {x: 18, y: 4}
     lens:
-      id: fa24f5ff-906f-54d2-8f49-0e4f5e84d0ea
+      id: c6201e5a-31be-3117-897b-ddcb17a04b31
       type: metric
       data_view: logs-*
       primary:
@@ -91,12 +91,6 @@ dashboards:
         label: Total requests
         format: {type: number, decimals: 2, compact: true}
         formula: "count(kql='azure.open_ai.category : \\"RequestResponse\\" ')"
-      secondary:
-        id: 2ad4f1d2-3674-17a7-e66e-8541946e5d2b
-        label: Part of Total requests
-        filter: {kql: 'azure.open_ai.category : "RequestResponse" '}
-        aggregation: count
-        field: ___records___
   - id: e99d4e71-252b-45f7-a3e6-bf627347f683
     title: ''
     hide_title: true
@@ -138,19 +132,12 @@ dashboards:
     size: {w: 7, h: 6}
     position: {x: 18, y: 10}
     lens:
-      id: 2760e814-af85-4314-57e8-5d4be1dd3e97
+      id: 761bf086-ceab-1eab-dc1f-e7196c134ca0
       type: metric
       data_view: logs-*
       primary: {id: 4d28428b-5042-7353-430e-a25dafe9c296, label: Total errors, \n\
           formula: "count(kql='azure.open_ai.result_signature >= 400 and azure.open_ai.category
           : \\"RequestResponse\\" ')"}
-      secondary:
-        id: b7819522-e77f-9bb6-81ec-9025f7e651a8
-        label: Part of Total errors
-        filter: {kql: 'azure.open_ai.result_signature >= 400 and azure.open_ai.category
-            : "RequestResponse" '}
-        aggregation: count
-        field: ___records___
   - id: 2091414b-fbae-451e-8e2a-c7d506f198db
     title: Overall request rate - by model deployment
     description: The overall requests count group by deployed model overtime.
@@ -229,19 +216,9 @@ dashboards:
       - {id: 8aa0536e-6e1c-4107-6bc8-2eef784a70b4, label: 'Response time / ms ', \n\
           formula: \n\
           (average(azure.open_ai.properties.response_time)-average(azure.open_ai.properties.request_time))/10000}
-      - id: 81b6b5b7-07db-18d2-c00e-f3447831840a
-        label: 'Part of Response time / ms '
-        filter: {kql: 'azure.open_ai.operation_name : "ChatCompletions_Create" '}
-        aggregation: average
-        field: azure.open_ai.properties.response_time
-      - id: 61d041c9-5e53-2b47-0caf-8054c5986305
-        label: 'Part of Response time / ms '
-        filter: {kql: 'azure.open_ai.operation_name : "ChatCompletions_Create" '}
-        aggregation: average
-        field: azure.open_ai.properties.request_time
       breakdown: {id: 6122303b-def1-30a9-069d-13cb68a0f6f4, type: values, size: \n\
           20, field: azure.open_ai.properties.model_deployment_name}
-      id: aadb073e-0073-e13c-dfc8-f77479b886ff
+      id: 68701c29-f4d2-7580-9aa9-8961e8d682f9
       legend: {visible: show}
       type: bar
       mode: stacked

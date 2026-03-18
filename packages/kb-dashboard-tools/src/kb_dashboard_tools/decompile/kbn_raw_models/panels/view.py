@@ -33,8 +33,12 @@ class KbnBasePanelEmbeddableConfig(BaseRawVwModel):
 
 
 class KbnBasePanel(BaseRawVwModel):
-    """Base model for panel objects in the Kibana JSON structure."""
-
+    embeddableConfig: Any | None = None
+    panelRefName: str | None = None
+    description: str | None = None
+    title: str | None = None
+    type: str | None = None
+    'Base model for panel objects in the Kibana JSON structure.'
     panelIndex: str | None = None
     gridData: KbnGridData | None = None
 

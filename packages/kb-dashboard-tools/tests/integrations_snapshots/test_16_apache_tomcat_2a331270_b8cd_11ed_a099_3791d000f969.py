@@ -113,15 +113,15 @@ dashboards:
     position: {x: 24, y: 14}
     lens:
       data_view: metrics-*
+      dimension: {id: 60c5cd97-dac4-a4f9-f29e-20385961beea, type: values, size: \n\
+          10, field: apache_tomcat.session.application_name}
       metrics:
       - id: 2d84e1c1-8d7c-fa96-7ce2-9be39561172b
         label: Processing time(ms)
         filter: {kql: 'apache_tomcat.session.processing_time: *'}
         aggregation: last_value
         field: apache_tomcat.session.processing_time
-      breakdown: {id: b360994e-7f94-67b2-1ef1-119bdfe47b0a, type: values, size: \n\
-          10, field: apache_tomcat.session.application_name}
-      id: b1908a67-8751-7dd1-296e-98b74257cd12
+      id: f82d4473-af05-84fd-bee4-ff53938aa474
       legend: {visible: show}
       type: bar
       appearance:

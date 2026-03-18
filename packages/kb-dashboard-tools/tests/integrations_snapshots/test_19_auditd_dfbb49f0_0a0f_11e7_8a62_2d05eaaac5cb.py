@@ -59,7 +59,7 @@ dashboards:
     title: ''
     size: {w: 48, h: 20}
     position: {x: 0, y: 28}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_7'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: d84a9a87-e40f-465c-9114-4d343ffb6481
     title: Event Account Tag Cloud [Logs Auditd]
     size: {w: 16, h: 16}

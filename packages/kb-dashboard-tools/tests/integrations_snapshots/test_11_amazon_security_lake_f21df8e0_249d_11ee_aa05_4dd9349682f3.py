@@ -174,15 +174,15 @@ dashboards:
     position: {x: 24, y: 29}
     lens:
       data_view: logs-*
+      dimension: {id: 48eb9b4a-3999-a196-449f-0bde4554679e, type: values, size: \n\
+          10, field: ocsf.metadata.product.vendor_name}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: 11b25773-8889-98ee-ba2b-8b103e85e28e, type: values, size: \n\
-          10, field: ocsf.metadata.product.vendor_name}
-      id: 6bfabc37-32a1-db52-c092-0d3f3bd2a50f
+      id: 669c5db9-654e-ed51-dd78-f71aa8d5395a
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -194,15 +194,15 @@ dashboards:
     position: {x: 0, y: 44}
     lens:
       data_view: logs-*
+      dimension: {id: f0689ebb-4352-aff6-dded-cd99b0b193ad, type: values, size: \n\
+          33, field: ocsf.class_name}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: fe67ce39-c0f6-4c1f-9511-b76dc7bb3081, type: values, size: \n\
-          33, field: ocsf.class_name}
-      id: f4230840-8d48-571a-fbcf-83bf5701cb1d
+      id: c22a6299-0c74-d8f5-926d-312ea10f30fe
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -214,15 +214,15 @@ dashboards:
     position: {x: 24, y: 44}
     lens:
       data_view: logs-*
+      dimension: {id: 33951eb0-8073-043a-4ce7-ca4e4aa8019d, type: values, size: \n\
+          10, field: ocsf.metadata.product.name}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: f2917d00-6238-bec3-75a4-0158e156fdb6, type: values, size: \n\
-          10, field: ocsf.metadata.product.name}
-      id: 1b86d335-7363-8010-e9d9-51b85306818f
+      id: f9d86083-eac4-e9ed-045e-6429e330aa7a
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:

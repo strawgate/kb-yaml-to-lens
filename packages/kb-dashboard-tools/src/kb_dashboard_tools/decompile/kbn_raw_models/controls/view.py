@@ -2,7 +2,7 @@
 """Permissive view models generated from kb_dashboard_core view models."""
 
 from enum import Enum
-from typing import Annotated, Literal
+from typing import Annotated
 
 from pydantic import Field, field_validator
 
@@ -17,7 +17,7 @@ class KbnControlSort(BaseRawVwModel):
 
     by: str | None = Field(default=None)
     'The field by which to sort the options.'
-    direction: Literal['asc', 'desc'] | None = Field(default=None)
+    direction: str | None = Field(default=None)
     "The direction of the sort, either 'asc' or 'desc'."
 
 
@@ -79,14 +79,14 @@ class KbnBaseControl(BaseRawVwModel):
     'If true, the control will expand to fill available space.'
     order: int | None = Field(default=None)
     'The order of the control in the dashboard layout.'
-    width: Literal['small', 'medium', 'large'] | None = Field(default=None)
+    width: str | None = Field(default=None)
     "The width of the control in the dashboard layout, e.g., 'small', 'medium', 'large'."
 
 
 class KbnRangeSliderControl(KbnBaseControl):
     """Range slider control for a Kibana Dashboard."""
 
-    type: Literal['rangeSliderControl'] = Field(default='rangeSliderControl')
+    type: str = Field(default='rangeSliderControl')
     explicitInput: KbnRangeSliderControlExplicitInput | None = Field(default=None)
     'The actual definition of the slider control.'
 
@@ -94,7 +94,7 @@ class KbnRangeSliderControl(KbnBaseControl):
 class KbnOptionsListControl(KbnBaseControl):
     """Options list control for a Kibana Dashboard."""
 
-    type: Literal['optionsListControl'] = Field(default='optionsListControl')
+    type: str = Field(default='optionsListControl')
     explicitInput: KbnOptionsListControlExplicitInput | None = None
     'The actual definition of the options list control.'
 
@@ -111,7 +111,7 @@ class KbnTimeSliderControlExplicitInput(KbnBaseControlExplicitInput):
 class KbnTimeSliderControl(KbnBaseControl):
     """Time slider control for a Kibana Dashboard."""
 
-    type: Literal['timeSlider'] = Field(default='timeSlider')
+    type: str = Field(default='timeSlider')
     explicitInput: KbnTimeSliderControlExplicitInput | None = Field(default=None)
     'The actual definition of the time slider control.'
 
@@ -140,7 +140,7 @@ class KbnESQLControlExplicitInput(KbnBaseControlExplicitInput):
 class KbnESQLControl(KbnBaseControl):
     """ES|QL control for a Kibana Dashboard."""
 
-    type: Literal['esqlControl'] = Field(default='esqlControl')
+    type: str = Field(default='esqlControl')
     explicitInput: KbnESQLControlExplicitInput | None = Field(default=None)
     'The actual definition of the ES|QL control.'
 
@@ -202,10 +202,12 @@ class KbnControlGroupInput(BaseRawVwModel):
 
     @field_validator('panelsJSON', mode='before')
     @classmethod
-    def _parse_panelsJSON_json(cls, v: object) -> object:
+    def _parse_and_filter_panelsJSON(cls, v: object) -> object:
         if isinstance(v, str):
             import json as _json
             from typing import cast as _cast
 
-            return _cast('object', _json.loads(v))
+            v = _cast('object', _json.loads(v))
+        if isinstance(v, list):
+            return [item for item in v if isinstance(item, dict)]
         return v

@@ -108,3 +108,5 @@ class KbnFilter(BaseVwModel):
     state: Annotated[KbnFilterState | None, OmitIfNone()] = Field(..., serialization_alias='$state')
     meta: KbnFilterMetaTypes
     query: Annotated[dict[str, Any] | None, OmitIfNone()]
+    range: Annotated[dict[str, Any] | None, OmitIfNone()] = Field(default=None)
+    """Raw ES range query, present on range-type filters alongside meta."""

@@ -98,15 +98,15 @@ dashboards:
     position: {x: 12, y: 15}
     lens:
       data_view: logs-*
+      dimension: {id: 8cc8f475-c4d5-888a-c36f-dfe1ce99bef8, type: values, size: \n\
+          10, field: abnormal_security.case.severity}
       metrics:
       - id: d6fe7b8d-f48e-614c-2d81-2eef048666d3
         label: Count
         format: {type: number, decimals: 0}
         aggregation: unique_count
         field: event.id
-      breakdown: {id: bc879a1f-6629-1989-7f75-ec11fecfe51e, type: values, size: \n\
-          10, field: abnormal_security.case.severity}
-      id: 4346f987-1363-5439-b233-413ccf2912e5
+      id: 0076f076-ed08-feb4-5401-cbe76efe80f5
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -135,15 +135,15 @@ dashboards:
     position: {x: 24, y: 27}
     lens:
       data_view: logs-*
+      dimension: {id: a1c45be9-ca65-a238-a97a-550bea5464c8, type: values, size: \n\
+          10, field: event.action}
       metrics:
       - id: d6fe7b8d-f48e-614c-2d81-2eef048666d3
         label: Count
         format: {type: number, decimals: 0}
         aggregation: unique_count
         field: event.id
-      breakdown: {id: 208bfe09-9d04-9a3c-f6f5-80128d02dbe2, type: values, size: \n\
-          10, field: event.action}
-      id: 25503908-1064-3b49-1c72-4eff0e8a8b52
+      id: 6500bda8-d38d-7803-6c06-0fcef3ebb76e
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -155,15 +155,15 @@ dashboards:
     position: {x: 0, y: 42}
     lens:
       data_view: logs-*
+      dimension: {id: 37eb3765-f85e-b735-a6d2-1b0619f420c5, type: values, size: \n\
+          10, field: abnormal_security.case.status}
       metrics:
       - id: d6fe7b8d-f48e-614c-2d81-2eef048666d3
         label: Count
         format: {type: number, decimals: 0}
         aggregation: unique_count
         field: event.id
-      breakdown: {id: 3d5074b4-df53-ca3b-a6e3-cb00b64f1f76, type: values, size: \n\
-          10, field: abnormal_security.case.status}
-      id: 5c4fa40b-538c-e28f-a663-a4bdbf82e1ae
+      id: 0a1067b2-9a69-39cd-cda1-93a5171a2c20
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -173,7 +173,7 @@ dashboards:
     title: Cases Essential Details [Logs Abnormal AI]
     size: {w: 48, h: 14}
     position: {x: 0, y: 56}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_8bd32713-657b-4f64-ae58-baf252cb30c0'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: 4dc07419-868c-4a14-a445-659c20c4aecc
     title: ''
     size: {w: 48, h: 4}

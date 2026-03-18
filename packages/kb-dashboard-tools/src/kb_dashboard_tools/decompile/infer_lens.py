@@ -14,24 +14,15 @@ from typing import Any
 from kb_dashboard_core.panels.charts.config import ESQLPanelConfig, LensPanelConfig
 from pydantic import TypeAdapter, ValidationError
 
-from .kbn_raw_models.panels.charts.lens.columns.view import (
-    KbnLensColumnTypes,
-    KbnLensDateHistogramDimensionColumn,
-    KbnLensFiltersDimensionColumn,
-    KbnLensFormulaColumn,
-    KbnLensTermsDimensionColumn,
-)
-from .kbn_raw_models.panels.charts.view import KbnLensPanel
 from .parse_shared import (
     as_dict,
     get_bool,
     get_dict,
     get_int,
     get_list,
+    get_nested,
     get_number,
     get_str,
-    validate_view_model,
-    visualization_model_type,
 )
 from .tables import (
     KIBANA_AXIS_EXTENT_MODE_TO_YAML,
@@ -208,46 +199,58 @@ def _parse_layer_roles_from_vis(vis_raw: dict[str, Any]) -> dict[str, dict[str, 
 # ---------------------------------------------------------------------------
 
 
-def _extract_metric_filter(col: KbnLensColumnTypes) -> dict[str, str] | None:
-    """Extract the metric-level KQL/Lucene filter from a column, if present."""
-    col_filter = getattr(col, 'filter', None)
-    if col_filter is not None and col_filter.query:
-        if col_filter.language == 'lucene':
-            return {'lucene': col_filter.query}
-        return {'kql': col_filter.query}
-    return None
+def _extract_metric_filter(col_raw: dict[str, Any]) -> dict[str, str] | None:
+    """Extract the metric-level KQL/Lucene filter from a raw column dict, if present."""
+    col_filter = get_dict(col_raw, 'filter')
+    if col_filter is None:
+        return None
+    query = get_str(col_filter, 'query')
+    if not query:
+        return None
+    language = get_str(col_filter, 'language')
+    if language == 'lucene':
+        return {'lucene': query}
+    return {'kql': query}
 
 
-def _extract_metric_format(col: KbnLensColumnTypes) -> dict[str, Any] | None:
-    """Extract number/byte/percent format configuration from a column."""
-    params = getattr(col, 'params', None)
+def _extract_metric_format(col_raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Extract number/byte/percent format configuration from a raw column dict."""
+    params = get_dict(col_raw, 'params')
     if params is None:
         return None
-    format_config = getattr(params, 'format', None)
+    format_config = get_dict(params, 'format')
     if format_config is None:
         return None
-    format_type = format_config.id
+    format_type = get_str(format_config, 'id')
     if format_type is None or format_type not in {'number', 'bytes', 'bits', 'percent', 'duration', 'custom'}:
         return None
     fmt: dict[str, Any] = {'type': format_type}
-    fmt_params = format_config.params
+    fmt_params = get_dict(format_config, 'params')
     if fmt_params is None:
         if format_type == 'custom':
             return None
         return fmt
-    for key in ('decimals', 'suffix', 'compact', 'pattern'):
-        val = getattr(fmt_params, key, None)
-        if val is not None:
-            fmt[key] = val
+    decimals = get_int(fmt_params, 'decimals')
+    if decimals is not None:
+        fmt['decimals'] = decimals
+    suffix = get_str(fmt_params, 'suffix')
+    if suffix is not None:
+        fmt['suffix'] = suffix
+    compact = get_bool(fmt_params, 'compact')
+    if compact is not None:
+        fmt['compact'] = compact
+    pattern = get_str(fmt_params, 'pattern')
+    if pattern is not None:
+        fmt['pattern'] = pattern
     # custom format requires a pattern; fall back to number if none is present
     if format_type == 'custom' and 'pattern' not in fmt:
         fmt['type'] = 'number'
     return fmt
 
 
-def _build_metric_dict(col: KbnLensColumnTypes) -> dict[str, Any] | None:
-    """Build a metric config dict from a form-based column. Returns None if skipped."""
-    operation_type = getattr(col, 'operationType', None)
+def _build_metric_dict(col_raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Build a metric config dict from a raw column dict. Returns None if skipped."""
+    operation_type = get_str(col_raw, 'operationType')
     if operation_type is None:
         return None
     if operation_type in SKIP_OPERATION_TYPES:
@@ -255,15 +258,15 @@ def _build_metric_dict(col: KbnLensColumnTypes) -> dict[str, Any] | None:
 
     # Formula metrics bypass the normal aggregation mapping
     if operation_type == 'formula':
-        params = getattr(col, 'params', None)
-        formula_str = getattr(params, 'formula', None) if params is not None else None
+        params = get_dict(col_raw, 'params')
+        formula_str = get_str(params, 'formula') if params is not None else None
         if formula_str is None:
             return None
-        label = getattr(col, 'label', None)
+        label = get_str(col_raw, 'label')
         metric: dict[str, Any] = {'formula': formula_str}
         if label is not None and len(label) > 0:
             metric['label'] = label
-        fmt = _extract_metric_format(col)
+        fmt = _extract_metric_format(col_raw)
         if fmt is not None:
             metric['format'] = fmt
         return metric
@@ -272,8 +275,8 @@ def _build_metric_dict(col: KbnLensColumnTypes) -> dict[str, Any] | None:
     if aggregation is None:
         return None
 
-    label = getattr(col, 'label', None)
-    source_field = getattr(col, 'sourceField', None)
+    label = get_str(col_raw, 'label')
+    source_field = get_str(col_raw, 'sourceField')
 
     metric = {'aggregation': aggregation}
     if source_field is not None and source_field != _RECORDS_FIELD:
@@ -281,41 +284,40 @@ def _build_metric_dict(col: KbnLensColumnTypes) -> dict[str, Any] | None:
     if label is not None and len(label) > 0:
         metric['label'] = label
 
-    # Extract percentile-specific parameters
-    params = getattr(col, 'params', None)
+    params = get_dict(col_raw, 'params')
     if operation_type == 'percentile':
-        percentile_val = getattr(params, 'percentile', None) if params is not None else None
+        percentile_val = get_number(params, 'percentile') if params is not None else None
         if percentile_val is not None:
             metric['percentile'] = int(percentile_val)
     elif operation_type == 'percentile_rank':
-        rank_val = getattr(params, 'value', None) if params is not None else None
+        rank_val = get_number(params, 'value') if params is not None else None
         if rank_val is not None:
             metric['rank'] = rank_val
 
-    filt = _extract_metric_filter(col)
+    filt = _extract_metric_filter(col_raw)
     if filt is not None:
         metric['filter'] = filt
-    fmt = _extract_metric_format(col)
+    fmt = _extract_metric_format(col_raw)
     if fmt is not None:
         metric['format'] = fmt
     return metric
 
 
 def _build_dimension_dict(
-    col_id: str,
-    col: KbnLensColumnTypes,
-    layer_role: dict[str, Any] | None,
+    col_raw: dict[str, Any],
+    col_id: str = '',
+    layer_role: dict[str, Any] | None = None,
 ) -> tuple[str, dict[str, Any]] | None:
-    """Build a dimension or breakdown dict. Returns (category, dict) or None."""
-    operation_type = getattr(col, 'operationType', None)
-    source_field = getattr(col, 'sourceField', None)
+    """Build a dimension or breakdown dict from a raw column dict. Returns (category, dict) or None."""
+    operation_type = get_str(col_raw, 'operationType')
+    source_field = get_str(col_raw, 'sourceField')
 
     if operation_type == 'date_histogram':
         dim: dict[str, Any] = {'type': 'date_histogram'}
         if source_field is not None:
             dim['field'] = source_field
-        params = getattr(col, 'params', None)
-        interval = getattr(params, 'interval', None) if params is not None else None
+        params = get_dict(col_raw, 'params')
+        interval = get_str(params, 'interval') if params is not None else None
         if interval is not None and interval not in {'auto', ''}:
             # Kibana stores bare units like 'm'; compiler expects '1m'
             if re.match(r'^(ms|s|m|h|d|w|M|q|y)$', interval):
@@ -327,27 +329,30 @@ def _build_dimension_dict(
         bd: dict[str, Any] = {'type': 'values'}
         if source_field is not None:
             bd['field'] = source_field
-        params = getattr(col, 'params', None)
-        size = getattr(params, 'size', None) if params is not None else None
-        if size is not None and isinstance(size, int):
+        params = get_dict(col_raw, 'params')
+        size = get_int(params, 'size') if params is not None else None
+        if size is not None:
             bd['size'] = size
         category = 'dimension' if layer_role is not None and col_id == layer_role.get('dimension_id') else 'breakdown'
         return category, bd
 
     if operation_type == 'filters':
         filters_list: list[dict[str, Any]] = []
-        params = getattr(col, 'params', None)
-        raw_filters = getattr(params, 'filters', None) if params is not None else None
+        params = get_dict(col_raw, 'params')
+        raw_filters = get_list(params, 'filters') if params is not None else None
         if raw_filters is not None:
-            for f in raw_filters:
+            for f_raw in raw_filters:
+                f = as_dict(f_raw)
+                if f is None:
+                    continue
                 f_entry: dict[str, Any] = {}
-                f_label = getattr(f, 'label', None)
+                f_label = get_str(f, 'label')
                 if f_label is not None:
                     f_entry['label'] = f_label
-                inp = getattr(f, 'input', None)
+                inp = get_dict(f, 'input')
                 if inp is not None:
-                    query = getattr(inp, 'query', None)
-                    language = getattr(inp, 'language', None)
+                    query = get_str(inp, 'query')
+                    language = get_str(inp, 'language')
                     if query is not None:
                         if language == 'lucene':
                             f_entry['query'] = {'lucene': query}
@@ -364,11 +369,11 @@ def _build_dimension_dict(
 
 
 def _classify_form_columns(
-    layer_columns: dict[str, KbnLensColumnTypes],
+    layer_columns: dict[str, Any],
     column_order: list[str],
     layer_role: dict[str, Any] | None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
-    """Classify form-based columns into metrics, dimensions, breakdowns, skipped."""
+    """Classify form-based raw column dicts into metrics, dimensions, breakdowns, skipped."""
     metrics: list[dict[str, Any]] = []
     dimensions: list[dict[str, Any]] = []
     breakdowns: list[dict[str, Any]] = []
@@ -405,18 +410,18 @@ def _classify_form_columns(
         ordered_ids = list(layer_columns.keys())
 
     for col_id in ordered_ids:
-        col = layer_columns.get(col_id)
-        if col is None:
+        col_raw = as_dict(layer_columns.get(col_id))
+        if col_raw is None:
             continue
         if role_ordered_ids and has_role_hints:
             if col_id in metric_ids:
-                metric = _build_metric_dict(col)
+                metric = _build_metric_dict(col_raw)
                 if metric is not None:
                     metrics.append(metric)
                     continue
                 # Some visualization accessors (e.g. partition "accessor") can point at
                 # bucketed terms/filters columns. Classify those as dimensions/breakdowns.
-                result = _build_dimension_dict(col_id, col, layer_role)
+                result = _build_dimension_dict(col_raw, col_id, layer_role)
                 if result is not None:
                     category, stub = result
                     if category == 'dimension':
@@ -424,14 +429,23 @@ def _classify_form_columns(
                     else:
                         breakdowns.append(stub)
                     continue
-                operation_type = getattr(col, 'operationType', 'unknown')
-                skipped.append(operation_type)
+                # A metric accessor that can't be built directly (e.g. 'differences')
+                # may reference underlying metric columns — expand metric_ids so those
+                # columns get picked up in a later iteration.
+                refs_raw = col_raw.get('references')
+                if isinstance(refs_raw, list):
+                    for ref_id in refs_raw:
+                        if isinstance(ref_id, str):
+                            metric_ids.add(ref_id)
+                else:
+                    operation_type = get_str(col_raw, 'operationType') or 'unknown'
+                    skipped.append(operation_type)
                 continue
             is_explicit_dimension = col_id == role_dimension_id
             is_explicit_breakdown = col_id == role_breakdown_id
-            is_bucketed = getattr(col, 'isBucketed', False)
+            is_bucketed = col_raw.get('isBucketed') is True
             if is_explicit_dimension or is_explicit_breakdown or is_bucketed:
-                result = _build_dimension_dict(col_id, col, layer_role)
+                result = _build_dimension_dict(col_raw, col_id, layer_role)
                 if result is not None:
                     category, stub = result
                     if category == 'dimension':
@@ -440,9 +454,9 @@ def _classify_form_columns(
                         breakdowns.append(stub)
             continue
 
-        is_bucketed = getattr(col, 'isBucketed', False)
+        is_bucketed = col_raw.get('isBucketed') is True
         if is_bucketed:
-            result = _build_dimension_dict(col_id, col, layer_role)
+            result = _build_dimension_dict(col_raw, col_id, layer_role)
             if result is not None:
                 category, stub = result
                 if category == 'dimension':
@@ -450,11 +464,11 @@ def _classify_form_columns(
                 else:
                     breakdowns.append(stub)
         else:
-            metric = _build_metric_dict(col)
+            metric = _build_metric_dict(col_raw)
             if metric is not None:
                 metrics.append(metric)
             else:
-                operation_type = getattr(col, 'operationType', 'unknown')
+                operation_type = get_str(col_raw, 'operationType') or 'unknown'
                 skipped.append(operation_type)
 
     return metrics, dimensions, breakdowns, skipped
@@ -465,17 +479,10 @@ def _classify_form_columns(
 # ---------------------------------------------------------------------------
 
 
-def _get_esql_col_attr(col: Any, key: str) -> Any:
-    """Get an attribute from an ESQL column (handles both typed objects and raw dicts)."""
-    if isinstance(col, dict):
-        return col.get(key)
-    return getattr(col, key, None)
-
-
-def _esql_column_entry(col: Any) -> dict[str, Any]:
-    """Build an ES|QL column reference dict from a typed column or raw dict."""
-    field_name = _get_esql_col_attr(col, 'fieldName') or ''
-    label = _get_esql_col_attr(col, 'label')
+def _esql_column_entry(col: dict[str, Any]) -> dict[str, Any]:
+    """Build an ES|QL column reference dict from a raw column dict."""
+    field_name = col.get('fieldName') or ''
+    label = col.get('label')
     entry: dict[str, Any] = {'field': field_name}
     if label is not None and label != field_name:
         entry['label'] = label
@@ -483,7 +490,7 @@ def _esql_column_entry(col: Any) -> dict[str, Any]:
 
 
 def _classify_esql_columns(
-    layer_columns: list[Any],
+    layer_columns: list[dict[str, Any]],
     layer_role: dict[str, Any] | None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     """Classify ES|QL columns into metrics, dimensions, breakdowns using layer roles."""
@@ -494,12 +501,11 @@ def _classify_esql_columns(
     if layer_role is None:
         return metrics, dimensions, breakdowns
 
-    columns_by_id: dict[str, Any] = {}
-    for c in layer_columns:
-        # Support both typed objects and raw dicts (KbnTextBasedDataSourceStateLayer.columns is list[Any])
-        col_id = _get_esql_col_attr(c, 'columnId')
+    columns_by_id: dict[str, dict[str, Any]] = {}
+    for col in layer_columns:
+        col_id = col.get('columnId')
         if col_id is not None:
-            columns_by_id[col_id] = c
+            columns_by_id[col_id] = col
 
     for metric_id in layer_role.get('metric_ids', []):
         col = columns_by_id.get(metric_id)
@@ -961,65 +967,64 @@ def _fill_required_defaults(
 # ---------------------------------------------------------------------------
 
 
-def _is_esql_panel(panel: KbnLensPanel) -> bool:
+def _is_esql_panel_dict(panel_dict: dict[str, Any]) -> bool:
     """Return True if this panel uses the textBased (ES|QL) datasource."""
-    ec = panel.embeddableConfig
-    attrs = ec.attributes if ec is not None else None
-    state = attrs.state if attrs is not None else None
-    if state is None:
-        return False
-    ds = state.datasourceStates
-    text_based = ds.textBased if ds is not None else None
-    if text_based is not None and text_based.layers is not None and text_based.layers.root:
+    ds_states = get_nested(panel_dict, 'embeddableConfig', 'attributes', 'state', 'datasourceStates')
+    if ds_states is not None:
+        text_based_layers = get_nested(ds_states, 'textBased', 'layers')
+        if isinstance(text_based_layers, dict) and text_based_layers:
+            return True
+    query = get_nested(panel_dict, 'embeddableConfig', 'attributes', 'state', 'query')
+    if query is not None and isinstance(query, dict) and query.get('esql') is not None:
         return True
-    # Or a top-level ESQL query
-    query = state.query
-    return query is not None and hasattr(query, 'esql') and getattr(query, 'esql', None) is not None
+    return False
 
 
-def _extract_data_view_id(panel: KbnLensPanel) -> str | None:
+def _extract_data_view_id_dict(panel_dict: dict[str, Any]) -> str | None:
     """Extract the data view ID from panel references."""
-    ec = panel.embeddableConfig
-    refs = None
-    if ec is not None:
-        attrs = ec.attributes
-        if attrs is not None and attrs.references:
-            refs = attrs.references
-        if refs is None:
-            refs = []
-    if refs is None:
-        refs = []
+    attrs = get_nested(panel_dict, 'embeddableConfig', 'attributes')
+    if attrs is None:
+        return None
+    refs = attrs.get('references')
+    if not isinstance(refs, list):
+        return None
     for ref in refs:
-        if getattr(ref, 'type', None) == 'index-pattern':
-            ref_id = getattr(ref, 'id', None)
+        ref_dict = as_dict(ref)
+        if ref_dict is None:
+            continue
+        if get_str(ref_dict, 'type') == 'index-pattern':
+            ref_id = get_str(ref_dict, 'id')
             if ref_id is not None:
                 return ref_id
     return None
 
 
-def _extract_esql_query(panel: KbnLensPanel) -> str | None:
-    """Extract the ES|QL query string from a panel."""
-    ec = panel.embeddableConfig
-    if ec is None:
-        return None
-    attrs = ec.attributes
-    if attrs is None:
-        return None
-    state = attrs.state
+def _extract_esql_query_dict(panel_dict: dict[str, Any]) -> str | None:
+    """Extract the ES|QL query string from a panel dict."""
+    state = get_nested(panel_dict, 'embeddableConfig', 'attributes', 'state')
     if state is None:
         return None
     # Top-level query
-    query = state.query
-    if query is not None and hasattr(query, 'esql'):
-        esql = getattr(query, 'esql', None)
+    query = get_dict(state, 'query')
+    if query is not None:
+        esql = get_str(query, 'esql')
         if esql is not None:
             return esql
     # Layer queries
-    ds = state.datasourceStates
-    if ds is not None and ds.textBased is not None and ds.textBased.layers is not None:
-        for layer in ds.textBased.layers.root.values():
-            if layer.query is not None and layer.query.esql is not None:
-                return layer.query.esql
+    ds_states = get_dict(state, 'datasourceStates')
+    if ds_states is None:
+        return None
+    text_based_layers = get_nested(ds_states, 'textBased', 'layers')
+    if isinstance(text_based_layers, dict):
+        for layer_raw in text_based_layers.values():
+            layer = as_dict(layer_raw)
+            if layer is None:
+                continue
+            layer_query = get_dict(layer, 'query')
+            if layer_query is not None:
+                esql = get_str(layer_query, 'esql')
+                if esql is not None:
+                    return esql
     return None
 
 
@@ -1028,104 +1033,13 @@ def _extract_esql_query(panel: KbnLensPanel) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-def _validate_column(col_id: str, col_val: Any) -> KbnLensColumnTypes | None:
-    """Validate a raw column dict to the correct typed KbnLensColumnTypes variant.
-
-    If col_val is already a typed KbnLensBaseColumn instance (validated by pydantic
-    when columns: dict[str, KbnLensColumnTypes]), pass it through directly.
-    Otherwise uses operationType to pick the right class rather than relying on
-    pydantic union left-to-right resolution.
-    """
-    from .kbn_raw_models.panels.charts.lens.columns.view import (
-        KbnLensBaseColumn,
-        KbnLensFullReferenceColumn,
-        KbnLensIntervalsDimensionColumn,
-        KbnLensMathColumn,
-        KbnLensStaticValueColumn,
-    )
-
-    # Already validated by pydantic (columns: dict[str, KbnLensColumnTypes])
-    if isinstance(col_val, KbnLensBaseColumn):
-        return col_val  # pyright: ignore[reportReturnType]
-
-    if not isinstance(col_val, dict):
+def _extract_raw_vis_type(panel_dict: dict[str, Any]) -> str | None:
+    """Extract the raw visualizationType string from a panel dict."""
+    attrs = get_nested(panel_dict, 'embeddableConfig', 'attributes')
+    if attrs is None:
         return None
-
-    op_type = col_val.get('operationType')
-
-    # Map specific operationType to the exact column class
-    op_type_class_map: dict[str, type[Any]] = {
-        'formula': KbnLensFormulaColumn,
-        'math': KbnLensMathColumn,
-        'static_value': KbnLensStaticValueColumn,
-        'date_histogram': KbnLensDateHistogramDimensionColumn,
-        'terms': KbnLensTermsDimensionColumn,
-        'filters': KbnLensFiltersDimensionColumn,
-        'range': KbnLensIntervalsDimensionColumn,
-    }
-
-    target_cls: type[Any] | None = op_type_class_map.get(op_type or '')
-    if target_cls is None:
-        # Check if it's a formula agg or full reference (by presence of references list)
-        params = col_val.get('params')
-        has_formula_agg_params = isinstance(params, dict) and ('shift' in params or 'reducedTimeRange' in params)
-        if has_formula_agg_params and not isinstance(col_val.get('references'), list):
-            from .kbn_raw_models.panels.charts.lens.columns.view import KbnLensFormulaAggColumn
-
-            target_cls = KbnLensFormulaAggColumn
-        elif isinstance(col_val.get('references'), list):
-            target_cls = KbnLensFullReferenceColumn
-        else:
-            # Generic field metric column
-            from .kbn_raw_models.panels.charts.lens.columns.view import KbnLensFieldMetricColumn
-
-            target_cls = KbnLensFieldMetricColumn
-
-    try:
-        return target_cls.model_validate(col_val)
-    except ValidationError:
-        # Fall back to base column for unknown/malformed columns
-        try:
-            return KbnLensBaseColumn.model_validate(col_val)  # pyright: ignore[reportReturnType]
-        except ValidationError:
-            logger.debug('Could not validate column %s, skipping', col_id)
-            return None
-
-
-def _normalize_panel_dict_for_validation(panel_dict: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
-    """Normalize a panel dict for KbnLensPanel model validation.
-
-    Returns (normalized_dict, raw_vis_type) where normalized_dict is safe to
-    pass to model_validate and raw_vis_type is the original visualization type
-    string (which may not be in the enum).
-    """
-    normalized: dict[str, Any] = dict(panel_dict)
-
-    # ESQL panels use type='esql' but KbnLensPanel requires type='lens'
-    if normalized.get('type') == 'esql':
-        normalized['type'] = 'lens'
-
-    # Extract and potentially normalize visualizationType
-    raw_vis_type: str | None = None
-    ec = normalized.get('embeddableConfig')
-    if isinstance(ec, dict):
-        attrs = ec.get('attributes')
-        if isinstance(attrs, dict):
-            raw_vis_type = attrs.get('visualizationType') if isinstance(attrs.get('visualizationType'), str) else None
-            # If visualizationType is not in the enum, temporarily remove it to avoid ValidationError
-            # We keep raw_vis_type separately for chart type resolution
-            from .kbn_raw_models.panels.charts.view import KbnVisualizationTypeEnum
-
-            valid_vis_types = {e.value for e in KbnVisualizationTypeEnum}
-            if raw_vis_type is not None and raw_vis_type not in valid_vis_types:
-                # Normalize: remove the non-enum vis type so model_validate succeeds
-                normalized_ec = dict(ec)
-                normalized_attrs = dict(attrs)
-                del normalized_attrs['visualizationType']
-                normalized_ec['attributes'] = normalized_attrs
-                normalized['embeddableConfig'] = normalized_ec
-
-    return normalized, raw_vis_type
+    vis_type = attrs.get('visualizationType')
+    return vis_type if isinstance(vis_type, str) else None
 
 
 def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
@@ -1133,50 +1047,25 @@ def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
 
     Returns (panel_type, chart_config_dict) where panel_type is 'lens' or 'esql'.
     """
-    normalized_dict, raw_vis_type_override = _normalize_panel_dict_for_validation(panel_dict)
-    original_type = panel_dict.get('type')  # preserve before normalization
-    panel = KbnLensPanel.model_validate(normalized_dict)
+    original_type = panel_dict.get('type')
+    raw_vis_type = _extract_raw_vis_type(panel_dict)
 
     # Detect ESQL: explicit type='esql' or textBased datasource state
-    is_esql = original_type == 'esql' or _is_esql_panel(panel)
+    is_esql = original_type == 'esql' or _is_esql_panel_dict(panel_dict)
     panel_type = 'esql' if is_esql else 'lens'
 
     chart: dict[str, Any] = {}
 
-    # Extract visualization state as raw dict for legacy helpers
-    ec = panel.embeddableConfig
-    attrs = ec.attributes if ec is not None else None
-    state = attrs.state if attrs is not None else None
-    # Use raw_vis_type_override if the enum normalization dropped the original vis type
-    raw_vis_type: str | None = (
-        raw_vis_type_override if raw_vis_type_override is not None else (attrs.visualizationType if attrs is not None else None)
-    )
+    # Extract visualization state as raw dict
     vis_raw: dict[str, Any] = {}
-    if state is not None and state.visualization is not None:
-        # visualization is Any — dump to dict via model_dump if it's a BaseModel, else use as-is
-        v = state.visualization
-        if hasattr(v, 'model_dump'):
-            vis_raw = v.model_dump(exclude_none=True, by_alias=True)
-        elif isinstance(v, dict):
-            vis_raw = v
-        else:
-            vis_raw = {}
+    vis_state = get_nested(panel_dict, 'embeddableConfig', 'attributes', 'state', 'visualization')
+    if isinstance(vis_state, dict):
+        vis_raw = vis_state
+    elif vis_state is not None and hasattr(vis_state, 'model_dump'):
+        vis_raw = vis_state.model_dump(exclude_none=True, by_alias=True)
 
-    # Resolve visualization view model for preferred_series_type / shape
-    vis_model_cls = visualization_model_type(raw_vis_type, vis_raw, is_esql=is_esql)
-    vis_model = None
-    if vis_model_cls is not None:
-        vis_model = validate_view_model(vis_model_cls, vis_raw)
-
-    preferred_series_type: str | None = None
-    shape: str | None = None
-    if vis_model is not None:
-        preferred_series_type = getattr(vis_model, 'preferred_series_type', None)
-        shape = getattr(vis_model, 'shape', None)
-    if preferred_series_type is None:
-        preferred_series_type = get_str(vis_raw, 'preferredSeriesType')
-    if shape is None:
-        shape = get_str(vis_raw, 'shape')
+    preferred_series_type = get_str(vis_raw, 'preferredSeriesType')
+    shape = get_str(vis_raw, 'shape')
 
     # Override vis_raw with preferred_series_type / shape for type resolution
     if preferred_series_type is not None and 'preferredSeriesType' not in vis_raw:
@@ -1202,7 +1091,6 @@ def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
 
     # Extract legend and appearance from visualization state
     if vis_raw:
-        # Legend extraction
         if chart_type in _XY_CHART_TYPES:
             legend = _extract_xy_legend(vis_raw)
         elif chart_type in PARTITION_CHART_TYPES:
@@ -1212,22 +1100,15 @@ def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
         if legend is not None:
             chart['legend'] = legend
 
-        # XY appearance extraction
         if chart_type in _XY_CHART_TYPES:
             _merge_appearance(chart, _extract_xy_appearance(vis_raw, chart_type))
-
-        # Gauge appearance + titles_and_text
         elif chart_type == 'gauge':
             gauge_appearance, gauge_titles = _extract_gauge_settings(vis_raw)
             _merge_appearance(chart, gauge_appearance)
             if gauge_titles is not None:
                 chart['titles_and_text'] = gauge_titles
-
-        # Partition chart appearance (pie/treemap/waffle/mosaic)
         elif chart_type in PARTITION_CHART_TYPES:
             _merge_appearance(chart, _extract_partition_appearance(vis_raw, chart_type))
-
-        # Datatable sorting / paging / appearance
         elif chart_type == 'datatable':
             dt_sorting, dt_paging, dt_appearance = _extract_datatable_options(vis_raw)
             if dt_sorting is not None:
@@ -1239,12 +1120,12 @@ def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
 
     # Data view / query
     if panel_type == 'lens':
-        data_view_id = _extract_data_view_id(panel)
+        data_view_id = _extract_data_view_id_dict(panel_dict)
         if data_view_id is not None:
             chart['data_view'] = data_view_id
 
     if panel_type == 'esql':
-        esql_query = _extract_esql_query(panel)
+        esql_query = _extract_esql_query_dict(panel_dict)
         chart['query'] = esql_query if esql_query is not None else 'TODO_esql_query'
 
     # Extract metrics/dimensions/breakdowns
@@ -1253,49 +1134,50 @@ def _infer_lens_chart(panel_dict: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     all_breakdowns: list[dict[str, Any]] = []
     has_skipped_metrics = False
 
-    # Get layer roles from vis_raw
     layer_roles = _parse_layer_roles_from_vis(vis_raw)
 
-    if panel_type == 'esql' and state is not None:
-        ds = state.datasourceStates
-        if ds is not None and ds.textBased is not None and ds.textBased.layers is not None:
-            for layer_id, layer in ds.textBased.layers.root.items():
+    ds_states = get_nested(panel_dict, 'embeddableConfig', 'attributes', 'state', 'datasourceStates')
+
+    if panel_type == 'esql' and ds_states is not None:
+        text_based_layers = get_nested(ds_states, 'textBased', 'layers')
+        if isinstance(text_based_layers, dict):
+            for layer_id, layer_raw in text_based_layers.items():
+                layer = as_dict(layer_raw) or {}
                 role = layer_roles.get(layer_id)
-                # Build columns list from both 'columns' and 'allColumns'
                 all_layer_cols: list[Any] = []
                 seen_ids: set[str] = set()
-                for col_list in (layer.columns, layer.allColumns):
-                    if col_list is None:
+                for col_list_key in ('columns', 'allColumns'):
+                    col_list = layer.get(col_list_key)
+                    if not isinstance(col_list, list):
                         continue
                     for col in col_list:
-                        col_id = _get_esql_col_attr(col, 'columnId')
+                        col_dict = as_dict(col)
+                        if col_dict is None:
+                            continue
+                        col_id = col_dict.get('columnId')
                         if col_id is not None and col_id not in seen_ids:
                             seen_ids.add(col_id)
-                            all_layer_cols.append(col)
+                            all_layer_cols.append(col_dict)
                 m, d, b = _classify_esql_columns(all_layer_cols, role)
                 all_metrics.extend(m)
                 all_dimensions.extend(d)
                 all_breakdowns.extend(b)
-    elif panel_type == 'lens' and state is not None:
-        ds = state.datasourceStates
-        if ds is not None and ds.formBased is not None:
-            form_layers = getattr(ds.formBased, 'layers', None)
-            if form_layers is not None:
-                for layer_id, layer in form_layers.root.items():
-                    role = layer_roles.get(layer_id)
-                    column_order = layer.columnOrder
-                    # columns is dict[str, Any] — validate each to the correct typed column class
-                    typed_cols: dict[str, KbnLensColumnTypes] = {}
-                    for col_id, col_val in layer.columns.items():
-                        col_typed = _validate_column(col_id, col_val)
-                        if col_typed is not None:
-                            typed_cols[col_id] = col_typed
-                    m, d, b, skipped = _classify_form_columns(typed_cols, column_order, role)
-                    all_metrics.extend(m)
-                    all_dimensions.extend(d)
-                    all_breakdowns.extend(b)
-                    if skipped:
-                        has_skipped_metrics = True
+    elif panel_type == 'lens' and ds_states is not None:
+        form_based = get_dict(ds_states, 'formBased')
+        if form_based is not None:
+            layers = get_dict(form_based, 'layers') or {}
+            for layer_id, layer_raw in layers.items():
+                layer = as_dict(layer_raw) or {}
+                role = layer_roles.get(layer_id)
+                column_order_raw = layer.get('columnOrder')
+                column_order = column_order_raw if isinstance(column_order_raw, list) else []
+                columns_raw = get_dict(layer, 'columns') or {}
+                m, d, b, skipped = _classify_form_columns(columns_raw, column_order, role)
+                all_metrics.extend(m)
+                all_dimensions.extend(d)
+                all_breakdowns.extend(b)
+                if skipped:
+                    has_skipped_metrics = True
 
     _assign_metrics_and_dimensions(chart, chart_type, all_metrics, all_dimensions, all_breakdowns)
     _fill_required_defaults(chart, chart_type, panel_type, has_skipped_metrics)

@@ -147,15 +147,15 @@ dashboards:
     position: {x: 29, y: 12}
     lens:
       data_view: logs-*
+      dimension: {id: 2b848618-4368-143c-6621-e15a3df43270, type: values, size: \n\
+          10, field: ocsf.activity_name}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: 03e7cb98-3a81-b117-6b7f-b29ee7784de8, type: values, size: \n\
-          10, field: ocsf.activity_name}
-      id: f388061e-db59-53e7-9462-e6e7ab415d90
+      id: c08dc69f-5563-6e86-c539-0109aed4a8d2
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -290,15 +290,17 @@ dashboards:
     position: {x: 24, y: 90}
     lens:
       data_view: logs-*
+      dimension: {id: 0fb8a892-9c5c-749a-006f-2a118c086a63, type: values, size: \n\
+          10, field: ocsf.actor.user.account.uid}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: 4567c6a0-259e-ca7a-661e-c7af3527ba1b, type: values, size: \n\
-          10, field: ocsf.actor.user.account.uid}
-      id: 04e6aec6-da7f-6799-465d-6c5e9ec73fbf
+      breakdown: {id: 4ca36627-2d2d-5a67-d171-95d3bc081b5c, type: values, size: \n\
+          5, field: ocsf.api.operation}
+      id: 90da1f99-bc75-b829-213b-82eb467fb71c
       legend: {visible: show, show_single_series: true, truncate_labels: 0}
       type: bar
       appearance:
@@ -347,23 +349,18 @@ dashboards:
     title: ''
     size: {w: 48, h: 15}
     position: {x: 0, y: 105}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_bafa4a84-cd88-474c-b184-abf585029430'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: 96e95a12-c91a-4ecb-aa52-52884e5af866
     title: API Operation by Service [Logs Amazon Security Lake]
     size: {w: 48, h: 15}
     position: {x: 0, y: 120}
     lens:
       type: heatmap
-      id: 5c214e73-edb2-c347-e945-6d831263edfc
+      id: 1a2443d1-e958-f368-4e6c-6678ecd8c3fa
       data_view: logs-*
-      x_axis: {id: 67e64ad9-cfc4-92b1-a192-87dafea58540, type: values, field: \n\
-          TODO_field}
-      y_axis: {id: 4df83456-1aef-00fd-a339-52b59a175204, type: values, size: 5, \n\
+      x_axis: {id: 4df83456-1aef-00fd-a339-52b59a175204, type: values, size: 5, \n\
           field: ocsf.api.operation}
-      metric:
-        id: 97eb71b4-0976-a4ed-a27e-255aae5b58d9
-        label: Count
-        format: {type: number, decimals: 0}
-        aggregation: count
-        field: ___records___
+      y_axis: {id: 100a1995-43d3-2ba5-9bd1-533d8b2346c7, type: values, size: 10, \n\
+          field: ocsf.api.service.name}
+      metric: {id: 3c2bc97d-1a0d-764c-e652-addeb8aaff00, aggregation: count}
 """)

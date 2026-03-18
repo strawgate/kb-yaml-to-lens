@@ -122,12 +122,12 @@ dashboards:
     position: {x: 29, y: 10}
     lens:
       data_view: logs-*
+      dimension: {id: 9c163176-a698-fe32-8f76-536c715679a5, type: values, size: \n\
+          10, field: source.ip}
       metrics:
       - {id: 28ba3e0b-7a41-30d4-9377-96a097cfc685, label: Count of records, \n\
           aggregation: count, field: ___records___}
-      breakdown: {id: 5cf7c1f2-7b4e-0e1d-3ea4-abc1e81517d4, type: values, size: \n\
-          10, field: source.ip}
-      id: 64059a2f-154b-7d5a-b768-bb856b96a0c5
+      id: 70cff741-cb3a-5dfe-ca54-9dbcc122d702
       legend: {visible: show}
       type: bar
       mode: stacked
@@ -135,5 +135,5 @@ dashboards:
     title: ''
     size: {w: 48, h: 11}
     position: {x: 0, y: 22}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_253f1007-1537-4012-a663-48bccf233f4c'}
+    search: {saved_search_id: TODO_saved_search_id}
 """)

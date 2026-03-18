@@ -24,7 +24,7 @@ dashboards:
     title: ''
     size: {w: 31, h: 15}
     position: {x: 0, y: 0}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_944e346e-36df-430b-9734-5d91da79bdc1'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: 5a635dbb-4cb6-46f8-9d4c-dd12078b184f
     title: ''
     size: {w: 17, h: 15}

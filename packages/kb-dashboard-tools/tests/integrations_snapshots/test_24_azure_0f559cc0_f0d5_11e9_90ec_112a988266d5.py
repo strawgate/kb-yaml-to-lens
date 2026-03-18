@@ -71,14 +71,13 @@ dashboards:
     position: {x: 0, y: 4}
     lens:
       type: heatmap
-      id: d03e8dc1-a13b-fac2-3127-7c6a294dfef5
+      id: b4a204b8-e5c8-6c71-ed14-d4d6bd275891
       data_view: logs-*
-      x_axis: {id: 67e64ad9-cfc4-92b1-a192-87dafea58540, type: values, field: \n\
-          TODO_field}
-      y_axis: {id: cc39073e-b1ab-221c-1f1f-4150ee172e9b, type: values, size: 5, \n\
+      x_axis: {id: cc39073e-b1ab-221c-1f1f-4150ee172e9b, type: values, size: 5, \n\
           field: azure.resource.provider}
-      metric: {id: ed85e2e8-53f2-5576-18cb-a03460a48b3b, label: Count, \n\
-          aggregation: count, field: ___records___}
+      y_axis: {id: 138de022-f68b-652e-57a3-4daa47bd454e, type: values, size: 5, \n\
+          field: azure.resource.group}
+      metric: {id: 3c2bc97d-1a0d-764c-e652-addeb8aaff00, aggregation: count}
   - id: 162fb43e-fff3-4f50-aa9b-a713418bd651
     title: Alerts Count
     size: {w: 27, h: 9}

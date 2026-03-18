@@ -66,7 +66,7 @@ dashboards:
     title: Findings Package Vulnerability Essential Details [Logs Inspector]
     size: {w: 48, h: 15}
     position: {x: 0, y: 19}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_1bd92e14-3902-4a5b-bc32-86952f9fdfb0'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: 858f6288-7c54-4d7a-be33-374a9d79d1e4
     title: Dashboards [Logs Inspector]
     size: {w: 48, h: 4}

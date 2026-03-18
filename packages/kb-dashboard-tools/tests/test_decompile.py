@@ -136,7 +136,7 @@ def test_decompile_dashboard_extracts_additional_easy_panel_fields() -> None:
                     {
                         'panelIndex': 'search-panel',
                         'type': 'search',
-                        'embeddableConfig': {'savedSearchRefName': 'search_0'},
+                        'panelRefName': 'search_0',
                     },
                     {
                         'panelIndex': 'markdown-panel',
@@ -291,17 +291,20 @@ def test_decompile_esql_panel() -> None:
     assert panel['esql']['type'] == 'bar'
 
 
-def test_decompile_search_with_direct_saved_search_id() -> None:
-    """Decompile extracts savedSearchId directly from panel."""
+def test_decompile_search_with_panel_ref_name() -> None:
+    """Decompile resolves saved_search_id via panelRefName + references lookup."""
     dashboard = {
+        'references': [
+            {'name': 'search_0', 'type': 'search', 'id': 'my-search-123'},
+        ],
         'attributes': {
-            'title': 'Direct search',
+            'title': 'Search via ref',
             'panelsJSON': json.dumps(
                 [
                     {
                         'panelIndex': 's1',
                         'type': 'search',
-                        'savedSearchId': 'direct-id-123',
+                        'panelRefName': 'search_0',
                     }
                 ]
             ),
@@ -309,11 +312,11 @@ def test_decompile_search_with_direct_saved_search_id() -> None:
     }
     result = decompile_dashboard(dashboard)
     panel = result['dashboards'][0]['panels'][0]
-    assert panel['search']['saved_search_id'] == 'direct-id-123'
+    assert panel['search']['saved_search_id'] == 'my-search-123'
 
 
 def test_decompile_search_unresolved_ref_falls_back_to_todo() -> None:
-    """Decompile uses TODO placeholder when search ref cannot be resolved."""
+    """Decompile uses TODO placeholder when panelRefName cannot be resolved."""
     dashboard = {
         'attributes': {
             'title': 'Unresolved search',
@@ -322,7 +325,7 @@ def test_decompile_search_unresolved_ref_falls_back_to_todo() -> None:
                     {
                         'panelIndex': 's2',
                         'type': 'search',
-                        'embeddableConfig': {'savedSearchRefName': 'missing_ref'},
+                        'panelRefName': 'missing_ref',
                     }
                 ]
             ),
@@ -627,7 +630,7 @@ def test_decompile_non_dict_references_skipped() -> None:
                     {
                         'panelIndex': 's1',
                         'type': 'search',
-                        'embeddableConfig': {'savedSearchRefName': 'ref1'},
+                        'panelRefName': 'ref1',
                     }
                 ]
             ),

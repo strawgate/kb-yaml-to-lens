@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 
 from kb_dashboard_tools.decompile.kbn_raw_models import KbnDashboard
-from kb_dashboard_tools.decompile.kbn_raw_models.panels.charts.view import KbnLensPanel
+from kb_dashboard_tools.decompile.kbn_raw_models.panels.view import KbnBasePanel
 
 _FIXTURES_DIR = Path(__file__).parent / 'fixtures' / 'elastic-integrations'
 
@@ -74,7 +74,7 @@ def test_nginx_access_errors_title_and_panel_count() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Visualization type access via KbnLensPanel
+# Visualization type access via raw embeddableConfig dict
 # ---------------------------------------------------------------------------
 
 
@@ -84,11 +84,13 @@ def _get_viz_types(fixture_path: Path) -> list[str]:
     raw_panels = dashboard.attributes.panelsJSON if dashboard.attributes and dashboard.attributes.panelsJSON else []
     viz_types: list[str] = []
     for rp in raw_panels:
-        if isinstance(rp, dict) and rp.get('type') == 'lens':
-            lp = KbnLensPanel.model_validate(rp)
-            ec = lp.embeddableConfig
-            if ec is not None and ec.attributes is not None:
-                vt = ec.attributes.visualizationType
+        if not isinstance(rp, KbnBasePanel) or rp.type != 'lens':
+            continue
+        ec = rp.embeddableConfig
+        if isinstance(ec, dict):
+            attrs = ec.get('attributes')
+            if isinstance(attrs, dict):
+                vt = attrs.get('visualizationType')
                 if vt is not None:
                     viz_types.append(str(vt))
     return viz_types
@@ -122,30 +124,34 @@ def test_nginx_access_errors_viz_types() -> None:
 
 
 def test_lens_panel_datasource_layers_accessible() -> None:
-    """KbnLensPanel: datasource layer IDs and column order are accessible."""
+    """KbnBasePanel: embeddableConfig is a raw dict; datasource layers accessible via dict navigation."""
     dashboard = KbnDashboard.model_validate(_load_fixture(_FIXTURES_DIR / 'nginx-overview.json'))
     assert dashboard.attributes is not None
     assert dashboard.attributes.panelsJSON is not None
     first_panel = dashboard.attributes.panelsJSON[0]
-    assert isinstance(first_panel, dict)
-    lp = KbnLensPanel.model_validate(first_panel)
+    assert isinstance(first_panel, KbnBasePanel)
+    assert first_panel.type == 'lens'
 
-    assert lp.embeddableConfig is not None
-    assert lp.embeddableConfig.attributes is not None
-    state = lp.embeddableConfig.attributes.state
-    assert state is not None
-    assert state.datasourceStates is not None
-    assert state.datasourceStates.formBased is not None
-    assert state.datasourceStates.formBased.layers is not None
-
-    layers = state.datasourceStates.formBased.layers.root
+    ec = first_panel.embeddableConfig
+    assert isinstance(ec, dict)
+    attrs = ec.get('attributes')
+    assert isinstance(attrs, dict)
+    state = attrs.get('state')
+    assert isinstance(state, dict)
+    ds_states = state.get('datasourceStates')
+    assert isinstance(ds_states, dict)
+    form_based = ds_states.get('formBased')
+    assert isinstance(form_based, dict)
+    layers = form_based.get('layers')
+    assert isinstance(layers, dict)
     assert len(layers) > 0
 
-    # Each layer has columnOrder and columns accessible
+    # Each layer has columnOrder and columns accessible as raw dicts
     for layer in layers.values():
-        assert layer.columnOrder is not None
-        assert layer.columns is not None
-        assert isinstance(layer.columns, dict)
+        assert isinstance(layer, dict)
+        assert 'columnOrder' in layer
+        assert 'columns' in layer
+        assert isinstance(layer['columns'], dict)
 
 
 # ---------------------------------------------------------------------------

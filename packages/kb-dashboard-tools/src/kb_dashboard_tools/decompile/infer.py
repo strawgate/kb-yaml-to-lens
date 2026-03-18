@@ -19,12 +19,13 @@ from kb_dashboard_core.filters.config import FilterTypes
 from pydantic import TypeAdapter, ValidationError
 
 from .infer_lens import _infer_lens_chart  # pyright: ignore[reportPrivateUsage]
-from .infer_simple import _SIMPLE_PANEL_BUILDERS, SimplePanel  # pyright: ignore[reportPrivateUsage]
+from .infer_simple import _SIMPLE_PANEL_BUILDERS  # pyright: ignore[reportPrivateUsage]
 from .kbn_raw_models.dashboard.view import KbnDashboard
+from .kbn_raw_models.filters.view import KbnFilter, KbnFilterMeta
+from .kbn_raw_models.panels.view import KbnBasePanel
 from .parse_shared import (
     as_dict,
     get_bool,
-    get_list,
     get_scalar,
     get_str,
 )
@@ -100,94 +101,77 @@ def _infer_query(kbn: KbnDashboard) -> dict[str, str] | None:
     return {'kql': query}
 
 
-def _infer_filter(raw: dict[str, Any]) -> dict[str, Any] | None:
-    """Infer a single filter config dict from a raw filter dict. Returns None for unrecognized types."""
-    f: dict[str, Any] = {}
-    filter_meta = as_dict(raw.get('meta'))
-    if filter_meta is None:
+def _infer_filter(f: KbnFilter) -> dict[str, Any] | None:
+    """Infer a single filter config dict from a typed KbnFilter. Returns None for unrecognized types."""
+    if not isinstance(f.meta, KbnFilterMeta):
         return None
-    key = get_str(filter_meta, 'key')
+    meta = f.meta
+    key = meta.key
     if key is None:
         return None
-    filter_type = get_str(filter_meta, 'type')
+    filter_type = meta.type
+    result: dict[str, Any] = {}
 
     if filter_type == 'exists':
-        f['exists'] = key
+        result['exists'] = key
     elif filter_type == 'phrase':
-        f['field'] = key
-        params = as_dict(filter_meta.get('params'))
+        result['field'] = key
+        params = meta.params if isinstance(meta.params, dict) else None
         if params is not None:
             query = get_scalar(params, 'query')
             if query is not None:
-                f['equals'] = query
+                result['equals'] = query
         else:
-            value = get_scalar(filter_meta, 'value')
+            value = get_scalar(meta.model_dump(), 'value')
             if value is not None:
-                f['equals'] = value
+                result['equals'] = value
     elif filter_type == 'phrases':
-        f['field'] = key
-        params_list = get_list(filter_meta, 'params')
+        result['field'] = key
+        params_list = meta.params if isinstance(meta.params, list) else None
         if params_list is not None:
-            f['in'] = [p for p in params_list if isinstance(p, (str, int, float, bool))]
+            result['in'] = list(params_list)
     elif filter_type == 'range':
-        f['field'] = key
-        range_params = as_dict(raw.get('range'))
-        if range_params is not None:
-            field_range = as_dict(range_params.get(key))
-            if field_range is not None:
+        result['field'] = key
+        params = meta.params if isinstance(meta.params, dict) else None
+        if params is not None:
+            for bound in ('gte', 'gt', 'lte', 'lt'):
+                val = get_scalar(params, bound)
+                if val is not None:
+                    result[bound] = val
+        elif f.range is not None:
+            field_range = f.range.get(key) if isinstance(f.range, dict) else None
+            if isinstance(field_range, dict):
                 for bound in ('gte', 'gt', 'lte', 'lt'):
                     val = get_scalar(field_range, bound)
                     if val is not None:
-                        f[bound] = val
+                        result[bound] = val
     else:
-        # Unrecognized filter type — skip
         return None
 
-    # Apply metadata
-    disabled = get_bool(filter_meta, 'disabled')
-    if disabled is not None and disabled:
-        f['disabled'] = True
-    alias = get_str(filter_meta, 'alias')
-    if alias is not None and len(alias) > 0:
-        f['alias'] = alias
+    if meta.disabled is True:
+        result['disabled'] = True
+    if meta.alias is not None and len(meta.alias) > 0:
+        result['alias'] = meta.alias
 
-    _ = _filter_adapter.validate_python(f)
-    return f
+    _ = _filter_adapter.validate_python(result)
+    return result
 
 
-def _infer_filters(raw_dashboard: dict[str, Any]) -> list[dict[str, Any]]:
-    """Extract dashboard-level filters from the raw dashboard dict.
-
-    Works with raw filter dicts to preserve fields (like 'range') that
-    are not modeled in KbnFilter.
-    """
-    from .parse_shared import parse_json_field
-
-    raw_attrs = as_dict(raw_dashboard.get('attributes'))
-    if raw_attrs is None:
+def _infer_filters(kbn: KbnDashboard) -> list[dict[str, Any]]:
+    """Extract dashboard-level filters from the KbnDashboard model."""
+    attrs = kbn.attributes
+    ssj = attrs.kibanaSavedObjectMeta.searchSourceJSON if attrs and attrs.kibanaSavedObjectMeta else None
+    filters = ssj.filter if ssj else None
+    if not filters:
         return []
-    raw_meta = as_dict(raw_attrs.get('kibanaSavedObjectMeta'))
-    if raw_meta is None:
-        return []
-    search_source_raw = parse_json_field(raw_meta.get('searchSourceJSON'))
-    if not isinstance(search_source_raw, dict):
-        return []
-    raw_filters = search_source_raw.get('filter')
-    if not isinstance(raw_filters, list):
-        return []
-
     result: list[dict[str, Any]] = []
-    for filter_item in raw_filters:
-        raw = as_dict(filter_item)
-        if raw is None:
-            continue
+    for f in filters:
         try:
-            result_filter = _infer_filter(raw)
-            if result_filter is not None:
-                result.append(result_filter)
+            inferred = _infer_filter(f)
+            if inferred is not None:
+                result.append(inferred)
         except ValidationError as exc:
-            filter_meta = as_dict(raw.get('meta')) or {}
-            key = get_str(filter_meta, 'key') or 'unknown'
+            key = f.meta.key if isinstance(f.meta, KbnFilterMeta) else 'unknown'
             logger.warning('_infer_filter produced invalid filter dict (key=%s): %s', key, exc)
     return result
 
@@ -269,128 +253,75 @@ def _infer_controls(kbn: KbnDashboard, reference_lookup: dict[str, str]) -> list
     return result
 
 
-def _build_reference_lookup(raw_dashboard: dict[str, Any]) -> dict[str, str]:
-    """Build name -> id reference lookup from the raw dashboard references list.
-
-    Uses the raw dict rather than KbnDashboard.references to handle
-    non-dict items and references with missing fields gracefully.
-    """
-    refs = raw_dashboard.get('references')
-    if not isinstance(refs, list):
-        return {}
-    lookup: dict[str, str] = {}
-    for ref in refs:
-        if not isinstance(ref, dict):
-            continue
-        name = ref.get('name')
-        ref_id = ref.get('id')
-        if name is not None and ref_id is not None:
-            lookup[str(name)] = str(ref_id)
-    return lookup
+def _build_reference_lookup(kbn: KbnDashboard) -> dict[str, str]:
+    """Build name -> id reference lookup from KbnDashboard.references."""
+    return {ref.name: ref.id for ref in kbn.references if ref.name and ref.id}
 
 
-def _infer_panel(panel_dict: dict[str, Any], ref_lookup: dict[str, str]) -> tuple[str, dict[str, Any], dict[str, Any]]:
-    """Infer panel config from a raw panel dict.
+def _infer_panel(panel: KbnBasePanel, ref_lookup: dict[str, str]) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    """Infer panel config from a typed KbnBasePanel (or concrete subtype).
 
     Returns (panel_type_key, chart_config_dict, panel_wrapper_dict).
     """
     wrapper: dict[str, Any] = {}
 
     # Panel index
-    panel_index = get_str(panel_dict, 'panelIndex')
-    if panel_index is not None:
-        wrapper['id'] = panel_index
-
-    # Title
-    title = get_str(panel_dict, 'title') or ''
-    embeddable_cfg = as_dict(panel_dict.get('embeddableConfig')) or {}
-    if not title:
-        title = get_str(embeddable_cfg, 'title') or ''
-    wrapper['title'] = title
-
-    # Hide title / description
-    hide_panel_titles = get_bool(embeddable_cfg, 'hidePanelTitles')
-    if hide_panel_titles is True:
-        wrapper['hide_title'] = True
-
-    panel_description = get_str(embeddable_cfg, 'description')
-    if panel_description is None:
-        panel_description = get_str(panel_dict, 'description')
-    if panel_description is not None and len(panel_description) > 0:
-        wrapper['description'] = panel_description
+    if panel.panelIndex is not None:
+        wrapper['id'] = panel.panelIndex
 
     # Grid data
-    grid_data = as_dict(panel_dict.get('gridData'))
-    if grid_data is not None:
-        w = grid_data.get('w')
-        h = grid_data.get('h')
-        x = grid_data.get('x')
-        y = grid_data.get('y')
-        if isinstance(w, int) or isinstance(h, int):
-            size: dict[str, int] = {}
-            if isinstance(w, int):
-                size['w'] = w
-            if isinstance(h, int):
-                size['h'] = h
-            wrapper['size'] = size
-        if isinstance(x, int) or isinstance(y, int):
-            pos: dict[str, int] = {}
-            if isinstance(x, int):
-                pos['x'] = x
-            if isinstance(y, int):
-                pos['y'] = y
-            wrapper['position'] = pos
+    gd = panel.gridData
+    if gd is not None:
+        if gd.w is not None or gd.h is not None:
+            wrapper['size'] = {k: v for k, v in {'w': gd.w, 'h': gd.h}.items() if v is not None}
+        if gd.x is not None or gd.y is not None:
+            wrapper['position'] = {k: v for k, v in {'x': gd.x, 'y': gd.y}.items() if v is not None}
 
-    panel_type = get_str(panel_dict, 'type')
+    # embeddableConfig is always a raw dict (or None) since KbnBasePanel.embeddableConfig: Any | None.
+    embeddable_cfg_dict: dict[str, Any] = as_dict(panel.embeddableConfig) or {}
+
+    # Title: panel-level first, then embeddableConfig
+    title = panel.title or get_str(embeddable_cfg_dict, 'title') or ''
+    wrapper['title'] = title
+
+    # Hide title
+    if get_bool(embeddable_cfg_dict, 'hidePanelTitles') is True:
+        wrapper['hide_title'] = True
+
+    # Description: embeddableConfig first, then panel-level
+    description = get_str(embeddable_cfg_dict, 'description') or panel.description
+    if description:
+        wrapper['description'] = description
+
+    panel_type = panel.type
     if panel_type is None:
         return 'markdown', {'content': 'TODO(decompile): missing panel type'}, wrapper
 
-    # Check for unresolved panel reference
-    panel_ref_name = get_str(panel_dict, 'panelRefName')
-    if panel_ref_name is not None and as_dict(embeddable_cfg.get('attributes')) is None:
+    # Check for unresolved panel reference (only for panel types where panelRefName
+    # means an externally stored embeddable config, not for search where it IS the reference).
+    panel_ref_name = panel.panelRefName
+    has_embedded_attrs = as_dict(embeddable_cfg_dict.get('attributes')) is not None
+    if panel_ref_name is not None and not has_embedded_attrs and panel_type != 'search':
         return 'markdown', {'content': f'TODO(decompile): unresolved panel reference: {panel_ref_name}'}, wrapper
 
-    # Lens / ESQL panels
+    # Lens / ESQL panels (dispatch on type, not isinstance — a panel may have fallen
+    # to KbnBasePanel catch-all if deeply nested validation failed, but the dict path works either way)
     if panel_type in {'lens', 'esql'}:
+        panel_dict = panel.model_dump(by_alias=True, exclude_none=False)
         try:
             inferred_type, chart = _infer_lens_chart(panel_dict)
         except (ValueError, ValidationError) as exc:
-            logger.warning('_infer_lens_chart validation failed for panel %s: %s', panel_index, exc)
+            logger.warning('_infer_lens_chart validation failed for panel %s: %s', panel.panelIndex, exc)
             return 'markdown', {'content': f'TODO(decompile): panel validation failed: {exc}'}, wrapper
         return inferred_type, chart, wrapper
 
-    # Simple panels
-    from .parse_shared import SIMPLE_PANEL_VIEW_MODEL_MAP, validate_view_model
-
-    # Resolve saved vis type for 'visualization' panels
-    saved_vis_type: str | None = None
-    saved_vis = as_dict(embeddable_cfg.get('savedVis'))
-    if saved_vis is not None:
-        saved_vis_type = get_str(saved_vis, 'type')
-
-    resolved_panel_type = saved_vis_type if panel_type == 'visualization' and saved_vis_type else panel_type
-
-    # Build view model
-    model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(panel_type)
-    if model_cls is None and panel_type == 'visualization' and saved_vis_type is not None:
-        model_cls = SIMPLE_PANEL_VIEW_MODEL_MAP.get(saved_vis_type)
-    view_panel = validate_view_model(model_cls, panel_dict) if model_cls is not None else None
-
-    embeddable_attrs = as_dict(embeddable_cfg.get('attributes')) or {}
-    simple = SimplePanel(
-        panel_type=resolved_panel_type,
-        raw=panel_dict,
-        embeddable_config=embeddable_cfg,
-        embeddable_attributes=embeddable_attrs,
-        view_panel=view_panel,
-    )
-
-    builder = _SIMPLE_PANEL_BUILDERS.get(resolved_panel_type)
+    # Simple panels — legacy 'visualization' type maps to 'markdown' in config
+    config_type = 'markdown' if panel_type == 'visualization' else panel_type
+    builder = _SIMPLE_PANEL_BUILDERS.get(config_type)
     if builder is not None:
-        config = builder(simple, ref_lookup)
-        return resolved_panel_type, config, wrapper
+        config = builder(panel, embeddable_cfg_dict, ref_lookup)
+        return config_type, config, wrapper
 
-    # Unsupported type
     return 'markdown', {'content': f'TODO(decompile): unsupported panel type `{panel_type}`'}, wrapper
 
 
@@ -429,11 +360,8 @@ def infer_dashboard(kbn: KbnDashboard, raw_dashboard: dict[str, Any] | None = No
     if query is not None:
         dashboard['query'] = query
 
-    # Use raw dict for references to handle non-dict items and missing fields
-    reference_lookup = _build_reference_lookup(raw_dashboard)
-
-    # Use raw dict for filters to preserve fields (like 'range') not in KbnFilter
-    filters = _infer_filters(raw_dashboard)
+    reference_lookup = _build_reference_lookup(kbn)
+    filters = _infer_filters(kbn)
     if filters:
         dashboard['filters'] = filters
 
@@ -446,10 +374,9 @@ def infer_dashboard(kbn: KbnDashboard, raw_dashboard: dict[str, Any] | None = No
     panels_json = attrs.panelsJSON if attrs is not None else None
     if isinstance(panels_json, list):
         for panel_item in panels_json:
-            panel_dict = as_dict(panel_item)
-            if panel_dict is None:
+            if not isinstance(panel_item, KbnBasePanel):
                 continue
-            panel_type, chart_config, panel_wrapper = _infer_panel(panel_dict, reference_lookup)
+            panel_type, chart_config, panel_wrapper = _infer_panel(panel_item, reference_lookup)
             panel_wrapper[panel_type] = chart_config
             panels.append(panel_wrapper)
 

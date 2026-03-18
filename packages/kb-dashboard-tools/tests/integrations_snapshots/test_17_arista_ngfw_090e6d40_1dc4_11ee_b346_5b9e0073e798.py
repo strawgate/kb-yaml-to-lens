@@ -27,7 +27,7 @@ dashboards:
     hide_title: true
     size: {w: 48, h: 4}
     position: {x: 0, y: 0}
-    markdown: {content: 'TODO(decompile): unsupported panel type `metrics`'}
+    markdown: {content: '# Arista NG Firewall Session Stats'}
   - id: 13262519-30cf-49ea-a20e-e68cd2ed1a44
     title: ''
     size: {w: 48, h: 4}
@@ -171,7 +171,7 @@ dashboards:
     title: ''
     size: {w: 48, h: 40}
     position: {x: 0, y: 48}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_7355a77d-85cd-41ed-b1da-f238a3ea84bd'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: 6ae5c6ae-a667-49e2-aa53-2fe5a2d5b6d8
     title: Events by Source to Destination GeoLocation
     size: {w: 26, h: 24}

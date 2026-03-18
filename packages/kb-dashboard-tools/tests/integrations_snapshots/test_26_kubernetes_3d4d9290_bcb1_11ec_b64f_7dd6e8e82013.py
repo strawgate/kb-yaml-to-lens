@@ -123,15 +123,14 @@ dashboards:
       dimension: {id: 8d8b7676-c4af-9ec1-d403-657f98d8eab3, type: date_histogram,
         field: '@timestamp'}
       metrics:
-      - id: 7bd442e3-45cb-983e-b1e2-e4bc9cdaea4b
+      - id: 7ed7789e-a47b-45be-843a-2a230b8e0d99
         label: CPU Usage
         format: {type: percent, decimals: 2}
-        filter: {kql: ''}
         aggregation: average
         field: kubernetes.pod.cpu.usage.limit.pct
       breakdown: {id: cb759e25-47d2-ad1c-3ca5-25e7b37b8f00, type: values, size: \n\
           10, field: kubernetes.pod.name}
-      id: 7cd11fb2-ce3e-cf35-6e63-e6ed165cad80
+      id: 0fc9b6d5-427e-f5e2-ec3c-77c198bebd6e
       legend: {visible: show, width: large}
       type: area
       appearance:
@@ -169,15 +168,14 @@ dashboards:
       dimension: {id: 8d8b7676-c4af-9ec1-d403-657f98d8eab3, type: date_histogram,
         field: '@timestamp'}
       metrics:
-      - id: db624464-333a-8a69-c301-d8974eb9575c
+      - id: e313a86f-c819-7ec6-42b9-85bc4d7b7eb1
         label: Memory Usage
         format: {type: percent, decimals: 2}
-        filter: {kql: ''}
         aggregation: average
         field: kubernetes.pod.memory.usage.limit.pct
       breakdown: {id: cb759e25-47d2-ad1c-3ca5-25e7b37b8f00, type: values, size: \n\
           10, field: kubernetes.pod.name}
-      id: 8a3c00fe-7adb-2dbb-1889-f23d9864f762
+      id: a70eccd1-b3e4-8dae-07ef-133f8f90d191
       legend: {visible: show, width: large}
       type: area
       appearance:
@@ -193,15 +191,14 @@ dashboards:
       dimension: {id: 8d8b7676-c4af-9ec1-d403-657f98d8eab3, type: date_histogram,
         field: '@timestamp'}
       metrics:
-      - id: 2d3e959b-5943-c22d-3aaf-c057dcd45894
+      - id: 2398ea7a-eaf2-24cd-edaf-7da2382d04c4
         label: Memory Usage
         format: {type: percent, decimals: 2}
-        filter: {kql: ''}
         aggregation: average
         field: kubernetes.pod.memory.working_set.limit.pct
       breakdown: {id: cb759e25-47d2-ad1c-3ca5-25e7b37b8f00, type: values, size: \n\
           10, field: kubernetes.pod.name}
-      id: d6e96fcf-3f2a-44b8-d88f-a1157b288810
+      id: e93febb2-216b-c2ae-0cb0-28aac27787b1
       legend: {visible: show, width: large}
       type: area
       appearance:

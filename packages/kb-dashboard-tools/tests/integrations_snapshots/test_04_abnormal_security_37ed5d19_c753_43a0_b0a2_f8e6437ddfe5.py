@@ -65,15 +65,15 @@ dashboards:
     position: {x: 12, y: 4}
     lens:
       data_view: logs-*
+      dimension: {id: 916b4ae4-e6a5-0917-45dd-d23a8f67463c, type: values, size: \n\
+          10, field: cloud.account.name}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: 991ef1ed-0396-c7bb-6fcd-66ab121830e9, type: values, size: \n\
-          10, field: cloud.account.name}
-      id: 98d9951f-9592-1f5c-ec9b-70b89c514df8
+      id: c119edb9-a88e-4830-7ce2-cbbb52af16db
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -85,15 +85,15 @@ dashboards:
     position: {x: 12, y: 16}
     lens:
       data_view: logs-*
+      dimension: {id: a1c45be9-ca65-a238-a97a-550bea5464c8, type: values, size: \n\
+          10, field: event.action}
       metrics:
       - id: ae00e989-841b-abeb-050c-df11b6f60c56
         label: Count
         format: {type: number, decimals: 0}
         aggregation: count
         field: ___records___
-      breakdown: {id: 208bfe09-9d04-9a3c-f6f5-80128d02dbe2, type: values, size: \n\
-          10, field: event.action}
-      id: 0fe75dc7-ad26-9eba-9c74-9f5ad57f30ae
+      id: 3f1a6a44-e848-1838-3713-ed20e75ca148
       legend: {visible: show, truncate_labels: 0}
       type: bar
       appearance:
@@ -155,7 +155,7 @@ dashboards:
     title: Audit Essential Details [Logs Abnormal AI]
     size: {w: 48, h: 16}
     position: {x: 0, y: 45}
-    markdown: {content: 'TODO(decompile): unresolved panel reference: panel_24aca30e-7efb-4dcc-9290-bb261aa10a33'}
+    search: {saved_search_id: TODO_saved_search_id}
   - id: a627f997-3e5f-4eae-949c-79579ef9004c
     title: ''
     size: {w: 48, h: 4}

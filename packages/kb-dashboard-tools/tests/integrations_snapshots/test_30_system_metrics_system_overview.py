@@ -95,20 +95,18 @@ dashboards:
     size: {w: 9, h: 7}
     position: {x: 0, y: 12}
     lens:
-      id: 70dd394c-840e-735a-1813-a834e4841a23
+      id: 472410fd-806e-13e9-b5b9-61d9ba3f1d46
       type: metric
       data_view: metrics-*
       primary: {id: b7966ae2-9ab7-5a96-b3aa-c7cf6f859afc, label: Hosts, formula: \n\
           unique_count(host.name)}
-      secondary: {id: 1b2e0a6b-24c9-a866-7559-702820af3e8c, label: Part of Hosts,
-        aggregation: unique_count, field: host.name}
   - id: 4a59a56e-e5fd-4ff3-b2f0-8a1c07be572b
     title: ''
     hide_title: true
     size: {w: 9, h: 7}
     position: {x: 9, y: 12}
     lens:
-      id: 4c3f868b-b07f-9934-f672-8d945f6842ec
+      id: 642ffb40-fd7f-308e-5543-7763462fa1e7
       type: metric
       data_view: metrics-*
       primary:
@@ -116,19 +114,13 @@ dashboards:
         label: Disk used
         format: {type: percent, compact: true}
         formula: 'last_value(system.fsstat.total_size.used)/last_value(system.fsstat.total_size.total) '
-      secondary:
-        id: d9761885-2890-9c8f-814a-1564b66a9fb9
-        label: Part of Disk used
-        filter: {kql: '"system.fsstat.total_size.used": *'}
-        aggregation: last_value
-        field: system.fsstat.total_size.used
   - id: 4fdb14ab-c349-489b-afc1-55603ddb52f3
     title: ''
     hide_title: true
     size: {w: 9, h: 7}
     position: {x: 0, y: 19}
     lens:
-      id: c95f2503-75ca-90d5-b31a-231b19c9a359
+      id: eb0b876c-f158-26ce-c96c-35ba0e46d00a
       type: metric
       data_view: metrics-*
       primary:
@@ -137,16 +129,13 @@ dashboards:
         format: {type: bytes, decimals: 2}
         formula: (max(system.network.in.bytes, reducedTimeRange='30s') - \n\
           min(system.network.in.bytes, reducedTimeRange='30s')) / 30
-      secondary: {id: 4d71a8ea-5063-0095-d2db-2435f5e6bf45, label: Part of \n\
-          Inbound Traffic per second, aggregation: max, field: \n\
-          system.network.in.bytes}
   - id: fe4dd8cc-1c8d-4b88-8db3-4a286b33984f
     title: ''
     hide_title: true
     size: {w: 9, h: 7}
     position: {x: 9, y: 19}
     lens:
-      id: 035c6a75-3c54-f2b8-e68d-4be7de591263
+      id: bc2426c3-70b3-4e9a-271e-21e3eee2ed1a
       type: metric
       data_view: metrics-*
       primary:
@@ -155,42 +144,30 @@ dashboards:
         format: {type: bytes, decimals: 2}
         formula: (max(system.network.out.bytes, reducedTimeRange='30s') - \n\
           min(system.network.out.bytes, reducedTimeRange='30s')) / 30
-      secondary: {id: f63a1eb6-47fa-eff6-c4bd-107179e2c576, label: Part of \n\
-          Outbound Traffic per second, aggregation: max, field: \n\
-          system.network.out.bytes}
   - id: e6f8fdab-5f7e-42b1-9093-36c017e0d26d
     title: Top hosts by CPU usage over time
     size: {w: 48, h: 15}
     position: {x: 0, y: 26}
     lens:
       type: heatmap
-      id: 74a4b7a9-af0c-9d2d-3323-9ebcc92ad871
+      id: a5d0f713-64ac-eb74-46d8-a0811760768c
       data_view: metrics-*
       x_axis: {id: 8d8b7676-c4af-9ec1-d403-657f98d8eab3, type: date_histogram, \n\
           field: '@timestamp'}
       y_axis: {id: 9e654e1c-02e0-7f4b-b5c0-93958e779b8f, type: values, size: 20, \n\
           field: host.name}
-      metric:
-        id: c7e21c64-ad6c-5791-5b06-80703124f1e3
-        label: CPU Usage
-        format: {type: percent, decimals: 0}
-        aggregation: average
-        field: system.cpu.user.norm.pct
+      metric: {id: 3c2bc97d-1a0d-764c-e652-addeb8aaff00, aggregation: count}
   - id: e6f6cabf-ecec-482f-b7b5-634e323e9a15
     title: Top hosts by memory usage over time
     size: {w: 48, h: 16}
     position: {x: 0, y: 41}
     lens:
       type: heatmap
-      id: 45c80a3b-eb7c-7fb0-9e12-6d4025f79ebd
+      id: a5d0f713-64ac-eb74-46d8-a0811760768c
       data_view: metrics-*
       x_axis: {id: 8d8b7676-c4af-9ec1-d403-657f98d8eab3, type: date_histogram, \n\
           field: '@timestamp'}
       y_axis: {id: 9e654e1c-02e0-7f4b-b5c0-93958e779b8f, type: values, size: 20, \n\
           field: host.name}
-      metric:
-        id: d39c121c-1182-d4e8-cd09-89d74dc90d92
-        label: Memory Usage
-        format: {type: percent, decimals: 0}
-        formula: average(system.memory.actual.used.pct)
+      metric: {id: 3c2bc97d-1a0d-764c-e652-addeb8aaff00, aggregation: count}
 """)

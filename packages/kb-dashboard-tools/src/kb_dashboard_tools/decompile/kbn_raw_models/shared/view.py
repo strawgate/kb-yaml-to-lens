@@ -3,9 +3,9 @@
 
 from typing import ClassVar
 
-from kb_dashboard_core.shared.view import KbnReference, OmitIfNone, RootDict  # re-exports for generated modules
+from kb_dashboard_core.shared.view import OmitIfNone, RootDict  # re-exports for generated modules
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 
 __all__ = ['BaseRawVwModel', 'KbnReference', 'OmitIfNone', 'RootDict']
 
@@ -20,3 +20,11 @@ class BaseRawVwModel(PydanticBaseModel):
         populate_by_name=True,
         use_enum_values=True,
     )
+
+
+class KbnReference(BaseRawVwModel):
+    """Permissive reference — type/id/name are all optional since real dashboards may omit fields."""
+
+    type: str | None = Field(default=None)
+    id: str | None = Field(default=None)
+    name: str | None = Field(default=None)
