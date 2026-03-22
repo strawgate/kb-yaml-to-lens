@@ -109,7 +109,7 @@ Color thresholds and `apply_to` are configured on the primary metric's `color` f
 
 #### Lens Metric Types
 
-The `primary`, `secondary`, and `maximum` fields accept these metric configurations:
+The `primary` and `secondary` fields accept these metric configurations:
 
 | Metric Type | Description | Key Fields | Example Use Case |
 | ----------- | ----------- | ---------- | ---------------- |
@@ -120,6 +120,11 @@ The `primary`, `secondary`, and `maximum` fields accept these metric configurati
 | **Percentile** | Calculate percentile of values | `aggregation: 'percentile'`, `field`, `percentile` | 95th percentile latency |
 | **Percentile Rank** | Calculate rank of a value | `aggregation: 'percentile_rank'`, `field`, `rank` | What % of requests are faster than 500ms |
 | **Formula** | Custom calculation using Kibana formula syntax | `formula`, `label` (optional), `format` (optional) | `count(kql='status:error') / count() * 100` |
+
+The `maximum` field accepts all of the above metric types, plus:
+
+| Metric Type | Description | Key Fields | Example Use Case |
+| ----------- | ----------- | ---------- | ---------------- |
 | **Static Value** | Fixed numeric value | `value`, `label` (optional) | Target threshold or goal value |
 
 **Common Fields:**
@@ -176,12 +181,11 @@ Color thresholds and `apply_to` are configured on the primary metric's `color` f
 
 #### ESQL Metric Types
 
-The `primary`, `secondary`, and `maximum` fields accept these metric configurations:
+The `primary`, `secondary`, and `maximum` fields accept this metric configuration:
 
 | Metric Type | Description | Key Fields | Example Use Case |
 | ----------- | ----------- | ---------- | ---------------- |
 | **ESQL Metric** | Reference a column from your ESQL query result | `field` | Any aggregated value from STATS clause |
-| **Static Value** | Fixed numeric value | `value`, `label` (optional) | Target threshold or goal value |
 
 **ESQL metrics** reference columns produced by your ESQL query. The `field` must match a column name in your query result.
 
