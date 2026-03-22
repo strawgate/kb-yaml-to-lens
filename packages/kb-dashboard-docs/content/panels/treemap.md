@@ -1,6 +1,6 @@
 # Treemap Chart Panel Configuration
 
-The Treemap chart panel visualizes hierarchical data as nested rectangles, where each rectangle's size represents a metric value. Treemap charts support one or more metrics and require at least one breakdown (maximum two breakdowns).
+The Treemap chart panel visualizes hierarchical data as nested rectangles, where each rectangle's size represents a metric value. Treemap charts support exactly one metric and require at least one breakdown (maximum two breakdowns).
 
 ---
 

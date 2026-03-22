@@ -43,7 +43,7 @@ The VS Code extension is the fastest way to start building Kibana dashboards. It
 
 #### Installation
 
-**From OpenVSX Registry (Cursor, VS Code forks):**
+**From Open VSX Registry (Cursor, VS Code forks):**
 1. Open Extensions view (Ctrl+Shift+X)
 2. Search for "Kibana Dashboard Compiler"
 3. Click Install
