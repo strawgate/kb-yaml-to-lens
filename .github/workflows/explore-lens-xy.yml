@@ -84,7 +84,6 @@ jobs:
         - `formula` — tinymath expressions including `counter_rate()`,
           `cumulative_sum()`, `differences()`, `moving_average(window=N)`,
           `overall_sum()`, `overall_avg()`, etc.
-        - Static values via `value: N`
         - Per-metric `axis: left | right` for dual-axis
         - Per-metric `color` for custom series color
 
