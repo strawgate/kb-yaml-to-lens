@@ -466,6 +466,145 @@ def test_compile_datatable_chart_with_formula_metrics_lens() -> None:
     assert hostname_dict['params']['orderDirection'] == 'desc'
 
 
+def test_compile_datatable_chart_with_simple_formula_metric_lens() -> None:
+    """Test that a datatable with a simple count() formula compiles without hanging.
+
+    Regression test for formula metrics that previously caused compilation timeouts.
+    Verifies the full visualization state output and column structure.
+    """
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'formula': 'count()',
+                'id': 'f',
+            }
+        ],
+        'breakdowns': [
+            {
+                'type': 'values',
+                'field': 'service.name',
+                'id': 'b',
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'columns': [
+                {'columnId': 'b', 'isTransposed': False, 'isMetric': False},
+                {'columnId': 'f', 'isTransposed': False, 'isMetric': True},
+            ],
+            'layerId': IsUUID,
+            'layerType': 'data',
+        }
+    )
+
+
+def test_compile_datatable_chart_formula_metric_generates_helper_columns() -> None:
+    """Test that formula metrics in datatables generate the correct helper columns.
+
+    Formula metrics produce aggregation helper columns (e.g., fX0 for count())
+    plus the primary formula column. All must appear in kbn_columns_by_id.
+    """
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'formula': 'count()',
+                'id': 'f',
+            }
+        ],
+    }
+
+    lens_chart = LensDatatableChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _viz_state = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
+
+    # Formula column and its aggregation helper column must both be present
+    assert 'f' in kbn_columns_by_id
+    assert 'fX0' in kbn_columns_by_id
+
+    # Primary formula column should have operationType 'formula'
+    formula_col = kbn_columns_by_id['f']
+    assert formula_col.model_dump()['operationType'] == 'formula'
+
+    # Helper aggregation column should have operationType 'count'
+    helper_col = kbn_columns_by_id['fX0']
+    assert helper_col.model_dump()['operationType'] == 'count'
+
+
+def test_compile_datatable_chart_formula_only_metrics_no_breakdowns() -> None:
+    """Test that a datatable with only formula metrics and no breakdowns compiles correctly."""
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'formula': 'count()',
+                'id': 'f',
+            }
+        ],
+    }
+
+    result = compile_datatable_chart_snapshot(config, 'lens')
+
+    assert result == snapshot(
+        {
+            'columns': [
+                {'columnId': 'f', 'isTransposed': False, 'isMetric': True},
+            ],
+            'layerId': IsUUID,
+            'layerType': 'data',
+        }
+    )
+
+
+def test_compile_datatable_chart_mixed_formula_and_aggregation_metrics() -> None:
+    """Test that a datatable with both formula and aggregation metrics compiles correctly.
+
+    When formula and aggregation metrics are mixed, the aggregation metric
+    should be used for ordering (not the formula).
+    """
+    config = {
+        'type': 'datatable',
+        'data_view': 'metrics-*',
+        'metrics': [
+            {
+                'formula': 'count() / 100',
+                'id': 'formula-pct',
+                'label': 'Count %',
+            },
+            {
+                'aggregation': 'count',
+                'id': 'raw-count',
+            },
+        ],
+        'breakdowns': [
+            {
+                'type': 'values',
+                'field': 'service.name',
+                'id': 'svc',
+            }
+        ],
+    }
+
+    lens_chart = LensDatatableChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _viz_state = compile_lens_datatable_chart(lens_datatable_chart=lens_chart)
+
+    # Both formula and aggregation columns should exist
+    assert 'formula-pct' in kbn_columns_by_id
+    assert 'raw-count' in kbn_columns_by_id
+
+    # Breakdown dimension should order by the first metric (formula → alphabetical fallback)
+    svc_col = kbn_columns_by_id['svc']
+    svc_dict = svc_col.model_dump()
+    assert svc_dict['params']['orderBy'] == {'type': 'alphabetical', 'fallback': True}
+
+
 def test_lens_datatable_validation_requires_metrics_or_rows() -> None:
     """Test that Lens datatable validation fails when both metrics and rows are empty."""
     config = {

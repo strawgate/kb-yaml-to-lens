@@ -283,6 +283,37 @@ def test_compile_metric_chart_formula_with_fields() -> None:
     )
 
 
+def test_compile_metric_chart_formula_generates_helper_columns() -> None:
+    """Test that formula metrics in metric charts generate the correct helper columns.
+
+    Formula metrics produce aggregation helper columns (e.g., formula-metric-1X0)
+    plus the primary formula column. All must appear in kbn_columns_by_id.
+    """
+    config = {
+        'type': 'metric',
+        'data_view': 'metrics-*',
+        'primary': {
+            'formula': 'count()',
+            'id': 'formula-metric-1',
+        },
+    }
+
+    lens_chart = LensMetricChart.model_validate(config)
+    _layer_id, kbn_columns_by_id, _kbn_state_visualization = compile_lens_metric_chart(lens_metric_chart=lens_chart)
+
+    # Formula column and its aggregation helper column must both be present
+    assert 'formula-metric-1' in kbn_columns_by_id
+    assert 'formula-metric-1X0' in kbn_columns_by_id
+
+    # Primary formula column should have operationType 'formula'
+    formula_col = kbn_columns_by_id['formula-metric-1']
+    assert formula_col.model_dump()['operationType'] == 'formula'
+
+    # Helper aggregation column should have operationType 'count'
+    helper_col = kbn_columns_by_id['formula-metric-1X0']
+    assert helper_col.model_dump()['operationType'] == 'count'
+
+
 def test_compile_metric_chart_column_order_without_breakdown() -> None:
     """Test that kbn_columns_by_id contains only metrics when no breakdown is present (Lens)."""
     config = {
