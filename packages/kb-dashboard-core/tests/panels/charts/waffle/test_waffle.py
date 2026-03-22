@@ -188,6 +188,24 @@ async def test_waffle_chart_with_hidden_values() -> None:
     assert layer.numberDisplay == 'hidden'
 
 
+async def test_waffle_chart_with_hidden_format_alias() -> None:
+    """Test waffle chart accepts 'hidden' as alias for 'hide' in values format."""
+    lens_config = {
+        'type': 'waffle',
+        'data_view': 'logs-*',
+        'metric': {'aggregation': 'count', 'id': '8f020607-379e-4b54-bc9e-e5550e84f5d5'},
+        'breakdown': {'type': 'values', 'field': 'service.name', 'id': '6e73286b-85cf-4343-9676-b7ee2ed0a3df'},
+        'appearance': {'values': {'format': 'hidden'}},
+        'color': {'palette': 'eui_amsterdam_color_blind'},
+    }
+
+    lens_chart = LensWaffleChart.model_validate(lens_config)
+    _layer_id, _kbn_columns, kbn_state_visualization = compile_lens_waffle_chart(lens_waffle_chart=lens_chart)
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert layer.numberDisplay == 'hidden'
+
+
 async def test_waffle_chart_with_collapse_functions() -> None:
     """Test waffle chart with collapse functions."""
     lens_config = {

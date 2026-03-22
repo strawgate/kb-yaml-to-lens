@@ -32,7 +32,7 @@ class WaffleLegend(BaseLegend):
 class WaffleValuesConfig(BaseCfgModel):
     """Formatting options for value labels."""
 
-    format: Literal['percent', 'value', 'hide'] | None = Field(default=None)
+    format: Literal['percent', 'value', 'hide', 'hidden'] | None = Field(default=None)
     """Controls how values are displayed in the waffle chart. Kibana defaults to 'percent' if not specified."""
 
     decimal_places: int | None = Field(default=None, ge=0, le=10)
