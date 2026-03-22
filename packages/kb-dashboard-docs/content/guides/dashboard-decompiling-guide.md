@@ -16,28 +16,30 @@ This guide covers converting existing Kibana dashboards into kb-yaml-to-lens YAM
 
 ## What Decompile Produces
 
-The `decompile` command generates a YAML skeleton, not a complete dashboard. Specifically:
+The `decompile` command generates a YAML dashboard that extracts as much configuration as possible from the original Kibana JSON. Specifically:
 
 - Dashboard-level metadata (name, id, description) is extracted.
-- Every panel gets a stub with the correct `size` and `position` from the grid layout.
+- Every panel gets the correct `size` and `position` from the grid layout.
 - Panel titles are preserved where present.
-- Panel types are detected (lens, markdown, links, etc.), but for lens panels the inner configuration is left empty (`lens: {}`). This means the decompiled YAML will **not** compile as-is.
-- Each panel stub includes `TODO(decompile)` comments containing the original Kibana panel JSON. These comments are your primary reference for filling in the lens configuration.
+- For Lens panels, decompile extracts chart type, data view, metrics, dimensions, breakdowns, and appearance settings (legend, axis config, gauge settings, etc.). For many common panel types the decompiled YAML compiles as-is.
+- Unsupported or complex panel configurations (e.g. formula metrics, advanced annotations, or unrecognized visualization types) fall back to `TODO(decompile)` placeholders that require manual completion. When this happens the panel is emitted as a markdown stub containing the original Kibana panel JSON for reference.
 
-You (or an LLM) need to translate the Kibana JSON from the TODO comments into the YAML schema. The [Component Mapping](#component-mapping) section below shows how each Kibana construct maps to YAML.
+For panels that need manual completion, you (or an LLM) can translate the Kibana JSON from the TODO placeholders into the YAML schema. The [Component Mapping](#component-mapping) section below shows how each Kibana construct maps to YAML.
 
 ## JSON-to-YAML Conversion Prompt Scaffold
 
 Use this prompt pattern when asking an LLM to complete a decompiled dashboard. Keep the request scoped to one dashboard at a time.
 
 ```text
-Complete the decompiled YAML stubs in <yaml_file>. Each panel has TODO comments
-containing the original Kibana panel JSON — use these to fill in the lens
-configuration (type, data_view, metrics, `dimension`, `breakdown`, `breakdowns`, and related panel-specific fields).
+Complete any remaining TODO(decompile) stubs in <yaml_file>. Most Lens panels
+are already decompiled with full configuration, but panels with unsupported
+features will have TODO placeholders containing the original Kibana panel JSON.
+Use these to fill in the lens configuration (type, data_view, metrics,
+`dimension`, `breakdown`, `breakdowns`, and related panel-specific fields).
 
 Requirements:
 1. Preserve panel layout (size and position are already set).
-2. Translate every panel's original JSON into the correct YAML schema.
+2. Translate any remaining TODO panels' original JSON into the correct YAML schema.
 3. Use the panel type reference and component mapping from the decompiling guide.
 4. Omit fields that match default values.
 5. After conversion, validate:
@@ -595,22 +597,7 @@ Error: Data view reference 'logs-*' not found
 
 ## Complete Example
 
-**Decompiled YAML stub (before filling in):**
-
-```yaml skip
----
-dashboards:
-  - name: Application Monitoring
-    description: Real-time application metrics
-    panels:
-      - title: Total Documents
-        size: {w: 24, h: 15}
-        position: {x: 0, y: 3}
-        lens: {}
-        # TODO(decompile): {"type":"lens","embeddableConfig":{"attributes":{"title":"Total Documents","visualizationType":"lnsMetric","state":{"datasourceStates":{"formBased":{"layers":{"layer1":{"columns":{"col1":{"operationType":"count","label":"Count"}}}}}}}},"references":[{"type":"index-pattern","id":"logs-*"}]}}
-```
-
-**Completed YAML (after translating the TODO comment):**
+**Decompiled YAML (supported panel — compiles as-is):**
 
 ```yaml
 ---
@@ -628,12 +615,32 @@ dashboards:
             aggregation: count
 ```
 
-**Validation:**
+For supported chart types (metric, gauge, XY, pie, datatable, etc.) the decompiler extracts the full Lens configuration including metrics, dimensions, breakdowns, and appearance settings. The output compiles directly:
 
 ```bash
 kb-dashboard compile
 # Success! 1 panel
 ```
+
+**Decompiled YAML (unsupported panel — requires manual completion):**
+
+When a panel uses features the decompiler doesn't yet support, it falls back to a `TODO(decompile)` placeholder containing the original Kibana JSON:
+
+```yaml skip
+---
+dashboards:
+  - name: Application Monitoring
+    description: Real-time application metrics
+    panels:
+      - title: Custom Visualization
+        size: {w: 24, h: 15}
+        position: {x: 0, y: 3}
+        markdown:
+          content: >-
+            TODO(decompile): panel validation failed: ...
+```
+
+In this case, translate the original Kibana JSON into the YAML schema using the [Component Mapping](#component-mapping) section as a guide.
 
 ## Additional Resources
 
