@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from kb_dashboard_core.dashboard.config import Dashboard
 from kb_dashboard_core.dashboard_compiler import render
+from kb_dashboard_core.panels.charts.lens.columns.view import KbnLensStaticValueColumn
 from kb_dashboard_core.panels.charts.xy.compile import (
     compile_esql_xy_chart,
     compile_lens_reference_line_layer,
@@ -1765,3 +1766,53 @@ def test_xy_invalid_legacy_titles_and_text_type_is_rejected() -> None:
                 'titles_and_text': 'invalid',
             }
         )
+
+
+@pytest.mark.parametrize(
+    ('chart_cls', 'config'),
+    [
+        (
+            LensBarChart,
+            {
+                'type': 'bar',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [{'value': 7, 'id': 'static1'}],
+            },
+        ),
+        (
+            LensLineChart,
+            {
+                'type': 'line',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [{'value': 42.5, 'id': 'static1'}],
+            },
+        ),
+        (
+            LensAreaChart,
+            {
+                'type': 'area',
+                'data_view': 'metrics-*',
+                'dimension': {'type': 'date_histogram', 'field': '@timestamp', 'id': 'dim1'},
+                'metrics': [{'value': 100, 'id': 'static1'}],
+            },
+        ),
+    ],
+    ids=['bar-static', 'line-static', 'area-static'],
+)
+async def test_xy_chart_with_static_value_metric(chart_cls: type[Any], config: dict[str, Any]) -> None:
+    """Test that XY charts accept static value metrics ({value: N})."""
+    chart = chart_cls.model_validate(config)
+    _layer_id, kbn_columns, kbn_state_visualization = compile_lens_xy_chart(lens_xy_chart=chart)
+
+    assert kbn_state_visualization is not None
+    layer = kbn_state_visualization.layers[0]
+    assert isinstance(layer, XYDataLayerConfig)
+    assert layer.accessors == ['static1']
+
+    static_col = kbn_columns['static1']
+    assert isinstance(static_col, KbnLensStaticValueColumn)
+    assert static_col.operationType == 'static_value'
+    assert static_col.isStaticValue is True
+    assert static_col.params.value == str(config['metrics'][0]['value'])
