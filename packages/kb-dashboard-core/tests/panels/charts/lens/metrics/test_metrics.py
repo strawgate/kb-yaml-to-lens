@@ -302,6 +302,110 @@ async def test_compile_lens_metric_standard_deviation() -> None:
     )
 
 
+async def test_compile_lens_metric_average_with_filter() -> None:
+    """Test that a per-metric KQL filter is propagated for average aggregation."""
+    result = compile_metric_snapshot({
+        'aggregation': 'average',
+        'field': 'system.cpu.total.pct',
+        'filter': {'kql': 'host.name: "web-01"'},
+    })
+    assert result == snapshot(
+        {
+            'label': 'Average of system.cpu.total.pct',
+            'dataType': 'number',
+            'operationType': 'average',
+            'sourceField': 'system.cpu.total.pct',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'filter': {'query': 'host.name: "web-01"', 'language': 'kuery'},
+            'params': {},
+        }
+    )
+
+
+async def test_compile_lens_metric_sum_with_filter() -> None:
+    """Test that a per-metric KQL filter is propagated for sum aggregation."""
+    result = compile_metric_snapshot({
+        'aggregation': 'sum',
+        'field': 'http.response.bytes',
+        'filter': {'kql': 'http.response.status_code >= 200'},
+    })
+    assert result == snapshot(
+        {
+            'label': 'Sum of http.response.bytes',
+            'dataType': 'number',
+            'operationType': 'sum',
+            'sourceField': 'http.response.bytes',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'filter': {'query': 'http.response.status_code >= 200', 'language': 'kuery'},
+            'params': {'emptyAsNull': True},
+        }
+    )
+
+
+async def test_compile_lens_metric_count_with_filter() -> None:
+    """Test that a per-metric KQL filter is propagated for count aggregation."""
+    result = compile_metric_snapshot({
+        'aggregation': 'count',
+        'filter': {'kql': 'event.outcome: "failure"'},
+    })
+    assert result == snapshot(
+        {
+            'label': 'Count of records',
+            'dataType': 'number',
+            'operationType': 'count',
+            'sourceField': '___records___',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'filter': {'query': 'event.outcome: "failure"', 'language': 'kuery'},
+            'params': {'emptyAsNull': True},
+        }
+    )
+
+
+async def test_compile_lens_metric_max_with_filter() -> None:
+    """Test that a per-metric KQL filter is propagated for max aggregation."""
+    result = compile_metric_snapshot({
+        'aggregation': 'max',
+        'field': 'system.memory.used.bytes',
+        'filter': {'kql': 'cloud.provider: "aws"'},
+    })
+    assert result == snapshot(
+        {
+            'label': 'Maximum of system.memory.used.bytes',
+            'dataType': 'number',
+            'operationType': 'max',
+            'sourceField': 'system.memory.used.bytes',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'filter': {'query': 'cloud.provider: "aws"', 'language': 'kuery'},
+            'params': {'emptyAsNull': True},
+        }
+    )
+
+
+async def test_compile_lens_metric_last_value_with_filter_overrides_implicit() -> None:
+    """Test that a user-specified filter overrides the implicit field-existence filter for last_value."""
+    result = compile_metric_snapshot({
+        'aggregation': 'last_value',
+        'field': 'host.uptime',
+        'filter': {'kql': 'host.name: "db-01"'},
+    })
+    assert result == snapshot(
+        {
+            'label': 'Last value of host.uptime',
+            'dataType': 'number',
+            'operationType': 'last_value',
+            'sourceField': 'host.uptime',
+            'isBucketed': False,
+            'scale': 'ratio',
+            'filter': {'query': 'host.name: "db-01"', 'language': 'kuery'},
+            'params': {'sortField': '@timestamp'},
+        }
+    )
+
+
 async def test_compile_esql_metric_count() -> None:
     """Test the compilation of a count ESQL metric."""
     result = compile_esql_metric_snapshot({'id': 'ac345678-90ab-cdef-1234-567890abcdef', 'field': 'count(*)'})
