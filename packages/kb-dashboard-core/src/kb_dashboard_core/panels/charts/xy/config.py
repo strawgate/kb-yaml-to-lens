@@ -23,6 +23,7 @@ type ReferenceLineIcon = Literal[
     'map_marker',
     'pin_filled',
     'star_empty',
+    'star_filled',
     'tag',
     'triangle',
 ]
