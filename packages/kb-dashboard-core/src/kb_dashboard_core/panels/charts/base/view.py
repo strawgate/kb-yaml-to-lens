@@ -88,8 +88,8 @@ class KbnLayerColorMappingSpecialAssignment(BaseVwModel):
         Related to color mapping types in Kibana Lens visualizations.
     """
 
-    rule: KbnLayerColorMappingRule = Field(...)
-    """The color mapping rule to apply."""
+    rules: list[KbnLayerColorMappingRule] = Field(...)
+    """The color mapping rules to apply."""
 
     color: KbnLayerColorMappingColor = Field(...)
     """The color assignment strategy."""

@@ -84,7 +84,7 @@ async def test_basic_mosaic_chart() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -111,7 +111,7 @@ async def test_basic_mosaic_chart() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -149,7 +149,7 @@ async def test_mosaic_chart_with_breakdown() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -187,7 +187,7 @@ async def test_mosaic_chart_with_legend_options() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -226,7 +226,7 @@ async def test_mosaic_chart_with_value_display() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -282,7 +282,7 @@ async def test_mosaic_chart_with_collapse_functions() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -434,7 +434,7 @@ async def test_mosaic_chart_with_value_decimal_places() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -461,7 +461,7 @@ async def test_mosaic_chart_with_value_decimal_places() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },

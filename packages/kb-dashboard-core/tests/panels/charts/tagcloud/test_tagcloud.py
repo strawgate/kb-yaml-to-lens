@@ -72,7 +72,7 @@ def test_basic_tagcloud_chart_lens(compile_tagcloud_chart_snapshot: CompileTagcl
             'showLabel': True,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -108,7 +108,7 @@ def test_basic_tagcloud_chart_esql(compile_tagcloud_chart_snapshot: CompileTagcl
             'showLabel': True,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -154,7 +154,7 @@ def test_tagcloud_chart_with_appearance_lens(compile_tagcloud_chart_snapshot: Co
             'showLabel': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'kibana_palette',
                 'colorMode': {'type': 'categorical'},
             },
@@ -199,7 +199,7 @@ def test_tagcloud_chart_with_appearance_esql(compile_tagcloud_chart_snapshot: Co
             'showLabel': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'kibana_palette',
                 'colorMode': {'type': 'categorical'},
             },
@@ -239,7 +239,7 @@ def test_tagcloud_right_angled_orientation_lens(compile_tagcloud_chart_snapshot:
             'showLabel': True,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -281,7 +281,7 @@ def test_tagcloud_min_max_font_sizes_lens(compile_tagcloud_chart_snapshot: Compi
             'showLabel': True,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -320,7 +320,7 @@ def test_tagcloud_show_label_false_esql(compile_tagcloud_chart_snapshot: Compile
             'showLabel': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -360,7 +360,7 @@ def test_tagcloud_partial_appearance_settings_lens(compile_tagcloud_chart_snapsh
             'showLabel': True,  # Default value
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },

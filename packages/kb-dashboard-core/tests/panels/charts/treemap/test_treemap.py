@@ -37,7 +37,7 @@ async def test_basic_treemap_chart() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -62,7 +62,7 @@ async def test_basic_treemap_chart() -> None:
             'layerType': 'data',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },

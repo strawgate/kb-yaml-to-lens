@@ -88,13 +88,15 @@
                                             "assignments": [],
                                             "specialAssignments": [
                                                 {
-                                                    "rule": {
-                                                        "type": "other"
-                                                    },
                                                     "color": {
                                                         "type": "loop"
                                                     },
-                                                    "touched": false
+                                                    "touched": false,
+                                                    "rules": [
+                                                        {
+                                                            "type": "other"
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "paletteId": "eui_amsterdam_color_blind",
@@ -225,13 +227,15 @@
                                             "assignments": [],
                                             "specialAssignments": [
                                                 {
-                                                    "rule": {
-                                                        "type": "other"
-                                                    },
                                                     "color": {
                                                         "type": "loop"
                                                     },
-                                                    "touched": false
+                                                    "touched": false,
+                                                    "rules": [
+                                                        {
+                                                            "type": "other"
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "paletteId": "eui_amsterdam_color_blind",

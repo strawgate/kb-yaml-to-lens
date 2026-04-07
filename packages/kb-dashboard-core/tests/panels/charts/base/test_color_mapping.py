@@ -31,7 +31,7 @@ class TestCompileColorValueMapping:
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 
@@ -44,7 +44,7 @@ class TestCompileColorValueMapping:
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 
@@ -73,7 +73,7 @@ class TestCompileColorValueMapping:
                         'touched': False,
                     }
                 ],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 
@@ -96,7 +96,7 @@ class TestCompileColorValueMapping:
                         'touched': False,
                     }
                 ],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 
@@ -131,7 +131,7 @@ class TestCompileColorValueMapping:
                         'touched': False,
                     },
                 ],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 
@@ -165,7 +165,7 @@ class TestCompileColorValueMapping:
                         'touched': False,
                     }
                 ],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 
@@ -178,7 +178,7 @@ class TestCompileColorValueMapping:
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
             }
         )
 

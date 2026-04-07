@@ -144,7 +144,7 @@ async def test_dashboard_with_one_pie_chart() -> None:
                                                 'colorMapping': {
                                                     'assignments': [],
                                                     'specialAssignments': [
-                                                        {'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}
+                                                        {'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}
                                                     ],
                                                     'paletteId': 'default',
                                                     'colorMode': {'type': 'categorical'},

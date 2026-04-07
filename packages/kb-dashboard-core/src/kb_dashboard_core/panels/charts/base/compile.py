@@ -197,7 +197,7 @@ def compile_color_value_mapping(color_config: ColorValueMapping | None) -> KbnLa
     # Build special assignments (fallback colors)
     special_assignments = [
         KbnLayerColorMappingSpecialAssignment(
-            rule=KbnLayerColorMappingRule(type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE),
+            rules=[KbnLayerColorMappingRule(type=KBN_DEFAULT_COLOR_MAPPING_RULE_TYPE)],
             color=KbnLayerColorMappingColor(type=KBN_DEFAULT_COLOR_MAPPING_COLOR_TYPE),
             touched=KBN_DEFAULT_COLOR_MAPPING_TOUCHED,
         )
