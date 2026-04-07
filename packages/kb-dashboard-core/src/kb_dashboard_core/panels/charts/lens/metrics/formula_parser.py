@@ -168,6 +168,7 @@ KIBANA_AGGREGATIONS = KIBANA_FIELD_AGGREGATIONS | KIBANA_FULL_REFERENCE_OPERATIO
 FORMULA_TO_OPERATION_TYPE = {
     'average': 'average',
     'avg': 'average',
+    'overall_avg': 'overall_average',
     'count': 'count',
     'counter_rate': 'counter_rate',
     'cumulative_sum': 'cumulative_sum',
