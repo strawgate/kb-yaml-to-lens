@@ -67,7 +67,7 @@ async def test_bar_stacked_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -90,7 +90,7 @@ async def test_bar_stacked_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -132,7 +132,7 @@ async def test_bar_unstacked_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -155,7 +155,7 @@ async def test_bar_unstacked_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -195,7 +195,7 @@ async def test_line_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -218,7 +218,7 @@ async def test_line_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -258,7 +258,7 @@ async def test_area_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -281,7 +281,7 @@ async def test_area_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -320,7 +320,7 @@ async def test_bar_percentage_chart() -> None:
             'showGridlines': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -342,7 +342,7 @@ async def test_bar_percentage_chart() -> None:
             'showGridlines': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -384,7 +384,7 @@ async def test_area_percentage_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -407,7 +407,7 @@ async def test_area_percentage_chart() -> None:
             'splitAccessor': 'e47fb84a-149f-42d3-b68e-d0c29c27d1f9',
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -446,7 +446,7 @@ async def test_area_unstacked_chart() -> None:
             'showGridlines': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -468,7 +468,7 @@ async def test_area_unstacked_chart() -> None:
             'showGridlines': False,
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -915,7 +915,7 @@ async def test_dual_axis_chart() -> None:
             ],
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },
@@ -971,7 +971,7 @@ async def test_styled_series_chart() -> None:
             ],
             'colorMapping': {
                 'assignments': [],
-                'specialAssignments': [{'rule': {'type': 'other'}, 'color': {'type': 'loop'}, 'touched': False}],
+                'specialAssignments': [{'rules': [{'type': 'other'}], 'color': {'type': 'loop'}, 'touched': False}],
                 'paletteId': 'eui_amsterdam_color_blind',
                 'colorMode': {'type': 'categorical'},
             },

@@ -145,12 +145,12 @@ class TestCompileDashboardPanel:
                     'hidePanelTitles': False,
                     'savedObjectId': 'search-id',
                 },
-                'panelRefName': IsStr(regex=r'[a-f0-9-]+:panel_[a-f0-9-]+'),
+                'panelRefName': IsStr(regex=r'panel_[a-f0-9-]+'),
                 'panelIndex': IsUUID,
                 'type': 'search',
             }
         )
-        assert panel_dump['panelRefName'] == f'{panel_dump["panelIndex"]}:panel_{panel_dump["panelIndex"]}'
+        assert panel_dump['panelRefName'] == f'panel_{panel_dump["panelIndex"]}'
 
         assert len(references) == 1
         assert references[0].model_dump() == {
