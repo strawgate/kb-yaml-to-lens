@@ -46,6 +46,9 @@ class KbnLensMetricFormatParams(BaseVwModel):
     pattern: Annotated[str | None, OmitIfNone()] = Field(default=None)
     """The pattern to display the number in."""
 
+    fromUnit: Annotated[str | None, OmitIfNone()] = Field(default=None)
+    """Input unit for duration formatting (nanoseconds, microseconds, milliseconds, seconds)."""
+
 
 class KbnLensMetricFormat(BaseVwModel):
     """The format of the column."""
