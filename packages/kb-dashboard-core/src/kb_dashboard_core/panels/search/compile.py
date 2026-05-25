@@ -19,7 +19,6 @@ def compile_search_panel_config(panel: SearchPanel, panel_index: str) -> tuple[l
 
     """
     panel_ref_name = f'panel_{panel_index}'
-    namespaced_panel_ref_name = f'{panel_index}:{panel_ref_name}'
     references: list[KbnReference] = [
         KbnReference(
             name=panel_ref_name,
@@ -34,4 +33,4 @@ def compile_search_panel_config(panel: SearchPanel, panel_index: str) -> tuple[l
         savedObjectId=panel.search.saved_search_id,
     )
 
-    return references, embeddable_config, namespaced_panel_ref_name
+    return references, embeddable_config, panel_ref_name
