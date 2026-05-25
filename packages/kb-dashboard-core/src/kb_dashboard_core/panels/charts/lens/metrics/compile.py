@@ -43,6 +43,7 @@ from kb_dashboard_core.panels.charts.lens.metrics.formula_parser import (
     build_tinymath_ast_with_refs,
     parse_formula,
 )
+from kb_dashboard_core.queries.compile import compile_nonesql_query
 from kb_dashboard_core.queries.view import KbnQuery
 from kb_dashboard_core.shared.defaults import default_true
 
@@ -572,6 +573,11 @@ def compile_lens_metric(metric: LensMetricTypes) -> CompiledMetricResult:
         # but kept for type safety in case new types are added
         msg = f'Unsupported metric type: {type(metric)}'  # pyright: ignore[reportUnreachable]
         raise NotImplementedError(msg)
+
+    # Compile the user's per-metric filter if specified. This overrides any
+    # implicit filter (e.g. the field-existence filter injected for last_value).
+    if metric.filter is not None:
+        metric_filter = compile_nonesql_query(metric.filter)
 
     return CompiledMetricResult(
         primary_id=metric_id,
