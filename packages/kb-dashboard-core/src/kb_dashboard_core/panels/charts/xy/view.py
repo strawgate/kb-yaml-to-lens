@@ -28,6 +28,7 @@ type KbnReferenceLineIcon = Literal[
     'mapMarker',
     'pinFilled',
     'starEmpty',
+    'starFilled',
     'tag',
     'triangle',
 ]

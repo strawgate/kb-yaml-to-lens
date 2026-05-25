@@ -59,6 +59,14 @@ class LensMetricFormat(BaseCfgModel):
     compact: bool | None = Field(default=None)
     """Whether to use compact notation (e.g., 1.2K instead of 1200). Defaults to Kibana's behavior."""
 
+    from_unit: Literal['nanoseconds', 'microseconds', 'milliseconds', 'seconds'] | None = Field(default=None)
+    """Input unit for duration formatting. Only valid when type is 'duration'.
+
+    Specifies the unit of the source field value so Kibana can convert it
+    to a human-readable duration. If not specified, Kibana defaults to
+    milliseconds. ECS fields like event.duration use nanoseconds.
+    """
+
 
 class LensCustomMetricFormat(BaseCfgModel):
     """Custom format configuration for metrics using numeral.js patterns.

@@ -74,6 +74,7 @@ REFERENCE_LINE_ICONS_TO_KIBANA: dict[ReferenceLineIcon, KbnReferenceLineIcon] = 
     'map_marker': 'mapMarker',
     'pin_filled': 'pinFilled',
     'star_empty': 'starEmpty',
+    'star_filled': 'starFilled',
     'tag': 'tag',
     'triangle': 'triangle',
 }
