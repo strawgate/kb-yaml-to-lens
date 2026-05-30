@@ -75,7 +75,6 @@ jobs:
         All standard aggregations: `count`, `sum`, `average`, `min`, `max`,
         `median`, `unique_count`, `last_value`, `percentile`, `percentile_rank`,
         `standard_deviation`, `formula`
-        - Static values via `value: N`
 
         ### Appearance (`appearance:`)
         - `min_font_size` — minimum font size in pixels (1-100, default: 12)
