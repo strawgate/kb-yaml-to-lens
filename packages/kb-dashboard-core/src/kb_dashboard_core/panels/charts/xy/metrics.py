@@ -12,6 +12,7 @@ from kb_dashboard_core.panels.charts.lens.metrics.config import (
     LensOtherAggregatedMetric,
     LensPercentileAggregatedMetric,
     LensPercentileRankAggregatedMetric,
+    LensStaticValue,
     LensSumAggregatedMetric,
 )
 from kb_dashboard_core.shared.config import BaseCfgModel
@@ -91,6 +92,14 @@ class XYLensFormulaMetric(LensFormulaMetric, XYMetricAppearance):
     """
 
 
+class XYLensStaticValue(LensStaticValue, XYMetricAppearance):
+    """XY chart static value metric with appearance options.
+
+    Extends LensStaticValue to include axis and color configuration
+    for use in XY charts.
+    """
+
+
 class XYESQLMetric(ESQLMetric, XYMetricAppearance):
     """XY chart ESQL metric with appearance options.
 
@@ -107,6 +116,7 @@ type LensXYMetricTypes = (
     | XYLensLastValueAggregatedMetric
     | XYLensPercentileRankAggregatedMetric
     | XYLensPercentileAggregatedMetric
+    | XYLensStaticValue
 )
 
 type ESQLXYMetricTypes = XYESQLMetric
