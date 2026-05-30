@@ -42,7 +42,7 @@ Requirements:
 4. Omit fields that match default values.
 5. After conversion, validate:
    - kb-dashboard compile --input-dir <yaml_dir> --output-dir <compiled_dir>
-   - kb-dashboard disassemble <compiled_dir>/output.ndjson -o <compiled_disassembled_dir>
+   - kb-dashboard disassemble <compiled_dir>/compiled_dashboards.ndjson -o <compiled_disassembled_dir>
    - kb-dashboard disassemble original.ndjson -o <original_disassembled_dir>
    - kb-dashboard compare <original_disassembled_dir> <compiled_disassembled_dir>
 6. Summarize any mismatches found during validation.
@@ -407,7 +407,7 @@ For thorough validation, use this round-trip workflow to verify the compiled out
    kb-dashboard disassemble original.ndjson -o /tmp/original_disassembled/
 
    # Disassemble compiled
-   kb-dashboard disassemble /tmp/compiled/output.ndjson -o /tmp/compiled_disassembled/
+   kb-dashboard disassemble /tmp/compiled/compiled_dashboards.ndjson -o /tmp/compiled_disassembled/
    ```
 
 3. **Compare panel structures:**
