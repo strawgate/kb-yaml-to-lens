@@ -138,7 +138,7 @@ jobs:
 
         ## Creative exploration
         - ES|QL bar chart with `STATS count = COUNT() BY host.name`
-        - ES|QL line chart with `EVAL bucket = BUCKET(@timestamp, 1 hour)`
+        - ES|QL line chart with `STATS count = COUNT(*) BY bucket = BUCKET(@timestamp, 20, ?_tstart, ?_tend)`
           for date histogram, with `data_type: date` on dimension
         - ES|QL area chart with percentage mode + 3 breakdown categories
         - Dual-axis: bytes on left, count on right from same query
